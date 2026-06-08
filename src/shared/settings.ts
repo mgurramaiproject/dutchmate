@@ -27,3 +27,29 @@ export async function readSettings(): Promise<ExtensionSettings> {
 function getStringSetting(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;
 }
+
+export function validateProviderEndpoint(endpoint: string): string | null {
+  if (!endpoint) {
+    return null;
+  }
+
+  let url: URL;
+  try {
+    url = new URL(endpoint);
+  } catch {
+    return "Enter a valid provider endpoint URL.";
+  }
+
+  if (url.protocol === "https:") {
+    return null;
+  }
+
+  if (
+    url.protocol === "http:" &&
+    (url.hostname === "localhost" || url.hostname === "127.0.0.1")
+  ) {
+    return null;
+  }
+
+  return "Use HTTPS, or localhost HTTP for local development.";
+}

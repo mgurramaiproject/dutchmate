@@ -63,3 +63,7 @@ button {
   color: #166534;
   font-size: 14px;
 }
+
+#status[data-tone="error"] {
+  color: #b91c1c;
+}

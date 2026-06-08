@@ -84,9 +84,46 @@ Expected result:
 
 - The placeholder tooltip shows the selected language code.
 
+## Custom Endpoint
+
+Provider endpoint rules:
+
+- Empty endpoint is allowed and uses placeholder translation.
+- `https://...` endpoints are allowed.
+- `http://localhost...` and `http://127.0.0.1...` are allowed for local development.
+- Other `http://...` endpoints are rejected.
+
+Request contract:
+
+```http
+POST <providerEndpoint>
+Content-Type: application/json
+Authorization: Bearer <apiKey>
+```
+
+The `Authorization` header is sent only when the API key field is not blank.
+
+Request body:
+
+```json
+{
+  "text": "bonjour",
+  "sourceLanguage": "auto",
+  "targetLanguage": "en",
+  "context": "hover"
+}
+```
+
+Expected response:
+
+```json
+{
+  "translatedText": "hello"
+}
+```
+
 ## Current MVP Limits
 
-- Translation is still placeholder text.
-- Provider endpoint and API key are saved for future use but not called yet.
+- Translation uses placeholder text until a provider endpoint is configured.
 - Hover translation only detects one word at a time.
 - Selection text is capped to keep the MVP lightweight.

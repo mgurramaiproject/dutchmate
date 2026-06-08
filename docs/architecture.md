@@ -7,11 +7,54 @@ Hover Translate is kept small on purpose:
 - Translation logic lives behind `TranslationProvider`, so future API providers do not need to change DOM interaction code.
 - Browser-specific differences are handled at build output time by generating separate `manifest.json` files for Chrome and Firefox.
 
+## Translation Flow
+
+```text
+webpage hover/selection
+-> content script
+-> background worker
+-> placeholder provider or configured JSON endpoint
+-> tooltip
+```
+
+The background worker reads provider settings from extension storage. If no provider endpoint is configured, it returns the placeholder translation so the extension remains testable.
+
+When an endpoint is configured, the worker sends:
+
+```http
+POST <providerEndpoint>
+Content-Type: application/json
+Authorization: Bearer <apiKey>
+```
+
+The `Authorization` header is omitted when the API key is blank.
+
+Request body:
+
+```json
+{
+  "text": "bonjour",
+  "sourceLanguage": "auto",
+  "targetLanguage": "en",
+  "context": "hover"
+}
+```
+
+Expected response:
+
+```json
+{
+  "translatedText": "hello"
+}
+```
+
+The worker keeps a small in-memory cache of successful translations keyed by target language, context, and text.
+
 ## Manifest Strategy
 
-Both builds use Manifest V3. The current MVP does not need a background worker because placeholder translation runs directly inside the content script and settings are handled by the Options page.
+Both builds use Manifest V3. The background worker owns provider calls so the content script can stay focused on webpage interaction and tooltip rendering.
 
-If a future provider requires background-only work, add it as a small service worker for Chrome and verify the Firefox MV3 background behavior separately.
+Chrome uses `background.service_worker`. Firefox currently uses `background.scripts`, so the manifest generator emits browser-specific background declarations.
 
 ## Performance Notes
 
@@ -19,4 +62,3 @@ If a future provider requires background-only work, add it as a small service wo
 - Hover detection only translates one word at a time.
 - Selection translation caps text length for the MVP.
 - No UI framework is used in the content script or Options page.
-

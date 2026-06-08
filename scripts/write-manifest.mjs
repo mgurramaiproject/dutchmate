@@ -16,6 +16,7 @@ const manifest = {
   version: "0.1.0",
   description: "Translate hovered words or selected text with a lightweight tooltip.",
   permissions: ["storage"],
+  host_permissions: ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"],
   background:
     target === "firefox"
       ? {

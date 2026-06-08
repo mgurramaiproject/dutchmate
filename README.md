@@ -13,6 +13,7 @@ This first scaffold intentionally uses placeholder translation only. The goal is
 - `webextension-polyfill` for cross-browser extension APIs
 - Content script tooltip for hover and selection
 - Options page shell for target language and future provider settings
+- Optional custom JSON translation endpoint
 
 ## Commands
 
@@ -46,6 +47,18 @@ Build outputs:
 
 See [docs/manual-testing.md](docs/manual-testing.md) for the full local testing checklist.
 
+## Custom Endpoint
+
+The extension can call a custom JSON translation endpoint configured from Options. If the endpoint is blank, it uses placeholder translation.
+
+Endpoint requirements:
+
+- `https://...`
+- `http://localhost...`
+- `http://127.0.0.1...`
+
+See [docs/architecture.md](docs/architecture.md) for the request and response contract.
+
 ## Project Structure
 
 ```text
@@ -59,4 +72,4 @@ prompts/           Reusable project prompts
 
 ## Next Steps
 
-The next development step should add a real configurable translation provider behind the existing `TranslationProvider` interface.
+The next development step should add a tiny local test server or mock endpoint so the custom provider flow can be tested end to end.

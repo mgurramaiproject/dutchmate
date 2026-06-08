@@ -1,5 +1,10 @@
 import browser from "webextension-polyfill";
-import { defaultSettings, readSettings, type ExtensionSettings } from "../shared/settings";
+import {
+  defaultSettings,
+  readSettings,
+  validateProviderEndpoint,
+  type ExtensionSettings,
+} from "../shared/settings";
 import "./styles.css";
 
 const form = document.querySelector<HTMLFormElement>("#options-form");
@@ -32,23 +37,34 @@ async function restoreSettings(): Promise<void> {
 }
 
 async function saveSettings(): Promise<void> {
+  const endpoint = providerEndpoint?.value.trim() || "";
+  const endpointError = validateProviderEndpoint(endpoint);
+
+  if (endpointError) {
+    showStatus(endpointError, "error");
+    providerEndpoint?.focus();
+    return;
+  }
+
   const settings: ExtensionSettings = {
     targetLanguage: targetLanguage?.value || defaultSettings.targetLanguage,
-    providerEndpoint: providerEndpoint?.value.trim() || "",
+    providerEndpoint: endpoint,
     providerApiKey: providerApiKey?.value.trim() || "",
   };
 
   await browser.storage.sync.set(settings);
-  showStatus("Saved");
+  showStatus("Saved", "success");
 }
 
-function showStatus(message: string): void {
+function showStatus(message: string, tone: "success" | "error"): void {
   if (!status) {
     return;
   }
 
+  status.dataset.tone = tone;
   status.textContent = message;
   window.setTimeout(() => {
     status.textContent = "";
+    delete status.dataset.tone;
   }, 1800);
 }
