@@ -16,9 +16,14 @@ const manifest = {
   version: "0.1.0",
   description: "Translate hovered words or selected text with a lightweight tooltip.",
   permissions: ["storage"],
-  background: {
-    service_worker: "assets/background.js",
-  },
+  background:
+    target === "firefox"
+      ? {
+          scripts: ["assets/background.js"],
+        }
+      : {
+          service_worker: "assets/background.js",
+        },
   content_scripts: [
     {
       matches: ["<all_urls>"],
