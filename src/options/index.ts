@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import { defaultSettings, type ExtensionSettings } from "../shared/settings";
+import { defaultSettings, readSettings, type ExtensionSettings } from "../shared/settings";
 import "./styles.css";
 
 const form = document.querySelector<HTMLFormElement>("#options-form");
@@ -16,8 +16,7 @@ form?.addEventListener("submit", (event) => {
 });
 
 async function restoreSettings(): Promise<void> {
-  const stored = await browser.storage.sync.get(defaultSettings);
-  const settings = stored as ExtensionSettings;
+  const settings = await readSettings();
 
   if (targetLanguage) {
     targetLanguage.value = settings.targetLanguage;
@@ -53,4 +52,3 @@ function showStatus(message: string): void {
     status.textContent = "";
   }, 1800);
 }
-

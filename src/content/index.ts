@@ -4,12 +4,49 @@ const HOVER_DELAY_MS = 450;
 const MIN_TEXT_LENGTH = 1;
 const MAX_HOVER_WORD_LENGTH = 48;
 const MAX_SELECTION_LENGTH = 600;
-const DEFAULT_TARGET_LANGUAGE = "en";
+const defaultSettings: ExtensionSettings = {
+  targetLanguage: "en",
+  providerEndpoint: "",
+  providerApiKey: "",
+};
+
+type ExtensionSettings = {
+  targetLanguage: string;
+  providerEndpoint: string;
+  providerApiKey: string;
+};
+
+type StorageChange = {
+  newValue?: unknown;
+};
+
+type ExtensionStorageApi = {
+  storage: {
+    sync: {
+      get(defaults: ExtensionSettings, callback: (settings: Partial<ExtensionSettings>) => void): void;
+    };
+    onChanged: {
+      addListener(
+        callback: (changes: Record<string, StorageChange>, areaName: string) => void,
+      ): void;
+    };
+  };
+  runtime: {
+    lastError?: { message?: string };
+  };
+};
+
+const extensionGlobal = globalThis as typeof globalThis & {
+  browser?: ExtensionStorageApi;
+  chrome?: ExtensionStorageApi;
+};
+const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
 
 const provider = new PlaceholderTranslationProvider();
 
 let hoverTimer: number | undefined;
 let lastHoverKey = "";
+let currentSettings = defaultSettings;
 
 const tooltip = document.createElement("div");
 tooltip.id = "hover-translate-tooltip";
@@ -40,6 +77,9 @@ document.addEventListener("mousemove", handleMouseMove, { passive: true });
 document.addEventListener("mouseleave", hideTooltip, { passive: true });
 document.addEventListener("mouseup", handleSelection, { passive: true });
 document.addEventListener("scroll", hideTooltip, { passive: true });
+extensionApi?.storage.onChanged.addListener(handleStorageChanged);
+
+void refreshSettings();
 
 function handleMouseMove(event: MouseEvent): void {
   window.clearTimeout(hoverTimer);
@@ -90,7 +130,7 @@ async function showPlaceholderTranslation(
   const result = await provider.translate({
     text,
     sourceLanguage: "auto",
-    targetLanguage: DEFAULT_TARGET_LANGUAGE,
+    targetLanguage: currentSettings.targetLanguage,
     context,
   });
 
@@ -192,4 +232,60 @@ function getWordBounds(text: string, offset: number): { word: string; start: num
   }
 
   return null;
+}
+
+async function refreshSettings(): Promise<void> {
+  currentSettings = await readSettings();
+}
+
+function handleStorageChanged(changes: Record<string, StorageChange>, areaName: string): void {
+  if (areaName !== "sync") {
+    return;
+  }
+
+  currentSettings = {
+    ...currentSettings,
+    ...settingChangesToPartialSettings(changes),
+  };
+}
+
+function settingChangesToPartialSettings(
+  changes: Record<string, StorageChange>,
+): Partial<ExtensionSettings> {
+  const updatedSettings: Partial<ExtensionSettings> = {};
+
+  for (const key of Object.keys(defaultSettings) as Array<keyof ExtensionSettings>) {
+    const newValue = changes[key]?.newValue;
+
+    if (typeof newValue === "string") {
+      updatedSettings[key] = newValue;
+    }
+  }
+
+  return updatedSettings;
+}
+
+async function readSettings(): Promise<ExtensionSettings> {
+  if (!extensionApi) {
+    return defaultSettings;
+  }
+
+  return new Promise((resolve) => {
+    extensionApi.storage.sync.get(defaultSettings, (stored) => {
+      if (extensionApi.runtime.lastError) {
+        resolve(defaultSettings);
+        return;
+      }
+
+      resolve({
+        targetLanguage: getStringSetting(stored.targetLanguage, defaultSettings.targetLanguage),
+        providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
+        providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
+      });
+    });
+  });
+}
+
+function getStringSetting(value: unknown, fallback: string): string {
+  return typeof value === "string" ? value : fallback;
 }
