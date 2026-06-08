@@ -1,9 +1,8 @@
-import { PlaceholderTranslationProvider } from "../translation/provider";
-
 const HOVER_DELAY_MS = 450;
 const MIN_TEXT_LENGTH = 1;
 const MAX_HOVER_WORD_LENGTH = 48;
 const MAX_SELECTION_LENGTH = 600;
+const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 const defaultSettings: ExtensionSettings = {
   targetLanguage: "en",
   providerEndpoint: "",
@@ -20,6 +19,21 @@ type StorageChange = {
   newValue?: unknown;
 };
 
+type TranslationContext = "hover" | "selection";
+
+type TranslateMessageResponse =
+  | {
+      ok: true;
+      result: {
+        translatedText: string;
+        providerName: string;
+      };
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
 type ExtensionStorageApi = {
   storage: {
     sync: {
@@ -33,6 +47,10 @@ type ExtensionStorageApi = {
   };
   runtime: {
     lastError?: { message?: string };
+    sendMessage(
+      message: unknown,
+      callback: (response?: TranslateMessageResponse) => void,
+    ): void;
   };
 };
 
@@ -41,8 +59,6 @@ const extensionGlobal = globalThis as typeof globalThis & {
   chrome?: ExtensionStorageApi;
 };
 const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
-
-const provider = new PlaceholderTranslationProvider();
 
 let hoverTimer: number | undefined;
 let lastHoverKey = "";
@@ -98,7 +114,7 @@ function handleMouseMove(event: MouseEvent): void {
     }
 
     lastHoverKey = hoverKey;
-    showPlaceholderTranslation(hit.word, "hover", hit.x, hit.y);
+    showTranslation(hit.word, "hover", hit.x, hit.y);
   }, HOVER_DELAY_MS);
 }
 
@@ -118,25 +134,23 @@ function handleSelection(): void {
   }
 
   const rect = selection.getRangeAt(0).getBoundingClientRect();
-  showPlaceholderTranslation(selectedText, "selection", rect.left, rect.bottom);
+  showTranslation(selectedText, "selection", rect.left, rect.bottom);
 }
 
-async function showPlaceholderTranslation(
+async function showTranslation(
   text: string,
-  context: "hover" | "selection",
+  context: TranslationContext,
   x: number,
   y: number,
 ): Promise<void> {
-  const result = await provider.translate({
-    text,
-    sourceLanguage: "auto",
-    targetLanguage: currentSettings.targetLanguage,
-    context,
-  });
-
-  tooltip.textContent = result.translatedText;
+  tooltip.textContent = "Translating...";
   positionTooltip(x, y);
   tooltip.hidden = false;
+
+  const response = await requestTranslation(text, context);
+
+  tooltip.textContent = response.ok ? response.result.translatedText : response.error;
+  positionTooltip(x, y);
 }
 
 function positionTooltip(x: number, y: number): void {
@@ -288,4 +302,41 @@ async function readSettings(): Promise<ExtensionSettings> {
 
 function getStringSetting(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;
+}
+
+async function requestTranslation(
+  text: string,
+  context: TranslationContext,
+): Promise<TranslateMessageResponse> {
+  if (!extensionApi) {
+    return {
+      ok: false,
+      error: "Extension runtime is unavailable.",
+    };
+  }
+
+  return new Promise((resolve) => {
+    extensionApi.runtime.sendMessage(
+      {
+        type: TRANSLATE_MESSAGE,
+        payload: {
+          text,
+          sourceLanguage: "auto",
+          targetLanguage: currentSettings.targetLanguage,
+          context,
+        },
+      },
+      (response) => {
+        if (extensionApi.runtime.lastError) {
+          resolve({
+            ok: false,
+            error: extensionApi.runtime.lastError.message ?? "Translation request failed.",
+          });
+          return;
+        }
+
+        resolve(response ?? { ok: false, error: "No translation response received." });
+      },
+    );
+  });
 }
