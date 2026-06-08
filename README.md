@@ -17,11 +17,11 @@ This first scaffold intentionally uses placeholder translation only. The goal is
 ## Commands
 
 ```bash
-pnpm install
-pnpm typecheck
-pnpm build
-pnpm build:chrome
-pnpm build:firefox
+corepack pnpm install
+corepack pnpm typecheck
+corepack pnpm build
+corepack pnpm build:chrome
+corepack pnpm build:firefox
 ```
 
 Build outputs:
@@ -31,11 +31,20 @@ Build outputs:
 
 ## Load In Chrome
 
-1. Run `pnpm build:chrome`.
+1. Run `corepack pnpm build:chrome`.
 2. Open `chrome://extensions`.
 3. Enable Developer mode.
 4. Choose "Load unpacked".
 5. Select `dist/chrome`.
+
+## Load In Firefox
+
+1. Run `corepack pnpm build:firefox`.
+2. Open `about:debugging#/runtime/this-firefox`.
+3. Choose "Load Temporary Add-on...".
+4. Select `dist/firefox/manifest.json`.
+
+See [docs/manual-testing.md](docs/manual-testing.md) for the full local testing checklist.
 
 ## Project Structure
 
@@ -50,5 +59,4 @@ prompts/           Reusable project prompts
 
 ## Next Steps
 
-The next development step should wire content script settings reads so the tooltip uses the saved target language. A later step can add a real provider implementation behind the existing `TranslationProvider` interface.
-
+The next development step should add a real configurable translation provider behind the existing `TranslationProvider` interface.
