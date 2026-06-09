@@ -122,6 +122,36 @@ Expected response:
 }
 ```
 
+### Local Mock Endpoint
+
+Run the mock server:
+
+```bash
+corepack pnpm mock:translate
+```
+
+It listens at:
+
+```text
+http://localhost:8787/translate
+```
+
+In extension Options:
+
+1. Set Provider endpoint to `http://localhost:8787/translate`.
+2. Leave Provider API key blank.
+3. Click "Save".
+4. Return to a normal webpage.
+5. Hover a word or select text.
+
+Expected result:
+
+```text
+[mock en] <hovered or selected text>
+```
+
+You can stop the mock server with `Ctrl+C`.
+
 ## Current MVP Limits
 
 - Translation uses placeholder text until a provider endpoint is configured.

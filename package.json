@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "build:chrome": "tsc --noEmit && vite build --mode chrome && node scripts/write-manifest.mjs chrome",
     "build:firefox": "tsc --noEmit && vite build --mode firefox && node scripts/write-manifest.mjs firefox",
-    "build": "npm run build:chrome && npm run build:firefox"
+    "build": "npm run build:chrome && npm run build:firefox",
+    "mock:translate": "node scripts/mock-translate-server.mjs"
   },
   "keywords": [
     "browser-extension",

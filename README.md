@@ -23,6 +23,7 @@ corepack pnpm typecheck
 corepack pnpm build
 corepack pnpm build:chrome
 corepack pnpm build:firefox
+corepack pnpm mock:translate
 ```
 
 Build outputs:
@@ -59,6 +60,18 @@ Endpoint requirements:
 
 See [docs/architecture.md](docs/architecture.md) for the request and response contract.
 
+For local testing, run:
+
+```bash
+corepack pnpm mock:translate
+```
+
+Then configure this endpoint in Options:
+
+```text
+http://localhost:8787/translate
+```
+
 ## Project Structure
 
 ```text
@@ -72,4 +85,4 @@ prompts/           Reusable project prompts
 
 ## Next Steps
 
-The next development step should add a tiny local test server or mock endpoint so the custom provider flow can be tested end to end.
+The next development step should improve the tooltip state handling for loading, errors, and repeated hover requests.
