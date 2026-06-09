@@ -101,17 +101,15 @@ Expected result:
 
 Tuning controls:
 
-1. Set "Hover delay" to `150`, save, then hover a word.
-2. Set "Hover delay" to `1500`, save, then hover a word.
-3. Set "Max selected text length" to `50`, save, then select a long sentence.
-4. Try invalid values such as `10` for hover delay or `5000` for max selected text length.
+1. Drag "Hover delay" to `150 ms`, save, then hover a word.
+2. Drag "Hover delay" to `1500 ms`, save, then hover a word.
+3. Drag "Max selected text length" to `50 chars`, save, then select a long sentence.
 
 Expected result:
 
 - A lower hover delay shows the tooltip sooner.
 - A higher hover delay waits longer before showing the tooltip.
 - Long selections above the configured limit do not translate.
-- Invalid values show a clear Options error and are not saved.
 
 ## Custom Endpoint
 

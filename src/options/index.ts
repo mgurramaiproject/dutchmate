@@ -15,6 +15,8 @@ const translateOnHover = document.querySelector<HTMLInputElement>("#translate-on
 const translateOnSelection = document.querySelector<HTMLInputElement>("#translate-on-selection");
 const hoverDelayMs = document.querySelector<HTMLInputElement>("#hover-delay-ms");
 const maxSelectionLength = document.querySelector<HTMLInputElement>("#max-selection-length");
+const hoverDelayValue = document.querySelector<HTMLOutputElement>("#hover-delay-value");
+const maxSelectionLengthValue = document.querySelector<HTMLOutputElement>("#max-selection-length-value");
 const targetLanguage = document.querySelector<HTMLSelectElement>("#target-language");
 const providerEndpoint = document.querySelector<HTMLInputElement>("#provider-endpoint");
 const providerApiKey = document.querySelector<HTMLInputElement>("#provider-api-key");
@@ -32,6 +34,9 @@ form?.addEventListener("submit", (event) => {
 testEndpoint?.addEventListener("click", () => {
   void testProviderEndpoint();
 });
+
+hoverDelayMs?.addEventListener("input", updateTuningValueLabels);
+maxSelectionLength?.addEventListener("input", updateTuningValueLabels);
 
 async function restoreSettings(): Promise<void> {
   const settings = await readSettings();
@@ -59,6 +64,8 @@ async function restoreSettings(): Promise<void> {
   if (maxSelectionLength) {
     maxSelectionLength.value = settings.maxSelectionLength.toString();
   }
+
+  updateTuningValueLabels();
 
   if (providerEndpoint) {
     providerEndpoint.value = settings.providerEndpoint;
@@ -119,6 +126,19 @@ function readNumberInput(input: HTMLInputElement | null, fallback: number): numb
   }
 
   return Number(input.value);
+}
+
+function updateTuningValueLabels(): void {
+  if (hoverDelayValue) {
+    hoverDelayValue.value = `${readNumberInput(hoverDelayMs, defaultSettings.hoverDelayMs)} ms`;
+  }
+
+  if (maxSelectionLengthValue) {
+    maxSelectionLengthValue.value = `${readNumberInput(
+      maxSelectionLength,
+      defaultSettings.maxSelectionLength,
+    )} chars`;
+  }
 }
 
 async function testProviderEndpoint(): Promise<void> {

@@ -55,6 +55,23 @@ label {
   font-weight: 500;
 }
 
+.range-label {
+  gap: 8px;
+}
+
+.range-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+output {
+  color: #1f2937;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
 input,
 select {
   min-height: 40px;
@@ -71,6 +88,14 @@ input[type="checkbox"] {
   min-height: 16px;
   margin: 0;
   padding: 0;
+}
+
+input[type="range"] {
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  accent-color: #2563eb;
 }
 
 .form-actions {
