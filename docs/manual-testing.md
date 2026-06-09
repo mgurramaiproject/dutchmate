@@ -142,9 +142,11 @@ In extension Options:
 
 1. Set Provider endpoint to `http://localhost:8787/translate`.
 2. Leave Provider API key blank.
-3. Click "Save".
-4. Return to a normal webpage.
-5. Hover a word or select text.
+3. Click "Test endpoint".
+4. Confirm the page shows `Endpoint OK: [mock en] bonjour`.
+5. Click "Save".
+6. Return to a normal webpage.
+7. Hover a word or select text.
 
 Expected result:
 
@@ -156,12 +158,12 @@ Error test:
 
 1. Keep the endpoint configured.
 2. Stop the mock server with `Ctrl+C`.
-3. Hover or select text again.
+3. Click "Test endpoint" in Options, or hover/select text on a webpage.
 
 Expected result:
 
-- The tooltip briefly shows a loading state.
-- The tooltip then shows a clear translation failure message.
+- Options shows a clear test failure message.
+- The tooltip briefly shows a loading state, then a clear translation failure message.
 
 You can stop the mock server with `Ctrl+C`.
 
