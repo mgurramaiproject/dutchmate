@@ -86,6 +86,19 @@ Expected result:
 
 - The placeholder tooltip shows the selected language code.
 
+Behavior toggles:
+
+1. Turn off "Translate on hover", save, then hover a word.
+2. Select text.
+3. Turn "Translate on hover" back on, turn off "Translate selected text", save, then repeat both actions.
+4. Turn off "Enable extension", save, then repeat both actions.
+
+Expected result:
+
+- Hover does nothing when hover translation is off.
+- Selection does nothing when selected-text translation is off.
+- Both hover and selection do nothing when the extension is disabled.
+
 ## Custom Endpoint
 
 Provider endpoint rules:

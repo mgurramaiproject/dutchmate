@@ -11,6 +11,25 @@
       <h1>Hover Translate</h1>
 
       <form id="options-form">
+        <fieldset>
+          <legend>Behavior</legend>
+
+          <label class="checkbox-label">
+            <input id="is-enabled" name="isEnabled" type="checkbox" />
+            Enable extension
+          </label>
+
+          <label class="checkbox-label">
+            <input id="translate-on-hover" name="translateOnHover" type="checkbox" />
+            Translate on hover
+          </label>
+
+          <label class="checkbox-label">
+            <input id="translate-on-selection" name="translateOnSelection" type="checkbox" />
+            Translate selected text
+          </label>
+        </fieldset>
+
         <label>
           Target language
           <select id="target-language" name="targetLanguage">

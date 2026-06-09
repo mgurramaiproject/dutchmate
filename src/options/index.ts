@@ -8,6 +8,9 @@ import {
 import "./styles.css";
 
 const form = document.querySelector<HTMLFormElement>("#options-form");
+const isEnabled = document.querySelector<HTMLInputElement>("#is-enabled");
+const translateOnHover = document.querySelector<HTMLInputElement>("#translate-on-hover");
+const translateOnSelection = document.querySelector<HTMLInputElement>("#translate-on-selection");
 const targetLanguage = document.querySelector<HTMLSelectElement>("#target-language");
 const providerEndpoint = document.querySelector<HTMLInputElement>("#provider-endpoint");
 const providerApiKey = document.querySelector<HTMLInputElement>("#provider-api-key");
@@ -33,6 +36,18 @@ async function restoreSettings(): Promise<void> {
     targetLanguage.value = settings.targetLanguage;
   }
 
+  if (isEnabled) {
+    isEnabled.checked = settings.isEnabled;
+  }
+
+  if (translateOnHover) {
+    translateOnHover.checked = settings.translateOnHover;
+  }
+
+  if (translateOnSelection) {
+    translateOnSelection.checked = settings.translateOnSelection;
+  }
+
   if (providerEndpoint) {
     providerEndpoint.value = settings.providerEndpoint;
   }
@@ -53,6 +68,9 @@ async function saveSettings(): Promise<void> {
   }
 
   const settings: ExtensionSettings = {
+    isEnabled: isEnabled?.checked ?? defaultSettings.isEnabled,
+    translateOnHover: translateOnHover?.checked ?? defaultSettings.translateOnHover,
+    translateOnSelection: translateOnSelection?.checked ?? defaultSettings.translateOnSelection,
     targetLanguage: targetLanguage?.value || defaultSettings.targetLanguage,
     providerEndpoint: endpoint,
     providerApiKey: providerApiKey?.value.trim() || "",

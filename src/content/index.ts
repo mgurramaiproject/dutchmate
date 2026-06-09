@@ -4,12 +4,18 @@ const MAX_HOVER_WORD_LENGTH = 48;
 const MAX_SELECTION_LENGTH = 600;
 const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 const defaultSettings: ExtensionSettings = {
+  isEnabled: true,
+  translateOnHover: true,
+  translateOnSelection: true,
   targetLanguage: "en",
   providerEndpoint: "",
   providerApiKey: "",
 };
 
 type ExtensionSettings = {
+  isEnabled: boolean;
+  translateOnHover: boolean;
+  translateOnSelection: boolean;
   targetLanguage: string;
   providerEndpoint: string;
   providerApiKey: string;
@@ -111,6 +117,11 @@ void refreshSettings();
 function handleMouseMove(event: MouseEvent): void {
   window.clearTimeout(hoverTimer);
 
+  if (!currentSettings.isEnabled || !currentSettings.translateOnHover) {
+    hideTooltip();
+    return;
+  }
+
   hoverTimer = window.setTimeout(() => {
     const hit = getWordAtPoint(event.clientX, event.clientY);
 
@@ -131,6 +142,10 @@ function handleMouseMove(event: MouseEvent): void {
 
 function handleSelection(): void {
   window.clearTimeout(hoverTimer);
+
+  if (!currentSettings.isEnabled || !currentSettings.translateOnSelection) {
+    return;
+  }
 
   const selection = window.getSelection();
   const selectedText = selection?.toString().trim() ?? "";
@@ -290,22 +305,23 @@ function handleStorageChanged(changes: Record<string, StorageChange>, areaName: 
     ...currentSettings,
     ...settingChangesToPartialSettings(changes),
   };
+
+  if (!currentSettings.isEnabled) {
+    hideTooltip();
+  }
 }
 
 function settingChangesToPartialSettings(
   changes: Record<string, StorageChange>,
 ): Partial<ExtensionSettings> {
-  const updatedSettings: Partial<ExtensionSettings> = {};
-
-  for (const key of Object.keys(defaultSettings) as Array<keyof ExtensionSettings>) {
-    const newValue = changes[key]?.newValue;
-
-    if (typeof newValue === "string") {
-      updatedSettings[key] = newValue;
-    }
-  }
-
-  return updatedSettings;
+  return {
+    isEnabled: getOptionalBooleanSetting(changes.isEnabled?.newValue),
+    translateOnHover: getOptionalBooleanSetting(changes.translateOnHover?.newValue),
+    translateOnSelection: getOptionalBooleanSetting(changes.translateOnSelection?.newValue),
+    targetLanguage: getOptionalStringSetting(changes.targetLanguage?.newValue),
+    providerEndpoint: getOptionalStringSetting(changes.providerEndpoint?.newValue),
+    providerApiKey: getOptionalStringSetting(changes.providerApiKey?.newValue),
+  };
 }
 
 async function readSettings(): Promise<ExtensionSettings> {
@@ -321,6 +337,12 @@ async function readSettings(): Promise<ExtensionSettings> {
       }
 
       resolve({
+        isEnabled: getBooleanSetting(stored.isEnabled, defaultSettings.isEnabled),
+        translateOnHover: getBooleanSetting(stored.translateOnHover, defaultSettings.translateOnHover),
+        translateOnSelection: getBooleanSetting(
+          stored.translateOnSelection,
+          defaultSettings.translateOnSelection,
+        ),
         targetLanguage: getStringSetting(stored.targetLanguage, defaultSettings.targetLanguage),
         providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
         providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
@@ -331,6 +353,18 @@ async function readSettings(): Promise<ExtensionSettings> {
 
 function getStringSetting(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;
+}
+
+function getBooleanSetting(value: unknown, fallback: boolean): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function getOptionalStringSetting(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function getOptionalBooleanSetting(value: unknown): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
 }
 
 async function requestTranslation(
