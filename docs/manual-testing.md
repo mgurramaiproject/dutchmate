@@ -31,6 +31,7 @@ Expected result:
 - Selecting text shows the same tooltip near the selection.
 - Changing the target language in Options changes the language code shown in the tooltip.
 - Moving quickly between words should not show an older translation after a newer hover starts.
+- Selecting text while the pointer rests over a word should show the selected-text translation, not the hovered word.
 - Pressing `Esc`, clicking the page, or scrolling hides the tooltip.
 - A selection tooltip stays visible when the mouse leaves the page area.
 
@@ -56,6 +57,7 @@ Expected result:
 - Selecting text shows the same tooltip near the selection.
 - Changing the target language in Options changes the language code shown in the tooltip.
 - Moving quickly between words should not show an older translation after a newer hover starts.
+- Selecting text while the pointer rests over a word should show the selected-text translation, not the hovered word.
 - Pressing `Esc`, clicking the page, or scrolling hides the tooltip.
 - A selection tooltip stays visible when the mouse leaves the page area.
 

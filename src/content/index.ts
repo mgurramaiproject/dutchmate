@@ -73,6 +73,7 @@ let hoverTimer: number | undefined;
 let lastHoverKey = "";
 let activeRequestId = 0;
 let activeTooltipContext: TranslationContext | null = null;
+let activeSelectionText = "";
 let currentSettings = defaultSettings;
 
 const tooltip = document.createElement("div");
@@ -113,8 +114,8 @@ document.documentElement.append(style, tooltip);
 document.addEventListener("mousemove", handleMouseMove, { passive: true });
 document.addEventListener("mouseleave", handleMouseLeave, { passive: true });
 document.addEventListener("mouseup", handleSelection, { passive: true });
-document.addEventListener("scroll", hideTooltip, { passive: true });
-document.addEventListener("click", hideTooltip, { passive: true });
+document.addEventListener("scroll", clearSelectionAndHideTooltip, { passive: true });
+document.addEventListener("click", handlePageClick, { passive: true });
 document.addEventListener("keydown", handleKeyDown);
 extensionApi?.storage.onChanged.addListener(handleStorageChanged);
 
@@ -129,6 +130,10 @@ function handleMouseMove(event: MouseEvent): void {
   }
 
   hoverTimer = window.setTimeout(() => {
+    if (hasActiveSelection()) {
+      return;
+    }
+
     const hit = getWordAtPoint(event.clientX, event.clientY);
 
     if (!hit) {
@@ -165,6 +170,7 @@ function handleSelection(): void {
     return;
   }
 
+  activeSelectionText = selectedText;
   const rect = selection.getRangeAt(0).getBoundingClientRect();
   showTranslation(selectedText, "selection", rect.left, rect.bottom);
 }
@@ -238,6 +244,19 @@ function hideTooltip(): void {
   lastHoverKey = "";
 }
 
+function clearSelectionAndHideTooltip(): void {
+  activeSelectionText = "";
+  hideTooltip();
+}
+
+function handlePageClick(): void {
+  if (hasActiveSelection()) {
+    return;
+  }
+
+  clearSelectionAndHideTooltip();
+}
+
 function handleMouseLeave(): void {
   if (activeTooltipContext === "selection") {
     return;
@@ -248,8 +267,19 @@ function handleMouseLeave(): void {
 
 function handleKeyDown(event: KeyboardEvent): void {
   if (event.key === "Escape") {
-    hideTooltip();
+    clearSelectionAndHideTooltip();
   }
+}
+
+function hasActiveSelection(): boolean {
+  const selectedText = window.getSelection()?.toString().trim() ?? "";
+
+  if (!selectedText) {
+    activeSelectionText = "";
+    return false;
+  }
+
+  return selectedText === activeSelectionText || activeTooltipContext === "selection";
 }
 
 function getWordAtPoint(clientX: number, clientY: number): { word: string; x: number; y: number } | null {
