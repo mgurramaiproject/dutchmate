@@ -62,6 +62,7 @@ const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
 
 let hoverTimer: number | undefined;
 let lastHoverKey = "";
+let activeRequestId = 0;
 let currentSettings = defaultSettings;
 
 const tooltip = document.createElement("div");
@@ -84,6 +85,16 @@ style.textContent = `
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
     font: 13px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     pointer-events: none;
+  }
+
+  #hover-translate-tooltip[data-state="loading"] {
+    color: #dbeafe;
+  }
+
+  #hover-translate-tooltip[data-state="error"] {
+    border-color: rgba(248, 113, 113, 0.65);
+    background: #7f1d1d;
+    color: #fee2e2;
   }
 `;
 
@@ -143,12 +154,28 @@ async function showTranslation(
   x: number,
   y: number,
 ): Promise<void> {
-  tooltip.textContent = "Translating...";
-  positionTooltip(x, y);
-  tooltip.hidden = false;
+  const requestId = beginTooltipRequest("Translating...", x, y);
 
   const response = await requestTranslation(text, context);
 
+  if (requestId !== activeRequestId) {
+    return;
+  }
+
+  showTooltipResult(response, x, y);
+}
+
+function beginTooltipRequest(message: string, x: number, y: number): number {
+  activeRequestId += 1;
+  tooltip.dataset.state = "loading";
+  tooltip.textContent = message;
+  positionTooltip(x, y);
+  tooltip.hidden = false;
+  return activeRequestId;
+}
+
+function showTooltipResult(response: TranslateMessageResponse, x: number, y: number): void {
+  tooltip.dataset.state = response.ok ? "success" : "error";
   tooltip.textContent = response.ok ? response.result.translatedText : response.error;
   positionTooltip(x, y);
 }
@@ -169,7 +196,9 @@ function positionTooltip(x: number, y: number): void {
 }
 
 function hideTooltip(): void {
+  activeRequestId += 1;
   tooltip.hidden = true;
+  delete tooltip.dataset.state;
   lastHoverKey = "";
 }
 

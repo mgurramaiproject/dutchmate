@@ -30,6 +30,7 @@ Expected result:
 - Hovering shows a tooltip with placeholder translation.
 - Selecting text shows the same tooltip near the selection.
 - Changing the target language in Options changes the language code shown in the tooltip.
+- Moving quickly between words should not show an older translation after a newer hover starts.
 
 Notes:
 
@@ -52,6 +53,7 @@ Expected result:
 - Hovering shows a tooltip with placeholder translation.
 - Selecting text shows the same tooltip near the selection.
 - Changing the target language in Options changes the language code shown in the tooltip.
+- Moving quickly between words should not show an older translation after a newer hover starts.
 
 Notes:
 
@@ -149,6 +151,17 @@ Expected result:
 ```text
 [mock en] <hovered or selected text>
 ```
+
+Error test:
+
+1. Keep the endpoint configured.
+2. Stop the mock server with `Ctrl+C`.
+3. Hover or select text again.
+
+Expected result:
+
+- The tooltip briefly shows a loading state.
+- The tooltip then shows a clear translation failure message.
 
 You can stop the mock server with `Ctrl+C`.
 
