@@ -99,6 +99,20 @@ Expected result:
 - Selection does nothing when selected-text translation is off.
 - Both hover and selection do nothing when the extension is disabled.
 
+Tuning controls:
+
+1. Set "Hover delay" to `150`, save, then hover a word.
+2. Set "Hover delay" to `1500`, save, then hover a word.
+3. Set "Max selected text length" to `50`, save, then select a long sentence.
+4. Try invalid values such as `10` for hover delay or `5000` for max selected text length.
+
+Expected result:
+
+- A lower hover delay shows the tooltip sooner.
+- A higher hover delay waits longer before showing the tooltip.
+- Long selections above the configured limit do not translate.
+- Invalid values show a clear Options error and are not saved.
+
 ## Custom Endpoint
 
 Provider endpoint rules:

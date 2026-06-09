@@ -1,12 +1,12 @@
-const HOVER_DELAY_MS = 450;
 const MIN_TEXT_LENGTH = 1;
 const MAX_HOVER_WORD_LENGTH = 48;
-const MAX_SELECTION_LENGTH = 600;
 const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 const defaultSettings: ExtensionSettings = {
   isEnabled: true,
   translateOnHover: true,
   translateOnSelection: true,
+  hoverDelayMs: 450,
+  maxSelectionLength: 600,
   targetLanguage: "en",
   providerEndpoint: "",
   providerApiKey: "",
@@ -16,6 +16,8 @@ type ExtensionSettings = {
   isEnabled: boolean;
   translateOnHover: boolean;
   translateOnSelection: boolean;
+  hoverDelayMs: number;
+  maxSelectionLength: number;
   targetLanguage: string;
   providerEndpoint: string;
   providerApiKey: string;
@@ -137,7 +139,7 @@ function handleMouseMove(event: MouseEvent): void {
 
     lastHoverKey = hoverKey;
     showTranslation(hit.word, "hover", hit.x, hit.y);
-  }, HOVER_DELAY_MS);
+  }, currentSettings.hoverDelayMs);
 }
 
 function handleSelection(): void {
@@ -153,7 +155,7 @@ function handleSelection(): void {
   if (
     !selection ||
     selectedText.length < MIN_TEXT_LENGTH ||
-    selectedText.length > MAX_SELECTION_LENGTH ||
+    selectedText.length > currentSettings.maxSelectionLength ||
     selection.rangeCount === 0
   ) {
     return;
@@ -318,6 +320,8 @@ function settingChangesToPartialSettings(
     isEnabled: getOptionalBooleanSetting(changes.isEnabled?.newValue),
     translateOnHover: getOptionalBooleanSetting(changes.translateOnHover?.newValue),
     translateOnSelection: getOptionalBooleanSetting(changes.translateOnSelection?.newValue),
+    hoverDelayMs: getOptionalNumberSetting(changes.hoverDelayMs?.newValue),
+    maxSelectionLength: getOptionalNumberSetting(changes.maxSelectionLength?.newValue),
     targetLanguage: getOptionalStringSetting(changes.targetLanguage?.newValue),
     providerEndpoint: getOptionalStringSetting(changes.providerEndpoint?.newValue),
     providerApiKey: getOptionalStringSetting(changes.providerApiKey?.newValue),
@@ -343,6 +347,11 @@ async function readSettings(): Promise<ExtensionSettings> {
           stored.translateOnSelection,
           defaultSettings.translateOnSelection,
         ),
+        hoverDelayMs: getNumberSetting(stored.hoverDelayMs, defaultSettings.hoverDelayMs),
+        maxSelectionLength: getNumberSetting(
+          stored.maxSelectionLength,
+          defaultSettings.maxSelectionLength,
+        ),
         targetLanguage: getStringSetting(stored.targetLanguage, defaultSettings.targetLanguage),
         providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
         providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
@@ -359,12 +368,20 @@ function getBooleanSetting(value: unknown, fallback: boolean): boolean {
   return typeof value === "boolean" ? value : fallback;
 }
 
+function getNumberSetting(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
 function getOptionalStringSetting(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
 function getOptionalBooleanSetting(value: unknown): boolean | undefined {
   return typeof value === "boolean" ? value : undefined;
+}
+
+function getOptionalNumberSetting(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
 async function requestTranslation(

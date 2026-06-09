@@ -3,6 +3,8 @@ import {
   defaultSettings,
   readSettings,
   validateProviderEndpoint,
+  validateHoverDelayMs,
+  validateMaxSelectionLength,
   type ExtensionSettings,
 } from "../shared/settings";
 import "./styles.css";
@@ -11,6 +13,8 @@ const form = document.querySelector<HTMLFormElement>("#options-form");
 const isEnabled = document.querySelector<HTMLInputElement>("#is-enabled");
 const translateOnHover = document.querySelector<HTMLInputElement>("#translate-on-hover");
 const translateOnSelection = document.querySelector<HTMLInputElement>("#translate-on-selection");
+const hoverDelayMs = document.querySelector<HTMLInputElement>("#hover-delay-ms");
+const maxSelectionLength = document.querySelector<HTMLInputElement>("#max-selection-length");
 const targetLanguage = document.querySelector<HTMLSelectElement>("#target-language");
 const providerEndpoint = document.querySelector<HTMLInputElement>("#provider-endpoint");
 const providerApiKey = document.querySelector<HTMLInputElement>("#provider-api-key");
@@ -48,6 +52,14 @@ async function restoreSettings(): Promise<void> {
     translateOnSelection.checked = settings.translateOnSelection;
   }
 
+  if (hoverDelayMs) {
+    hoverDelayMs.value = settings.hoverDelayMs.toString();
+  }
+
+  if (maxSelectionLength) {
+    maxSelectionLength.value = settings.maxSelectionLength.toString();
+  }
+
   if (providerEndpoint) {
     providerEndpoint.value = settings.providerEndpoint;
   }
@@ -59,7 +71,14 @@ async function restoreSettings(): Promise<void> {
 
 async function saveSettings(): Promise<void> {
   const endpoint = providerEndpoint?.value.trim() || "";
+  const hoverDelayValue = readNumberInput(hoverDelayMs, defaultSettings.hoverDelayMs);
+  const maxSelectionLengthValue = readNumberInput(
+    maxSelectionLength,
+    defaultSettings.maxSelectionLength,
+  );
   const endpointError = validateProviderEndpoint(endpoint);
+  const hoverDelayError = validateHoverDelayMs(hoverDelayValue);
+  const selectionLengthError = validateMaxSelectionLength(maxSelectionLengthValue);
 
   if (endpointError) {
     showStatus(endpointError, "error");
@@ -67,10 +86,24 @@ async function saveSettings(): Promise<void> {
     return;
   }
 
+  if (hoverDelayError) {
+    showStatus(hoverDelayError, "error");
+    hoverDelayMs?.focus();
+    return;
+  }
+
+  if (selectionLengthError) {
+    showStatus(selectionLengthError, "error");
+    maxSelectionLength?.focus();
+    return;
+  }
+
   const settings: ExtensionSettings = {
     isEnabled: isEnabled?.checked ?? defaultSettings.isEnabled,
     translateOnHover: translateOnHover?.checked ?? defaultSettings.translateOnHover,
     translateOnSelection: translateOnSelection?.checked ?? defaultSettings.translateOnSelection,
+    hoverDelayMs: hoverDelayValue,
+    maxSelectionLength: maxSelectionLengthValue,
     targetLanguage: targetLanguage?.value || defaultSettings.targetLanguage,
     providerEndpoint: endpoint,
     providerApiKey: providerApiKey?.value.trim() || "",
@@ -78,6 +111,14 @@ async function saveSettings(): Promise<void> {
 
   await browser.storage.sync.set(settings);
   showStatus("Saved", "success");
+}
+
+function readNumberInput(input: HTMLInputElement | null, fallback: number): number {
+  if (!input) {
+    return fallback;
+  }
+
+  return Number(input.value);
 }
 
 async function testProviderEndpoint(): Promise<void> {
