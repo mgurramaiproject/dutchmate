@@ -1,5 +1,6 @@
 const MIN_TEXT_LENGTH = 1;
 const MAX_HOVER_WORD_LENGTH = 48;
+const MAX_TOOLTIP_TEXT_LENGTH = 1000;
 const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 const defaultSettings: ExtensionSettings = {
   isEnabled: true,
@@ -71,6 +72,7 @@ const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
 let hoverTimer: number | undefined;
 let lastHoverKey = "";
 let activeRequestId = 0;
+let activeTooltipContext: TranslationContext | null = null;
 let currentSettings = defaultSettings;
 
 const tooltip = document.createElement("div");
@@ -109,9 +111,11 @@ style.textContent = `
 document.documentElement.append(style, tooltip);
 
 document.addEventListener("mousemove", handleMouseMove, { passive: true });
-document.addEventListener("mouseleave", hideTooltip, { passive: true });
+document.addEventListener("mouseleave", handleMouseLeave, { passive: true });
 document.addEventListener("mouseup", handleSelection, { passive: true });
 document.addEventListener("scroll", hideTooltip, { passive: true });
+document.addEventListener("click", hideTooltip, { passive: true });
+document.addEventListener("keydown", handleKeyDown);
 extensionApi?.storage.onChanged.addListener(handleStorageChanged);
 
 void refreshSettings();
@@ -171,7 +175,7 @@ async function showTranslation(
   x: number,
   y: number,
 ): Promise<void> {
-  const requestId = beginTooltipRequest("Translating...", x, y);
+  const requestId = beginTooltipRequest("Translating...", context, x, y);
 
   const response = await requestTranslation(text, context);
 
@@ -182,8 +186,14 @@ async function showTranslation(
   showTooltipResult(response, x, y);
 }
 
-function beginTooltipRequest(message: string, x: number, y: number): number {
+function beginTooltipRequest(
+  message: string,
+  context: TranslationContext,
+  x: number,
+  y: number,
+): number {
   activeRequestId += 1;
+  activeTooltipContext = context;
   tooltip.dataset.state = "loading";
   tooltip.textContent = message;
   positionTooltip(x, y);
@@ -193,8 +203,16 @@ function beginTooltipRequest(message: string, x: number, y: number): number {
 
 function showTooltipResult(response: TranslateMessageResponse, x: number, y: number): void {
   tooltip.dataset.state = response.ok ? "success" : "error";
-  tooltip.textContent = response.ok ? response.result.translatedText : response.error;
+  tooltip.textContent = truncateTooltipText(response.ok ? response.result.translatedText : response.error);
   positionTooltip(x, y);
+}
+
+function truncateTooltipText(text: string): string {
+  if (text.length <= MAX_TOOLTIP_TEXT_LENGTH) {
+    return text;
+  }
+
+  return `${text.slice(0, MAX_TOOLTIP_TEXT_LENGTH).trimEnd()}...`;
 }
 
 function positionTooltip(x: number, y: number): void {
@@ -215,8 +233,23 @@ function positionTooltip(x: number, y: number): void {
 function hideTooltip(): void {
   activeRequestId += 1;
   tooltip.hidden = true;
+  activeTooltipContext = null;
   delete tooltip.dataset.state;
   lastHoverKey = "";
+}
+
+function handleMouseLeave(): void {
+  if (activeTooltipContext === "selection") {
+    return;
+  }
+
+  hideTooltip();
+}
+
+function handleKeyDown(event: KeyboardEvent): void {
+  if (event.key === "Escape") {
+    hideTooltip();
+  }
 }
 
 function getWordAtPoint(clientX: number, clientY: number): { word: string; x: number; y: number } | null {
