@@ -1,11 +1,11 @@
-import { createLocalDevProvider } from "./providers/local-dev-provider.mjs";
+import { createProviderFromEnvironment } from "./providers/provider-factory.mjs";
 import { createTranslationBackendServer } from "./server.mjs";
 import { createTranslationService } from "./translation-service.mjs";
 
 const host = process.env.HOST ?? "127.0.0.1";
 const port = Number.parseInt(process.env.PORT ?? "8787", 10);
 
-const provider = createLocalDevProvider();
+const provider = createProviderFromEnvironment();
 const service = createTranslationService(provider);
 const server = createTranslationBackendServer({ service });
 

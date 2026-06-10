@@ -8,6 +8,12 @@ The local backend is the first production-shaped boundary for real translation. 
 corepack pnpm backend:dev
 ```
 
+The backend uses the `local-dev` provider by default. You can make that explicit:
+
+```bash
+TRANSLATION_PROVIDER=local-dev corepack pnpm backend:dev
+```
+
 Default endpoint:
 
 ```text
@@ -28,7 +34,7 @@ http://localhost:8787/translate
 
 Run only one local translation server at a time. The older mock server and this backend both use port `8787` by default.
 
-## Current Provider
+## Provider Selection
 
 The current provider is `local-dev`. It is intentionally small and dependency-free:
 
@@ -37,10 +43,19 @@ The current provider is `local-dev`. It is intentionally small and dependency-fr
 
 This lets us verify the backend shape before signing up for a paid provider or adding provider SDKs.
 
+Provider selection is environment-driven:
+
+```text
+TRANSLATION_PROVIDER=local-dev
+```
+
+Only `local-dev` is supported right now. Later provider adapters should be added behind the same factory, so the extension can keep calling the same `/translate` endpoint.
+
 ## Backend Boundaries
 
 ```text
 backend/dev-server.mjs
+-> backend/providers/provider-factory.mjs
 -> backend/server.mjs
 -> backend/translation-service.mjs
 -> backend/providers/local-dev-provider.mjs
