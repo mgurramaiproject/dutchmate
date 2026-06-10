@@ -1,21 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  DEFAULT_TRANSLATION_PROVIDER,
-  createProvider,
-  createProviderFromEnvironment,
-} from "./provider-factory.mjs";
-
-describe("createProviderFromEnvironment", () => {
-  it("uses local-dev by default", () => {
-    expect(createProviderFromEnvironment({}).name).toBe(DEFAULT_TRANSLATION_PROVIDER);
-  });
-
-  it("uses TRANSLATION_PROVIDER when configured", () => {
-    expect(createProviderFromEnvironment({ TRANSLATION_PROVIDER: "local-dev" }).name).toBe(
-      "local-dev",
-    );
-  });
-});
+import { createProvider } from "./provider-factory.mjs";
 
 describe("createProvider", () => {
   it("normalizes provider names", () => {

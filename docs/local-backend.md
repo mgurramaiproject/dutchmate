@@ -60,10 +60,23 @@ TRANSLATION_PROVIDER=local-dev
 
 Only `local-dev` is supported right now. Later provider adapters should be added behind the same factory, so the extension can keep calling the same `/translate` endpoint.
 
+## Configuration Validation
+
+The backend reads and validates environment values at startup:
+
+```text
+TRANSLATION_PROVIDER=local-dev
+HOST=127.0.0.1
+PORT=8787
+```
+
+Invalid values stop the backend immediately with a clear error. This is intentional: provider problems should be visible at startup, not only after a user hovers over text.
+
 ## Backend Boundaries
 
 ```text
 backend/dev-server.mjs
+-> backend/config.mjs
 -> backend/providers/provider-factory.mjs
 -> backend/server.mjs
 -> backend/translation-service.mjs

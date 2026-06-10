@@ -1,25 +1,25 @@
-import { createProviderFromEnvironment } from "./providers/provider-factory.mjs";
+import { readBackendConfig } from "./config.mjs";
+import { createProvider } from "./providers/provider-factory.mjs";
 import { createTranslationBackendServer } from "./server.mjs";
 import { createTranslationService } from "./translation-service.mjs";
 
-const host = process.env.HOST ?? "127.0.0.1";
-const port = Number.parseInt(process.env.PORT ?? "8787", 10);
+const config = readBackendConfig();
 
-const provider = createProviderFromEnvironment();
+const provider = createProvider(config.provider);
 const service = createTranslationService(provider);
 const server = createTranslationBackendServer({ service });
 
 server.on("error", (error) => {
   if (error.code === "EADDRINUSE") {
-    console.error(`Port ${port} is already in use. Stop the other translation server or run with PORT=<other-port>.`);
+    console.error(`Port ${config.port} is already in use. Stop the other translation server or run with PORT=<other-port>.`);
     process.exit(1);
   }
 
   throw error;
 });
 
-server.listen(port, host, () => {
-  console.log(`Local translation backend listening at http://localhost:${port}`);
-  console.log(`Translate endpoint: http://localhost:${port}/translate`);
+server.listen(config.port, config.host, () => {
+  console.log(`Local translation backend listening at http://localhost:${config.port}`);
+  console.log(`Translate endpoint: http://localhost:${config.port}/translate`);
   console.log(`Provider: ${provider.name}`);
 });
