@@ -63,6 +63,7 @@ Endpoint requirements:
 - `http://127.0.0.1...`
 
 See [docs/architecture.md](docs/architecture.md) for the request and response contract.
+See [docs/provider-strategy.md](docs/provider-strategy.md) for provider choice, pricing, and production backend notes.
 
 For local testing, run:
 

@@ -76,6 +76,8 @@ The first real translation provider should be tested after the endpoint reliabil
 
 At that point, replacing the mock endpoint with a real backend is a configuration/backend task, not a browser-extension architecture change.
 
+Provider selection and pricing notes are tracked in [provider-strategy.md](provider-strategy.md).
+
 ## Manifest Strategy
 
 Both builds use Manifest V3. The background worker owns provider calls so the content script can stay focused on webpage interaction and tooltip rendering.
