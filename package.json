@@ -9,6 +9,7 @@
     "dev:firefox": "vite build --mode firefox --watch",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "verify": "npm run test && npm run typecheck && npm run build",
     "build:chrome": "tsc --noEmit && vite build --mode chrome && node scripts/write-manifest.mjs chrome",
     "build:firefox": "tsc --noEmit && vite build --mode firefox && node scripts/write-manifest.mjs firefox",
     "build": "npm run build:chrome && npm run build:firefox",

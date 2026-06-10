@@ -6,8 +6,7 @@ Use this checklist after each extension behavior change.
 
 ```bash
 corepack pnpm install --frozen-lockfile
-corepack pnpm typecheck
-corepack pnpm build
+corepack pnpm verify
 ```
 
 Expected outputs:

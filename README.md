@@ -19,6 +19,8 @@ This first scaffold intentionally uses placeholder translation only. The goal is
 
 ```bash
 corepack pnpm install
+corepack pnpm verify
+corepack pnpm test
 corepack pnpm typecheck
 corepack pnpm build
 corepack pnpm build:chrome
@@ -30,6 +32,8 @@ Build outputs:
 
 - Chrome: `dist/chrome`
 - Firefox: `dist/firefox`
+
+Run `corepack pnpm verify` before committing changes.
 
 ## Load In Chrome
 
