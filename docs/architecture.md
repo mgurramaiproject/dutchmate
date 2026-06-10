@@ -64,6 +64,8 @@ The worker keeps a small in-memory cache of successful translations keyed by tar
 
 Configured endpoint requests time out after 5000ms. Slow providers return a clear timeout error instead of leaving the tooltip in a loading state indefinitely.
 
+Local backend details are documented in [local-backend.md](local-backend.md).
+
 ## Real Provider Timing
 
 The first real translation provider should be tested after the endpoint reliability layer is in place:

@@ -25,6 +25,7 @@ corepack pnpm typecheck
 corepack pnpm build
 corepack pnpm build:chrome
 corepack pnpm build:firefox
+corepack pnpm backend:dev
 corepack pnpm mock:translate
 ```
 
@@ -64,11 +65,12 @@ Endpoint requirements:
 
 See [docs/architecture.md](docs/architecture.md) for the request and response contract.
 See [docs/provider-strategy.md](docs/provider-strategy.md) for provider choice, pricing, and production backend notes.
+See [docs/local-backend.md](docs/local-backend.md) for the local real-translation backend scaffold.
 
 For local testing, run:
 
 ```bash
-corepack pnpm mock:translate
+corepack pnpm backend:dev
 ```
 
 Then configure this endpoint in Options:
