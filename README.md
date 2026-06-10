@@ -26,6 +26,7 @@ corepack pnpm build
 corepack pnpm build:chrome
 corepack pnpm build:firefox
 corepack pnpm backend:dev
+corepack pnpm backend:dev:env
 corepack pnpm mock:translate
 ```
 
@@ -71,6 +72,12 @@ For local testing, run:
 
 ```bash
 corepack pnpm backend:dev
+```
+
+To run with a local `.env` file, copy `.env.example` to `.env`, edit values if needed, then run:
+
+```bash
+corepack pnpm backend:dev:env
 ```
 
 Then configure this endpoint in Options:

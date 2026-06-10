@@ -8,6 +8,15 @@ The local backend is the first production-shaped boundary for real translation. 
 corepack pnpm backend:dev
 ```
 
+Local environment defaults are documented in `.env.example`. To use an env file locally, copy it to `.env`:
+
+```bash
+cp .env.example .env
+corepack pnpm backend:dev:env
+```
+
+The real `.env` file is ignored by Git because it can eventually contain provider secrets.
+
 The backend uses the `local-dev` provider by default. You can make that explicit:
 
 ```bash
