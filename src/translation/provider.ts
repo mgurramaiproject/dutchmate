@@ -13,12 +13,3 @@ export type TranslationResult = {
 export interface TranslationProvider {
   translate(request: TranslationRequest): Promise<TranslationResult>;
 }
-
-export class PlaceholderTranslationProvider implements TranslationProvider {
-  async translate(request: TranslationRequest): Promise<TranslationResult> {
-    return {
-      translatedText: `Translation will appear here. (${request.targetLanguage})`,
-      providerName: "placeholder",
-    };
-  }
-}

@@ -7,6 +7,18 @@ Hover Translate is kept small on purpose:
 - Translation logic lives behind `TranslationProvider`, so future API providers do not need to change DOM interaction code.
 - Browser-specific differences are handled at build output time by generating separate `manifest.json` files for Chrome and Firefox.
 
+## Code Boundaries
+
+This project uses a lightweight extension-shaped version of controller-service-adapter layering:
+
+- `src/background/index.ts`: message controller for extension runtime messages.
+- `src/translation/translation-service.ts`: chooses placeholder versus configured endpoint provider.
+- `src/translation/*-provider.ts`: provider adapters for translation backends.
+- `src/translation/translation-cache.ts`: small in-memory cache for successful translations.
+- `src/background/settings-adapter.ts`: reads provider settings from extension storage for the background layer.
+
+A full repository layer is not needed yet because the extension does not own a durable translation domain model. Browser storage and provider endpoints are treated as adapters instead.
+
 ## Translation Flow
 
 ```text
