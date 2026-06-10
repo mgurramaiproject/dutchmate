@@ -58,7 +58,12 @@ Provider selection is environment-driven:
 TRANSLATION_PROVIDER=local-dev
 ```
 
-Only `local-dev` is supported right now. Later provider adapters should be added behind the same factory, so the extension can keep calling the same `/translate` endpoint.
+Supported providers:
+
+- `local-dev`: local, free, dependency-free development provider.
+- `deepl`: DeepL API provider. Requires `DEEPL_API_KEY`.
+
+Later provider adapters should be added behind the same factory, so the extension can keep calling the same `/translate` endpoint.
 
 ## Configuration Validation
 
@@ -68,9 +73,20 @@ The backend reads and validates environment values at startup:
 TRANSLATION_PROVIDER=local-dev
 HOST=127.0.0.1
 PORT=8787
+DEEPL_API_URL=https://api-free.deepl.com/v2/translate
+# DEEPL_API_KEY=replace-me
 ```
 
 Invalid values stop the backend immediately with a clear error. This is intentional: provider problems should be visible at startup, not only after a user hovers over text.
+
+To try DeepL later:
+
+1. Create a DeepL API key from the official DeepL API page: https://www.deepl.com/pro-api
+2. Add the key to your local `.env`.
+3. Change `TRANSLATION_PROVIDER` to `deepl`.
+4. Restart the backend with `corepack pnpm backend:dev:env`.
+
+DeepL's translate endpoint expects `Authorization: DeepL-Auth-Key ...`, JSON `text` as an array, and `target_lang` as the target language code. API Free users should use `https://api-free.deepl.com/v2/translate`.
 
 ## Backend Boundaries
 

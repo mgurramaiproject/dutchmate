@@ -7,8 +7,19 @@ describe("createProvider", () => {
   });
 
   it("rejects unsupported providers", () => {
-    expect(() => createProvider("deepl")).toThrow(
-      'Unsupported TRANSLATION_PROVIDER "deepl". Supported providers: local-dev',
+    expect(() => createProvider("unknown")).toThrow(
+      'Unsupported TRANSLATION_PROVIDER "unknown". Supported providers: local-dev, deepl',
     );
+  });
+
+  it("creates DeepL providers", () => {
+    const provider = createProvider("deepl", {
+      deepl: {
+        apiKey: "test-key",
+        apiUrl: "https://example.test/v2/translate",
+      },
+    });
+
+    expect(provider.name).toBe("deepl");
   });
 });

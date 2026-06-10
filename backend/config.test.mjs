@@ -7,6 +7,9 @@ describe("readBackendConfig", () => {
       provider: "local-dev",
       host: "127.0.0.1",
       port: 8787,
+      deepl: {
+        apiUrl: "https://api-free.deepl.com/v2/translate",
+      },
     });
   });
 
@@ -16,11 +19,33 @@ describe("readBackendConfig", () => {
         TRANSLATION_PROVIDER: " LOCAL-DEV ",
         HOST: " 0.0.0.0 ",
         PORT: "3000",
+        DEEPL_API_URL: " https://example.test/v2/translate ",
       }),
     ).toEqual({
       provider: "local-dev",
       host: "0.0.0.0",
       port: 3000,
+      deepl: {
+        apiUrl: "https://example.test/v2/translate",
+      },
+    });
+  });
+
+  it("accepts DeepL config when its API key is present", () => {
+    expect(
+      readBackendConfig({
+        TRANSLATION_PROVIDER: "deepl",
+        DEEPL_API_KEY: " test-key ",
+        DEEPL_API_URL: "https://example.test/v2/translate",
+      }),
+    ).toEqual({
+      provider: "deepl",
+      host: "127.0.0.1",
+      port: 8787,
+      deepl: {
+        apiKey: "test-key",
+        apiUrl: "https://example.test/v2/translate",
+      },
     });
   });
 
@@ -32,7 +57,7 @@ describe("readBackendConfig", () => {
 
   it("rejects unsupported providers", () => {
     expect(() => readBackendConfig({ TRANSLATION_PROVIDER: "deepl" })).toThrow(
-      'Unsupported TRANSLATION_PROVIDER "deepl". Supported providers: local-dev',
+      "DEEPL_API_KEY is required when TRANSLATION_PROVIDER=deepl",
     );
   });
 
@@ -50,5 +75,15 @@ describe("readBackendConfig", () => {
     expect(() => readBackendConfig({ PORT: "8787abc" })).toThrow(
       "PORT must be an integer between 1 and 65535",
     );
+  });
+
+  it("rejects invalid DeepL URLs", () => {
+    expect(() =>
+      readBackendConfig({
+        TRANSLATION_PROVIDER: "deepl",
+        DEEPL_API_KEY: "test-key",
+        DEEPL_API_URL: "not-a-url",
+      }),
+    ).toThrow("DEEPL_API_URL must be a valid http or https URL");
   });
 });

@@ -5,7 +5,7 @@ import { createTranslationService } from "./translation-service.mjs";
 
 const config = readBackendConfig();
 
-const provider = createProvider(config.provider);
+const provider = createProvider(config.provider, config);
 const service = createTranslationService(provider);
 const server = createTranslationBackendServer({ service });
 
