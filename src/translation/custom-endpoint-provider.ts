@@ -4,7 +4,10 @@ import { TranslationCache } from "./translation-cache";
 export type CustomEndpointProviderSettings = {
   providerEndpoint: string;
   providerApiKey: string;
+  timeoutMs?: number;
 };
+
+export const DEFAULT_PROVIDER_TIMEOUT_MS = 5000;
 
 export class CustomEndpointTranslationProvider implements TranslationProvider {
   constructor(
@@ -27,11 +30,15 @@ export class CustomEndpointTranslationProvider implements TranslationProvider {
       headers.Authorization = `Bearer ${this.settings.providerApiKey}`;
     }
 
-    const response = await fetch(this.settings.providerEndpoint, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(request),
-    });
+    const response = await fetchWithTimeout(
+      this.settings.providerEndpoint,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(request),
+      },
+      this.settings.timeoutMs ?? DEFAULT_PROVIDER_TIMEOUT_MS,
+    );
 
     if (!response.ok) {
       throw new Error(`Provider returned ${response.status}`);
@@ -54,6 +61,36 @@ export class CustomEndpointTranslationProvider implements TranslationProvider {
   }
 }
 
+async function fetchWithTimeout(
+  endpoint: string,
+  init: RequestInit,
+  timeoutMs: number,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = globalThis.setTimeout(() => {
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    return await fetch(endpoint, {
+      ...init,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw new Error("Provider request timed out");
+    }
+
+    throw error;
+  } finally {
+    globalThis.clearTimeout(timeout);
+  }
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
 function getTranslatedText(payload: unknown): string | null {
   if (
     typeof payload === "object" &&
@@ -66,4 +103,3 @@ function getTranslatedText(payload: unknown): string | null {
 
   return null;
 }
-

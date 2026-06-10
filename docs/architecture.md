@@ -62,6 +62,20 @@ Expected response:
 
 The worker keeps a small in-memory cache of successful translations keyed by target language, context, and text.
 
+Configured endpoint requests time out after 5000ms. Slow providers return a clear timeout error instead of leaving the tooltip in a loading state indefinitely.
+
+## Real Provider Timing
+
+The first real translation provider should be tested after the endpoint reliability layer is in place:
+
+- request timeout
+- clear HTTP status errors
+- missing-response-field validation
+- local mock endpoint verification
+- unit tests for provider behavior
+
+At that point, replacing the mock endpoint with a real backend is a configuration/backend task, not a browser-extension architecture change.
+
 ## Manifest Strategy
 
 Both builds use Manifest V3. The background worker owns provider calls so the content script can stay focused on webpage interaction and tooltip rendering.

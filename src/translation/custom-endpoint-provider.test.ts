@@ -12,6 +12,7 @@ const request: TranslationRequest = {
 
 describe("CustomEndpointTranslationProvider", () => {
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -37,6 +38,7 @@ describe("CustomEndpointTranslationProvider", () => {
       "https://example.test/translate",
       expect.objectContaining({
         method: "POST",
+        signal: expect.any(AbortSignal),
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer secret",
@@ -63,6 +65,7 @@ describe("CustomEndpointTranslationProvider", () => {
     expect(fetchMock).toHaveBeenCalledWith(
       "https://example.test/translate",
       expect.objectContaining({
+        signal: expect.any(AbortSignal),
         headers: {
           "Content-Type": "application/json",
         },
@@ -87,6 +90,47 @@ describe("CustomEndpointTranslationProvider", () => {
     );
   });
 
+  it("rejects non-OK provider responses with status", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ error: "nope" }), { status: 503 }),
+    );
+    const provider = new CustomEndpointTranslationProvider(
+      {
+        providerEndpoint: "https://example.test/translate",
+        providerApiKey: "",
+      },
+      new TranslationCache(10),
+    );
+
+    await expect(provider.translate(request)).rejects.toThrow("Provider returned 503");
+  });
+
+  it("times out slow provider requests", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(globalThis, "fetch").mockImplementation((_endpoint, init) => {
+      return new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () => {
+          reject(new DOMException("Aborted", "AbortError"));
+        });
+      });
+    });
+    const provider = new CustomEndpointTranslationProvider(
+      {
+        providerEndpoint: "https://example.test/translate",
+        providerApiKey: "",
+        timeoutMs: 25,
+      },
+      new TranslationCache(10),
+    );
+
+    const translation = expect(provider.translate(request)).rejects.toThrow(
+      "Provider request timed out",
+    );
+    await vi.advanceTimersByTimeAsync(25);
+
+    await translation;
+  });
+
   it("caches successful translations", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify({ translatedText: "hello" }), { status: 200 }),
@@ -105,4 +149,3 @@ describe("CustomEndpointTranslationProvider", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
-
