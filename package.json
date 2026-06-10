@@ -7,6 +7,7 @@
   "scripts": {
     "dev:chrome": "vite build --mode chrome --watch",
     "dev:firefox": "vite build --mode firefox --watch",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build:chrome": "tsc --noEmit && vite build --mode chrome && node scripts/write-manifest.mjs chrome",
     "build:firefox": "tsc --noEmit && vite build --mode firefox && node scripts/write-manifest.mjs firefox",
@@ -27,7 +28,8 @@
     "@types/node": "^22.15.29",
     "@types/webextension-polyfill": "^0.12.3",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
   },
   "packageManager": "pnpm@9.15.9"
 }
