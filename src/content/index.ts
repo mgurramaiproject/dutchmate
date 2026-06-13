@@ -10,7 +10,7 @@ const defaultSettings: ExtensionSettings = {
   maxSelectionLength: 600,
   sourceLanguage: "auto",
   targetLanguage: "en",
-  translateToOtherMvpLanguages: false,
+  translateToOtherMvpLanguages: true,
   providerEndpoint: "",
   providerApiKey: "",
 };
@@ -21,6 +21,57 @@ const mvpLanguages = [
   { code: "nl", label: "Dutch" },
   { code: "te", label: "Telugu" },
 ];
+const dutchLanguageHints = new Set([
+  "aan",
+  "alsjeblieft",
+  "ben",
+  "dank",
+  "dat",
+  "de",
+  "een",
+  "en",
+  "geen",
+  "goedemorgen",
+  "hallo",
+  "het",
+  "ik",
+  "is",
+  "je",
+  "jij",
+  "maar",
+  "met",
+  "niet",
+  "ook",
+  "op",
+  "te",
+  "van",
+  "voor",
+  "zijn",
+]);
+const englishLanguageHints = new Set([
+  "a",
+  "an",
+  "and",
+  "are",
+  "for",
+  "good",
+  "hello",
+  "i",
+  "in",
+  "is",
+  "morning",
+  "not",
+  "of",
+  "on",
+  "please",
+  "thank",
+  "thanks",
+  "that",
+  "the",
+  "to",
+  "with",
+  "you",
+]);
 
 type ExtensionSettings = {
   isEnabled: boolean;
@@ -487,6 +538,7 @@ function getOptionalNumberSetting(value: unknown): number | undefined {
 async function requestTranslation(
   text: string,
   context: TranslationContext,
+  sourceLanguage: string,
   targetLanguage: string,
 ): Promise<TranslateMessageResponse> {
   if (!extensionApi) {
@@ -502,7 +554,7 @@ async function requestTranslation(
         type: TRANSLATE_MESSAGE,
         payload: {
           text,
-          sourceLanguage: currentSettings.sourceLanguage,
+          sourceLanguage,
           targetLanguage,
           context,
         },
@@ -526,16 +578,17 @@ async function requestTranslationForCurrentSettings(
   text: string,
   context: TranslationContext,
 ): Promise<TranslateMessageResponse> {
-  const targetLanguages = getActiveTargetLanguages();
+  const sourceLanguage = getActiveSourceLanguage(text);
+  const targetLanguages = getActiveTargetLanguages(sourceLanguage);
 
   if (targetLanguages.length <= 1) {
-    return requestTranslation(text, context, currentSettings.targetLanguage);
+    return requestTranslation(text, context, sourceLanguage, currentSettings.targetLanguage);
   }
 
   const responses = await Promise.all(
     targetLanguages.map(async (targetLanguage) => ({
       targetLanguage,
-      response: await requestTranslation(text, context, targetLanguage),
+      response: await requestTranslation(text, context, sourceLanguage, targetLanguage),
     })),
   );
   const failedResponse = responses.find(({ response }) => !response.ok);
@@ -558,14 +611,56 @@ async function requestTranslationForCurrentSettings(
   };
 }
 
-function getActiveTargetLanguages(): string[] {
-  if (!currentSettings.translateToOtherMvpLanguages || currentSettings.sourceLanguage === "auto") {
+function getActiveTargetLanguages(sourceLanguage: string): string[] {
+  if (!currentSettings.translateToOtherMvpLanguages) {
     return [currentSettings.targetLanguage];
   }
 
   return mvpLanguages
     .map((language) => language.code)
-    .filter((languageCode) => languageCode !== currentSettings.sourceLanguage);
+    .filter((languageCode) => languageCode !== sourceLanguage);
+}
+
+function getActiveSourceLanguage(text: string): string {
+  if (currentSettings.sourceLanguage !== "auto") {
+    return currentSettings.sourceLanguage;
+  }
+
+  if (!currentSettings.translateToOtherMvpLanguages) {
+    return "auto";
+  }
+
+  return detectMvpSourceLanguage(text);
+}
+
+function detectMvpSourceLanguage(text: string): string {
+  if (/[\u0C00-\u0C7F]/u.test(text)) {
+    return "te";
+  }
+
+  const words = text.toLowerCase().match(/[\p{Letter}]+/gu) ?? [];
+  let dutchScore = 0;
+  let englishScore = 0;
+
+  for (const word of words) {
+    if (dutchLanguageHints.has(word)) {
+      dutchScore += 1;
+    }
+
+    if (englishLanguageHints.has(word)) {
+      englishScore += 1;
+    }
+
+    if (word.includes("ij") || word.includes("sch")) {
+      dutchScore += 1;
+    }
+  }
+
+  if (englishScore > dutchScore) {
+    return "en";
+  }
+
+  return "nl";
 }
 
 function getLanguageLabel(languageCode: string): string {

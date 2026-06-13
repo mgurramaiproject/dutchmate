@@ -32,14 +32,14 @@ For Dutch-learning pages, keep:
 MYMEMORY_SOURCE_LANGUAGE=nl
 ```
 
-For more accurate MyMemory testing, set the source language explicitly in Options, such as Dutch to Telugu.
+For more accurate MyMemory testing, set the source language explicitly in Options, such as Dutch to Telugu. For low-friction learning, Auto source language uses lightweight MVP detection.
 
 ## Dual-Language Output
 
-The user preference is opt-in. When enabled with an explicit source language, the extension requests the other two MVP languages:
+The user preference is on by default. When enabled, the extension requests the other two MVP languages:
 
 - Source Dutch: English and Telugu
 - Source English: Dutch and Telugu
 - Source Telugu: Dutch and English
 
-When source language is Auto, dual-language output should stay inactive until the user chooses an explicit source language.
+When source language is Auto, the extension detects Telugu by script and uses simple Dutch/English hints for Latin text. Ambiguous Latin text falls back to Dutch because the MVP is primarily for Dutch-learning pages.

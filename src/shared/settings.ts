@@ -38,7 +38,7 @@ export const defaultSettings: ExtensionSettings = {
   maxSelectionLength: 600,
   sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
   targetLanguage: DEFAULT_TARGET_LANGUAGE,
-  translateToOtherMvpLanguages: false,
+  translateToOtherMvpLanguages: true,
   providerEndpoint: "",
   providerApiKey: "",
 };

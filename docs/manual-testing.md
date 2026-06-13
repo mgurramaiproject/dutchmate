@@ -93,19 +93,20 @@ Expected result:
 - The placeholder tooltip shows the selected language code.
 - The target-language dropdown only shows English, Dutch, and Telugu.
 - The source-language dropdown shows Auto, English, Dutch, and Telugu.
-- "Show the other two MVP languages" is off by default and remains saved after toggling.
+- "Show the other two MVP languages" is on by default and remains saved after toggling.
 
 Dual-language mode:
 
-1. Set Source language to Dutch.
-2. Turn on "Show the other two MVP languages".
+1. Set Source language to Auto.
+2. Keep "Show the other two MVP languages" on.
 3. Save.
-4. Hover or select Dutch text.
+4. Hover or select English, Dutch, or Telugu text.
 
 Expected result:
 
-- The tooltip shows English and Telugu translations.
-- If Source language is Auto, the tooltip uses the selected single Target language instead.
+- The tooltip shows translations in the other two MVP languages.
+- Telugu source text is detected by script.
+- Dutch and English source text use lightweight MVP detection hints.
 
 Behavior toggles:
 
@@ -220,4 +221,4 @@ You can stop the mock server with `Ctrl+C`.
 - Selection text is capped to keep the MVP lightweight.
 - Target languages are intentionally limited to English (`en`), Dutch (`nl`), and Telugu (`te`).
 - Source languages are limited to Auto, English (`en`), Dutch (`nl`), and Telugu (`te`).
-- Dual-language output is opt-in and only activates when Source language is English, Dutch, or Telugu.
+- Dual-language output is on by default and uses lightweight source detection when Source language is Auto.
