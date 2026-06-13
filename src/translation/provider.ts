@@ -1,6 +1,6 @@
 export type TranslationRequest = {
   text: string;
-  sourceLanguage: "auto";
+  sourceLanguage: "auto" | "en" | "nl" | "te";
   targetLanguage: string;
   context: "hover" | "selection";
 };

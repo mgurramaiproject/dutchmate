@@ -16,6 +16,11 @@ const defaultSettings: ExtensionSettings = {
 };
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
 const supportedSourceLanguages = new Set(["auto", "en", "nl", "te"]);
+const mvpLanguages = [
+  { code: "en", label: "English" },
+  { code: "nl", label: "Dutch" },
+  { code: "te", label: "Telugu" },
+];
 
 type ExtensionSettings = {
   isEnabled: boolean;
@@ -102,6 +107,7 @@ style.textContent = `
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
     font: 13px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     pointer-events: none;
+    white-space: pre-line;
   }
 
   #hover-translate-tooltip[data-state="loading"] {
@@ -189,7 +195,7 @@ async function showTranslation(
 ): Promise<void> {
   const requestId = beginTooltipRequest("Translating...", context, x, y);
 
-  const response = await requestTranslation(text, context);
+  const response = await requestTranslationForCurrentSettings(text, context);
 
   if (requestId !== activeRequestId) {
     return;
@@ -481,6 +487,7 @@ function getOptionalNumberSetting(value: unknown): number | undefined {
 async function requestTranslation(
   text: string,
   context: TranslationContext,
+  targetLanguage: string,
 ): Promise<TranslateMessageResponse> {
   if (!extensionApi) {
     return {
@@ -496,7 +503,7 @@ async function requestTranslation(
         payload: {
           text,
           sourceLanguage: currentSettings.sourceLanguage,
-          targetLanguage: currentSettings.targetLanguage,
+          targetLanguage,
           context,
         },
       },
@@ -513,4 +520,54 @@ async function requestTranslation(
       },
     );
   });
+}
+
+async function requestTranslationForCurrentSettings(
+  text: string,
+  context: TranslationContext,
+): Promise<TranslateMessageResponse> {
+  const targetLanguages = getActiveTargetLanguages();
+
+  if (targetLanguages.length <= 1) {
+    return requestTranslation(text, context, currentSettings.targetLanguage);
+  }
+
+  const responses = await Promise.all(
+    targetLanguages.map(async (targetLanguage) => ({
+      targetLanguage,
+      response: await requestTranslation(text, context, targetLanguage),
+    })),
+  );
+  const failedResponse = responses.find(({ response }) => !response.ok);
+
+  if (failedResponse?.response.ok === false) {
+    return failedResponse.response;
+  }
+
+  return {
+    ok: true,
+    result: {
+      translatedText: responses
+        .map(({ targetLanguage, response }) => {
+          const label = getLanguageLabel(targetLanguage);
+          return `${label}: ${response.ok ? response.result.translatedText : ""}`;
+        })
+        .join("\n"),
+      providerName: "multi-target",
+    },
+  };
+}
+
+function getActiveTargetLanguages(): string[] {
+  if (!currentSettings.translateToOtherMvpLanguages || currentSettings.sourceLanguage === "auto") {
+    return [currentSettings.targetLanguage];
+  }
+
+  return mvpLanguages
+    .map((language) => language.code)
+    .filter((languageCode) => languageCode !== currentSettings.sourceLanguage);
+}
+
+function getLanguageLabel(languageCode: string): string {
+  return mvpLanguages.find((language) => language.code === languageCode)?.label ?? languageCode;
 }

@@ -95,6 +95,18 @@ Expected result:
 - The source-language dropdown shows Auto, English, Dutch, and Telugu.
 - "Show the other two MVP languages" is off by default and remains saved after toggling.
 
+Dual-language mode:
+
+1. Set Source language to Dutch.
+2. Turn on "Show the other two MVP languages".
+3. Save.
+4. Hover or select Dutch text.
+
+Expected result:
+
+- The tooltip shows English and Telugu translations.
+- If Source language is Auto, the tooltip uses the selected single Target language instead.
+
 Behavior toggles:
 
 1. Turn off "Translate on hover", save, then hover a word.
@@ -208,4 +220,4 @@ You can stop the mock server with `Ctrl+C`.
 - Selection text is capped to keep the MVP lightweight.
 - Target languages are intentionally limited to English (`en`), Dutch (`nl`), and Telugu (`te`).
 - Source languages are limited to Auto, English (`en`), Dutch (`nl`), and Telugu (`te`).
-- Dual-language output is opt-in and currently only stores the preference; translation behavior will change in the next contract step.
+- Dual-language output is opt-in and only activates when Source language is English, Dutch, or Telugu.

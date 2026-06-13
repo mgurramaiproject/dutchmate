@@ -23,13 +23,15 @@ describe("TranslationCache", () => {
     expect(cache.get(baseRequest)).toEqual(baseResult);
   });
 
-  it("keeps target language, context, and text as separate cache keys", () => {
+  it("keeps source language, target language, context, and text as separate cache keys", () => {
     const cache = new TranslationCache(3);
     const selectionRequest = { ...baseRequest, context: "selection" as const };
+    const explicitSourceRequest = { ...baseRequest, sourceLanguage: "nl" as const };
 
     cache.set(baseRequest, baseResult);
 
     expect(cache.get(selectionRequest)).toBeNull();
+    expect(cache.get(explicitSourceRequest)).toBeNull();
   });
 
   it("evicts the oldest entry after reaching max size", () => {
@@ -43,4 +45,3 @@ describe("TranslationCache", () => {
     expect(cache.get(secondRequest)?.translatedText).toBe("hello again");
   });
 });
-

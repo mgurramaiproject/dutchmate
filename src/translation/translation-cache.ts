@@ -22,7 +22,6 @@ export class TranslationCache {
   }
 
   private getCacheKey(request: TranslationRequest): string {
-    return `${request.targetLanguage}:${request.context}:${request.text}`;
+    return `${request.sourceLanguage}:${request.targetLanguage}:${request.context}:${request.text}`;
   }
 }
-

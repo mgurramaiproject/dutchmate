@@ -34,11 +34,9 @@ MYMEMORY_SOURCE_LANGUAGE=nl
 
 For more accurate MyMemory testing, set the source language explicitly in Options, such as Dutch to Telugu.
 
-## Future Dual-Language Output
+## Dual-Language Output
 
-It is possible to translate one source text into two target languages, such as Dutch to English and Telugu. That should be a separate backend and tooltip contract change so the UI can show both results clearly.
-
-The user preference is opt-in. When enabled with an explicit source language, the intended target set is the other two MVP languages:
+The user preference is opt-in. When enabled with an explicit source language, the extension requests the other two MVP languages:
 
 - Source Dutch: English and Telugu
 - Source English: Dutch and Telugu
