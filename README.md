@@ -1,8 +1,8 @@
-# Hover Translate Extension
+# DutchMate
 
-A lightweight cross-browser extension that will translate hovered words or selected webpage text.
+Learn Dutch while reading, with English and Telugu by your side.
 
-This first scaffold intentionally uses placeholder translation only. The goal is to learn and build the extension architecture step by step before wiring a real translation provider.
+DutchMate helps English and Telugu speakers learn Dutch while reading websites, with quick hover and selection translations in context.
 
 ## Current Scope
 

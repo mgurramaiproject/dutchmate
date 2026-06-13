@@ -12,9 +12,10 @@ const distDir = resolve(process.cwd(), "dist", target);
 
 const manifest = {
   manifest_version: 3,
-  name: "Hover Translate",
+  name: "DutchMate",
   version: "0.1.0",
-  description: "Translate hovered words or selected text with a lightweight tooltip.",
+  description:
+    "Learn Dutch while reading, with quick English and Telugu translations in context.",
   permissions: ["storage"],
   host_permissions: ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"],
   background:

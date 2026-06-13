@@ -70,13 +70,13 @@ Notes:
 Firefox:
 
 1. Open `about:addons`.
-2. Select "Hover Translate".
+2. Select "DutchMate".
 3. Open Preferences or Options.
 
 Chrome:
 
 1. Open `chrome://extensions`.
-2. Find "Hover Translate".
+2. Find "DutchMate".
 3. Click "Details".
 4. Click "Extension options".
 

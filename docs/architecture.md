@@ -1,6 +1,6 @@
 # Architecture Notes
 
-Hover Translate is kept small on purpose:
+DutchMate is kept small on purpose:
 
 - Content scripts own webpage interaction: word hover, text selection, tooltip placement.
 - The Options page owns user settings: target language and future provider credentials.
