@@ -106,7 +106,7 @@ Expected result:
 
 - The tooltip shows translations in the other two MVP languages.
 - Telugu source text is detected by script.
-- Dutch and English source text use lightweight MVP detection hints; unknown Latin words fall back to English.
+- Dutch and English source text use nearby page language hints and lightweight MVP detection hints; unknown Latin words fall back to English.
 
 Behavior toggles:
 

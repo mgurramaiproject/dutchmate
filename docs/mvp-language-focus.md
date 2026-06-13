@@ -42,4 +42,4 @@ The user preference is on by default. When enabled, the extension requests the o
 - Source English: Dutch and Telugu
 - Source Telugu: Dutch and English
 
-When source language is Auto, the extension detects Telugu by script and uses simple Dutch/English hints for Latin text. Unknown Latin text falls back to English, while common Dutch words and patterns still route to Dutch.
+When source language is Auto, the extension detects Telugu by script, checks nearby page language hints like `lang="nl"` or `lang="en"`, and uses simple Dutch/English hints for Latin text. Unknown Latin text falls back to English.

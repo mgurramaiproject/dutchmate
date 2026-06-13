@@ -226,7 +226,7 @@ function handleMouseMove(event: MouseEvent): void {
     }
 
     lastHoverKey = hoverKey;
-    showTranslation(hit.word, "hover", hit.x, hit.y);
+    showTranslation(hit.word, "hover", hit.x, hit.y, hit.sourceLanguageHint, hit.languageSample);
   }, currentSettings.hoverDelayMs);
 }
 
@@ -251,7 +251,14 @@ function handleSelection(): void {
 
   activeSelectionText = selectedText;
   const rect = selection.getRangeAt(0).getBoundingClientRect();
-  showTranslation(selectedText, "selection", rect.left, rect.bottom);
+  showTranslation(
+    selectedText,
+    "selection",
+    rect.left,
+    rect.bottom,
+    getLanguageHintForNode(selection.anchorNode),
+    selectedText,
+  );
 }
 
 async function showTranslation(
@@ -259,10 +266,17 @@ async function showTranslation(
   context: TranslationContext,
   x: number,
   y: number,
+  sourceLanguageHint?: string,
+  languageSample = text,
 ): Promise<void> {
   const requestId = beginTooltipRequest("Translating...", context, x, y);
 
-  const response = await requestTranslationForCurrentSettings(text, context);
+  const response = await requestTranslationForCurrentSettings(
+    text,
+    context,
+    languageSample,
+    sourceLanguageHint,
+  );
 
   if (requestId !== activeRequestId) {
     return;
@@ -361,7 +375,10 @@ function hasActiveSelection(): boolean {
   return selectedText === activeSelectionText || activeTooltipContext === "selection";
 }
 
-function getWordAtPoint(clientX: number, clientY: number): { word: string; x: number; y: number } | null {
+function getWordAtPoint(
+  clientX: number,
+  clientY: number,
+): { word: string; x: number; y: number; sourceLanguageHint?: string; languageSample: string } | null {
   const range = getRangeAtPoint(clientX, clientY);
 
   const text = range?.startContainer.textContent;
@@ -391,6 +408,8 @@ function getWordAtPoint(clientX: number, clientY: number): { word: string; x: nu
     word: match.word,
     x: rect.left,
     y: rect.bottom,
+    sourceLanguageHint: getLanguageHintForNode(textNode),
+    languageSample: text,
   };
 }
 
@@ -593,8 +612,10 @@ async function requestTranslation(
 async function requestTranslationForCurrentSettings(
   text: string,
   context: TranslationContext,
+  languageSample: string,
+  sourceLanguageHint?: string,
 ): Promise<TranslateMessageResponse> {
-  const sourceLanguage = getActiveSourceLanguage(text);
+  const sourceLanguage = getActiveSourceLanguage(languageSample, sourceLanguageHint);
   const targetLanguages = getActiveTargetLanguages(sourceLanguage);
 
   if (targetLanguages.length <= 1) {
@@ -637,7 +658,7 @@ function getActiveTargetLanguages(sourceLanguage: string): string[] {
     .filter((languageCode) => languageCode !== sourceLanguage);
 }
 
-function getActiveSourceLanguage(text: string): string {
+function getActiveSourceLanguage(text: string, sourceLanguageHint?: string): string {
   if (currentSettings.sourceLanguage !== "auto") {
     return currentSettings.sourceLanguage;
   }
@@ -646,12 +667,16 @@ function getActiveSourceLanguage(text: string): string {
     return "auto";
   }
 
-  return detectMvpSourceLanguage(text);
+  return detectMvpSourceLanguage(text, sourceLanguageHint);
 }
 
-function detectMvpSourceLanguage(text: string): string {
+function detectMvpSourceLanguage(text: string, sourceLanguageHint?: string): string {
   if (/[\u0C00-\u0C7F]/u.test(text)) {
     return "te";
+  }
+
+  if (sourceLanguageHint) {
+    return sourceLanguageHint;
   }
 
   const words = text.toLowerCase().match(/[\p{Letter}]+/gu) ?? [];
@@ -690,4 +715,22 @@ function detectMvpSourceLanguage(text: string): string {
 
 function getLanguageLabel(languageCode: string): string {
   return mvpLanguages.find((language) => language.code === languageCode)?.label ?? languageCode;
+}
+
+function getLanguageHintForNode(node: Node | null): string | undefined {
+  const element =
+    node instanceof Element
+      ? node
+      : node?.parentElement;
+  const language =
+    normalizeLanguageCode(element?.closest("[lang]")?.getAttribute("lang")) ??
+    normalizeLanguageCode(document.documentElement.lang);
+
+  return language;
+}
+
+function normalizeLanguageCode(value: string | null | undefined): string | undefined {
+  const languageCode = value?.trim().toLowerCase().split("-")[0];
+
+  return languageCode && supportedTargetLanguages.has(languageCode) ? languageCode : undefined;
 }
