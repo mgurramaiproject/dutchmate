@@ -25,6 +25,7 @@ export type ExtensionSettings = {
   maxSelectionLength: number;
   sourceLanguage: SourceLanguageCode;
   targetLanguage: MvpLanguageCode;
+  translateToOtherMvpLanguages: boolean;
   providerEndpoint: string;
   providerApiKey: string;
 };
@@ -37,6 +38,7 @@ export const defaultSettings: ExtensionSettings = {
   maxSelectionLength: 600,
   sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
   targetLanguage: DEFAULT_TARGET_LANGUAGE,
+  translateToOtherMvpLanguages: false,
   providerEndpoint: "",
   providerApiKey: "",
 };
@@ -58,6 +60,10 @@ export async function readSettings(): Promise<ExtensionSettings> {
     ),
     sourceLanguage: getSourceLanguageCode(stored.sourceLanguage, defaultSettings.sourceLanguage),
     targetLanguage: getMvpLanguageCode(stored.targetLanguage, defaultSettings.targetLanguage),
+    translateToOtherMvpLanguages: getBooleanSetting(
+      stored.translateToOtherMvpLanguages,
+      defaultSettings.translateToOtherMvpLanguages,
+    ),
     providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
     providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
   };

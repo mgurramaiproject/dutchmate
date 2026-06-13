@@ -20,6 +20,9 @@ const hoverDelayValue = document.querySelector<HTMLOutputElement>("#hover-delay-
 const maxSelectionLengthValue = document.querySelector<HTMLOutputElement>("#max-selection-length-value");
 const sourceLanguage = document.querySelector<HTMLSelectElement>("#source-language");
 const targetLanguage = document.querySelector<HTMLSelectElement>("#target-language");
+const translateToOtherMvpLanguages = document.querySelector<HTMLInputElement>(
+  "#translate-to-other-mvp-languages",
+);
 const providerEndpoint = document.querySelector<HTMLInputElement>("#provider-endpoint");
 const providerApiKey = document.querySelector<HTMLInputElement>("#provider-api-key");
 const testEndpoint = document.querySelector<HTMLButtonElement>("#test-endpoint");
@@ -50,6 +53,10 @@ async function restoreSettings(): Promise<void> {
 
   if (targetLanguage) {
     targetLanguage.value = settings.targetLanguage;
+  }
+
+  if (translateToOtherMvpLanguages) {
+    translateToOtherMvpLanguages.checked = settings.translateToOtherMvpLanguages;
   }
 
   if (isEnabled) {
@@ -120,6 +127,8 @@ async function saveSettings(): Promise<void> {
     maxSelectionLength: maxSelectionLengthValue,
     sourceLanguage: getSourceLanguageCode(sourceLanguage?.value, defaultSettings.sourceLanguage),
     targetLanguage: getMvpLanguageCode(targetLanguage?.value, defaultSettings.targetLanguage),
+    translateToOtherMvpLanguages:
+      translateToOtherMvpLanguages?.checked ?? defaultSettings.translateToOtherMvpLanguages,
     providerEndpoint: endpoint,
     providerApiKey: providerApiKey?.value.trim() || "",
   };

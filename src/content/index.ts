@@ -10,6 +10,7 @@ const defaultSettings: ExtensionSettings = {
   maxSelectionLength: 600,
   sourceLanguage: "auto",
   targetLanguage: "en",
+  translateToOtherMvpLanguages: false,
   providerEndpoint: "",
   providerApiKey: "",
 };
@@ -24,6 +25,7 @@ type ExtensionSettings = {
   maxSelectionLength: number;
   sourceLanguage: string;
   targetLanguage: string;
+  translateToOtherMvpLanguages: boolean;
   providerEndpoint: string;
   providerApiKey: string;
 };
@@ -391,6 +393,9 @@ function settingChangesToPartialSettings(
     maxSelectionLength: getOptionalNumberSetting(changes.maxSelectionLength?.newValue),
     sourceLanguage: getOptionalSourceLanguageSetting(changes.sourceLanguage?.newValue),
     targetLanguage: getOptionalTargetLanguageSetting(changes.targetLanguage?.newValue),
+    translateToOtherMvpLanguages: getOptionalBooleanSetting(
+      changes.translateToOtherMvpLanguages?.newValue,
+    ),
     providerEndpoint: getOptionalStringSetting(changes.providerEndpoint?.newValue),
     providerApiKey: getOptionalStringSetting(changes.providerApiKey?.newValue),
   };
@@ -422,6 +427,10 @@ async function readSettings(): Promise<ExtensionSettings> {
         ),
         sourceLanguage: getSourceLanguageSetting(stored.sourceLanguage, defaultSettings.sourceLanguage),
         targetLanguage: getTargetLanguageSetting(stored.targetLanguage, defaultSettings.targetLanguage),
+        translateToOtherMvpLanguages: getBooleanSetting(
+          stored.translateToOtherMvpLanguages,
+          defaultSettings.translateToOtherMvpLanguages,
+        ),
         providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
         providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
       });

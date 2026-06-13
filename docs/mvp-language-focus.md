@@ -37,3 +37,11 @@ For more accurate MyMemory testing, set the source language explicitly in Option
 ## Future Dual-Language Output
 
 It is possible to translate one source text into two target languages, such as Dutch to English and Telugu. That should be a separate backend and tooltip contract change so the UI can show both results clearly.
+
+The user preference is opt-in. When enabled with an explicit source language, the intended target set is the other two MVP languages:
+
+- Source Dutch: English and Telugu
+- Source English: Dutch and Telugu
+- Source Telugu: Dutch and English
+
+When source language is Auto, dual-language output should stay inactive until the user chooses an explicit source language.

@@ -93,6 +93,7 @@ Expected result:
 - The placeholder tooltip shows the selected language code.
 - The target-language dropdown only shows English, Dutch, and Telugu.
 - The source-language dropdown shows Auto, English, Dutch, and Telugu.
+- "Show the other two MVP languages" is off by default and remains saved after toggling.
 
 Behavior toggles:
 
@@ -207,3 +208,4 @@ You can stop the mock server with `Ctrl+C`.
 - Selection text is capped to keep the MVP lightweight.
 - Target languages are intentionally limited to English (`en`), Dutch (`nl`), and Telugu (`te`).
 - Source languages are limited to Auto, English (`en`), Dutch (`nl`), and Telugu (`te`).
+- Dual-language output is opt-in and currently only stores the preference; translation behavior will change in the next contract step.
