@@ -7,7 +7,7 @@ import {
   validateMaxSelectionLength,
   type ExtensionSettings,
 } from "../shared/settings";
-import { MVP_LANGUAGES, getMvpLanguageCode } from "../shared/languages";
+import { MVP_LANGUAGES, getMvpLanguageCode, getSourceLanguageCode } from "../shared/languages";
 import "./styles.css";
 
 const form = document.querySelector<HTMLFormElement>("#options-form");
@@ -18,6 +18,7 @@ const hoverDelayMs = document.querySelector<HTMLInputElement>("#hover-delay-ms")
 const maxSelectionLength = document.querySelector<HTMLInputElement>("#max-selection-length");
 const hoverDelayValue = document.querySelector<HTMLOutputElement>("#hover-delay-value");
 const maxSelectionLengthValue = document.querySelector<HTMLOutputElement>("#max-selection-length-value");
+const sourceLanguage = document.querySelector<HTMLSelectElement>("#source-language");
 const targetLanguage = document.querySelector<HTMLSelectElement>("#target-language");
 const providerEndpoint = document.querySelector<HTMLInputElement>("#provider-endpoint");
 const providerApiKey = document.querySelector<HTMLInputElement>("#provider-api-key");
@@ -25,7 +26,7 @@ const testEndpoint = document.querySelector<HTMLButtonElement>("#test-endpoint")
 const status = document.querySelector<HTMLParagraphElement>("#status");
 let statusTimer: number | undefined;
 
-renderTargetLanguageOptions();
+renderLanguageOptions();
 void restoreSettings();
 
 form?.addEventListener("submit", (event) => {
@@ -42,6 +43,10 @@ maxSelectionLength?.addEventListener("input", updateTuningValueLabels);
 
 async function restoreSettings(): Promise<void> {
   const settings = await readSettings();
+
+  if (sourceLanguage) {
+    sourceLanguage.value = settings.sourceLanguage;
+  }
 
   if (targetLanguage) {
     targetLanguage.value = settings.targetLanguage;
@@ -113,6 +118,7 @@ async function saveSettings(): Promise<void> {
     translateOnSelection: translateOnSelection?.checked ?? defaultSettings.translateOnSelection,
     hoverDelayMs: hoverDelayValue,
     maxSelectionLength: maxSelectionLengthValue,
+    sourceLanguage: getSourceLanguageCode(sourceLanguage?.value, defaultSettings.sourceLanguage),
     targetLanguage: getMvpLanguageCode(targetLanguage?.value, defaultSettings.targetLanguage),
     providerEndpoint: endpoint,
     providerApiKey: providerApiKey?.value.trim() || "",
@@ -190,7 +196,7 @@ async function requestEndpointTest(endpoint: string, apiKey: string): Promise<st
     headers,
     body: JSON.stringify({
       text: "bonjour",
-      sourceLanguage: "auto",
+      sourceLanguage: getSourceLanguageCode(sourceLanguage?.value, defaultSettings.sourceLanguage),
       targetLanguage: getMvpLanguageCode(targetLanguage?.value, defaultSettings.targetLanguage),
       context: "selection",
     }),
@@ -214,7 +220,23 @@ async function requestEndpointTest(endpoint: string, apiKey: string): Promise<st
   throw new Error("Provider response is missing translatedText");
 }
 
-function renderTargetLanguageOptions(): void {
+function renderLanguageOptions(): void {
+  if (sourceLanguage) {
+    const autoOption = document.createElement("option");
+    autoOption.value = "auto";
+    autoOption.textContent = "Auto";
+
+    sourceLanguage.replaceChildren(
+      autoOption,
+      ...MVP_LANGUAGES.map((language) => {
+        const option = document.createElement("option");
+        option.value = language.code;
+        option.textContent = language.label;
+        return option;
+      }),
+    );
+  }
+
   if (!targetLanguage) {
     return;
   }

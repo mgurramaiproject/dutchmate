@@ -1,5 +1,12 @@
 import browser from "webextension-polyfill";
-import { DEFAULT_TARGET_LANGUAGE, getMvpLanguageCode, type MvpLanguageCode } from "./languages";
+import {
+  DEFAULT_SOURCE_LANGUAGE,
+  DEFAULT_TARGET_LANGUAGE,
+  getMvpLanguageCode,
+  getSourceLanguageCode,
+  type MvpLanguageCode,
+  type SourceLanguageCode,
+} from "./languages";
 
 export const HOVER_DELAY_LIMITS = {
   min: 150,
@@ -16,6 +23,7 @@ export type ExtensionSettings = {
   translateOnSelection: boolean;
   hoverDelayMs: number;
   maxSelectionLength: number;
+  sourceLanguage: SourceLanguageCode;
   targetLanguage: MvpLanguageCode;
   providerEndpoint: string;
   providerApiKey: string;
@@ -27,6 +35,7 @@ export const defaultSettings: ExtensionSettings = {
   translateOnSelection: true,
   hoverDelayMs: 450,
   maxSelectionLength: 600,
+  sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
   targetLanguage: DEFAULT_TARGET_LANGUAGE,
   providerEndpoint: "",
   providerApiKey: "",
@@ -47,6 +56,7 @@ export async function readSettings(): Promise<ExtensionSettings> {
       stored.maxSelectionLength,
       defaultSettings.maxSelectionLength,
     ),
+    sourceLanguage: getSourceLanguageCode(stored.sourceLanguage, defaultSettings.sourceLanguage),
     targetLanguage: getMvpLanguageCode(stored.targetLanguage, defaultSettings.targetLanguage),
     providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
     providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),

@@ -8,11 +8,13 @@ const defaultSettings: ExtensionSettings = {
   translateOnSelection: true,
   hoverDelayMs: 450,
   maxSelectionLength: 600,
+  sourceLanguage: "auto",
   targetLanguage: "en",
   providerEndpoint: "",
   providerApiKey: "",
 };
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
+const supportedSourceLanguages = new Set(["auto", "en", "nl", "te"]);
 
 type ExtensionSettings = {
   isEnabled: boolean;
@@ -20,6 +22,7 @@ type ExtensionSettings = {
   translateOnSelection: boolean;
   hoverDelayMs: number;
   maxSelectionLength: number;
+  sourceLanguage: string;
   targetLanguage: string;
   providerEndpoint: string;
   providerApiKey: string;
@@ -386,6 +389,7 @@ function settingChangesToPartialSettings(
     translateOnSelection: getOptionalBooleanSetting(changes.translateOnSelection?.newValue),
     hoverDelayMs: getOptionalNumberSetting(changes.hoverDelayMs?.newValue),
     maxSelectionLength: getOptionalNumberSetting(changes.maxSelectionLength?.newValue),
+    sourceLanguage: getOptionalSourceLanguageSetting(changes.sourceLanguage?.newValue),
     targetLanguage: getOptionalTargetLanguageSetting(changes.targetLanguage?.newValue),
     providerEndpoint: getOptionalStringSetting(changes.providerEndpoint?.newValue),
     providerApiKey: getOptionalStringSetting(changes.providerApiKey?.newValue),
@@ -416,6 +420,7 @@ async function readSettings(): Promise<ExtensionSettings> {
           stored.maxSelectionLength,
           defaultSettings.maxSelectionLength,
         ),
+        sourceLanguage: getSourceLanguageSetting(stored.sourceLanguage, defaultSettings.sourceLanguage),
         targetLanguage: getTargetLanguageSetting(stored.targetLanguage, defaultSettings.targetLanguage),
         providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
         providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
@@ -432,6 +437,10 @@ function getTargetLanguageSetting(value: unknown, fallback: string): string {
   return typeof value === "string" && supportedTargetLanguages.has(value) ? value : fallback;
 }
 
+function getSourceLanguageSetting(value: unknown, fallback: string): string {
+  return typeof value === "string" && supportedSourceLanguages.has(value) ? value : fallback;
+}
+
 function getBooleanSetting(value: unknown, fallback: boolean): boolean {
   return typeof value === "boolean" ? value : fallback;
 }
@@ -446,6 +455,10 @@ function getOptionalStringSetting(value: unknown): string | undefined {
 
 function getOptionalTargetLanguageSetting(value: unknown): string | undefined {
   return typeof value === "string" && supportedTargetLanguages.has(value) ? value : undefined;
+}
+
+function getOptionalSourceLanguageSetting(value: unknown): string | undefined {
+  return typeof value === "string" && supportedSourceLanguages.has(value) ? value : undefined;
 }
 
 function getOptionalBooleanSetting(value: unknown): boolean | undefined {
@@ -473,7 +486,7 @@ async function requestTranslation(
         type: TRANSLATE_MESSAGE,
         payload: {
           text,
-          sourceLanguage: "auto",
+          sourceLanguage: currentSettings.sourceLanguage,
           targetLanguage: currentSettings.targetLanguage,
           context,
         },

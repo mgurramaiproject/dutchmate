@@ -14,7 +14,9 @@ export const MVP_LANGUAGES = [
 ] as const;
 
 export type MvpLanguageCode = (typeof MVP_LANGUAGES)[number]["code"];
+export type SourceLanguageCode = "auto" | MvpLanguageCode;
 
+export const DEFAULT_SOURCE_LANGUAGE: SourceLanguageCode = "auto";
 export const DEFAULT_TARGET_LANGUAGE: MvpLanguageCode = "en";
 
 const MVP_LANGUAGE_CODES = new Set<string>(MVP_LANGUAGES.map((language) => language.code));
@@ -27,5 +29,16 @@ export function getMvpLanguageCode(
   value: unknown,
   fallback = DEFAULT_TARGET_LANGUAGE,
 ): MvpLanguageCode {
+  return typeof value === "string" && isMvpLanguageCode(value) ? value : fallback;
+}
+
+export function getSourceLanguageCode(
+  value: unknown,
+  fallback = DEFAULT_SOURCE_LANGUAGE,
+): SourceLanguageCode {
+  if (value === "auto") {
+    return value;
+  }
+
   return typeof value === "string" && isMvpLanguageCode(value) ? value : fallback;
 }

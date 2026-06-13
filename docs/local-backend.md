@@ -94,12 +94,13 @@ DeepL's translate endpoint expects `Authorization: DeepL-Auth-Key ...`, JSON `te
 
 To try MyMemory:
 
-1. Keep `MYMEMORY_SOURCE_LANGUAGE=nl` for the Dutch-learning MVP.
+1. Keep `MYMEMORY_SOURCE_LANGUAGE=nl` as the fallback for Auto source-language requests.
 2. Optionally add `MYMEMORY_EMAIL` to raise the daily free limit.
 3. Change `TRANSLATION_PROVIDER` to `mymemory`.
 4. Restart the backend with `corepack pnpm backend:dev:env`.
+5. In extension Options, set Source language and Target language explicitly for best results.
 
-MyMemory uses a `langpair` such as `nl|te`. Because the extension currently sends `sourceLanguage: "auto"`, the backend uses `MYMEMORY_SOURCE_LANGUAGE` as the source fallback. For this MVP, supported language codes are:
+MyMemory uses a `langpair` such as `nl|te`. When the extension sends `sourceLanguage: "auto"`, the backend uses `MYMEMORY_SOURCE_LANGUAGE` as the source fallback. For this MVP, supported language codes are:
 
 - `nl`: Dutch
 - `en`: English

@@ -82,15 +82,17 @@ Chrome:
 
 Test:
 
-1. Change the target language.
-2. Click "Save".
-3. Return to a webpage where the extension is active.
-4. Hover or select text again.
+1. Change the source language.
+2. Change the target language.
+3. Click "Save".
+4. Return to a webpage where the extension is active.
+5. Hover or select text again.
 
 Expected result:
 
 - The placeholder tooltip shows the selected language code.
 - The target-language dropdown only shows English, Dutch, and Telugu.
+- The source-language dropdown shows Auto, English, Dutch, and Telugu.
 
 Behavior toggles:
 
@@ -204,3 +206,4 @@ You can stop the mock server with `Ctrl+C`.
 - Hover translation only detects one word at a time.
 - Selection text is capped to keep the MVP lightweight.
 - Target languages are intentionally limited to English (`en`), Dutch (`nl`), and Telugu (`te`).
+- Source languages are limited to Auto, English (`en`), Dutch (`nl`), and Telugu (`te`).

@@ -8,7 +8,7 @@ For the MVP, support only:
 - `en`: English
 - `te`: Telugu
 
-The Options page target-language dropdown should show only these three languages.
+The Options page target-language dropdown should show only these three languages. The source-language dropdown should show Auto plus these three languages.
 
 This focus affects provider choice. A provider is not useful for the MVP unless it can handle Telugu, English, and Dutch well enough for real learning workflows.
 
@@ -22,9 +22,9 @@ Recommended order:
 2. `mymemory`: no-credit-card hosted testing for the `nl`, `en`, `te` language triangle.
 3. Experimental `google-web` or `bing-web`: possible later, inspired by MouseTooltipTranslator, but should be feature-flagged because unofficial web endpoints can break.
 
-## Current Limitation
+## Source Language
 
-The extension currently sends `sourceLanguage: "auto"` to the backend. MyMemory requires a source-target language pair, so the backend uses `MYMEMORY_SOURCE_LANGUAGE` as a fallback when the request source is `auto`.
+The extension can send `sourceLanguage: "auto"`, `nl`, `en`, or `te` to the backend. MyMemory requires a source-target language pair, so the backend uses `MYMEMORY_SOURCE_LANGUAGE` as a fallback only when the request source is `auto`.
 
 For Dutch-learning pages, keep:
 
@@ -32,4 +32,8 @@ For Dutch-learning pages, keep:
 MYMEMORY_SOURCE_LANGUAGE=nl
 ```
 
-Later, we can add a source-language control or smarter webpage-language detection if users need English-to-Dutch or Telugu-to-Dutch workflows.
+For more accurate MyMemory testing, set the source language explicitly in Options, such as Dutch to Telugu.
+
+## Future Dual-Language Output
+
+It is possible to translate one source text into two target languages, such as Dutch to English and Telugu. That should be a separate backend and tooltip contract change so the UI can show both results clearly.
