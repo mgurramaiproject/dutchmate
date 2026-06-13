@@ -1,9 +1,9 @@
 {
-  "name": "hover-translate-extension",
+  "name": "dutchmate-extension",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A lightweight cross-browser extension for placeholder hover and selection translation.",
+  "description": "DutchMate helps English and Telugu speakers learn Dutch while reading websites.",
   "scripts": {
     "dev:chrome": "vite build --mode chrome --watch",
     "dev:firefox": "vite build --mode firefox --watch",
