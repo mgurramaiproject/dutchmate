@@ -34,20 +34,31 @@ const dutchLanguageHints = new Set([
   "geen",
   "goedemorgen",
   "hallo",
+  "heb",
+  "hebben",
   "het",
+  "hoe",
+  "huis",
   "ik",
   "is",
   "je",
   "jij",
+  "kan",
+  "leren",
   "maar",
   "met",
   "nederlands",
   "niet",
   "ook",
   "op",
+  "spreek",
+  "taal",
   "te",
   "van",
   "voor",
+  "waar",
+  "wat",
+  "wij",
   "zijn",
 ]);
 const englishLanguageHints = new Set([
@@ -656,12 +667,21 @@ function detectMvpSourceLanguage(text: string): string {
       englishScore += 1;
     }
 
-    if (word.includes("ij") || word.includes("sch")) {
+    if (
+      word.includes("ij") ||
+      word.includes("sch") ||
+      word.includes("oe") ||
+      word.includes("ui")
+    ) {
       dutchScore += 1;
     }
   }
 
-  if (englishScore > dutchScore) {
+  if (dutchScore > englishScore) {
+    return "nl";
+  }
+
+  if (englishScore > dutchScore || words.length > 0) {
     return "en";
   }
 
