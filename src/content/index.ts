@@ -12,6 +12,7 @@ const defaultSettings: ExtensionSettings = {
   providerEndpoint: "",
   providerApiKey: "",
 };
+const supportedTargetLanguages = new Set(["en", "nl", "te"]);
 
 type ExtensionSettings = {
   isEnabled: boolean;
@@ -385,7 +386,7 @@ function settingChangesToPartialSettings(
     translateOnSelection: getOptionalBooleanSetting(changes.translateOnSelection?.newValue),
     hoverDelayMs: getOptionalNumberSetting(changes.hoverDelayMs?.newValue),
     maxSelectionLength: getOptionalNumberSetting(changes.maxSelectionLength?.newValue),
-    targetLanguage: getOptionalStringSetting(changes.targetLanguage?.newValue),
+    targetLanguage: getOptionalTargetLanguageSetting(changes.targetLanguage?.newValue),
     providerEndpoint: getOptionalStringSetting(changes.providerEndpoint?.newValue),
     providerApiKey: getOptionalStringSetting(changes.providerApiKey?.newValue),
   };
@@ -415,7 +416,7 @@ async function readSettings(): Promise<ExtensionSettings> {
           stored.maxSelectionLength,
           defaultSettings.maxSelectionLength,
         ),
-        targetLanguage: getStringSetting(stored.targetLanguage, defaultSettings.targetLanguage),
+        targetLanguage: getTargetLanguageSetting(stored.targetLanguage, defaultSettings.targetLanguage),
         providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
         providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
       });
@@ -425,6 +426,10 @@ async function readSettings(): Promise<ExtensionSettings> {
 
 function getStringSetting(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;
+}
+
+function getTargetLanguageSetting(value: unknown, fallback: string): string {
+  return typeof value === "string" && supportedTargetLanguages.has(value) ? value : fallback;
 }
 
 function getBooleanSetting(value: unknown, fallback: boolean): boolean {
@@ -437,6 +442,10 @@ function getNumberSetting(value: unknown, fallback: number): number {
 
 function getOptionalStringSetting(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
+}
+
+function getOptionalTargetLanguageSetting(value: unknown): string | undefined {
+  return typeof value === "string" && supportedTargetLanguages.has(value) ? value : undefined;
 }
 
 function getOptionalBooleanSetting(value: unknown): boolean | undefined {

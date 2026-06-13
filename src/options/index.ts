@@ -7,6 +7,7 @@ import {
   validateMaxSelectionLength,
   type ExtensionSettings,
 } from "../shared/settings";
+import { MVP_LANGUAGES, getMvpLanguageCode } from "../shared/languages";
 import "./styles.css";
 
 const form = document.querySelector<HTMLFormElement>("#options-form");
@@ -24,6 +25,7 @@ const testEndpoint = document.querySelector<HTMLButtonElement>("#test-endpoint")
 const status = document.querySelector<HTMLParagraphElement>("#status");
 let statusTimer: number | undefined;
 
+renderTargetLanguageOptions();
 void restoreSettings();
 
 form?.addEventListener("submit", (event) => {
@@ -111,7 +113,7 @@ async function saveSettings(): Promise<void> {
     translateOnSelection: translateOnSelection?.checked ?? defaultSettings.translateOnSelection,
     hoverDelayMs: hoverDelayValue,
     maxSelectionLength: maxSelectionLengthValue,
-    targetLanguage: targetLanguage?.value || defaultSettings.targetLanguage,
+    targetLanguage: getMvpLanguageCode(targetLanguage?.value, defaultSettings.targetLanguage),
     providerEndpoint: endpoint,
     providerApiKey: providerApiKey?.value.trim() || "",
   };
@@ -189,7 +191,7 @@ async function requestEndpointTest(endpoint: string, apiKey: string): Promise<st
     body: JSON.stringify({
       text: "bonjour",
       sourceLanguage: "auto",
-      targetLanguage: targetLanguage?.value || defaultSettings.targetLanguage,
+      targetLanguage: getMvpLanguageCode(targetLanguage?.value, defaultSettings.targetLanguage),
       context: "selection",
     }),
   });
@@ -210,6 +212,21 @@ async function requestEndpointTest(endpoint: string, apiKey: string): Promise<st
   }
 
   throw new Error("Provider response is missing translatedText");
+}
+
+function renderTargetLanguageOptions(): void {
+  if (!targetLanguage) {
+    return;
+  }
+
+  targetLanguage.replaceChildren(
+    ...MVP_LANGUAGES.map((language) => {
+      const option = document.createElement("option");
+      option.value = language.code;
+      option.textContent = language.label;
+      return option;
+    }),
+  );
 }
 
 function setTestButtonBusy(isBusy: boolean): void {

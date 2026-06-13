@@ -8,6 +8,8 @@ For the MVP, support only:
 - `en`: English
 - `te`: Telugu
 
+The Options page target-language dropdown should show only these three languages.
+
 This focus affects provider choice. A provider is not useful for the MVP unless it can handle Telugu, English, and Dutch well enough for real learning workflows.
 
 ## Current Provider Direction

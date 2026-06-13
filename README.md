@@ -13,6 +13,7 @@ This first scaffold intentionally uses placeholder translation only. The goal is
 - `webextension-polyfill` for cross-browser extension APIs
 - Content script tooltip for hover and selection
 - Options page shell for target language and future provider settings
+- MVP target languages: English, Dutch, and Telugu
 - Optional custom JSON translation endpoint
 
 ## Commands

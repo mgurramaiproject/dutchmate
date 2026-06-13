@@ -90,6 +90,7 @@ Test:
 Expected result:
 
 - The placeholder tooltip shows the selected language code.
+- The target-language dropdown only shows English, Dutch, and Telugu.
 
 Behavior toggles:
 
@@ -202,3 +203,4 @@ You can stop the mock server with `Ctrl+C`.
 - Translation uses placeholder text until a provider endpoint is configured.
 - Hover translation only detects one word at a time.
 - Selection text is capped to keep the MVP lightweight.
+- Target languages are intentionally limited to English (`en`), Dutch (`nl`), and Telugu (`te`).
