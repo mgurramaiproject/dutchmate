@@ -16,6 +16,28 @@ describe("validateTranslationRequest", () => {
     ).toBeNull();
   });
 
+  it("accepts explicit MVP source languages", () => {
+    expect(
+      validateTranslationRequest({
+        text: "hallo",
+        sourceLanguage: "nl",
+        targetLanguage: "te",
+        context: "hover",
+      }),
+    ).toBeNull();
+  });
+
+  it("rejects unsupported source languages", () => {
+    expect(
+      validateTranslationRequest({
+        text: "bonjour",
+        sourceLanguage: "fr",
+        targetLanguage: "en",
+        context: "hover",
+      }),
+    ).toBe("sourceLanguage must be auto, en, nl, or te");
+  });
+
   it("rejects missing text", () => {
     expect(
       validateTranslationRequest({
@@ -40,17 +62,17 @@ describe("validateTranslationRequest", () => {
 });
 
 describe("normalizeTranslationRequest", () => {
-  it("trims text and normalizes target language", () => {
+  it("trims text and normalizes language codes", () => {
     expect(
       normalizeTranslationRequest({
         text: " bonjour ",
-        sourceLanguage: "auto",
+        sourceLanguage: " NL ",
         targetLanguage: " EN ",
         context: "selection",
       }),
     ).toEqual({
       text: "bonjour",
-      sourceLanguage: "auto",
+      sourceLanguage: "nl",
       targetLanguage: "en",
       context: "selection",
     });

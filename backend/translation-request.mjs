@@ -1,4 +1,5 @@
 export const TRANSLATION_CONTEXTS = new Set(["hover", "selection"]);
+export const SOURCE_LANGUAGES = new Set(["auto", "en", "nl", "te"]);
 
 export function validateTranslationRequest(body) {
   if (!isObject(body)) {
@@ -9,8 +10,8 @@ export function validateTranslationRequest(body) {
     return "text is required";
   }
 
-  if (body.sourceLanguage !== "auto") {
-    return "sourceLanguage must be auto";
+  if (typeof body.sourceLanguage !== "string" || !SOURCE_LANGUAGES.has(body.sourceLanguage.trim().toLowerCase())) {
+    return "sourceLanguage must be auto, en, nl, or te";
   }
 
   if (typeof body.targetLanguage !== "string" || !body.targetLanguage.trim()) {
@@ -27,7 +28,7 @@ export function validateTranslationRequest(body) {
 export function normalizeTranslationRequest(body) {
   return {
     text: body.text.trim(),
-    sourceLanguage: body.sourceLanguage,
+    sourceLanguage: body.sourceLanguage.trim().toLowerCase(),
     targetLanguage: body.targetLanguage.trim().toLowerCase(),
     context: body.context,
   };
