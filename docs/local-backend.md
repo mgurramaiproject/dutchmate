@@ -62,6 +62,7 @@ Supported providers:
 
 - `local-dev`: local, free, dependency-free development provider.
 - `deepl`: DeepL API provider. Requires `DEEPL_API_KEY`.
+- `mymemory`: hosted no-credit-card provider. Best current candidate for Telugu, English, and Dutch MVP testing.
 
 Later provider adapters should be added behind the same factory, so the extension can keep calling the same `/translate` endpoint.
 
@@ -75,6 +76,9 @@ HOST=127.0.0.1
 PORT=8787
 DEEPL_API_URL=https://api-free.deepl.com/v2/translate
 # DEEPL_API_KEY=replace-me
+MYMEMORY_API_URL=https://api.mymemory.translated.net/get
+MYMEMORY_SOURCE_LANGUAGE=nl
+# MYMEMORY_EMAIL=learner@example.com
 ```
 
 Invalid values stop the backend immediately with a clear error. This is intentional: provider problems should be visible at startup, not only after a user hovers over text.
@@ -87,6 +91,19 @@ To try DeepL later:
 4. Restart the backend with `corepack pnpm backend:dev:env`.
 
 DeepL's translate endpoint expects `Authorization: DeepL-Auth-Key ...`, JSON `text` as an array, and `target_lang` as the target language code. API Free users should use `https://api-free.deepl.com/v2/translate`.
+
+To try MyMemory:
+
+1. Keep `MYMEMORY_SOURCE_LANGUAGE=nl` for the Dutch-learning MVP.
+2. Optionally add `MYMEMORY_EMAIL` to raise the daily free limit.
+3. Change `TRANSLATION_PROVIDER` to `mymemory`.
+4. Restart the backend with `corepack pnpm backend:dev:env`.
+
+MyMemory uses a `langpair` such as `nl|te`. Because the extension currently sends `sourceLanguage: "auto"`, the backend uses `MYMEMORY_SOURCE_LANGUAGE` as the source fallback. For this MVP, supported language codes are:
+
+- `nl`: Dutch
+- `en`: English
+- `te`: Telugu
 
 ## Backend Boundaries
 

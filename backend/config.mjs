@@ -3,19 +3,24 @@ import { DEFAULT_TRANSLATION_PROVIDER } from "./providers/provider-factory.mjs";
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 8787;
 const DEFAULT_DEEPL_API_URL = "https://api-free.deepl.com/v2/translate";
-const SUPPORTED_PROVIDERS = new Set([DEFAULT_TRANSLATION_PROVIDER, "deepl"]);
+const DEFAULT_MYMEMORY_API_URL = "https://api.mymemory.translated.net/get";
+const DEFAULT_MYMEMORY_SOURCE_LANGUAGE = "nl";
+const SUPPORTED_LANGUAGES = new Set(["nl", "en", "te"]);
+const SUPPORTED_PROVIDERS = new Set([DEFAULT_TRANSLATION_PROVIDER, "deepl", "mymemory"]);
 
 export function readBackendConfig(environment = process.env) {
   const provider = normalizeProvider(environment.TRANSLATION_PROVIDER);
   const host = normalizeHost(environment.HOST);
   const port = normalizePort(environment.PORT);
   const deepl = normalizeDeepLConfig(provider, environment);
+  const mymemory = normalizeMyMemoryConfig(environment);
 
   return {
     provider,
     host,
     port,
     deepl,
+    mymemory,
   };
 }
 
@@ -27,7 +32,9 @@ function normalizeProvider(value) {
   }
 
   if (!SUPPORTED_PROVIDERS.has(provider)) {
-    throw new Error(`Unsupported TRANSLATION_PROVIDER "${value}". Supported providers: local-dev, deepl`);
+    throw new Error(
+      `Unsupported TRANSLATION_PROVIDER "${value}". Supported providers: local-dev, deepl, mymemory`,
+    );
   }
 
   return provider;
@@ -77,6 +84,31 @@ function normalizeDeepLConfig(provider, environment) {
     apiKey,
     apiUrl,
   };
+}
+
+function normalizeMyMemoryConfig(environment) {
+  const apiUrl = environment.MYMEMORY_API_URL?.trim() ?? DEFAULT_MYMEMORY_API_URL;
+  const defaultSourceLanguage = (
+    environment.MYMEMORY_SOURCE_LANGUAGE ?? DEFAULT_MYMEMORY_SOURCE_LANGUAGE
+  )
+    .trim()
+    .toLowerCase();
+  const email = environment.MYMEMORY_EMAIL?.trim() || undefined;
+
+  validateHttpUrl("MYMEMORY_API_URL", apiUrl);
+  validateSupportedLanguage("MYMEMORY_SOURCE_LANGUAGE", defaultSourceLanguage);
+
+  return {
+    apiUrl,
+    defaultSourceLanguage,
+    email,
+  };
+}
+
+function validateSupportedLanguage(name, value) {
+  if (!SUPPORTED_LANGUAGES.has(value)) {
+    throw new Error(`${name} must be one of: nl, en, te`);
+  }
 }
 
 function validateHttpUrl(name, value) {

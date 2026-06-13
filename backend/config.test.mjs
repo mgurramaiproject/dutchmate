@@ -10,6 +10,11 @@ describe("readBackendConfig", () => {
       deepl: {
         apiUrl: "https://api-free.deepl.com/v2/translate",
       },
+      mymemory: {
+        apiUrl: "https://api.mymemory.translated.net/get",
+        defaultSourceLanguage: "nl",
+        email: undefined,
+      },
     });
   });
 
@@ -20,6 +25,9 @@ describe("readBackendConfig", () => {
         HOST: " 0.0.0.0 ",
         PORT: "3000",
         DEEPL_API_URL: " https://example.test/v2/translate ",
+        MYMEMORY_API_URL: " https://example.test/get ",
+        MYMEMORY_SOURCE_LANGUAGE: " TE ",
+        MYMEMORY_EMAIL: " learner@example.com ",
       }),
     ).toEqual({
       provider: "local-dev",
@@ -27,6 +35,11 @@ describe("readBackendConfig", () => {
       port: 3000,
       deepl: {
         apiUrl: "https://example.test/v2/translate",
+      },
+      mymemory: {
+        apiUrl: "https://example.test/get",
+        defaultSourceLanguage: "te",
+        email: "learner@example.com",
       },
     });
   });
@@ -45,6 +58,11 @@ describe("readBackendConfig", () => {
       deepl: {
         apiKey: "test-key",
         apiUrl: "https://example.test/v2/translate",
+      },
+      mymemory: {
+        apiUrl: "https://api.mymemory.translated.net/get",
+        defaultSourceLanguage: "nl",
+        email: undefined,
       },
     });
   });
@@ -85,5 +103,17 @@ describe("readBackendConfig", () => {
         DEEPL_API_URL: "not-a-url",
       }),
     ).toThrow("DEEPL_API_URL must be a valid http or https URL");
+  });
+
+  it("rejects invalid MyMemory URLs", () => {
+    expect(() => readBackendConfig({ MYMEMORY_API_URL: "not-a-url" })).toThrow(
+      "MYMEMORY_API_URL must be a valid http or https URL",
+    );
+  });
+
+  it("rejects MyMemory source languages outside the MVP language set", () => {
+    expect(() => readBackendConfig({ MYMEMORY_SOURCE_LANGUAGE: "fr" })).toThrow(
+      "MYMEMORY_SOURCE_LANGUAGE must be one of: nl, en, te",
+    );
   });
 });

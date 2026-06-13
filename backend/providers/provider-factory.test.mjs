@@ -8,7 +8,7 @@ describe("createProvider", () => {
 
   it("rejects unsupported providers", () => {
     expect(() => createProvider("unknown")).toThrow(
-      'Unsupported TRANSLATION_PROVIDER "unknown". Supported providers: local-dev, deepl',
+      'Unsupported TRANSLATION_PROVIDER "unknown". Supported providers: local-dev, deepl, mymemory',
     );
   });
 
@@ -21,5 +21,16 @@ describe("createProvider", () => {
     });
 
     expect(provider.name).toBe("deepl");
+  });
+
+  it("creates MyMemory providers", () => {
+    const provider = createProvider("mymemory", {
+      mymemory: {
+        apiUrl: "https://example.test/get",
+        defaultSourceLanguage: "nl",
+      },
+    });
+
+    expect(provider.name).toBe("mymemory");
   });
 });

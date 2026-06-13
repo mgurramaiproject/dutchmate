@@ -67,6 +67,7 @@ Endpoint requirements:
 See [docs/architecture.md](docs/architecture.md) for the request and response contract.
 See [docs/provider-strategy.md](docs/provider-strategy.md) for provider choice, pricing, and production backend notes.
 See [docs/local-backend.md](docs/local-backend.md) for the local real-translation backend scaffold.
+See [docs/mvp-language-focus.md](docs/mvp-language-focus.md) for the Dutch, English, and Telugu MVP scope.
 
 For local testing, run:
 
