@@ -132,6 +132,23 @@ describe("CustomEndpointTranslationProvider", () => {
     await translation;
   });
 
+  it("reports unreachable provider endpoints clearly", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(
+      new TypeError("NetworkError when attempting to fetch resource."),
+    );
+    const provider = new CustomEndpointTranslationProvider(
+      {
+        providerEndpoint: "https://example.test/translate",
+        providerApiKey: "",
+      },
+      new TranslationCache(10),
+    );
+
+    await expect(provider.translate(request)).rejects.toThrow(
+      "Provider endpoint is unreachable. Check that the backend is running and the endpoint URL is correct.",
+    );
+  });
+
   it("does not call the endpoint twice for a repeated hover translation", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify({ translatedText: "hello" }), { status: 200 }),

@@ -95,6 +95,12 @@ async function fetchWithTimeout(
       throw new Error("Provider request timed out");
     }
 
+    if (isNetworkError(error)) {
+      throw new Error(
+        "Provider endpoint is unreachable. Check that the backend is running and the endpoint URL is correct.",
+      );
+    }
+
     throw error;
   } finally {
     globalThis.clearTimeout(timeout);
@@ -103,6 +109,10 @@ async function fetchWithTimeout(
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError";
+}
+
+function isNetworkError(error: unknown): boolean {
+  return error instanceof TypeError;
 }
 
 function getTranslatedText(payload: unknown): string | null {
