@@ -88,6 +88,7 @@ Test:
 3. Click "Save".
 4. Return to a webpage where the extension is active.
 5. Hover or select text again.
+6. Return to Options and check the Privacy section.
 
 Expected result:
 
@@ -95,6 +96,8 @@ Expected result:
 - The target-language dropdown only shows English, Dutch, and Telugu.
 - The source-language dropdown shows Auto, English, Dutch, and Telugu.
 - "Show the other two MVP languages" is on by default and remains saved after toggling.
+- The Privacy section shows `Cached words: 0` when no words have been persisted.
+- Clicking "Clear translation cache" clears the local cache and keeps the cached word count at `0`.
 
 Dual-language mode:
 
@@ -268,10 +271,13 @@ Cache behavior check:
 1. Configure a provider endpoint, such as the local mock endpoint.
 2. Select a single word, ideally by double-clicking it.
 3. Inspect `dutchmate.translationCache.v1` and confirm one cache entry appears.
-4. Hover over a word.
-5. Inspect the cache again and confirm the hover did not add an entry.
-6. Select a phrase or sentence.
-7. Inspect the cache again and confirm the phrase or sentence did not add an entry.
+4. Open Options and confirm the Privacy section shows `Cached words: 1`.
+5. Hover over a word.
+6. Inspect the cache again and confirm the hover did not add an entry.
+7. Select a phrase or sentence.
+8. Inspect the cache again and confirm the phrase or sentence did not add an entry.
+9. Click "Clear translation cache" in Options.
+10. Inspect the cache again and confirm `dutchmate.translationCache.v1` is removed.
 
 ## Current MVP Limits
 

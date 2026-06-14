@@ -104,6 +104,16 @@ input[type="range"] {
   gap: 10px;
 }
 
+.cache-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #374151;
+  font-size: 14px;
+}
+
 button {
   min-height: 40px;
   border: 0;

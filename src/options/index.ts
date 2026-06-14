@@ -9,7 +9,10 @@ import {
   type HoverTranslationMode,
 } from "../shared/settings";
 import { MVP_LANGUAGES, getMvpLanguageCode, getSourceLanguageCode } from "../shared/languages";
+import { getCachedWordCount } from "./cache-summary";
 import "./styles.css";
+
+const PERSISTENT_TRANSLATION_CACHE_KEY = "dutchmate.translationCache.v1";
 
 const form = document.querySelector<HTMLFormElement>("#options-form");
 const isEnabled = document.querySelector<HTMLInputElement>("#is-enabled");
@@ -28,11 +31,14 @@ const translateToOtherMvpLanguages = document.querySelector<HTMLInputElement>(
 const providerEndpoint = document.querySelector<HTMLInputElement>("#provider-endpoint");
 const providerApiKey = document.querySelector<HTMLInputElement>("#provider-api-key");
 const testEndpoint = document.querySelector<HTMLButtonElement>("#test-endpoint");
+const cacheCount = document.querySelector<HTMLSpanElement>("#cache-count");
+const clearCache = document.querySelector<HTMLButtonElement>("#clear-cache");
 const status = document.querySelector<HTMLParagraphElement>("#status");
 let statusTimer: number | undefined;
 
 renderLanguageOptions();
 void restoreSettings();
+void refreshCacheCount();
 
 form?.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -41,6 +47,10 @@ form?.addEventListener("submit", (event) => {
 
 testEndpoint?.addEventListener("click", () => {
   void testProviderEndpoint();
+});
+
+clearCache?.addEventListener("click", () => {
+  void clearTranslationCache();
 });
 
 hoverDelayMs?.addEventListener("input", updateTuningValueLabels);
@@ -145,6 +155,34 @@ async function saveSettings(): Promise<void> {
 
   await browser.storage.sync.set(settings);
   showStatus("Saved", "success");
+}
+
+async function refreshCacheCount(): Promise<void> {
+  if (!cacheCount) {
+    return;
+  }
+
+  const storedCache = await browser.storage.local.get(PERSISTENT_TRANSLATION_CACHE_KEY);
+  const count = getCachedWordCount(storedCache[PERSISTENT_TRANSLATION_CACHE_KEY]);
+  cacheCount.textContent = `Cached words: ${count}`;
+}
+
+async function clearTranslationCache(): Promise<void> {
+  setClearCacheButtonBusy(true);
+
+  try {
+    await browser.storage.local.remove(PERSISTENT_TRANSLATION_CACHE_KEY);
+    await refreshCacheCount();
+    showStatus("Translation cache cleared", "success");
+  } catch (error) {
+    showStatus(
+      `Could not clear cache: ${error instanceof Error ? error.message : "Unknown error"}`,
+      "error",
+      4000,
+    );
+  } finally {
+    setClearCacheButtonBusy(false);
+  }
 }
 
 function getHoverTranslationMode(
@@ -284,6 +322,15 @@ function setTestButtonBusy(isBusy: boolean): void {
 
   testEndpoint.disabled = isBusy;
   testEndpoint.textContent = isBusy ? "Testing..." : "Test endpoint";
+}
+
+function setClearCacheButtonBusy(isBusy: boolean): void {
+  if (!clearCache) {
+    return;
+  }
+
+  clearCache.disabled = isBusy;
+  clearCache.textContent = isBusy ? "Clearing..." : "Clear translation cache";
 }
 
 function showStatus(
