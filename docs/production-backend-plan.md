@@ -67,7 +67,7 @@ These become appropriate when provider cost, saved learning data, or paid plans 
 
 | Step | Status | Notes |
 | --- | --- | --- |
-| Choose deployment target | Proposed | Recommendation in `backend-deployment-options.md`: start with Render Web Service unless edge-first architecture is explicitly preferred. |
+| Choose deployment target | Done | Render Web Service is approved as the first MVP backend deployment target. |
 | Choose first production provider | Planned | Recheck language support, pricing, latency, and terms. |
 | Deploy `/health` and `/translate` | Planned | Reuse the current backend contract where possible. |
 | Add server-side provider secret handling | Planned | Use managed secrets, not repo files. |

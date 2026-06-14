@@ -31,7 +31,7 @@ That makes a normal Node web-service host the lowest-friction first deployment. 
 
 ## Recommendation
 
-Use **Render Web Service** for the first production backend, pending approval.
+Use **Render Web Service** for the first production backend.
 
 Why:
 
@@ -50,7 +50,7 @@ Do not add Kubernetes, custom VPS operations, or multi-region deployment yet. Th
 
 ## Decision Criteria For Approval
 
-Approve Render if the immediate goal is:
+Render is approved for the immediate goal:
 
 - fastest path to a real HTTPS backend,
 - minimal code churn,
