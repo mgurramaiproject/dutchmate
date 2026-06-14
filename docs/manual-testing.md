@@ -269,15 +269,17 @@ browser.storage.local.remove("dutchmate.translationCache.v1");
 Cache behavior check:
 
 1. Configure a provider endpoint, such as the local mock endpoint.
-2. Select a single word, ideally by double-clicking it.
-3. Inspect `dutchmate.translationCache.v1` and confirm one cache entry appears.
-4. Open Options and confirm the Privacy section shows `Cached words: 1`.
-5. Hover over a word.
-6. Inspect the cache again and confirm the hover did not add an entry.
-7. Select a phrase or sentence.
-8. Inspect the cache again and confirm the phrase or sentence did not add an entry.
-9. Click "Clear translation cache" in Options.
-10. Inspect the cache again and confirm `dutchmate.translationCache.v1` is removed.
+2. Keep "Show the other two MVP languages" on.
+3. Select a single word, ideally by double-clicking it.
+4. Inspect `dutchmate.translationCache.v1` and confirm cache entries appear for each target language.
+5. Open Options and confirm the Privacy section still shows `Cached words: 1`.
+6. This count is unique source words, not raw translation records.
+7. Hover over a word.
+8. Inspect the cache again and confirm the hover did not add an entry.
+9. Select a phrase or sentence.
+10. Inspect the cache again and confirm the phrase or sentence did not add an entry.
+11. Click "Clear translation cache" in Options.
+12. Inspect the cache again and confirm `dutchmate.translationCache.v1` is removed.
 
 ## Current MVP Limits
 
