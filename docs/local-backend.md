@@ -74,6 +74,8 @@ The backend reads and validates environment values at startup:
 TRANSLATION_PROVIDER=local-dev
 HOST=127.0.0.1
 PORT=8787
+RATE_LIMIT_MAX_REQUESTS=60
+RATE_LIMIT_WINDOW_MS=60000
 DEEPL_API_URL=https://api-free.deepl.com/v2/translate
 # DEEPL_API_KEY=replace-me
 MYMEMORY_API_URL=https://api.mymemory.translated.net/get
@@ -82,6 +84,8 @@ MYMEMORY_SOURCE_LANGUAGE=nl
 ```
 
 Invalid values stop the backend immediately with a clear error. This is intentional: provider problems should be visible at startup, not only after a user hovers over text.
+
+The rate-limit values are optional. If they are missing from `.env`, the backend uses the defaults shown above. `RATE_LIMIT_MAX_REQUESTS=60` and `RATE_LIMIT_WINDOW_MS=60000` means each client can make up to 60 translate requests per 60,000 milliseconds, or one minute. These values protect provider cost and translation quota during local testing and early production use.
 
 To try DeepL later:
 
