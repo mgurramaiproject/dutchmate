@@ -186,6 +186,14 @@ style.textContent = `
     background: #7f1d1d;
     color: #fee2e2;
   }
+
+  #hover-translate-tooltip .hover-translate-row {
+    display: block;
+  }
+
+  #hover-translate-tooltip .hover-translate-label {
+    font-weight: 700;
+  }
 `;
 
 document.documentElement.append(style, tooltip);
@@ -302,8 +310,36 @@ function beginTooltipRequest(
 
 function showTooltipResult(response: TranslateMessageResponse, x: number, y: number): void {
   tooltip.dataset.state = response.ok ? "success" : "error";
-  tooltip.textContent = truncateTooltipText(response.ok ? response.result.translatedText : response.error);
+
+  if (response.ok && response.result.providerName === "multi-target") {
+    renderMultiTargetTooltip(truncateTooltipText(response.result.translatedText));
+  } else {
+    tooltip.textContent = truncateTooltipText(response.ok ? response.result.translatedText : response.error);
+  }
+
   positionTooltip(x, y);
+}
+
+function renderMultiTargetTooltip(text: string): void {
+  const rows = text.split("\n").map((line) => {
+    const separatorIndex = line.indexOf(":");
+    const row = document.createElement("span");
+    row.className = "hover-translate-row";
+
+    if (separatorIndex === -1) {
+      row.textContent = line;
+      return row;
+    }
+
+    const label = document.createElement("span");
+    label.className = "hover-translate-label";
+    label.textContent = line.slice(0, separatorIndex + 1);
+
+    row.append(label, " " + line.slice(separatorIndex + 1).trimStart());
+    return row;
+  });
+
+  tooltip.replaceChildren(...rows);
 }
 
 function truncateTooltipText(text: string): string {
