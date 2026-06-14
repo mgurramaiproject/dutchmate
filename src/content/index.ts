@@ -1,3 +1,5 @@
+import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
+
 const MIN_TEXT_LENGTH = 1;
 const MAX_HOVER_WORD_LENGTH = 48;
 const MAX_HOVER_CONTEXT_LENGTH = 180;
@@ -109,7 +111,7 @@ type StorageChange = {
   newValue?: unknown;
 };
 
-type TranslationContext = "hover" | "selection";
+type TranslationContext = TooltipContext;
 
 type TranslateMessageResponse =
   | {
@@ -152,10 +154,9 @@ const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
 
 let hoverTimer: number | undefined;
 let lastHoverKey = "";
-let activeRequestId = 0;
-let activeTooltipContext: TranslationContext | null = null;
 let activeSelectionText = "";
 let currentSettings = defaultSettings;
+const tooltipRequestState = new TooltipRequestState();
 
 const tooltip = document.createElement("div");
 tooltip.id = "hover-translate-tooltip";
@@ -297,7 +298,7 @@ async function showTranslation(
     sourceLanguageHint,
   );
 
-  if (requestId !== activeRequestId) {
+  if (!tooltipRequestState.isCurrent(requestId)) {
     return;
   }
 
@@ -310,13 +311,12 @@ function beginTooltipRequest(
   x: number,
   y: number,
 ): number {
-  activeRequestId += 1;
-  activeTooltipContext = context;
+  const requestId = tooltipRequestState.begin(context);
   tooltip.dataset.state = "loading";
   tooltip.textContent = message;
   positionTooltip(x, y);
   tooltip.hidden = false;
-  return activeRequestId;
+  return requestId;
 }
 
 function showTooltipResult(response: TranslateMessageResponse, x: number, y: number): void {
@@ -377,9 +377,8 @@ function positionTooltip(x: number, y: number): void {
 }
 
 function hideTooltip(): void {
-  activeRequestId += 1;
+  tooltipRequestState.clear();
   tooltip.hidden = true;
-  activeTooltipContext = null;
   delete tooltip.dataset.state;
   lastHoverKey = "";
 }
@@ -398,7 +397,7 @@ function handlePageClick(): void {
 }
 
 function handleMouseLeave(): void {
-  if (activeTooltipContext === "selection") {
+  if (tooltipRequestState.activeContext === "selection") {
     return;
   }
 
@@ -419,7 +418,7 @@ function hasActiveSelection(): boolean {
     return false;
   }
 
-  return selectedText === activeSelectionText || activeTooltipContext === "selection";
+  return selectedText === activeSelectionText || tooltipRequestState.activeContext === "selection";
 }
 
 function getHoverTextForSettings(hit: { word: string; translationText: string }): string {
