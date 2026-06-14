@@ -17,6 +17,8 @@ For production, do not put paid provider API keys directly in the extension. Ext
 
 The extension can safely fetch translation data from an external HTTPS endpoint. It should not load or execute remote JavaScript, because Chrome Manifest V3 does not allow remote hosted executable code.
 
+Production backend requirements and rollout sequencing are tracked in [production-backend-plan.md](production-backend-plan.md).
+
 ## What External Services Are Needed?
 
 For local development:

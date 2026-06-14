@@ -50,7 +50,7 @@ Goal: make DutchMate useful immediately without accounts, billing, or complex se
 | Done | Clear translation cache | Gives users control over local cache. | Keep visible until public privacy story is settled. |
 | Verified | Firefox cache workflow | Confirms count is visible and persists after loading the compiled extension. | Recorded in `manual-testing.md`. |
 | Planned | Chrome cache workflow verification | Confirms parity in the other launch browser. | Deferred for now. |
-| Planned | Production-friendly first-run setup | Avoids normal users needing provider endpoint settings. | Requires production backend decision. |
+| Planned | Production-friendly first-run setup | Avoids normal users needing provider endpoint settings. | Follow `production-backend-plan.md`. |
 
 ## Phase 2: Cost Control Without Hurting Adoption
 
@@ -65,6 +65,9 @@ Goal: keep the free product generous while preventing provider cost surprises.
 | Planned | Anonymous usage limits | Controls cost before accounts are required. | Keep generous during early traction. |
 | Planned | Aggregate backend telemetry | Helps tune cost, latency, and reliability. | Avoid storing unnecessary reading content. |
 | Planned | Cache TTL tuning | Improves speed/cost balance based on real usage. | Start at 7 days and 1000 entries. |
+| Planned | Production `/health` and `/translate` backend | Gives the public extension one stable endpoint. | Keep current request/response contract where possible. |
+| Planned | Server-side provider secrets | Keeps paid provider keys out of extension code. | Use managed secrets in deployment target. |
+| Planned | Privacy policy and store disclosure | Explains what text is sent for translation. | Required before public distribution. |
 | Future | Provider fallback | Reduces downtime and quality issues. | Add after real provider usage exposes need. |
 
 ## Phase 3: Learning Features
