@@ -60,7 +60,7 @@ Expected response:
 }
 ```
 
-The worker keeps a small in-memory cache of successful translations keyed by target language, context, and text.
+The worker keeps a small in-memory cache of successful translations keyed by target language, context, and text. Persistent cache policy is tracked in [cache-strategy.md](cache-strategy.md), with a word-only local storage cache planned for token savings across sessions.
 
 Configured endpoint requests time out after 5000ms. Slow providers return a clear timeout error instead of leaving the tooltip in a loading state indefinitely.
 
