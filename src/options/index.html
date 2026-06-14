@@ -81,20 +81,28 @@
           </label>
         </fieldset>
 
-        <label>
-          Provider endpoint
-          <input id="provider-endpoint" name="providerEndpoint" type="url" placeholder="Future API endpoint" />
-        </label>
+        <fieldset>
+          <legend>Developer settings</legend>
 
-        <label>
-          Provider API key
-          <input id="provider-api-key" name="providerApiKey" type="password" placeholder="Stored locally later" />
-        </label>
+          <p class="settings-note">
+            For local testing only. Normal users should not need these settings.
+          </p>
 
-        <div class="form-actions">
-          <button type="submit">Save</button>
-          <button id="test-endpoint" type="button" class="secondary-button">Test endpoint</button>
-        </div>
+          <label>
+            Provider endpoint
+            <input id="provider-endpoint" name="providerEndpoint" type="url" placeholder="http://localhost:8787/translate" />
+          </label>
+
+          <label>
+            Provider API key
+            <input id="provider-api-key" name="providerApiKey" type="password" placeholder="Optional for local testing" />
+          </label>
+
+          <div class="form-actions">
+            <button type="submit">Save</button>
+            <button id="test-endpoint" type="button" class="secondary-button">Test endpoint</button>
+          </div>
+        </fieldset>
 
         <fieldset>
           <legend>Privacy</legend>
@@ -104,7 +112,7 @@
             <button id="clear-cache" type="button" class="secondary-button">Clear translation cache</button>
           </div>
 
-          <p class="privacy-note">
+          <p class="settings-note">
             DutchMate stores selected single words locally. Hovered words and selected passages are not saved.
           </p>
         </fieldset>
