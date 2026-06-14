@@ -17,10 +17,13 @@ export const SELECTION_LENGTH_LIMITS = {
   max: 3000,
 };
 
+export type HoverTranslationMode = "word" | "sentence";
+
 export type ExtensionSettings = {
   isEnabled: boolean;
   translateOnHover: boolean;
   translateOnSelection: boolean;
+  hoverTranslationMode: HoverTranslationMode;
   hoverDelayMs: number;
   maxSelectionLength: number;
   sourceLanguage: SourceLanguageCode;
@@ -34,6 +37,7 @@ export const defaultSettings: ExtensionSettings = {
   isEnabled: true,
   translateOnHover: true,
   translateOnSelection: true,
+  hoverTranslationMode: "sentence",
   hoverDelayMs: 450,
   maxSelectionLength: 600,
   sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
@@ -53,6 +57,10 @@ export async function readSettings(): Promise<ExtensionSettings> {
       stored.translateOnSelection,
       defaultSettings.translateOnSelection,
     ),
+    hoverTranslationMode: getHoverTranslationMode(
+      stored.hoverTranslationMode,
+      defaultSettings.hoverTranslationMode,
+    ),
     hoverDelayMs: getNumberSetting(stored.hoverDelayMs, defaultSettings.hoverDelayMs),
     maxSelectionLength: getNumberSetting(
       stored.maxSelectionLength,
@@ -67,6 +75,13 @@ export async function readSettings(): Promise<ExtensionSettings> {
     providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
     providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
   };
+}
+
+function getHoverTranslationMode(
+  value: unknown,
+  fallback: HoverTranslationMode,
+): HoverTranslationMode {
+  return value === "word" || value === "sentence" ? value : fallback;
 }
 
 function getStringSetting(value: unknown, fallback: string): string {

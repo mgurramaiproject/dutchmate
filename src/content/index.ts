@@ -7,6 +7,7 @@ const defaultSettings: ExtensionSettings = {
   isEnabled: true,
   translateOnHover: true,
   translateOnSelection: true,
+  hoverTranslationMode: "sentence",
   hoverDelayMs: 450,
   maxSelectionLength: 600,
   sourceLanguage: "auto",
@@ -94,6 +95,7 @@ type ExtensionSettings = {
   isEnabled: boolean;
   translateOnHover: boolean;
   translateOnSelection: boolean;
+  hoverTranslationMode: string;
   hoverDelayMs: number;
   maxSelectionLength: number;
   sourceLanguage: string;
@@ -229,14 +231,15 @@ function handleMouseMove(event: MouseEvent): void {
       return;
     }
 
-    const hoverKey = `${hit.translationText}:${hit.x}:${hit.y}`;
+    const hoverText = getHoverTextForSettings(hit);
+    const hoverKey = `${hoverText}:${hit.x}:${hit.y}`;
     if (hoverKey === lastHoverKey) {
       return;
     }
 
     lastHoverKey = hoverKey;
     showTranslation(
-      hit.translationText,
+      hoverText,
       "hover",
       hit.x,
       hit.y,
@@ -419,6 +422,10 @@ function hasActiveSelection(): boolean {
   return selectedText === activeSelectionText || activeTooltipContext === "selection";
 }
 
+function getHoverTextForSettings(hit: { word: string; translationText: string }): string {
+  return currentSettings.hoverTranslationMode === "word" ? hit.word : hit.translationText;
+}
+
 function getWordAtPoint(
   clientX: number,
   clientY: number,
@@ -575,6 +582,9 @@ function settingChangesToPartialSettings(
     isEnabled: getOptionalBooleanSetting(changes.isEnabled?.newValue),
     translateOnHover: getOptionalBooleanSetting(changes.translateOnHover?.newValue),
     translateOnSelection: getOptionalBooleanSetting(changes.translateOnSelection?.newValue),
+    hoverTranslationMode: getOptionalHoverTranslationModeSetting(
+      changes.hoverTranslationMode?.newValue,
+    ),
     hoverDelayMs: getOptionalNumberSetting(changes.hoverDelayMs?.newValue),
     maxSelectionLength: getOptionalNumberSetting(changes.maxSelectionLength?.newValue),
     sourceLanguage: getOptionalSourceLanguageSetting(changes.sourceLanguage?.newValue),
@@ -606,6 +616,10 @@ async function readSettings(): Promise<ExtensionSettings> {
           stored.translateOnSelection,
           defaultSettings.translateOnSelection,
         ),
+        hoverTranslationMode: getHoverTranslationModeSetting(
+          stored.hoverTranslationMode,
+          defaultSettings.hoverTranslationMode,
+        ),
         hoverDelayMs: getNumberSetting(stored.hoverDelayMs, defaultSettings.hoverDelayMs),
         maxSelectionLength: getNumberSetting(
           stored.maxSelectionLength,
@@ -622,6 +636,10 @@ async function readSettings(): Promise<ExtensionSettings> {
       });
     });
   });
+}
+
+function getHoverTranslationModeSetting(value: unknown, fallback: string): string {
+  return value === "word" || value === "sentence" ? value : fallback;
 }
 
 function getStringSetting(value: unknown, fallback: string): string {
@@ -642,6 +660,10 @@ function getBooleanSetting(value: unknown, fallback: boolean): boolean {
 
 function getNumberSetting(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function getOptionalHoverTranslationModeSetting(value: unknown): string | undefined {
+  return value === "word" || value === "sentence" ? value : undefined;
 }
 
 function getOptionalStringSetting(value: unknown): string | undefined {

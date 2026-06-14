@@ -30,7 +30,7 @@ Expected result:
 - Selecting text shows the same tooltip near the selection.
 - Changing the target language in Options changes the language code shown in the tooltip.
 - Moving quickly between words should not show an older translation after a newer hover starts.
-- Hovering a word inside a sentence may translate the nearby phrase, while the tooltip still appears near the hovered word.
+- With hover mode set to Sentence, hovering a word inside a sentence may translate the nearby phrase while the tooltip still appears near the hovered word.
 - Selecting text while the pointer rests over a word should show the selected-text translation, not the hovered word.
 - Pressing `Esc`, clicking the page, or scrolling hides the tooltip.
 - A selection tooltip stays visible when the mouse leaves the page area.
@@ -126,12 +126,16 @@ Tuning controls:
 
 1. Drag "Hover delay" to `150 ms`, save, then hover a word.
 2. Drag "Hover delay" to `1500 ms`, save, then hover a word.
-3. Drag "Max selected text length" to `50 chars`, save, then select a long sentence.
+3. Change "Hover translation mode" to `Word`, save, then hover a word inside a sentence.
+4. Change "Hover translation mode" back to `Sentence`, save, then hover the same word.
+5. Drag "Max selected text length" to `50 chars`, save, then select a long sentence.
 
 Expected result:
 
 - A lower hover delay shows the tooltip sooner.
 - A higher hover delay waits longer before showing the tooltip.
+- Word mode translates only the hovered word.
+- Sentence mode translates compact nearby context and remains anchored to the hovered word.
 - Long selections above the configured limit do not translate.
 
 ## Custom Endpoint
@@ -218,7 +222,7 @@ You can stop the mock server with `Ctrl+C`.
 ## Current MVP Limits
 
 - Translation uses placeholder text until a provider endpoint is configured.
-- Hover translation anchors to the hovered word but may translate a compact nearby phrase for better context.
+- Hover translation can run in Word mode for compact lookup or Sentence mode for nearby context. Sentence mode is the default.
 - Selection text is capped to keep the MVP lightweight.
 - Target languages are intentionally limited to English (`en`), Dutch (`nl`), and Telugu (`te`).
 - Source languages are limited to Auto, English (`en`), Dutch (`nl`), and Telugu (`te`).

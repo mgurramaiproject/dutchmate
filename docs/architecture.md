@@ -89,6 +89,6 @@ Chrome uses `background.service_worker`. Firefox currently uses `background.scri
 ## Performance Notes
 
 - Hover translation waits before doing work to avoid reacting to every mouse movement.
-- Hover detection only translates one word at a time.
+- Hover detection anchors on one word, then translates either that word or compact nearby sentence context based on the user preference.
 - Selection translation caps text length for the MVP.
 - No UI framework is used in the content script or Options page.

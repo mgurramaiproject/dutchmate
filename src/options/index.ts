@@ -6,6 +6,7 @@ import {
   validateHoverDelayMs,
   validateMaxSelectionLength,
   type ExtensionSettings,
+  type HoverTranslationMode,
 } from "../shared/settings";
 import { MVP_LANGUAGES, getMvpLanguageCode, getSourceLanguageCode } from "../shared/languages";
 import "./styles.css";
@@ -14,6 +15,7 @@ const form = document.querySelector<HTMLFormElement>("#options-form");
 const isEnabled = document.querySelector<HTMLInputElement>("#is-enabled");
 const translateOnHover = document.querySelector<HTMLInputElement>("#translate-on-hover");
 const translateOnSelection = document.querySelector<HTMLInputElement>("#translate-on-selection");
+const hoverTranslationMode = document.querySelector<HTMLSelectElement>("#hover-translation-mode");
 const hoverDelayMs = document.querySelector<HTMLInputElement>("#hover-delay-ms");
 const maxSelectionLength = document.querySelector<HTMLInputElement>("#max-selection-length");
 const hoverDelayValue = document.querySelector<HTMLOutputElement>("#hover-delay-value");
@@ -71,6 +73,10 @@ async function restoreSettings(): Promise<void> {
     translateOnSelection.checked = settings.translateOnSelection;
   }
 
+  if (hoverTranslationMode) {
+    hoverTranslationMode.value = settings.hoverTranslationMode;
+  }
+
   if (hoverDelayMs) {
     hoverDelayMs.value = settings.hoverDelayMs.toString();
   }
@@ -123,6 +129,10 @@ async function saveSettings(): Promise<void> {
     isEnabled: isEnabled?.checked ?? defaultSettings.isEnabled,
     translateOnHover: translateOnHover?.checked ?? defaultSettings.translateOnHover,
     translateOnSelection: translateOnSelection?.checked ?? defaultSettings.translateOnSelection,
+    hoverTranslationMode: getHoverTranslationMode(
+      hoverTranslationMode?.value,
+      defaultSettings.hoverTranslationMode,
+    ),
     hoverDelayMs: hoverDelayValue,
     maxSelectionLength: maxSelectionLengthValue,
     sourceLanguage: getSourceLanguageCode(sourceLanguage?.value, defaultSettings.sourceLanguage),
@@ -135,6 +145,13 @@ async function saveSettings(): Promise<void> {
 
   await browser.storage.sync.set(settings);
   showStatus("Saved", "success");
+}
+
+function getHoverTranslationMode(
+  value: string | undefined,
+  fallback: HoverTranslationMode,
+): HoverTranslationMode {
+  return value === "word" || value === "sentence" ? value : fallback;
 }
 
 function readNumberInput(input: HTMLInputElement | null, fallback: number): number {
