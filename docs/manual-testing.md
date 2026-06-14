@@ -29,7 +29,7 @@ Notes:
 
 Recent entries:
 
-- Pending manual browser verification.
+- 2026-06-14 | `1847d3c` | Firefox | MGurram | Pass | Cache count is visible. Previously stored cached word count persists after loading the compiled extension.
 
 ## Firefox
 
