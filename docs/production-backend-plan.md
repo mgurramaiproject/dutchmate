@@ -83,7 +83,7 @@ These become appropriate when provider cost, saved learning data, or paid plans 
 | Step | Status | Notes |
 | --- | --- | --- |
 | Choose deployment target | Done | Render Web Service is approved as the first MVP backend deployment target. |
-| Choose first production provider | Planned | Recheck language support, pricing, latency, and terms. |
+| Choose first production provider | Proposed | `production-provider-decision.md` recommends Azure AI Translator / Microsoft Translator, pending approval. |
 | Add Render deployment blueprint | Done | `render.yaml` defines the first `dutchmate-backend` web service. |
 | Deploy `/health` and `/translate` | Planned | Use the Render blueprint first with `local-dev`, then switch to the approved provider. |
 | Add server-side provider secret handling | Planned | Use managed secrets, not repo files. |

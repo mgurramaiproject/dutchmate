@@ -1,6 +1,6 @@
 # Translation Provider Strategy
 
-Last reviewed: 2026-06-10
+Last reviewed: 2026-06-14
 
 This extension does not require OpenAI, Azure, Google Translate, or any one specific provider. The browser extension should stay provider-agnostic: it sends translation requests to a backend endpoint, and that backend decides which translation engine to use.
 
@@ -20,6 +20,8 @@ The extension can safely fetch translation data from an external HTTPS endpoint.
 Production backend requirements and rollout sequencing are tracked in [production-backend-plan.md](production-backend-plan.md).
 
 Free browser-extension provider strategies are tracked separately in [reference-mousetooltiptranslator.md](reference-mousetooltiptranslator.md). MouseTooltipTranslator appears to rely heavily on browser-side calls to Google/Bing web translation flows, which is useful inspiration but riskier than an official backend provider for DutchMate's public production path.
+
+The first official production provider recommendation is tracked in [production-provider-decision.md](production-provider-decision.md). Current status: proposed Azure AI Translator / Microsoft Translator, pending approval.
 
 ## What External Services Are Needed?
 
@@ -84,11 +86,14 @@ Azure OpenAI:
 
 Start with a dedicated translation API behind our own backend endpoint.
 
-Best first choices:
+Best first choice:
 
-- Azure AI Translator if we are already comfortable with Azure.
-- Google Cloud Translation Basic/NMT if we want simple pricing and broad language coverage.
-- DeepL API Free if the language list and free tier fit the first user tests.
+- Azure AI Translator / Microsoft Translator, pending approval in `production-provider-decision.md`.
+
+Good fallback candidates:
+
+- Google Cloud Translation Basic/NMT if Azure setup, quality, or latency is not acceptable.
+- DeepL API Free only if Telugu support and quality fit the product goal.
 
 Avoid starting with OpenAI or Azure OpenAI for plain translation. Add an LLM provider later only when the product needs features that traditional translation APIs do not handle well.
 

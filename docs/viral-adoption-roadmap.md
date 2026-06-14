@@ -70,6 +70,7 @@ Goal: keep the free product generous while preventing provider cost surprises.
 | Done | Production backend deployment target | Gives the public extension a real HTTPS backend path. | Render Web Service is approved for the first MVP deployment. |
 | Done | Render deployment blueprint | Makes the backend deployment repeatable. | `render.yaml` starts with `local-dev` for smoke testing. |
 | Done | MouseTooltipTranslator provider-strategy reference | Helps DutchMate learn from a free competitor extension. | Documented in `reference-mousetooltiptranslator.md`; free web endpoints are research, not the default production path. |
+| Proposed | First official production translation provider | Gives the Render backend a stable provider for public MVP traffic. | `production-provider-decision.md` recommends Azure AI Translator / Microsoft Translator. |
 | Planned | Production `/health` and `/translate` backend | Gives the public extension one stable endpoint. | Keep current request/response contract where possible. |
 | Planned | Server-side provider secrets | Keeps paid provider keys out of extension code. | Use managed secrets in deployment target. |
 | Planned | Privacy policy and store disclosure | Explains what text is sent for translation. | Required before public distribution. |
