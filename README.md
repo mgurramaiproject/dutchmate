@@ -69,6 +69,7 @@ See [docs/architecture.md](docs/architecture.md) for the request and response co
 See [docs/provider-strategy.md](docs/provider-strategy.md) for provider choice, pricing, and production backend notes.
 See [docs/local-backend.md](docs/local-backend.md) for the local real-translation backend scaffold.
 See [docs/mvp-language-focus.md](docs/mvp-language-focus.md) for the Dutch, English, and Telugu MVP scope.
+See [docs/viral-adoption-roadmap.md](docs/viral-adoption-roadmap.md) for the free/paid, caching, auth, and adoption roadmap.
 
 For local testing, run:
 
