@@ -27,6 +27,7 @@ The product should delay account creation, billing, and heavy setup until after 
 | --- | --- |
 | Done | Implemented, verified by automated checks, and committed. |
 | Verified | Manually checked in at least one target browser and recorded. |
+| Proposed | Recommended by a design note, pending explicit product/architecture approval. |
 | Planned | Recommended next work, not yet implemented. |
 | Future | Important later, but not needed for the current MVP loop. |
 | Backlog | Useful idea, but lower priority or dependent on traction. |
@@ -66,6 +67,7 @@ Goal: keep the free product generous while preventing provider cost surprises.
 | Planned | Anonymous usage limits | Controls cost before accounts are required. | Keep generous during early traction. |
 | Planned | Aggregate backend telemetry | Helps tune cost, latency, and reliability. | Build from privacy-safe metadata, not raw reading content. |
 | Planned | Cache TTL tuning | Improves speed/cost balance based on real usage. | Start at 7 days and 1000 entries. |
+| Proposed | Production backend deployment target | Gives the public extension a real HTTPS backend path. | `backend-deployment-options.md` recommends Render Web Service for the first MVP deployment. |
 | Planned | Production `/health` and `/translate` backend | Gives the public extension one stable endpoint. | Keep current request/response contract where possible. |
 | Planned | Server-side provider secrets | Keeps paid provider keys out of extension code. | Use managed secrets in deployment target. |
 | Planned | Privacy policy and store disclosure | Explains what text is sent for translation. | Required before public distribution. |
