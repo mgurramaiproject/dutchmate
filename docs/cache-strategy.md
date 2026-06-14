@@ -68,6 +68,10 @@ The persistent cache key should include:
 
 The first implementation can keep `context` in the key even though only single-word selection entries are persisted. This prevents accidental reuse if future contexts are allowed.
 
+Keep cache entries separated by translation direction. For example, `nl -> en`, `nl -> te`, and `en -> nl` should be separate entries. This is safer because translation is not always reversible, providers may return different phrasing by direction, and partial misses stay simple to reason about.
+
+The Options UI may count unique source words for user clarity, but the storage model should still count and store translation records by direction. A grouped shape such as one source word with multiple translations belongs in a future saved-vocabulary or learning feature, not in the low-level provider cache yet.
+
 Normalize text before keying:
 
 - trim surrounding whitespace
