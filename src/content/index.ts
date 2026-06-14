@@ -1,3 +1,4 @@
+import { getHoverRequestKey } from "./hover-request-key";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
 
 const MIN_TEXT_LENGTH = 1;
@@ -233,7 +234,13 @@ function handleMouseMove(event: MouseEvent): void {
     }
 
     const hoverText = getHoverTextForSettings(hit);
-    const hoverKey = `${hoverText}:${hit.x}:${hit.y}`;
+    const hoverKey = getHoverRequestKey({
+      text: hoverText,
+      languageSample: hit.languageSample,
+      sourceLanguageHint: hit.sourceLanguageHint,
+      start: hit.start,
+      end: hit.end,
+    });
     if (hoverKey === lastHoverKey) {
       return;
     }
@@ -433,6 +440,8 @@ function getWordAtPoint(
   translationText: string;
   x: number;
   y: number;
+  start: number;
+  end: number;
   sourceLanguageHint?: string;
   languageSample: string;
 } | null {
@@ -466,6 +475,8 @@ function getWordAtPoint(
     translationText: getHoverTranslationText(text, match.start, match.end),
     x: rect.left,
     y: rect.bottom,
+    start: match.start,
+    end: match.end,
     sourceLanguageHint: getLanguageHintForNode(textNode),
     languageSample: text,
   };
