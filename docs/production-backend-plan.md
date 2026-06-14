@@ -44,6 +44,12 @@ Before public release:
 - Local persistent cache should continue to store only selected single words.
 - Hover words, selected phrases, and sentences should not be persisted locally.
 
+## Rate Limit Behavior
+
+The current MVP backend allows up to 60 `POST /translate` requests per minute per client. Requests above that limit return `429` with a `Retry-After` header and do not call the translation provider.
+
+Use "provider cost" or "translation quota" in product docs instead of "provider tokens." Translation providers often bill by characters, requests, or quota; tokens are only one possible billing model.
+
 ## Not Yet
 
 Do not add these before the basic free product is proven:
