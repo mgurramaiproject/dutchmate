@@ -1,4 +1,5 @@
 import { getHoverRequestKey } from "./hover-request-key";
+import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
 
 const MIN_TEXT_LENGTH = 1;
@@ -270,14 +271,26 @@ function handleSelection(): void {
   if (
     !selection ||
     selectedText.length < MIN_TEXT_LENGTH ||
-    selectedText.length > currentSettings.maxSelectionLength ||
     selection.rangeCount === 0
   ) {
     return;
   }
 
-  activeSelectionText = selectedText;
   const rect = selection.getRangeAt(0).getBoundingClientRect();
+
+  if (selectedText.length > currentSettings.maxSelectionLength) {
+    activeSelectionText = selectedText;
+    showTooltipMessage(
+      getSelectionTooLongMessage(currentSettings.maxSelectionLength),
+      "error",
+      "selection",
+      rect.left,
+      rect.bottom,
+    );
+    return;
+  }
+
+  activeSelectionText = selectedText;
   showTranslation(
     selectedText,
     "selection",
@@ -324,6 +337,20 @@ function beginTooltipRequest(
   positionTooltip(x, y);
   tooltip.hidden = false;
   return requestId;
+}
+
+function showTooltipMessage(
+  message: string,
+  state: "error" | "success",
+  context: TranslationContext,
+  x: number,
+  y: number,
+): void {
+  tooltipRequestState.begin(context);
+  tooltip.dataset.state = state;
+  tooltip.textContent = message;
+  positionTooltip(x, y);
+  tooltip.hidden = false;
 }
 
 function showTooltipResult(response: TranslateMessageResponse, x: number, y: number): void {
