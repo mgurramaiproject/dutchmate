@@ -97,6 +97,7 @@ Expected result:
 - The source-language dropdown shows Auto, English, Dutch, and Telugu.
 - "Show the other two MVP languages" is on by default and remains saved after toggling.
 - The Privacy section shows `Cached words: 0` when no words have been persisted.
+- The Privacy section explains that selected single words are stored locally, while hovered words and selected passages are not saved.
 - Clicking "Clear translation cache" clears the local cache and keeps the cached word count at `0`.
 
 Dual-language mode:
