@@ -2,6 +2,8 @@ import { DEFAULT_TRANSLATION_PROVIDER } from "./providers/provider-factory.mjs";
 
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 8787;
+const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 60;
+const DEFAULT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const DEFAULT_DEEPL_API_URL = "https://api-free.deepl.com/v2/translate";
 const DEFAULT_MYMEMORY_API_URL = "https://api.mymemory.translated.net/get";
 const DEFAULT_MYMEMORY_SOURCE_LANGUAGE = "nl";
@@ -12,6 +14,7 @@ export function readBackendConfig(environment = process.env) {
   const provider = normalizeProvider(environment.TRANSLATION_PROVIDER);
   const host = normalizeHost(environment.HOST);
   const port = normalizePort(environment.PORT);
+  const rateLimit = normalizeRateLimitConfig(environment);
   const deepl = normalizeDeepLConfig(provider, environment);
   const mymemory = normalizeMyMemoryConfig(environment);
 
@@ -19,6 +22,7 @@ export function readBackendConfig(environment = process.env) {
     provider,
     host,
     port,
+    rateLimit,
     deepl,
     mymemory,
   };
@@ -62,6 +66,35 @@ function normalizePort(value) {
   }
 
   return port;
+}
+
+function normalizeRateLimitConfig(environment) {
+  return {
+    maxRequests: normalizePositiveInteger(
+      "RATE_LIMIT_MAX_REQUESTS",
+      environment.RATE_LIMIT_MAX_REQUESTS,
+      DEFAULT_RATE_LIMIT_MAX_REQUESTS,
+    ),
+    windowMs: normalizePositiveInteger(
+      "RATE_LIMIT_WINDOW_MS",
+      environment.RATE_LIMIT_WINDOW_MS,
+      DEFAULT_RATE_LIMIT_WINDOW_MS,
+    ),
+  };
+}
+
+function normalizePositiveInteger(name, value, fallback) {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  const parsedValue = Number.parseInt(value, 10);
+
+  if (!Number.isInteger(parsedValue) || parsedValue < 1 || String(parsedValue) !== value.trim()) {
+    throw new Error(`${name} must be a positive integer`);
+  }
+
+  return parsedValue;
 }
 
 function normalizeDeepLConfig(provider, environment) {

@@ -7,6 +7,10 @@ describe("readBackendConfig", () => {
       provider: "local-dev",
       host: "127.0.0.1",
       port: 8787,
+      rateLimit: {
+        maxRequests: 60,
+        windowMs: 60000,
+      },
       deepl: {
         apiUrl: "https://api-free.deepl.com/v2/translate",
       },
@@ -24,6 +28,8 @@ describe("readBackendConfig", () => {
         TRANSLATION_PROVIDER: " LOCAL-DEV ",
         HOST: " 0.0.0.0 ",
         PORT: "3000",
+        RATE_LIMIT_MAX_REQUESTS: "30",
+        RATE_LIMIT_WINDOW_MS: "15000",
         DEEPL_API_URL: " https://example.test/v2/translate ",
         MYMEMORY_API_URL: " https://example.test/get ",
         MYMEMORY_SOURCE_LANGUAGE: " TE ",
@@ -33,6 +39,10 @@ describe("readBackendConfig", () => {
       provider: "local-dev",
       host: "0.0.0.0",
       port: 3000,
+      rateLimit: {
+        maxRequests: 30,
+        windowMs: 15000,
+      },
       deepl: {
         apiUrl: "https://example.test/v2/translate",
       },
@@ -55,6 +65,10 @@ describe("readBackendConfig", () => {
       provider: "deepl",
       host: "127.0.0.1",
       port: 8787,
+      rateLimit: {
+        maxRequests: 60,
+        windowMs: 60000,
+      },
       deepl: {
         apiKey: "test-key",
         apiUrl: "https://example.test/v2/translate",
@@ -92,6 +106,15 @@ describe("readBackendConfig", () => {
     );
     expect(() => readBackendConfig({ PORT: "8787abc" })).toThrow(
       "PORT must be an integer between 1 and 65535",
+    );
+  });
+
+  it("rejects invalid rate limit values", () => {
+    expect(() => readBackendConfig({ RATE_LIMIT_MAX_REQUESTS: "0" })).toThrow(
+      "RATE_LIMIT_MAX_REQUESTS must be a positive integer",
+    );
+    expect(() => readBackendConfig({ RATE_LIMIT_WINDOW_MS: "60000ms" })).toThrow(
+      "RATE_LIMIT_WINDOW_MS must be a positive integer",
     );
   });
 
