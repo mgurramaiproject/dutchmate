@@ -16,7 +16,7 @@ export function createTranslationBackendServer({ service }) {
     if (request.method === "GET" && request.url === "/health") {
       sendJson(response, 200, {
         ok: true,
-        service: "hover-translate-local-backend",
+        service: "dutchmate-backend",
       });
       return;
     }
