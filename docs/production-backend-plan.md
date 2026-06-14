@@ -65,7 +65,7 @@ These become appropriate when provider cost, saved learning data, or paid plans 
 | Choose first production provider | Planned | Recheck language support, pricing, latency, and terms. |
 | Deploy `/health` and `/translate` | Planned | Reuse the current backend contract where possible. |
 | Add server-side provider secret handling | Planned | Use managed secrets, not repo files. |
-| Add basic rate limiting | Planned | Start anonymous and generous. |
+| Add basic rate limiting | Done | Current MVP uses in-memory per-client limits for `POST /translate`; replace with durable/edge limits for production scale. |
 | Add production endpoint configuration to extension | Planned | Avoid user-entered endpoint for public builds. |
 | Hide normal-user Developer settings | Planned | Keep advanced/local testing path separate from public UX. |
 | Write privacy policy/store disclosure | Planned | Required before public distribution. |

@@ -133,6 +133,65 @@ describe("createTranslationBackendServer", () => {
     expect(service.translate).not.toHaveBeenCalled();
   });
 
+  it("rate limits repeated translation requests from the same client", async () => {
+    let currentTime = 1000;
+    const service = {
+      translate: vi.fn(async () => ({
+        translatedText: "house",
+      })),
+    };
+
+    server = createTranslationBackendServer({
+      service,
+      rateLimit: {
+        maxRequests: 2,
+        windowMs: 60_000,
+        now: () => currentTime,
+      },
+    });
+    const baseUrl = await listen(server);
+
+    await expect(postTranslate(baseUrl)).resolves.toMatchObject({ status: 200 });
+    await expect(postTranslate(baseUrl)).resolves.toMatchObject({ status: 200 });
+
+    const limitedResponse = await postTranslate(baseUrl);
+
+    await expect(limitedResponse.json()).resolves.toEqual({
+      error: "Too many translation requests. Try again soon.",
+    });
+    expect(limitedResponse.status).toBe(429);
+    expect(limitedResponse.headers.get("retry-after")).toBe("60");
+    expect(service.translate).toHaveBeenCalledTimes(2);
+
+    currentTime += 60_000;
+
+    await expect(postTranslate(baseUrl)).resolves.toMatchObject({ status: 200 });
+    expect(service.translate).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not count health checks against the translation rate limit", async () => {
+    const service = {
+      translate: vi.fn(async () => ({
+        translatedText: "house",
+      })),
+    };
+
+    server = createTranslationBackendServer({
+      service,
+      rateLimit: {
+        maxRequests: 1,
+        windowMs: 60_000,
+      },
+    });
+    const baseUrl = await listen(server);
+
+    await fetch(`${baseUrl}/health`);
+    await fetch(`${baseUrl}/health`);
+
+    await expect(postTranslate(baseUrl)).resolves.toMatchObject({ status: 200 });
+    expect(service.translate).toHaveBeenCalledTimes(1);
+  });
+
   it("returns a clear 404 for unknown routes", async () => {
     const service = {
       translate: vi.fn(),
@@ -163,4 +222,20 @@ async function listen(server) {
   }
 
   return `http://127.0.0.1:${address.port}`;
+}
+
+function postTranslate(baseUrl) {
+  return fetch(`${baseUrl}/translate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Forwarded-For": "203.0.113.10",
+    },
+    body: JSON.stringify({
+      text: "huis",
+      sourceLanguage: "nl",
+      targetLanguage: "en",
+      context: "selection",
+    }),
+  });
 }

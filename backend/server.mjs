@@ -5,8 +5,12 @@ import {
 } from "./translation-request.mjs";
 
 const MAX_TRANSLATE_REQUEST_BYTES = 10 * 1024;
+const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 60;
+const DEFAULT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
 
-export function createTranslationBackendServer({ service }) {
+export function createTranslationBackendServer({ service, rateLimit = {} }) {
+  const rateLimiter = createRateLimiter(rateLimit);
+
   return createServer(async (request, response) => {
     setCorsHeaders(response);
 
@@ -26,6 +30,15 @@ export function createTranslationBackendServer({ service }) {
     if (request.method !== "POST" || request.url !== "/translate") {
       sendJson(response, 404, {
         error: "Use POST /translate",
+      });
+      return;
+    }
+
+    const rateLimitResult = rateLimiter.check(getClientKey(request));
+    if (!rateLimitResult.allowed) {
+      response.setHeader("Retry-After", rateLimitResult.retryAfterSeconds.toString());
+      sendJson(response, 429, {
+        error: "Too many translation requests. Try again soon.",
       });
       return;
     }
@@ -51,6 +64,49 @@ export function createTranslationBackendServer({ service }) {
       });
     }
   });
+}
+
+function createRateLimiter({
+  maxRequests = DEFAULT_RATE_LIMIT_MAX_REQUESTS,
+  windowMs = DEFAULT_RATE_LIMIT_WINDOW_MS,
+  now = () => Date.now(),
+} = {}) {
+  const clients = new Map();
+
+  return {
+    check(clientKey) {
+      const currentTime = now();
+      const existing = clients.get(clientKey);
+
+      if (!existing || currentTime >= existing.resetAt) {
+        clients.set(clientKey, {
+          count: 1,
+          resetAt: currentTime + windowMs,
+        });
+        return { allowed: true, retryAfterSeconds: 0 };
+      }
+
+      if (existing.count >= maxRequests) {
+        return {
+          allowed: false,
+          retryAfterSeconds: Math.max(1, Math.ceil((existing.resetAt - currentTime) / 1000)),
+        };
+      }
+
+      existing.count += 1;
+      return { allowed: true, retryAfterSeconds: 0 };
+    },
+  };
+}
+
+function getClientKey(request) {
+  const forwardedFor = request.headers["x-forwarded-for"];
+
+  if (typeof forwardedFor === "string" && forwardedFor.trim()) {
+    return forwardedFor.split(",")[0].trim();
+  }
+
+  return request.socket.remoteAddress ?? "unknown";
 }
 
 function setCorsHeaders(response) {

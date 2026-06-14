@@ -61,7 +61,7 @@ Goal: keep the free product generous while preventing provider cost surprises.
 | Done | In-memory translation cache | Fast repeat requests in the active session. | Still useful for hover and phrase translations. |
 | Done | Local persistent cache policy | Stores only selected single words. | Details live in `cache-strategy.md`. |
 | Done | Per-direction cache entries | Keeps `nl -> en`, `nl -> te`, and `en -> nl` separate. | Safer because translations are not always reversible. |
-| Planned | Backend rate limiting | Protects provider budget. | Add when a production backend exists. |
+| Done | Backend rate limiting | Protects provider budget. | Current MVP uses in-memory per-client limits for `POST /translate`. |
 | Planned | Anonymous usage limits | Controls cost before accounts are required. | Keep generous during early traction. |
 | Planned | Aggregate backend telemetry | Helps tune cost, latency, and reliability. | Avoid storing unnecessary reading content. |
 | Planned | Cache TTL tuning | Improves speed/cost balance based on real usage. | Start at 7 days and 1000 entries. |
