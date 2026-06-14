@@ -12,7 +12,9 @@ services:
       - key: PORT
         value: 10000
       - key: TRANSLATION_PROVIDER
-        value: local-dev
+        value: mymemory
+      - key: MYMEMORY_SOURCE_LANGUAGE
+        value: nl
       - key: RATE_LIMIT_MAX_REQUESTS
         value: 60
       - key: RATE_LIMIT_WINDOW_MS

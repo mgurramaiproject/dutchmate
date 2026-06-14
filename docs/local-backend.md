@@ -138,7 +138,7 @@ HOST=0.0.0.0
 PORT=10000
 ```
 
-The blueprint intentionally starts with `TRANSLATION_PROVIDER=local-dev`. Use this to verify that `/health` and `/translate` deploy correctly before adding a real provider API key. Before public release, switch the Render environment to the approved production provider and store secrets in Render, not in the repo.
+The blueprint starts with `TRANSLATION_PROVIDER=mymemory` for the early MVP no-credit-card translation path. Use local `TRANSLATION_PROVIDER=local-dev` when you want fully dependency-free smoke tests. If the higher MyMemory free daily limit is needed, add `MYMEMORY_EMAIL` in Render environment variables, not in the repo.
 
 ## Endpoint Contract
 

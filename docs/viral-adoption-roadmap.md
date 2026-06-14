@@ -68,7 +68,7 @@ Goal: keep the free product generous while preventing provider cost surprises.
 | Planned | Aggregate backend telemetry | Helps tune cost, latency, and reliability. | Build from privacy-safe metadata, not raw reading content. |
 | Planned | Cache TTL tuning | Improves speed/cost balance based on real usage. | Start at 7 days and 1000 entries. |
 | Done | Production backend deployment target | Gives the public extension a real HTTPS backend path. | Render Web Service is approved for the first MVP deployment. |
-| Done | Render deployment blueprint | Makes the backend deployment repeatable. | `render.yaml` starts with `local-dev` for smoke testing. |
+| Done | Render deployment blueprint | Makes the backend deployment repeatable. | `render.yaml` starts with MyMemory for early MVP. |
 | Done | MouseTooltipTranslator provider-strategy reference | Helps DutchMate learn from a free competitor extension. | Documented in `reference-mousetooltiptranslator.md`; free web endpoints are research, not the default production path. |
 | Done | First MVP translation provider | Gives the Render backend a no-credit-card provider for early users. | Use MyMemory for early MVP; scale to Azure after traction or quota pressure. |
 | Planned | Production `/health` and `/translate` backend | Gives the public extension one stable endpoint. | Keep current request/response contract where possible. |

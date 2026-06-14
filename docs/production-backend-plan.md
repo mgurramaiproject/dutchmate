@@ -61,9 +61,10 @@ Initial blueprint behavior:
 - Health check path: `/health`.
 - Start command: `corepack pnpm backend:start`.
 - Host and port: `HOST=0.0.0.0`, `PORT=10000`, matching Render's web service port-binding guidance.
-- Provider: `local-dev` for the first deployment smoke test.
+- Provider: `mymemory` for the early MVP no-credit-card translation path.
+- MyMemory source fallback: `MYMEMORY_SOURCE_LANGUAGE=nl`.
 
-The first Render deploy should prove that `/health` and `/translate` are reachable over HTTPS. Before public browser-store release, change `TRANSLATION_PROVIDER` to the approved production provider and store any provider API key in Render environment variables/secrets, not in the repo.
+The first Render deploy should prove that `/health` and `/translate` are reachable over HTTPS using MyMemory. If the higher MyMemory free daily limit is needed, add `MYMEMORY_EMAIL` in Render environment variables, not in the repo. When traction justifies Azure, switch Render environment variables to the approved scale-up provider.
 
 ## Not Yet
 
@@ -85,7 +86,7 @@ These become appropriate when provider cost, saved learning data, or paid plans 
 | Choose deployment target | Done | Render Web Service is approved as the first MVP backend deployment target. |
 | Choose first production provider | Done | Use MyMemory for early MVP; scale to Azure AI Translator / Microsoft Translator after traction or quota pressure. |
 | Add Render deployment blueprint | Done | `render.yaml` defines the first `dutchmate-backend` web service. |
-| Deploy `/health` and `/translate` | Planned | Use the Render blueprint first with `local-dev`, then switch to MyMemory for early MVP. |
+| Deploy `/health` and `/translate` | Planned | Use the Render blueprint with MyMemory for early MVP. |
 | Add server-side provider secret handling | Planned | Use managed secrets, not repo files. |
 | Add basic rate limiting | Done | Current MVP uses in-memory per-client limits for `POST /translate`; replace with durable/edge limits for production scale. |
 | Add production endpoint configuration to extension | Planned | Avoid user-entered endpoint for public builds. |
