@@ -19,6 +19,8 @@ The extension can safely fetch translation data from an external HTTPS endpoint.
 
 Production backend requirements and rollout sequencing are tracked in [production-backend-plan.md](production-backend-plan.md).
 
+Free browser-extension provider strategies are tracked separately in [reference-mousetooltiptranslator.md](reference-mousetooltiptranslator.md). MouseTooltipTranslator appears to rely heavily on browser-side calls to Google/Bing web translation flows, which is useful inspiration but riskier than an official backend provider for DutchMate's public production path.
+
 ## What External Services Are Needed?
 
 For local development:
