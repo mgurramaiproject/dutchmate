@@ -26,7 +26,8 @@ Use two cache layers:
 2. Local persistent cache
    - Use extension `storage.local`.
    - Support Chrome and Firefox first.
-   - Persist successful single-word translations only.
+   - Persist successful single-word selections only.
+   - Do not persist hover translations, even when the hovered text is one word.
    - Use a 7-day TTL to start.
    - Cap stored entries at 1000 to start.
    - Keep this local to the browser profile.
@@ -35,19 +36,20 @@ Do not use `storage.sync` for raw translation cache entries. Sync is better for 
 
 ## What To Cache
 
-Persist only successful single-word translation results.
+Persist only successful single-word selection results. Selection is intentional, while hover is passive. This keeps the persistent cache easier to explain and less likely to store words the user merely moved across.
 
 Allowed:
 
-- Hover translations in word mode.
+- Selection translations where the selected text is exactly one word.
+- Double-click word selections.
 - Text that is exactly one word after normalization.
 - Successful provider responses only.
 
 Do not persist:
 
+- Hover translations, including word-mode hover translations.
 - Sentence-mode hover translations.
-- Selected text.
-- Phrases longer than one word.
+- Selected phrases or sentences longer than one word.
 - Failed translation responses.
 - Timeout errors.
 - Empty text.
@@ -64,7 +66,7 @@ The persistent cache key should include:
 - target language
 - context
 
-The first implementation can keep `context` in the key even though only word hover entries are persisted. This prevents accidental reuse if future contexts are allowed.
+The first implementation can keep `context` in the key even though only single-word selection entries are persisted. This prevents accidental reuse if future contexts are allowed.
 
 Normalize text before keying:
 
@@ -81,7 +83,7 @@ type PersistentTranslationCacheEntry = {
   text: string;
   sourceLanguage: string;
   targetLanguage: string;
-  context: "hover";
+  context: "selection";
   translatedText: string;
   providerName: string;
   createdAt: number;
@@ -127,7 +129,7 @@ Clear translation cache
 Later, consider a plain-language note:
 
 ```text
-DutchMate stores recent single-word translations locally to make repeat lookups faster. Sentences and selected passages are not saved in the translation cache.
+DutchMate stores recent single-word selections locally to make repeat lookups faster. Hovered words, sentences, and selected passages are not saved in the translation cache.
 ```
 
 Avoid making users create an account for local cache. Accounts should wait until paid plans, saved vocabulary, cross-device sync, or abuse prevention require them.
@@ -135,9 +137,9 @@ Avoid making users create an account for local cache. Accounts should wait until
 ## Incremental Implementation Plan
 
 1. Add a persistent cache adapter that can read, write, expire, and evict entries in `storage.local`.
-2. Add unit tests for TTL, max entries, and word-only persistence rules.
+2. Add unit tests for TTL, max entries, and single-word selection persistence rules.
 3. Wire the adapter behind the translation provider so it checks memory first, then local storage, then the provider endpoint.
-4. Keep sentence and selection translations out of persistent storage.
+4. Keep hover translations, sentences, and selected phrases out of persistent storage.
 5. Update manual testing docs for Chrome and Firefox.
 6. Add the future clear-cache Options control in a separate step.
 

@@ -75,9 +75,10 @@ Recommended cache layers:
 
 2. Local persistent cache
    - Use extension `storage.local`.
-   - Cache successful word translations only.
+   - Cache successful single-word selections only.
+   - Do not persist hover translations, even when the hovered text is one word.
    - Do not persist sentence-mode hover translations.
-   - Do not persist selected text or phrases longer than one word.
+   - Do not persist selected phrases or sentences longer than one word.
    - Key by normalized text, source language, target language, and context.
    - Store a timestamp.
    - Start with a 7-day TTL.
@@ -94,7 +95,7 @@ Privacy stance:
 
 - Local cache should be explained plainly.
 - Users should be able to clear it.
-- Selected text, sentences, and phrases should not be persisted in the translation cache.
+- Hovered words, selected phrases, and sentences should not be persisted in the translation cache.
 - Paid account data should have export and delete paths before a serious launch.
 
 ## Browser Support
@@ -114,7 +115,7 @@ Phase 1: Make the free "aha" moment excellent.
 - Keep install-to-hover friction near zero.
 - Improve tooltip loading, error, and repeated-hover behavior.
 - Avoid duplicate API calls for repeated hover text.
-- Add local persistent cache for successful single-word translations only.
+- Add local persistent cache for successful single-word selections only.
 - Add a clear-cache option.
 - Keep manual testing docs accurate after each behavior change.
 
