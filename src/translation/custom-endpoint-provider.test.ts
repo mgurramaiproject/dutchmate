@@ -131,7 +131,7 @@ describe("CustomEndpointTranslationProvider", () => {
     await translation;
   });
 
-  it("caches successful translations", async () => {
+  it("does not call the endpoint twice for a repeated hover translation", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify({ translatedText: "hello" }), { status: 200 }),
     );
@@ -147,5 +147,26 @@ describe("CustomEndpointTranslationProvider", () => {
     await provider.translate(request);
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls the endpoint again when the target language changes", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      return new Response(JSON.stringify({ translatedText: "hello" }), { status: 200 });
+    });
+    const provider = new CustomEndpointTranslationProvider(
+      {
+        providerEndpoint: "https://example.test/translate",
+        providerApiKey: "",
+      },
+      new TranslationCache(10),
+    );
+
+    await provider.translate(request);
+    await provider.translate({
+      ...request,
+      targetLanguage: "te",
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
