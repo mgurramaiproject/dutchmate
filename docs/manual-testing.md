@@ -30,6 +30,7 @@ Expected result:
 - Selecting text shows the same tooltip near the selection.
 - Changing the target language in Options changes the language code shown in the tooltip.
 - Moving quickly between words should not show an older translation after a newer hover starts.
+- Hovering a word inside a sentence may translate the nearby phrase, while the tooltip still appears near the hovered word.
 - Selecting text while the pointer rests over a word should show the selected-text translation, not the hovered word.
 - Pressing `Esc`, clicking the page, or scrolling hides the tooltip.
 - A selection tooltip stays visible when the mouse leaves the page area.
@@ -217,7 +218,7 @@ You can stop the mock server with `Ctrl+C`.
 ## Current MVP Limits
 
 - Translation uses placeholder text until a provider endpoint is configured.
-- Hover translation only detects one word at a time.
+- Hover translation anchors to the hovered word but may translate a compact nearby phrase for better context.
 - Selection text is capped to keep the MVP lightweight.
 - Target languages are intentionally limited to English (`en`), Dutch (`nl`), and Telugu (`te`).
 - Source languages are limited to Auto, English (`en`), Dutch (`nl`), and Telugu (`te`).

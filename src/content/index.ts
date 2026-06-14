@@ -1,5 +1,6 @@
 const MIN_TEXT_LENGTH = 1;
 const MAX_HOVER_WORD_LENGTH = 48;
+const MAX_HOVER_CONTEXT_LENGTH = 180;
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
 const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 const defaultSettings: ExtensionSettings = {
@@ -228,13 +229,20 @@ function handleMouseMove(event: MouseEvent): void {
       return;
     }
 
-    const hoverKey = `${hit.word}:${hit.x}:${hit.y}`;
+    const hoverKey = `${hit.translationText}:${hit.x}:${hit.y}`;
     if (hoverKey === lastHoverKey) {
       return;
     }
 
     lastHoverKey = hoverKey;
-    showTranslation(hit.word, "hover", hit.x, hit.y, hit.sourceLanguageHint, hit.languageSample);
+    showTranslation(
+      hit.translationText,
+      "hover",
+      hit.x,
+      hit.y,
+      hit.sourceLanguageHint,
+      hit.languageSample,
+    );
   }, currentSettings.hoverDelayMs);
 }
 
@@ -414,7 +422,14 @@ function hasActiveSelection(): boolean {
 function getWordAtPoint(
   clientX: number,
   clientY: number,
-): { word: string; x: number; y: number; sourceLanguageHint?: string; languageSample: string } | null {
+): {
+  word: string;
+  translationText: string;
+  x: number;
+  y: number;
+  sourceLanguageHint?: string;
+  languageSample: string;
+} | null {
   const range = getRangeAtPoint(clientX, clientY);
 
   const text = range?.startContainer.textContent;
@@ -442,6 +457,7 @@ function getWordAtPoint(
 
   return {
     word: match.word,
+    translationText: getHoverTranslationText(text, match.start, match.end),
     x: rect.left,
     y: rect.bottom,
     sourceLanguageHint: getLanguageHintForNode(textNode),
@@ -489,6 +505,48 @@ function getWordBounds(text: string, offset: number): { word: string; start: num
   }
 
   return null;
+}
+
+function getHoverTranslationText(text: string, start: number, end: number): string {
+  const sentenceContext = getSentenceContext(text, start, end);
+
+  if (sentenceContext.length <= MAX_HOVER_CONTEXT_LENGTH) {
+    return sentenceContext;
+  }
+
+  return getWindowContext(text, start, end);
+}
+
+function getSentenceContext(text: string, start: number, end: number): string {
+  let contextStart = start;
+  let contextEnd = end;
+
+  while (contextStart > 0 && !isSentenceBoundary(text[contextStart - 1])) {
+    contextStart -= 1;
+  }
+
+  while (contextEnd < text.length && !isSentenceBoundary(text[contextEnd])) {
+    contextEnd += 1;
+  }
+
+  return normalizeWhitespace(text.slice(contextStart, contextEnd));
+}
+
+function getWindowContext(text: string, start: number, end: number): string {
+  const hoveredLength = end - start;
+  const sideBudget = Math.max(0, Math.floor((MAX_HOVER_CONTEXT_LENGTH - hoveredLength) / 2));
+  const contextStart = Math.max(0, start - sideBudget);
+  const contextEnd = Math.min(text.length, end + sideBudget);
+
+  return normalizeWhitespace(text.slice(contextStart, contextEnd));
+}
+
+function isSentenceBoundary(character: string): boolean {
+  return /[.!?。！？\n]/u.test(character);
+}
+
+function normalizeWhitespace(text: string): string {
+  return text.replace(/\s+/g, " ").trim();
 }
 
 async function refreshSettings(): Promise<void> {
