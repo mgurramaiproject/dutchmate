@@ -163,6 +163,31 @@ Response:
 
 The extension already expects this response shape.
 
+## Smoke Test
+
+With the backend running locally:
+
+```bash
+corepack pnpm backend:smoke
+```
+
+This checks:
+
+- `GET /health`
+- `POST /translate`
+
+To test a deployed Render backend later, pass the service base URL:
+
+```bash
+corepack pnpm backend:smoke https://dutchmate-backend.onrender.com
+```
+
+You can also use an environment variable:
+
+```bash
+BACKEND_BASE_URL=https://dutchmate-backend.onrender.com corepack pnpm backend:smoke
+```
+
 ## Why This Step Matters
 
 This is not the final production backend yet. It is the local scaffold that lets us learn and test the right boundary:

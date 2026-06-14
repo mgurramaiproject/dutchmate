@@ -16,6 +16,7 @@
     "backend:start": "node backend/dev-server.mjs",
     "backend:dev": "node backend/dev-server.mjs",
     "backend:dev:env": "node --env-file-if-exists=.env backend/dev-server.mjs",
+    "backend:smoke": "node scripts/smoke-backend.mjs",
     "mock:translate": "node scripts/mock-translate-server.mjs"
   },
   "keywords": [
