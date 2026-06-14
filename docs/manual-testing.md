@@ -14,6 +14,23 @@ Expected outputs:
 - Chrome extension: `dist/chrome`
 - Firefox extension: `dist/firefox`
 
+## Verification Log
+
+Use this small log after a real browser pass. Keep entries newest first.
+
+```text
+Date:
+Build or commit:
+Browser:
+Tester:
+Result:
+Notes:
+```
+
+Recent entries:
+
+- Pending manual browser verification.
+
 ## Firefox
 
 1. Run `corepack pnpm build:firefox`.
