@@ -13,6 +13,7 @@
     "build:chrome": "tsc --noEmit && vite build --mode chrome && node scripts/write-manifest.mjs chrome",
     "build:firefox": "tsc --noEmit && vite build --mode firefox && node scripts/write-manifest.mjs firefox",
     "build": "npm run build:chrome && npm run build:firefox",
+    "backend:start": "node backend/dev-server.mjs",
     "backend:dev": "node backend/dev-server.mjs",
     "backend:dev:env": "node --env-file-if-exists=.env backend/dev-server.mjs",
     "mock:translate": "node scripts/mock-translate-server.mjs"

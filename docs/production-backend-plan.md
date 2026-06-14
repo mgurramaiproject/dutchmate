@@ -50,6 +50,21 @@ The current MVP backend allows up to 60 `POST /translate` requests per minute pe
 
 Use "provider cost" or "translation quota" in product docs instead of "provider tokens." Translation providers often bill by characters, requests, or quota; tokens are only one possible billing model.
 
+## Render Blueprint
+
+The repo includes `render.yaml` for the first Render Web Service deployment.
+
+Initial blueprint behavior:
+
+- Service name: `dutchmate-backend`.
+- Runtime: Node.
+- Health check path: `/health`.
+- Start command: `corepack pnpm backend:start`.
+- Host and port: `HOST=0.0.0.0`, `PORT=10000`, matching Render's web service port-binding guidance.
+- Provider: `local-dev` for the first deployment smoke test.
+
+The first Render deploy should prove that `/health` and `/translate` are reachable over HTTPS. Before public browser-store release, change `TRANSLATION_PROVIDER` to the approved production provider and store any provider API key in Render environment variables/secrets, not in the repo.
+
 ## Not Yet
 
 Do not add these before the basic free product is proven:
@@ -69,7 +84,8 @@ These become appropriate when provider cost, saved learning data, or paid plans 
 | --- | --- | --- |
 | Choose deployment target | Done | Render Web Service is approved as the first MVP backend deployment target. |
 | Choose first production provider | Planned | Recheck language support, pricing, latency, and terms. |
-| Deploy `/health` and `/translate` | Planned | Reuse the current backend contract where possible. |
+| Add Render deployment blueprint | Done | `render.yaml` defines the first `dutchmate-backend` web service. |
+| Deploy `/health` and `/translate` | Planned | Use the Render blueprint first with `local-dev`, then switch to the approved provider. |
 | Add server-side provider secret handling | Planned | Use managed secrets, not repo files. |
 | Add basic rate limiting | Done | Current MVP uses in-memory per-client limits for `POST /translate`; replace with durable/edge limits for production scale. |
 | Add production endpoint configuration to extension | Planned | Avoid user-entered endpoint for public builds. |

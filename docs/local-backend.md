@@ -123,6 +123,23 @@ backend/dev-server.mjs
 
 The browser extension should not know which provider is behind the backend. Later, we can add providers such as Azure Translator, Google Cloud Translation, or DeepL by implementing the same provider shape used by `local-dev`.
 
+## Render Deployment
+
+The repo includes `render.yaml` for the first Render Web Service deployment. It uses the same backend entry point as local development:
+
+```text
+corepack pnpm backend:start
+```
+
+Render web services must listen on `0.0.0.0` and the configured `PORT`, so the blueprint sets:
+
+```text
+HOST=0.0.0.0
+PORT=10000
+```
+
+The blueprint intentionally starts with `TRANSLATION_PROVIDER=local-dev`. Use this to verify that `/health` and `/translate` deploy correctly before adding a real provider API key. Before public release, switch the Render environment to the approved production provider and store secrets in Render, not in the repo.
+
 ## Endpoint Contract
 
 Request:
