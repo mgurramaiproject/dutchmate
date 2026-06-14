@@ -19,6 +19,7 @@ The product should delay account creation, billing, and heavy setup until after 
 - Paid features should deepen learning, not block basic usefulness too early.
 - Privacy and trust are product features, not only legal requirements.
 - Cache aggressively enough to feel fast and save provider cost, but not so aggressively that DutchMate feels like it is storing everything users read forever.
+- Chrome and Firefox are the first supported browsers. Keep browser-specific behavior isolated so other browsers can be considered later.
 
 ## Free And Paid Plan Shape
 
@@ -74,12 +75,13 @@ Recommended cache layers:
 
 2. Local persistent cache
    - Use extension `storage.local`.
-   - Cache successful translations only.
+   - Cache successful word translations only.
+   - Do not persist sentence-mode hover translations.
+   - Do not persist selected text or phrases longer than one word.
    - Key by normalized text, source language, target language, and context.
    - Store a timestamp.
    - Start with a 7-day TTL.
    - Cap total entries, starting around 1000.
-   - Do not persist long selections by default.
    - Add a "Clear translation cache" control before public launch.
 
 3. Sync cache
@@ -92,8 +94,18 @@ Privacy stance:
 
 - Local cache should be explained plainly.
 - Users should be able to clear it.
-- Sensitive long selections should not be persisted.
+- Selected text, sentences, and phrases should not be persisted in the translation cache.
 - Paid account data should have export and delete paths before a serious launch.
+
+## Browser Support
+
+Chrome and Firefox are the launch targets.
+
+- Continue producing separate Chrome and Firefox build outputs.
+- Keep using `webextension-polyfill` where it reduces browser-specific branching.
+- Treat persistent cache behavior as a shared extension capability, not a Chrome-only feature.
+- Test storage behavior in both Chrome and Firefox before relying on it for token savings.
+- Consider other browsers only after the Chrome and Firefox experience is reliable.
 
 ## Incremental Implementation Roadmap
 
@@ -102,7 +114,7 @@ Phase 1: Make the free "aha" moment excellent.
 - Keep install-to-hover friction near zero.
 - Improve tooltip loading, error, and repeated-hover behavior.
 - Avoid duplicate API calls for repeated hover text.
-- Add local persistent cache for short successful translations.
+- Add local persistent cache for successful single-word translations only.
 - Add a clear-cache option.
 - Keep manual testing docs accurate after each behavior change.
 
