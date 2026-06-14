@@ -4,6 +4,8 @@ import {
   validateTranslationRequest,
 } from "./translation-request.mjs";
 
+const MAX_TRANSLATE_REQUEST_BYTES = 10 * 1024;
+
 export function createTranslationBackendServer({ service }) {
   return createServer(async (request, response) => {
     setCorsHeaders(response);
@@ -71,8 +73,15 @@ function sendJson(response, statusCode, payload) {
 
 async function readJsonBody(request) {
   const chunks = [];
+  let totalBytes = 0;
 
   for await (const chunk of request) {
+    totalBytes += chunk.length;
+
+    if (totalBytes > MAX_TRANSLATE_REQUEST_BYTES) {
+      throw new Error("Request body is too large");
+    }
+
     chunks.push(chunk);
   }
 

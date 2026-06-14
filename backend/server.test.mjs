@@ -105,6 +105,34 @@ describe("createTranslationBackendServer", () => {
     expect(service.translate).not.toHaveBeenCalled();
   });
 
+  it("rejects oversized translation requests before calling the service", async () => {
+    const service = {
+      translate: vi.fn(),
+    };
+
+    server = createTranslationBackendServer({ service });
+    const baseUrl = await listen(server);
+
+    const response = await fetch(`${baseUrl}/translate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: "a".repeat(11 * 1024),
+        sourceLanguage: "auto",
+        targetLanguage: "en",
+        context: "selection",
+      }),
+    });
+
+    await expect(response.json()).resolves.toEqual({
+      error: "Request body is too large",
+    });
+    expect(response.status).toBe(400);
+    expect(service.translate).not.toHaveBeenCalled();
+  });
+
   it("returns a clear 404 for unknown routes", async () => {
     const service = {
       translate: vi.fn(),
