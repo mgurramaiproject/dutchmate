@@ -50,6 +50,8 @@ The default `translatorVendor` is `google`, with `bing` also exposed as a first-
 
 MouseTooltipTranslator seems free because it relies heavily on browser-side calls to public web/internal translation endpoints instead of paying a server-side translation API for every request.
 
+These are not "free public APIs" in the same sense as an official, documented cloud translation API. They are publicly reachable endpoints used by web translation products. Some can be called without an API key, but they usually do not come with stable developer terms, quotas, pricing, support, or uptime guarantees.
+
 That has real advantages:
 
 - No per-user API key setup.
@@ -112,3 +114,32 @@ Then separately record whether any free web-endpoint strategy is acceptable for:
 - or never in production.
 
 Current recommendation: official provider first for public production; free web endpoints only as a carefully documented research path.
+
+## Decision: Do Not Use Web/Internal Endpoints As Default MVP Provider
+
+Decision date: 2026-06-14
+
+DutchMate will not use Google/Bing/DeepL web/internal translation endpoints as the default public MVP provider.
+
+Reasoning:
+
+- They may be technically reachable, but they are not the same as official public APIs.
+- They can change, rate-limit, or break without warning.
+- They may create terms, store-review, or reliability risk.
+- They make the privacy story harder because translation requests go directly from the browser to third-party web services.
+- DutchMate may later offer paid plans, which need stable cost, provider terms, and user trust.
+
+Allowed future uses:
+
+- Research experiment.
+- Local/development provider.
+- Optional advanced mode with clear disclosure.
+- Fallback only after terms, reliability, and privacy implications are reviewed.
+
+Default public path remains:
+
+```text
+DutchMate extension
+-> DutchMate Render backend
+-> approved official translation provider
+```
