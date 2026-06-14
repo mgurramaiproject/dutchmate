@@ -136,7 +136,7 @@ Expected result:
 - A higher hover delay waits longer before showing the tooltip.
 - Word mode translates only the hovered word.
 - Sentence mode translates compact nearby context and remains anchored to the hovered word.
-- Long selections above the configured limit do not translate.
+- Long selections above the configured limit do not translate and show `Selection is too long. Try 50 characters or fewer.` near the selection.
 
 ## Custom Endpoint
 
