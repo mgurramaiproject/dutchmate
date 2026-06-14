@@ -4,7 +4,7 @@ DutchMate should feel almost magically lightweight:
 
 ```text
 Install extension
--> hover a Dutch word
+-> hover or select a Dutch word
 -> instantly understand it
 -> keep reading without breaking flow
 ```
@@ -14,41 +14,92 @@ The product should delay account creation, billing, and heavy setup until after 
 ## Product Principles
 
 - The first-use path should not require an account.
-- The hover tooltip is the core "aha" moment.
+- The hover or selected-word tooltip is the core "aha" moment.
 - Free users should get real value, not a crippled demo.
 - Paid features should deepen learning, not block basic usefulness too early.
 - Privacy and trust are product features, not only legal requirements.
-- Cache aggressively enough to feel fast and save provider cost, but not so aggressively that DutchMate feels like it is storing everything users read forever.
+- Cache enough to feel fast and save provider cost, but avoid silently storing what users merely read or hover over.
 - Chrome and Firefox are the first supported browsers. Keep browser-specific behavior isolated so other browsers can be considered later.
 
-## Free And Paid Plan Shape
+## Status Legend
 
-Free plan, no account required:
+| Status | Meaning |
+| --- | --- |
+| Done | Implemented, verified by automated checks, and committed. |
+| Verified | Manually checked in at least one target browser and recorded. |
+| Planned | Recommended next work, not yet implemented. |
+| Future | Important later, but not needed for the current MVP loop. |
+| Backlog | Useful idea, but lower priority or dependent on traction. |
 
-- Hover translation.
-- Selection translation with modest length limits.
-- Dutch, English, and Telugu MVP language support.
-- Local recent translation cache.
-- Basic provider-backed translations when production backend costs are controlled.
-- Clear limits before the user hits paid-only behavior.
+## Phase 1: Free Aha Moment
 
-Paid plan, account required:
+Goal: make DutchMate useful immediately without accounts, billing, or complex setup.
 
-- Higher daily or monthly translation limits.
-- Better translation quality or premium provider routing.
-- Phrase explanations and examples.
-- Saved vocabulary.
-- Review mode or spaced repetition.
-- Cross-device sync for saved learning data.
-- More languages after the MVP proves demand.
-- Priority access if backend capacity becomes constrained.
+| Status | Feature | User Value | Notes / Next Step |
+| --- | --- | --- | --- |
+| Done | Chrome and Firefox build outputs | Users can install in both launch browsers. | Continue testing both before release. |
+| Done | Hover translation | Instant reading help. | Word mode is default. |
+| Done | Selection translation | Intentional lookup for words, phrases, and passages. | Long selections show a clear limit message. |
+| Done | Tooltip request ordering | Prevents stale translations from replacing newer ones. | Covered by unit tests. |
+| Done | Duplicate hover reduction | Avoids repeated work when moving inside the same hovered word. | Hover still uses in-memory/session cache only. |
+| Done | Provider endpoint error clarity | Users see a helpful backend-unreachable message. | Manual testing now includes provider readiness checks. |
+| Done | Developer settings section | Keeps local endpoint/API-key controls available without presenting them as normal-user settings. | Hide or remove before public launch. |
+| Done | Options privacy note | Explains what the cache stores in plain language. | Keep wording short and non-legalistic. |
+| Done | Persistent cache for selected single words | Speeds up intentional repeat lookups and saves provider calls across sessions. | Does not persist hover words, phrases, or sentences. |
+| Done | Cached word count | Gives users transparency without exposing raw cache records. | Counts unique source words, not translation-direction records. |
+| Done | Clear translation cache | Gives users control over local cache. | Keep visible until public privacy story is settled. |
+| Verified | Firefox cache workflow | Confirms count is visible and persists after loading the compiled extension. | Recorded in `manual-testing.md`. |
+| Planned | Chrome cache workflow verification | Confirms parity in the other launch browser. | Deferred for now. |
+| Planned | Production-friendly first-run setup | Avoids normal users needing provider endpoint settings. | Requires production backend decision. |
 
-Avoid requiring an account for:
+## Phase 2: Cost Control Without Hurting Adoption
 
-- Basic extension settings.
-- Local cache.
-- First successful hover translation.
-- Early MVP testing.
+Goal: keep the free product generous while preventing provider cost surprises.
+
+| Status | Feature | User Value | Notes / Next Step |
+| --- | --- | --- | --- |
+| Done | In-memory translation cache | Fast repeat requests in the active session. | Still useful for hover and phrase translations. |
+| Done | Local persistent cache policy | Stores only selected single words. | Details live in `cache-strategy.md`. |
+| Done | Per-direction cache entries | Keeps `nl -> en`, `nl -> te`, and `en -> nl` separate. | Safer because translations are not always reversible. |
+| Planned | Backend rate limiting | Protects provider budget. | Add when a production backend exists. |
+| Planned | Anonymous usage limits | Controls cost before accounts are required. | Keep generous during early traction. |
+| Planned | Aggregate backend telemetry | Helps tune cost, latency, and reliability. | Avoid storing unnecessary reading content. |
+| Planned | Cache TTL tuning | Improves speed/cost balance based on real usage. | Start at 7 days and 1000 entries. |
+| Future | Provider fallback | Reduces downtime and quality issues. | Add after real provider usage exposes need. |
+
+## Phase 3: Learning Features
+
+Goal: add features that make DutchMate a learning habit, not just a lookup tool.
+
+| Status | Feature | User Value | Notes / Next Step |
+| --- | --- | --- | --- |
+| Future | Saved vocabulary | Turns intentional lookups into a learning list. | Should be explicit, not inferred from passive hover. |
+| Future | Review queue | Helps users return to useful words. | Start simple before spaced repetition. |
+| Future | Simple spaced repetition | Builds long-term retention. | Account may become useful here. |
+| Future | Example sentences | Adds context beyond direct translation. | Could become paid/premium. |
+| Future | Optional learning history | Helps users see progress. | Needs clear privacy controls. |
+| Backlog | Grouped word records with multiple translations | Better learning data model than raw cache entries. | Do this for vocabulary, not provider cache. |
+
+## Phase 4: Accounts And Paid Plans
+
+Goal: introduce identity only after users have felt value and need durable learning features or higher limits.
+
+| Status | Feature | User Value | Notes / Next Step |
+| --- | --- | --- | --- |
+| Planned | No-account free usage | Keeps install-to-value fast. | Keep as long as provider cost allows. |
+| Future | Account for saved learning data | Enables sync and durable progress. | Do not require for first hover/selection. |
+| Future | Paid higher quotas | Gives heavy users more capacity. | Backend owns quotas and entitlement. |
+| Future | Premium explanations | Adds value beyond basic translation. | Good paid candidate. |
+| Future | Cross-device vocabulary sync | Lets learners continue across browsers/devices. | Requires account and data controls. |
+| Future | Billing integration | Supports subscriptions. | Add only near paid beta. |
+| Future | Export and delete account data | Builds trust and supports compliance. | Required before serious public account launch. |
+
+## Free And Paid Shape
+
+| Plan | Should Include | Should Avoid |
+| --- | --- | --- |
+| Free, no account | Hover translation, selection translation, MVP languages, local selected-word cache, clear cache, generous basic limits. | Login wall, provider setup, confusing endpoint/API-key fields for normal users. |
+| Paid, account required | Higher quotas, richer explanations, saved vocabulary, review mode, sync, premium provider routing. | Blocking the basic "hover or select and understand" moment. |
 
 Introduce accounts only when one of these is true:
 
@@ -58,95 +109,30 @@ Introduce accounts only when one of these is true:
 - Abuse prevention becomes necessary.
 - Users are asking for durable personal learning features.
 
-## Cache Strategy
+## Cache Strategy Summary
 
-Current cache:
+| Layer | Status | Purpose | Persistence |
+| --- | --- | --- | --- |
+| In-memory cache | Done | Fast repeat requests during active browsing. | Lost when background worker/browser lifecycle clears it. |
+| Local persistent cache | Done | Fast repeat lookup for intentional selected single words. | Stored in `storage.local` with TTL and max-entry cap. |
+| Sync cache | Not recommended | Raw translation history should not move across devices by default. | Use sync later for saved vocabulary/settings, not passive cache. |
 
-- `TranslationCache` is in memory only.
-- It is lost when the browser restarts.
-- It may be lost when the Manifest V3 background worker goes idle.
-- It is useful for immediate repeat requests, but not enough for long-term token savings.
+Persistent cache rules:
 
-Recommended cache layers:
+- Persist successful single-word selections only.
+- Do not persist hover translations.
+- Do not persist selected phrases or sentences.
+- Keep cache entries separated by translation direction.
+- Count unique source words in Options for user clarity.
 
-1. In-memory cache
-   - Keep this for instant repeated lookups during active browsing.
-   - It should stay small and fast.
+## Planning Practices
 
-2. Local persistent cache
-   - Use extension `storage.local`.
-   - Cache successful single-word selections only.
-   - Do not persist hover translations, even when the hovered text is one word.
-   - Do not persist sentence-mode hover translations.
-   - Do not persist selected phrases or sentences longer than one word.
-   - Key by normalized text, source language, target language, and context.
-   - Store a timestamp.
-   - Start with a 7-day TTL.
-   - Cap total entries, starting around 1000.
-   - Add a "Clear translation cache" control before public launch.
-
-3. Sync cache
-   - Do not sync raw translation cache by default.
-   - `storage.sync` is better for settings and small preferences.
-   - Syncing every phrase a user reads can feel invasive and may hit browser storage limits.
-   - Save cross-device sync for paid learning data such as saved words, not passive reading history.
-
-Privacy stance:
-
-- Local cache should be explained plainly.
-- Users should be able to clear it.
-- Hovered words, selected phrases, and sentences should not be persisted in the translation cache.
-- Paid account data should have export and delete paths before a serious launch.
-
-## Browser Support
-
-Chrome and Firefox are the launch targets.
-
-- Continue producing separate Chrome and Firefox build outputs.
-- Keep using `webextension-polyfill` where it reduces browser-specific branching.
-- Treat persistent cache behavior as a shared extension capability, not a Chrome-only feature.
-- Test storage behavior in both Chrome and Firefox before relying on it for token savings.
-- Consider other browsers only after the Chrome and Firefox experience is reliable.
-
-## Incremental Implementation Roadmap
-
-Phase 1: Make the free "aha" moment excellent.
-
-- Keep install-to-hover friction near zero.
-- Improve tooltip loading, error, and repeated-hover behavior.
-- Avoid duplicate API calls for repeated hover text.
-- Add local persistent cache for successful single-word selections only.
-- Add a clear-cache option.
-- Keep manual testing docs accurate after each behavior change.
-
-Phase 2: Control cost without hurting adoption.
-
-- Add backend rate limiting.
-- Add anonymous usage limits if provider cost becomes real.
-- Prefer generous free limits while user volume is low.
-- Track aggregate backend usage and errors without storing unnecessary reading content.
-- Tune cache TTL and max entries based on real usage.
-
-Phase 3: Add learning features that justify accounts.
-
-- Saved vocabulary.
-- Review queue.
-- Simple spaced repetition.
-- Example sentences.
-- Optional learning history.
-- Account sign-in only when the user chooses to save or sync learning data.
-
-Phase 4: Add paid plans.
-
-- Keep the basic hover experience free.
-- Put premium value behind paid accounts:
-  - higher quotas
-  - richer explanations
-  - saved vocabulary sync
-  - review mode
-  - premium provider quality
-- Backend owns entitlement, quota, billing status, and provider routing.
-- The extension stores only the auth token and sends it to the backend.
+- Keep each increment small enough to explain in one paragraph.
+- Commit after each completed, verified step.
+- Keep manual testing docs accurate after behavior changes.
+- Prefer user trust and speed over feature volume.
+- Do not introduce auth, billing, or dashboards before the first-use loop feels excellent.
+- Before public release, hide or remove Developer settings from the normal user path.
 
 ## Critical Recommendation
 
@@ -154,10 +140,11 @@ Do not make DutchMate feel like a SaaS dashboard too early. The winning experien
 
 The best near-term sequence is:
 
-1. Polish the free hover and selection experience.
-2. Add local persistent caching with clear privacy boundaries.
-3. Add lightweight learning features only after translation feels fast and reliable.
-4. Add accounts when users want saved progress or when provider cost makes quotas necessary.
-5. Add paid plans after users already have a habit.
+1. Finish browser verification for Chrome and Firefox.
+2. Keep polishing the free hover and selection experience.
+3. Move provider setup behind a production backend before public release.
+4. Add explicit saved vocabulary only after translation feels fast and reliable.
+5. Add accounts when users want saved progress or when provider cost makes quotas necessary.
+6. Add paid plans after users already have a habit.
 
 The account wall should come after value, not before it.
