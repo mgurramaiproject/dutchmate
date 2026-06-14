@@ -63,7 +63,7 @@ describe("persistent cache policy", () => {
     expect(
       shouldPersistTranslation({
         ...selectionRequest,
-        text: "a".repeat(49),
+        text: "a".repeat(31),
       }),
     ).toBe(false);
   });

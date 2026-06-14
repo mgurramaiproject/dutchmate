@@ -3,8 +3,10 @@ import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
 
 const MIN_TEXT_LENGTH = 1;
-const MAX_HOVER_WORD_LENGTH = 48;
+const MAX_HOVER_WORD_LENGTH = 30;
 const MAX_HOVER_CONTEXT_LENGTH = 180;
+const MIN_SELECTION_LENGTH = 50;
+const MAX_SELECTION_LENGTH = 150;
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
 const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 const defaultSettings: ExtensionSettings = {
@@ -13,7 +15,7 @@ const defaultSettings: ExtensionSettings = {
   translateOnSelection: true,
   hoverTranslationMode: "word",
   hoverDelayMs: 450,
-  maxSelectionLength: 600,
+  maxSelectionLength: MAX_SELECTION_LENGTH,
   sourceLanguage: "auto",
   targetLanguage: "en",
   translateToOtherMvpLanguages: true,
@@ -623,7 +625,7 @@ function settingChangesToPartialSettings(
       changes.hoverTranslationMode?.newValue,
     ),
     hoverDelayMs: getOptionalNumberSetting(changes.hoverDelayMs?.newValue),
-    maxSelectionLength: getOptionalNumberSetting(changes.maxSelectionLength?.newValue),
+    maxSelectionLength: getOptionalSelectionLengthSetting(changes.maxSelectionLength?.newValue),
     sourceLanguage: getOptionalSourceLanguageSetting(changes.sourceLanguage?.newValue),
     targetLanguage: getOptionalTargetLanguageSetting(changes.targetLanguage?.newValue),
     translateToOtherMvpLanguages: getOptionalBooleanSetting(
@@ -658,9 +660,11 @@ async function readSettings(): Promise<ExtensionSettings> {
           defaultSettings.hoverTranslationMode,
         ),
         hoverDelayMs: getNumberSetting(stored.hoverDelayMs, defaultSettings.hoverDelayMs),
-        maxSelectionLength: getNumberSetting(
+        maxSelectionLength: getNumberSettingInRange(
           stored.maxSelectionLength,
           defaultSettings.maxSelectionLength,
+          MIN_SELECTION_LENGTH,
+          MAX_SELECTION_LENGTH,
         ),
         sourceLanguage: getSourceLanguageSetting(stored.sourceLanguage, defaultSettings.sourceLanguage),
         targetLanguage: getTargetLanguageSetting(stored.targetLanguage, defaultSettings.targetLanguage),
@@ -699,6 +703,11 @@ function getNumberSetting(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function getNumberSettingInRange(value: unknown, fallback: number, min: number, max: number): number {
+  const numberValue = getNumberSetting(value, fallback);
+  return Math.min(Math.max(numberValue, min), max);
+}
+
 function getOptionalHoverTranslationModeSetting(value: unknown): string | undefined {
   return value === "word" || value === "sentence" ? value : undefined;
 }
@@ -721,6 +730,16 @@ function getOptionalBooleanSetting(value: unknown): boolean | undefined {
 
 function getOptionalNumberSetting(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function getOptionalSelectionLengthSetting(value: unknown): number | undefined {
+  const numberValue = getOptionalNumberSetting(value);
+
+  if (numberValue === undefined) {
+    return undefined;
+  }
+
+  return Math.min(Math.max(numberValue, MIN_SELECTION_LENGTH), MAX_SELECTION_LENGTH);
 }
 
 async function requestTranslation(

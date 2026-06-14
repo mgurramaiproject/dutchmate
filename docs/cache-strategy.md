@@ -133,7 +133,7 @@ Clear translation cache
 Later, consider a plain-language note:
 
 ```text
-DutchMate stores recent single-word selections locally to make repeat lookups faster. Hovered words, sentences, and selected passages are not saved in the translation cache.
+DutchMate stores recent single-word selections locally to make repeat lookups faster. Hovered words, phrases, and selected sentences are not saved in the translation cache.
 ```
 
 Avoid making users create an account for local cache. Accounts should wait until paid plans, saved vocabulary, cross-device sync, or abuse prevention require them.

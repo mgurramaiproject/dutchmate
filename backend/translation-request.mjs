@@ -1,7 +1,7 @@
 export const TRANSLATION_CONTEXTS = new Set(["hover", "selection"]);
 export const SOURCE_LANGUAGES = new Set(["auto", "en", "nl", "te"]);
-export const MAX_HOVER_TEXT_LENGTH = 48;
-export const MAX_SELECTION_TEXT_LENGTH = 600;
+export const MAX_HOVER_TEXT_LENGTH = 30;
+export const MAX_SELECTION_TEXT_LENGTH = 150;
 
 export function validateTranslationRequest(body) {
   if (!isObject(body)) {

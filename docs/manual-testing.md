@@ -115,7 +115,7 @@ Expected result:
 - "Show the other two MVP languages" is on by default and remains saved after toggling.
 - Provider endpoint and Provider API key are grouped under Developer settings with a local-testing note.
 - The Privacy section shows `Cached words: 0` when no words have been persisted.
-- The Privacy section explains that selected single words are stored locally, while hovered words and selected passages are not saved.
+- The Privacy section explains that selected single words are stored locally, while hovered words and selected phrases or sentences are not saved.
 - Clicking "Clear translation cache" clears the local cache and keeps the cached word count at `0`.
 
 Dual-language mode:
@@ -158,7 +158,7 @@ Expected result:
 - A higher hover delay waits longer before showing the tooltip.
 - Word mode translates only the hovered word.
 - Sentence mode translates compact nearby context and remains anchored to the hovered word.
-- Long selections above the configured limit do not translate and show `Selection is too long. Try 50 characters or fewer.` near the selection.
+- Long selections above the configured limit do not translate and show `Selection is too long. Try 150 characters or fewer.` near the selection.
 
 ## Custom Endpoint
 

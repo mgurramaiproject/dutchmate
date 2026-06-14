@@ -14,7 +14,7 @@ export const HOVER_DELAY_LIMITS = {
 };
 export const SELECTION_LENGTH_LIMITS = {
   min: 50,
-  max: 3000,
+  max: 150,
 };
 
 export type HoverTranslationMode = "word" | "sentence";
@@ -39,7 +39,7 @@ export const defaultSettings: ExtensionSettings = {
   translateOnSelection: true,
   hoverTranslationMode: "word",
   hoverDelayMs: 450,
-  maxSelectionLength: 600,
+  maxSelectionLength: 150,
   sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
   targetLanguage: DEFAULT_TARGET_LANGUAGE,
   translateToOtherMvpLanguages: true,
@@ -62,9 +62,11 @@ export async function readSettings(): Promise<ExtensionSettings> {
       defaultSettings.hoverTranslationMode,
     ),
     hoverDelayMs: getNumberSetting(stored.hoverDelayMs, defaultSettings.hoverDelayMs),
-    maxSelectionLength: getNumberSetting(
+    maxSelectionLength: getNumberSettingInRange(
       stored.maxSelectionLength,
       defaultSettings.maxSelectionLength,
+      SELECTION_LENGTH_LIMITS.min,
+      SELECTION_LENGTH_LIMITS.max,
     ),
     sourceLanguage: getSourceLanguageCode(stored.sourceLanguage, defaultSettings.sourceLanguage),
     targetLanguage: getMvpLanguageCode(stored.targetLanguage, defaultSettings.targetLanguage),
@@ -94,6 +96,16 @@ function getBooleanSetting(value: unknown, fallback: boolean): boolean {
 
 function getNumberSetting(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function getNumberSettingInRange(
+  value: unknown,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
+  const numberValue = getNumberSetting(value, fallback);
+  return Math.min(Math.max(numberValue, min), max);
 }
 
 export function validateHoverDelayMs(value: number): string | null {

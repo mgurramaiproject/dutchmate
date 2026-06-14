@@ -39,7 +39,7 @@ Goal: make DutchMate useful immediately without accounts, billing, or complex se
 | --- | --- | --- | --- |
 | Done | Chrome and Firefox build outputs | Users can install in both launch browsers. | Continue testing both before release. |
 | Done | Hover translation | Instant reading help. | Word mode is default. |
-| Done | Selection translation | Intentional lookup for words, phrases, and passages. | Long selections show a clear limit message. |
+| Done | Selection translation | Intentional lookup for words, short phrases, and short sentences. | Long selections show a clear limit message. |
 | Done | Tooltip request ordering | Prevents stale translations from replacing newer ones. | Covered by unit tests. |
 | Done | Duplicate hover reduction | Avoids repeated work when moving inside the same hovered word. | Hover still uses in-memory/session cache only. |
 | Done | Provider endpoint error clarity | Users see a helpful backend-unreachable message. | Manual testing now includes provider readiness checks. |

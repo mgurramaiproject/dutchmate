@@ -1,6 +1,6 @@
 import type { TranslationRequest } from "./provider";
 
-const DEFAULT_MAX_PERSISTED_WORD_LENGTH = 48;
+const DEFAULT_MAX_PERSISTED_WORD_LENGTH = 30;
 const singleWordPattern = /^[\p{Letter}\p{Number}'-]+$/u;
 
 export function shouldPersistTranslation(
