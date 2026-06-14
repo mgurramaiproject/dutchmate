@@ -31,7 +31,7 @@ The extension should call one DutchMate-owned HTTPS backend. The backend should 
 | Provider adapter | One production translation provider | Start with the simplest provider that supports Dutch, English, and Telugu acceptably. |
 | Rate limiting | Basic per-install or anonymous limits | Protect cost before accounts exist. |
 | Abuse protection | Request size and frequency limits | Keep free use generous, but not unlimited. |
-| Logging | Operational metadata only | Avoid storing raw page text unless explicitly needed and disclosed. |
+| Logging | Operational metadata only | Current MVP logs status, duration, languages, context, text length, and rate-limit state without raw page text. |
 | Privacy | Clear store listing and privacy policy | Explain what text is sent for translation. |
 
 ## Extension Behavior

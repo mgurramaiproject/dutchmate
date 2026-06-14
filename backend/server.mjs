@@ -8,7 +8,7 @@ const MAX_TRANSLATE_REQUEST_BYTES = 10 * 1024;
 const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 60;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
 
-export function createTranslationBackendServer({ service, rateLimit = {} }) {
+export function createTranslationBackendServer({ service, rateLimit = {}, logger = console }) {
   const rateLimiter = createRateLimiter(rateLimit);
 
   return createServer(async (request, response) => {
@@ -34,11 +34,16 @@ export function createTranslationBackendServer({ service, rateLimit = {} }) {
       return;
     }
 
+    const startedAt = Date.now();
     const rateLimitResult = rateLimiter.check(getClientKey(request));
     if (!rateLimitResult.allowed) {
       response.setHeader("Retry-After", rateLimitResult.retryAfterSeconds.toString());
       sendJson(response, 429, {
         error: "Too many translation requests. Try again soon.",
+      });
+      logTranslateRequest(logger, startedAt, {
+        statusCode: 429,
+        rateLimited: true,
       });
       return;
     }
@@ -51,19 +56,53 @@ export function createTranslationBackendServer({ service, rateLimit = {} }) {
         sendJson(response, 400, {
           error: validationError,
         });
+        logTranslateRequest(logger, startedAt, {
+          statusCode: 400,
+          error: validationError,
+          ...getSafeRequestMetadata(body),
+        });
         return;
       }
 
-      const translation = await service.translate(normalizeTranslationRequest(body));
+      const normalizedRequest = normalizeTranslationRequest(body);
+      const translation = await service.translate(normalizedRequest);
       sendJson(response, 200, {
         translatedText: translation.translatedText,
       });
+      logTranslateRequest(logger, startedAt, {
+        statusCode: 200,
+        ...getSafeRequestMetadata(normalizedRequest),
+      });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Invalid request";
       sendJson(response, 400, {
-        error: error instanceof Error ? error.message : "Invalid request",
+        error: errorMessage,
+      });
+      logTranslateRequest(logger, startedAt, {
+        statusCode: 400,
+        error: errorMessage,
       });
     }
   });
+}
+
+function logTranslateRequest(logger, startedAt, metadata) {
+  logger.info?.(
+    JSON.stringify({
+      event: "translate_request",
+      durationMs: Math.max(0, Date.now() - startedAt),
+      ...metadata,
+    }),
+  );
+}
+
+function getSafeRequestMetadata(body) {
+  return {
+    context: typeof body.context === "string" ? body.context : undefined,
+    sourceLanguage: typeof body.sourceLanguage === "string" ? body.sourceLanguage : undefined,
+    targetLanguage: typeof body.targetLanguage === "string" ? body.targetLanguage : undefined,
+    textLength: typeof body.text === "string" ? body.text.trim().length : undefined,
+  };
 }
 
 function createRateLimiter({

@@ -28,7 +28,7 @@ describe("createTranslationBackendServer", () => {
       translate: vi.fn(),
     };
 
-    server = createTranslationBackendServer({ service });
+    server = createTranslationBackendServer({ service, logger: createTestLogger() });
     const baseUrl = await listen(server);
 
     const response = await fetch(`${baseUrl}/health`);
@@ -43,13 +43,14 @@ describe("createTranslationBackendServer", () => {
   });
 
   it("translates a valid HTTP request", async () => {
+    const logger = createTestLogger();
     const service = {
       translate: vi.fn(async () => ({
         translatedText: "house",
       })),
     };
 
-    server = createTranslationBackendServer({ service });
+    server = createTranslationBackendServer({ service, logger });
     const baseUrl = await listen(server);
 
     const response = await fetch(`${baseUrl}/translate`, {
@@ -75,6 +76,17 @@ describe("createTranslationBackendServer", () => {
       targetLanguage: "en",
       context: "selection",
     });
+    expect(logger.messages).toHaveLength(1);
+    expect(JSON.parse(logger.messages[0])).toMatchObject({
+      event: "translate_request",
+      statusCode: 200,
+      context: "selection",
+      sourceLanguage: "nl",
+      targetLanguage: "en",
+      textLength: 4,
+    });
+    expect(logger.messages[0]).not.toContain("huis");
+    expect(logger.messages[0]).not.toContain("house");
   });
 
   it("rejects invalid translation requests before calling the service", async () => {
@@ -82,7 +94,7 @@ describe("createTranslationBackendServer", () => {
       translate: vi.fn(),
     };
 
-    server = createTranslationBackendServer({ service });
+    server = createTranslationBackendServer({ service, logger: createTestLogger() });
     const baseUrl = await listen(server);
 
     const response = await fetch(`${baseUrl}/translate`, {
@@ -110,7 +122,7 @@ describe("createTranslationBackendServer", () => {
       translate: vi.fn(),
     };
 
-    server = createTranslationBackendServer({ service });
+    server = createTranslationBackendServer({ service, logger: createTestLogger() });
     const baseUrl = await listen(server);
 
     const response = await fetch(`${baseUrl}/translate`, {
@@ -135,6 +147,7 @@ describe("createTranslationBackendServer", () => {
 
   it("rate limits repeated translation requests from the same client", async () => {
     let currentTime = 1000;
+    const logger = createTestLogger();
     const service = {
       translate: vi.fn(async () => ({
         translatedText: "house",
@@ -143,6 +156,7 @@ describe("createTranslationBackendServer", () => {
 
     server = createTranslationBackendServer({
       service,
+      logger,
       rateLimit: {
         maxRequests: 2,
         windowMs: 60_000,
@@ -162,6 +176,11 @@ describe("createTranslationBackendServer", () => {
     expect(limitedResponse.status).toBe(429);
     expect(limitedResponse.headers.get("retry-after")).toBe("60");
     expect(service.translate).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(logger.messages[2])).toMatchObject({
+      event: "translate_request",
+      statusCode: 429,
+      rateLimited: true,
+    });
 
     currentTime += 60_000;
 
@@ -178,6 +197,7 @@ describe("createTranslationBackendServer", () => {
 
     server = createTranslationBackendServer({
       service,
+      logger: createTestLogger(),
       rateLimit: {
         maxRequests: 1,
         windowMs: 60_000,
@@ -197,7 +217,7 @@ describe("createTranslationBackendServer", () => {
       translate: vi.fn(),
     };
 
-    server = createTranslationBackendServer({ service });
+    server = createTranslationBackendServer({ service, logger: createTestLogger() });
     const baseUrl = await listen(server);
 
     const response = await fetch(`${baseUrl}/unknown`);
@@ -238,4 +258,13 @@ function postTranslate(baseUrl) {
       context: "selection",
     }),
   });
+}
+
+function createTestLogger() {
+  return {
+    messages: [],
+    info(message) {
+      this.messages.push(message);
+    },
+  };
 }

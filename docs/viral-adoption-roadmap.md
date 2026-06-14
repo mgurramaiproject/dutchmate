@@ -62,8 +62,9 @@ Goal: keep the free product generous while preventing provider cost surprises.
 | Done | Local persistent cache policy | Stores only selected single words. | Details live in `cache-strategy.md`. |
 | Done | Per-direction cache entries | Keeps `nl -> en`, `nl -> te`, and `en -> nl` separate. | Safer because translations are not always reversible. |
 | Done | Backend rate limiting | Protects provider budget. | Current MVP uses in-memory per-client limits for `POST /translate`. |
+| Done | Privacy-safe backend request logs | Helps debug outcomes without storing reading content. | Logs status, duration, languages, context, text length, and rate-limit state; never raw text. |
 | Planned | Anonymous usage limits | Controls cost before accounts are required. | Keep generous during early traction. |
-| Planned | Aggregate backend telemetry | Helps tune cost, latency, and reliability. | Avoid storing unnecessary reading content. |
+| Planned | Aggregate backend telemetry | Helps tune cost, latency, and reliability. | Build from privacy-safe metadata, not raw reading content. |
 | Planned | Cache TTL tuning | Improves speed/cost balance based on real usage. | Start at 7 days and 1000 entries. |
 | Planned | Production `/health` and `/translate` backend | Gives the public extension one stable endpoint. | Keep current request/response contract where possible. |
 | Planned | Server-side provider secrets | Keeps paid provider keys out of extension code. | Use managed secrets in deployment target. |
