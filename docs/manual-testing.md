@@ -126,8 +126,8 @@ Tuning controls:
 
 1. Drag "Hover delay" to `150 ms`, save, then hover a word.
 2. Drag "Hover delay" to `1500 ms`, save, then hover a word.
-3. Change "Hover translation mode" to `Word`, save, then hover a word inside a sentence.
-4. Change "Hover translation mode" back to `Sentence`, save, then hover the same word.
+3. Confirm "Hover translation mode" is `Word`, save, then hover a word inside a sentence.
+4. Change "Hover translation mode" to `Sentence`, save, then hover the same word.
 5. Drag "Max selected text length" to `50 chars`, save, then select a long sentence.
 
 Expected result:
@@ -222,7 +222,7 @@ You can stop the mock server with `Ctrl+C`.
 ## Current MVP Limits
 
 - Translation uses placeholder text until a provider endpoint is configured.
-- Hover translation can run in Word mode for compact lookup or Sentence mode for nearby context. Sentence mode is the default.
+- Hover translation can run in Word mode for compact lookup or Sentence mode for nearby context. Word mode is the default.
 - Selection text is capped to keep the MVP lightweight.
 - Target languages are intentionally limited to English (`en`), Dutch (`nl`), and Telugu (`te`).
 - Source languages are limited to Auto, English (`en`), Dutch (`nl`), and Telugu (`te`).

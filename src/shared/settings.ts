@@ -37,7 +37,7 @@ export const defaultSettings: ExtensionSettings = {
   isEnabled: true,
   translateOnHover: true,
   translateOnSelection: true,
-  hoverTranslationMode: "sentence",
+  hoverTranslationMode: "word",
   hoverDelayMs: 450,
   maxSelectionLength: 600,
   sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
