@@ -236,7 +236,7 @@ Error test:
 Expected result:
 
 - Options shows a clear test failure message.
-- The tooltip briefly shows a loading state, then a clear translation failure message.
+- The tooltip briefly shows a loading state, then `Translation failed: Provider endpoint is unreachable. Check that the backend is running and the endpoint URL is correct.`
 
 You can stop the mock server with `Ctrl+C`.
 
@@ -286,18 +286,20 @@ browser.storage.local.remove("dutchmate.translationCache.v1");
 
 Cache behavior check:
 
-1. Configure a provider endpoint, such as the local mock endpoint.
-2. Keep "Show the other two MVP languages" on.
-3. Select a single word, ideally by double-clicking it.
-4. Inspect `dutchmate.translationCache.v1` and confirm cache entries appear for each target language.
-5. Open Options and confirm the Privacy section still shows `Cached words: 1`.
-6. This count is unique source words, not raw translation records.
-7. Hover over a word.
-8. Inspect the cache again and confirm the hover did not add an entry.
-9. Select a phrase or sentence.
-10. Inspect the cache again and confirm the phrase or sentence did not add an entry.
-11. Click "Clear translation cache" in Options.
-12. Inspect the cache again and confirm `dutchmate.translationCache.v1` is removed.
+1. Start a local provider endpoint with `corepack pnpm backend:dev` or `corepack pnpm mock:translate`.
+2. In Options, set Provider endpoint to `http://localhost:8787/translate`.
+3. Click "Test endpoint" and confirm it succeeds before testing hover, selection, or cache behavior.
+4. Keep "Show the other two MVP languages" on.
+5. Select a single word, ideally by double-clicking it.
+6. Inspect `dutchmate.translationCache.v1` and confirm cache entries appear for each target language.
+7. Open Options and confirm the Privacy section still shows `Cached words: 1`.
+8. This count is unique source words, not raw translation records.
+9. Hover over a word.
+10. Inspect the cache again and confirm the hover did not add an entry.
+11. Select a phrase or sentence.
+12. Inspect the cache again and confirm the phrase or sentence did not add an entry.
+13. Click "Clear translation cache" in Options.
+14. Inspect the cache again and confirm `dutchmate.translationCache.v1` is removed.
 
 ## Current MVP Limits
 
