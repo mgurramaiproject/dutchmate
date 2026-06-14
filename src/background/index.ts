@@ -1,11 +1,13 @@
 import { isTranslateMessage, type TranslateMessageResponse } from "./messages";
+import { LocalCacheStorage, type LocalCacheExtensionApi } from "./local-cache-storage";
 import { readProviderSettings, type BackgroundExtensionApi } from "./settings-adapter";
+import { PersistentTranslationCache } from "../translation/persistent-translation-cache";
 import { TranslationCache } from "../translation/translation-cache";
 import { TranslationService } from "../translation/translation-service";
 
 const MAX_CACHE_ENTRIES = 100;
 
-type BackgroundRuntimeApi = BackgroundExtensionApi & {
+type BackgroundRuntimeApi = BackgroundExtensionApi & LocalCacheExtensionApi & {
   runtime: {
     lastError?: { message?: string };
     onMessage: {
@@ -28,6 +30,7 @@ const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
 const translationService = new TranslationService(
   () => readProviderSettings(extensionApi),
   new TranslationCache(MAX_CACHE_ENTRIES),
+  new PersistentTranslationCache(new LocalCacheStorage(extensionApi)),
 );
 
 extensionApi?.runtime.onMessage.addListener((message, _sender, sendResponse) => {

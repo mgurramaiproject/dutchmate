@@ -1,6 +1,11 @@
 import type { TranslationProvider, TranslationRequest, TranslationResult } from "./provider";
 import { TranslationCache } from "./translation-cache";
 
+export type PersistentTranslationCacheLayer = {
+  get(request: TranslationRequest): Promise<TranslationResult | null>;
+  set(request: TranslationRequest, result: TranslationResult): Promise<void>;
+};
+
 export type CustomEndpointProviderSettings = {
   providerEndpoint: string;
   providerApiKey: string;
@@ -13,6 +18,7 @@ export class CustomEndpointTranslationProvider implements TranslationProvider {
   constructor(
     private readonly settings: CustomEndpointProviderSettings,
     private readonly cache: TranslationCache,
+    private readonly persistentCache?: PersistentTranslationCacheLayer,
   ) {}
 
   async translate(request: TranslationRequest): Promise<TranslationResult> {
@@ -20,6 +26,13 @@ export class CustomEndpointTranslationProvider implements TranslationProvider {
 
     if (cachedResult) {
       return cachedResult;
+    }
+
+    const persistentResult = await this.persistentCache?.get(request);
+
+    if (persistentResult) {
+      this.cache.set(request, persistentResult);
+      return persistentResult;
     }
 
     const headers: Record<string, string> = {
@@ -57,6 +70,7 @@ export class CustomEndpointTranslationProvider implements TranslationProvider {
     };
 
     this.cache.set(request, result);
+    await this.persistentCache?.set(request, result);
     return result;
   }
 }

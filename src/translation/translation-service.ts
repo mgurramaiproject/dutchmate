@@ -1,5 +1,8 @@
 import type { TranslationRequest, TranslationResult } from "./provider";
-import { CustomEndpointTranslationProvider } from "./custom-endpoint-provider";
+import {
+  CustomEndpointTranslationProvider,
+  type PersistentTranslationCacheLayer,
+} from "./custom-endpoint-provider";
 import { PlaceholderTranslationProvider } from "./placeholder-provider";
 import { TranslationCache } from "./translation-cache";
 
@@ -14,6 +17,7 @@ export class TranslationService {
   constructor(
     private readonly readSettings: () => Promise<TranslationProviderSettings>,
     private readonly cache: TranslationCache,
+    private readonly persistentCache?: PersistentTranslationCacheLayer,
   ) {}
 
   async translate(request: TranslationRequest): Promise<TranslationResult> {
@@ -23,7 +27,10 @@ export class TranslationService {
       return this.placeholderProvider.translate(request);
     }
 
-    return new CustomEndpointTranslationProvider(settings, this.cache).translate(request);
+    return new CustomEndpointTranslationProvider(
+      settings,
+      this.cache,
+      this.persistentCache,
+    ).translate(request);
   }
 }
-

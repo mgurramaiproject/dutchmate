@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { TranslationRequest } from "./provider";
 import { CustomEndpointTranslationProvider } from "./custom-endpoint-provider";
+import { PersistentTranslationCache } from "./persistent-translation-cache";
 import { TranslationCache } from "./translation-cache";
 
 const request: TranslationRequest = {
@@ -149,6 +150,108 @@ describe("CustomEndpointTranslationProvider", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it("stores and reuses eligible single-word selections from persistent cache", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      return new Response(JSON.stringify({ translatedText: "house" }), { status: 200 });
+    });
+    const persistentCache = new PersistentTranslationCache(new MemoryStorage());
+    const selectionRequest: TranslationRequest = {
+      text: "huis",
+      sourceLanguage: "nl",
+      targetLanguage: "en",
+      context: "selection",
+    };
+
+    const firstProvider = new CustomEndpointTranslationProvider(
+      {
+        providerEndpoint: "https://example.test/translate",
+        providerApiKey: "",
+      },
+      new TranslationCache(10),
+      persistentCache,
+    );
+    await firstProvider.translate(selectionRequest);
+
+    const secondProvider = new CustomEndpointTranslationProvider(
+      {
+        providerEndpoint: "https://example.test/translate",
+        providerApiKey: "",
+      },
+      new TranslationCache(10),
+      persistentCache,
+    );
+
+    await expect(secondProvider.translate(selectionRequest)).resolves.toEqual({
+      translatedText: "house",
+      providerName: "custom-endpoint",
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not persist hover translations", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      return new Response(JSON.stringify({ translatedText: "hello" }), { status: 200 });
+    });
+    const persistentCache = new PersistentTranslationCache(new MemoryStorage());
+
+    const firstProvider = new CustomEndpointTranslationProvider(
+      {
+        providerEndpoint: "https://example.test/translate",
+        providerApiKey: "",
+      },
+      new TranslationCache(10),
+      persistentCache,
+    );
+    await firstProvider.translate(request);
+
+    const secondProvider = new CustomEndpointTranslationProvider(
+      {
+        providerEndpoint: "https://example.test/translate",
+        providerApiKey: "",
+      },
+      new TranslationCache(10),
+      persistentCache,
+    );
+    await secondProvider.translate(request);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not persist selected phrases", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      return new Response(JSON.stringify({ translatedText: "the house" }), { status: 200 });
+    });
+    const persistentCache = new PersistentTranslationCache(new MemoryStorage());
+    const phraseRequest: TranslationRequest = {
+      text: "het huis",
+      sourceLanguage: "nl",
+      targetLanguage: "en",
+      context: "selection",
+    };
+
+    const firstProvider = new CustomEndpointTranslationProvider(
+      {
+        providerEndpoint: "https://example.test/translate",
+        providerApiKey: "",
+      },
+      new TranslationCache(10),
+      persistentCache,
+    );
+    await firstProvider.translate(phraseRequest);
+
+    const secondProvider = new CustomEndpointTranslationProvider(
+      {
+        providerEndpoint: "https://example.test/translate",
+        providerApiKey: "",
+      },
+      new TranslationCache(10),
+      persistentCache,
+    );
+    await secondProvider.translate(phraseRequest);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it("calls the endpoint again when the target language changes", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
       return new Response(JSON.stringify({ translatedText: "hello" }), { status: 200 });
@@ -170,3 +273,15 @@ describe("CustomEndpointTranslationProvider", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
+
+class MemoryStorage {
+  readonly values = new Map<string, unknown>();
+
+  async get(key: string): Promise<unknown> {
+    return this.values.get(key);
+  }
+
+  async set(key: string, value: unknown): Promise<void> {
+    this.values.set(key, value);
+  }
+}
