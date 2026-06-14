@@ -134,6 +134,8 @@ DutchMate stores recent single-word selections locally to make repeat lookups fa
 
 Avoid making users create an account for local cache. Accounts should wait until paid plans, saved vocabulary, cross-device sync, or abuse prevention require them.
 
+Developer inspection and clearing steps are documented in [manual-testing.md](manual-testing.md#translation-cache-inspection).
+
 ## Incremental Implementation Plan
 
 1. Add a persistent cache adapter that can read, write, expire, and evict entries in `storage.local`.

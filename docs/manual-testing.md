@@ -219,6 +219,60 @@ Expected result:
 
 You can stop the mock server with `Ctrl+C`.
 
+## Translation Cache Inspection
+
+The persistent cache is stored locally under:
+
+```text
+dutchmate.translationCache.v1
+```
+
+It should only contain successful single-word selections. Hovered words, selected phrases, selected sentences, failed translations, and timeout errors should not appear there.
+
+Chrome developer check:
+
+1. Build and load `dist/chrome`.
+2. Open `chrome://extensions`.
+3. Find DutchMate and click "service worker" or "Inspect views".
+4. In the DevTools Console, run:
+
+```js
+chrome.storage.local.get("dutchmate.translationCache.v1", console.log);
+```
+
+5. To clear it during testing, run:
+
+```js
+chrome.storage.local.remove("dutchmate.translationCache.v1");
+```
+
+Firefox developer check:
+
+1. Build and load `dist/firefox/manifest.json`.
+2. Open `about:debugging#/runtime/this-firefox`.
+3. Find DutchMate and click "Inspect".
+4. In the Console, run:
+
+```js
+browser.storage.local.get("dutchmate.translationCache.v1").then(console.log);
+```
+
+5. To clear it during testing, run:
+
+```js
+browser.storage.local.remove("dutchmate.translationCache.v1");
+```
+
+Cache behavior check:
+
+1. Configure a provider endpoint, such as the local mock endpoint.
+2. Select a single word, ideally by double-clicking it.
+3. Inspect `dutchmate.translationCache.v1` and confirm one cache entry appears.
+4. Hover over a word.
+5. Inspect the cache again and confirm the hover did not add an entry.
+6. Select a phrase or sentence.
+7. Inspect the cache again and confirm the phrase or sentence did not add an entry.
+
 ## Current MVP Limits
 
 - Translation uses placeholder text until a provider endpoint is configured.
