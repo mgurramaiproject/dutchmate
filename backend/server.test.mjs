@@ -41,6 +41,86 @@ describe("createTranslationBackendServer", () => {
     expect(response.headers.get("content-type")).toBe("application/json; charset=utf-8");
     expect(service.translate).not.toHaveBeenCalled();
   });
+
+  it("translates a valid HTTP request", async () => {
+    const service = {
+      translate: vi.fn(async () => ({
+        translatedText: "house",
+      })),
+    };
+
+    server = createTranslationBackendServer({ service });
+    const baseUrl = await listen(server);
+
+    const response = await fetch(`${baseUrl}/translate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: " huis ",
+        sourceLanguage: " NL ",
+        targetLanguage: " EN ",
+        context: "selection",
+      }),
+    });
+
+    await expect(response.json()).resolves.toEqual({
+      translatedText: "house",
+    });
+    expect(response.status).toBe(200);
+    expect(service.translate).toHaveBeenCalledWith({
+      text: "huis",
+      sourceLanguage: "nl",
+      targetLanguage: "en",
+      context: "selection",
+    });
+  });
+
+  it("rejects invalid translation requests before calling the service", async () => {
+    const service = {
+      translate: vi.fn(),
+    };
+
+    server = createTranslationBackendServer({ service });
+    const baseUrl = await listen(server);
+
+    const response = await fetch(`${baseUrl}/translate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: "",
+        sourceLanguage: "auto",
+        targetLanguage: "en",
+        context: "hover",
+      }),
+    });
+
+    await expect(response.json()).resolves.toEqual({
+      error: "text is required",
+    });
+    expect(response.status).toBe(400);
+    expect(service.translate).not.toHaveBeenCalled();
+  });
+
+  it("returns a clear 404 for unknown routes", async () => {
+    const service = {
+      translate: vi.fn(),
+    };
+
+    server = createTranslationBackendServer({ service });
+    const baseUrl = await listen(server);
+
+    const response = await fetch(`${baseUrl}/unknown`);
+
+    await expect(response.json()).resolves.toEqual({
+      error: "Use POST /translate",
+    });
+    expect(response.status).toBe(404);
+    expect(service.translate).not.toHaveBeenCalled();
+  });
 });
 
 async function listen(server) {
