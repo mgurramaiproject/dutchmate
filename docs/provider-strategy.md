@@ -21,7 +21,7 @@ Production backend requirements and rollout sequencing are tracked in [productio
 
 Free browser-extension provider strategies are tracked separately in [reference-mousetooltiptranslator.md](reference-mousetooltiptranslator.md). MouseTooltipTranslator appears to rely heavily on browser-side calls to Google/Bing web translation flows, which is useful inspiration but riskier than an official backend provider for DutchMate's public production path.
 
-The first official production provider recommendation is tracked in [production-provider-decision.md](production-provider-decision.md). Current status: proposed Azure AI Translator / Microsoft Translator, pending approval.
+The first provider decision is tracked in [production-provider-decision.md](production-provider-decision.md). Current decision: MyMemory for early MVP users, with Azure AI Translator / Microsoft Translator as the scale-up provider after traction or quota pressure.
 
 ## What External Services Are Needed?
 
@@ -84,16 +84,19 @@ Azure OpenAI:
 
 ## MVP Recommendation
 
-Start with a dedicated translation API behind our own backend endpoint.
+Start with a translation provider behind our own backend endpoint.
 
-Best first choice:
+Early MVP choice:
 
-- Azure AI Translator / Microsoft Translator, pending approval in `production-provider-decision.md`.
+- MyMemory, because it avoids credit-card setup and lets us validate the product loop quickly.
 
-Good fallback candidates:
+Scale-up provider:
 
-- Google Cloud Translation Basic/NMT if Azure setup, quality, or latency is not acceptable.
-- DeepL API Free only if Telugu support and quality fit the product goal.
+- Azure AI Translator / Microsoft Translator after traction, quality complaints, or quota pressure.
+
+Good fallback candidate:
+
+- Google Cloud Translation Basic/NMT if Azure setup, quality, or latency is not acceptable later.
 
 Avoid starting with OpenAI or Azure OpenAI for plain translation. Add an LLM provider later only when the product needs features that traditional translation APIs do not handle well.
 

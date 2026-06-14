@@ -2,15 +2,15 @@
 
 Reviewed: 2026-06-14
 
-This note chooses the first official translation provider to put behind the Render backend. It intentionally excludes Google/Bing/DeepL web/internal endpoints as the default production path; that decision is captured in [reference-mousetooltiptranslator.md](reference-mousetooltiptranslator.md).
+This note chooses the first translation provider to put behind the Render backend. It intentionally excludes Google/Bing/DeepL web/internal endpoints as the default production path; that decision is captured in [reference-mousetooltiptranslator.md](reference-mousetooltiptranslator.md).
 
 ## Decision Status
 
-Status: **Proposed**
+Status: **Done**
 
-Recommendation: **Azure AI Translator / Microsoft Translator** for the first public MVP provider.
+Decision: **MyMemory** for early MVP users.
 
-Do not implement this until explicitly approved.
+Scale-up provider: **Azure AI Translator / Microsoft Translator** when traction, quality complaints, quota pressure, or paid-plan readiness justify adding billing/card details.
 
 ## MVP Requirements
 
@@ -20,55 +20,66 @@ The provider must support:
 - English (`en`)
 - Telugu (`te`)
 - server-side secrets on Render
-- predictable low-cost/free usage for early users
+- no-credit-card path for early testing when possible
 - simple REST integration
-- production-friendly terms and quotas
+- clear upgrade path to a stronger production provider
 
 ## Comparison
 
 | Provider | Language Fit | Free / Low-Cost Fit | Render Secret Fit | Production Fit | Recommendation |
 | --- | --- | --- | --- | --- | --- |
-| Azure AI Translator / Microsoft Translator | Strong. Official docs list Dutch, English, and Telugu for cloud text translation. | Strong. Official pricing lists F0 Free with 2 million characters per month. | Strong. Uses server-side key/region env vars. | Strong. Translation-specific service with official docs, quotas, and production posture. | Best first choice. |
-| Google Cloud Translation | Strong. Official docs list Dutch, English, and Telugu. | Good but smaller. Official pricing lists first 500,000 characters/month free, then paid per million characters. | Strong. Needs Google Cloud auth setup; likely service account or API key strategy. | Strong. Broad language coverage and stable API. | Good second choice. |
+| MyMemory | Useful for early MVP and no-credit-card tests. | Free anonymous limits are low: 5,000 chars/day, or 50,000 chars/day with email. | Easy. No required secret for basic use; optional email can be an env var. | Weaker. Public-memory/search style API and daily limits are not ideal for scale. | Use for early MVP only. |
+| Azure AI Translator / Microsoft Translator | Strong. Official docs list Dutch, English, and Telugu for cloud text translation. | Strong free tier, but Azure account setup may require card verification. Official pricing lists F0 Free with 2 million characters per month. | Strong. Uses server-side key/region env vars. | Strong. Translation-specific service with official docs, quotas, and production posture. | Scale-up provider after traction or quota pressure. |
+| Google Cloud Translation | Strong. Official docs list Dutch, English, and Telugu. | Good but smaller. Official pricing lists first 500,000 characters/month free, then paid per million characters. Cloud setup may also require billing setup. | Strong. Needs Google Cloud auth setup; likely service account or API key strategy. | Strong. Broad language coverage and stable API. | Backup scale-up candidate. |
 | DeepL API | Good for many European languages, but less ideal for this MVP because Telugu is critical. | Good. DeepL API Free lists 500,000 characters/month. | Strong. Uses server-side API key. | Strong for supported languages. | Not first choice for DutchMate while Telugu is central. |
-| MyMemory | Useful for experiments and no-credit-card local tests. | Free anonymous limits are low: 5,000 chars/day, or 50,000 chars/day with email. | Easy. No required secret for basic use. | Weaker. Public-memory/search style API and daily limits are less suitable for a public extension. | Keep as dev/test provider, not default production provider. |
 
-## Why Azure First
+## Why MyMemory First
 
-Azure AI Translator is the best first production provider because it gives DutchMate the strongest combination of:
+MyMemory is the best first early-MVP provider because it gives DutchMate:
 
-- official Telugu, Dutch, and English support,
-- generous free tier for early traction,
-- simple server-side secret handling,
-- official production API behavior,
-- predictable cost controls.
+- no-credit-card setup,
+- a real hosted translation provider behind the Render backend,
+- enough capability to validate the product loop with early users,
+- a low-friction path while we test whether users love the core experience.
 
 This fits our current product strategy:
 
 ```text
 DutchMate extension
 -> Render backend
--> official translation provider
+-> temporary early-MVP provider
 ```
 
-The backend should keep provider-specific details hidden from the extension. If Azure quality, latency, or setup becomes a problem, Google Cloud Translation is the best fallback candidate.
+The backend should keep provider-specific details hidden from the extension. If MyMemory quality, latency, or limits become a problem, we can switch the backend provider without changing the extension UX.
+
+## Azure Scale-Up Trigger
+
+Move from MyMemory to Azure AI Translator when one of these happens:
+
+- early users complain about quality,
+- MyMemory daily limits block real usage,
+- Render logs show meaningful traction,
+- we are ready to add billing/card details,
+- paid/free plan economics need stable provider quotas and pricing.
+
+Azure remains the best technical scale-up candidate because it supports Dutch, English, and Telugu officially and offers a much larger free tier than MyMemory.
 
 ## Not Recommended For Default MVP
 
 Do not use web/internal Google, Bing, or DeepL endpoints as the default public provider. They may be reachable without an API key, but they are not the same as official public APIs and can create reliability, terms, privacy, and paid-plan risk.
 
-Do not use MyMemory as the default public provider. Its low free daily limits and public translation-memory behavior are useful for experiments, but not strong enough for the first public MVP.
+Do not treat MyMemory as the final public-scale provider. Its low free daily limits and public translation-memory behavior are acceptable for early MVP learning, but not strong enough for scale.
 
 Do not use OpenAI or Azure OpenAI for basic translation yet. LLM translation can become a premium feature later for explanations, nuance, examples, or learning support.
 
 ## Implementation Implication If Approved
 
-If approved, the next implementation step should be:
+Next implementation step:
 
-1. Add an Azure Translator provider adapter behind the existing backend provider factory.
-2. Add environment variables such as `AZURE_TRANSLATOR_KEY`, `AZURE_TRANSLATOR_REGION`, and `AZURE_TRANSLATOR_ENDPOINT`.
-3. Keep provider keys out of extension code and out of the repo.
-4. Update Render env vars to use Azure only after local/backend tests pass.
+1. Keep MyMemory as the first Render MVP provider.
+2. Make sure MyMemory setup is documented clearly for Render.
+3. Add optional `MYMEMORY_EMAIL` in Render if needed for the higher free daily limit.
+4. Keep Azure adapter work planned for the scale-up trigger.
 
 ## Sources Checked
 
