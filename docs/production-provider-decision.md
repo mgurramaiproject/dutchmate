@@ -10,7 +10,9 @@ Status: **Done**
 
 Decision: **MyMemory** for early MVP experiments only.
 
-Scale-up provider: **Azure AI Translator / Microsoft Translator** when traction, quality complaints, quota pressure, hosted-provider reliability, or paid-plan readiness justify adding billing/card details.
+Scale-up provider path: **Azure AI Translator / Microsoft Translator** remains technically preferred, but Azure activation is paused because the project account was not eligible for Azure Free. Do not use Azure pay-as-you-go until budget/alert controls are explicitly approved.
+
+Next provider candidate to evaluate: **Google Cloud Translation**.
 
 ## Hosted Render Finding
 
@@ -30,6 +32,17 @@ Observed behavior:
 
 Conclusion: the backend and Render configuration are healthy, including `MYMEMORY_EMAIL`. The blocker is MyMemory hosted reliability/quota. Treat MyMemory as a temporary no-credit-card experiment, not as the dependable public MVP provider.
 
+## Billing Gate
+
+On 2026-06-15, `dutchmate.project@gmail.com` was not eligible for an Azure Free account after signup. Azure then offered pay-as-you-go pricing.
+
+Decision:
+
+- Do not proceed with Azure pay-as-you-go for MVP production until a budget and alert plan is explicitly approved.
+- Keep the Azure backend adapter in the repo because it is implemented and tested.
+- Evaluate Google Cloud Translation next as the safer official-provider candidate before accepting uncapped Azure pay-as-you-go risk.
+- Do not use unofficial Google/Bing/DeepL web endpoints as the default public provider.
+
 ## MVP Requirements
 
 The provider must support:
@@ -47,8 +60,8 @@ The provider must support:
 | Provider | Language Fit | Free / Low-Cost Fit | Render Secret Fit | Production Fit | Recommendation |
 | --- | --- | --- | --- | --- | --- |
 | MyMemory | Useful for local and no-credit-card experiments. | Free anonymous limits are low: 5,000 chars/day, or 50,000 chars/day with email. Hosted Render testing still returned `429` with email configured. | Easy. No required secret for basic use; optional email can be an env var. | Weak. Public-memory/search style API and daily limits are not reliable enough for scale. | Keep as temporary fallback/experiment only. |
-| Azure AI Translator / Microsoft Translator | Strong. Official docs list Dutch, English, and Telugu for cloud text translation. | Strong free tier, but Azure account setup may require card verification. Official pricing lists F0 Free with 2 million characters per month. | Strong. Uses server-side key/region env vars. | Strong. Translation-specific service with official docs, quotas, and production posture. | Scale-up provider after traction or quota pressure. |
-| Google Cloud Translation | Strong. Official docs list Dutch, English, and Telugu. | Good but smaller. Official pricing lists first 500,000 characters/month free, then paid per million characters. Cloud setup may also require billing setup. | Strong. Needs Google Cloud auth setup; likely service account or API key strategy. | Strong. Broad language coverage and stable API. | Backup scale-up candidate. |
+| Azure AI Translator / Microsoft Translator | Strong. Official docs list Dutch, English, and Telugu for cloud text translation. | Strong free tier, but the project account was not eligible for Azure Free; pay-as-you-go should wait for budget/alert approval. | Strong. Uses server-side key/region env vars. | Strong. Translation-specific service with official docs, quotas, and production posture. | Keep adapter ready; pause activation. |
+| Google Cloud Translation | Strong. Official docs list Dutch, English, and Telugu. | Good but smaller. Official pricing lists first 500,000 characters/month free, then paid per million characters. Cloud setup may also require billing setup. | Strong. Needs Google Cloud auth setup; likely service account or API key strategy. | Strong. Broad language coverage and stable API. | Next official provider candidate to evaluate. |
 | DeepL API | Good for many European languages, but less ideal for this MVP because Telugu is critical. | Good. DeepL API Free lists 500,000 characters/month. | Strong. Uses server-side API key. | Strong for supported languages. | Not first choice for DutchMate while Telugu is central. |
 
 ## Why MyMemory First
@@ -70,9 +83,9 @@ DutchMate extension
 
 MyMemory hosted limits have now become a problem on Render. The backend architecture still did its job: provider-specific details stayed hidden from the extension, and we can switch the backend provider without changing the extension UX.
 
-## Azure Scale-Up Trigger
+## Official Provider Activation Trigger
 
-Move from MyMemory to Azure AI Translator when one of these happens:
+Move from MyMemory to an official provider when one of these happens:
 
 - early users complain about quality,
 - MyMemory hosted limits block real usage,
@@ -80,7 +93,7 @@ Move from MyMemory to Azure AI Translator when one of these happens:
 - we are ready to add billing/card details,
 - paid/free plan economics need stable provider quotas and pricing.
 
-Azure remains the best technical scale-up candidate because it supports Dutch, English, and Telugu officially and offers a much larger free tier than MyMemory.
+Azure remains a strong technical scale-up candidate because it supports Dutch, English, and Telugu officially and offers a much larger free tier than MyMemory when Azure Free is available. Because Azure Free was unavailable for the project account, Google Cloud Translation should be evaluated next before using Azure pay-as-you-go.
 
 ## Not Recommended For Default MVP
 
@@ -97,8 +110,9 @@ Next implementation step:
 1. Keep MyMemory documented as a temporary no-credit-card experiment.
 2. Do not depend on MyMemory for a polished public launch.
 3. Keep the Azure adapter available behind `TRANSLATION_PROVIDER=azure-translator`.
-4. Do not activate Azure on Render until the Azure resource and environment variables are explicitly approved.
-5. Re-test MyMemory occasionally only as a fallback/reference provider.
+4. Do not activate Azure pay-as-you-go on Render until budget and alert controls are explicitly approved.
+5. Evaluate Google Cloud Translation as the next official provider candidate.
+6. Re-test MyMemory occasionally only as a fallback/reference provider.
 
 ## Sources Checked
 
