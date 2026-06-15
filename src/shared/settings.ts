@@ -7,6 +7,7 @@ import {
   type MvpLanguageCode,
   type SourceLanguageCode,
 } from "./languages";
+import { DEFAULT_PROVIDER_ENDPOINT } from "./provider-endpoint";
 
 export const HOVER_DELAY_LIMITS = {
   min: 150,
@@ -43,7 +44,7 @@ export const defaultSettings: ExtensionSettings = {
   sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
   targetLanguage: DEFAULT_TARGET_LANGUAGE,
   translateToOtherMvpLanguages: true,
-  providerEndpoint: "",
+  providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
   providerApiKey: "",
 };
 

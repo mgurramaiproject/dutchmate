@@ -166,7 +166,8 @@ Expected result:
 
 Provider endpoint rules:
 
-- Empty endpoint is allowed and uses placeholder translation.
+- The default endpoint is `https://dutchmate-backend.onrender.com/translate`.
+- Empty endpoint is still allowed for developer testing and uses placeholder translation.
 - `https://...` endpoints are allowed.
 - `http://localhost...` and `http://127.0.0.1...` are allowed for local development.
 - Other `http://...` endpoints are rejected.
@@ -306,7 +307,8 @@ Cache behavior check:
 
 ## Current MVP Limits
 
-- Translation uses placeholder text until a provider endpoint is configured.
+- Fresh installs use the Render backend endpoint by default.
+- Translation uses placeholder text only when the provider endpoint is intentionally cleared.
 - Hover translation can run in Word mode for compact lookup or Sentence mode for nearby context. Word mode is the default.
 - Selection text is capped to keep the MVP lightweight.
 - Target languages are intentionally limited to English (`en`), Dutch (`nl`), and Telugu (`te`).

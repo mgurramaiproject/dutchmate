@@ -92,7 +92,7 @@ These become appropriate when provider cost, saved learning data, or paid plans 
 | Choose reliable hosted translation provider | Planned | MyMemory is verified fragile on Render; next provider path should target Azure AI Translator / Microsoft Translator or another official provider. |
 | Add server-side provider secret handling | Planned | Use managed secrets, not repo files. |
 | Add basic rate limiting | Done | Current MVP uses in-memory per-client limits for `POST /translate`; replace with durable/edge limits for production scale. |
-| Add production endpoint configuration to extension | Planned | Avoid user-entered endpoint for public builds. |
+| Add production endpoint configuration to extension | Done | Fresh installs use `https://dutchmate-backend.onrender.com/translate` by default; Developer settings can still override it. |
 | Hide normal-user Developer settings | Planned | Keep advanced/local testing path separate from public UX. |
 | Write privacy policy/store disclosure | Planned | Required before public distribution. |
 

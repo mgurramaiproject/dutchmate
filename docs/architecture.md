@@ -12,7 +12,7 @@ DutchMate is kept small on purpose:
 This project uses a lightweight extension-shaped version of controller-service-adapter layering:
 
 - `src/background/index.ts`: message controller for extension runtime messages.
-- `src/translation/translation-service.ts`: chooses placeholder versus configured endpoint provider.
+- `src/translation/translation-service.ts`: chooses the configured endpoint provider, with placeholder fallback only when the endpoint is intentionally blank.
 - `src/translation/*-provider.ts`: provider adapters for translation backends.
 - `src/translation/translation-cache.ts`: small in-memory cache for successful translations.
 - `src/background/settings-adapter.ts`: reads provider settings from extension storage for the background layer.
@@ -25,11 +25,11 @@ A full repository layer is not needed yet because the extension does not own a d
 webpage hover/selection
 -> content script
 -> background worker
--> placeholder provider or configured JSON endpoint
+-> configured JSON endpoint or placeholder fallback
 -> tooltip
 ```
 
-The background worker reads provider settings from extension storage. If no provider endpoint is configured, it returns the placeholder translation so the extension remains testable.
+The background worker reads provider settings from extension storage. Fresh installs use the DutchMate Render backend by default. If the provider endpoint is intentionally blank, the worker returns the placeholder translation so the extension remains testable.
 
 When an endpoint is configured, the worker sends:
 

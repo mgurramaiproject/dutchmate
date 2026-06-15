@@ -51,7 +51,7 @@ Goal: make DutchMate useful immediately without accounts, billing, or complex se
 | Done | Clear translation cache | Gives users control over local cache. | Keep visible until public privacy story is settled. |
 | Verified | Firefox cache workflow | Confirms count is visible and persists after loading the compiled extension. | Recorded in `manual-testing.md`. |
 | Planned | Chrome cache workflow verification | Confirms parity in the other launch browser. | Deferred for now. |
-| Planned | Production-friendly first-run setup | Avoids normal users needing provider endpoint settings. | Follow `production-backend-plan.md`. |
+| Done | Production-friendly first-run endpoint | Avoids normal users needing provider endpoint settings. | Fresh installs use the Render backend endpoint by default; Developer settings can still override it. |
 
 ## Phase 2: Cost Control Without Hurting Adoption
 

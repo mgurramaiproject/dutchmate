@@ -1,7 +1,8 @@
 import type { TranslationProviderSettings } from "../translation/translation-service";
+import { DEFAULT_PROVIDER_ENDPOINT } from "../shared/provider-endpoint";
 
 const defaultProviderSettings: TranslationProviderSettings = {
-  providerEndpoint: "",
+  providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
   providerApiKey: "",
 };
 
@@ -50,4 +51,3 @@ export async function readProviderSettings(
 function getStringSetting(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;
 }
-

@@ -17,6 +17,7 @@ import {
   readSettings,
   validateMaxSelectionLength,
 } from "./settings";
+import { DEFAULT_PROVIDER_ENDPOINT } from "./provider-endpoint";
 
 describe("settings", () => {
   beforeEach(() => {
@@ -31,6 +32,14 @@ describe("settings", () => {
 
     await expect(readSettings()).resolves.toMatchObject({
       maxSelectionLength: 150,
+    });
+  });
+
+  it("uses the production backend endpoint by default", async () => {
+    storageSyncGet.mockResolvedValue(defaultSettings);
+
+    await expect(readSettings()).resolves.toMatchObject({
+      providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
     });
   });
 

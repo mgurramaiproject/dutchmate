@@ -57,7 +57,13 @@ See [docs/manual-testing.md](docs/manual-testing.md) for the full local testing 
 
 ## Custom Endpoint
 
-The extension can call a custom JSON translation endpoint configured from Options. If the endpoint is blank, it uses placeholder translation.
+The extension uses the DutchMate Render backend by default:
+
+```text
+https://dutchmate-backend.onrender.com/translate
+```
+
+Options still allow a custom JSON translation endpoint for development. If the endpoint is intentionally blank, the extension uses placeholder translation.
 
 Endpoint requirements:
 
@@ -84,7 +90,7 @@ To run with a local `.env` file, copy `.env.example` to `.env`, edit values if n
 corepack pnpm backend:dev:env
 ```
 
-Then configure this endpoint in Options:
+For local testing, override the endpoint in Options:
 
 ```text
 http://localhost:8787/translate

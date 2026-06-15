@@ -1,6 +1,7 @@
 import { getHoverRequestKey } from "./hover-request-key";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
+import { DEFAULT_PROVIDER_ENDPOINT } from "../shared/provider-endpoint";
 
 const MIN_TEXT_LENGTH = 1;
 const MAX_HOVER_WORD_LENGTH = 30;
@@ -19,7 +20,7 @@ const defaultSettings: ExtensionSettings = {
   sourceLanguage: "auto",
   targetLanguage: "en",
   translateToOtherMvpLanguages: true,
-  providerEndpoint: "",
+  providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
   providerApiKey: "",
 };
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
