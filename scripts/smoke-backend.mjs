@@ -1,24 +1,47 @@
+import { pathToFileURL } from "node:url";
+
 const DEFAULT_BASE_URL = "http://localhost:8787";
 
-const baseUrl = normalizeBaseUrl(process.argv[2] ?? process.env.BACKEND_BASE_URL ?? DEFAULT_BASE_URL);
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const result = await runSmokeBackend({
+    baseUrl: process.argv[2] ?? process.env.BACKEND_BASE_URL ?? DEFAULT_BASE_URL,
+  });
 
-try {
-  await smokeHealth(baseUrl);
-  await smokeTranslate(baseUrl);
-  console.log(`Backend smoke test passed: ${baseUrl}`);
-} catch (error) {
-  console.error(
-    `Backend smoke test failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-  );
-  process.exitCode = 1;
+  process.exitCode = result.ok ? 0 : 1;
 }
 
-function normalizeBaseUrl(value) {
+export async function runSmokeBackend({
+  baseUrl,
+  fetchFn = fetch,
+  stdout = console.log,
+  stderr = console.error,
+}) {
+  const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
+
+  try {
+    await smokeHealth(normalizedBaseUrl, fetchFn);
+    stdout(`Backend health check passed: ${normalizedBaseUrl}`);
+  } catch (error) {
+    stderr(`Backend health check failed: ${getErrorMessage(error)}`);
+    return { ok: false };
+  }
+
+  try {
+    await smokeTranslate(normalizedBaseUrl, fetchFn);
+    stdout(`Backend translation smoke test passed: ${normalizedBaseUrl}`);
+    return { ok: true };
+  } catch (error) {
+    stderr(`Backend translation smoke test failed: ${getErrorMessage(error)}`);
+    return { ok: false };
+  }
+}
+
+export function normalizeBaseUrl(value) {
   return value.replace(/\/+$/, "");
 }
 
-async function smokeHealth(baseUrl) {
-  const response = await fetch(`${baseUrl}/health`);
+async function smokeHealth(baseUrl, fetchFn) {
+  const response = await fetchFn(`${baseUrl}/health`);
   const body = await readJsonResponse(response, "GET /health");
 
   if (!response.ok || body?.ok !== true) {
@@ -26,8 +49,8 @@ async function smokeHealth(baseUrl) {
   }
 }
 
-async function smokeTranslate(baseUrl) {
-  const response = await fetch(`${baseUrl}/translate`, {
+async function smokeTranslate(baseUrl, fetchFn) {
+  const response = await fetchFn(`${baseUrl}/translate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -42,7 +65,8 @@ async function smokeTranslate(baseUrl) {
   const body = await readJsonResponse(response, "POST /translate");
 
   if (!response.ok || typeof body?.translatedText !== "string" || !body.translatedText.trim()) {
-    throw new Error(`POST /translate returned ${response.status}`);
+    const providerError = typeof body?.error === "string" ? `: ${body.error}` : "";
+    throw new Error(`POST /translate returned ${response.status}${providerError}`);
   }
 }
 
@@ -52,4 +76,8 @@ async function readJsonResponse(response, label) {
   } catch {
     throw new Error(`${label} did not return JSON`);
   }
+}
+
+function getErrorMessage(error) {
+  return error instanceof Error ? error.message : "Unknown error";
 }
