@@ -45,7 +45,7 @@ Goal: make DutchMate useful immediately without accounts, billing, or complex se
 | Done | Duplicate hover reduction | Avoids repeated work when moving inside the same hovered word. | Hover still uses in-memory/session cache only. |
 | Done | Provider endpoint error clarity | Users see a helpful backend-unreachable message. | Manual testing now includes provider readiness checks. |
 | Done | Friendly rate-limit message | Avoids exposing provider jargon when the backend is busy. | `Provider returned 429` appears to users as `Translation is temporarily busy. Try again soon.` |
-| Done | Developer settings section | Keeps local endpoint/API-key controls available without presenting them as normal-user settings. | Hide or remove before public launch. |
+| Done | Advanced local testing section | Keeps endpoint/API-key controls available without presenting them as normal-user setup. | Collapsed by default for store-ready MVP UX. |
 | Done | Options privacy note | Explains what the cache stores in plain language. | Keep wording short and non-legalistic. |
 | Done | Persistent cache for selected single words | Speeds up intentional repeat lookups and saves provider calls across sessions. | Does not persist hover words, phrases, or sentences. |
 | Done | Cached word count | Gives users transparency without exposing raw cache records. | Counts unique source words, not translation-direction records. |
@@ -148,7 +148,7 @@ Persistent cache rules:
 - Keep manual testing docs accurate after behavior changes.
 - Prefer user trust and speed over feature volume.
 - Do not introduce auth, billing, or dashboards before the first-use loop feels excellent.
-- Before public release, hide or remove Developer settings from the normal user path.
+- Before public release, keep provider override controls out of the normal user path.
 
 ## Critical Recommendation
 

@@ -93,7 +93,7 @@ These become appropriate when provider cost, saved learning data, or paid plans 
 | Add server-side provider secret handling | Planned | Use managed secrets, not repo files. |
 | Add basic rate limiting | Done | Current MVP uses in-memory per-client limits for `POST /translate`; replace with durable/edge limits for production scale. |
 | Add production endpoint configuration to extension | Done | Fresh installs use `https://dutchmate-backend.onrender.com/translate` by default; Developer settings can still override it. |
-| Hide normal-user Developer settings | Planned | Keep advanced/local testing path separate from public UX. |
+| Hide normal-user Developer settings | Done | Provider endpoint/API-key controls now live behind collapsed Advanced local testing. |
 | Write privacy policy/store disclosure | Planned | Required before public distribution. |
 
 ## Critical Recommendation

@@ -40,6 +40,22 @@ legend {
   font-weight: 700;
 }
 
+.advanced-settings {
+  display: grid;
+  gap: 10px;
+}
+
+.advanced-settings summary {
+  color: #475569;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.advanced-settings[open] summary {
+  margin-bottom: 2px;
+}
+
 label {
   display: grid;
   gap: 6px;

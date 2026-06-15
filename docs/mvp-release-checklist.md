@@ -34,7 +34,7 @@ Status: **Next**
 Before inviting external MVP users:
 
 - finish privacy policy/store disclosure draft;
-- hide or soften normal-user Developer settings;
+- keep provider override controls hidden from the normal user path;
 - verify Google Cloud cost dashboard and budget alerts;
 - run the manual Firefox and Chrome regression checklist;
 - prepare a short tester instruction page.
@@ -77,7 +77,7 @@ Reasons:
 Do not submit to stores until:
 
 - privacy policy draft is reviewed;
-- Developer settings UX is decided;
+- provider override controls are hidden behind Advanced local testing;
 - Google Cloud cost monitoring is checked;
 - Chrome and Firefox packaged builds pass manual smoke tests;
 - support/contact email is ready.

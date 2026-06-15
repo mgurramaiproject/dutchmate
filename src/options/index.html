@@ -81,28 +81,29 @@
           </label>
         </fieldset>
 
-        <fieldset>
-          <legend>Developer settings</legend>
+        <details class="advanced-settings">
+          <summary>Advanced local testing</summary>
 
-          <p class="settings-note">
-            For local testing only. Normal users should not need these settings.
-          </p>
+          <fieldset>
+            <p class="settings-note">
+              Optional local backend override for development and support testing.
+            </p>
 
-          <label>
-            Provider endpoint
-            <input id="provider-endpoint" name="providerEndpoint" type="url" placeholder="https://dutchmate-backend.onrender.com/translate" />
-          </label>
+            <label>
+              Provider endpoint
+              <input id="provider-endpoint" name="providerEndpoint" type="url" placeholder="https://dutchmate-backend.onrender.com/translate" />
+            </label>
 
-          <label>
-            Provider API key
-            <input id="provider-api-key" name="providerApiKey" type="password" placeholder="Optional for local testing" />
-          </label>
+            <label>
+              Provider API key
+              <input id="provider-api-key" name="providerApiKey" type="password" placeholder="Optional for local testing" />
+            </label>
 
-          <div class="form-actions">
-            <button type="submit">Save</button>
-            <button id="test-endpoint" type="button" class="secondary-button">Test endpoint</button>
-          </div>
-        </fieldset>
+            <div class="form-actions">
+              <button id="test-endpoint" type="button" class="secondary-button">Test endpoint</button>
+            </div>
+          </fieldset>
+        </details>
 
         <fieldset>
           <legend>Privacy</legend>
@@ -116,6 +117,10 @@
             DutchMate stores selected single words locally. Hovered words and selected phrases or sentences are not saved.
           </p>
         </fieldset>
+
+        <div class="form-actions">
+          <button type="submit">Save</button>
+        </div>
 
         <p id="status" role="status" aria-live="polite"></p>
       </form>

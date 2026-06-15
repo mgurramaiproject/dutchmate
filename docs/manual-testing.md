@@ -113,7 +113,7 @@ Test:
 3. Click "Save".
 4. Return to a webpage where the extension is active.
 5. Hover or select text again.
-6. Return to Options and check the Developer settings and Privacy sections.
+6. Return to Options and check the Advanced local testing and Privacy sections.
 
 Expected result:
 
@@ -121,7 +121,7 @@ Expected result:
 - The target-language dropdown only shows English, Dutch, and Telugu.
 - The source-language dropdown shows Auto, English, Dutch, and Telugu.
 - "Show the other two MVP languages" is on by default and remains saved after toggling.
-- Provider endpoint and Provider API key are grouped under Developer settings with a local-testing note.
+- Provider endpoint and Provider API key are hidden inside a collapsed Advanced local testing section.
 - The Privacy section shows `Cached words: 0` when no words have been persisted.
 - The Privacy section explains that selected single words are stored locally, while hovered words and selected phrases or sentences are not saved.
 - Clicking "Clear translation cache" clears the local cache and keeps the cached word count at `0`.
