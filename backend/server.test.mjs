@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { ProviderError } from "./provider-error.mjs";
 import { createTranslationBackendServer } from "./server.mjs";
 
 let server;
@@ -210,6 +211,31 @@ describe("createTranslationBackendServer", () => {
 
     await expect(postTranslate(baseUrl)).resolves.toMatchObject({ status: 200 });
     expect(service.translate).toHaveBeenCalledTimes(1);
+  });
+
+  it("preserves provider rate-limit failures as HTTP 429 responses", async () => {
+    const logger = createTestLogger();
+    const service = {
+      translate: vi.fn(async () => {
+        throw new ProviderError("MyMemory returned 429", { statusCode: 429 });
+      }),
+    };
+
+    server = createTranslationBackendServer({ service, logger });
+    const baseUrl = await listen(server);
+
+    const response = await postTranslate(baseUrl);
+
+    await expect(response.json()).resolves.toEqual({
+      error: "MyMemory returned 429",
+    });
+    expect(response.status).toBe(429);
+    expect(service.translate).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(logger.messages[0])).toMatchObject({
+      event: "translate_request",
+      statusCode: 429,
+      error: "MyMemory returned 429",
+    });
   });
 
   it("returns a clear 404 for unknown routes", async () => {

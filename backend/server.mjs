@@ -3,6 +3,7 @@ import {
   normalizeTranslationRequest,
   validateTranslationRequest,
 } from "./translation-request.mjs";
+import { getProviderErrorStatus, getProviderRetryAfterSeconds } from "./provider-error.mjs";
 
 const MAX_TRANSLATE_REQUEST_BYTES = 10 * 1024;
 const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 60;
@@ -75,11 +76,18 @@ export function createTranslationBackendServer({ service, rateLimit = {}, logger
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Invalid request";
-      sendJson(response, 400, {
+      const statusCode = getProviderErrorStatus(error);
+      const retryAfterSeconds = getProviderRetryAfterSeconds(error);
+
+      if (retryAfterSeconds) {
+        response.setHeader("Retry-After", retryAfterSeconds.toString());
+      }
+
+      sendJson(response, statusCode, {
         error: errorMessage,
       });
       logTranslateRequest(logger, startedAt, {
-        statusCode: 400,
+        statusCode,
         error: errorMessage,
       });
     }

@@ -61,7 +61,7 @@ describe("createMyMemoryProvider", () => {
     expect(fetchFn.mock.calls[0][0].searchParams.get("langpair")).toBe("en|nl");
   });
 
-  it("throws on non-OK responses", async () => {
+  it("throws a provider rate-limit error on MyMemory 429 responses", async () => {
     const provider = createMyMemoryProvider({
       apiUrl: "https://example.test/get",
       fetchFn: async () => ({
@@ -77,7 +77,11 @@ describe("createMyMemoryProvider", () => {
         targetLanguage: "te",
         context: "hover",
       }),
-    ).rejects.toThrow("MyMemory returned 429");
+    ).rejects.toMatchObject({
+      message: "MyMemory returned 429",
+      name: "ProviderError",
+      statusCode: 429,
+    });
   });
 
   it("throws when translated text is missing", async () => {

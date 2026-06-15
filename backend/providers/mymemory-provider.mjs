@@ -1,3 +1,5 @@
+import { ProviderError } from "../provider-error.mjs";
+
 const DEFAULT_MYMEMORY_API_URL = "https://api.mymemory.translated.net/get";
 
 export function createMyMemoryProvider({
@@ -24,7 +26,9 @@ export function createMyMemoryProvider({
       const response = await fetchFn(url);
 
       if (!response.ok) {
-        throw new Error(`MyMemory returned ${response.status}`);
+        throw new ProviderError(`MyMemory returned ${response.status}`, {
+          statusCode: response.status === 429 ? 429 : 502,
+        });
       }
 
       const body = await response.json();
