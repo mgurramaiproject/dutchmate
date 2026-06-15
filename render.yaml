@@ -3,7 +3,7 @@ services:
     name: dutchmate-backend
     runtime: node
     plan: free
-    buildCommand: corepack enable && corepack pnpm install --frozen-lockfile
+    buildCommand: corepack pnpm install --frozen-lockfile
     startCommand: corepack pnpm backend:start
     healthCheckPath: /health
     envVars:
