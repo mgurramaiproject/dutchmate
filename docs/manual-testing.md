@@ -29,6 +29,7 @@ Notes:
 
 Recent entries:
 
+- 2026-06-16 | `61ee87b` | Render backend / Google Cloud Translation | MGurram + Codex | Pass | Render was configured with `TRANSLATION_PROVIDER=google-translate` and a restricted Cloud Translation API key. Live smoke test passed for `https://dutchmate-backend.onrender.com`.
 - 2026-06-15 | `91477d9` | Firefox friendly rate-limit message | MGurram | Pass | After reloading the Firefox build, hovering with the default Render endpoint showed `Translation is temporarily busy. Try again soon.` while MyMemory returned `429`.
 - 2026-06-15 | `eff6002` | Firefox hover tooltip error display | MGurram | Pass | After reloading `dist/firefox/manifest.json`, hover tooltip appeared and showed `Translation failed: Provider returned 429`. This confirmed the content/background script loading fix restored hover error visibility; remaining blocker is MyMemory provider reliability.
 - 2026-06-15 | `86006dc` | Firefox default Render endpoint | MGurram | Partial | Provider endpoint was prefilled with `https://dutchmate-backend.onrender.com/translate`. "Test endpoint" reached the backend and failed with `Provider returned 429`, matching the known MyMemory hosted limit. Hover tooltip did not appear and needs a focused follow-up investigation.

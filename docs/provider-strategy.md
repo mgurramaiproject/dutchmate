@@ -94,9 +94,9 @@ Reliable-provider path:
 
 - Azure AI Translator / Microsoft Translator remains technically strong, and the backend adapter exists behind `TRANSLATION_PROVIDER=azure-translator`. However, Azure Free was unavailable for the project account, so Azure pay-as-you-go should not be activated on Render until budget and alert controls are explicitly approved.
 
-Next official-provider candidate:
+Active MVP production-testing provider:
 
-- Google Cloud Translation Basic/NMT because it supports the MVP languages and may offer a lower-risk path before accepting Azure pay-as-you-go. The backend adapter exists behind `TRANSLATION_PROVIDER=google-translate`, but it should not be activated on Render until Google Cloud billing/API-key setup is explicitly approved.
+- Google Cloud Translation Basic/NMT because it supports the MVP languages and offered a lower-risk path before accepting Azure pay-as-you-go. The backend adapter exists behind `TRANSLATION_PROVIDER=google-translate`, and Render is currently configured to use it for MVP production testing.
 
 Avoid starting with OpenAI or Azure OpenAI for plain translation. Add an LLM provider later only when the product needs features that traditional translation APIs do not handle well.
 
