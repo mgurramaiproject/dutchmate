@@ -44,6 +44,7 @@ Goal: make DutchMate useful immediately without accounts, billing, or complex se
 | Done | Tooltip request ordering | Prevents stale translations from replacing newer ones. | Covered by unit tests. |
 | Done | Duplicate hover reduction | Avoids repeated work when moving inside the same hovered word. | Hover still uses in-memory/session cache only. |
 | Done | Provider endpoint error clarity | Users see a helpful backend-unreachable message. | Manual testing now includes provider readiness checks. |
+| Done | Friendly rate-limit message | Avoids exposing provider jargon when the backend is busy. | `Provider returned 429` appears to users as `Translation is temporarily busy. Try again soon.` |
 | Done | Developer settings section | Keeps local endpoint/API-key controls available without presenting them as normal-user settings. | Hide or remove before public launch. |
 | Done | Options privacy note | Explains what the cache stores in plain language. | Keep wording short and non-legalistic. |
 | Done | Persistent cache for selected single words | Speeds up intentional repeat lookups and saves provider calls across sessions. | Does not persist hover words, phrases, or sentences. |

@@ -4,6 +4,7 @@ import { readProviderSettings, type BackgroundExtensionApi } from "./settings-ad
 import { PersistentTranslationCache } from "../translation/persistent-translation-cache";
 import { TranslationCache } from "../translation/translation-cache";
 import { TranslationService } from "../translation/translation-service";
+import { getTranslationErrorMessage } from "./translation-error-message";
 
 const MAX_CACHE_ENTRIES = 100;
 
@@ -51,7 +52,7 @@ async function handleTranslate(
   } catch (error) {
     return {
       ok: false,
-      error: `Translation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      error: getTranslationErrorMessage(error),
     };
   }
 }

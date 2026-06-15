@@ -29,7 +29,7 @@ Notes:
 
 Recent entries:
 
-- 2026-06-15 | `eff6002` | Firefox hover tooltip error display | MGurram | Pass | After reloading `dist/firefox/manifest.json`, hover tooltip appeared and showed `Translation failed: Provider returned 429`. This confirms the content/background script loading fix restored hover error visibility; remaining blocker is MyMemory provider reliability.
+- 2026-06-15 | `eff6002` | Firefox hover tooltip error display | MGurram | Pass | After reloading `dist/firefox/manifest.json`, hover tooltip appeared and showed `Translation failed: Provider returned 429`. This confirmed the content/background script loading fix restored hover error visibility; remaining blocker is MyMemory provider reliability.
 - 2026-06-15 | `86006dc` | Firefox default Render endpoint | MGurram | Partial | Provider endpoint was prefilled with `https://dutchmate-backend.onrender.com/translate`. "Test endpoint" reached the backend and failed with `Provider returned 429`, matching the known MyMemory hosted limit. Hover tooltip did not appear and needs a focused follow-up investigation.
 - 2026-06-15 | `6e25b62` | Render backend / MyMemory | MGurram + Codex | Partial | Render backend health passed at `https://dutchmate-backend.onrender.com`; `/translate` reached backend but returned `429` from MyMemory. Render logs confirmed `configuredProvider: "mymemory"`, `myMemoryEmailConfigured: true`, `providerStatus: 429`, and `providerRateLimited: true`.
 - 2026-06-15 | `d92f70a` | Backend / MyMemory | MGurram | Pass | Local backend smoke test passed at `http://localhost:8787` with `Backend smoke test passed: http://localhost:8787`.
@@ -243,6 +243,15 @@ Expected result:
 
 - Options shows a clear test failure message.
 - The tooltip briefly shows a loading state, then `Translation failed: Provider endpoint is unreachable. Check that the backend is running and the endpoint URL is correct.`
+
+Rate-limit test:
+
+1. Use the default Render endpoint while MyMemory is returning `429`.
+2. Hover a word or select short text.
+
+Expected result:
+
+- The tooltip shows `Translation is temporarily busy. Try again soon.`
 
 You can stop the mock server with `Ctrl+C`.
 
