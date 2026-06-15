@@ -3,14 +3,24 @@ import {
   normalizeTranslationRequest,
   validateTranslationRequest,
 } from "./translation-request.mjs";
-import { getProviderErrorStatus, getProviderRetryAfterSeconds } from "./provider-error.mjs";
+import {
+  getProviderErrorMetadata,
+  getProviderErrorStatus,
+  getProviderRetryAfterSeconds,
+} from "./provider-error.mjs";
 
 const MAX_TRANSLATE_REQUEST_BYTES = 10 * 1024;
 const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 60;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
 
-export function createTranslationBackendServer({ service, rateLimit = {}, logger = console }) {
+export function createTranslationBackendServer({
+  service,
+  rateLimit = {},
+  logger = console,
+  diagnostics = {},
+}) {
   const rateLimiter = createRateLimiter(rateLimit);
+  const safeDiagnostics = getSafeDiagnostics(diagnostics);
 
   return createServer(async (request, response) => {
     setCorsHeaders(response);
@@ -45,6 +55,7 @@ export function createTranslationBackendServer({ service, rateLimit = {}, logger
       logTranslateRequest(logger, startedAt, {
         statusCode: 429,
         rateLimited: true,
+        ...safeDiagnostics,
       });
       return;
     }
@@ -61,6 +72,7 @@ export function createTranslationBackendServer({ service, rateLimit = {}, logger
           statusCode: 400,
           error: validationError,
           ...getSafeRequestMetadata(body),
+          ...safeDiagnostics,
         });
         return;
       }
@@ -73,6 +85,7 @@ export function createTranslationBackendServer({ service, rateLimit = {}, logger
       logTranslateRequest(logger, startedAt, {
         statusCode: 200,
         ...getSafeRequestMetadata(normalizedRequest),
+        ...safeDiagnostics,
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Invalid request";
@@ -89,6 +102,8 @@ export function createTranslationBackendServer({ service, rateLimit = {}, logger
       logTranslateRequest(logger, startedAt, {
         statusCode,
         error: errorMessage,
+        ...getProviderErrorMetadata(error),
+        ...safeDiagnostics,
       });
     }
   });
@@ -111,6 +126,20 @@ function getSafeRequestMetadata(body) {
     targetLanguage: typeof body.targetLanguage === "string" ? body.targetLanguage : undefined,
     textLength: typeof body.text === "string" ? body.text.trim().length : undefined,
   };
+}
+
+function getSafeDiagnostics(diagnostics) {
+  return {
+    configuredProvider: getOptionalString(diagnostics.configuredProvider),
+    myMemoryEmailConfigured:
+      typeof diagnostics.myMemoryEmailConfigured === "boolean"
+        ? diagnostics.myMemoryEmailConfigured
+        : undefined,
+  };
+}
+
+function getOptionalString(value) {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
 function createRateLimiter({

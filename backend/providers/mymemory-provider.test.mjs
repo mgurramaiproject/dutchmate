@@ -81,6 +81,8 @@ describe("createMyMemoryProvider", () => {
       message: "MyMemory returned 429",
       name: "ProviderError",
       statusCode: 429,
+      providerName: "mymemory",
+      providerStatus: 429,
     });
   });
 

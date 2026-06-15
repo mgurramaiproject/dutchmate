@@ -28,6 +28,8 @@ export function createMyMemoryProvider({
       if (!response.ok) {
         throw new ProviderError(`MyMemory returned ${response.status}`, {
           statusCode: response.status === 429 ? 429 : 502,
+          providerName: "mymemory",
+          providerStatus: response.status,
         });
       }
 

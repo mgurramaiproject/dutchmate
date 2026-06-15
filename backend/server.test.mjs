@@ -51,7 +51,14 @@ describe("createTranslationBackendServer", () => {
       })),
     };
 
-    server = createTranslationBackendServer({ service, logger });
+    server = createTranslationBackendServer({
+      service,
+      logger,
+      diagnostics: {
+        configuredProvider: "mymemory",
+        myMemoryEmailConfigured: true,
+      },
+    });
     const baseUrl = await listen(server);
 
     const response = await fetch(`${baseUrl}/translate`, {
@@ -85,6 +92,8 @@ describe("createTranslationBackendServer", () => {
       sourceLanguage: "nl",
       targetLanguage: "en",
       textLength: 4,
+      configuredProvider: "mymemory",
+      myMemoryEmailConfigured: true,
     });
     expect(logger.messages[0]).not.toContain("huis");
     expect(logger.messages[0]).not.toContain("house");
@@ -217,11 +226,22 @@ describe("createTranslationBackendServer", () => {
     const logger = createTestLogger();
     const service = {
       translate: vi.fn(async () => {
-        throw new ProviderError("MyMemory returned 429", { statusCode: 429 });
+        throw new ProviderError("MyMemory returned 429", {
+          statusCode: 429,
+          providerName: "mymemory",
+          providerStatus: 429,
+        });
       }),
     };
 
-    server = createTranslationBackendServer({ service, logger });
+    server = createTranslationBackendServer({
+      service,
+      logger,
+      diagnostics: {
+        configuredProvider: "mymemory",
+        myMemoryEmailConfigured: true,
+      },
+    });
     const baseUrl = await listen(server);
 
     const response = await postTranslate(baseUrl);
@@ -235,7 +255,13 @@ describe("createTranslationBackendServer", () => {
       event: "translate_request",
       statusCode: 429,
       error: "MyMemory returned 429",
+      providerName: "mymemory",
+      providerStatus: 429,
+      providerRateLimited: true,
+      configuredProvider: "mymemory",
+      myMemoryEmailConfigured: true,
     });
+    expect(logger.messages[0]).not.toContain("dutchmate.project@gmail.com");
   });
 
   it("returns a clear 404 for unknown routes", async () => {
