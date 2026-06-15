@@ -25,17 +25,15 @@ form {
   gap: 24px;
 }
 
-fieldset {
+.settings-section {
   display: grid;
   gap: 12px;
   margin: 0;
   padding: 18px 0 0;
-  border: 0;
   border-top: 1px solid #dbe3ef;
 }
 
-legend {
-  width: 100%;
+h2 {
   margin: 0 0 2px;
   color: #0f172a;
   font-size: 16px;
@@ -43,13 +41,21 @@ legend {
   line-height: 1.2;
 }
 
-legend::after {
+h2::after {
   display: block;
   width: 40px;
   height: 2px;
   margin-top: 8px;
   background: #2563eb;
   content: "";
+}
+
+fieldset {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 
 .advanced-settings {

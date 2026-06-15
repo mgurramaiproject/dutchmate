@@ -11,8 +11,8 @@
       <h1>DutchMate</h1>
 
       <form id="options-form">
-        <fieldset>
-          <legend>Behavior</legend>
+        <section class="settings-section" aria-labelledby="behavior-heading">
+          <h2 id="behavior-heading">Behavior</h2>
 
           <label class="checkbox-label">
             <input id="is-enabled" name="isEnabled" type="checkbox" />
@@ -49,10 +49,10 @@
               </tr>
             </tbody>
           </table>
-        </fieldset>
+        </section>
 
-        <fieldset>
-          <legend>Tuning</legend>
+        <section class="settings-section" aria-labelledby="tuning-heading">
+          <h2 id="tuning-heading">Tuning</h2>
 
           <label>
             Hover translation mode
@@ -77,10 +77,10 @@
             </span>
             <input id="max-selection-length" name="maxSelectionLength" type="range" min="50" max="150" step="50" />
           </label>
-        </fieldset>
+        </section>
 
-        <fieldset>
-          <legend>Languages</legend>
+        <section class="settings-section" aria-labelledby="languages-heading">
+          <h2 id="languages-heading">Languages</h2>
 
           <label>
             Source language
@@ -100,10 +100,10 @@
             />
             Translate into both other languages
           </label>
-        </fieldset>
+        </section>
 
-        <fieldset>
-          <legend>Privacy</legend>
+        <section id="privacy-section" class="settings-section" aria-labelledby="privacy-heading">
+          <h2 id="privacy-heading">Privacy</h2>
 
           <div class="cache-control">
             <span id="cache-count">Cached words: 0</span>
@@ -113,7 +113,7 @@
           <p class="settings-note">
             DutchMate stores selected single words locally. Hovered words and selected phrases or sentences are not saved.
           </p>
-        </fieldset>
+        </section>
 
         <div class="form-actions">
           <button type="submit">Save</button>

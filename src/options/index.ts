@@ -206,7 +206,7 @@ function renderAdvancedLocalTesting(): void {
 
   fieldset.append(note, endpointLabel, apiKeyLabel, actions);
   details.append(summary, fieldset);
-  form.insertBefore(details, form.querySelector("fieldset:nth-of-type(4)"));
+  form.insertBefore(details, form.querySelector("#privacy-section"));
 }
 
 async function refreshCacheCount(): Promise<void> {
