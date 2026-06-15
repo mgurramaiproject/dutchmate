@@ -29,6 +29,7 @@ Notes:
 
 Recent entries:
 
+- 2026-06-15 | `91477d9` | Firefox friendly rate-limit message | MGurram | Pass | After reloading the Firefox build, hovering with the default Render endpoint showed `Translation is temporarily busy. Try again soon.` while MyMemory returned `429`.
 - 2026-06-15 | `eff6002` | Firefox hover tooltip error display | MGurram | Pass | After reloading `dist/firefox/manifest.json`, hover tooltip appeared and showed `Translation failed: Provider returned 429`. This confirmed the content/background script loading fix restored hover error visibility; remaining blocker is MyMemory provider reliability.
 - 2026-06-15 | `86006dc` | Firefox default Render endpoint | MGurram | Partial | Provider endpoint was prefilled with `https://dutchmate-backend.onrender.com/translate`. "Test endpoint" reached the backend and failed with `Provider returned 429`, matching the known MyMemory hosted limit. Hover tooltip did not appear and needs a focused follow-up investigation.
 - 2026-06-15 | `6e25b62` | Render backend / MyMemory | MGurram + Codex | Partial | Render backend health passed at `https://dutchmate-backend.onrender.com`; `/translate` reached backend but returned `429` from MyMemory. Render logs confirmed `configuredProvider: "mymemory"`, `myMemoryEmailConfigured: true`, `providerStatus: 429`, and `providerRateLimited: true`.
