@@ -20,6 +20,11 @@
           </label>
 
           <table class="settings-matrix">
+            <colgroup>
+              <col class="settings-matrix-label" />
+              <col class="settings-matrix-action" />
+              <col class="settings-matrix-note-column" />
+            </colgroup>
             <thead>
               <tr>
                 <th scope="col">Text</th>
@@ -30,14 +35,14 @@
             <tbody>
               <tr>
                 <th scope="row">Hovered text</th>
-                <td>
+                <td class="settings-matrix-control">
                   <input id="translate-on-hover" name="translateOnHover" type="checkbox" aria-label="Translate hovered text" />
                 </td>
                 <td class="matrix-note">Never saved</td>
               </tr>
               <tr>
                 <th scope="row">Selected text</th>
-                <td>
+                <td class="settings-matrix-control">
                   <input id="translate-on-selection" name="translateOnSelection" type="checkbox" aria-label="Translate selected text" />
                 </td>
                 <td class="matrix-note">Single words only</td>
@@ -93,7 +98,7 @@
               name="translateToOtherMvpLanguages"
               type="checkbox"
             />
-            Show the other two MVP languages
+            Translate into both other languages
           </label>
         </fieldset>
 

@@ -22,29 +22,32 @@ h1 {
 
 form {
   display: grid;
-  gap: 22px;
+  gap: 24px;
 }
 
 fieldset {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   margin: 0;
-  padding: 0;
+  padding: 18px 0 0;
   border: 0;
+  border-top: 1px solid #dbe3ef;
 }
 
 legend {
-  margin: 0 0 4px;
+  width: 100%;
+  margin: 0 0 2px;
   color: #0f172a;
   font-size: 16px;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 legend::after {
   display: block;
-  width: 32px;
+  width: 40px;
   height: 2px;
-  margin-top: 6px;
+  margin-top: 8px;
   background: #2563eb;
   content: "";
 }
@@ -126,19 +129,34 @@ input[type="range"] {
 .settings-matrix {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
   color: #374151;
   font-size: 14px;
 }
 
+.settings-matrix-label {
+  width: 38%;
+}
+
+.settings-matrix-action {
+  width: 24%;
+}
+
+.settings-matrix-note-column {
+  width: 38%;
+}
+
 .settings-matrix th,
 .settings-matrix td {
-  min-height: 40px;
   border-bottom: 1px solid #e2e8f0;
-  padding: 10px 8px;
+  padding: 12px 10px;
   text-align: left;
+  vertical-align: middle;
 }
 
 .settings-matrix thead th {
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
   color: #475569;
   font-size: 12px;
   font-weight: 700;
@@ -146,20 +164,22 @@ input[type="range"] {
 }
 
 .settings-matrix tbody th {
+  color: #1f2937;
   font-weight: 600;
 }
 
-.settings-matrix td:not(.matrix-note) {
+.settings-matrix-control {
   text-align: center;
 }
 
 .settings-matrix input[type="checkbox"] {
-  vertical-align: middle;
+  display: inline-block;
 }
 
 .matrix-note {
   color: #64748b;
   font-size: 13px;
+  line-height: 1.35;
 }
 
 .form-actions {

@@ -120,7 +120,7 @@ Expected result:
 - The placeholder tooltip shows the selected language code.
 - The target-language dropdown only shows English, Dutch, and Telugu.
 - The source-language dropdown shows Auto, English, Dutch, and Telugu.
-- "Show the other two MVP languages" is on by default and remains saved after toggling.
+- "Translate into both other languages" is on by default and remains saved after toggling.
 - Store-ready builds do not show Provider endpoint or Provider API key.
 - The Privacy section shows `Cached words: 0` when no words have been persisted.
 - The Privacy section explains that selected single words are stored locally, while hovered words and selected phrases or sentences are not saved.
@@ -129,13 +129,13 @@ Expected result:
 Dual-language mode:
 
 1. Set Source language to Auto.
-2. Keep "Show the other two MVP languages" on.
+2. Keep "Translate into both other languages" on.
 3. Save.
 4. Hover or select English, Dutch, or Telugu text.
 
 Expected result:
 
-- The tooltip shows translations in the other two MVP languages.
+- The tooltip shows translations in the other two supported languages.
 - Telugu source text is detected by script.
 - Dutch and English source text use nearby page language hints and lightweight MVP detection hints; unknown Latin words fall back to English.
 
@@ -319,7 +319,7 @@ Cache behavior check:
 2. Start a local provider endpoint with `corepack pnpm backend:dev` or `corepack pnpm mock:translate`.
 3. In Options, set Provider endpoint to `http://localhost:8787/translate`.
 4. Click "Test endpoint" and confirm it succeeds before testing hover, selection, or cache behavior.
-5. Keep "Show the other two MVP languages" on.
+5. Keep "Translate into both other languages" on.
 6. Select a single word, ideally by double-clicking it.
 7. Inspect `dutchmate.translationCache.v1` and confirm cache entries appear for each target language.
 8. Open Options and confirm the Privacy section still shows `Cached words: 1`.
