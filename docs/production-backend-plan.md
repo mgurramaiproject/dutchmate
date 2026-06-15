@@ -64,7 +64,9 @@ Initial blueprint behavior:
 - Provider: `mymemory` for the early MVP no-credit-card translation path.
 - MyMemory source fallback: `MYMEMORY_SOURCE_LANGUAGE=nl`.
 
-The first Render deploy should prove that `/health` and `/translate` are reachable over HTTPS using MyMemory. If the higher MyMemory free daily limit is needed, add `MYMEMORY_EMAIL` in Render environment variables, not in the repo. When traction justifies Azure, switch Render environment variables to the approved scale-up provider.
+The first Render deploy proved that `/health` is reachable over HTTPS and that `/translate` reaches the backend. With `TRANSLATION_PROVIDER=mymemory` and `MYMEMORY_EMAIL` configured, MyMemory still returned `429` from Render. This means Render and the backend are healthy, but MyMemory is not reliable enough to treat as the dependable public provider.
+
+Keep `MYMEMORY_EMAIL` in Render environment variables, not in the repo. Use it only for the temporary MyMemory experiment/fallback. For a polished public launch, switch Render environment variables to the approved scale-up provider.
 
 ## Not Yet
 
@@ -86,7 +88,8 @@ These become appropriate when provider cost, saved learning data, or paid plans 
 | Choose deployment target | Done | Render Web Service is approved as the first MVP backend deployment target. |
 | Choose first production provider | Done | Use MyMemory for early MVP; scale to Azure AI Translator / Microsoft Translator after traction or quota pressure. |
 | Add Render deployment blueprint | Done | `render.yaml` defines the first `dutchmate-backend` web service. |
-| Deploy `/health` and `/translate` | Planned | Use the Render blueprint with MyMemory for early MVP; verify with `corepack pnpm backend:smoke <render-url>`. |
+| Deploy `/health` and hosted backend | Verified | Render serves `/health` and reaches `/translate`; MyMemory returns hosted `429` even with `MYMEMORY_EMAIL` configured. |
+| Choose reliable hosted translation provider | Planned | MyMemory is verified fragile on Render; next provider path should target Azure AI Translator / Microsoft Translator or another official provider. |
 | Add server-side provider secret handling | Planned | Use managed secrets, not repo files. |
 | Add basic rate limiting | Done | Current MVP uses in-memory per-client limits for `POST /translate`; replace with durable/edge limits for production scale. |
 | Add production endpoint configuration to extension | Planned | Avoid user-entered endpoint for public builds. |

@@ -70,8 +70,9 @@ Goal: keep the free product generous while preventing provider cost surprises.
 | Done | Production backend deployment target | Gives the public extension a real HTTPS backend path. | Render Web Service is approved for the first MVP deployment. |
 | Done | Render deployment blueprint | Makes the backend deployment repeatable. | `render.yaml` starts with MyMemory for early MVP. |
 | Done | MouseTooltipTranslator provider-strategy reference | Helps DutchMate learn from a free competitor extension. | Documented in `reference-mousetooltiptranslator.md`; free web endpoints are research, not the default production path. |
-| Done | First MVP translation provider | Gives the Render backend a no-credit-card provider for early users. | Use MyMemory for early MVP; scale to Azure after traction or quota pressure. |
-| Planned | Production `/health` and `/translate` backend | Gives the public extension one stable endpoint. | Keep current request/response contract where possible. |
+| Verified | First MVP translation provider experiment | Proved the backend can route to a no-credit-card provider. | MyMemory returned hosted `429` on Render even with `MYMEMORY_EMAIL`; keep as temporary fallback/experiment only. |
+| Verified | Production `/health` and backend route | Gives the public extension one stable backend host. | Render serves `/health`; `/translate` reaches backend, but provider reliability is the blocker. |
+| Planned | Reliable hosted translation provider | Gives public users dependable translations. | MyMemory is verified fragile on Render; next provider path should target Azure AI Translator / Microsoft Translator or another official provider. |
 | Planned | Server-side provider secrets | Keeps paid provider keys out of extension code. | Use managed secrets in deployment target. |
 | Planned | Privacy policy and store disclosure | Explains what text is sent for translation. | Required before public distribution. |
 | Future | Provider fallback | Reduces downtime and quality issues. | Add after real provider usage exposes need. |
