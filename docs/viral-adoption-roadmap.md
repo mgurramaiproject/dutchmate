@@ -74,7 +74,8 @@ Goal: keep the free product generous while preventing provider cost surprises.
 | Verified | First MVP translation provider experiment | Proved the backend can route to a no-credit-card provider. | MyMemory returned hosted `429` on Render even with `MYMEMORY_EMAIL`; keep as temporary fallback/experiment only. |
 | Verified | Production `/health` and backend route | Gives the public extension one stable backend host. | Render serves `/health`; `/translate` reaches backend, but provider reliability is the blocker. |
 | Done | Azure Translator backend adapter | Prepares a reliable official-provider path. | Implemented and tested, but Azure Free was unavailable for the project account; pay-as-you-go is paused until budget/alert approval. |
-| Planned | Evaluate Google Cloud Translation | Finds a lower-risk official provider path. | MyMemory is verified fragile on Render; Google Cloud Translation is the next candidate before accepting Azure pay-as-you-go risk. |
+| Done | Google Cloud Translation backend adapter | Prepares another official-provider path. | Implemented and tested behind `TRANSLATION_PROVIDER=google-translate`, but not active on Render until Google Cloud billing/API-key setup is approved. |
+| Planned | Evaluate Google Cloud Translation activation | Finds a lower-risk official provider path. | MyMemory is verified fragile on Render; evaluate Google Cloud setup before accepting Azure pay-as-you-go risk. |
 | Planned | Activate reliable hosted translation provider | Gives public users dependable translations. | Activate only after provider billing risk, budget controls, and Render env vars are explicitly approved. |
 | Planned | Server-side provider secrets | Keeps paid provider keys out of extension code. | Use managed secrets in deployment target. |
 | Planned | Privacy policy and store disclosure | Explains what text is sent for translation. | Required before public distribution. |

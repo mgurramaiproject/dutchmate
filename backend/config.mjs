@@ -7,6 +7,8 @@ const DEFAULT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const DEFAULT_AZURE_TRANSLATOR_API_URL =
   "https://api.cognitive.microsofttranslator.com/translate";
 const DEFAULT_DEEPL_API_URL = "https://api-free.deepl.com/v2/translate";
+const DEFAULT_GOOGLE_TRANSLATE_API_URL =
+  "https://translation.googleapis.com/language/translate/v2";
 const DEFAULT_MYMEMORY_API_URL = "https://api.mymemory.translated.net/get";
 const DEFAULT_MYMEMORY_SOURCE_LANGUAGE = "nl";
 const SUPPORTED_LANGUAGES = new Set(["nl", "en", "te"]);
@@ -14,6 +16,7 @@ const SUPPORTED_PROVIDERS = new Set([
   DEFAULT_TRANSLATION_PROVIDER,
   "azure-translator",
   "deepl",
+  "google-translate",
   "mymemory",
 ]);
 
@@ -24,6 +27,7 @@ export function readBackendConfig(environment = process.env) {
   const rateLimit = normalizeRateLimitConfig(environment);
   const azureTranslator = normalizeAzureTranslatorConfig(provider, environment);
   const deepl = normalizeDeepLConfig(provider, environment);
+  const googleTranslate = normalizeGoogleTranslateConfig(provider, environment);
   const mymemory = normalizeMyMemoryConfig(environment);
 
   return {
@@ -33,6 +37,7 @@ export function readBackendConfig(environment = process.env) {
     rateLimit,
     azureTranslator,
     deepl,
+    googleTranslate,
     mymemory,
   };
 }
@@ -46,7 +51,7 @@ function normalizeProvider(value) {
 
   if (!SUPPORTED_PROVIDERS.has(provider)) {
     throw new Error(
-      `Unsupported TRANSLATION_PROVIDER "${value}". Supported providers: local-dev, azure-translator, deepl, mymemory`,
+      `Unsupported TRANSLATION_PROVIDER "${value}". Supported providers: local-dev, azure-translator, deepl, google-translate, mymemory`,
     );
   }
 
@@ -147,6 +152,28 @@ function normalizeDeepLConfig(provider, environment) {
   }
 
   validateHttpUrl("DEEPL_API_URL", apiUrl);
+
+  return {
+    apiKey,
+    apiUrl,
+  };
+}
+
+function normalizeGoogleTranslateConfig(provider, environment) {
+  const apiKey = environment.GOOGLE_TRANSLATE_API_KEY?.trim() ?? "";
+  const apiUrl = environment.GOOGLE_TRANSLATE_API_URL?.trim() ?? DEFAULT_GOOGLE_TRANSLATE_API_URL;
+
+  if (provider !== "google-translate") {
+    return {
+      apiUrl,
+    };
+  }
+
+  if (!apiKey) {
+    throw new Error("GOOGLE_TRANSLATE_API_KEY is required when TRANSLATION_PROVIDER=google-translate");
+  }
+
+  validateHttpUrl("GOOGLE_TRANSLATE_API_URL", apiUrl);
 
   return {
     apiKey,

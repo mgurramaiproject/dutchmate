@@ -96,7 +96,7 @@ Reliable-provider path:
 
 Next official-provider candidate:
 
-- Google Cloud Translation Basic/NMT because it supports the MVP languages and may offer a lower-risk path before accepting Azure pay-as-you-go.
+- Google Cloud Translation Basic/NMT because it supports the MVP languages and may offer a lower-risk path before accepting Azure pay-as-you-go. The backend adapter exists behind `TRANSLATION_PROVIDER=google-translate`, but it should not be activated on Render until Google Cloud billing/API-key setup is explicitly approved.
 
 Avoid starting with OpenAI or Azure OpenAI for plain translation. Add an LLM provider later only when the product needs features that traditional translation APIs do not handle well.
 

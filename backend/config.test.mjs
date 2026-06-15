@@ -18,6 +18,9 @@ describe("readBackendConfig", () => {
       deepl: {
         apiUrl: "https://api-free.deepl.com/v2/translate",
       },
+      googleTranslate: {
+        apiUrl: "https://translation.googleapis.com/language/translate/v2",
+      },
       mymemory: {
         apiUrl: "https://api.mymemory.translated.net/get",
         defaultSourceLanguage: "nl",
@@ -37,6 +40,7 @@ describe("readBackendConfig", () => {
         AZURE_TRANSLATOR_API_URL: " https://example.test/translate ",
         AZURE_TRANSLATOR_REGION: " westeurope ",
         DEEPL_API_URL: " https://example.test/v2/translate ",
+        GOOGLE_TRANSLATE_API_URL: " https://example.test/language/translate/v2 ",
         MYMEMORY_API_URL: " https://example.test/get ",
         MYMEMORY_SOURCE_LANGUAGE: " TE ",
         MYMEMORY_EMAIL: " learner@example.com ",
@@ -55,6 +59,9 @@ describe("readBackendConfig", () => {
       },
       deepl: {
         apiUrl: "https://example.test/v2/translate",
+      },
+      googleTranslate: {
+        apiUrl: "https://example.test/language/translate/v2",
       },
       mymemory: {
         apiUrl: "https://example.test/get",
@@ -86,6 +93,9 @@ describe("readBackendConfig", () => {
       deepl: {
         apiKey: "test-key",
         apiUrl: "https://example.test/v2/translate",
+      },
+      googleTranslate: {
+        apiUrl: "https://translation.googleapis.com/language/translate/v2",
       },
       mymemory: {
         apiUrl: "https://api.mymemory.translated.net/get",
@@ -119,6 +129,43 @@ describe("readBackendConfig", () => {
       deepl: {
         apiUrl: "https://api-free.deepl.com/v2/translate",
       },
+      googleTranslate: {
+        apiUrl: "https://translation.googleapis.com/language/translate/v2",
+      },
+      mymemory: {
+        apiUrl: "https://api.mymemory.translated.net/get",
+        defaultSourceLanguage: "nl",
+        email: undefined,
+      },
+    });
+  });
+
+  it("accepts Google Translate config when its API key is present", () => {
+    expect(
+      readBackendConfig({
+        TRANSLATION_PROVIDER: "google-translate",
+        GOOGLE_TRANSLATE_API_KEY: " test-key ",
+        GOOGLE_TRANSLATE_API_URL: "https://example.test/language/translate/v2",
+      }),
+    ).toEqual({
+      provider: "google-translate",
+      host: "127.0.0.1",
+      port: 8787,
+      rateLimit: {
+        maxRequests: 60,
+        windowMs: 60000,
+      },
+      azureTranslator: {
+        apiUrl: "https://api.cognitive.microsofttranslator.com/translate",
+        region: undefined,
+      },
+      deepl: {
+        apiUrl: "https://api-free.deepl.com/v2/translate",
+      },
+      googleTranslate: {
+        apiKey: "test-key",
+        apiUrl: "https://example.test/language/translate/v2",
+      },
       mymemory: {
         apiUrl: "https://api.mymemory.translated.net/get",
         defaultSourceLanguage: "nl",
@@ -145,9 +192,15 @@ describe("readBackendConfig", () => {
     );
   });
 
+  it("rejects Google Translate config without an API key when selected", () => {
+    expect(() => readBackendConfig({ TRANSLATION_PROVIDER: "google-translate" })).toThrow(
+      "GOOGLE_TRANSLATE_API_KEY is required when TRANSLATION_PROVIDER=google-translate",
+    );
+  });
+
   it("rejects unsupported providers", () => {
     expect(() => readBackendConfig({ TRANSLATION_PROVIDER: "unknown" })).toThrow(
-      'Unsupported TRANSLATION_PROVIDER "unknown". Supported providers: local-dev, azure-translator, deepl, mymemory',
+      'Unsupported TRANSLATION_PROVIDER "unknown". Supported providers: local-dev, azure-translator, deepl, google-translate, mymemory',
     );
   });
 
@@ -194,6 +247,16 @@ describe("readBackendConfig", () => {
         AZURE_TRANSLATOR_API_URL: "not-a-url",
       }),
     ).toThrow("AZURE_TRANSLATOR_API_URL must be a valid http or https URL");
+  });
+
+  it("rejects invalid Google Translate URLs", () => {
+    expect(() =>
+      readBackendConfig({
+        TRANSLATION_PROVIDER: "google-translate",
+        GOOGLE_TRANSLATE_API_KEY: "test-key",
+        GOOGLE_TRANSLATE_API_URL: "not-a-url",
+      }),
+    ).toThrow("GOOGLE_TRANSLATE_API_URL must be a valid http or https URL");
   });
 
   it("rejects invalid MyMemory URLs", () => {

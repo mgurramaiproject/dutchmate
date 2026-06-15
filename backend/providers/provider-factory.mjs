@@ -1,6 +1,7 @@
 import { createLocalDevProvider } from "./local-dev-provider.mjs";
 import { createAzureTranslatorProvider } from "./azure-translator-provider.mjs";
 import { createDeepLProvider } from "./deepl-provider.mjs";
+import { createGoogleTranslateProvider } from "./google-translate-provider.mjs";
 import { createMyMemoryProvider } from "./mymemory-provider.mjs";
 
 export const DEFAULT_TRANSLATION_PROVIDER = "local-dev";
@@ -13,11 +14,13 @@ export function createProvider(providerName, config = {}) {
       return createAzureTranslatorProvider(config.azureTranslator);
     case "deepl":
       return createDeepLProvider(config.deepl);
+    case "google-translate":
+      return createGoogleTranslateProvider(config.googleTranslate);
     case "mymemory":
       return createMyMemoryProvider(config.mymemory);
     default:
       throw new Error(
-        `Unsupported TRANSLATION_PROVIDER "${providerName}". Supported providers: local-dev, azure-translator, deepl, mymemory`,
+        `Unsupported TRANSLATION_PROVIDER "${providerName}". Supported providers: local-dev, azure-translator, deepl, google-translate, mymemory`,
       );
   }
 }

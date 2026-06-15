@@ -63,6 +63,7 @@ Supported providers:
 - `local-dev`: local, free, dependency-free development provider.
 - `azure-translator`: Azure AI Translator / Microsoft Translator provider. Requires `AZURE_TRANSLATOR_KEY`; `AZURE_TRANSLATOR_REGION` is optional for global resources and required for regional or multi-service resources.
 - `deepl`: DeepL API provider. Requires `DEEPL_API_KEY`.
+- `google-translate`: Google Cloud Translation Basic provider. Requires `GOOGLE_TRANSLATE_API_KEY`.
 - `mymemory`: hosted no-credit-card provider. Useful for experiments, but verified fragile on Render.
 
 Later provider adapters should be added behind the same factory, so the extension can keep calling the same `/translate` endpoint.
@@ -82,6 +83,8 @@ AZURE_TRANSLATOR_API_URL=https://api.cognitive.microsofttranslator.com/translate
 # AZURE_TRANSLATOR_REGION=westeurope
 DEEPL_API_URL=https://api-free.deepl.com/v2/translate
 # DEEPL_API_KEY=replace-me
+GOOGLE_TRANSLATE_API_URL=https://translation.googleapis.com/language/translate/v2
+# GOOGLE_TRANSLATE_API_KEY=replace-me
 MYMEMORY_API_URL=https://api.mymemory.translated.net/get
 MYMEMORY_SOURCE_LANGUAGE=nl
 # MYMEMORY_EMAIL=learner@example.com
@@ -109,6 +112,17 @@ To try DeepL later:
 4. Restart the backend with `corepack pnpm backend:dev:env`.
 
 DeepL's translate endpoint expects `Authorization: DeepL-Auth-Key ...`, JSON `text` as an array, and `target_lang` as the target language code. API Free users should use `https://api-free.deepl.com/v2/translate`.
+
+To try Google Cloud Translation later:
+
+1. Create or choose a Google Cloud project when you are ready to evaluate Google billing/setup.
+2. Enable the Cloud Translation API.
+3. Create an API key with suitable API restrictions.
+4. Add `GOOGLE_TRANSLATE_API_KEY` to your local `.env`.
+5. Change `TRANSLATION_PROVIDER` to `google-translate`.
+6. Restart the backend with `corepack pnpm backend:dev:env`.
+
+Google Cloud Translation Basic's v2 translate endpoint expects `POST /language/translate/v2`, `key`, `q`, `target`, optional `source`, and `format=text`. DutchMate keeps this provider behind the backend so the API key is never shipped in the extension.
 
 To try MyMemory:
 
