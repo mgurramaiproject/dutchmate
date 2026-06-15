@@ -51,7 +51,8 @@ Goal: make DutchMate useful immediately without accounts, billing, or complex se
 | Done | Cached word count | Gives users transparency without exposing raw cache records. | Counts unique source words, not translation-direction records. |
 | Done | Clear translation cache | Gives users control over local cache. | Keep visible until public privacy story is settled. |
 | Verified | Firefox cache workflow | Confirms count is visible and persists after loading the compiled extension. | Recorded in `manual-testing.md`. |
-| Planned | Chrome cache workflow verification | Confirms parity in the other launch browser. | Deferred for now. |
+| Verified | Chrome full translation path | Confirms parity in the other launch browser. | Real hover/selection translations work through Render and Google Cloud Translation. |
+| Verified | Firefox full translation path | Confirms the core MVP reading flow in Firefox. | Real hover/selection translations work through Render and Google Cloud Translation. |
 | Done | Production-friendly first-run endpoint | Avoids normal users needing provider endpoint settings. | Fresh installs use the Render backend endpoint by default; Developer settings can still override it. |
 
 ## Phase 2: Cost Control Without Hurting Adoption

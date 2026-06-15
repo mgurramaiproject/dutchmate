@@ -29,6 +29,7 @@ Notes:
 
 Recent entries:
 
+- 2026-06-16 | `6d7ea6c` | Chrome full translation path | MGurram | Pass | Chrome behaved as intended, similar to Firefox. Real hover/selection translations worked through the default Render endpoint and Google Cloud Translation.
 - 2026-06-16 | `6d7ea6c` | Firefox full translation path | MGurram | Pass | After Google Cloud Translation activation, the Firefox extension used the default Render endpoint and real hover/selection translations worked through `extension -> Render backend -> Google Cloud Translation -> tooltip`.
 - 2026-06-16 | `61ee87b` | Render backend / Google Cloud Translation | MGurram + Codex | Pass | Render was configured with `TRANSLATION_PROVIDER=google-translate` and a restricted Cloud Translation API key. Live smoke test passed for `https://dutchmate-backend.onrender.com`.
 - 2026-06-15 | `91477d9` | Firefox friendly rate-limit message | MGurram | Pass | After reloading the Firefox build, hovering with the default Render endpoint showed `Translation is temporarily busy. Try again soon.` while MyMemory returned `429`.
