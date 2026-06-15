@@ -79,7 +79,8 @@ Goal: keep the free product generous while preventing provider cost surprises.
 | Verified | Google Cloud Translation activation | Gives the Render backend real translations through an official provider. | Free trial active, budget alert created, API key restricted to Cloud Translation API, and live smoke test passed. |
 | Planned | Production provider cost monitoring | Keeps free usage generous without surprise spend. | Track Google Cloud trial/credit status and Render usage before public launch. |
 | Planned | Server-side provider secrets | Keeps paid provider keys out of extension code. | Use managed secrets in deployment target. |
-| Planned | Privacy policy and store disclosure | Explains what text is sent for translation. | Required before public distribution. |
+| Done | Privacy policy and store disclosure draft | Explains what text is sent for translation. | Drafted in `privacy-policy-draft.md`; review before public distribution. |
+| Done | MVP release checklist | Clarifies how to share with testers and when to use stores. | See `mvp-release-checklist.md`. |
 | Future | Provider fallback | Reduces downtime and quality issues. | Add after real provider usage exposes need. |
 
 ## Phase 3: Learning Features
