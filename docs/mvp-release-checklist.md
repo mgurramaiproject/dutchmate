@@ -77,7 +77,7 @@ Reasons:
 Do not submit to stores until:
 
 - privacy policy draft is reviewed;
-- provider override controls are hidden behind Advanced local testing;
+- provider override controls are hidden from store-ready builds;
 - Google Cloud cost monitoring is checked;
 - Chrome and Firefox packaged builds pass manual smoke tests;
 - support/contact email is ready.

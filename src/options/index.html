@@ -19,15 +19,31 @@
             Enable extension
           </label>
 
-          <label class="checkbox-label">
-            <input id="translate-on-hover" name="translateOnHover" type="checkbox" />
-            Translate on hover
-          </label>
-
-          <label class="checkbox-label">
-            <input id="translate-on-selection" name="translateOnSelection" type="checkbox" />
-            Translate selected text
-          </label>
+          <table class="settings-matrix">
+            <thead>
+              <tr>
+                <th scope="col">Text</th>
+                <th scope="col">Translate</th>
+                <th scope="col">Save single words</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Hovered text</th>
+                <td>
+                  <input id="translate-on-hover" name="translateOnHover" type="checkbox" aria-label="Translate hovered text" />
+                </td>
+                <td class="matrix-note">Never saved</td>
+              </tr>
+              <tr>
+                <th scope="row">Selected text</th>
+                <td>
+                  <input id="translate-on-selection" name="translateOnSelection" type="checkbox" aria-label="Translate selected text" />
+                </td>
+                <td class="matrix-note">Single words only</td>
+              </tr>
+            </tbody>
+          </table>
         </fieldset>
 
         <fieldset>
@@ -80,30 +96,6 @@
             Show the other two MVP languages
           </label>
         </fieldset>
-
-        <details class="advanced-settings">
-          <summary>Advanced local testing</summary>
-
-          <fieldset>
-            <p class="settings-note">
-              Optional local backend override for development and support testing.
-            </p>
-
-            <label>
-              Provider endpoint
-              <input id="provider-endpoint" name="providerEndpoint" type="url" placeholder="https://dutchmate-backend.onrender.com/translate" />
-            </label>
-
-            <label>
-              Provider API key
-              <input id="provider-api-key" name="providerApiKey" type="password" placeholder="Optional for local testing" />
-            </label>
-
-            <div class="form-actions">
-              <button id="test-endpoint" type="button" class="secondary-button">Test endpoint</button>
-            </div>
-          </fieldset>
-        </details>
 
         <fieldset>
           <legend>Privacy</legend>

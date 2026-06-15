@@ -6,6 +6,9 @@ const browserTarget = process.env.npm_lifecycle_event?.includes("firefox")
   : process.env.npm_lifecycle_event?.includes("chrome")
     ? "chrome"
     : "chrome";
+const enableLocalTestingOptions =
+  process.env.DUTCHMATE_LOCAL_TESTING_OPTIONS === "1" ||
+  process.env.npm_lifecycle_event?.startsWith("dev:") === true;
 
 export default defineConfig(({ mode }): UserConfig => {
   const target = mode === "firefox" ? "firefox" : browserTarget;
@@ -13,6 +16,7 @@ export default defineConfig(({ mode }): UserConfig => {
   return {
     define: {
       __BROWSER_TARGET__: JSON.stringify(target),
+      __ENABLE_LOCAL_TESTING_OPTIONS__: JSON.stringify(enableLocalTestingOptions),
     },
     build: {
       outDir: `dist/${target}`,

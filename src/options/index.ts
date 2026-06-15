@@ -28,14 +28,15 @@ const targetLanguage = document.querySelector<HTMLSelectElement>("#target-langua
 const translateToOtherMvpLanguages = document.querySelector<HTMLInputElement>(
   "#translate-to-other-mvp-languages",
 );
-const providerEndpoint = document.querySelector<HTMLInputElement>("#provider-endpoint");
-const providerApiKey = document.querySelector<HTMLInputElement>("#provider-api-key");
-const testEndpoint = document.querySelector<HTMLButtonElement>("#test-endpoint");
+let providerEndpoint: HTMLInputElement | null = null;
+let providerApiKey: HTMLInputElement | null = null;
+let testEndpoint: HTMLButtonElement | null = null;
 const cacheCount = document.querySelector<HTMLSpanElement>("#cache-count");
 const clearCache = document.querySelector<HTMLButtonElement>("#clear-cache");
 const status = document.querySelector<HTMLParagraphElement>("#status");
 let statusTimer: number | undefined;
 
+renderAdvancedLocalTesting();
 renderLanguageOptions();
 void restoreSettings();
 void refreshCacheCount();
@@ -43,10 +44,6 @@ void refreshCacheCount();
 form?.addEventListener("submit", (event) => {
   event.preventDefault();
   void saveSettings();
-});
-
-testEndpoint?.addEventListener("click", () => {
-  void testProviderEndpoint();
 });
 
 clearCache?.addEventListener("click", () => {
@@ -107,7 +104,10 @@ async function restoreSettings(): Promise<void> {
 }
 
 async function saveSettings(): Promise<void> {
-  const endpoint = providerEndpoint?.value.trim() || "";
+  const currentSettings = await readSettings();
+  const endpoint = providerEndpoint
+    ? providerEndpoint.value.trim()
+    : currentSettings.providerEndpoint;
   const hoverDelayValue = readNumberInput(hoverDelayMs, defaultSettings.hoverDelayMs);
   const maxSelectionLengthValue = readNumberInput(
     maxSelectionLength,
@@ -150,11 +150,63 @@ async function saveSettings(): Promise<void> {
     translateToOtherMvpLanguages:
       translateToOtherMvpLanguages?.checked ?? defaultSettings.translateToOtherMvpLanguages,
     providerEndpoint: endpoint,
-    providerApiKey: providerApiKey?.value.trim() || "",
+    providerApiKey: providerApiKey ? providerApiKey.value.trim() : currentSettings.providerApiKey,
   };
 
   await browser.storage.sync.set(settings);
   showStatus("Saved", "success");
+}
+
+function renderAdvancedLocalTesting(): void {
+  if (!__ENABLE_LOCAL_TESTING_OPTIONS__ || !form) {
+    return;
+  }
+
+  const details = document.createElement("details");
+  details.className = "advanced-settings";
+
+  const summary = document.createElement("summary");
+  summary.textContent = "Advanced local testing";
+
+  const fieldset = document.createElement("fieldset");
+
+  const note = document.createElement("p");
+  note.className = "settings-note";
+  note.textContent = "Optional local backend override for development and support testing.";
+
+  const endpointLabel = document.createElement("label");
+  endpointLabel.textContent = "Provider endpoint";
+  providerEndpoint = document.createElement("input");
+  providerEndpoint.id = "provider-endpoint";
+  providerEndpoint.name = "providerEndpoint";
+  providerEndpoint.type = "url";
+  providerEndpoint.placeholder = "https://dutchmate-backend.onrender.com/translate";
+  endpointLabel.append(providerEndpoint);
+
+  const apiKeyLabel = document.createElement("label");
+  apiKeyLabel.textContent = "Provider API key";
+  providerApiKey = document.createElement("input");
+  providerApiKey.id = "provider-api-key";
+  providerApiKey.name = "providerApiKey";
+  providerApiKey.type = "password";
+  providerApiKey.placeholder = "Optional for local testing";
+  apiKeyLabel.append(providerApiKey);
+
+  const actions = document.createElement("div");
+  actions.className = "form-actions";
+  testEndpoint = document.createElement("button");
+  testEndpoint.id = "test-endpoint";
+  testEndpoint.type = "button";
+  testEndpoint.className = "secondary-button";
+  testEndpoint.textContent = "Test endpoint";
+  testEndpoint.addEventListener("click", () => {
+    void testProviderEndpoint();
+  });
+  actions.append(testEndpoint);
+
+  fieldset.append(note, endpointLabel, apiKeyLabel, actions);
+  details.append(summary, fieldset);
+  form.insertBefore(details, form.querySelector("fieldset:nth-of-type(4)"));
 }
 
 async function refreshCacheCount(): Promise<void> {

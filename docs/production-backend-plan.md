@@ -39,7 +39,7 @@ The extension should call one DutchMate-owned HTTPS backend. The backend should 
 Before public release:
 
 - Normal users should not need to see Provider endpoint or Provider API key.
-- Developer settings can remain available in development builds or behind a deliberate advanced mode.
+- Provider override controls can remain available in local-testing builds.
 - The extension should use the production backend endpoint by default.
 - Local persistent cache should continue to store only selected single words.
 - Hover words, selected phrases, and sentences should not be persisted locally.
@@ -92,8 +92,8 @@ These become appropriate when provider cost, saved learning data, or paid plans 
 | Choose reliable hosted translation provider | Planned | MyMemory is verified fragile on Render; next provider path should target Azure AI Translator / Microsoft Translator or another official provider. |
 | Add server-side provider secret handling | Planned | Use managed secrets, not repo files. |
 | Add basic rate limiting | Done | Current MVP uses in-memory per-client limits for `POST /translate`; replace with durable/edge limits for production scale. |
-| Add production endpoint configuration to extension | Done | Fresh installs use `https://dutchmate-backend.onrender.com/translate` by default; Developer settings can still override it. |
-| Hide normal-user Developer settings | Done | Provider endpoint/API-key controls now live behind collapsed Advanced local testing. |
+| Add production endpoint configuration to extension | Done | Fresh installs use `https://dutchmate-backend.onrender.com/translate` by default; local-testing builds can still override it. |
+| Hide normal-user Developer settings | Done | Provider endpoint/API-key controls are hidden from store-ready builds and available only in local-testing builds. |
 | Write privacy policy/store disclosure | Planned | Required before public distribution. |
 
 ## Critical Recommendation

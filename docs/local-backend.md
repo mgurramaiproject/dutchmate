@@ -35,11 +35,20 @@ Health check:
 http://localhost:8787/health
 ```
 
-In the extension Options page, set the provider endpoint to:
+For local endpoint testing, build a local-testing extension:
+
+```bash
+corepack pnpm build:firefox:local-testing
+corepack pnpm build:chrome:local-testing
+```
+
+Then set the provider endpoint in the extension Options page to:
 
 ```text
 http://localhost:8787/translate
 ```
+
+Store-ready builds hide this override from normal users.
 
 Run only one local translation server at a time. The older mock server and this backend both use port `8787` by default.
 

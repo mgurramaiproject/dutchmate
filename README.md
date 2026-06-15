@@ -90,11 +90,18 @@ To run with a local `.env` file, copy `.env.example` to `.env`, edit values if n
 corepack pnpm backend:dev:env
 ```
 
-For local testing, override the endpoint in Options:
+For local endpoint testing, build a local-testing extension and override the endpoint in Options:
+
+```bash
+corepack pnpm build:firefox:local-testing
+corepack pnpm build:chrome:local-testing
+```
 
 ```text
 http://localhost:8787/translate
 ```
+
+Store-ready builds hide the endpoint override from normal users.
 
 ## Project Structure
 

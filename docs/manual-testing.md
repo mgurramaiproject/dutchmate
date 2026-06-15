@@ -113,7 +113,7 @@ Test:
 3. Click "Save".
 4. Return to a webpage where the extension is active.
 5. Hover or select text again.
-6. Return to Options and check the Advanced local testing and Privacy sections.
+6. Return to Options and check the Behavior and Privacy sections.
 
 Expected result:
 
@@ -121,7 +121,7 @@ Expected result:
 - The target-language dropdown only shows English, Dutch, and Telugu.
 - The source-language dropdown shows Auto, English, Dutch, and Telugu.
 - "Show the other two MVP languages" is on by default and remains saved after toggling.
-- Provider endpoint and Provider API key are hidden inside a collapsed Advanced local testing section.
+- Store-ready builds do not show Provider endpoint or Provider API key.
 - The Privacy section shows `Cached words: 0` when no words have been persisted.
 - The Privacy section explains that selected single words are stored locally, while hovered words and selected phrases or sentences are not saved.
 - Clicking "Clear translation cache" clears the local cache and keeps the cached word count at `0`.
@@ -169,6 +169,15 @@ Expected result:
 - Long selections above the configured limit do not translate and show `Selection is too long. Try 150 characters or fewer.` near the selection.
 
 ## Custom Endpoint
+
+Custom endpoint controls are available only in local-testing builds:
+
+```bash
+corepack pnpm build:firefox:local-testing
+corepack pnpm build:chrome:local-testing
+```
+
+Store-ready builds hide these controls from normal users.
 
 Provider endpoint rules:
 
@@ -223,13 +232,14 @@ http://localhost:8787/translate
 
 In extension Options:
 
-1. Set Provider endpoint to `http://localhost:8787/translate`.
-2. Leave Provider API key blank.
-3. Click "Test endpoint".
-4. Confirm the page shows `Endpoint OK: [mock en] bonjour`.
-5. Click "Save".
-6. Return to a normal webpage.
-7. Hover a word or select text.
+1. Load a local-testing build of the extension.
+2. Set Provider endpoint to `http://localhost:8787/translate`.
+3. Leave Provider API key blank.
+4. Click "Test endpoint".
+5. Confirm the page shows `Endpoint OK: [mock en] bonjour`.
+6. Click "Save".
+7. Return to a normal webpage.
+8. Hover a word or select text.
 
 Expected result:
 
@@ -305,14 +315,15 @@ browser.storage.local.remove("dutchmate.translationCache.v1");
 
 Cache behavior check:
 
-1. Start a local provider endpoint with `corepack pnpm backend:dev` or `corepack pnpm mock:translate`.
-2. In Options, set Provider endpoint to `http://localhost:8787/translate`.
-3. Click "Test endpoint" and confirm it succeeds before testing hover, selection, or cache behavior.
-4. Keep "Show the other two MVP languages" on.
-5. Select a single word, ideally by double-clicking it.
-6. Inspect `dutchmate.translationCache.v1` and confirm cache entries appear for each target language.
-7. Open Options and confirm the Privacy section still shows `Cached words: 1`.
-8. This count is unique source words, not raw translation records.
+1. Load a local-testing build of the extension.
+2. Start a local provider endpoint with `corepack pnpm backend:dev` or `corepack pnpm mock:translate`.
+3. In Options, set Provider endpoint to `http://localhost:8787/translate`.
+4. Click "Test endpoint" and confirm it succeeds before testing hover, selection, or cache behavior.
+5. Keep "Show the other two MVP languages" on.
+6. Select a single word, ideally by double-clicking it.
+7. Inspect `dutchmate.translationCache.v1` and confirm cache entries appear for each target language.
+8. Open Options and confirm the Privacy section still shows `Cached words: 1`.
+9. This count is unique source words, not raw translation records.
 9. Hover over a word.
 10. Inspect the cache again and confirm the hover did not add an entry.
 11. Select a phrase or sentence.
