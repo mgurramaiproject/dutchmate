@@ -1,9 +1,9 @@
 import { getHoverRequestKey } from "./hover-request-key";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
-import { DEFAULT_PROVIDER_ENDPOINT } from "../shared/provider-endpoint";
 
 const MIN_TEXT_LENGTH = 1;
+const DEFAULT_PROVIDER_ENDPOINT = "https://dutchmate-backend.onrender.com/translate";
 const MAX_HOVER_WORD_LENGTH = 30;
 const MAX_HOVER_CONTEXT_LENGTH = 180;
 const MIN_SELECTION_LENGTH = 50;

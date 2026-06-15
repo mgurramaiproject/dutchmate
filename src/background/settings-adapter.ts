@@ -1,5 +1,6 @@
 import type { TranslationProviderSettings } from "../translation/translation-service";
-import { DEFAULT_PROVIDER_ENDPOINT } from "../shared/provider-endpoint";
+
+const DEFAULT_PROVIDER_ENDPOINT = "https://dutchmate-backend.onrender.com/translate";
 
 const defaultProviderSettings: TranslationProviderSettings = {
   providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
