@@ -72,7 +72,8 @@ Goal: keep the free product generous while preventing provider cost surprises.
 | Done | MouseTooltipTranslator provider-strategy reference | Helps DutchMate learn from a free competitor extension. | Documented in `reference-mousetooltiptranslator.md`; free web endpoints are research, not the default production path. |
 | Verified | First MVP translation provider experiment | Proved the backend can route to a no-credit-card provider. | MyMemory returned hosted `429` on Render even with `MYMEMORY_EMAIL`; keep as temporary fallback/experiment only. |
 | Verified | Production `/health` and backend route | Gives the public extension one stable backend host. | Render serves `/health`; `/translate` reaches backend, but provider reliability is the blocker. |
-| Planned | Reliable hosted translation provider | Gives public users dependable translations. | MyMemory is verified fragile on Render; next provider path should target Azure AI Translator / Microsoft Translator or another official provider. |
+| Done | Azure Translator backend adapter | Prepares a reliable official-provider path. | Implemented and tested, but not active on Render until Azure resource/env vars are approved. |
+| Planned | Activate reliable hosted translation provider | Gives public users dependable translations. | MyMemory is verified fragile on Render; next activation path should target Azure AI Translator / Microsoft Translator or another official provider. |
 | Planned | Server-side provider secrets | Keeps paid provider keys out of extension code. | Use managed secrets in deployment target. |
 | Planned | Privacy policy and store disclosure | Explains what text is sent for translation. | Required before public distribution. |
 | Future | Provider fallback | Reduces downtime and quality issues. | Add after real provider usage exposes need. |

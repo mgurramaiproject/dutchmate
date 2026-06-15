@@ -11,6 +11,10 @@ describe("readBackendConfig", () => {
         maxRequests: 60,
         windowMs: 60000,
       },
+      azureTranslator: {
+        apiUrl: "https://api.cognitive.microsofttranslator.com/translate",
+        region: undefined,
+      },
       deepl: {
         apiUrl: "https://api-free.deepl.com/v2/translate",
       },
@@ -30,6 +34,8 @@ describe("readBackendConfig", () => {
         PORT: "3000",
         RATE_LIMIT_MAX_REQUESTS: "30",
         RATE_LIMIT_WINDOW_MS: "15000",
+        AZURE_TRANSLATOR_API_URL: " https://example.test/translate ",
+        AZURE_TRANSLATOR_REGION: " westeurope ",
         DEEPL_API_URL: " https://example.test/v2/translate ",
         MYMEMORY_API_URL: " https://example.test/get ",
         MYMEMORY_SOURCE_LANGUAGE: " TE ",
@@ -42,6 +48,10 @@ describe("readBackendConfig", () => {
       rateLimit: {
         maxRequests: 30,
         windowMs: 15000,
+      },
+      azureTranslator: {
+        apiUrl: "https://example.test/translate",
+        region: "westeurope",
       },
       deepl: {
         apiUrl: "https://example.test/v2/translate",
@@ -69,9 +79,45 @@ describe("readBackendConfig", () => {
         maxRequests: 60,
         windowMs: 60000,
       },
+      azureTranslator: {
+        apiUrl: "https://api.cognitive.microsofttranslator.com/translate",
+        region: undefined,
+      },
       deepl: {
         apiKey: "test-key",
         apiUrl: "https://example.test/v2/translate",
+      },
+      mymemory: {
+        apiUrl: "https://api.mymemory.translated.net/get",
+        defaultSourceLanguage: "nl",
+        email: undefined,
+      },
+    });
+  });
+
+  it("accepts Azure Translator config when its API key is present", () => {
+    expect(
+      readBackendConfig({
+        TRANSLATION_PROVIDER: "azure-translator",
+        AZURE_TRANSLATOR_KEY: " test-key ",
+        AZURE_TRANSLATOR_API_URL: "https://example.test/translate",
+        AZURE_TRANSLATOR_REGION: " westeurope ",
+      }),
+    ).toEqual({
+      provider: "azure-translator",
+      host: "127.0.0.1",
+      port: 8787,
+      rateLimit: {
+        maxRequests: 60,
+        windowMs: 60000,
+      },
+      azureTranslator: {
+        apiKey: "test-key",
+        apiUrl: "https://example.test/translate",
+        region: "westeurope",
+      },
+      deepl: {
+        apiUrl: "https://api-free.deepl.com/v2/translate",
       },
       mymemory: {
         apiUrl: "https://api.mymemory.translated.net/get",
@@ -87,9 +133,21 @@ describe("readBackendConfig", () => {
     );
   });
 
-  it("rejects unsupported providers", () => {
+  it("rejects Azure Translator config without an API key when selected", () => {
+    expect(() => readBackendConfig({ TRANSLATION_PROVIDER: "azure-translator" })).toThrow(
+      "AZURE_TRANSLATOR_KEY is required when TRANSLATION_PROVIDER=azure-translator",
+    );
+  });
+
+  it("rejects DeepL config without an API key when selected", () => {
     expect(() => readBackendConfig({ TRANSLATION_PROVIDER: "deepl" })).toThrow(
       "DEEPL_API_KEY is required when TRANSLATION_PROVIDER=deepl",
+    );
+  });
+
+  it("rejects unsupported providers", () => {
+    expect(() => readBackendConfig({ TRANSLATION_PROVIDER: "unknown" })).toThrow(
+      'Unsupported TRANSLATION_PROVIDER "unknown". Supported providers: local-dev, azure-translator, deepl, mymemory',
     );
   });
 
@@ -126,6 +184,16 @@ describe("readBackendConfig", () => {
         DEEPL_API_URL: "not-a-url",
       }),
     ).toThrow("DEEPL_API_URL must be a valid http or https URL");
+  });
+
+  it("rejects invalid Azure Translator URLs", () => {
+    expect(() =>
+      readBackendConfig({
+        TRANSLATION_PROVIDER: "azure-translator",
+        AZURE_TRANSLATOR_KEY: "test-key",
+        AZURE_TRANSLATOR_API_URL: "not-a-url",
+      }),
+    ).toThrow("AZURE_TRANSLATOR_API_URL must be a valid http or https URL");
   });
 
   it("rejects invalid MyMemory URLs", () => {

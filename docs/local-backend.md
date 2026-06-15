@@ -61,8 +61,9 @@ TRANSLATION_PROVIDER=local-dev
 Supported providers:
 
 - `local-dev`: local, free, dependency-free development provider.
+- `azure-translator`: Azure AI Translator / Microsoft Translator provider. Requires `AZURE_TRANSLATOR_KEY`; `AZURE_TRANSLATOR_REGION` is optional for global resources and required for regional or multi-service resources.
 - `deepl`: DeepL API provider. Requires `DEEPL_API_KEY`.
-- `mymemory`: hosted no-credit-card provider. Best current candidate for Telugu, English, and Dutch MVP testing.
+- `mymemory`: hosted no-credit-card provider. Useful for experiments, but verified fragile on Render.
 
 Later provider adapters should be added behind the same factory, so the extension can keep calling the same `/translate` endpoint.
 
@@ -76,6 +77,9 @@ HOST=127.0.0.1
 PORT=8787
 RATE_LIMIT_MAX_REQUESTS=60
 RATE_LIMIT_WINDOW_MS=60000
+AZURE_TRANSLATOR_API_URL=https://api.cognitive.microsofttranslator.com/translate
+# AZURE_TRANSLATOR_KEY=replace-me
+# AZURE_TRANSLATOR_REGION=westeurope
 DEEPL_API_URL=https://api-free.deepl.com/v2/translate
 # DEEPL_API_KEY=replace-me
 MYMEMORY_API_URL=https://api.mymemory.translated.net/get
@@ -86,6 +90,16 @@ MYMEMORY_SOURCE_LANGUAGE=nl
 Invalid values stop the backend immediately with a clear error. This is intentional: provider problems should be visible at startup, not only after a user hovers over text.
 
 The rate-limit values are optional. If they are missing from `.env`, the backend uses the defaults shown above. `RATE_LIMIT_MAX_REQUESTS=60` and `RATE_LIMIT_WINDOW_MS=60000` means each client can make up to 60 translate requests per 60,000 milliseconds, or one minute. These values protect provider cost and translation quota during local testing and early production use.
+
+To try Azure AI Translator / Microsoft Translator later:
+
+1. Create an Azure Translator resource when you are ready to use Azure.
+2. Add `AZURE_TRANSLATOR_KEY` to your local `.env`.
+3. Add `AZURE_TRANSLATOR_REGION` if the resource is regional or multi-service.
+4. Change `TRANSLATION_PROVIDER` to `azure-translator`.
+5. Restart the backend with `corepack pnpm backend:dev:env`.
+
+Azure Translator's v3 translate endpoint expects `POST /translate?api-version=3.0&to=<language>`, a JSON array body like `[{ "Text": "huis" }]`, and `Ocp-Apim-Subscription-Key` in the request headers. `Ocp-Apim-Subscription-Region` is sent only when `AZURE_TRANSLATOR_REGION` is configured.
 
 To try DeepL later:
 

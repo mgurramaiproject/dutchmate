@@ -4,17 +4,25 @@ const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 8787;
 const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 60;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const DEFAULT_AZURE_TRANSLATOR_API_URL =
+  "https://api.cognitive.microsofttranslator.com/translate";
 const DEFAULT_DEEPL_API_URL = "https://api-free.deepl.com/v2/translate";
 const DEFAULT_MYMEMORY_API_URL = "https://api.mymemory.translated.net/get";
 const DEFAULT_MYMEMORY_SOURCE_LANGUAGE = "nl";
 const SUPPORTED_LANGUAGES = new Set(["nl", "en", "te"]);
-const SUPPORTED_PROVIDERS = new Set([DEFAULT_TRANSLATION_PROVIDER, "deepl", "mymemory"]);
+const SUPPORTED_PROVIDERS = new Set([
+  DEFAULT_TRANSLATION_PROVIDER,
+  "azure-translator",
+  "deepl",
+  "mymemory",
+]);
 
 export function readBackendConfig(environment = process.env) {
   const provider = normalizeProvider(environment.TRANSLATION_PROVIDER);
   const host = normalizeHost(environment.HOST);
   const port = normalizePort(environment.PORT);
   const rateLimit = normalizeRateLimitConfig(environment);
+  const azureTranslator = normalizeAzureTranslatorConfig(provider, environment);
   const deepl = normalizeDeepLConfig(provider, environment);
   const mymemory = normalizeMyMemoryConfig(environment);
 
@@ -23,6 +31,7 @@ export function readBackendConfig(environment = process.env) {
     host,
     port,
     rateLimit,
+    azureTranslator,
     deepl,
     mymemory,
   };
@@ -37,7 +46,7 @@ function normalizeProvider(value) {
 
   if (!SUPPORTED_PROVIDERS.has(provider)) {
     throw new Error(
-      `Unsupported TRANSLATION_PROVIDER "${value}". Supported providers: local-dev, deepl, mymemory`,
+      `Unsupported TRANSLATION_PROVIDER "${value}". Supported providers: local-dev, azure-translator, deepl, mymemory`,
     );
   }
 
@@ -95,6 +104,32 @@ function normalizePositiveInteger(name, value, fallback) {
   }
 
   return parsedValue;
+}
+
+function normalizeAzureTranslatorConfig(provider, environment) {
+  const apiKey = environment.AZURE_TRANSLATOR_KEY?.trim() ?? "";
+  const apiUrl =
+    environment.AZURE_TRANSLATOR_API_URL?.trim() ?? DEFAULT_AZURE_TRANSLATOR_API_URL;
+  const region = environment.AZURE_TRANSLATOR_REGION?.trim() || undefined;
+
+  if (provider !== "azure-translator") {
+    return {
+      apiUrl,
+      region,
+    };
+  }
+
+  if (!apiKey) {
+    throw new Error("AZURE_TRANSLATOR_KEY is required when TRANSLATION_PROVIDER=azure-translator");
+  }
+
+  validateHttpUrl("AZURE_TRANSLATOR_API_URL", apiUrl);
+
+  return {
+    apiKey,
+    apiUrl,
+    region,
+  };
 }
 
 function normalizeDeepLConfig(provider, environment) {

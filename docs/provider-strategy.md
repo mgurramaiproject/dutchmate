@@ -1,6 +1,6 @@
 # Translation Provider Strategy
 
-Last reviewed: 2026-06-14
+Last reviewed: 2026-06-15
 
 This extension does not require OpenAI, Azure, Google Translate, or any one specific provider. The browser extension should stay provider-agnostic: it sends translation requests to a backend endpoint, and that backend decides which translation engine to use.
 
@@ -21,7 +21,7 @@ Production backend requirements and rollout sequencing are tracked in [productio
 
 Free browser-extension provider strategies are tracked separately in [reference-mousetooltiptranslator.md](reference-mousetooltiptranslator.md). MouseTooltipTranslator appears to rely heavily on browser-side calls to Google/Bing web translation flows, which is useful inspiration but riskier than an official backend provider for DutchMate's public production path.
 
-The first provider decision is tracked in [production-provider-decision.md](production-provider-decision.md). Current decision: MyMemory for early MVP users, with Azure AI Translator / Microsoft Translator as the scale-up provider after traction or quota pressure.
+The first provider decision is tracked in [production-provider-decision.md](production-provider-decision.md). Current decision: MyMemory remains a temporary no-credit-card experiment/fallback, while Azure AI Translator / Microsoft Translator is the reliable-provider path to activate after Azure resource setup is explicitly approved.
 
 ## What External Services Are Needed?
 
@@ -86,13 +86,13 @@ Azure OpenAI:
 
 Start with a translation provider behind our own backend endpoint.
 
-Early MVP choice:
+Early experiment/fallback:
 
-- MyMemory, because it avoids credit-card setup and lets us validate the product loop quickly.
+- MyMemory, because it avoids credit-card setup and helped validate the product loop, but hosted Render testing returned `429` even with email configured.
 
-Scale-up provider:
+Reliable-provider path:
 
-- Azure AI Translator / Microsoft Translator after traction, quality complaints, or quota pressure.
+- Azure AI Translator / Microsoft Translator. The backend adapter exists behind `TRANSLATION_PROVIDER=azure-translator`, but it should not be activated on Render until the Azure resource and environment variables are explicitly approved.
 
 Good fallback candidate:
 

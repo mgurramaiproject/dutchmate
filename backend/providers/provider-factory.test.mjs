@@ -8,8 +8,19 @@ describe("createProvider", () => {
 
   it("rejects unsupported providers", () => {
     expect(() => createProvider("unknown")).toThrow(
-      'Unsupported TRANSLATION_PROVIDER "unknown". Supported providers: local-dev, deepl, mymemory',
+      'Unsupported TRANSLATION_PROVIDER "unknown". Supported providers: local-dev, azure-translator, deepl, mymemory',
     );
+  });
+
+  it("creates Azure Translator providers", () => {
+    const provider = createProvider("azure-translator", {
+      azureTranslator: {
+        apiKey: "test-key",
+        apiUrl: "https://example.test/translate",
+      },
+    });
+
+    expect(provider.name).toBe("azure-translator");
   });
 
   it("creates DeepL providers", () => {

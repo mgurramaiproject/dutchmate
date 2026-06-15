@@ -96,8 +96,9 @@ Next implementation step:
 
 1. Keep MyMemory documented as a temporary no-credit-card experiment.
 2. Do not depend on MyMemory for a polished public launch.
-3. Keep Azure adapter work planned as the next reliable provider path.
-4. Re-test MyMemory occasionally only as a fallback/reference provider.
+3. Keep the Azure adapter available behind `TRANSLATION_PROVIDER=azure-translator`.
+4. Do not activate Azure on Render until the Azure resource and environment variables are explicitly approved.
+5. Re-test MyMemory occasionally only as a fallback/reference provider.
 
 ## Sources Checked
 
