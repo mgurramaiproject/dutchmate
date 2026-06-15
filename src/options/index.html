@@ -54,13 +54,19 @@
         <section class="settings-section" aria-labelledby="tuning-heading">
           <h2 id="tuning-heading">Tuning</h2>
 
-          <label>
-            Hover translation mode
-            <select id="hover-translation-mode" name="hoverTranslationMode">
-              <option value="sentence">Sentence</option>
-              <option value="word">Word</option>
-            </select>
-          </label>
+          <div class="setting-choice-group" role="radiogroup" aria-labelledby="hover-translation-mode-label">
+            <span id="hover-translation-mode-label" class="setting-label">Hover translation mode</span>
+            <span class="choice-row">
+              <label class="choice-label">
+                <input id="hover-translation-mode-word" name="hoverTranslationMode" type="radio" value="word" />
+                Word
+              </label>
+              <label class="choice-label">
+                <input id="hover-translation-mode-sentence" name="hoverTranslationMode" type="radio" value="sentence" />
+                Sentence
+              </label>
+            </span>
+          </div>
 
           <label class="range-label">
             <span class="range-label-row">
@@ -111,7 +117,7 @@
           </div>
 
           <p class="settings-note">
-            DutchMate stores selected single words locally. Hovered words and selected phrases or sentences are not saved.
+            DutchMate stores selected single words locally in your browser. Hovered words and selected phrases or sentences are not stored.
           </p>
         </section>
 

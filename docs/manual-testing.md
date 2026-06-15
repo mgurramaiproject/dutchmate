@@ -123,7 +123,7 @@ Expected result:
 - "Translate into both other languages" is on by default and remains saved after toggling.
 - Store-ready builds do not show Provider endpoint or Provider API key.
 - The Privacy section shows `Cached words: 0` when no words have been persisted.
-- The Privacy section explains that selected single words are stored locally, while hovered words and selected phrases or sentences are not saved.
+- The Privacy section explains that selected single words are stored locally in the browser, while hovered words and selected phrases or sentences are not stored.
 - Clicking "Clear translation cache" clears the local cache and keeps the cached word count at `0`.
 
 Dual-language mode:

@@ -82,7 +82,34 @@ label {
   font-weight: 600;
 }
 
+.settings-section > label:not(.checkbox-label):not(.range-label),
+.setting-choice-group {
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) minmax(180px, 1.25fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.setting-label {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.choice-label {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -122,6 +149,12 @@ input[type="checkbox"] {
   min-height: 16px;
   margin: 0;
   padding: 0;
+}
+
+input[type="radio"] {
+  width: 16px;
+  min-height: 16px;
+  margin: 0;
 }
 
 input[type="range"] {
@@ -243,6 +276,13 @@ button:disabled {
 
 #status[data-tone="error"] {
   color: #b91c1c;
+}
+
+@media (max-width: 460px) {
+  .settings-section > label:not(.checkbox-label):not(.range-label),
+  .setting-choice-group {
+    grid-template-columns: 1fr;
+  }
 }
 
 #status[data-tone="neutral"] {

@@ -18,7 +18,9 @@ const form = document.querySelector<HTMLFormElement>("#options-form");
 const isEnabled = document.querySelector<HTMLInputElement>("#is-enabled");
 const translateOnHover = document.querySelector<HTMLInputElement>("#translate-on-hover");
 const translateOnSelection = document.querySelector<HTMLInputElement>("#translate-on-selection");
-const hoverTranslationMode = document.querySelector<HTMLSelectElement>("#hover-translation-mode");
+const hoverTranslationModes = document.querySelectorAll<HTMLInputElement>(
+  'input[name="hoverTranslationMode"]',
+);
 const hoverDelayMs = document.querySelector<HTMLInputElement>("#hover-delay-ms");
 const maxSelectionLength = document.querySelector<HTMLInputElement>("#max-selection-length");
 const hoverDelayValue = document.querySelector<HTMLOutputElement>("#hover-delay-value");
@@ -80,9 +82,7 @@ async function restoreSettings(): Promise<void> {
     translateOnSelection.checked = settings.translateOnSelection;
   }
 
-  if (hoverTranslationMode) {
-    hoverTranslationMode.value = settings.hoverTranslationMode;
-  }
+  setHoverTranslationMode(settings.hoverTranslationMode);
 
   if (hoverDelayMs) {
     hoverDelayMs.value = settings.hoverDelayMs.toString();
@@ -140,7 +140,7 @@ async function saveSettings(): Promise<void> {
     translateOnHover: translateOnHover?.checked ?? defaultSettings.translateOnHover,
     translateOnSelection: translateOnSelection?.checked ?? defaultSettings.translateOnSelection,
     hoverTranslationMode: getHoverTranslationMode(
-      hoverTranslationMode?.value,
+      getSelectedHoverTranslationMode(),
       defaultSettings.hoverTranslationMode,
     ),
     hoverDelayMs: hoverDelayValue,
@@ -250,6 +250,16 @@ function readNumberInput(input: HTMLInputElement | null, fallback: number): numb
   }
 
   return Number(input.value);
+}
+
+function setHoverTranslationMode(mode: HoverTranslationMode): void {
+  hoverTranslationModes.forEach((input) => {
+    input.checked = input.value === mode;
+  });
+}
+
+function getSelectedHoverTranslationMode(): string | undefined {
+  return Array.from(hoverTranslationModes).find((input) => input.checked)?.value;
 }
 
 function updateTuningValueLabels(): void {
