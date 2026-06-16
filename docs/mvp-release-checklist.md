@@ -2,7 +2,7 @@
 
 Last updated: 2026-06-16
 
-DutchMate is not ready for broad public launch yet, but it is close to a small MVP user test.
+DutchMate is not ready for broad public launch yet, but it is close to a moderate MVP user test with a Dutch-learner WhatsApp group.
 
 ## Current Verified Core
 
@@ -27,11 +27,11 @@ Use temporary or unpacked extension installs:
 
 Use this for the project owner and a very small trusted group.
 
-### 2. Private MVP Testing
+### 2. WhatsApp Group MVP Testing
 
 Status: **Next**
 
-Before inviting external MVP users:
+Before inviting WhatsApp group MVP users:
 
 - finish privacy policy/store disclosure draft;
 - keep provider override controls hidden from the normal user path;
@@ -41,9 +41,11 @@ Before inviting external MVP users:
 
 For Chrome, a store listing is usually the cleanest way for non-technical users to install. For Firefox, Add-ons for Mozilla (AMO) can list the add-on or sign it for self-distribution.
 
+Use [whatsapp-mvp-tester-instructions.md](whatsapp-mvp-tester-instructions.md) as the working tester guidance.
+
 ### 3. Store Submission
 
-Status: **After private MVP checklist**
+Status: **After WhatsApp group MVP checklist**
 
 Chrome Web Store publishing requires:
 
