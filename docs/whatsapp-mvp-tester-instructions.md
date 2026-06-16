@@ -1,33 +1,33 @@
-# DutchMate WhatsApp MVP Tester Instructions
+# DutchMate Gentle WhatsApp Sharing Guide
 
 Last updated: 2026-06-16
 
-Use this page when inviting a moderate WhatsApp group of Dutch learners to try the DutchMate MVP.
+Use this page when gently sharing DutchMate with a moderate WhatsApp group of Dutch learners.
 
-DutchMate is an early browser extension that helps English and Telugu speakers read Dutch websites. It translates hovered words and selected text into the other supported languages.
+DutchMate is an early browser extension originally built for personal Dutch reading practice. It helps English and Telugu speakers translate hovered words and selected text while reading Dutch websites.
 
-## Short Invite Message
+## Gentle Share Message
 
 ```text
-Hi! I am testing an early version of DutchMate, a browser extension for Dutch learners.
+Hi everyone! I built a small browser extension for myself while reading Dutch websites, and I thought it might be useful to a few people here too.
 
-It helps you translate words or short text while reading websites. It currently supports Dutch, English, and Telugu.
+It lets you hover over words or select short text on a webpage to see translations. It currently supports Dutch, English, and Telugu.
 
-This is an MVP, so it may still have bugs. Please try it on normal webpages, tell me what worked, what confused you, and where the translation felt wrong.
+No pressure at all, but feel free to try it if it sounds useful. If anyone finds it helpful, confusing, broken, or not useful, I would be happy to hear.
 ```
 
-## Who This Is For
+## Who Might Find It Useful
 
-Good early testers:
+This may be useful for people who:
 
 - are learning Dutch;
 - read Dutch websites in Chrome or Firefox;
-- are comfortable trying an early tool;
-- can send simple feedback by WhatsApp or email.
+- sometimes want quick English or Telugu help while reading;
+- are comfortable trying an early, simple tool.
 
-This test is not ready for users who expect a polished store-installed product with automatic updates and support.
+It is probably not a good fit yet for people who want a polished product with formal support and automatic updates.
 
-## What To Tell Testers Before They Install
+## What To Mention Before Sharing
 
 DutchMate sends the text they ask to translate to the DutchMate backend, which uses Google Cloud Translation.
 
@@ -40,7 +40,7 @@ For the MVP:
 - hovered text and selected phrases are not stored in the local cache;
 - users can disable hover translation, selected-text translation, or the whole extension from Options.
 
-Share the privacy policy draft before inviting broader testers:
+Share the privacy policy draft before inviting a broader group:
 
 [privacy-policy-draft.md](privacy-policy-draft.md)
 
@@ -56,13 +56,13 @@ Recommended order:
 2. Confirm Google Cloud budget alerts and cost dashboard.
 3. Run the Chrome and Firefox manual regression checklist.
 4. Package the browser extension for store or signed distribution.
-5. Share one simple install link and this tester guidance.
+5. Share one simple install link and a gentle note.
 
 Manual install instructions are still available in [README.md](../README.md) for internal testing.
 
-## What Testers Should Try
+## What People May Try
 
-Ask testers to try these simple workflows:
+People can use it naturally, but these are useful first things to try:
 
 1. Open a normal Dutch webpage.
 2. Hover over a Dutch word and wait briefly.
@@ -72,26 +72,22 @@ Ask testers to try these simple workflows:
 6. Turn hover translation back on.
 7. Use the extension for one real reading session.
 
-Good test websites include news, school, government, shopping, recipe, or housing pages. Avoid testing on browser settings pages, extension store pages, banking pages, or pages with private personal information.
+Good pages to try include news, school, government, shopping, recipe, or housing pages. Avoid browser settings pages, extension store pages, banking pages, or pages with private personal information.
 
-## Feedback Questions
+## If Someone Wants To Reply
 
-Ask testers to answer as many of these as they can:
+Keep the ask light. Useful replies include:
 
 ```text
-1. Browser: Chrome or Firefox?
-2. Device: laptop, desktop, Chromebook, or something else?
-3. Did the extension install without confusion?
-4. Did hover translation work?
-5. Did selected-text translation work?
-6. Was the tooltip easy to read and placed in a useful spot?
-7. Were any translations wrong, weird, or missing?
-8. Did anything feel slow?
-9. Did anything break or get in the way?
-10. Would you keep using this while learning Dutch? Why or why not?
+I tried it in Chrome/Firefox.
+It helped with...
+It was confusing when...
+This translation looked wrong...
+It felt slow when...
+I would/would not keep using it because...
 ```
 
-For translation quality feedback, ask testers to include:
+If someone notices a bad translation, ask for:
 
 - the original word or sentence;
 - the translation they saw;
@@ -100,7 +96,7 @@ For translation quality feedback, ask testers to include:
 
 ## Known MVP Limits
 
-Set expectations clearly:
+Set expectations without making the message feel heavy:
 
 - This is an early MVP, not a finished product.
 - It supports Dutch, English, and Telugu only.
@@ -111,7 +107,7 @@ Set expectations clearly:
 
 ## Support Contact
 
-Use this contact for MVP tester feedback:
+Use this contact if someone prefers email:
 
 ```text
 dutchmate.project@gmail.com

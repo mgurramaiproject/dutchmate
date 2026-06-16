@@ -2,7 +2,7 @@
 
 Last updated: 2026-06-16
 
-DutchMate is not ready for broad public launch yet, but it is close to a moderate MVP user test with a Dutch-learner WhatsApp group.
+DutchMate is not ready for broad public launch yet, but it is close to a gentle MVP share with a Dutch-learner WhatsApp group.
 
 ## Current Verified Core
 
@@ -27,25 +27,25 @@ Use temporary or unpacked extension installs:
 
 Use this for the project owner and a very small trusted group.
 
-### 2. WhatsApp Group MVP Testing
+### 2. WhatsApp Group MVP Share
 
 Status: **Next**
 
-Before inviting WhatsApp group MVP users:
+Before sharing with WhatsApp group MVP users:
 
 - finish privacy policy/store disclosure draft;
 - keep provider override controls hidden from the normal user path;
 - verify Google Cloud cost dashboard and budget alerts;
 - run the manual Firefox and Chrome regression checklist;
-- prepare a short tester instruction page.
+- prepare a short gentle sharing note.
 
 For Chrome, a store listing is usually the cleanest way for non-technical users to install. For Firefox, Add-ons for Mozilla (AMO) can list the add-on or sign it for self-distribution.
 
-Use [whatsapp-mvp-tester-instructions.md](whatsapp-mvp-tester-instructions.md) as the working tester guidance.
+Use [whatsapp-mvp-tester-instructions.md](whatsapp-mvp-tester-instructions.md) as the working gentle sharing guide.
 
 ### 3. Store Submission
 
-Status: **After WhatsApp group MVP checklist**
+Status: **After WhatsApp group MVP share checklist**
 
 Chrome Web Store publishing requires:
 
