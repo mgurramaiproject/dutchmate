@@ -143,7 +143,7 @@ No pressure at all, but feel free to try it if it sounds useful. If anyone finds
 
 ## Assets Still Needed
 
-- Chrome Web Store screenshots.
+- Chrome Web Store screenshots from [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md).
 - Public privacy policy URL.
 - Final zipped Chrome artifact.
 - Store icon assets if required by the dashboard.
@@ -151,6 +151,7 @@ No pressure at all, but feel free to try it if it sounds useful. If anyone finds
 ## Submission Inputs Already Prepared
 
 - Package checklist: [store-package-preparation-checklist.md](store-package-preparation-checklist.md)
+- Chrome image capture plan: [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md)
 - Store disclosure draft: [store-disclosure-draft.md](store-disclosure-draft.md)
 - Public privacy policy source: [privacy-policy.md](privacy-policy.md)
 - Public privacy policy page: [privacy-policy.html](privacy-policy.html)
