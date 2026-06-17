@@ -40,7 +40,7 @@ Privacy policy URL:
 
 ```text
 Planned, pending public hosting:
-https://mgurramaiproject.github.io/dutchmate-extension/privacy-policy.html
+https://dutchmate-frontend.onrender.com/privacy-policy.html
 ```
 
 ## Full Description
@@ -155,6 +155,6 @@ No pressure at all, but feel free to try it if it sounds useful. If anyone finds
 - Chrome image capture plan: [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md)
 - Store disclosure draft: [store-disclosure-draft.md](store-disclosure-draft.md)
 - Public privacy policy source: [privacy-policy.md](privacy-policy.md)
-- Public privacy policy page: [privacy-policy.html](privacy-policy.html)
+- Public privacy policy page source: [../frontend/privacy-policy.html](../frontend/privacy-policy.html)
 - Manual browser evidence: [manual-testing.md](manual-testing.md)
 - Cost monitoring evidence: [google-cloud-cost-monitoring-checklist.md](google-cloud-cost-monitoring-checklist.md)

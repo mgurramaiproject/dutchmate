@@ -2,11 +2,11 @@
 
 Last updated: 2026-06-17
 
-DutchMate's public documentation pages are intended to be served from the repository's `docs/` directory through GitHub Pages.
+DutchMate's public marketing and privacy pages are intended to be served from the repository's `frontend/` directory through Render Static Sites.
 
 ## Current Status
 
-GitHub Pages is not enabled yet for this repository.
+GitHub Pages is not enabled for this repository.
 
 On 2026-06-17, enabling GitHub Pages through the GitHub API returned:
 
@@ -14,31 +14,31 @@ On 2026-06-17, enabling GitHub Pages through the GitHub API returned:
 Your current plan does not support GitHub Pages for this repository.
 ```
 
-Before browser-store submission, either make GitHub Pages available for this repo or publish `privacy-policy.html` through another stable public host.
+Before browser-store submission, deploy the `dutchmate-frontend` Render Static Site and confirm `privacy-policy.html` opens publicly.
 
 ## Intended Public URLs
 
-If GitHub Pages is enabled for this repository with source `main` and folder `/docs`, these URLs should be available:
+If the Render Static Site is created with the service name `dutchmate-frontend`, these URLs should be available:
 
 ```text
-https://mgurramaiproject.github.io/dutchmate-extension/
-https://mgurramaiproject.github.io/dutchmate-extension/privacy-policy.html
+https://dutchmate-frontend.onrender.com/
+https://dutchmate-frontend.onrender.com/privacy-policy.html
 ```
 
 Use the privacy policy URL in browser-store submission fields only after confirming the page opens publicly.
 
 ## Files
 
-- [index.html](index.html) is the small public entry page.
-- [privacy-policy.html](privacy-policy.html) is the browser-store privacy policy page.
-- [.nojekyll](.nojekyll) tells GitHub Pages to serve the files directly without Jekyll processing.
+- [../frontend/index.html](../frontend/index.html) is the public marketing homepage.
+- [../frontend/privacy-policy.html](../frontend/privacy-policy.html) is the browser-store privacy policy page.
+- [../frontend/styles.css](../frontend/styles.css) contains the static site styling.
 
-## GitHub Pages Setting
+## Render Static Site Setting
 
-In GitHub, configure:
+The `render.yaml` blueprint includes:
 
 ```text
-Settings > Pages > Build and deployment > Deploy from a branch
-Branch: main
-Folder: /docs
+Service type: Static Site
+Name: dutchmate-frontend
+Publish path: frontend
 ```

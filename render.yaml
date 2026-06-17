@@ -1,4 +1,9 @@
 services:
+  - type: static
+    name: dutchmate-frontend
+    buildCommand: echo "Static frontend"
+    staticPublishPath: frontend
+
   - type: web
     name: dutchmate-backend
     runtime: node

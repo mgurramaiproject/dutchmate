@@ -40,7 +40,7 @@ Use the hosted URL for:
 
 ```text
 Planned, pending public hosting:
-https://mgurramaiproject.github.io/dutchmate-extension/privacy-policy.html
+https://dutchmate-frontend.onrender.com/privacy-policy.html
 ```
 
 Before submission, confirm the privacy policy opens at the public URL.
