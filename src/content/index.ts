@@ -7,10 +7,6 @@ import {
 } from "./runtime-translation-client";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
-import {
-  DEFAULT_LANGUAGE_ROLES,
-  normalizeLanguageRoles,
-} from "../shared/language-roles";
 import type { MvpLanguageCode } from "../shared/languages";
 
 const MIN_TEXT_LENGTH = 1;
@@ -20,6 +16,11 @@ const MAX_HOVER_CONTEXT_LENGTH = 180;
 const MIN_SELECTION_LENGTH = 50;
 const MAX_SELECTION_LENGTH = 150;
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
+const defaultLanguageRoles = {
+  learningLanguage: "nl" as const,
+  nativeLanguage: "te" as const,
+  bridgeLanguage: "en" as const,
+};
 const defaultSettings: ExtensionSettings = {
   isEnabled: true,
   translateOnHover: true,
@@ -30,7 +31,7 @@ const defaultSettings: ExtensionSettings = {
   sourceLanguage: "auto",
   targetLanguage: "en",
   translateToOtherMvpLanguages: true,
-  ...DEFAULT_LANGUAGE_ROLES,
+  ...defaultLanguageRoles,
   providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
   providerApiKey: "",
 };
@@ -613,27 +614,10 @@ function handleStorageChanged(changes: Record<string, StorageChange>, areaName: 
     return;
   }
 
-  currentSettings = {
+  currentSettings = normalizeCurrentLanguageRoles({
     ...currentSettings,
     ...settingChangesToPartialSettings(changes),
-  };
-  currentSettings = {
-    ...currentSettings,
-    ...normalizeLanguageRoles({
-      learningLanguage: getTargetLanguageSetting(
-        currentSettings.learningLanguage,
-        defaultSettings.learningLanguage,
-      ),
-      nativeLanguage: getTargetLanguageSetting(
-        currentSettings.nativeLanguage,
-        defaultSettings.nativeLanguage,
-      ),
-      bridgeLanguage: getTargetLanguageSetting(
-        currentSettings.bridgeLanguage,
-        defaultSettings.bridgeLanguage,
-      ),
-    }),
-  };
+  });
 
   if (!currentSettings.isEnabled) {
     hideTooltip();
@@ -677,22 +661,7 @@ async function readSettings(): Promise<ExtensionSettings> {
         return;
       }
 
-      const languageRoles = normalizeLanguageRoles({
-        learningLanguage: getTargetLanguageSetting(
-          stored.learningLanguage,
-          defaultSettings.learningLanguage,
-        ),
-        nativeLanguage: getTargetLanguageSetting(
-          stored.nativeLanguage,
-          defaultSettings.nativeLanguage,
-        ),
-        bridgeLanguage: getTargetLanguageSetting(
-          stored.bridgeLanguage,
-          defaultSettings.bridgeLanguage,
-        ),
-      });
-
-      resolve({
+      resolve(normalizeCurrentLanguageRoles({
         isEnabled: getBooleanSetting(stored.isEnabled, defaultSettings.isEnabled),
         translateOnHover: getBooleanSetting(stored.translateOnHover, defaultSettings.translateOnHover),
         translateOnSelection: getBooleanSetting(
@@ -716,12 +685,72 @@ async function readSettings(): Promise<ExtensionSettings> {
           stored.translateToOtherMvpLanguages,
           defaultSettings.translateToOtherMvpLanguages,
         ),
-        ...languageRoles,
         providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
         providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
-      });
+        learningLanguage: getTargetLanguageSetting(
+          stored.learningLanguage,
+          defaultSettings.learningLanguage,
+        ),
+        nativeLanguage: getTargetLanguageSetting(
+          stored.nativeLanguage,
+          defaultSettings.nativeLanguage,
+        ),
+        bridgeLanguage: getTargetLanguageSetting(
+          stored.bridgeLanguage,
+          defaultSettings.bridgeLanguage,
+        ),
+      }));
     });
   });
+}
+
+function normalizeCurrentLanguageRoles(settings: ExtensionSettings): ExtensionSettings {
+  const learningLanguage = getTargetLanguageSetting(
+    settings.learningLanguage,
+    defaultSettings.learningLanguage,
+  );
+  const nativeLanguage = getTargetLanguageSetting(settings.nativeLanguage, defaultSettings.nativeLanguage);
+  const bridgeLanguage = getTargetLanguageSetting(
+    settings.bridgeLanguage,
+    defaultSettings.bridgeLanguage,
+  );
+
+  if (learningLanguage === nativeLanguage) {
+    return {
+      ...settings,
+      learningLanguage,
+      nativeLanguage: bridgeLanguage,
+      bridgeLanguage: nativeLanguage,
+    };
+  }
+
+  if (learningLanguage === bridgeLanguage) {
+    return {
+      ...settings,
+      learningLanguage,
+      bridgeLanguage: nativeLanguage,
+      nativeLanguage,
+    };
+  }
+
+  if (nativeLanguage === bridgeLanguage) {
+    return {
+      ...settings,
+      learningLanguage,
+      nativeLanguage,
+      bridgeLanguage:
+        learningLanguage === defaultLanguageRoles.learningLanguage
+          ? defaultLanguageRoles.bridgeLanguage
+          : defaultLanguageRoles.learningLanguage,
+    };
+  }
+
+  return {
+    ...settings,
+    learningLanguage,
+    nativeLanguage,
+    bridgeLanguage,
+  };
 }
 
 function getHoverTranslationModeSetting(value: unknown, fallback: string): string {
