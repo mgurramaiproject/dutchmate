@@ -39,7 +39,7 @@ dutchmate.project@gmail.com
 Privacy policy URL:
 
 ```text
-Use the public hosted URL for docs/privacy-policy.html.
+https://mgurramaiproject.github.io/dutchmate-extension/privacy-policy.html
 ```
 
 ## Full Description
@@ -144,7 +144,7 @@ No pressure at all, but feel free to try it if it sounds useful. If anyone finds
 ## Assets Still Needed
 
 - Chrome Web Store screenshots from [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md).
-- Public privacy policy URL.
+- Confirmed public privacy policy URL.
 - Final zipped Chrome artifact.
 - Store icon assets if required by the dashboard.
 

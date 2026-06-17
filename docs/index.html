@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DutchMate</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fbfaf7;
+        --text: #24211d;
+        --muted: #6b6258;
+        --border: #ddd5ca;
+        --link: #1769aa;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #171614;
+          --text: #f3eee7;
+          --muted: #c7baaa;
+          --border: #3e3932;
+          --link: #8ec5ff;
+        }
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 56px 20px 72px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 2rem;
+        line-height: 1.2;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      .summary {
+        color: var(--muted);
+      }
+
+      .links {
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+      }
+
+      a {
+        color: var(--link);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>DutchMate</h1>
+      <p class="summary">DutchMate is a browser extension for Dutch learners who want quick hover and selection translations while reading websites.</p>
+      <div class="links">
+        <p><a href="privacy-policy.html">Privacy Policy</a></p>
+      </div>
+    </main>
+  </body>
+</html>
