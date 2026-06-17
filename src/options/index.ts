@@ -8,6 +8,12 @@ import {
   type ExtensionSettings,
   type HoverTranslationMode,
 } from "../shared/settings";
+import {
+  applyLanguageRoleSelection,
+  normalizeLanguageRoles,
+  type LanguageRole,
+  type LanguageRoleSettings,
+} from "../shared/language-roles";
 import { MVP_LANGUAGES, getMvpLanguageCode, getSourceLanguageCode } from "../shared/languages";
 import { getCachedWordCount } from "./cache-summary";
 import "./styles.css";
@@ -25,11 +31,9 @@ const hoverDelayMs = document.querySelector<HTMLInputElement>("#hover-delay-ms")
 const maxSelectionLength = document.querySelector<HTMLInputElement>("#max-selection-length");
 const hoverDelayValue = document.querySelector<HTMLOutputElement>("#hover-delay-value");
 const maxSelectionLengthValue = document.querySelector<HTMLOutputElement>("#max-selection-length-value");
-const sourceLanguage = document.querySelector<HTMLSelectElement>("#source-language");
-const targetLanguage = document.querySelector<HTMLSelectElement>("#target-language");
-const translateToOtherMvpLanguages = document.querySelector<HTMLInputElement>(
-  "#translate-to-other-mvp-languages",
-);
+const learningLanguage = document.querySelector<HTMLSelectElement>("#learning-language");
+const nativeLanguage = document.querySelector<HTMLSelectElement>("#native-language");
+const bridgeLanguage = document.querySelector<HTMLSelectElement>("#bridge-language");
 let providerEndpoint: HTMLInputElement | null = null;
 let providerApiKey: HTMLInputElement | null = null;
 let testEndpoint: HTMLButtonElement | null = null;
@@ -37,6 +41,7 @@ const cacheCount = document.querySelector<HTMLSpanElement>("#cache-count");
 const clearCache = document.querySelector<HTMLButtonElement>("#clear-cache");
 const status = document.querySelector<HTMLParagraphElement>("#status");
 let statusTimer: number | undefined;
+let currentLanguageRoles: LanguageRoleSettings = normalizeLanguageRoles(undefined);
 
 renderAdvancedLocalTesting();
 renderLanguageOptions();
@@ -54,21 +59,24 @@ clearCache?.addEventListener("click", () => {
 
 hoverDelayMs?.addEventListener("input", updateTuningValueLabels);
 maxSelectionLength?.addEventListener("input", updateTuningValueLabels);
+learningLanguage?.addEventListener("change", () => {
+  updateLanguageRoleSelection("learningLanguage", learningLanguage.value);
+});
+nativeLanguage?.addEventListener("change", () => {
+  updateLanguageRoleSelection("nativeLanguage", nativeLanguage.value);
+});
+bridgeLanguage?.addEventListener("change", () => {
+  updateLanguageRoleSelection("bridgeLanguage", bridgeLanguage.value);
+});
 
 async function restoreSettings(): Promise<void> {
   const settings = await readSettings();
-
-  if (sourceLanguage) {
-    sourceLanguage.value = settings.sourceLanguage;
-  }
-
-  if (targetLanguage) {
-    targetLanguage.value = settings.targetLanguage;
-  }
-
-  if (translateToOtherMvpLanguages) {
-    translateToOtherMvpLanguages.checked = settings.translateToOtherMvpLanguages;
-  }
+  currentLanguageRoles = normalizeLanguageRoles({
+    learningLanguage: settings.learningLanguage,
+    nativeLanguage: settings.nativeLanguage,
+    bridgeLanguage: settings.bridgeLanguage,
+  });
+  syncLanguageRoleInputs();
 
   if (isEnabled) {
     isEnabled.checked = settings.isEnabled;
@@ -116,6 +124,7 @@ async function saveSettings(): Promise<void> {
   const endpointError = validateProviderEndpoint(endpoint);
   const hoverDelayError = validateHoverDelayMs(hoverDelayValue);
   const selectionLengthError = validateMaxSelectionLength(maxSelectionLengthValue);
+  const languageRoles = normalizeLanguageRoles(currentLanguageRoles);
 
   if (endpointError) {
     showStatus(endpointError, "error");
@@ -145,10 +154,12 @@ async function saveSettings(): Promise<void> {
     ),
     hoverDelayMs: hoverDelayValue,
     maxSelectionLength: maxSelectionLengthValue,
-    sourceLanguage: getSourceLanguageCode(sourceLanguage?.value, defaultSettings.sourceLanguage),
-    targetLanguage: getMvpLanguageCode(targetLanguage?.value, defaultSettings.targetLanguage),
-    translateToOtherMvpLanguages:
-      translateToOtherMvpLanguages?.checked ?? defaultSettings.translateToOtherMvpLanguages,
+    sourceLanguage: getSourceLanguageCode("auto", defaultSettings.sourceLanguage),
+    targetLanguage: languageRoles.bridgeLanguage,
+    translateToOtherMvpLanguages: true,
+    learningLanguage: languageRoles.learningLanguage,
+    nativeLanguage: languageRoles.nativeLanguage,
+    bridgeLanguage: languageRoles.bridgeLanguage,
     providerEndpoint: endpoint,
     providerApiKey: providerApiKey ? providerApiKey.value.trim() : currentSettings.providerApiKey,
   };
@@ -322,8 +333,8 @@ async function requestEndpointTest(endpoint: string, apiKey: string): Promise<st
     headers,
     body: JSON.stringify({
       text: "bonjour",
-      sourceLanguage: getSourceLanguageCode(sourceLanguage?.value, defaultSettings.sourceLanguage),
-      targetLanguage: getMvpLanguageCode(targetLanguage?.value, defaultSettings.targetLanguage),
+      sourceLanguage: getSourceLanguageCode("auto", defaultSettings.sourceLanguage),
+      targetLanguage: currentLanguageRoles.bridgeLanguage,
       context: "selection",
     }),
   });
@@ -347,34 +358,39 @@ async function requestEndpointTest(endpoint: string, apiKey: string): Promise<st
 }
 
 function renderLanguageOptions(): void {
-  if (sourceLanguage) {
-    const autoOption = document.createElement("option");
-    autoOption.value = "auto";
-    autoOption.textContent = "Auto";
+  const options = MVP_LANGUAGES.map((language) => {
+    const option = document.createElement("option");
+    option.value = language.code;
+    option.textContent = language.label;
+    return option;
+  });
 
-    sourceLanguage.replaceChildren(
-      autoOption,
-      ...MVP_LANGUAGES.map((language) => {
-        const option = document.createElement("option");
-        option.value = language.code;
-        option.textContent = language.label;
-        return option;
-      }),
-    );
-  }
+  learningLanguage?.replaceChildren(...options.map((option) => option.cloneNode(true)));
+  nativeLanguage?.replaceChildren(...options.map((option) => option.cloneNode(true)));
+  bridgeLanguage?.replaceChildren(...options.map((option) => option.cloneNode(true)));
+}
 
-  if (!targetLanguage) {
-    return;
-  }
-
-  targetLanguage.replaceChildren(
-    ...MVP_LANGUAGES.map((language) => {
-      const option = document.createElement("option");
-      option.value = language.code;
-      option.textContent = language.label;
-      return option;
-    }),
+function updateLanguageRoleSelection(role: LanguageRole, selectedValue: string): void {
+  currentLanguageRoles = applyLanguageRoleSelection(
+    currentLanguageRoles,
+    role,
+    getMvpLanguageCode(selectedValue, currentLanguageRoles[role]),
   );
+  syncLanguageRoleInputs();
+}
+
+function syncLanguageRoleInputs(): void {
+  if (learningLanguage) {
+    learningLanguage.value = currentLanguageRoles.learningLanguage;
+  }
+
+  if (nativeLanguage) {
+    nativeLanguage.value = currentLanguageRoles.nativeLanguage;
+  }
+
+  if (bridgeLanguage) {
+    bridgeLanguage.value = currentLanguageRoles.bridgeLanguage;
+  }
 }
 
 function setTestButtonBusy(isBusy: boolean): void {

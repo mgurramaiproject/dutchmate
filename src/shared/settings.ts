@@ -7,6 +7,11 @@ import {
   type MvpLanguageCode,
   type SourceLanguageCode,
 } from "./languages";
+import {
+  DEFAULT_LANGUAGE_ROLES,
+  normalizeLanguageRoles,
+  type LanguageRoleSettings,
+} from "./language-roles";
 import { DEFAULT_PROVIDER_ENDPOINT } from "./provider-endpoint";
 
 export const HOVER_DELAY_LIMITS = {
@@ -30,6 +35,9 @@ export type ExtensionSettings = {
   sourceLanguage: SourceLanguageCode;
   targetLanguage: MvpLanguageCode;
   translateToOtherMvpLanguages: boolean;
+  learningLanguage: MvpLanguageCode;
+  nativeLanguage: MvpLanguageCode;
+  bridgeLanguage: MvpLanguageCode;
   providerEndpoint: string;
   providerApiKey: string;
 };
@@ -44,12 +52,21 @@ export const defaultSettings: ExtensionSettings = {
   sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
   targetLanguage: DEFAULT_TARGET_LANGUAGE,
   translateToOtherMvpLanguages: true,
+  ...DEFAULT_LANGUAGE_ROLES,
   providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
   providerApiKey: "",
 };
 
 export async function readSettings(): Promise<ExtensionSettings> {
   const stored = await browser.storage.sync.get(defaultSettings);
+  const languageRoles: LanguageRoleSettings = normalizeLanguageRoles({
+    learningLanguage: getMvpLanguageCode(
+      stored.learningLanguage,
+      defaultSettings.learningLanguage,
+    ),
+    nativeLanguage: getMvpLanguageCode(stored.nativeLanguage, defaultSettings.nativeLanguage),
+    bridgeLanguage: getMvpLanguageCode(stored.bridgeLanguage, defaultSettings.bridgeLanguage),
+  });
 
   return {
     isEnabled: getBooleanSetting(stored.isEnabled, defaultSettings.isEnabled),
@@ -75,6 +92,7 @@ export async function readSettings(): Promise<ExtensionSettings> {
       stored.translateToOtherMvpLanguages,
       defaultSettings.translateToOtherMvpLanguages,
     ),
+    ...languageRoles,
     providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
     providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
   };

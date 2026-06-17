@@ -7,6 +7,11 @@ import {
 } from "./runtime-translation-client";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
+import {
+  DEFAULT_LANGUAGE_ROLES,
+  normalizeLanguageRoles,
+} from "../shared/language-roles";
+import type { MvpLanguageCode } from "../shared/languages";
 
 const MIN_TEXT_LENGTH = 1;
 const DEFAULT_PROVIDER_ENDPOINT = "https://dutchmate-backend.onrender.com/translate";
@@ -25,6 +30,7 @@ const defaultSettings: ExtensionSettings = {
   sourceLanguage: "auto",
   targetLanguage: "en",
   translateToOtherMvpLanguages: true,
+  ...DEFAULT_LANGUAGE_ROLES,
   providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
   providerApiKey: "",
 };
@@ -111,8 +117,11 @@ type ExtensionSettings = {
   hoverDelayMs: number;
   maxSelectionLength: number;
   sourceLanguage: string;
-  targetLanguage: string;
+  targetLanguage: MvpLanguageCode;
   translateToOtherMvpLanguages: boolean;
+  learningLanguage: MvpLanguageCode;
+  nativeLanguage: MvpLanguageCode;
+  bridgeLanguage: MvpLanguageCode;
   providerEndpoint: string;
   providerApiKey: string;
 };
@@ -608,6 +617,23 @@ function handleStorageChanged(changes: Record<string, StorageChange>, areaName: 
     ...currentSettings,
     ...settingChangesToPartialSettings(changes),
   };
+  currentSettings = {
+    ...currentSettings,
+    ...normalizeLanguageRoles({
+      learningLanguage: getTargetLanguageSetting(
+        currentSettings.learningLanguage,
+        defaultSettings.learningLanguage,
+      ),
+      nativeLanguage: getTargetLanguageSetting(
+        currentSettings.nativeLanguage,
+        defaultSettings.nativeLanguage,
+      ),
+      bridgeLanguage: getTargetLanguageSetting(
+        currentSettings.bridgeLanguage,
+        defaultSettings.bridgeLanguage,
+      ),
+    }),
+  };
 
   if (!currentSettings.isEnabled) {
     hideTooltip();
@@ -631,6 +657,9 @@ function settingChangesToPartialSettings(
     translateToOtherMvpLanguages: getOptionalBooleanSetting(
       changes.translateToOtherMvpLanguages?.newValue,
     ),
+    learningLanguage: getOptionalTargetLanguageSetting(changes.learningLanguage?.newValue),
+    nativeLanguage: getOptionalTargetLanguageSetting(changes.nativeLanguage?.newValue),
+    bridgeLanguage: getOptionalTargetLanguageSetting(changes.bridgeLanguage?.newValue),
     providerEndpoint: getOptionalStringSetting(changes.providerEndpoint?.newValue),
     providerApiKey: getOptionalStringSetting(changes.providerApiKey?.newValue),
   };
@@ -647,6 +676,21 @@ async function readSettings(): Promise<ExtensionSettings> {
         resolve(defaultSettings);
         return;
       }
+
+      const languageRoles = normalizeLanguageRoles({
+        learningLanguage: getTargetLanguageSetting(
+          stored.learningLanguage,
+          defaultSettings.learningLanguage,
+        ),
+        nativeLanguage: getTargetLanguageSetting(
+          stored.nativeLanguage,
+          defaultSettings.nativeLanguage,
+        ),
+        bridgeLanguage: getTargetLanguageSetting(
+          stored.bridgeLanguage,
+          defaultSettings.bridgeLanguage,
+        ),
+      });
 
       resolve({
         isEnabled: getBooleanSetting(stored.isEnabled, defaultSettings.isEnabled),
@@ -672,6 +716,7 @@ async function readSettings(): Promise<ExtensionSettings> {
           stored.translateToOtherMvpLanguages,
           defaultSettings.translateToOtherMvpLanguages,
         ),
+        ...languageRoles,
         providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
         providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
       });
@@ -687,8 +732,10 @@ function getStringSetting(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;
 }
 
-function getTargetLanguageSetting(value: unknown, fallback: string): string {
-  return typeof value === "string" && supportedTargetLanguages.has(value) ? value : fallback;
+function getTargetLanguageSetting(value: unknown, fallback: MvpLanguageCode): MvpLanguageCode {
+  return typeof value === "string" && supportedTargetLanguages.has(value)
+    ? (value as MvpLanguageCode)
+    : fallback;
 }
 
 function getSourceLanguageSetting(value: unknown, fallback: string): string {
@@ -716,8 +763,10 @@ function getOptionalStringSetting(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-function getOptionalTargetLanguageSetting(value: unknown): string | undefined {
-  return typeof value === "string" && supportedTargetLanguages.has(value) ? value : undefined;
+function getOptionalTargetLanguageSetting(value: unknown): MvpLanguageCode | undefined {
+  return typeof value === "string" && supportedTargetLanguages.has(value)
+    ? (value as MvpLanguageCode)
+    : undefined;
 }
 
 function getOptionalSourceLanguageSetting(value: unknown): string | undefined {
@@ -800,9 +849,20 @@ function getActiveTargetLanguages(sourceLanguage: string): string[] {
     return [currentSettings.targetLanguage];
   }
 
-  return mvpLanguages
-    .map((language) => language.code)
-    .filter((languageCode) => languageCode !== sourceLanguage);
+  const orderedLanguages =
+    sourceLanguage === currentSettings.learningLanguage
+      ? [
+          currentSettings.bridgeLanguage,
+          currentSettings.nativeLanguage,
+          currentSettings.learningLanguage,
+        ]
+      : [
+          currentSettings.learningLanguage,
+          currentSettings.bridgeLanguage,
+          currentSettings.nativeLanguage,
+        ];
+
+  return Array.from(new Set(orderedLanguages)).filter((languageCode) => languageCode !== sourceLanguage);
 }
 
 function getActiveSourceLanguage(text: string, sourceLanguageHint?: string): string {

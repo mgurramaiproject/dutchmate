@@ -87,24 +87,32 @@
 
         <section class="settings-section" aria-labelledby="languages-heading">
           <h2 id="languages-heading">Languages</h2>
+          <p class="settings-note language-intro">
+            Choose your three reading-support languages. DutchMate automatically detects whether a page is Dutch, English, or Telugu, then shows the other two.
+          </p>
 
-          <label>
-            Source language
-            <select id="source-language" name="sourceLanguage"></select>
+          <label class="language-setting">
+            <span>
+              <span class="setting-label">Language you're learning</span>
+              <span class="setting-help">The language you want to get better at.</span>
+            </span>
+            <select id="learning-language" name="learningLanguage"></select>
           </label>
 
-          <label>
-            Target language
-            <select id="target-language" name="targetLanguage"></select>
+          <label class="language-setting">
+            <span>
+              <span class="setting-label">Your language</span>
+              <span class="setting-help">Your native language, or the one that feels most natural to you.</span>
+            </span>
+            <select id="native-language" name="nativeLanguage"></select>
           </label>
 
-          <label class="checkbox-label">
-            <input
-              id="translate-to-other-mvp-languages"
-              name="translateToOtherMvpLanguages"
-              type="checkbox"
-            />
-            Translate into both other languages
+          <label class="language-setting">
+            <span>
+              <span class="setting-label">Bridge language</span>
+              <span class="setting-help">A support language you already understand well, such as English.</span>
+            </span>
+            <select id="bridge-language" name="bridgeLanguage"></select>
           </label>
         </section>
 

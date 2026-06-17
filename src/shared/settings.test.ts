@@ -43,6 +43,21 @@ describe("settings", () => {
     });
   });
 
+  it("repairs duplicate stored learner language roles", async () => {
+    storageSyncGet.mockResolvedValue({
+      ...defaultSettings,
+      learningLanguage: "nl",
+      nativeLanguage: "nl",
+      bridgeLanguage: "en",
+    });
+
+    await expect(readSettings()).resolves.toMatchObject({
+      learningLanguage: "nl",
+      nativeLanguage: "te",
+      bridgeLanguage: "en",
+    });
+  });
+
   it("rejects selection limits outside the configured range", () => {
     expect(validateMaxSelectionLength(600)).toBe(
       "Max selected text length must be between 50 and 150.",
