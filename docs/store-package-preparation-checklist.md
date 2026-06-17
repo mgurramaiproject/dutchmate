@@ -80,6 +80,15 @@ Keep newest entries first.
 
 ```text
 Date: 2026-06-17
+Commit: 9868a9c
+Inspector: MGurram
+Result: Pass
+Chrome manifest: Package loaded from release smoke unzip folder. Hover/selection translations worked after a transient initial Chrome translation error resolved on retry.
+Firefox manifest: Package loaded from release smoke unzip folder. Hover/selection translations worked.
+Options build: Pass; Provider endpoint, Provider API key, and Test endpoint controls were hidden from the normal Options UI.
+Notes: Package smoke used generated zip artifacts from release/dutchmate-chrome-0.1.0.zip and release/dutchmate-firefox-0.1.0.zip.
+
+Date: 2026-06-17
 Commit: e7b6bf4
 Inspector: Codex
 Result: Pass
