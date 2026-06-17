@@ -39,7 +39,7 @@ DutchMate provides quick reading support for Dutch learners by translating user-
 Use the hosted URL for:
 
 ```text
-docs/privacy-policy.md
+docs/privacy-policy.html
 ```
 
 Before submission, publish the privacy policy somewhere stable and public, such as the project website, a GitHub Pages page, or another durable public URL.

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DutchMate Privacy Policy</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fbfaf7;
+        --text: #24211d;
+        --muted: #6b6258;
+        --border: #ddd5ca;
+        --link: #1769aa;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #171614;
+          --text: #f3eee7;
+          --muted: #c7baaa;
+          --border: #3e3932;
+          --link: #8ec5ff;
+        }
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 48px 20px 72px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 2rem;
+        line-height: 1.2;
+      }
+
+      h2 {
+        margin-top: 36px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        font-size: 1.25rem;
+      }
+
+      p,
+      li {
+        font-size: 1rem;
+      }
+
+      .updated {
+        margin-top: 0;
+        color: var(--muted);
+      }
+
+      a {
+        color: var(--link);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>DutchMate Privacy Policy</h1>
+      <p class="updated">Last updated: 2026-06-17</p>
+
+      <p>DutchMate is a browser extension that helps people read Dutch websites by translating hovered words and selected text into English, Dutch, and Telugu.</p>
+      <p>DutchMate does not require an account for the MVP.</p>
+      <p>When you ask DutchMate to translate something, the extension sends that text to the DutchMate backend. The backend uses Google Cloud Translation to return the translation.</p>
+      <p>DutchMate does not sell user data and does not use translated text for advertising.</p>
+
+      <h2>Data Sent For Translation</h2>
+      <p>When translation is enabled, DutchMate may send these details to the DutchMate backend:</p>
+      <ul>
+        <li>hovered word or nearby sentence context, depending on the selected hover mode;</li>
+        <li>selected word, phrase, or short sentence;</li>
+        <li>source language setting;</li>
+        <li>target language setting;</li>
+        <li>translation context, such as hover or selection.</li>
+      </ul>
+      <p>The DutchMate backend then sends the text needed for translation to Google Cloud Translation.</p>
+      <p>Avoid using DutchMate on pages that contain private personal information if you do not want that text sent for translation.</p>
+
+      <h2>Data Stored Locally</h2>
+      <p>DutchMate stores settings in your browser, including:</p>
+      <ul>
+        <li>whether the extension is enabled;</li>
+        <li>hover and selection translation settings;</li>
+        <li>source and target language settings;</li>
+        <li>provider endpoint setting;</li>
+        <li>cache and privacy preferences.</li>
+      </ul>
+      <p>DutchMate also stores a local translation cache for successful selected single-word lookups. This cache stays on your device. It is intended to make repeated intentional lookups faster and reduce translation-provider calls.</p>
+      <p>DutchMate does not persistently cache:</p>
+      <ul>
+        <li>hovered words;</li>
+        <li>selected phrases;</li>
+        <li>selected sentences;</li>
+        <li>failed translations.</li>
+      </ul>
+      <p>Users can clear the local translation cache from the Options page.</p>
+
+      <h2>Backend Logging</h2>
+      <p>The DutchMate backend logs operational metadata for reliability, debugging, abuse prevention, and cost control, such as:</p>
+      <ul>
+        <li>request status;</li>
+        <li>duration;</li>
+        <li>source and target language codes;</li>
+        <li>translation context;</li>
+        <li>text length;</li>
+        <li>provider status;</li>
+        <li>rate-limit state.</li>
+      </ul>
+      <p>The backend is designed not to log the raw text you ask to translate or the translated result.</p>
+
+      <h2>Accounts And Payments</h2>
+      <p>The MVP does not require DutchMate user accounts. The MVP does not include paid plans, subscriptions, or user billing.</p>
+
+      <h2>Third-Party Provider</h2>
+      <p>DutchMate currently uses Google Cloud Translation behind the DutchMate backend.</p>
+      <p>Google Cloud Translation receives the text needed to complete the translation request. This means text you ask DutchMate to translate is processed by Google Cloud Translation as part of providing the translation result.</p>
+
+      <h2>Data Sharing</h2>
+      <p>DutchMate does not sell user data. DutchMate does not use translated text for advertising. DutchMate does not share translated text with third parties except as needed to provide translations through the configured translation provider.</p>
+
+      <h2>User Control</h2>
+      <p>Users can:</p>
+      <ul>
+        <li>disable the extension;</li>
+        <li>disable hover translation;</li>
+        <li>disable selected-text translation;</li>
+        <li>clear the local selected-word translation cache;</li>
+        <li>change source and target language settings.</li>
+      </ul>
+      <p>If you do not want text from a page sent for translation, do not hover or select text with DutchMate enabled on that page. You can also disable the extension from Options.</p>
+
+      <h2>Contact</h2>
+      <p>For questions or feedback, contact <a href="mailto:dutchmate.project@gmail.com">dutchmate.project@gmail.com</a>.</p>
+    </main>
+  </body>
+</html>

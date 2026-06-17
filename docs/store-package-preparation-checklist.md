@@ -159,7 +159,7 @@ Prepare these before submission:
 
 - short description;
 - longer description;
-- privacy policy public URL;
+- privacy policy public URL for [privacy-policy.html](privacy-policy.html);
 - support/contact email;
 - screenshots;
 - category;

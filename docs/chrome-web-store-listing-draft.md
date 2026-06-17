@@ -39,7 +39,7 @@ dutchmate.project@gmail.com
 Privacy policy URL:
 
 ```text
-Use the public hosted URL for docs/privacy-policy.md.
+Use the public hosted URL for docs/privacy-policy.html.
 ```
 
 ## Full Description
@@ -153,5 +153,6 @@ No pressure at all, but feel free to try it if it sounds useful. If anyone finds
 - Package checklist: [store-package-preparation-checklist.md](store-package-preparation-checklist.md)
 - Store disclosure draft: [store-disclosure-draft.md](store-disclosure-draft.md)
 - Public privacy policy source: [privacy-policy.md](privacy-policy.md)
+- Public privacy policy page: [privacy-policy.html](privacy-policy.html)
 - Manual browser evidence: [manual-testing.md](manual-testing.md)
 - Cost monitoring evidence: [google-cloud-cost-monitoring-checklist.md](google-cloud-cost-monitoring-checklist.md)
