@@ -1,10 +1,6 @@
 # DutchMate Privacy Policy
 
-Last updated: 2026-06-16
-
-This draft was used to prepare [privacy-policy.md](privacy-policy.md), the public-facing MVP privacy policy. Keep this file for store-disclosure working notes.
-
-## Summary
+Last updated: 2026-06-17
 
 DutchMate is a browser extension that helps people read Dutch websites by translating hovered words and selected text into English, Dutch, and Telugu.
 
@@ -96,16 +92,3 @@ For questions or feedback, contact:
 ```text
 dutchmate.project@gmail.com
 ```
-
-## Store Disclosure Notes
-
-Use this policy as the basis for browser-store privacy fields.
-
-Important disclosure points:
-
-- DutchMate transmits user-selected or hovered text for translation.
-- DutchMate uses a backend service at `https://dutchmate-backend.onrender.com`.
-- DutchMate uses Google Cloud Translation as the current translation provider.
-- DutchMate stores settings and selected single-word translation cache locally.
-- DutchMate does not require accounts in the MVP.
-- DutchMate does not sell user data.

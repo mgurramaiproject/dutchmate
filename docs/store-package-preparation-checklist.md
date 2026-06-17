@@ -9,7 +9,7 @@ Use this checklist before uploading DutchMate to the Chrome Web Store or Firefox
 - Current release commit.
 - Passing `corepack pnpm verify`.
 - Latest Chrome and Firefox manual pass in [manual-testing.md](manual-testing.md).
-- Privacy and store disclosure copy from [privacy-policy-draft.md](privacy-policy-draft.md) and [store-disclosure-draft.md](store-disclosure-draft.md).
+- Privacy and store disclosure copy from [privacy-policy.md](privacy-policy.md) and [store-disclosure-draft.md](store-disclosure-draft.md).
 - Google Cloud cost monitoring evidence from [google-cloud-cost-monitoring-checklist.md](google-cloud-cost-monitoring-checklist.md).
 
 ## Build Commands

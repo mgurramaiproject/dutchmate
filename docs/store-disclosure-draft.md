@@ -4,7 +4,7 @@ Last updated: 2026-06-16
 
 Use this as working copy for Chrome Web Store and Firefox Add-ons submission fields. Recheck the store forms during submission, because field names and policy wording can change.
 
-This draft is based on [privacy-policy-draft.md](privacy-policy-draft.md) and the current MVP behavior.
+This draft is based on [privacy-policy.md](privacy-policy.md) and the current MVP behavior.
 
 ## Product Summary
 
@@ -39,7 +39,7 @@ DutchMate provides quick reading support for Dutch learners by translating user-
 Use the hosted URL for:
 
 ```text
-docs/privacy-policy-draft.md
+docs/privacy-policy.md
 ```
 
 Before submission, publish the privacy policy somewhere stable and public, such as the project website, a GitHub Pages page, or another durable public URL.
