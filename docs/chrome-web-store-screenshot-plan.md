@@ -55,6 +55,8 @@ assets/store/chrome/promo/small-promo-440x280.png
 assets/store/chrome/icon/icon-128.png
 ```
 
+The folder structure is prepared in [assets/store/chrome/README.md](../assets/store/chrome/README.md).
+
 ## Promotional Image Notes
 
 The small promotional image should communicate DutchMate's purpose at a glance. Avoid turning it into a screenshot. Keep text minimal or avoid text entirely, because Chrome says promotional images are not locale-specific.
