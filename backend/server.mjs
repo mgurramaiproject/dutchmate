@@ -21,6 +21,7 @@ export function createTranslationBackendServer({
 }) {
   const rateLimiter = createRateLimiter(rateLimit);
   const safeDiagnostics = getSafeDiagnostics(diagnostics);
+  const runtimeSummary = createRuntimeSummary();
 
   return createServer(async (request, response) => {
     setCorsHeaders(response);
@@ -34,6 +35,7 @@ export function createTranslationBackendServer({
       sendJson(response, 200, {
         ok: true,
         service: "dutchmate-backend",
+        runtime: runtimeSummary.snapshot(),
       });
       return;
     }
@@ -48,6 +50,7 @@ export function createTranslationBackendServer({
     const startedAt = Date.now();
     const rateLimitResult = rateLimiter.check(getClientKey(request));
     if (!rateLimitResult.allowed) {
+      runtimeSummary.recordClientRateLimit();
       response.setHeader("Retry-After", rateLimitResult.retryAfterSeconds.toString());
       sendJson(response, 429, {
         error: "Too many translation requests. Try again soon.",
@@ -65,6 +68,7 @@ export function createTranslationBackendServer({
       const validationError = validateTranslationRequest(body);
 
       if (validationError) {
+        runtimeSummary.recordBadRequest();
         sendJson(response, 400, {
           error: validationError,
         });
@@ -78,7 +82,9 @@ export function createTranslationBackendServer({
       }
 
       const normalizedRequest = normalizeTranslationRequest(body);
+      runtimeSummary.recordAcceptedRequest(normalizedRequest);
       const translation = await service.translate(normalizedRequest);
+      runtimeSummary.recordSuccess();
       sendJson(response, 200, {
         translatedText: translation.translatedText,
       });
@@ -91,6 +97,10 @@ export function createTranslationBackendServer({
       const errorMessage = error instanceof Error ? error.message : "Invalid request";
       const statusCode = getProviderErrorStatus(error);
       const retryAfterSeconds = getProviderRetryAfterSeconds(error);
+      runtimeSummary.recordFailure({
+        statusCode,
+        providerRateLimited: getProviderErrorMetadata(error).providerRateLimited === true,
+      });
 
       if (retryAfterSeconds) {
         response.setHeader("Retry-After", retryAfterSeconds.toString());
@@ -135,6 +145,62 @@ function getSafeDiagnostics(diagnostics) {
       typeof diagnostics.myMemoryEmailConfigured === "boolean"
         ? diagnostics.myMemoryEmailConfigured
         : undefined,
+  };
+}
+
+function createRuntimeSummary(now = () => new Date()) {
+  const summary = {
+    startedAt: now().toISOString(),
+    lastTranslateAt: null,
+    translateRequestsAcceptedTotal: 0,
+    requestedTextCharactersTotal: 0,
+    translateSuccessTotal: 0,
+    translateFailureTotal: 0,
+    badRequestTotal: 0,
+    clientRateLimitedTotal: 0,
+    providerErrorTotal: 0,
+    providerRateLimitedTotal: 0,
+    byContext: {
+      hover: 0,
+      selection: 0,
+    },
+  };
+
+  return {
+    recordAcceptedRequest(request) {
+      summary.lastTranslateAt = now().toISOString();
+      summary.translateRequestsAcceptedTotal += 1;
+      summary.requestedTextCharactersTotal += request.text.length;
+
+      if (request.context === "hover" || request.context === "selection") {
+        summary.byContext[request.context] += 1;
+      }
+    },
+    recordSuccess() {
+      summary.translateSuccessTotal += 1;
+    },
+    recordBadRequest() {
+      summary.badRequestTotal += 1;
+      summary.translateFailureTotal += 1;
+    },
+    recordClientRateLimit() {
+      summary.clientRateLimitedTotal += 1;
+      summary.translateFailureTotal += 1;
+    },
+    recordFailure({ statusCode, providerRateLimited }) {
+      summary.translateFailureTotal += 1;
+
+      if (statusCode >= 500 || statusCode === 429) {
+        summary.providerErrorTotal += 1;
+      }
+
+      if (providerRateLimited) {
+        summary.providerRateLimitedTotal += 1;
+      }
+    },
+    snapshot() {
+      return structuredClone(summary);
+    },
   };
 }
 

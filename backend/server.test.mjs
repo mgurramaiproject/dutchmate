@@ -34,10 +34,28 @@ describe("createTranslationBackendServer", () => {
 
     const response = await fetch(`${baseUrl}/health`);
 
-    await expect(response.json()).resolves.toEqual({
+    const body = await response.json();
+
+    expect(body).toMatchObject({
       ok: true,
       service: "dutchmate-backend",
+      runtime: {
+        lastTranslateAt: null,
+        translateRequestsAcceptedTotal: 0,
+        requestedTextCharactersTotal: 0,
+        translateSuccessTotal: 0,
+        translateFailureTotal: 0,
+        badRequestTotal: 0,
+        clientRateLimitedTotal: 0,
+        providerErrorTotal: 0,
+        providerRateLimitedTotal: 0,
+        byContext: {
+          hover: 0,
+          selection: 0,
+        },
+      },
     });
+    expect(typeof body.runtime.startedAt).toBe("string");
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toBe("application/json; charset=utf-8");
     expect(service.translate).not.toHaveBeenCalled();
@@ -222,6 +240,66 @@ describe("createTranslationBackendServer", () => {
     expect(service.translate).toHaveBeenCalledTimes(1);
   });
 
+  it("reports a privacy-safe runtime summary through the health endpoint", async () => {
+    const service = {
+      translate: vi
+        .fn()
+        .mockResolvedValueOnce({ translatedText: "house" })
+        .mockRejectedValueOnce(
+          new ProviderError("Google returned 429", {
+            statusCode: 429,
+            providerName: "google-translate",
+            providerStatus: 429,
+          }),
+        ),
+    };
+
+    server = createTranslationBackendServer({
+      service,
+      logger: createTestLogger(),
+      rateLimit: {
+        maxRequests: 2,
+        windowMs: 60_000,
+      },
+    });
+    const baseUrl = await listen(server);
+
+    await postTranslate(baseUrl);
+    await postTranslate(baseUrl, { text: "english", context: "hover" });
+    await postTranslate(baseUrl);
+    await fetch(`${baseUrl}/translate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: "",
+        sourceLanguage: "nl",
+        targetLanguage: "en",
+        context: "selection",
+      }),
+    });
+
+    const response = await fetch(`${baseUrl}/health`);
+    const body = await response.json();
+
+    expect(body.runtime).toMatchObject({
+      translateRequestsAcceptedTotal: 2,
+      requestedTextCharactersTotal: 11,
+      translateSuccessTotal: 1,
+      translateFailureTotal: 3,
+      badRequestTotal: 1,
+      clientRateLimitedTotal: 1,
+      providerErrorTotal: 1,
+      providerRateLimitedTotal: 1,
+      byContext: {
+        hover: 1,
+        selection: 1,
+      },
+    });
+    expect(typeof body.runtime.lastTranslateAt).toBe("string");
+  });
+
   it("preserves provider rate-limit failures as HTTP 429 responses", async () => {
     const logger = createTestLogger();
     const service = {
@@ -296,7 +374,7 @@ async function listen(server) {
   return `http://127.0.0.1:${address.port}`;
 }
 
-function postTranslate(baseUrl) {
+function postTranslate(baseUrl, overrides = {}) {
   return fetch(`${baseUrl}/translate`, {
     method: "POST",
     headers: {
@@ -308,6 +386,7 @@ function postTranslate(baseUrl) {
       sourceLanguage: "nl",
       targetLanguage: "en",
       context: "selection",
+      ...overrides,
     }),
   });
 }
