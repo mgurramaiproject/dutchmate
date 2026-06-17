@@ -2,94 +2,326 @@
 
 Last updated: 2026-06-18
 
-This note captures the small set of lessons we could verify from Marc Lou's X article:
+This note adapts Marc Lou's "32 Principles of a Viral Product" for DutchMate.
 
-- "32 Principles of a Viral Product"
-- https://x.com/marclou/status/2065385672991752210
+Source:
 
-Important limitation:
+- user-provided full article text for "32 Principles of a Viral Product"
+- public thread link: https://x.com/marclou/status/2065385672991752210
 
-The full X article body was not fully accessible in this environment. The verified parts came from the public article preview and X page metadata, not a complete plain-text export of all 32 principles.
+These are not rules. They are prompts for sharper product decisions.
 
-## Verified Principle We Could Read
+## Big Takeaway For DutchMate
 
-The public preview exposed this principle:
+The article is most useful for DutchMate in one broad way:
 
-- A viral product does not have a free plan.
+- make the product easier to understand
+- make the core loop more obvious
+- make the public page more concrete
+- keep the scope narrow enough that people can remember and repeat it
 
-It also exposed the reasoning summary:
+DutchMate should not blindly copy the article's monetization advice at this stage. But many of its communication and focus principles are highly relevant.
 
-- free users increase support and server cost
-- they can pull the product toward features paying users do not want
-- conversion from free to paid is often very low
+## Principles DutchMate Should Use Now
 
-## What This Means For DutchMate
+### 1. Show the product before explaining it
 
-This does **not** mean DutchMate must become paid immediately.
+This fits DutchMate very well.
 
-It does mean DutchMate should be careful about pretending to be a broad free consumer product before it has:
+People should see:
 
-- stable cost visibility
-- reliable translation infrastructure
-- clear boundaries on who the product is for
-- a strong core loop that people actually want
+- a real webpage
+- a hovered Dutch word
+- the two translation outputs
+- the three-language setup
 
-For DutchMate, the practical lesson is:
+Implication for DutchMate:
 
-- keep the early public release small and intentional
-- do not let "free for everyone" force feature creep or uncontrolled provider cost
-- optimize first for usefulness, trust, and retention in a narrow learner group
+- keep real screenshots central on the homepage and store listings
+- keep "show, don't tell" as the default
 
-## DutchMate-Specific Product Rules
+### 2. Do one thing
 
-When thinking about growth or virality, follow these rules:
+This is one of the best principles for DutchMate.
 
-1. Keep the product narrow before trying to make it spread.
-2. Protect provider cost before expanding audience size.
-3. Make the core loop valuable without requiring explanation.
-4. Do not add "free-user convenience" features that weaken the learning focus.
-5. Measure whether people return, not only whether they install.
+DutchMate should be remembered as:
 
-## Core Loop To Protect
+- the extension that helps you learn Dutch while reading online in Dutch, English, and your own language
 
-DutchMate's strongest loop is:
+Implication for DutchMate:
 
-1. read a real page
-2. hover or select text
-3. get immediate meaning in Dutch, English, and the learner's own language
-4. save useful single words locally
-5. return later for spaced repetition
+- do not drift into generic translation software
+- do not broaden too early into many unrelated study modes
 
-If a future feature does not strengthen this loop, it should be questioned.
+### 3. Use a headline a fifth grader can understand
 
-## Viral Lessons That Probably Matter More Than "Virality"
+This is already directionally right for DutchMate.
 
-Even without the full article text, the strongest likely implication for DutchMate is:
+Good:
 
-- a product spreads better when one small use case is obviously helpful
-- cost-heavy broad free usage can hurt a young product
-- growth should come after a product feels sharp, not before
+- `Learn Dutch in your own language.`
 
-For DutchMate, that means:
+Implication for DutchMate:
 
-- focus on Dutch learners reading real sites
-- keep the three-language value proposition extremely clear
-- make first use feel immediate
-- keep setup simple
-- avoid broadening into generic translation software
+- keep homepage and store copy literal, not clever
+- remove wording that requires explanation
 
-## Near-Term Guidance
+### 4. Reveal one idea per screen
 
-For now, DutchMate should behave like a focused independent tool, not a mass-market free platform.
+Very relevant for the homepage and store assets.
 
-That means:
+Implication for DutchMate:
 
-- gentle sharing instead of aggressive launch behavior
-- strong privacy and cost controls
-- browser-store trust
-- clear screenshots showing the real reading workflow
-- careful expansion only after real learner feedback
+- hero: what it is
+- screenshot section: how it works
+- privacy section: what stays local and what goes to the backend
+- availability section: where to install
 
-## Follow-Up
+### 5. Use numbers instead of adjectives
 
-If the full article becomes accessible later, revisit this note and replace the partial extraction with a fuller DutchMate-specific synthesis.
+Useful where true.
+
+Examples for DutchMate:
+
+- `3 languages`
+- `2 translation outputs`
+- `1 click to clear local cache`
+
+Implication for DutchMate:
+
+- prefer measurable claims over vague words like `simple`, `powerful`, or `fast`
+
+### 6. Sell the human desire, not the feature
+
+Very relevant.
+
+People do not mainly want:
+
+- hover translation
+
+They want:
+
+- less confusion while reading
+- more confidence in Dutch
+- faster learning from real content
+
+Implication for DutchMate:
+
+- connect features to outcomes in copy
+
+### 7. Use copy only DutchMate could write
+
+Very relevant.
+
+The strongest DutchMate copy is not generic "AI translation" language. It is the specific learner framing:
+
+- learn Dutch while reading real websites
+- use English as a bridge
+- keep your mother tongue close
+- store selected words locally
+
+Implication for DutchMate:
+
+- prefer specific learner language over generic browser-extension marketing
+
+### 8. Let people try the product before buying it
+
+Relevant in spirit, even before there is paid pricing.
+
+For DutchMate, this means:
+
+- the homepage should feel like a preview of the real experience
+- the store screenshots should teach the product instantly
+
+### 9. Steal the best copy from customers
+
+Useful for later.
+
+Implication for DutchMate:
+
+- collect exact phrases from learners after they try it
+- reuse those phrases in homepage and store copy
+
+### 10. Describe the problem better than the user can
+
+Highly relevant.
+
+DutchMate's real problem statement is not:
+
+- "translate webpages"
+
+It is closer to:
+
+- "I want to keep reading Dutch without constantly breaking my flow to look words up"
+
+Implication for DutchMate:
+
+- write around reading friction and learning flow
+
+### 11. One call to action
+
+Relevant for the homepage.
+
+Implication for DutchMate:
+
+- the main CTA should be the install path once store links are live
+- secondary links should stay secondary
+
+### 12. The hero should sell the product alone
+
+Very relevant.
+
+If someone only sees the first viewport, they should still understand:
+
+- what DutchMate is
+- who it is for
+- what it helps them do
+
+### 13. A product can be described in under 10 words
+
+Excellent constraint for DutchMate.
+
+Working short forms:
+
+- `Learn Dutch while reading online.`
+- `Learn Dutch in your own language.`
+
+## Principles DutchMate Should Adapt Carefully
+
+### 1. Three colors
+
+This already fits DutchMate well because the design system intentionally uses:
+
+- black
+- white
+- strong Dutch orange
+
+This is useful and already aligned.
+
+### 2. Footer people want to share
+
+Relevant, but not as a gimmick.
+
+For DutchMate, the footer should help sharing by ending with:
+
+- a clear install path
+- a clear privacy link
+- a clear support/contact path
+
+### 3. OG image as a thumbnail
+
+Relevant later.
+
+The social share image should show the real product, not a decorative abstract graphic.
+
+### 4. Ride a wave
+
+Relevant, but carefully.
+
+Potential DutchMate waves:
+
+- Dutch learning communities
+- browser-based language learning
+- AI-assisted reading
+
+But DutchMate should not turn into trend-chasing AI copy just to sound current.
+
+### 5. Founder people can see and hear
+
+Maybe useful later, especially for trust.
+
+For now, the lighter version is enough:
+
+- personal tone
+- real support email
+- independent-maker framing
+
+### 6. Testimonials before launch
+
+Relevant, but your current path is earlier than that.
+
+Right now, the equivalent is:
+
+- collect honest WhatsApp feedback
+- use short real quotes later if people genuinely find it useful
+
+### 7. Compare to competitors
+
+Potentially useful later, but only if done clearly.
+
+Possible comparison angles:
+
+- generic translators break reading flow
+- DutchMate is built for learning, not only translation
+- mother-tongue plus bridge-language support is a real differentiator
+
+Do not add a comparison table until the differences are crisp and defensible.
+
+## Principles DutchMate Should Not Copy Blindly
+
+### 1. No free plan
+
+Not a fit right now.
+
+DutchMate is still validating product usefulness and trust. A hard paid wall now would likely block the very feedback the product needs.
+
+Better DutchMate interpretation:
+
+- keep the audience narrow
+- keep the rollout gentle
+- keep cost controls strong
+
+### 2. Hard paywall
+
+Also not a fit right now.
+
+The valuable current question is not "will people pay today?" It is:
+
+- do real learners actually use this
+- does the loop help them
+- does cost stay controlled
+
+### 3. No subscription
+
+Too early to matter.
+
+DutchMate does not need public pricing decisions yet.
+
+### 4. More expensive than competitors
+
+Not useful for current DutchMate decisions.
+
+At this stage, clarity and trust matter much more than premium pricing theory.
+
+## DutchMate Product Rules Derived From The Article
+
+Use these as the practical version for DutchMate:
+
+1. Make the product understandable in one sentence.
+2. Show the real product before explaining it.
+3. Keep the product remembered for one job only.
+4. Tie every feature back to the learning outcome.
+5. Keep the homepage hero strong enough to stand on its own.
+6. Use real screenshots more than abstract claims.
+7. Keep copy specific to Dutch learners, not generic translation users.
+8. Expand audience slower than cost.
+9. Collect customer language and feed it back into copy.
+10. Only add features that strengthen the reading-to-learning loop.
+
+## Working DutchMate Positioning
+
+The article reinforces this positioning:
+
+- DutchMate is not a generic translator.
+- DutchMate is not a broad AI study platform.
+- DutchMate is a focused reading companion for learning Dutch online with English and your own language close by.
+
+## Near-Term Implications
+
+The best next uses of this article for DutchMate are:
+
+- sharpen homepage hero copy further
+- keep the install path obvious once store links are live
+- keep the product screenshots central
+- collect real learner wording from first public users
+- resist broadening features before the current loop is loved
