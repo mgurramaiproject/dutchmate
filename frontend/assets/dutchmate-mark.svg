@@ -1,10 +1,10 @@
 <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">DutchMate book bubble mark</title>
   <desc id="desc">A simple open book with a translation bubble.</desc>
-  <rect x="16" y="16" width="128" height="128" rx="26" fill="#205781"/>
-  <path d="M48 42h29c7 0 13 6 13 13v63H57c-7 0-13-6-13-13V46c0-2 2-4 4-4Z" fill="#FAF4E8"/>
-  <path d="M83 55c0-7 6-13 13-13h16c2 0 4 2 4 4v59c0 7-6 13-13 13H83V55Z" fill="#F7E7C3"/>
-  <path d="M80 43v75" stroke="#EFB749" stroke-width="6" stroke-linecap="round"/>
-  <path d="M54 61h17M54 77h17M54 93h17M94 61h12M94 77h12M94 93h12" stroke="#24211D" stroke-width="5" stroke-linecap="round"/>
-  <path d="M92 94c0-8 7-15 15-15h16c8 0 15 7 15 15v7c0 8-7 15-15 15h-8l-12 12v-12c-6-2-11-8-11-15v-7Z" fill="#EFB749"/>
+  <rect x="16" y="16" width="128" height="128" rx="26" fill="#000000"/>
+  <path d="M48 42h29c7 0 13 6 13 13v63H57c-7 0-13-6-13-13V46c0-2 2-4 4-4Z" fill="#ffffff"/>
+  <path d="M83 55c0-7 6-13 13-13h16c2 0 4 2 4 4v59c0 7-6 13-13 13H83V55Z" fill="#ffffff"/>
+  <path d="M80 43v75" stroke="#ff6f00" stroke-width="6" stroke-linecap="round"/>
+  <path d="M54 61h17M54 77h17M54 93h17M94 61h12M94 77h12M94 93h12" stroke="#000000" stroke-width="5" stroke-linecap="round"/>
+  <path d="M92 94c0-8 7-15 15-15h16c8 0 15 7 15 15v7c0 8-7 15-15 15h-8l-12 12v-12c-6-2-11-8-11-15v-7Z" fill="#ff6f00"/>
 </svg>
