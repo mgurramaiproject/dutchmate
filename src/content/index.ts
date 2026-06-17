@@ -1,4 +1,5 @@
 import { getHoverRequestKey } from "./hover-request-key";
+import { isPointInsideVisibleBox } from "./pointer-hit-box";
 import {
   requestRuntimeTranslation,
   type RuntimeTranslationExtensionApi,
@@ -481,7 +482,7 @@ function getWordAtPoint(
   wordRange.setEnd(textNode, match.end);
 
   const rect = wordRange.getBoundingClientRect();
-  if (rect.width === 0 || rect.height === 0) {
+  if (!isPointInsideVisibleBox(clientX, clientY, rect)) {
     return null;
   }
 
