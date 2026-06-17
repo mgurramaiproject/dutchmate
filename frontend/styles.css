@@ -115,8 +115,7 @@ a {
   grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
   align-items: center;
   gap: 48px;
-  min-height: calc(100vh - 70px);
-  padding: 56px 0 72px;
+  padding: 52px 0 60px;
 }
 
 .eyebrow {
@@ -137,7 +136,7 @@ h3 {
 
 h1 {
   max-width: 720px;
-  font-size: 5rem;
+  font-size: 4.6rem;
 }
 
 h2 {
