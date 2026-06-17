@@ -13,7 +13,7 @@ DutchMate helps Dutch learners use Dutch, English, and a supported mother tongue
 - `webextension-polyfill` for cross-browser extension APIs
 - Content script tooltip for hover and selection
 - Options page shell for target language and future provider settings
-- MVP target languages: English, Dutch, and Telugu
+- Current target languages: English, Dutch, and Telugu
 - Optional custom JSON translation endpoint
 
 ## Commands
@@ -74,7 +74,7 @@ Endpoint requirements:
 See [docs/architecture.md](docs/architecture.md) for the request and response contract.
 See [docs/provider-strategy.md](docs/provider-strategy.md) for provider choice, pricing, and production backend notes.
 See [docs/local-backend.md](docs/local-backend.md) for the local real-translation backend scaffold.
-See [docs/mvp-language-focus.md](docs/mvp-language-focus.md) for the Dutch, English, and Telugu MVP scope.
+See [docs/mvp-language-focus.md](docs/mvp-language-focus.md) for the Dutch, English, and Telugu current language scope.
 See [docs/cache-strategy.md](docs/cache-strategy.md) for the word-only local persistent cache plan.
 See [docs/viral-adoption-roadmap.md](docs/viral-adoption-roadmap.md) for the free/paid, caching, auth, and adoption roadmap.
 

@@ -4,7 +4,7 @@ Last updated: 2026-06-17
 
 DutchMate is a browser extension that helps people learn Dutch online by translating hovered words and selected text between Dutch, English, and a supported mother tongue such as Telugu.
 
-DutchMate does not require an account for the MVP.
+DutchMate does not require an account for the current release.
 
 When you ask DutchMate to translate something, the extension sends that text to the DutchMate backend. The backend uses Google Cloud Translation to return the translation.
 
@@ -61,7 +61,7 @@ The backend is designed not to log the raw text you ask to translate or the tran
 
 ## Accounts And Payments
 
-The MVP does not require DutchMate user accounts. The MVP does not include paid plans, subscriptions, or user billing.
+The current release does not require DutchMate user accounts. It does not include paid plans, subscriptions, or user billing.
 
 ## Third-Party Provider
 

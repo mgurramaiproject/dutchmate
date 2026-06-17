@@ -13,7 +13,7 @@ The visual language is editorial and text-first. It should borrow the confidence
 The product promise is:
 
 ```text
-Read Dutch websites without losing your flow.
+Learn Dutch in your own language.
 ```
 
 Design should support that promise by making pages feel:
@@ -151,13 +151,12 @@ Secondary buttons:
 - white background;
 - black border;
 - black text;
-- orange border or text only on hover/focus.
+- orange background with black text on hover/focus.
 
 Button labels should be concrete:
 
 - `Get DutchMate`
 - `Read Privacy Policy`
-- `Join the First Release`
 - `Contact`
 
 Avoid vague labels:
@@ -200,8 +199,8 @@ Card rules:
 The homepage hero must immediately communicate:
 
 - DutchMate name or product category;
-- translation while reading Dutch websites;
-- the user benefit: keep reading without losing flow.
+- Dutch learning while reading real websites;
+- the user benefit: learn with Dutch, English, and a mother tongue close by.
 
 Hero structure:
 
@@ -248,9 +247,9 @@ Logo rules:
 - must still read in one color if needed;
 - no flags, windmills, or tourist stereotypes;
 - no tiny letters inside the mark;
-- default to black, white, and orange for new logo explorations.
+- default to black, white, and orange for all logo explorations and production assets.
 
-Exception: the production Book Bubble icon may keep its earlier blue, cream, yellow, and green palette because that version is currently preferred for recognizability and warmth. Do not expand that palette into the rest of the UI without explicit approval.
+The production Book Bubble icon must stay within black, white, and orange unless the design system is explicitly revised.
 
 ## 7. Imagery And Screenshots
 
@@ -339,9 +338,9 @@ Avoid:
 Good examples:
 
 ```text
-Read Dutch websites without losing your flow.
+Learn Dutch in your own language.
 Translate hovered words and selected text while you read.
-No account is required for the MVP.
+No account is required for the current release.
 Avoid using DutchMate on private pages if you do not want that text sent for translation.
 ```
 
@@ -363,7 +362,7 @@ When changing DutchMate UI:
 Use this prompt when asking an agent to update DutchMate UI:
 
 ```text
-Use DESIGN.md as the source of truth. Build a clean editorial DutchMate interface using only black, white, and strong Dutch orange. Keep the layout text-first, readable, and trustworthy. Use a Claude-like sans-serif feel through the approved system font stack. Avoid gradients, extra colors, nested cards, decorative blobs, and hype copy. The product is a browser extension that helps Dutch learners translate hovered words and selected text while reading real websites.
+Use DESIGN.md as the source of truth. Build a clean editorial DutchMate interface using only black, white, and strong Dutch orange. Keep the layout text-first, readable, and trustworthy. Use a Claude-like sans-serif feel through the approved system font stack. Avoid gradients, extra colors, nested cards, decorative blobs, and hype copy. The product is a browser extension that helps Dutch learners use Dutch, English, and their mother tongue while translating hovered words and selected text on real websites.
 ```
 
 ## 14. Source Inspiration

@@ -45,17 +45,17 @@ https://dutchmate-frontend.onrender.com/privacy-policy.html
 ## Full Description
 
 ```text
-DutchMate is a small browser extension for learning Dutch while reading online.
+DutchMate is a focused browser extension for learning Dutch while reading online.
 
-It helps you use Dutch, English, and your mother tongue together while reading normal webpages. The MVP supports Dutch, English, and Telugu.
+It helps you use Dutch, English, and your mother tongue together while reading normal webpages. The current release supports Dutch, English, and Telugu.
 
 Hover over a word or select a short phrase or sentence to see translations in context. You can choose your learning language, use English as a bridge language, and keep your mother tongue close for meaning.
 
 Selected single-word lookups can be stored locally in your browser to make repeat learning faster. Hovered words, selected phrases, selected sentences, and failed translations are not stored in the local translation cache.
 
-Saved highlighted words and interval flashcard revision are planned next learning features, inspired by spaced-repetition tools such as Anki.
+The product direction is local word collection and spaced-repetition flashcards, using words you choose while browsing.
 
-DutchMate does not require an account, subscription, or payment for the MVP.
+DutchMate does not require an account, subscription, or payment.
 
 Privacy note: DutchMate sends the text you ask to translate to the DutchMate backend, which uses Google Cloud Translation. DutchMate does not sell user data and does not use translated text for advertising. Avoid using it on private pages if you do not want that text sent for translation.
 ```

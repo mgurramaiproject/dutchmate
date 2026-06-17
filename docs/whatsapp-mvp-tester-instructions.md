@@ -4,7 +4,7 @@ Last updated: 2026-06-16
 
 Use this page when gently sharing DutchMate with a moderate WhatsApp group of Dutch learners.
 
-DutchMate is an early browser extension originally built for personal Dutch learning. It helps you use Dutch, English, and your mother tongue together while reading online.
+DutchMate is a browser extension originally built for personal Dutch learning. It helps you use Dutch, English, and your mother tongue together while reading online.
 
 ## Gentle Share Message
 
@@ -23,15 +23,15 @@ This may be useful for people who:
 - are learning Dutch;
 - learn Dutch from normal websites in Chrome or Firefox;
 - sometimes want quick English or Telugu help while reading;
-- are comfortable trying an early, simple tool.
+- are comfortable trying a new, focused tool.
 
-It is probably not a good fit yet for people who want a polished product with formal support and automatic updates.
+It is probably not a good fit yet for people who want formal support and automatic updates.
 
 ## What To Mention Before Sharing
 
 DutchMate sends the text they ask to translate to the DutchMate backend, which uses Google Cloud Translation.
 
-For the MVP:
+For the current release:
 
 - no account is needed;
 - hovered words or nearby sentence context may be sent for translation;
@@ -94,12 +94,12 @@ If someone notices a bad translation, ask for:
 - what they expected instead;
 - the page language, if they know it.
 
-## Known MVP Limits
+## Current Limits
 
 Set expectations without making the message feel heavy:
 
-- This is an early MVP, not a finished product.
 - It supports Dutch, English, and Telugu only.
+- Some learning features, such as saved highlights and spaced-repetition flashcards, are still in development.
 - Some translations may be imperfect.
 - Some webpages block or interfere with browser extensions.
 - Protected browser pages and extension store pages cannot run the content script.

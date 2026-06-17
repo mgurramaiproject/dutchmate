@@ -58,7 +58,7 @@ Confirm:
 - version is correct for the submission;
 - Manifest V3 is used;
 - permissions are limited to `storage`;
-- host permissions match the MVP translation behavior;
+- host permissions match the current translation behavior;
 - Chrome uses `background.service_worker`;
 - Firefox uses `background.scripts` and has `browser_specific_settings.gecko`;
 - options page points to `src/options/index.html`;

@@ -4,7 +4,7 @@ Last updated: 2026-06-16
 
 Use this as working copy for Chrome Web Store and Firefox Add-ons submission fields. Recheck the store forms during submission, because field names and policy wording can change.
 
-This draft is based on [privacy-policy.md](privacy-policy.md) and the current MVP behavior.
+This draft is based on [privacy-policy.md](privacy-policy.md) and the current release behavior.
 
 ## Product Summary
 
@@ -21,11 +21,11 @@ Learn Dutch online with hover and selection translations in Dutch, English, and 
 ## Longer Description
 
 ```text
-DutchMate is a small browser extension for learning Dutch while reading online.
+DutchMate is a focused browser extension for learning Dutch while reading online.
 
 It lets you hover over words or select short text on a webpage to see translations between Dutch, English, and a supported mother tongue such as Telugu.
 
-DutchMate is intended for language support while learning Dutch from real webpages. It does not require an account, subscription, or payment for the MVP.
+DutchMate is intended for language support while learning Dutch from real webpages. It does not require an account, subscription, or payment.
 ```
 
 ## Single Purpose
@@ -135,7 +135,7 @@ The extension uses https://dutchmate-backend.onrender.com/translate by default f
 
 Store-ready builds hide provider endpoint and API-key override controls from normal users. Local-testing builds can expose those controls for development only.
 
-No account, login, payment, or special reviewer credentials are required for the MVP.
+No account, login, payment, or special reviewer credentials are required.
 ```
 
 ## User-Facing Disclosure Snippet
