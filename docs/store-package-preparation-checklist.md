@@ -167,7 +167,7 @@ Prepare these before submission:
 - reviewer notes;
 - test instructions.
 
-Use [store-disclosure-draft.md](store-disclosure-draft.md) as the starting point.
+Use [chrome-web-store-listing-draft.md](chrome-web-store-listing-draft.md) and [store-disclosure-draft.md](store-disclosure-draft.md) as the starting point.
 
 ## Reviewer Notes Draft
 
