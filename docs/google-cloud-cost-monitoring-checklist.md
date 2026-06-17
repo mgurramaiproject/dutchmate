@@ -6,7 +6,7 @@ Use this checklist before sharing DutchMate with a broader WhatsApp group. The g
 
 ## Current Status
 
-Status: **Budget alerts verified by CLI; spend dashboard still needs Console check**
+Status: **Budget alerts and spend dashboard verified**
 
 Known setup from [google-cloud-translation-setup.md](google-cloud-translation-setup.md):
 
@@ -17,7 +17,7 @@ Known setup from [google-cloud-translation-setup.md](google-cloud-translation-se
 - Cloud Translation API is enabled.
 - Render uses `TRANSLATION_PROVIDER=google-translate`.
 
-This repo environment now has authenticated `gcloud` CLI access as `dutchmate.project@gmail.com`, but it does not have Google Cloud Console UI access. Budget alert configuration is verified through the Cloud Billing Budget API. Current spend and free-trial status still need Console verification.
+This repo environment now has authenticated `gcloud` CLI access as `dutchmate.project@gmail.com`, but it does not have Google Cloud Console UI access. Budget alert configuration is verified through the Cloud Billing Budget API. Current spend and free-trial status were verified manually in the Google Cloud Console.
 
 ## Manual Verification Steps
 
@@ -51,6 +51,18 @@ Budget alerts are useful warnings, but they are not hard spending caps. Keep the
 Add the newest entry first after checking the Google Cloud Console.
 
 ```text
+Date: 2026-06-17
+Verifier: MGurram via Google Cloud Console
+Project: dutchmate-production
+Free trial status: Pass; EUR 257.72 credit remaining and 89 days remaining
+Budget alert status: Previously verified by CLI; budget dutchmate-mvp-budget exists
+Alert recipients checked: Previously partially verified by CLI; project-level recipients are enabled
+Current spend: Pass; June 1-16, 2026 total cost is EUR 0.00
+Cloud Translation API cost visible: Pass; Translate shows EUR 0.02 usage cost, EUR -0.02 other savings, EUR 0.00 subtotal
+API key restriction checked: Previously verified; key dutchmate-render-translation-key is restricted to translate.googleapis.com
+Result: Pass for MVP WhatsApp-group cost visibility
+Notes: Console reports free trial credits at EUR 257.72 remaining out of EUR 257.72. The full account is not activated; Console still shows the prompt to activate the full account. Forecast for June 1-30, 2026 says there is not enough historical data to project cost.
+
 Date: 2026-06-17
 Verifier: Codex via Cloud Billing Budget API
 Project: dutchmate-production
