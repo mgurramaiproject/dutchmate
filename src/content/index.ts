@@ -1,4 +1,9 @@
 import { getHoverRequestKey } from "./hover-request-key";
+import {
+  requestRuntimeTranslation,
+  type RuntimeTranslationExtensionApi,
+  type TranslateMessageResponse,
+} from "./runtime-translation-client";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
 
@@ -9,7 +14,6 @@ const MAX_HOVER_CONTEXT_LENGTH = 180;
 const MIN_SELECTION_LENGTH = 50;
 const MAX_SELECTION_LENGTH = 150;
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
-const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 const defaultSettings: ExtensionSettings = {
   isEnabled: true,
   translateOnHover: true,
@@ -118,19 +122,6 @@ type StorageChange = {
 
 type TranslationContext = TooltipContext;
 
-type TranslateMessageResponse =
-  | {
-      ok: true;
-      result: {
-        translatedText: string;
-        providerName: string;
-      };
-    }
-  | {
-      ok: false;
-      error: string;
-    };
-
 type ExtensionStorageApi = {
   storage: {
     sync: {
@@ -142,13 +133,7 @@ type ExtensionStorageApi = {
       ): void;
     };
   };
-  runtime: {
-    lastError?: { message?: string };
-    sendMessage(
-      message: unknown,
-      callback: (response?: TranslateMessageResponse) => void,
-    ): void;
-  };
+  runtime: RuntimeTranslationExtensionApi["runtime"];
 };
 
 const extensionGlobal = globalThis as typeof globalThis & {
@@ -749,36 +734,11 @@ async function requestTranslation(
   sourceLanguage: string,
   targetLanguage: string,
 ): Promise<TranslateMessageResponse> {
-  if (!extensionApi) {
-    return {
-      ok: false,
-      error: "Extension runtime is unavailable.",
-    };
-  }
-
-  return new Promise((resolve) => {
-    extensionApi.runtime.sendMessage(
-      {
-        type: TRANSLATE_MESSAGE,
-        payload: {
-          text,
-          sourceLanguage,
-          targetLanguage,
-          context,
-        },
-      },
-      (response) => {
-        if (extensionApi.runtime.lastError) {
-          resolve({
-            ok: false,
-            error: extensionApi.runtime.lastError.message ?? "Translation request failed.",
-          });
-          return;
-        }
-
-        resolve(response ?? { ok: false, error: "No translation response received." });
-      },
-    );
+  return requestRuntimeTranslation(extensionApi, {
+    text,
+    context,
+    sourceLanguage,
+    targetLanguage,
   });
 }
 
