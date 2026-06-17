@@ -6,7 +6,7 @@ Use this checklist before sharing DutchMate with a broader WhatsApp group. The g
 
 ## Current Status
 
-Status: **Needs manual Google Cloud Console verification**
+Status: **Partially verified by CLI; budget details need API or Console verification**
 
 Known setup from [google-cloud-translation-setup.md](google-cloud-translation-setup.md):
 
@@ -17,7 +17,7 @@ Known setup from [google-cloud-translation-setup.md](google-cloud-translation-se
 - Cloud Translation API is enabled.
 - Render uses `TRANSLATION_PROVIDER=google-translate`.
 
-This repo environment does not currently have authenticated Google Cloud Console access or the `gcloud` CLI, so the dashboard and alert state must be confirmed manually.
+This repo environment now has authenticated `gcloud` CLI access as `dutchmate.project@gmail.com`, but it does not have Google Cloud Console UI access. The Cloud Billing Budget API is disabled for `dutchmate-production`, so budget alert details still need either Console verification or explicit approval to enable that API.
 
 ## Manual Verification Steps
 
@@ -51,6 +51,18 @@ Budget alerts are useful warnings, but they are not hard spending caps. Keep the
 Add the newest entry first after checking the Google Cloud Console.
 
 ```text
+Date: 2026-06-17
+Verifier: Codex via gcloud CLI
+Project: dutchmate-production
+Free trial status: Not verified from CLI
+Budget alert status: Not verified from CLI; Billing Budget API is disabled for dutchmate-production
+Alert recipients checked: Not verified from CLI
+Current spend: Not verified from CLI
+Cloud Translation API cost visible: Not verified from CLI
+API key restriction checked: Pass; key dutchmate-render-translation-key is restricted to translate.googleapis.com
+Result: Partial
+Notes: Project billing is enabled on billingAccounts/012249-79A8E9-0418CF. Cloud Translation API is enabled. Billing account is open. Listing budgets through billingbudgets.googleapis.com returned SERVICE_DISABLED, so budget alert details require Google Cloud Console verification or explicit approval to enable Cloud Billing Budget API.
+
 Date:
 Verifier:
 Project:
