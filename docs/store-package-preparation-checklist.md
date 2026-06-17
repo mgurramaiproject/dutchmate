@@ -172,7 +172,7 @@ Use [chrome-web-store-listing-draft.md](chrome-web-store-listing-draft.md) and [
 ## Reviewer Notes Draft
 
 ```text
-DutchMate is a Manifest V3 browser extension for Dutch reading support.
+DutchMate is a Manifest V3 browser extension for Dutch learning support.
 
 The extension translates hovered words and selected text through the DutchMate backend at https://dutchmate-backend.onrender.com/translate, which uses Google Cloud Translation.
 

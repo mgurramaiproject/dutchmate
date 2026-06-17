@@ -15,7 +15,7 @@ DutchMate
 Short description:
 
 ```text
-Translate hovered words and selected text while reading Dutch websites.
+Learn Dutch online with hover and selection translations in Dutch, English, and your language.
 ```
 
 Category:
@@ -45,11 +45,15 @@ https://dutchmate-frontend.onrender.com/privacy-policy.html
 ## Full Description
 
 ```text
-DutchMate is a small browser extension for Dutch learners.
+DutchMate is a small browser extension for learning Dutch while reading online.
 
-It helps you read Dutch websites by translating hovered words and selected text. The MVP supports Dutch, English, and Telugu.
+It helps you use Dutch, English, and your mother tongue together while reading normal webpages. The MVP supports Dutch, English, and Telugu.
 
-You can use DutchMate while reading normal webpages. Hover over a word or select a short phrase or sentence to see translations in context.
+Hover over a word or select a short phrase or sentence to see translations in context. You can choose your learning language, use English as a bridge language, and keep your mother tongue close for meaning.
+
+Selected single-word lookups can be stored locally in your browser to make repeat learning faster. Hovered words, selected phrases, selected sentences, and failed translations are not stored in the local translation cache.
+
+Saved highlighted words and interval flashcard revision are planned next learning features, inspired by spaced-repetition tools such as Anki.
 
 DutchMate does not require an account, subscription, or payment for the MVP.
 
@@ -59,7 +63,7 @@ Privacy note: DutchMate sends the text you ask to translate to the DutchMate bac
 ## Single Purpose
 
 ```text
-DutchMate provides quick reading support for Dutch learners by translating user-hovered or user-selected webpage text.
+DutchMate helps users learn Dutch online by translating user-hovered or user-selected webpage text between Dutch, English, and a supported mother tongue.
 ```
 
 ## User Data Disclosure
@@ -113,7 +117,7 @@ DutchMate sends translation requests over HTTPS to the DutchMate backend. Provid
 ## Reviewer Notes
 
 ```text
-DutchMate is a Manifest V3 browser extension for Dutch reading support.
+DutchMate is a Manifest V3 browser extension for Dutch learning support.
 
 The extension translates hovered words and selected text through the DutchMate backend at https://dutchmate-backend.onrender.com/translate, which uses Google Cloud Translation.
 
@@ -134,9 +138,9 @@ Store-ready builds hide provider endpoint and API-key override controls from nor
 Use this outside the store when sharing with the Dutch learner WhatsApp group:
 
 ```text
-Hi everyone! I built a small browser extension for myself while reading Dutch websites, and I thought it might be useful to a few people here too.
+Hi everyone! I built a small browser extension for myself while learning Dutch online, and I thought it might be useful to a few people here too.
 
-It lets you hover over words or select short text on a webpage to see translations. It currently supports Dutch, English, and Telugu.
+It lets you hover over words or select short text on a webpage to see translations between Dutch, English, and Telugu. The idea is to learn Dutch with English as a bridge and your own language close by.
 
 No pressure at all, but feel free to try it if it sounds useful. If anyone finds it helpful, confusing, broken, or not useful, I would be happy to hear.
 ```

@@ -4,14 +4,14 @@ Last updated: 2026-06-16
 
 Use this page when gently sharing DutchMate with a moderate WhatsApp group of Dutch learners.
 
-DutchMate is an early browser extension originally built for personal Dutch reading practice. It helps English and Telugu speakers translate hovered words and selected text while reading Dutch websites.
+DutchMate is an early browser extension originally built for personal Dutch learning. It helps you use Dutch, English, and your mother tongue together while reading online.
 
 ## Gentle Share Message
 
 ```text
-Hi everyone! I built a small browser extension for myself while reading Dutch websites, and I thought it might be useful to a few people here too.
+Hi everyone! I built a small browser extension for myself while learning Dutch online, and I thought it might be useful to a few people here too.
 
-It lets you hover over words or select short text on a webpage to see translations. It currently supports Dutch, English, and Telugu.
+It lets you hover over words or select short text on a webpage to see translations between Dutch, English, and Telugu. The idea is to learn Dutch with English as a bridge and your own language close by.
 
 No pressure at all, but feel free to try it if it sounds useful. If anyone finds it helpful, confusing, broken, or not useful, I would be happy to hear.
 ```
@@ -21,7 +21,7 @@ No pressure at all, but feel free to try it if it sounds useful. If anyone finds
 This may be useful for people who:
 
 - are learning Dutch;
-- read Dutch websites in Chrome or Firefox;
+- learn Dutch from normal websites in Chrome or Firefox;
 - sometimes want quick English or Telugu help while reading;
 - are comfortable trying an early, simple tool.
 

@@ -2,7 +2,7 @@
 
 Last updated: 2026-06-17
 
-DutchMate is a browser extension that helps people read Dutch websites by translating hovered words and selected text into English, Dutch, and Telugu.
+DutchMate is a browser extension that helps people learn Dutch online by translating hovered words and selected text between Dutch, English, and a supported mother tongue such as Telugu.
 
 DutchMate does not require an account for the MVP.
 

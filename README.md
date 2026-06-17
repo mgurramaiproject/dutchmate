@@ -1,8 +1,8 @@
 # DutchMate
 
-Learn Dutch while reading, with English and Telugu by your side.
+Learn Dutch online with English and your mother tongue close by.
 
-DutchMate helps English and Telugu speakers learn Dutch while reading websites, with quick hover and selection translations in context.
+DutchMate helps Dutch learners use Dutch, English, and a supported mother tongue such as Telugu together while reading websites, with quick hover and selection translations in context.
 
 ## Current Scope
 

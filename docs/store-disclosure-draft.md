@@ -9,29 +9,29 @@ This draft is based on [privacy-policy.md](privacy-policy.md) and the current MV
 ## Product Summary
 
 ```text
-DutchMate helps Dutch learners read websites by translating hovered words and selected text into English, Dutch, and Telugu.
+DutchMate helps people learn Dutch online by translating hovered words and selected text between Dutch, English, and a supported mother tongue such as Telugu.
 ```
 
 ## Short Description
 
 ```text
-Translate hovered words and selected text while reading Dutch websites.
+Learn Dutch online with hover and selection translations in Dutch, English, and your language.
 ```
 
 ## Longer Description
 
 ```text
-DutchMate is a small browser extension for Dutch learners.
+DutchMate is a small browser extension for learning Dutch while reading online.
 
-It lets you hover over words or select short text on a webpage to see translations. The MVP supports Dutch, English, and Telugu.
+It lets you hover over words or select short text on a webpage to see translations between Dutch, English, and a supported mother tongue such as Telugu.
 
-DutchMate is intended for reading support while learning Dutch. It does not require an account, subscription, or payment for the MVP.
+DutchMate is intended for language support while learning Dutch from real webpages. It does not require an account, subscription, or payment for the MVP.
 ```
 
 ## Single Purpose
 
 ```text
-DutchMate provides quick reading support for Dutch learners by translating user-hovered or user-selected webpage text.
+DutchMate helps users learn Dutch online by translating user-hovered or user-selected webpage text between Dutch, English, and a supported mother tongue.
 ```
 
 ## Privacy Policy URL
@@ -129,7 +129,7 @@ DutchMate does not require an account, does not sell user data, and does not use
 ### Notes For Reviewers
 
 ```text
-DutchMate is a Manifest V3 browser extension for Dutch reading support.
+DutchMate is a Manifest V3 browser extension for Dutch learning support.
 
 The extension uses https://dutchmate-backend.onrender.com/translate by default for translation requests. The backend uses Google Cloud Translation.
 
