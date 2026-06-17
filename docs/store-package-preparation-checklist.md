@@ -2,7 +2,7 @@
 
 Last updated: 2026-06-17
 
-Use this checklist before uploading DutchMate to the Chrome Web Store or Firefox Add-ons. This document is about preparing and inspecting release artifacts; it does not submit anything to a store by itself.
+Use this checklist before uploading DutchMate to the Chrome Web Store, Firefox Add-ons, or Microsoft Edge Add-ons. This document is about preparing and inspecting release artifacts; it does not submit anything to a store by itself.
 
 ## Inputs
 
@@ -107,14 +107,20 @@ Options build:
 Notes:
 ```
 
-## Chrome Package
+## Chromium Package
 
-Chrome Web Store expects a zip file containing the extension files at the zip root.
+Chrome Web Store and Microsoft Edge Add-ons both expect a zip file containing the extension files at the zip root.
 
 Suggested artifact path:
 
 ```text
 release/dutchmate-chrome-0.1.0.zip
+```
+
+Suggested Edge artifact path:
+
+```text
+release/dutchmate-edge-0.1.0.zip
 ```
 
 Suggested command from repo root:
@@ -129,6 +135,8 @@ Before upload:
 - confirm `manifest.json` is at the zip root;
 - load the unzipped folder through `chrome://extensions`;
 - run a quick hover and selection smoke test.
+
+For Edge, the package can be checked by loading the unpacked folder through Edge's extensions page as well.
 
 ## Firefox Package
 
@@ -168,6 +176,7 @@ Prepare these before submission:
 - test instructions.
 
 Use [chrome-web-store-listing-draft.md](chrome-web-store-listing-draft.md) and [store-disclosure-draft.md](store-disclosure-draft.md) as the starting point.
+Use [browser-release-playbook.md](browser-release-playbook.md) as the canonical browser-neutral rollout guide.
 
 ## Reviewer Notes Draft
 

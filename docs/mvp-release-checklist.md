@@ -39,9 +39,10 @@ Before sharing with WhatsApp group MVP users:
 - manual Firefox and Chrome regression checklist passed on 2026-06-17;
 - prepare a short gentle sharing note.
 
-For Chrome, a store listing is usually the cleanest way for non-technical users to install. For Firefox, Add-ons for Mozilla (AMO) can list the add-on or sign it for self-distribution.
+For Chrome, a store listing is usually the cleanest way for non-technical users to install. For Firefox, Add-ons for Mozilla (AMO) can list the add-on or sign it for self-distribution. For Edge, Partner Center uses the same Chromium-style package flow.
 
 Use [whatsapp-mvp-tester-instructions.md](whatsapp-mvp-tester-instructions.md) as the working gentle sharing guide.
+Use [browser-release-playbook.md](browser-release-playbook.md) as the canonical browser-neutral release path.
 Use [chrome-web-store-listing-draft.md](chrome-web-store-listing-draft.md) as the working Chrome Web Store listing draft.
 Use [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md) before capturing Chrome listing screenshots and promotional images.
 Use [store-disclosure-draft.md](store-disclosure-draft.md) as the working browser-store disclosure draft.
@@ -81,6 +82,7 @@ Reasons:
 - Updates can be managed through the browser store.
 - Store review forces us to clarify privacy and permissions.
 - Firefox production installs generally need signed add-ons.
+- Edge public installs also benefit from store review and signed publishing flow.
 
 Do not submit to stores until:
 
@@ -89,6 +91,8 @@ Do not submit to stores until:
 - Google Cloud cost monitoring is checked;
 - Chrome and Firefox packaged builds pass manual smoke tests;
 - support/contact email is ready.
+
+If you want the broadest public rollout with the least friction, prioritize Firefox and Edge first, then Chrome after the developer registration step is done.
 
 ## Sources
 
