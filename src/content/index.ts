@@ -311,7 +311,17 @@ async function showTranslation(
     return;
   }
 
-  showTooltipResult(response, x, y);
+  try {
+    showTooltipResult(response, x, y);
+  } catch {
+    showTooltipMessage(
+      response.ok ? response.result.translatedText : response.error,
+      response.ok ? "success" : "error",
+      context,
+      x,
+      y,
+    );
+  }
 }
 
 function beginTooltipRequest(
@@ -373,7 +383,10 @@ function renderMultiTargetTooltip(text: string): void {
     return row;
   });
 
-  tooltip.replaceChildren(...rows);
+  tooltip.textContent = "";
+  for (const row of rows) {
+    tooltip.appendChild(row);
+  }
 }
 
 function truncateTooltipText(text: string): string {
