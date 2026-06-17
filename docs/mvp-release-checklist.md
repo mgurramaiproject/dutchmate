@@ -1,6 +1,6 @@
 # MVP Release Checklist
 
-Last updated: 2026-06-16
+Last updated: 2026-06-17
 
 DutchMate is not ready for broad public launch yet, but it is close to a gentle MVP share with a Dutch-learner WhatsApp group.
 
@@ -35,15 +35,16 @@ Before sharing with WhatsApp group MVP users:
 
 - finish privacy policy/store disclosure drafts;
 - keep provider override controls hidden from the normal user path;
-- verify Google Cloud cost dashboard and budget alerts;
-- run the manual Firefox and Chrome regression checklist;
+- Google Cloud cost dashboard and budget alerts verified on 2026-06-17;
+- manual Firefox and Chrome regression checklist passed on 2026-06-17;
 - prepare a short gentle sharing note.
 
 For Chrome, a store listing is usually the cleanest way for non-technical users to install. For Firefox, Add-ons for Mozilla (AMO) can list the add-on or sign it for self-distribution.
 
 Use [whatsapp-mvp-tester-instructions.md](whatsapp-mvp-tester-instructions.md) as the working gentle sharing guide.
 Use [store-disclosure-draft.md](store-disclosure-draft.md) as the working browser-store disclosure draft.
-Use [google-cloud-cost-monitoring-checklist.md](google-cloud-cost-monitoring-checklist.md) to verify Google Cloud budget alerts and cost visibility before sharing.
+Use [google-cloud-cost-monitoring-checklist.md](google-cloud-cost-monitoring-checklist.md) for Google Cloud budget alert and cost visibility evidence.
+Use [manual-testing.md](manual-testing.md) for the latest Chrome and Firefox regression evidence.
 
 ### 3. Store Submission
 
