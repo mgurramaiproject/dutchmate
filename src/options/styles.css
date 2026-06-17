@@ -24,6 +24,19 @@ h1 {
   letter-spacing: 0;
 }
 
+.options-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.options-title img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
 form {
   display: grid;
   gap: 24px;
