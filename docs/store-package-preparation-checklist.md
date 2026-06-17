@@ -111,9 +111,7 @@ release/dutchmate-chrome-0.1.0.zip
 Suggested command from repo root:
 
 ```bash
-mkdir -p release
-cd dist/chrome
-zip -r ../../release/dutchmate-chrome-0.1.0.zip .
+corepack pnpm package:chrome
 ```
 
 Before upload:
@@ -136,9 +134,7 @@ release/dutchmate-firefox-0.1.0.zip
 Suggested command from repo root:
 
 ```bash
-mkdir -p release
-cd dist/firefox
-zip -r ../../release/dutchmate-firefox-0.1.0.zip .
+corepack pnpm package:firefox
 ```
 
 Before upload:
