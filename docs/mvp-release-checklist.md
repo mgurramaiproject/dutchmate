@@ -43,6 +43,7 @@ For Chrome, a store listing is usually the cleanest way for non-technical users 
 
 Use [whatsapp-mvp-tester-instructions.md](whatsapp-mvp-tester-instructions.md) as the working gentle sharing guide.
 Use [store-disclosure-draft.md](store-disclosure-draft.md) as the working browser-store disclosure draft.
+Use [google-cloud-cost-monitoring-checklist.md](google-cloud-cost-monitoring-checklist.md) to verify Google Cloud budget alerts and cost visibility before sharing.
 
 ### 3. Store Submission
 
