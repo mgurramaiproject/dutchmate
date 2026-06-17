@@ -33,7 +33,7 @@ Status: **Next**
 
 Before sharing with WhatsApp group MVP users:
 
-- finish privacy policy/store disclosure draft;
+- finish privacy policy/store disclosure drafts;
 - keep provider override controls hidden from the normal user path;
 - verify Google Cloud cost dashboard and budget alerts;
 - run the manual Firefox and Chrome regression checklist;
@@ -42,6 +42,7 @@ Before sharing with WhatsApp group MVP users:
 For Chrome, a store listing is usually the cleanest way for non-technical users to install. For Firefox, Add-ons for Mozilla (AMO) can list the add-on or sign it for self-distribution.
 
 Use [whatsapp-mvp-tester-instructions.md](whatsapp-mvp-tester-instructions.md) as the working gentle sharing guide.
+Use [store-disclosure-draft.md](store-disclosure-draft.md) as the working browser-store disclosure draft.
 
 ### 3. Store Submission
 
