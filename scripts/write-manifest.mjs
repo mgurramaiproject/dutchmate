@@ -17,6 +17,12 @@ const manifest = {
   description:
     "Learn Dutch while reading, with quick English and Telugu translations in context.",
   permissions: ["storage"],
+  icons: {
+    16: "icons/icon-16.png",
+    32: "icons/icon-32.png",
+    48: "icons/icon-48.png",
+    128: "icons/icon-128.png",
+  },
   host_permissions: ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"],
   background:
     target === "firefox"

@@ -80,23 +80,39 @@ function blend(top, bottom) {
   ];
 }
 
-writePng('assets/store/chrome/icon/icon-128.png', 128, 128, (x, y) => {
+function bookBubbleIconPixel(x, y, size) {
   const transparent = [0, 0, 0, 0];
   const bg = [32, 87, 129, 255];
   const paper = [248, 244, 235, 255];
   const accent = [239, 183, 73, 255];
   const ink = [38, 37, 33, 255];
+  const green = [52, 133, 98, 255];
+  const u = (x * 128) / size;
+  const v = (y * 128) / size;
 
-  if (!insideRoundedRect(x, y, 16, 16, 96, 96, 18)) return transparent;
+  if (!insideRoundedRect(u, v, 16, 16, 96, 96, 18)) return transparent;
   let pixel = bg;
-  if (x >= 36 && x <= 89 && y >= 31 && y <= 92) pixel = paper;
-  if (x >= 62 && x <= 65 && y >= 31 && y <= 92) pixel = accent;
-  if (x >= 43 && x <= 57 && [47, 59, 71].some((line) => Math.abs(y - line) <= 1)) pixel = ink;
-  if (x >= 72 && x <= 84 && [47, 59, 71].some((line) => Math.abs(y - line) <= 1)) pixel = ink;
-  if (insideRoundedRect(x, y, 75, 72, 25, 17, 5)) pixel = accent;
-  if (x >= 82 && x <= 92 && y >= 89 && y <= 97 && x - y > -8) pixel = accent;
+  if (insideRoundedRect(u, v, 32, 34, 31, 58, 6)) pixel = paper;
+  if (insideRoundedRect(u, v, 65, 34, 31, 58, 6)) pixel = [247, 231, 195, 255];
+  if (u >= 62 && u <= 66 && v >= 35 && v <= 96) pixel = accent;
+  if (u >= 41 && u <= 56 && [51, 63, 75].some((line) => Math.abs(v - line) <= 1.6)) pixel = ink;
+  if (u >= 73 && u <= 88 && [51, 63, 75].some((line) => Math.abs(v - line) <= 1.6)) pixel = ink;
+  if (insideRoundedRect(u, v, 76, 73, 28, 19, 6)) pixel = accent;
+  if (u >= 85 && u <= 96 && v >= 88 && v <= 99 && u - v > -5) pixel = accent;
+  if (u >= 86 && u <= 95 && v >= 88 && v <= 108) pixel = green;
+  if (u >= 91 && u <= 96 && v >= 100 && u - v > -9) pixel = green;
   return pixel;
-});
+}
+
+for (const size of [16, 32, 48, 128]) {
+  writePng(`public/icons/icon-${size}.png`, size, size, (x, y) =>
+    bookBubbleIconPixel(x, y, size),
+  );
+}
+
+writePng('assets/store/chrome/icon/icon-128.png', 128, 128, (x, y) =>
+  bookBubbleIconPixel(x, y, 128),
+);
 
 writePng('assets/store/chrome/promo/small-promo-440x280.png', 440, 280, (x, y) => {
   const sky = [235, 243, 245, 255];
@@ -120,4 +136,4 @@ writePng('assets/store/chrome/promo/small-promo-440x280.png', 440, 280, (x, y) =
   return pixel;
 });
 
-console.log('Generated Chrome store icon and promotional image assets.');
+console.log('Generated Chrome store and extension icon assets.');

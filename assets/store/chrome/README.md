@@ -32,4 +32,12 @@ Generate the first-pass icon and small promotional image with:
 corepack pnpm store:assets
 ```
 
+The same command also writes extension icon files into `public/icons/`, which are copied into Chrome and Firefox builds and referenced from the extension manifest.
+
+The GPT-generated Book Bubble concept reference is saved at:
+
+```text
+logo-reference/book-bubble-gpt-reference.png
+```
+
 Follow [docs/chrome-web-store-screenshot-plan.md](../../../docs/chrome-web-store-screenshot-plan.md) before capturing or designing these images.
