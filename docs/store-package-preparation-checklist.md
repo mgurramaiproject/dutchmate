@@ -159,7 +159,7 @@ Prepare these before submission:
 
 - short description;
 - longer description;
-- confirmed privacy policy public URL; planned URL is `https://dutchmate-frontend.onrender.com/privacy-policy.html`;
+- confirmed privacy policy public URL: `https://dutchmate-frontend.onrender.com/privacy-policy.html`;
 - support/contact email;
 - screenshots;
 - category;

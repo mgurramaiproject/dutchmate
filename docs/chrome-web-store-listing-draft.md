@@ -39,7 +39,6 @@ dutchmate.project@gmail.com
 Privacy policy URL:
 
 ```text
-Planned, pending public hosting:
 https://dutchmate-frontend.onrender.com/privacy-policy.html
 ```
 

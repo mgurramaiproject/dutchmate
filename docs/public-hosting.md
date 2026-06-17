@@ -6,7 +6,16 @@ DutchMate's public marketing and privacy pages are intended to be served from th
 
 ## Current Status
 
-GitHub Pages is not enabled for this repository.
+Render Static Site hosting is live.
+
+Confirmed on 2026-06-17:
+
+```text
+https://dutchmate-frontend.onrender.com/
+https://dutchmate-frontend.onrender.com/privacy-policy.html
+```
+
+GitHub Pages is not enabled for this repository and is no longer the intended host.
 
 On 2026-06-17, enabling GitHub Pages through the GitHub API returned:
 
@@ -14,18 +23,18 @@ On 2026-06-17, enabling GitHub Pages through the GitHub API returned:
 Your current plan does not support GitHub Pages for this repository.
 ```
 
-Before browser-store submission, deploy the `dutchmate-frontend` Render Static Site and confirm `privacy-policy.html` opens publicly.
+Use the Render privacy policy URL in browser-store submission fields.
 
-## Intended Public URLs
+## Public URLs
 
-If the Render Static Site is created with the service name `dutchmate-frontend`, these URLs should be available:
+The Render Static Site is available at:
 
 ```text
 https://dutchmate-frontend.onrender.com/
 https://dutchmate-frontend.onrender.com/privacy-policy.html
 ```
 
-Use the privacy policy URL in browser-store submission fields only after confirming the page opens publicly.
+Use the privacy policy URL in browser-store submission fields.
 
 ## Files
 

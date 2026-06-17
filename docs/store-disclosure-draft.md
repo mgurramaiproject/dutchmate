@@ -39,11 +39,10 @@ DutchMate provides quick reading support for Dutch learners by translating user-
 Use the hosted URL for:
 
 ```text
-Planned, pending public hosting:
 https://dutchmate-frontend.onrender.com/privacy-policy.html
 ```
 
-Before submission, confirm the privacy policy opens at the public URL.
+The privacy policy public URL was confirmed on 2026-06-17.
 
 ## Chrome Privacy Practices Draft
 
