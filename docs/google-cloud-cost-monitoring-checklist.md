@@ -1,6 +1,6 @@
 # Google Cloud Cost Monitoring Checklist
 
-Last updated: 2026-06-17
+Last updated: 2026-06-18
 
 Use this checklist before sharing DutchMate with a broader WhatsApp group. The goal is to confirm that Google Cloud Translation costs are visible and that budget alerts are active before more people can generate real translation traffic.
 
@@ -51,6 +51,18 @@ Budget alerts are useful warnings, but they are not hard spending caps. Keep the
 Add the newest entry first after checking the Google Cloud Console.
 
 ```text
+Date: 2026-06-18
+Verifier: MGurram via production /health check
+Project: dutchmate-production
+Free trial status: Not checked in this step
+Budget alert status: Previously verified
+Alert recipients checked: Previously partially verified
+Current spend: Not checked in this step
+Cloud Translation API cost visible: Not checked in this step
+API key restriction checked: Previously verified; key dutchmate-render-translation-key is restricted to translate.googleapis.com
+Result: Pass for backend runtime visibility
+Notes: Production https://dutchmate-backend.onrender.com/health returned runtime summary after deploy. Backend process started at 2026-06-17T22:09:57.558Z. It reported 12 accepted translate requests, 130 requested source characters, 12 successes, 0 failures, 0 client rate-limit hits, 0 provider errors, 0 provider rate-limit events, and hover-only traffic in this process window.
+
 Date: 2026-06-17
 Verifier: MGurram via Google Cloud Console
 Project: dutchmate-production
