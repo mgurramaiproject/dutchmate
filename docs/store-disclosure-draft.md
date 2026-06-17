@@ -39,6 +39,7 @@ DutchMate provides quick reading support for Dutch learners by translating user-
 Use the hosted URL for:
 
 ```text
+Planned, pending public hosting:
 https://mgurramaiproject.github.io/dutchmate-extension/privacy-policy.html
 ```
 

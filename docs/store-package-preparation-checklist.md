@@ -159,7 +159,7 @@ Prepare these before submission:
 
 - short description;
 - longer description;
-- privacy policy public URL: `https://mgurramaiproject.github.io/dutchmate-extension/privacy-policy.html`;
+- confirmed privacy policy public URL; planned URL is `https://mgurramaiproject.github.io/dutchmate-extension/privacy-policy.html`;
 - support/contact email;
 - screenshots;
 - category;

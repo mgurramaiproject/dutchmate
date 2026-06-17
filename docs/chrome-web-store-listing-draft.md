@@ -39,6 +39,7 @@ dutchmate.project@gmail.com
 Privacy policy URL:
 
 ```text
+Planned, pending public hosting:
 https://mgurramaiproject.github.io/dutchmate-extension/privacy-policy.html
 ```
 

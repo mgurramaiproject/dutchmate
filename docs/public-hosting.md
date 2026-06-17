@@ -4,6 +4,18 @@ Last updated: 2026-06-17
 
 DutchMate's public documentation pages are intended to be served from the repository's `docs/` directory through GitHub Pages.
 
+## Current Status
+
+GitHub Pages is not enabled yet for this repository.
+
+On 2026-06-17, enabling GitHub Pages through the GitHub API returned:
+
+```text
+Your current plan does not support GitHub Pages for this repository.
+```
+
+Before browser-store submission, either make GitHub Pages available for this repo or publish `privacy-policy.html` through another stable public host.
+
 ## Intended Public URLs
 
 If GitHub Pages is enabled for this repository with source `main` and folder `/docs`, these URLs should be available:
@@ -13,7 +25,7 @@ https://mgurramaiproject.github.io/dutchmate-extension/
 https://mgurramaiproject.github.io/dutchmate-extension/privacy-policy.html
 ```
 
-Use the privacy policy URL in browser-store submission fields after confirming the page opens publicly.
+Use the privacy policy URL in browser-store submission fields only after confirming the page opens publicly.
 
 ## Files
 
