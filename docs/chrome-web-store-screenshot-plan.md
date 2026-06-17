@@ -56,6 +56,7 @@ assets/store/chrome/icon/icon-128.png
 ```
 
 The folder structure is prepared in [assets/store/chrome/README.md](../assets/store/chrome/README.md).
+The first real screenshot capture instructions are in [assets/store/chrome/screenshots/README.md](../assets/store/chrome/screenshots/README.md).
 
 ## Promotional Image Notes
 

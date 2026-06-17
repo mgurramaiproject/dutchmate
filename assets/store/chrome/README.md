@@ -26,4 +26,10 @@ screenshots/04-options-privacy-cache-1280x800.png
 screenshots/05-multilingual-result-1280x800.png
 ```
 
+Generate the first-pass icon and small promotional image with:
+
+```bash
+corepack pnpm store:assets
+```
+
 Follow [docs/chrome-web-store-screenshot-plan.md](../../../docs/chrome-web-store-screenshot-plan.md) before capturing or designing these images.

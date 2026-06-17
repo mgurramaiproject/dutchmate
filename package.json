@@ -18,6 +18,7 @@
     "package:chrome": "npm run build:chrome && node scripts/package-extension.mjs chrome",
     "package:firefox": "npm run build:firefox && node scripts/package-extension.mjs firefox",
     "package:extensions": "npm run package:chrome && npm run package:firefox",
+    "store:assets": "node scripts/generate-store-assets.mjs",
     "backend:start": "node backend/dev-server.mjs",
     "backend:dev": "node backend/dev-server.mjs",
     "backend:dev:env": "node --env-file-if-exists=.env backend/dev-server.mjs",
