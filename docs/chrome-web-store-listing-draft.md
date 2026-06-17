@@ -143,7 +143,7 @@ No pressure at all, but feel free to try it if it sounds useful. If anyone finds
 
 ## Assets Still Needed
 
-- Chrome Web Store screenshots from [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md).
+- Additional Chrome Web Store screenshots from [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md).
 - Confirmed public privacy policy URL.
 - Final zipped Chrome artifact.
 - Store icon and promotional image assets in [../assets/store/chrome/](../assets/store/chrome/).

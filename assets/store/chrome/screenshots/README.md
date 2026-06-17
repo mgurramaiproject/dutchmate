@@ -12,6 +12,12 @@ File name:
 01-hover-translation-1280x800.png
 ```
 
+Status:
+
+```text
+Captured on 2026-06-17.
+```
+
 Goal:
 
 Show DutchMate translating a hovered Dutch word on a normal public Dutch webpage.

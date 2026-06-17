@@ -74,6 +74,19 @@ Before uploading images to the Chrome Developer Dashboard:
 - text remains readable when viewed smaller;
 - filenames and final uploaded order match the intended story.
 
+## Capture Log
+
+Newest entries first.
+
+```text
+Date: 2026-06-17
+File: assets/store/chrome/screenshots/01-hover-translation-1280x800.png
+Result: Captured
+Dimensions: 1280x800
+Scenario: Hover translation on a clean Dutch reading page with the restored Book Bubble icon visible.
+Notes: Automated Chrome loaded the built content script UI for capture. The automated browser did not inject the unpacked extension content script reliably, so this screenshot should be treated as the first store-asset candidate and can be manually recaptured before final upload if desired.
+```
+
 ## Sources
 
 - Chrome Web Store image requirements: https://developer.chrome.com/docs/webstore/images
