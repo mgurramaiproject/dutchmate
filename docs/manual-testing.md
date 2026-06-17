@@ -29,6 +29,8 @@ Notes:
 
 Recent entries:
 
+- 2026-06-17 | `096aff1` | Chrome production-backed build | MGurram | Pass | After reloading Chrome and reopening the test page, hover/selection translations worked. This verifies the defensive tooltip render fallback fixed the Chrome `Translating...` stall.
+- 2026-06-17 | `096aff1` | Firefox production-backed build | MGurram | Pass | Firefox continued to work as intended after the hover hit-detection and tooltip render fallback fixes.
 - 2026-06-17 | `aa3432d` | Chrome production-backed build | MGurram | Fail | Chrome loaded the current build, but hover/selection stayed on `Translating...` and did not display the translation. Needs focused Chrome investigation before broader sharing.
 - 2026-06-17 | `aa3432d` | Firefox production-backed build | MGurram | Pass | Firefox worked as intended with the current production-backed build.
 - 2026-06-16 | `6d7ea6c` | Chrome full translation path | MGurram | Pass | Chrome behaved as intended, similar to Firefox. Real hover/selection translations worked through the default Render endpoint and Google Cloud Translation.
