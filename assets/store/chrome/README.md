@@ -26,14 +26,14 @@ screenshots/04-options-privacy-cache-1280x800.png
 screenshots/05-multilingual-result-1280x800.png
 ```
 
-Generate the first-pass icon and small promotional image with:
+Regenerate the small promotional image with:
 
 ```bash
 corepack pnpm store:assets
 ```
 
-The same command also writes extension icon files into `public/icons/`, which are copied into Chrome and Firefox builds and referenced from the extension manifest.
+The production icon is derived from `frontend/assets/dutchmate-logo-gpt-image.png`. Resized extension icon files live in `public/icons/`, are copied into Chrome and Firefox builds, and are referenced from the extension manifest.
 
-The production icon intentionally keeps the earlier Book Bubble palette because it tested better visually than the strict three-color version.
+The Chrome Web Store icon lives at `assets/store/chrome/icon/icon-128.png` and should match the same GPT-generated Book Bubble mark.
 
 Follow [docs/chrome-web-store-screenshot-plan.md](../../../docs/chrome-web-store-screenshot-plan.md) before capturing or designing these images.

@@ -70,57 +70,10 @@ function insideRoundedRect(x, y, left, top, width, height, radius) {
   return (x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2;
 }
 
-function insideCircle(x, y, cx, cy, radius) {
-  return (x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2;
-}
-
-function insidePolygon(x, y, points) {
-  let inside = false;
-  for (let i = 0, j = points.length - 1; i < points.length; j = i, i += 1) {
-    const [xi, yi] = points[i];
-    const [xj, yj] = points[j];
-    const intersects = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-    if (intersects) inside = !inside;
-  }
-  return inside;
-}
-
-function bookBubbleIconPixel(x, y, size) {
-  const transparent = [0, 0, 0, 0];
-  const black = [0, 0, 0, 255];
-  const white = [255, 255, 255, 255];
-  const orange = [255, 111, 0, 255];
-  const u = (x * 128) / size;
-  const v = (y * 128) / size;
-
-  if (!insideRoundedRect(u, v, 14, 14, 100, 100, 21)) return transparent;
-  let pixel = black;
-
-  if (insidePolygon(u, v, [[31, 61], [63, 54], [64, 98], [47, 93], [31, 97]])) pixel = white;
-  if (insidePolygon(u, v, [[65, 54], [97, 61], [97, 97], [81, 93], [64, 98]])) pixel = white;
-  if (u >= 62 && u <= 66 && v >= 57 && v <= 99) pixel = black;
-
-  if (u >= 42 && u <= 55 && [73, 84].some((line) => Math.abs(v - line) <= 1.4)) pixel = black;
-  if (u >= 74 && u <= 87 && [73, 84].some((line) => Math.abs(v - line) <= 1.4)) pixel = black;
-
-  if (insideRoundedRect(u, v, 32, 28, 64, 32, 10)) pixel = orange;
-  if (insidePolygon(u, v, [[56, 58], [71, 58], [64, 75]])) pixel = orange;
-  if (insideCircle(u, v, 47, 44, 4.2)) pixel = white;
-  if (u >= 58 && u <= 78 && Math.abs(v - 44) <= 2.6) pixel = white;
-  if (insidePolygon(u, v, [[76, 36], [86, 44], [76, 52]])) pixel = white;
-
-  return pixel;
-}
-
-for (const size of [16, 32, 48, 128]) {
-  writePng(`public/icons/icon-${size}.png`, size, size, (x, y) =>
-    bookBubbleIconPixel(x, y, size),
-  );
-}
-
-writePng('assets/store/chrome/icon/icon-128.png', 128, 128, (x, y) =>
-  bookBubbleIconPixel(x, y, 128),
-);
+// Extension and store icon files are derived from
+// frontend/assets/dutchmate-logo-gpt-image.png and committed as PNG assets.
+// This script intentionally leaves those icons alone so it cannot overwrite
+// the approved GPT-generated Book Bubble mark.
 
 writePng('assets/store/chrome/promo/small-promo-440x280.png', 440, 280, (x, y) => {
   const black = [0, 0, 0, 255];
@@ -146,4 +99,4 @@ writePng('assets/store/chrome/promo/small-promo-440x280.png', 440, 280, (x, y) =
   return pixel;
 });
 
-console.log('Generated Chrome store and extension icon assets.');
+console.log('Generated Chrome store promotional assets.');
