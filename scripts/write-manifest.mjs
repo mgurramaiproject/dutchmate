@@ -50,6 +50,9 @@ if (target === "firefox") {
     gecko: {
       id: "hover-translate@example.mgurramai.local",
       strict_min_version: "109.0",
+      data_collection_permissions: {
+        required: ["websiteContent"],
+      },
     },
   };
 }
