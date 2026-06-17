@@ -248,9 +248,9 @@ Logo rules:
 - must still read in one color if needed;
 - no flags, windmills, or tourist stereotypes;
 - no tiny letters inside the mark;
-- no more than black, white, and orange.
+- default to black, white, and orange for new logo explorations.
 
-If the current generated icon contains non-approved colors, revise it during the next visual pass.
+Exception: the production Book Bubble icon may keep its earlier blue, cream, yellow, and green palette because that version is currently preferred for recognizability and warmth. Do not expand that palette into the rest of the UI without explicit approval.
 
 ## 7. Imagery And Screenshots
 

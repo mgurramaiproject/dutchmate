@@ -34,4 +34,6 @@ corepack pnpm store:assets
 
 The same command also writes extension icon files into `public/icons/`, which are copied into Chrome and Firefox builds and referenced from the extension manifest.
 
+The production icon intentionally keeps the earlier Book Bubble palette because it tested better visually than the strict three-color version.
+
 Follow [docs/chrome-web-store-screenshot-plan.md](../../../docs/chrome-web-store-screenshot-plan.md) before capturing or designing these images.
