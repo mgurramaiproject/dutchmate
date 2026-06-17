@@ -59,15 +59,18 @@ Recommended CSS tokens:
 
 ## 3. Typography
 
-DutchMate should use a clean sans-serif stack with a Claude-like editorial feel: humane, modern, highly readable, and not overly geometric.
+DutchMate should use a serif-led editorial typography system for public-facing pages. The site should feel thoughtful, literary, and calm, while still staying highly readable for learners.
 
-Preferred stack:
+Public-facing preferred stacks:
 
 ```css
-font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+--dm-serif: Iowan Old Style, Palatino Linotype, Book Antiqua, Georgia, Times New Roman, serif;
+--dm-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 ```
 
-If a hosted font is introduced later, prefer a neutral grotesk/humanist sans. Do not use serif display fonts, playful rounded fonts, handwriting fonts, or monospace as the main brand voice.
+Use the serif stack for public page body copy and headings. Use the sans-serif stack for compact UI elements such as navigation, buttons, labels, badges, and any browser-extension settings surfaces where quick scanning matters more than editorial tone.
+
+If a hosted font is introduced later, prefer a readable bookish serif for public marketing pages and a neutral humanist sans for utility UI. Do not use playful rounded fonts, handwriting fonts, or monospace as the main brand voice.
 
 ### Type Scale
 
@@ -88,6 +91,7 @@ Typography rules:
 - Use short paragraphs, not dense blocks.
 - Keep the hero headline literal and benefit-led.
 - Write in plain language for Dutch learners and non-technical users.
+- The extension Options page may remain sans-serif for clarity, even when the public site is serif-led.
 
 ## 4. Layout Principles
 
@@ -362,7 +366,7 @@ When changing DutchMate UI:
 Use this prompt when asking an agent to update DutchMate UI:
 
 ```text
-Use DESIGN.md as the source of truth. Build a clean editorial DutchMate interface using only black, white, and strong Dutch orange. Keep the layout text-first, readable, and trustworthy. Use a Claude-like sans-serif feel through the approved system font stack. Avoid gradients, extra colors, nested cards, decorative blobs, and hype copy. The product is a browser extension that helps Dutch learners use Dutch, English, and their mother tongue while translating hovered words and selected text on real websites.
+Use DESIGN.md as the source of truth. Build a clean editorial DutchMate interface using only black, white, and strong Dutch orange. Keep the layout text-first, readable, and trustworthy. Use the approved serif-led public typography system, with sans-serif reserved for compact utility UI. Avoid gradients, extra colors, nested cards, decorative blobs, and hype copy. The product is a browser extension that helps Dutch learners use Dutch, English, and their mother tongue while translating hovered words and selected text on real websites.
 ```
 
 ## 14. Source Inspiration
