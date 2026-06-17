@@ -74,6 +74,30 @@ dist/firefox/src/options/index.html
 
 Confirm normal users can change language and behavior settings, but do not see Provider endpoint or Provider API key controls.
 
+## Inspection Log
+
+Keep newest entries first.
+
+```text
+Date: 2026-06-17
+Commit: e7b6bf4
+Inspector: Codex
+Result: Pass
+Chrome manifest: Pass; Manifest V3, name DutchMate, version 0.1.0, storage permission only, expected host permissions, service worker background, content script, and options page are present.
+Firefox manifest: Pass; Manifest V3, name DutchMate, version 0.1.0, storage permission only, expected host permissions, background scripts, content script, options page, and Gecko settings are present.
+Options build: Pass; built Options page shows normal language, behavior, tuning, privacy, and cache controls. Provider endpoint/API-key labels are not present in the store-ready built HTML.
+Notes: Built JavaScript still contains internal provider setting keys because settings are preserved behind the normal backend path, but the normal user-facing controls are not rendered unless local-testing options are enabled.
+
+Date:
+Commit:
+Inspector:
+Result:
+Chrome manifest:
+Firefox manifest:
+Options build:
+Notes:
+```
+
 ## Chrome Package
 
 Chrome Web Store expects a zip file containing the extension files at the zip root.
