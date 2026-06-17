@@ -6,7 +6,7 @@ Use this checklist before sharing DutchMate with a broader WhatsApp group. The g
 
 ## Current Status
 
-Status: **Partially verified by CLI; budget details need API or Console verification**
+Status: **Budget alerts verified by CLI; spend dashboard still needs Console check**
 
 Known setup from [google-cloud-translation-setup.md](google-cloud-translation-setup.md):
 
@@ -17,7 +17,7 @@ Known setup from [google-cloud-translation-setup.md](google-cloud-translation-se
 - Cloud Translation API is enabled.
 - Render uses `TRANSLATION_PROVIDER=google-translate`.
 
-This repo environment now has authenticated `gcloud` CLI access as `dutchmate.project@gmail.com`, but it does not have Google Cloud Console UI access. The Cloud Billing Budget API is disabled for `dutchmate-production`, so budget alert details still need either Console verification or explicit approval to enable that API.
+This repo environment now has authenticated `gcloud` CLI access as `dutchmate.project@gmail.com`, but it does not have Google Cloud Console UI access. Budget alert configuration is verified through the Cloud Billing Budget API. Current spend and free-trial status still need Console verification.
 
 ## Manual Verification Steps
 
@@ -51,6 +51,18 @@ Budget alerts are useful warnings, but they are not hard spending caps. Keep the
 Add the newest entry first after checking the Google Cloud Console.
 
 ```text
+Date: 2026-06-17
+Verifier: Codex via Cloud Billing Budget API
+Project: dutchmate-production
+Free trial status: Not verified from CLI
+Budget alert status: Pass; budget dutchmate-mvp-budget exists
+Alert recipients checked: Partial; project-level recipients are enabled, exact email recipients not listed in API response
+Current spend: Not verified from CLI
+Cloud Translation API cost visible: Not verified from CLI
+API key restriction checked: Previously verified; key dutchmate-render-translation-key is restricted to translate.googleapis.com
+Result: Partial pass
+Notes: Billing Budget API returned one monthly budget scoped to projects/905309153931. Budget amount is EUR 5. Threshold alerts are configured at 50%, 90%, and 100% of current spend. notificationsRule.enableProjectLevelRecipients is true.
+
 Date: 2026-06-17
 Verifier: Codex via gcloud CLI
 Project: dutchmate-production
