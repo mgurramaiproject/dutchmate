@@ -43,6 +43,7 @@ For Chrome, a store listing is usually the cleanest way for non-technical users 
 
 Use [whatsapp-mvp-tester-instructions.md](whatsapp-mvp-tester-instructions.md) as the working gentle sharing guide.
 Use [store-disclosure-draft.md](store-disclosure-draft.md) as the working browser-store disclosure draft.
+Use [store-package-preparation-checklist.md](store-package-preparation-checklist.md) before creating Chrome and Firefox upload artifacts.
 Use [google-cloud-cost-monitoring-checklist.md](google-cloud-cost-monitoring-checklist.md) for Google Cloud budget alert and cost visibility evidence.
 Use [manual-testing.md](manual-testing.md) for the latest Chrome and Firefox regression evidence.
 
