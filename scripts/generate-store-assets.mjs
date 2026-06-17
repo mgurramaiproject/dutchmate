@@ -70,33 +70,34 @@ function insideRoundedRect(x, y, left, top, width, height, radius) {
   return (x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2;
 }
 
-// Extension and store icon files are derived from
-// frontend/assets/dutchmate-logo-gpt-image.png and committed as PNG assets.
-// This script intentionally leaves those icons alone so it cannot overwrite
-// the approved GPT-generated Book Bubble mark.
-
-writePng('assets/store/chrome/promo/small-promo-440x280.png', 440, 280, (x, y) => {
+function smallToolbarIconPixel(x, y) {
+  const transparent = [0, 0, 0, 0];
   const black = [0, 0, 0, 255];
   const white = [255, 255, 255, 255];
   const orange = [255, 111, 0, 255];
-  let pixel = white;
 
-  if (insideRoundedRect(x, y, 36, 38, 368, 204, 8)) pixel = black;
-  if (insideRoundedRect(x, y, 38, 40, 364, 200, 6)) pixel = white;
-  if (y >= 70 && y <= 72 && x >= 38 && x <= 402) pixel = black;
-  if (insideRoundedRect(x, y, 54, 52, 10, 10, 3)) pixel = orange;
-  if (insideRoundedRect(x, y, 72, 52, 10, 10, 3)) pixel = white;
-  if (x >= 72 && x <= 82 && y >= 52 && y <= 62) pixel = black;
-  if (insideRoundedRect(x, y, 90, 52, 10, 10, 3)) pixel = white;
-  if (x >= 90 && x <= 100 && y >= 52 && y <= 62) pixel = black;
+  if (!insideRoundedRect(x, y, 1, 1, 14, 14, 3)) return transparent;
 
-  if (x >= 64 && x <= 210 && [102, 128, 154, 180].some((row) => Math.abs(y - row) <= 3)) pixel = black;
-  if (x >= 64 && x <= 164 && [115, 141, 167].some((row) => Math.abs(y - row) <= 2)) pixel = orange;
-  if (insideRoundedRect(x, y, 246, 92, 118, 54, 8)) pixel = black;
-  if (insideRoundedRect(x, y, 264, 110, 66, 7, 3)) pixel = white;
-  if (insideRoundedRect(x, y, 264, 128, 82, 6, 3)) pixel = white;
-  if (insideRoundedRect(x, y, 116, 192, 98, 15, 6)) pixel = orange;
+  let pixel = black;
+
+  if (insideRoundedRect(x, y, 3, 2, 10, 7, 3)) pixel = orange;
+  if (insideRoundedRect(x, y, 4, 6, 2, 2, 1)) pixel = white;
+  if (insideRoundedRect(x, y, 7, 6, 3, 1, 1)) pixel = white;
+  if (insideRoundedRect(x, y, 10, 6, 2, 2, 1)) pixel = white;
+
+  if (insideRoundedRect(x, y, 3, 8, 4, 5, 1)) pixel = white;
+  if (insideRoundedRect(x, y, 9, 8, 4, 5, 1)) pixel = white;
+  if (x >= 6 && x <= 10 && y >= 11 && y <= 12) pixel = white;
+  if (x >= 7 && x <= 9 && y === 13) pixel = white;
+
   return pixel;
-});
+}
 
-console.log('Generated Chrome store promotional assets.');
+// Extension icons are derived from the approved GPT-generated Book Bubble mark
+// in frontend/assets/dutchmate-logo-gpt-image.png and are committed as PNG assets.
+// The promo image is maintained separately so it can stay product-based and
+// should not be regenerated here.
+
+writePng('public/icons/icon-16.png', 16, 16, smallToolbarIconPixel);
+
+console.log('Generated Chrome toolbar icon asset.');
