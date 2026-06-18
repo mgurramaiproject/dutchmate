@@ -160,4 +160,4 @@ No pressure at all, but feel free to try it if it sounds useful. If anyone finds
 - Public privacy policy source: [privacy-policy.md](privacy-policy.md)
 - Public privacy policy page source: [../frontend/privacy-policy.html](../frontend/privacy-policy.html)
 - Manual browser evidence: [manual-testing.md](manual-testing.md)
-- Cost monitoring evidence: [google-cloud-cost-monitoring-checklist.md](google-cloud-cost-monitoring-checklist.md)
+- Cost monitoring evidence: [google-cloud-cost-monitoring-checklist.md](../operations/google-cloud-cost-monitoring-checklist.md)

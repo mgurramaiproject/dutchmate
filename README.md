@@ -53,7 +53,7 @@ Run `corepack pnpm verify` before committing changes.
 3. Choose "Load Temporary Add-on...".
 4. Select `dist/firefox/manifest.json`.
 
-See [docs/manual-testing.md](docs/manual-testing.md) for the full local testing checklist.
+See [docs/release/manual-testing.md](docs/release/manual-testing.md) for the full local testing checklist.
 
 ## Custom Endpoint
 
@@ -71,12 +71,12 @@ Endpoint requirements:
 - `http://localhost...`
 - `http://127.0.0.1...`
 
-See [docs/architecture.md](docs/architecture.md) for the request and response contract.
-See [docs/provider-strategy.md](docs/provider-strategy.md) for provider choice, pricing, and production backend notes.
-See [docs/local-backend.md](docs/local-backend.md) for the local real-translation backend scaffold.
-See [docs/mvp-language-focus.md](docs/mvp-language-focus.md) for the Dutch, English, and Telugu current language scope.
-See [docs/cache-strategy.md](docs/cache-strategy.md) for the word-only local persistent cache plan.
-See [docs/viral-adoption-roadmap.md](docs/viral-adoption-roadmap.md) for the free/paid, caching, auth, and adoption roadmap.
+See [docs/architecture/architecture.md](docs/architecture/architecture.md) for the request and response contract.
+See [docs/architecture/provider-strategy.md](docs/architecture/provider-strategy.md) for provider choice, pricing, and production backend notes.
+See [docs/architecture/local-backend.md](docs/architecture/local-backend.md) for the local real-translation backend scaffold.
+See [docs/product/mvp-language-focus.md](docs/product/mvp-language-focus.md) for the Dutch, English, and Telugu current language scope.
+See [docs/architecture/cache-strategy.md](docs/architecture/cache-strategy.md) for the word-only local persistent cache plan.
+See [docs/product/viral-adoption-roadmap.md](docs/product/viral-adoption-roadmap.md) for the free/paid, caching, auth, and adoption roadmap.
 
 For local testing, run:
 

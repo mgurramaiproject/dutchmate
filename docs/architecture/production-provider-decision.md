@@ -2,7 +2,7 @@
 
 Reviewed: 2026-06-15
 
-This note chooses the first translation provider to put behind the Render backend. It intentionally excludes Google/Bing/DeepL web/internal endpoints as the default production path; that decision is captured in [reference-mousetooltiptranslator.md](reference-mousetooltiptranslator.md).
+This note chooses the first translation provider to put behind the Render backend. It intentionally excludes Google/Bing/DeepL web/internal endpoints as the default production path; that decision is captured in [reference-mousetooltiptranslator.md](../references/reference-mousetooltiptranslator.md).
 
 ## Decision Status
 
@@ -65,7 +65,7 @@ Backend health check passed: https://dutchmate-backend.onrender.com
 Backend translation smoke test passed: https://dutchmate-backend.onrender.com
 ```
 
-Setup details are recorded in [google-cloud-translation-setup.md](google-cloud-translation-setup.md).
+Setup details are recorded in [google-cloud-translation-setup.md](../operations/google-cloud-translation-setup.md).
 
 ## MVP Requirements
 

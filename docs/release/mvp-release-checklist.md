@@ -47,7 +47,7 @@ Use [chrome-web-store-listing-draft.md](chrome-web-store-listing-draft.md) as th
 Use [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md) before capturing Chrome listing screenshots and promotional images.
 Use [store-disclosure-draft.md](store-disclosure-draft.md) as the working browser-store disclosure draft.
 Use [store-package-preparation-checklist.md](store-package-preparation-checklist.md) before creating Chrome and Firefox upload artifacts.
-Use [google-cloud-cost-monitoring-checklist.md](google-cloud-cost-monitoring-checklist.md) for Google Cloud budget alert and cost visibility evidence.
+Use [google-cloud-cost-monitoring-checklist.md](../operations/google-cloud-cost-monitoring-checklist.md) for Google Cloud budget alert and cost visibility evidence.
 Use [manual-testing.md](manual-testing.md) for the latest Chrome and Firefox regression evidence.
 
 ### 3. Store Submission

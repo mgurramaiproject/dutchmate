@@ -19,7 +19,7 @@ The extension can safely fetch translation data from an external HTTPS endpoint.
 
 Production backend requirements and rollout sequencing are tracked in [production-backend-plan.md](production-backend-plan.md).
 
-Free browser-extension provider strategies are tracked separately in [reference-mousetooltiptranslator.md](reference-mousetooltiptranslator.md). MouseTooltipTranslator appears to rely heavily on browser-side calls to Google/Bing web translation flows, which is useful inspiration but riskier than an official backend provider for DutchMate's public production path.
+Free browser-extension provider strategies are tracked separately in [reference-mousetooltiptranslator.md](../references/reference-mousetooltiptranslator.md). MouseTooltipTranslator appears to rely heavily on browser-side calls to Google/Bing web translation flows, which is useful inspiration but riskier than an official backend provider for DutchMate's public production path.
 
 The first provider decision is tracked in [production-provider-decision.md](production-provider-decision.md). Current decision: MyMemory remains a temporary no-credit-card experiment/fallback, while Azure AI Translator / Microsoft Translator is the reliable-provider path to activate after Azure resource setup is explicitly approved.
 

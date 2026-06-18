@@ -58,7 +58,7 @@ Recommended order:
 4. Package the browser extension for store or signed distribution.
 5. Share one simple install link and a gentle note.
 
-Manual install instructions are still available in [README.md](../README.md) for internal testing.
+Manual install instructions are still available in [README.md](../../README.md) for internal testing.
 
 ## What People May Try
 
