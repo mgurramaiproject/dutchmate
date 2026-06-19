@@ -1,6 +1,6 @@
 # Browser Release Playbook
 
-Last updated: 2026-06-17
+Last updated: 2026-06-19
 
 This is the canonical, browser-neutral release path for DutchMate.
 
@@ -41,13 +41,14 @@ You need to do the account and payment steps yourself:
 
 ## File Set To Use
 
-- Firefox package: `release/dutchmate-firefox-0.1.0.zip`
-- Chromium package for Chrome: `release/dutchmate-chrome-0.1.0.zip`
-- Chromium package for Edge: `release/dutchmate-edge-0.1.0.zip` when present, or the Chrome package if you are uploading the same build to Edge
+- Firefox package: `release/dutchmate-firefox-0.1.1.zip`
+- Chromium package for Chrome: `release/dutchmate-chrome-0.1.1.zip`
+- Chromium package for Edge: `release/dutchmate-edge-0.1.1.zip` when present, or the Chrome package if you are uploading the same build to Edge
 - Privacy policy: `https://dutchmate-frontend.onrender.com/privacy-policy.html`
-- Chrome listing draft: `docs/chrome-web-store-listing-draft.md`
-- Shared disclosure draft: `docs/store-disclosure-draft.md`
-- Package checklist: `docs/store-package-preparation-checklist.md`
+- Chrome listing draft: `docs/release/chrome-web-store-listing-draft.md`
+- Shared disclosure draft: `docs/release/store-disclosure-draft.md`
+- Package checklist: `docs/release/store-package-preparation-checklist.md`
+- AMO upload playbook: `docs/release/amo-upload-playbook.md`
 
 ## Firefox
 
@@ -57,8 +58,8 @@ Use Firefox Add-ons / AMO for the first public release if you want a low-frictio
 
 1. Sign in to your Mozilla account.
 2. Open the Firefox Add-ons developer page.
-3. Create a new add-on listing.
-4. Upload `release/dutchmate-firefox-0.1.0.zip`.
+3. For the first submission, create a new add-on listing. For updates, open the existing DutchMate add-on page.
+4. Upload `release/dutchmate-firefox-0.1.1.zip`.
 5. Paste the listing copy and privacy answers from the repo.
 6. Submit the add-on for review or signing.
 
@@ -67,6 +68,7 @@ Use Firefox Add-ons / AMO for the first public release if you want a low-frictio
 - Firefox add-ons can be listed on AMO or self-distributed.
 - For broad public use, AMO listing is the easier path.
 - If Firefox asks for source code submission, we can prepare that together.
+- Use [amo-upload-playbook.md](amo-upload-playbook.md) for pending-version and update handling.
 
 ## Edge
 
@@ -95,7 +97,7 @@ Use the Chrome Web Store last.
 2. Pay the one-time developer registration fee if prompted.
 3. Create or finish the developer account registration.
 4. Create a new item.
-5. Upload `release/dutchmate-chrome-0.1.0.zip`.
+5. Upload `release/dutchmate-chrome-0.1.1.zip`.
 6. Fill the store listing, privacy, distribution, and review fields.
 7. Submit for review.
 
@@ -111,4 +113,3 @@ Use a gentle, non-marketing share note like this:
 ```text
 Hi, I built this browser extension for myself while learning Dutch online. If it looks useful to you, feel free to try it and tell me whether it helps.
 ```
-

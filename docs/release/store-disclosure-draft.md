@@ -1,6 +1,6 @@
 # DutchMate Store Disclosure Draft
 
-Last updated: 2026-06-16
+Last updated: 2026-06-19
 
 Use this as working copy for Chrome Web Store and Firefox Add-ons submission fields. Recheck the store forms during submission, because field names and policy wording can change.
 
@@ -59,7 +59,7 @@ Yes.
 Reason:
 
 ```text
-DutchMate transmits text the user asks to translate, along with language settings and translation context, to the DutchMate backend so the extension can return translations.
+DutchMate sends hovered or selected website text to https://dutchmate-backend.onrender.com/translate, along with language settings and translation context, so the extension can return translations.
 ```
 
 ### Data Types To Disclose
@@ -81,21 +81,23 @@ DutchMate uses the text and language settings only to provide the user-facing tr
 ### Data Sharing
 
 ```text
-DutchMate sends translation requests to the DutchMate backend at https://dutchmate-backend.onrender.com. The backend sends the text needed for translation to Google Cloud Translation.
+DutchMate sends hovered or selected website text to https://dutchmate-backend.onrender.com/translate only for translation. The backend sends the text needed for translation to Google Cloud Translation.
 
-DutchMate does not sell user data. DutchMate does not use translated text for advertising. DutchMate does not share translated text with third parties except as needed to provide translations through the configured translation provider, comply with law, or protect the service from abuse.
+Single selected words may be cached locally in the browser. API keys, if any, are stored in browser local/sync storage and used only for the selected provider.
+
+DutchMate does not sell user data. DutchMate does not use translated text for advertising or tracking. DutchMate does not share translated text with third parties except as needed to provide translations through the configured translation provider, comply with law, or protect the service from abuse.
 ```
 
 ### Limited Use Statement
 
 ```text
-DutchMate uses user data only to provide or improve its single purpose: translating hovered or selected webpage text for the user. DutchMate does not sell user data, does not use user data for advertising, and does not transfer user data except as needed to provide translations, comply with law, or protect the service.
+DutchMate uses user data only to provide or improve its single purpose: translating hovered or selected webpage text for the user. DutchMate sends hovered or selected website text to https://dutchmate-backend.onrender.com/translate only for translation. DutchMate does not sell user data, does not use user data for advertising or tracking, and does not transfer user data except as needed to provide translations, comply with law, or protect the service.
 ```
 
 ### Security Statement
 
 ```text
-DutchMate sends translation requests over HTTPS to the DutchMate backend. Provider API keys are kept server-side and are not included in the browser extension.
+DutchMate sends translation requests over HTTPS to https://dutchmate-backend.onrender.com/translate. Production provider API keys are kept server-side and are not included in the browser extension. API keys, if any are configured in the extension for development or custom use, are stored in browser local/sync storage and used only for the selected provider.
 ```
 
 ## Firefox Add-ons Draft
@@ -119,11 +121,13 @@ DutchMate transmits user-requested translation text from the browser to the Dutc
 ### Firefox Privacy Summary
 
 ```text
-DutchMate sends the text you ask to translate to the DutchMate backend, which uses Google Cloud Translation to return translations. This may include hovered words, nearby sentence context, selected words, selected phrases, or selected short sentences, depending on your settings and actions.
+DutchMate sends hovered or selected website text to https://dutchmate-backend.onrender.com/translate only for translation. The backend uses Google Cloud Translation to return translations. This may include hovered words, nearby sentence context, selected words, selected phrases, or selected short sentences, depending on your settings and actions.
 
-DutchMate stores settings and selected single-word translation cache locally in your browser. Hovered text, selected phrases, selected sentences, and failed translations are not persistently cached locally.
+DutchMate stores settings and selected single-word translation cache locally in your browser. Single selected words may be cached locally in the browser. Hovered text, selected phrases, selected sentences, and failed translations are not persistently cached locally.
 
-DutchMate does not require an account, does not sell user data, and does not use translated text for advertising.
+API keys, if any, are stored in browser local/sync storage and used only for the selected provider.
+
+DutchMate does not require an account, does not sell user data, and does not use translated text for advertising or tracking.
 ```
 
 ### Notes For Reviewers
@@ -131,7 +135,7 @@ DutchMate does not require an account, does not sell user data, and does not use
 ```text
 DutchMate is a Manifest V3 browser extension for Dutch learning support.
 
-The extension uses https://dutchmate-backend.onrender.com/translate by default for translation requests. The backend uses Google Cloud Translation.
+The extension sends hovered or selected website text to https://dutchmate-backend.onrender.com/translate by default for translation requests. The backend uses Google Cloud Translation.
 
 Store-ready builds hide provider endpoint and API-key override controls from normal users. Local-testing builds can expose those controls for development only.
 
@@ -143,7 +147,7 @@ No account, login, payment, or special reviewer credentials are required.
 Use this near install/share instructions:
 
 ```text
-Privacy note: DutchMate sends the text you ask to translate to the DutchMate backend, which uses Google Cloud Translation. It does not require an account and does not sell user data. Avoid using it on private pages if you do not want that text sent for translation.
+Privacy note: DutchMate sends hovered or selected website text to https://dutchmate-backend.onrender.com/translate only for translation. Single selected words may be cached locally in your browser. API keys, if any, are stored in browser local/sync storage and used only for the selected provider. DutchMate does not sell data or use it for ads/tracking.
 ```
 
 ## Pre-Submission Checks

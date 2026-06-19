@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import packageJson from "../package.json" with { type: "json" };
 
 const target = process.argv[2];
 
@@ -13,7 +14,7 @@ const distDir = resolve(process.cwd(), "dist", target);
 const manifest = {
   manifest_version: 3,
   name: "DutchMate",
-  version: "0.1.0",
+  version: packageJson.version,
   description:
     "Learn Dutch while reading, with quick English and Telugu translations in context.",
   permissions: ["storage"],
@@ -49,10 +50,13 @@ if (target === "firefox") {
   manifest.browser_specific_settings = {
     gecko: {
       id: "hover-translate@example.mgurramai.local",
-      strict_min_version: "109.0",
+      strict_min_version: "140.0",
       data_collection_permissions: {
         required: ["websiteContent"],
       },
+    },
+    gecko_android: {
+      strict_min_version: "142.0",
     },
   };
 }

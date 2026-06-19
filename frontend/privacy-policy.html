@@ -25,15 +25,15 @@
     <main class="privacy-page">
       <p class="eyebrow">Privacy Policy</p>
       <h1>DutchMate Privacy Policy</h1>
-      <p>Last updated: 2026-06-17</p>
+      <p>Last updated: 2026-06-19</p>
 
       <p>DutchMate is a browser extension that helps people learn Dutch online by translating hovered words and selected text between Dutch, English, and a supported mother tongue such as Telugu.</p>
       <p>DutchMate does not require an account for the current release.</p>
-      <p>When you ask DutchMate to translate something, the extension sends that text to the DutchMate backend. The backend uses Google Cloud Translation to return the translation.</p>
-      <p>DutchMate does not sell user data and does not use translated text for advertising.</p>
+      <p>When you ask DutchMate to translate something, the extension sends the selected or hovered website text to <code>https://dutchmate-backend.onrender.com/translate</code> for translation. The backend uses Google Cloud Translation to return the translation.</p>
+      <p>DutchMate sends selected or hovered website text only to provide translations. DutchMate does not sell user data and does not use translated text for ads or tracking.</p>
 
       <h2>Data Sent For Translation</h2>
-      <p>When translation is enabled, DutchMate may send these details to the DutchMate backend:</p>
+      <p>When translation is enabled, DutchMate may send these details to <code>https://dutchmate-backend.onrender.com/translate</code>:</p>
       <ul>
         <li>hovered word or nearby sentence context, depending on the selected hover mode;</li>
         <li>selected word, phrase, or short sentence;</li>
@@ -41,7 +41,7 @@
         <li>target language setting;</li>
         <li>translation context, such as hover or selection.</li>
       </ul>
-      <p>The DutchMate backend then sends the text needed for translation to Google Cloud Translation.</p>
+      <p>DutchMate sends this selected or hovered website text only for translation. The DutchMate backend then sends the text needed for translation to Google Cloud Translation.</p>
       <p>Avoid using DutchMate on pages that contain private personal information if you do not want that text sent for translation.</p>
 
       <h2>Data Stored Locally</h2>
@@ -54,6 +54,7 @@
         <li>cache and privacy preferences.</li>
       </ul>
       <p>DutchMate also stores a local translation cache for successful selected single-word lookups. This cache stays on your device. It is intended to make repeated intentional lookups faster and reduce translation-provider calls.</p>
+      <p>If a provider API key is configured in a development or custom setup, DutchMate stores it in browser local/sync storage and uses it only for the selected translation provider. Store-ready builds use the DutchMate backend and do not require users to enter a provider API key.</p>
       <p>DutchMate does not persistently cache:</p>
       <ul>
         <li>hovered words;</li>
@@ -84,7 +85,7 @@
       <p>Google Cloud Translation receives the text needed to complete the translation request. This means text you ask DutchMate to translate is processed by Google Cloud Translation as part of providing the translation result.</p>
 
       <h2>Data Sharing</h2>
-      <p>DutchMate does not sell user data. DutchMate does not use translated text for advertising. DutchMate does not share translated text with third parties except as needed to provide translations through the configured translation provider.</p>
+      <p>DutchMate does not sell user data. DutchMate does not use translated text for advertising or tracking. DutchMate does not share translated text with third parties except as needed to provide translations through the configured translation provider.</p>
 
       <h2>User Control</h2>
       <p>Users can:</p>
