@@ -150,7 +150,7 @@ No pressure at all, but feel free to try it if it sounds useful. If anyone finds
 - Additional Chrome Web Store screenshots from [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md).
 - Confirmed public privacy policy URL.
 - Final zipped Chrome artifact.
-- Store icon and promotional image assets in [../assets/store/chrome/](../assets/store/chrome/).
+- Store icon and promotional image assets in [../../assets/store/chrome/](../../assets/store/chrome/).
 
 ## Submission Inputs Already Prepared
 
@@ -158,6 +158,6 @@ No pressure at all, but feel free to try it if it sounds useful. If anyone finds
 - Chrome image capture plan: [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md)
 - Store disclosure draft: [store-disclosure-draft.md](store-disclosure-draft.md)
 - Public privacy policy source: [privacy-policy.md](privacy-policy.md)
-- Public privacy policy page source: [../frontend/privacy-policy.html](../frontend/privacy-policy.html)
+- Public privacy policy page source: [../../frontend/privacy-policy.html](../../frontend/privacy-policy.html)
 - Manual browser evidence: [manual-testing.md](manual-testing.md)
 - Cost monitoring evidence: [google-cloud-cost-monitoring-checklist.md](../operations/google-cloud-cost-monitoring-checklist.md)

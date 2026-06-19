@@ -5,6 +5,7 @@
   "type": "module",
   "description": "DutchMate helps English and Telugu speakers learn Dutch while reading websites.",
   "scripts": {
+    "frontend:dev": "vite frontend --host 127.0.0.1 --port 4173",
     "dev:chrome": "vite build --mode chrome --watch",
     "dev:firefox": "vite build --mode firefox --watch",
     "test": "vitest run",
