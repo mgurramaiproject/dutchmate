@@ -282,6 +282,11 @@ h3 {
   font-size: 1.08rem;
 }
 
+.section-title-single-line {
+  max-width: 900px;
+  font-size: 2.55rem;
+}
+
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -441,6 +446,11 @@ h3 {
 
   h2,
   .privacy-page h1 {
+    font-size: 2.2rem;
+  }
+
+  .section-title-single-line {
+    max-width: none;
     font-size: 2.2rem;
   }
 
