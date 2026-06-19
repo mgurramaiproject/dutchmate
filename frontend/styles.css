@@ -166,6 +166,39 @@ h3 {
   font-size: 1.18rem;
 }
 
+.hero-value-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 640px;
+  margin-top: 28px;
+}
+
+.hero-value-card {
+  min-height: 140px;
+  padding: 18px;
+  border: 1px solid var(--dm-line);
+  border-top: 4px solid var(--dm-orange);
+  border-radius: 8px;
+  background: var(--dm-white);
+}
+
+.hero-value-card h2 {
+  margin: 0;
+  color: var(--dm-black);
+  font-family: var(--dm-sans);
+  font-size: 0.95rem;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.hero-value-card p {
+  margin: 12px 0 0;
+  color: var(--dm-muted);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -412,6 +445,7 @@ h3 {
   }
 
   .trust-row,
+  .hero-value-grid,
   .grid-3,
   .screenshot-grid,
   .steps {
