@@ -1,6 +1,8 @@
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
+import type { SavedVocabularyEntry } from "../vocabulary/saved-vocabulary";
 
 const SAVE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.save";
+const LIST_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.list";
 const DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS = 7000;
 
 export type RuntimeVocabularyExtensionApi = {
@@ -25,6 +27,7 @@ export type RuntimeSaveVocabularyResponse =
       result:
         | {
             status: "saved" | "already-saved";
+            entry: SavedVocabularyEntry;
           }
         | {
             status: "not-eligible";
@@ -34,6 +37,18 @@ export type RuntimeSaveVocabularyResponse =
             status: "max-entries-reached";
             maxEntries: number;
           };
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export type RuntimeListVocabularyResponse =
+  | {
+      ok: true;
+      result: {
+        entries: SavedVocabularyEntry[];
+      };
     }
   | {
       ok: false;
@@ -95,6 +110,59 @@ export function requestRuntimeSaveVocabulary(
   });
 }
 
+export function requestRuntimeSavedVocabularyList(
+  extensionApi: RuntimeVocabularyExtensionApi | undefined,
+  timeoutMs = DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS,
+): Promise<RuntimeListVocabularyResponse> {
+  if (!extensionApi) {
+    return Promise.resolve({
+      ok: false,
+      error: "Extension runtime is unavailable.",
+    });
+  }
+
+  return new Promise((resolve) => {
+    let isSettled = false;
+    const timeout = globalThis.setTimeout(() => {
+      settle({
+        ok: false,
+        error: "Saved vocabulary list request timed out before the extension background worker responded.",
+      });
+    }, timeoutMs);
+
+    const settle = (response: RuntimeListVocabularyResponse): void => {
+      if (isSettled) {
+        return;
+      }
+
+      isSettled = true;
+      globalThis.clearTimeout(timeout);
+      resolve(response);
+    };
+
+    extensionApi.runtime.sendMessage(
+      {
+        type: LIST_VOCABULARY_MESSAGE,
+      },
+      (response) => {
+        if (extensionApi.runtime.lastError) {
+          settle({
+            ok: false,
+            error: extensionApi.runtime.lastError.message ?? "Saved vocabulary list request failed.",
+          });
+          return;
+        }
+
+        settle(
+          isRuntimeListVocabularyResponse(response)
+            ? response
+            : { ok: false, error: "No saved vocabulary list response received." },
+        );
+      },
+    );
+  });
+}
+
 function isRuntimeSaveVocabularyResponse(
   response: unknown,
 ): response is RuntimeSaveVocabularyResponse {
@@ -121,5 +189,26 @@ function isRuntimeSaveVocabularyResponse(
     response.result.status === "already-saved" ||
     response.result.status === "not-eligible" ||
     response.result.status === "max-entries-reached"
+  );
+}
+
+function isRuntimeListVocabularyResponse(
+  response: unknown,
+): response is RuntimeListVocabularyResponse {
+  if (typeof response !== "object" || response === null || !("ok" in response)) {
+    return false;
+  }
+
+  if (response.ok === false) {
+    return "error" in response && typeof response.error === "string";
+  }
+
+  return (
+    response.ok === true &&
+    "result" in response &&
+    typeof response.result === "object" &&
+    response.result !== null &&
+    "entries" in response.result &&
+    Array.isArray(response.result.entries)
   );
 }

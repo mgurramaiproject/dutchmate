@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  requestRuntimeSavedVocabularyList,
   requestRuntimeSaveVocabulary,
   type RuntimeSaveVocabularyRequest,
   type RuntimeVocabularyExtensionApi,
@@ -28,6 +29,18 @@ describe("requestRuntimeSaveVocabulary", () => {
         ok: true,
         result: {
           status: "saved",
+          entry: {
+            id: "nl\u001fhuis\u001fen",
+            text: "huis",
+            normalizedText: "huis",
+            sourceLanguage: "auto",
+            detectedSourceLanguage: "nl",
+            targetLanguage: "en",
+            translatedText: "house",
+            providerName: "test",
+            createdAt: 1,
+            updatedAt: 1,
+          },
         },
       });
     });
@@ -41,6 +54,18 @@ describe("requestRuntimeSaveVocabulary", () => {
       ok: true,
       result: {
         status: "saved",
+        entry: {
+          id: "nl\u001fhuis\u001fen",
+          text: "huis",
+          normalizedText: "huis",
+          sourceLanguage: "auto",
+          detectedSourceLanguage: "nl",
+          targetLanguage: "en",
+          translatedText: "house",
+          providerName: "test",
+          createdAt: 1,
+          updatedAt: 1,
+        },
       },
     });
     expect(sendMessage).toHaveBeenCalledWith(
@@ -85,5 +110,70 @@ describe("requestRuntimeSaveVocabulary", () => {
       error: "Save request timed out before the extension background worker responded.",
     });
     vi.useRealTimers();
+  });
+});
+
+describe("requestRuntimeSavedVocabularyList", () => {
+  it("sends the list vocabulary message", async () => {
+    const sendMessage = vi.fn((_message, callback) => {
+      callback({
+        ok: true,
+        result: {
+          entries: [
+            {
+              id: "nl\u001fhuis\u001fen",
+              text: "huis",
+              normalizedText: "huis",
+              sourceLanguage: "auto",
+              detectedSourceLanguage: "nl",
+              targetLanguage: "en",
+              translatedText: "house",
+              providerName: "test",
+              createdAt: 1,
+              updatedAt: 1,
+            },
+          ],
+        },
+      });
+    });
+    const extensionApi: RuntimeVocabularyExtensionApi = {
+      runtime: {
+        sendMessage,
+      },
+    };
+
+    await expect(requestRuntimeSavedVocabularyList(extensionApi)).resolves.toMatchObject({
+      ok: true,
+      result: {
+        entries: [
+          {
+            id: "nl\u001fhuis\u001fen",
+            text: "huis",
+          },
+        ],
+      },
+    });
+    expect(sendMessage).toHaveBeenCalledWith(
+      {
+        type: "hoverTranslate.vocabulary.list",
+      },
+      expect.any(Function),
+    );
+  });
+
+  it("returns the runtime error when the list request fails", async () => {
+    const extensionApi: RuntimeVocabularyExtensionApi = {
+      runtime: {
+        lastError: { message: "Receiving end does not exist." },
+        sendMessage: (_message, callback) => {
+          callback();
+        },
+      },
+    };
+
+    await expect(requestRuntimeSavedVocabularyList(extensionApi)).resolves.toEqual({
+      ok: false,
+      error: "Receiving end does not exist.",
+    });
   });
 });
