@@ -134,6 +134,7 @@ Expected result:
 - The Privacy section explains that selected single words are cached locally by default, hovered single words are cached only when enabled, and selected phrases or sentences are not cached.
 - Clicking "Clear translation cache" clears the local cache and keeps the cached word count at `0`.
 - The Saved vocabulary section shows a count, empty state, saved words, delete controls, and a clear-all control.
+- A long saved vocabulary list scrolls inside the section instead of expanding the Options page indefinitely.
 
 Dual-language mode:
 
