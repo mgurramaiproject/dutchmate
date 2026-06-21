@@ -6,6 +6,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 
 - [MVP language focus](product/mvp-language-focus.md): current Dutch, English, and Telugu language scope.
 - [Extension naming decision](product/extension-naming-decision.md): naming notes for the extension.
+- [Saved vocabulary 0.2.0 plan](product/saved-vocabulary-0.2.0-plan.md): local saved-word feature plan and implementation slices.
 
 ## Architecture
 
@@ -23,6 +24,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [Store disclosure draft](release/store-disclosure-draft.md): browser-store privacy disclosure draft.
 - [Privacy policy](release/privacy-policy.md): public-facing privacy policy source.
 - [Release PR drafts](release/pr-drafts/release-0.1.2-production-readiness.md): saved PR descriptions for release branches.
+- [Saved vocabulary design PR draft](release/pr-drafts/saved-vocabulary-design.md): PR draft for the `0.2.0` planning branch.
 
 ## References
 
