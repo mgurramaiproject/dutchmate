@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   requestRuntimeSavedVocabularyList,
+  requestRuntimeSaveVocabularyBatch,
   requestRuntimeSaveVocabulary,
   type RuntimeSaveVocabularyRequest,
   type RuntimeVocabularyExtensionApi,
@@ -110,6 +111,110 @@ describe("requestRuntimeSaveVocabulary", () => {
       error: "Save request timed out before the extension background worker responded.",
     });
     vi.useRealTimers();
+  });
+});
+
+describe("requestRuntimeSaveVocabularyBatch", () => {
+  it("sends both save candidates in one vocabulary batch message", async () => {
+    const batchRequests: RuntimeSaveVocabularyRequest[] = [
+      request,
+      {
+        ...request,
+        targetLanguage: "te",
+        translatedText: "ఇల్లు",
+      },
+    ];
+    const sendMessage = vi.fn((_message, callback) => {
+      callback({
+        ok: true,
+        result: {
+          results: [
+            {
+              status: "saved",
+              entry: {
+                id: "nl\u001fhuis\u001fen",
+                text: "huis",
+                normalizedText: "huis",
+                sourceLanguage: "auto",
+                detectedSourceLanguage: "nl",
+                targetLanguage: "en",
+                translatedText: "house",
+                providerName: "test",
+                createdAt: 1,
+                updatedAt: 1,
+              },
+            },
+            {
+              status: "saved",
+              entry: {
+                id: "nl\u001fhuis\u001fte",
+                text: "huis",
+                normalizedText: "huis",
+                sourceLanguage: "auto",
+                detectedSourceLanguage: "nl",
+                targetLanguage: "te",
+                translatedText: "ఇల్లు",
+                providerName: "test",
+                createdAt: 1,
+                updatedAt: 1,
+              },
+            },
+          ],
+        },
+      });
+    });
+    const extensionApi: RuntimeVocabularyExtensionApi = {
+      runtime: {
+        sendMessage,
+      },
+    };
+
+    await expect(requestRuntimeSaveVocabularyBatch(extensionApi, batchRequests)).resolves.toEqual({
+      ok: true,
+      result: {
+        results: [
+          {
+            status: "saved",
+            entry: {
+              id: "nl\u001fhuis\u001fen",
+              text: "huis",
+              normalizedText: "huis",
+              sourceLanguage: "auto",
+              detectedSourceLanguage: "nl",
+              targetLanguage: "en",
+              translatedText: "house",
+              providerName: "test",
+              createdAt: 1,
+              updatedAt: 1,
+            },
+          },
+          {
+            status: "saved",
+            entry: {
+              id: "nl\u001fhuis\u001fte",
+              text: "huis",
+              normalizedText: "huis",
+              sourceLanguage: "auto",
+              detectedSourceLanguage: "nl",
+              targetLanguage: "te",
+              translatedText: "ఇల్లు",
+              providerName: "test",
+              createdAt: 1,
+              updatedAt: 1,
+            },
+          },
+        ],
+      },
+    });
+    expect(sendMessage).toHaveBeenCalledWith(
+      {
+        type: "hoverTranslate.vocabulary.saveBatch",
+        payload: {
+          entries: batchRequests,
+        },
+      },
+      expect.any(Function),
+    );
   });
 });
 

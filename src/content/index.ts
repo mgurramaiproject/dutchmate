@@ -7,7 +7,7 @@ import {
 } from "./runtime-translation-client";
 import {
   requestRuntimeSavedVocabularyList,
-  requestRuntimeSaveVocabulary,
+  requestRuntimeSaveVocabularyBatch,
   type RuntimeSaveVocabularyRequest,
 } from "./runtime-vocabulary-client";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
@@ -518,19 +518,16 @@ async function saveVocabularyFromTooltip(
   saveButton.disabled = true;
   saveButton.textContent = "Saving...";
 
-  const responses = await Promise.all(
-    saveCandidates.map((candidate) => requestRuntimeSaveVocabulary(extensionApi, candidate)),
-  );
-  const failedResponse = responses.find((response) => !response.ok);
+  const response = await requestRuntimeSaveVocabularyBatch(extensionApi, saveCandidates);
 
-  if (failedResponse?.ok === false) {
+  if (!response.ok) {
     saveButton.disabled = false;
     saveButton.textContent = "Try again";
-    saveButton.title = failedResponse.error;
+    saveButton.title = response.error;
     return;
   }
 
-  const saveResults = responses.flatMap((response) => (response.ok ? [response.result] : []));
+  const saveResults = response.result.results;
   const maxEntriesResult = saveResults.find((result) => result.status === "max-entries-reached");
 
   if (maxEntriesResult?.status === "max-entries-reached") {

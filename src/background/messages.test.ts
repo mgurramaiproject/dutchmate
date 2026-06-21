@@ -4,6 +4,7 @@ import {
   DELETE_VOCABULARY_MESSAGE,
   isVocabularyMessage,
   LIST_VOCABULARY_MESSAGE,
+  SAVE_VOCABULARY_BATCH_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
 } from "./messages";
 
@@ -22,6 +23,21 @@ const saveMessage = {
 describe("isVocabularyMessage", () => {
   it("accepts valid vocabulary messages", () => {
     expect(isVocabularyMessage(saveMessage)).toBe(true);
+    expect(
+      isVocabularyMessage({
+        type: SAVE_VOCABULARY_BATCH_MESSAGE,
+        payload: {
+          entries: [
+            saveMessage.payload,
+            {
+              ...saveMessage.payload,
+              targetLanguage: "te",
+              translatedText: "ఇల్లు",
+            },
+          ],
+        },
+      }),
+    ).toBe(true);
     expect(isVocabularyMessage({ type: LIST_VOCABULARY_MESSAGE })).toBe(true);
     expect(
       isVocabularyMessage({
@@ -48,6 +64,27 @@ describe("isVocabularyMessage", () => {
         payload: {
           ...saveMessage.payload,
           translatedText: undefined,
+        },
+      }),
+    ).toBe(false);
+    expect(
+      isVocabularyMessage({
+        type: SAVE_VOCABULARY_BATCH_MESSAGE,
+        payload: {
+          entries: [],
+        },
+      }),
+    ).toBe(false);
+    expect(
+      isVocabularyMessage({
+        type: SAVE_VOCABULARY_BATCH_MESSAGE,
+        payload: {
+          entries: [
+            {
+              ...saveMessage.payload,
+              targetLanguage: "fr",
+            },
+          ],
         },
       }),
     ).toBe(false);

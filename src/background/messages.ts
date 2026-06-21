@@ -8,6 +8,7 @@ import type {
 
 export const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 export const SAVE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.save";
+export const SAVE_VOCABULARY_BATCH_MESSAGE = "hoverTranslate.vocabulary.saveBatch";
 export const LIST_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.list";
 export const DELETE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.delete";
 export const CLEAR_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.clear";
@@ -20,6 +21,13 @@ export type TranslateMessage = {
 export type SaveVocabularyMessage = {
   type: typeof SAVE_VOCABULARY_MESSAGE;
   payload: SaveVocabularyInput;
+};
+
+export type SaveVocabularyBatchMessage = {
+  type: typeof SAVE_VOCABULARY_BATCH_MESSAGE;
+  payload: {
+    entries: SaveVocabularyInput[];
+  };
 };
 
 export type ListVocabularyMessage = {
@@ -39,6 +47,7 @@ export type ClearVocabularyMessage = {
 
 export type VocabularyMessage =
   | SaveVocabularyMessage
+  | SaveVocabularyBatchMessage
   | ListVocabularyMessage
   | DeleteVocabularyMessage
   | ClearVocabularyMessage;
@@ -58,6 +67,9 @@ export type VocabularyMessageResponse =
       ok: true;
       result:
         | SaveVocabularyResult
+        | {
+            results: SaveVocabularyResult[];
+          }
         | {
             entries: SavedVocabularyEntry[];
           }
@@ -104,11 +116,15 @@ export function isVocabularyMessage(message: unknown): message is VocabularyMess
     return typeof message.payload.id === "string";
   }
 
-  if (message.type !== SAVE_VOCABULARY_MESSAGE || !("payload" in message)) {
-    return false;
+  if (message.type === SAVE_VOCABULARY_MESSAGE && "payload" in message) {
+    return isSaveVocabularyPayload(message.payload);
   }
 
-  return isSaveVocabularyPayload(message.payload);
+  if (message.type === SAVE_VOCABULARY_BATCH_MESSAGE && "payload" in message) {
+    return isSaveVocabularyBatchPayload(message.payload);
+  }
+
+  return false;
 }
 
 function isSaveVocabularyPayload(payload: unknown): payload is SaveVocabularyInput {
@@ -133,4 +149,14 @@ function isSaveVocabularyPayload(payload: unknown): payload is SaveVocabularyInp
     typeof candidate.translatedText === "string" &&
     typeof candidate.providerName === "string"
   );
+}
+
+function isSaveVocabularyBatchPayload(payload: unknown): payload is { entries: SaveVocabularyInput[] } {
+  if (typeof payload !== "object" || payload === null || !("entries" in payload)) {
+    return false;
+  }
+
+  const entries = (payload as { entries: unknown }).entries;
+
+  return Array.isArray(entries) && entries.length > 0 && entries.every(isSaveVocabularyPayload);
 }

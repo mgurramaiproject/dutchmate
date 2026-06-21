@@ -2,6 +2,7 @@ import {
   CLEAR_VOCABULARY_MESSAGE,
   DELETE_VOCABULARY_MESSAGE,
   LIST_VOCABULARY_MESSAGE,
+  SAVE_VOCABULARY_BATCH_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
   type VocabularyMessage,
   type VocabularyMessageResponse,
@@ -17,6 +18,21 @@ export async function handleVocabularyMessage(
       return {
         ok: true,
         result: await store.save(message.payload),
+      };
+    }
+
+    if (message.type === SAVE_VOCABULARY_BATCH_MESSAGE) {
+      const results = [];
+
+      for (const entry of message.payload.entries) {
+        results.push(await store.save(entry));
+      }
+
+      return {
+        ok: true,
+        result: {
+          results,
+        },
       };
     }
 

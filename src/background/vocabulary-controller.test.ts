@@ -3,6 +3,7 @@ import {
   CLEAR_VOCABULARY_MESSAGE,
   DELETE_VOCABULARY_MESSAGE,
   LIST_VOCABULARY_MESSAGE,
+  SAVE_VOCABULARY_BATCH_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
 } from "./messages";
 import { handleVocabularyMessage } from "./vocabulary-controller";
@@ -44,6 +45,54 @@ describe("handleVocabularyMessage", () => {
           {
             text: "huis",
             translatedText: "house",
+          },
+        ],
+      },
+    });
+  });
+
+  it("saves both target-language vocabulary entries in one batch", async () => {
+    const store = new SavedVocabularyStore(new MemoryStorage());
+
+    await expect(
+      handleVocabularyMessage(
+        {
+          type: SAVE_VOCABULARY_BATCH_MESSAGE,
+          payload: {
+            entries: [
+              saveMessage.payload,
+              {
+                ...saveMessage.payload,
+                targetLanguage: "te",
+                translatedText: "ఇల్లు",
+              },
+            ],
+          },
+        },
+        store,
+      ),
+    ).resolves.toMatchObject({
+      ok: true,
+      result: {
+        results: [{ status: "saved" }, { status: "saved" }],
+      },
+    });
+
+    await expect(
+      handleVocabularyMessage({ type: LIST_VOCABULARY_MESSAGE }, store),
+    ).resolves.toMatchObject({
+      ok: true,
+      result: {
+        entries: [
+          {
+            text: "huis",
+            targetLanguage: "en",
+            translatedText: "house",
+          },
+          {
+            text: "huis",
+            targetLanguage: "te",
+            translatedText: "ఇల్లు",
           },
         ],
       },
