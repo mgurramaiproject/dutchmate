@@ -17,10 +17,12 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 
 - [Browser release playbook](release/browser-release-playbook.md): browser-neutral release path.
 - [Manual testing](release/manual-testing.md): Chrome and Firefox regression checklist.
+- [Release notes](release/release-notes.md): version-by-version release summary.
 - [Chrome Web Store listing draft](release/chrome-web-store-listing-draft.md): listing copy draft.
 - [Chrome Web Store screenshot plan](release/chrome-web-store-screenshot-plan.md): screenshot capture plan.
 - [Store disclosure draft](release/store-disclosure-draft.md): browser-store privacy disclosure draft.
 - [Privacy policy](release/privacy-policy.md): public-facing privacy policy source.
+- [Release PR drafts](release/pr-drafts/release-0.1.2-production-readiness.md): saved PR descriptions for release branches.
 
 ## References
 
@@ -30,3 +32,4 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 
 - [Incremental collaboration workflow](process/incremental-collaboration-workflow.md): working style for small steps.
 - [App plumbing checklist](process/dutchmate-app-plumbing-checklist.md): implementation plumbing checklist.
+- [Post-0.1.1 version roadmap](process/version-roadmap.md): version, branch, and PR planning for future work.

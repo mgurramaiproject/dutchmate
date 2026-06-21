@@ -6,6 +6,7 @@ import {
   type TranslateMessageResponse,
 } from "./runtime-translation-client";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
+import { isValidTextRangeBoundary } from "./text-range-boundary";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
 import type { MvpLanguageCode } from "../shared/languages";
 
@@ -497,6 +498,10 @@ function getWordAtPoint(
 
   const match = getWordBounds(text, offset);
   if (!match) {
+    return null;
+  }
+
+  if (!isValidTextRangeBoundary(textNode, text, match.start, match.end)) {
     return null;
   }
 

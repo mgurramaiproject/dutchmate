@@ -29,6 +29,8 @@ Notes:
 
 Recent entries:
 
+- 2026-06-21 | `91f518b` | Chrome 0.1.1 production-backed build | MGurram | Pass with notes | Hover and selection translations worked with the default Render backend. Chrome console showed `Extension context invalidated` and `IndexSizeError: Failed to execute 'setEnd' on 'Range'`; behavior still worked, but the range error needs a focused follow-up fix.
+- 2026-06-21 | `91f518b` | Firefox 0.1.1 production-backed build | MGurram | Pass | Hover and selection translations worked as intended.
 - 2026-06-17 | `096aff1` | Chrome production-backed build | MGurram | Pass | After reloading Chrome and reopening the test page, hover/selection translations worked. This verifies the defensive tooltip render fallback fixed the Chrome `Translating...` stall.
 - 2026-06-17 | `096aff1` | Firefox production-backed build | MGurram | Pass | Firefox continued to work as intended after the hover hit-detection and tooltip render fallback fixes.
 - 2026-06-17 | `aa3432d` | Chrome production-backed build | MGurram | Fail | Chrome loaded the current build, but hover/selection stayed on `Translating...` and did not display the translation. Needs focused Chrome investigation before broader sharing.
