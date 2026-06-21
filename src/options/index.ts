@@ -16,6 +16,8 @@ import {
 } from "../shared/language-roles";
 import { MVP_LANGUAGES, getMvpLanguageCode, getSourceLanguageCode } from "../shared/languages";
 import { getCachedWordCount } from "./cache-summary";
+import { createSavedVocabularyClient } from "./saved-vocabulary-client";
+import type { SavedVocabularyEntry } from "../vocabulary/saved-vocabulary";
 import "./styles.css";
 
 const PERSISTENT_TRANSLATION_CACHE_KEY = "dutchmate.translationCache.v1";
@@ -39,14 +41,20 @@ let providerApiKey: HTMLInputElement | null = null;
 let testEndpoint: HTMLButtonElement | null = null;
 const cacheCount = document.querySelector<HTMLSpanElement>("#cache-count");
 const clearCache = document.querySelector<HTMLButtonElement>("#clear-cache");
+const vocabularyCount = document.querySelector<HTMLSpanElement>("#vocabulary-count");
+const vocabularyEmpty = document.querySelector<HTMLParagraphElement>("#vocabulary-empty");
+const vocabularyList = document.querySelector<HTMLUListElement>("#vocabulary-list");
+const clearVocabulary = document.querySelector<HTMLButtonElement>("#clear-vocabulary");
 const status = document.querySelector<HTMLParagraphElement>("#status");
 let statusTimer: number | undefined;
 let currentLanguageRoles: LanguageRoleSettings = normalizeLanguageRoles(undefined);
+const vocabularyClient = createSavedVocabularyClient(browser);
 
 renderAdvancedLocalTesting();
 renderLanguageOptions();
 void restoreSettings();
 void refreshCacheCount();
+void refreshSavedVocabulary();
 
 form?.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -55,6 +63,10 @@ form?.addEventListener("submit", (event) => {
 
 clearCache?.addEventListener("click", () => {
   void clearTranslationCache();
+});
+
+clearVocabulary?.addEventListener("click", () => {
+  void clearSavedVocabulary();
 });
 
 hoverDelayMs?.addEventListener("input", updateTuningValueLabels);
@@ -228,6 +240,110 @@ async function refreshCacheCount(): Promise<void> {
   const storedCache = await browser.storage.local.get(PERSISTENT_TRANSLATION_CACHE_KEY);
   const count = getCachedWordCount(storedCache[PERSISTENT_TRANSLATION_CACHE_KEY]);
   cacheCount.textContent = `Cached words: ${count}`;
+}
+
+async function refreshSavedVocabulary(): Promise<void> {
+  if (!vocabularyCount || !vocabularyEmpty || !vocabularyList) {
+    return;
+  }
+
+  try {
+    const entries = await vocabularyClient.list();
+    renderSavedVocabulary(entries);
+  } catch (error) {
+    showStatus(
+      `Could not load saved vocabulary: ${error instanceof Error ? error.message : "Unknown error"}`,
+      "error",
+      4000,
+    );
+  }
+}
+
+function renderSavedVocabulary(entries: SavedVocabularyEntry[]): void {
+  if (!vocabularyCount || !vocabularyEmpty || !vocabularyList) {
+    return;
+  }
+
+  vocabularyCount.textContent = `Saved words: ${getUniqueSavedVocabularyWordCount(entries)}`;
+  vocabularyEmpty.hidden = entries.length > 0;
+  vocabularyList.hidden = entries.length === 0;
+  vocabularyList.replaceChildren(...entries.map(createVocabularyListItem));
+}
+
+function createVocabularyListItem(entry: SavedVocabularyEntry): HTMLLIElement {
+  const item = document.createElement("li");
+  item.className = "vocabulary-item";
+
+  const text = document.createElement("span");
+  text.className = "vocabulary-text";
+  text.textContent = entry.text;
+
+  const translation = document.createElement("span");
+  translation.className = "vocabulary-translation";
+  translation.textContent = entry.translatedText;
+
+  const meta = document.createElement("span");
+  meta.className = "vocabulary-meta";
+  meta.textContent = `${formatLanguage(entry.detectedSourceLanguage ?? entry.sourceLanguage)} -> ${formatLanguage(entry.targetLanguage)}`;
+
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.className = "secondary-button compact-button";
+  deleteButton.textContent = "Delete";
+  deleteButton.addEventListener("click", () => {
+    void deleteSavedVocabularyEntry(entry.id, deleteButton);
+  });
+
+  item.append(text, translation, meta, deleteButton);
+  return item;
+}
+
+async function deleteSavedVocabularyEntry(
+  id: string,
+  deleteButton: HTMLButtonElement,
+): Promise<void> {
+  deleteButton.disabled = true;
+  deleteButton.textContent = "Deleting...";
+
+  try {
+    await vocabularyClient.delete(id);
+    await refreshSavedVocabulary();
+    showStatus("Saved word deleted", "success");
+  } catch (error) {
+    showStatus(
+      `Could not delete saved word: ${error instanceof Error ? error.message : "Unknown error"}`,
+      "error",
+      4000,
+    );
+    deleteButton.disabled = false;
+    deleteButton.textContent = "Delete";
+  }
+}
+
+async function clearSavedVocabulary(): Promise<void> {
+  setClearVocabularyButtonBusy(true);
+
+  try {
+    await vocabularyClient.clear();
+    await refreshSavedVocabulary();
+    showStatus("Saved vocabulary cleared", "success");
+  } catch (error) {
+    showStatus(
+      `Could not clear saved vocabulary: ${error instanceof Error ? error.message : "Unknown error"}`,
+      "error",
+      4000,
+    );
+  } finally {
+    setClearVocabularyButtonBusy(false);
+  }
+}
+
+function getUniqueSavedVocabularyWordCount(entries: SavedVocabularyEntry[]): number {
+  return new Set(entries.map((entry) => entry.normalizedText)).size;
+}
+
+function formatLanguage(languageCode: string): string {
+  return MVP_LANGUAGES.find((language) => language.code === languageCode)?.label ?? languageCode;
 }
 
 async function clearTranslationCache(): Promise<void> {
@@ -409,6 +525,15 @@ function setClearCacheButtonBusy(isBusy: boolean): void {
 
   clearCache.disabled = isBusy;
   clearCache.textContent = isBusy ? "Clearing..." : "Clear translation cache";
+}
+
+function setClearVocabularyButtonBusy(isBusy: boolean): void {
+  if (!clearVocabulary) {
+    return;
+  }
+
+  clearVocabulary.disabled = isBusy;
+  clearVocabulary.textContent = isBusy ? "Clearing..." : "Clear saved words";
 }
 
 function showStatus(
