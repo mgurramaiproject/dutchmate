@@ -21,6 +21,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [Chrome Web Store screenshot plan](release/chrome-web-store-screenshot-plan.md): screenshot capture plan.
 - [Store disclosure draft](release/store-disclosure-draft.md): browser-store privacy disclosure draft.
 - [Privacy policy](release/privacy-policy.md): public-facing privacy policy source.
+- [Release PR drafts](release/pr-drafts/release-0.1.2-production-readiness.md): saved PR descriptions for release branches.
 
 ## References
 

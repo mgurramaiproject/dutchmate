@@ -1,6 +1,6 @@
 # Browser Release Playbook
 
-Last updated: 2026-06-19
+Last updated: 2026-06-21
 
 This is the canonical, browser-neutral release path for DutchMate.
 
@@ -43,10 +43,22 @@ You need to do the account and payment steps yourself:
 
 - Firefox package: `release/dutchmate-firefox-0.1.1.zip`
 - Chromium package for Chrome: `release/dutchmate-chrome-0.1.1.zip`
-- Chromium package for Edge: `release/dutchmate-edge-0.1.1.zip` when present, or the Chrome package if you are uploading the same build to Edge
+- Chromium package for Edge: use `release/dutchmate-chrome-0.1.1.zip` unless a separate Edge-specific package is created
 - Privacy policy: `https://dutchmate-frontend.onrender.com/privacy-policy.html`
 - Chrome listing draft: `docs/release/chrome-web-store-listing-draft.md`
 - Shared disclosure draft: `docs/release/store-disclosure-draft.md`
+
+## Current 0.1.1 Artifact Status
+
+Generated locally from the current source:
+
+- `release/dutchmate-firefox-0.1.1.zip`
+- `release/dutchmate-firefox-source-0.1.1.zip`
+- `release/dutchmate-chrome-0.1.1.zip`
+
+Older `0.1.0` artifacts may still exist locally in `release/` for reference. Use the `0.1.1` artifacts for the current release baseline.
+
+There is no separate Edge-specific package script yet. For the first Edge submission, use the Chrome Chromium package unless an Edge-specific packaging step is added later.
 
 ## Firefox
 
