@@ -1,10 +1,17 @@
-import { isTranslateMessage, type TranslateMessageResponse } from "./messages";
+import {
+  isTranslateMessage,
+  isVocabularyMessage,
+  type BackgroundMessageResponse,
+  type TranslateMessageResponse,
+} from "./messages";
 import { LocalCacheStorage, type LocalCacheExtensionApi } from "./local-cache-storage";
 import { readProviderSettings, type BackgroundExtensionApi } from "./settings-adapter";
+import { handleVocabularyMessage } from "./vocabulary-controller";
 import { PersistentTranslationCache } from "../translation/persistent-translation-cache";
 import { TranslationCache } from "../translation/translation-cache";
 import { TranslationService } from "../translation/translation-service";
 import { getTranslationErrorMessage } from "./translation-error-message";
+import { SavedVocabularyStore } from "../vocabulary/saved-vocabulary";
 
 const MAX_CACHE_ENTRIES = 100;
 
@@ -16,7 +23,7 @@ type BackgroundRuntimeApi = BackgroundExtensionApi & LocalCacheExtensionApi & {
         callback: (
           message: unknown,
           sender: unknown,
-          sendResponse: (response: TranslateMessageResponse) => void,
+          sendResponse: (response: BackgroundMessageResponse) => void,
         ) => true | undefined,
       ): void;
     };
@@ -33,10 +40,16 @@ const translationService = new TranslationService(
   new TranslationCache(MAX_CACHE_ENTRIES),
   new PersistentTranslationCache(new LocalCacheStorage(extensionApi)),
 );
+const savedVocabularyStore = new SavedVocabularyStore(new LocalCacheStorage(extensionApi));
 
 extensionApi?.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (!isTranslateMessage(message)) {
-    return undefined;
+    if (!isVocabularyMessage(message)) {
+      return undefined;
+    }
+
+    void handleVocabularyMessage(message, savedVocabularyStore).then(sendResponse);
+    return true;
   }
 
   void handleTranslate(message.payload).then(sendResponse);
