@@ -10,14 +10,16 @@ Changes:
 - Added background messages for saving, listing, deleting, and clearing saved vocabulary.
 - Added a Save action to successful selected single-word translation tooltips.
 - Added an Options page saved-vocabulary view with count, empty state, delete, and clear-all controls.
+- Added a scrollable saved-vocabulary list and clearer privacy copy for cached words versus saved words.
+- Added an opt-in hover-word cache setting and reused cached single-word translations across hover and selection.
+- Fixed Chrome-specific translation and multi-language save issues so Firefox and Chrome behave consistently.
 - Updated privacy, store, manual-testing, and release documentation for saved vocabulary.
 
 Verification:
 
-- `git diff --check`
-- `corepack pnpm test`
-- `corepack pnpm package:extensions`
-- inspected Chrome and Firefox package manifests for version `0.2.0`
+- `npm run test`
+- `npm run typecheck`
+- `npm run build`
 
 Notes:
 

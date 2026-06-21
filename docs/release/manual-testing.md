@@ -192,9 +192,21 @@ Expected result:
 - Saved vocabulary appears only after the user saves a successful selected single-word translation.
 - Hover translations and selected phrases or sentences do not create saved vocabulary entries.
 - Duplicate saves for the same word and language direction do not create duplicate entries.
+- In dual-language mode, saving one translated word stores one saved entry per target language.
 - Delete removes one entry.
 - Clear saved vocabulary removes all saved entries.
 - Saved entries remain after reloading the extension until the user deletes them.
+
+Cache reuse check:
+
+1. In Options, turn on cached hovered single words.
+2. Hover a single word and wait for a successful translation.
+3. Select that same single word immediately afterward.
+
+Expected result:
+
+- The selected-word translation should be able to reuse the persisted single-word cache from the earlier hover.
+- The second result should feel noticeably faster than a fresh uncached request on the same page and language direction.
 
 Developer inspection:
 
