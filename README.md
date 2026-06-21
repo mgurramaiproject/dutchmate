@@ -218,10 +218,10 @@ backend/           Local/hosted translation backend and provider adapters
 scripts/           Build, packaging, manifest, asset, and smoke-test helpers
 frontend/          Public site and store/marketing assets
 assets/            Store package assets
-docs/              Product, architecture, operations, release, and process docs
+docs/              Public product, architecture, release, and process docs
 ```
 
-Start with [docs/README.md](docs/README.md) when looking for deeper product, architecture, release, or operations notes.
+Start with [docs/README.md](docs/README.md) when looking for deeper public product, architecture, release, or process notes.
 
 ## Architecture
 
@@ -267,10 +267,9 @@ The repo includes release and manual testing notes in [docs/release](docs/releas
 
 ## Roadmap
 
-The current roadmap is tracked in the docs rather than this README:
+The current public roadmap is tracked in the docs rather than this README:
 
 - [Cache strategy](docs/architecture/cache-strategy.md)
-- [Production backend plan](docs/architecture/production-backend-plan.md)
 
 ## License
 

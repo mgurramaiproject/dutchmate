@@ -78,7 +78,7 @@ The first real translation provider should be tested after the endpoint reliabil
 
 At that point, replacing the mock endpoint with a real backend is a configuration/backend task, not a browser-extension architecture change.
 
-Provider selection and pricing notes are tracked in [provider-strategy.md](provider-strategy.md).
+Provider adapters are kept behind the backend so provider selection can change without changing content-script behavior.
 
 ## Manifest Strategy
 

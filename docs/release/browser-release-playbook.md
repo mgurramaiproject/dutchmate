@@ -8,7 +8,7 @@ This is the canonical, browser-neutral release path for DutchMate.
 
 Keep these rules true for every public browser release:
 
-- keep the source repo private;
+- keep secrets and private operations notes out of the public source repo;
 - publish only packaged extension files;
 - keep API keys and secrets on the backend, not inside the extension;
 - let the extension call your backend proxy, and let the backend call the translation provider;
@@ -47,8 +47,6 @@ You need to do the account and payment steps yourself:
 - Privacy policy: `https://dutchmate-frontend.onrender.com/privacy-policy.html`
 - Chrome listing draft: `docs/release/chrome-web-store-listing-draft.md`
 - Shared disclosure draft: `docs/release/store-disclosure-draft.md`
-- Package checklist: `docs/release/store-package-preparation-checklist.md`
-- AMO upload playbook: `docs/release/amo-upload-playbook.md`
 
 ## Firefox
 
@@ -68,7 +66,6 @@ Use Firefox Add-ons / AMO for the first public release if you want a low-frictio
 - Firefox add-ons can be listed on AMO or self-distributed.
 - For broad public use, AMO listing is the easier path.
 - If Firefox asks for source code submission, we can prepare that together.
-- Use [amo-upload-playbook.md](amo-upload-playbook.md) for pending-version and update handling.
 
 ## Edge
 
