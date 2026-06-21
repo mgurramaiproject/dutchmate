@@ -14,6 +14,11 @@ import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { isValidTextRangeBoundary } from "./text-range-boundary";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
+import type { TranslationRequest, TranslationResult } from "../translation/provider";
+import {
+  PersistentTranslationCache,
+  type PersistentTranslationCacheStorage,
+} from "../translation/persistent-translation-cache";
 import {
   getSavedVocabularyEntryId,
   isSingleSavedVocabularyWord,
@@ -149,6 +154,10 @@ type TranslationContext = TooltipContext;
 
 type ExtensionStorageApi = {
   storage: {
+    local: {
+      get(keys: string | string[], callback: (items: Record<string, unknown>) => void): void;
+      set(items: Record<string, unknown>, callback?: () => void): void;
+    };
     sync: {
       get(defaults: ExtensionSettings, callback: (settings: Partial<ExtensionSettings>) => void): void;
     };
@@ -166,6 +175,7 @@ const extensionGlobal = globalThis as typeof globalThis & {
   chrome?: ExtensionStorageApi;
 };
 const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
+let directTranslationCache: PersistentTranslationCache | undefined;
 
 let hoverTimer: number | undefined;
 let lastHoverKey = "";
@@ -356,7 +366,7 @@ async function showTranslation(
   context: TranslationContext,
   x: number,
   y: number,
-  sourceLanguageHint?: string,
+  sourceLanguageHint?: MvpLanguageCode,
   languageSample = text,
 ): Promise<void> {
   const requestId = beginTooltipRequest("Translating...", context, x, y);
@@ -701,7 +711,7 @@ function getWordAtPoint(
   y: number;
   start: number;
   end: number;
-  sourceLanguageHint?: string;
+  sourceLanguageHint?: MvpLanguageCode;
   languageSample: string;
 } | null {
   const range = getRangeAtPoint(clientX, clientY);
@@ -1066,10 +1076,10 @@ function withTooltipTranslationTimeout<T>(request: Promise<T>): Promise<T> {
 async function requestTranslation(
   text: string,
   context: TranslationContext,
-  sourceLanguage: string,
-  targetLanguage: string,
+  sourceLanguage: SourceLanguageCode,
+  targetLanguage: MvpLanguageCode,
 ): Promise<TranslateMessageResponse> {
-  const request = {
+  const request: TranslationRequest = {
     text,
     context,
     sourceLanguage,
@@ -1085,13 +1095,18 @@ async function requestTranslation(
 }
 
 async function requestDirectTranslation(
-  request: {
-    text: string;
-    context: TranslationContext;
-    sourceLanguage: string;
-    targetLanguage: string;
-  },
+  request: TranslationRequest,
 ): Promise<TranslateMessageResponse> {
+  const cache = getDirectTranslationCache();
+  const cachedResult = await cache.get(request);
+
+  if (cachedResult) {
+    return {
+      ok: true,
+      result: cachedResult,
+    };
+  }
+
   if (!currentSettings.providerEndpoint) {
     return {
       ok: true,
@@ -1143,12 +1158,16 @@ async function requestDirectTranslation(
       };
     }
 
+    const result: TranslationResult = {
+      translatedText,
+      providerName: "custom-endpoint",
+    };
+
+    await cache.set(request, result);
+
     return {
       ok: true,
-      result: {
-        translatedText,
-        providerName: "custom-endpoint",
-      },
+      result,
     };
   } catch (error) {
     return {
@@ -1180,6 +1199,47 @@ function delay(ms: number): Promise<void> {
   });
 }
 
+function getDirectTranslationCache(): PersistentTranslationCache {
+  directTranslationCache ??= new PersistentTranslationCache(
+    new ContentLocalCacheStorage(extensionApi),
+  );
+
+  return directTranslationCache;
+}
+
+class ContentLocalCacheStorage implements PersistentTranslationCacheStorage {
+  constructor(private readonly api: ExtensionStorageApi | undefined) {}
+
+  async get(key: string): Promise<unknown> {
+    if (!this.api) {
+      return undefined;
+    }
+
+    return new Promise((resolve) => {
+      this.api?.storage.local.get(key, (items) => {
+        if (this.api?.runtime.lastError) {
+          resolve(undefined);
+          return;
+        }
+
+        resolve(items[key]);
+      });
+    });
+  }
+
+  async set(key: string, value: unknown): Promise<void> {
+    if (!this.api) {
+      return;
+    }
+
+    return new Promise((resolve) => {
+      this.api?.storage.local.set({ [key]: value }, () => {
+        resolve();
+      });
+    });
+  }
+}
+
 type TranslationOutcome = {
   response: TranslateMessageResponse;
   saveCandidates: RuntimeSaveVocabularyRequest[];
@@ -1189,7 +1249,7 @@ async function requestTranslationForCurrentSettings(
   text: string,
   context: TranslationContext,
   languageSample: string,
-  sourceLanguageHint?: string,
+  sourceLanguageHint?: MvpLanguageCode,
 ): Promise<TranslationOutcome> {
   const sourceLanguage = getActiveSourceLanguage(languageSample, sourceLanguageHint);
   const targetLanguages = getActiveTargetLanguages(sourceLanguage);
@@ -1241,7 +1301,7 @@ async function requestTranslationForCurrentSettings(
 
 function getSaveCandidatesFromResponses(
   text: string,
-  activeSourceLanguage: string,
+  activeSourceLanguage: SourceLanguageCode,
   responses: Array<{
     targetLanguage: MvpLanguageCode;
     response: TranslateMessageResponse;
@@ -1292,14 +1352,14 @@ function getRequestedSourceLanguage(): SourceLanguageCode {
 
 function getDetectedSourceLanguage(
   requestedSourceLanguage: SourceLanguageCode,
-  activeSourceLanguage: string,
+  activeSourceLanguage: SourceLanguageCode,
 ): MvpLanguageCode | undefined {
   return requestedSourceLanguage === "auto" && supportedTargetLanguages.has(activeSourceLanguage)
     ? (activeSourceLanguage as MvpLanguageCode)
     : undefined;
 }
 
-function getActiveTargetLanguages(sourceLanguage: string): MvpLanguageCode[] {
+function getActiveTargetLanguages(sourceLanguage: SourceLanguageCode): MvpLanguageCode[] {
   if (!currentSettings.translateToOtherMvpLanguages) {
     return [currentSettings.targetLanguage];
   }
@@ -1322,9 +1382,12 @@ function getActiveTargetLanguages(sourceLanguage: string): MvpLanguageCode[] {
   );
 }
 
-function getActiveSourceLanguage(text: string, sourceLanguageHint?: string): string {
+function getActiveSourceLanguage(
+  text: string,
+  sourceLanguageHint?: MvpLanguageCode,
+): SourceLanguageCode {
   if (currentSettings.sourceLanguage !== "auto") {
-    return currentSettings.sourceLanguage;
+    return getRequestedSourceLanguage();
   }
 
   if (!currentSettings.translateToOtherMvpLanguages) {
@@ -1334,7 +1397,10 @@ function getActiveSourceLanguage(text: string, sourceLanguageHint?: string): str
   return detectMvpSourceLanguage(text, sourceLanguageHint);
 }
 
-function detectMvpSourceLanguage(text: string, sourceLanguageHint?: string): string {
+function detectMvpSourceLanguage(
+  text: string,
+  sourceLanguageHint?: MvpLanguageCode,
+): MvpLanguageCode {
   if (/[\u0C00-\u0C7F]/u.test(text)) {
     return "te";
   }
@@ -1381,7 +1447,7 @@ function getLanguageLabel(languageCode: string): string {
   return mvpLanguages.find((language) => language.code === languageCode)?.label ?? languageCode;
 }
 
-function getLanguageHintForNode(node: Node | null): string | undefined {
+function getLanguageHintForNode(node: Node | null): MvpLanguageCode | undefined {
   const element =
     node instanceof Element
       ? node
@@ -1393,8 +1459,10 @@ function getLanguageHintForNode(node: Node | null): string | undefined {
   return language;
 }
 
-function normalizeLanguageCode(value: string | null | undefined): string | undefined {
+function normalizeLanguageCode(value: string | null | undefined): MvpLanguageCode | undefined {
   const languageCode = value?.trim().toLowerCase().split("-")[0];
 
-  return languageCode && supportedTargetLanguages.has(languageCode) ? languageCode : undefined;
+  return languageCode && supportedTargetLanguages.has(languageCode)
+    ? (languageCode as MvpLanguageCode)
+    : undefined;
 }
