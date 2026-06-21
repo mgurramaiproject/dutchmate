@@ -149,7 +149,16 @@
           </div>
 
           <p class="settings-note">
-            Cached words are automatic repeat-lookup helpers. They make selected single-word translations faster and reduce translation calls, but they are not your study list. Hovered words and selected phrases or sentences are not stored.
+            Cached words are automatic repeat-lookup helpers. They make translations faster and reduce translation calls, but they are not your study list. Selected single words are cached by default; hovered single words are cached only if you turn on the setting below.
+          </p>
+
+          <label class="checkbox-label">
+            <input id="cache-hovered-words" name="cacheHoveredWords" type="checkbox" />
+            Cache hovered single-word translations locally
+          </label>
+
+          <p class="settings-note">
+            Turn this on to make repeated hover translations faster and reduce backend translation calls. Hover cache stays local in this browser and can be cleared with the translation cache.
           </p>
         </section>
 

@@ -34,7 +34,7 @@ DutchMate stores settings in your browser, including:
 - provider endpoint setting;
 - cache and privacy preferences.
 
-DutchMate also stores a local translation cache for successful selected single-word lookups. This cache stays on your device. It is intended to make repeated intentional lookups faster and reduce translation-provider calls.
+DutchMate also stores a local translation cache for successful selected single-word lookups. This cache stays on your device. It is intended to make repeated intentional lookups faster and reduce translation-provider calls. If you turn on "Cache hovered single-word translations locally" in Options, successful hovered single-word lookups can also be stored in this local cache.
 
 DutchMate can also store saved vocabulary locally when you choose to save a successful selected single-word translation. Saved vocabulary includes the saved word, translation, source and target language direction, translation provider name, and saved/updated timestamps. DutchMate does not store the page URL or page title with saved vocabulary in the current release.
 
@@ -42,7 +42,6 @@ If a provider API key is configured in a development or custom setup, DutchMate 
 
 DutchMate does not persistently cache:
 
-- hovered words;
 - selected phrases;
 - selected sentences;
 - failed translations.

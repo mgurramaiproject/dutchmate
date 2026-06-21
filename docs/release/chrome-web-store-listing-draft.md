@@ -51,7 +51,7 @@ It helps you use Dutch, English, and your mother tongue together while reading n
 
 Hover over a word or select a short phrase or sentence to see translations in context. You can choose your learning language, use English as a bridge language, and keep your mother tongue close for meaning.
 
-Selected single-word lookups can be stored locally in your browser to make repeat learning faster. You can also save selected single-word translations locally as vocabulary and manage them from Options. Hovered words, selected phrases, selected sentences, and failed translations are not stored in the local translation cache.
+Selected single-word lookups can be stored locally in your browser to make repeat learning faster. You can also save selected single-word translations locally as vocabulary and manage them from Options. Hovered single-word lookups are stored locally only if you enable hover-word caching in Options. Selected phrases, selected sentences, and failed translations are not stored in the local translation cache.
 
 The product direction is local word collection and spaced-repetition flashcards, using words you choose while browsing.
 

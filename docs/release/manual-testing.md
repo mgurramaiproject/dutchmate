@@ -131,7 +131,7 @@ Expected result:
 - "Translate into both other languages" is on by default and remains saved after toggling.
 - Store-ready builds do not show Provider endpoint or Provider API key.
 - The Privacy section shows `Cached words: 0` when no words have been persisted.
-- The Privacy section explains that selected single words are stored locally in the browser, while hovered words and selected phrases or sentences are not stored.
+- The Privacy section explains that selected single words are cached locally by default, hovered single words are cached only when enabled, and selected phrases or sentences are not cached.
 - Clicking "Clear translation cache" clears the local cache and keeps the cached word count at `0`.
 - The Saved vocabulary section shows a count, empty state, saved words, delete controls, and a clear-all control.
 
@@ -334,7 +334,7 @@ The persistent cache is stored locally under:
 dutchmate.translationCache.v1
 ```
 
-It should only contain successful single-word selections. Hovered words, selected phrases, selected sentences, failed translations, and timeout errors should not appear there.
+It should contain successful selected single-word translations. Hovered single-word translations should appear only when "Cache hovered single-word translations locally" is enabled. Selected phrases, selected sentences, failed translations, and timeout errors should not appear there.
 
 Chrome developer check:
 
@@ -381,12 +381,15 @@ Cache behavior check:
 7. Inspect `dutchmate.translationCache.v1` and confirm cache entries appear for each target language.
 8. Open Options and confirm the Privacy section still shows `Cached words: 1`.
 9. This count is unique source words, not raw translation records.
-9. Hover over a word.
+9. Hover over a word while "Cache hovered single-word translations locally" is off.
 10. Inspect the cache again and confirm the hover did not add an entry.
-11. Select a phrase or sentence.
-12. Inspect the cache again and confirm the phrase or sentence did not add an entry.
-13. Click "Clear translation cache" in Options.
-14. Inspect the cache again and confirm `dutchmate.translationCache.v1` is removed.
+11. Turn "Cache hovered single-word translations locally" on in Options.
+12. Hover over a single word.
+13. Inspect the cache again and confirm the hover added an entry.
+14. Select a phrase or sentence.
+15. Inspect the cache again and confirm the phrase or sentence did not add an entry.
+16. Click "Clear translation cache" in Options.
+17. Inspect the cache again and confirm `dutchmate.translationCache.v1` is removed.
 
 ## Current MVP Limits
 

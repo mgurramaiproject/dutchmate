@@ -123,7 +123,7 @@ DutchMate transmits user-requested translation text from the browser to the Dutc
 ```text
 DutchMate sends hovered or selected website text to https://dutchmate-backend.onrender.com/translate only for translation. The backend uses Google Cloud Translation to return translations. This may include hovered words, nearby sentence context, selected words, selected phrases, or selected short sentences, depending on your settings and actions.
 
-DutchMate stores settings, selected single-word translation cache, and saved vocabulary locally in your browser. Single selected words may be cached locally in the browser, and selected single-word translations can be saved as vocabulary only when you choose to save them. Hovered text, selected phrases, selected sentences, and failed translations are not persistently cached locally. Saved vocabulary does not include page URLs or page titles in the current release.
+DutchMate stores settings, selected single-word translation cache, and saved vocabulary locally in your browser. Single selected words may be cached locally in the browser by default. If you enable hover-word caching in Options, hovered single-word translations may also be cached locally. Selected single-word translations can be saved as vocabulary only when you choose to save them. Selected phrases, selected sentences, and failed translations are not persistently cached locally. Saved vocabulary does not include page URLs or page titles in the current release.
 
 API keys, if any, are stored in browser local/sync storage and used only for the selected provider.
 

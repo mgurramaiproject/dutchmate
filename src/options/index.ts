@@ -26,6 +26,7 @@ const form = document.querySelector<HTMLFormElement>("#options-form");
 const isEnabled = document.querySelector<HTMLInputElement>("#is-enabled");
 const translateOnHover = document.querySelector<HTMLInputElement>("#translate-on-hover");
 const translateOnSelection = document.querySelector<HTMLInputElement>("#translate-on-selection");
+const cacheHoveredWords = document.querySelector<HTMLInputElement>("#cache-hovered-words");
 const hoverTranslationModes = document.querySelectorAll<HTMLInputElement>(
   'input[name="hoverTranslationMode"]',
 );
@@ -102,6 +103,10 @@ async function restoreSettings(): Promise<void> {
     translateOnSelection.checked = settings.translateOnSelection;
   }
 
+  if (cacheHoveredWords) {
+    cacheHoveredWords.checked = settings.cacheHoveredWords;
+  }
+
   setHoverTranslationMode(settings.hoverTranslationMode);
 
   if (hoverDelayMs) {
@@ -160,6 +165,7 @@ async function saveSettings(): Promise<void> {
     isEnabled: isEnabled?.checked ?? defaultSettings.isEnabled,
     translateOnHover: translateOnHover?.checked ?? defaultSettings.translateOnHover,
     translateOnSelection: translateOnSelection?.checked ?? defaultSettings.translateOnSelection,
+    cacheHoveredWords: cacheHoveredWords?.checked ?? defaultSettings.cacheHoveredWords,
     hoverTranslationMode: getHoverTranslationMode(
       getSelectedHoverTranslationMode(),
       defaultSettings.hoverTranslationMode,

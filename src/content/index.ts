@@ -19,6 +19,7 @@ import {
   PersistentTranslationCache,
   type PersistentTranslationCacheStorage,
 } from "../translation/persistent-translation-cache";
+import { shouldPersistTranslation } from "../translation/persistent-cache-policy";
 import {
   getSavedVocabularyEntryId,
   isSingleSavedVocabularyWord,
@@ -44,6 +45,7 @@ const defaultSettings: ExtensionSettings = {
   isEnabled: true,
   translateOnHover: true,
   translateOnSelection: true,
+  cacheHoveredWords: false,
   hoverTranslationMode: "word",
   hoverDelayMs: 450,
   maxSelectionLength: MAX_SELECTION_LENGTH,
@@ -133,6 +135,7 @@ type ExtensionSettings = {
   isEnabled: boolean;
   translateOnHover: boolean;
   translateOnSelection: boolean;
+  cacheHoveredWords: boolean;
   hoverTranslationMode: string;
   hoverDelayMs: number;
   maxSelectionLength: number;
@@ -865,6 +868,7 @@ function settingChangesToPartialSettings(
     isEnabled: getOptionalBooleanSetting(changes.isEnabled?.newValue),
     translateOnHover: getOptionalBooleanSetting(changes.translateOnHover?.newValue),
     translateOnSelection: getOptionalBooleanSetting(changes.translateOnSelection?.newValue),
+    cacheHoveredWords: getOptionalBooleanSetting(changes.cacheHoveredWords?.newValue),
     hoverTranslationMode: getOptionalHoverTranslationModeSetting(
       changes.hoverTranslationMode?.newValue,
     ),
@@ -901,6 +905,10 @@ async function readSettings(): Promise<ExtensionSettings> {
         translateOnSelection: getBooleanSetting(
           stored.translateOnSelection,
           defaultSettings.translateOnSelection,
+        ),
+        cacheHoveredWords: getBooleanSetting(
+          stored.cacheHoveredWords,
+          defaultSettings.cacheHoveredWords,
         ),
         hoverTranslationMode: getHoverTranslationModeSetting(
           stored.hoverTranslationMode,
@@ -1085,18 +1093,6 @@ async function requestTranslation(
     sourceLanguage,
     targetLanguage,
   };
-
-  if (__BROWSER_TARGET__ === "chrome") {
-    await delay(CHROME_DIRECT_TRANSLATION_FALLBACK_MS);
-    return requestDirectTranslation(request);
-  }
-
-  return requestRuntimeTranslation(extensionApi, request);
-}
-
-async function requestDirectTranslation(
-  request: TranslationRequest,
-): Promise<TranslateMessageResponse> {
   const cache = getDirectTranslationCache();
   const cachedResult = await cache.get(request);
 
@@ -1107,6 +1103,21 @@ async function requestDirectTranslation(
     };
   }
 
+  if (__BROWSER_TARGET__ === "chrome") {
+    await delay(CHROME_DIRECT_TRANSLATION_FALLBACK_MS);
+    const response = await requestDirectTranslation(request);
+    await cacheTranslationResponse(request, response);
+    return response;
+  }
+
+  const response = await requestRuntimeTranslation(extensionApi, request);
+  await cacheTranslationResponse(request, response);
+  return response;
+}
+
+async function requestDirectTranslation(
+  request: TranslationRequest,
+): Promise<TranslateMessageResponse> {
   if (!currentSettings.providerEndpoint) {
     return {
       ok: true,
@@ -1163,8 +1174,6 @@ async function requestDirectTranslation(
       providerName: "custom-endpoint",
     };
 
-    await cache.set(request, result);
-
     return {
       ok: true,
       result,
@@ -1180,6 +1189,17 @@ async function requestDirectTranslation(
   } finally {
     globalThis.clearTimeout(timeout);
   }
+}
+
+async function cacheTranslationResponse(
+  request: TranslationRequest,
+  response: TranslateMessageResponse,
+): Promise<void> {
+  if (!response.ok) {
+    return;
+  }
+
+  await getDirectTranslationCache().set(request, response.result);
 }
 
 function getTranslatedText(body: unknown): string | null {
@@ -1202,6 +1222,12 @@ function delay(ms: number): Promise<void> {
 function getDirectTranslationCache(): PersistentTranslationCache {
   directTranslationCache ??= new PersistentTranslationCache(
     new ContentLocalCacheStorage(extensionApi),
+    {
+      shouldPersist: (request) =>
+        shouldPersistTranslation(request, undefined, {
+          cacheHoveredWords: currentSettings.cacheHoveredWords,
+        }),
+    },
   );
 
   return directTranslationCache;
