@@ -9,9 +9,29 @@ const browserTarget = process.env.npm_lifecycle_event?.includes("firefox")
 const enableLocalTestingOptions =
   process.env.DUTCHMATE_LOCAL_TESTING_OPTIONS === "1" ||
   process.env.npm_lifecycle_event?.startsWith("dev:") === true;
+const buildEntry = process.env.DUTCHMATE_BUILD_ENTRY ?? "all";
 
 export default defineConfig(({ mode }): UserConfig => {
   const target = mode === "firefox" ? "firefox" : browserTarget;
+  const isSingleRuntimeEntry = buildEntry === "background" || buildEntry === "content";
+  const input: Record<string, string> =
+    buildEntry === "background"
+      ? {
+          background: resolve(__dirname, "src/background/index.ts"),
+        }
+      : buildEntry === "content"
+        ? {
+            content: resolve(__dirname, "src/content/index.ts"),
+          }
+        : buildEntry === "options"
+          ? {
+              options: resolve(__dirname, "src/options/index.html"),
+            }
+          : {
+              background: resolve(__dirname, "src/background/index.ts"),
+              content: resolve(__dirname, "src/content/index.ts"),
+              options: resolve(__dirname, "src/options/index.html"),
+            };
 
   return {
     define: {
@@ -20,15 +40,18 @@ export default defineConfig(({ mode }): UserConfig => {
     },
     build: {
       outDir: `dist/${target}`,
-      emptyOutDir: true,
+      emptyOutDir: buildEntry === "background" || buildEntry === "all",
       sourcemap: target === "firefox",
       rollupOptions: {
-        input: {
-          background: resolve(__dirname, "src/background/index.ts"),
-          content: resolve(__dirname, "src/content/index.ts"),
-          options: resolve(__dirname, "src/options/index.html"),
-        },
+        input,
         output: {
+          format: isSingleRuntimeEntry ? "iife" : undefined,
+          name:
+            buildEntry === "background"
+              ? "DutchMateBackground"
+              : buildEntry === "content"
+                ? "DutchMateContent"
+                : undefined,
           entryFileNames: "assets/[name].js",
           chunkFileNames: "assets/[name].js",
           assetFileNames: "assets/[name][extname]",

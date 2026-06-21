@@ -32,6 +32,33 @@ describe("persistent cache policy", () => {
     ).toBe(false);
   });
 
+  it("persists hovered single words when hover caching is enabled", () => {
+    expect(
+      shouldPersistTranslation(
+        {
+          ...selectionRequest,
+          context: "hover",
+        },
+        undefined,
+        { cacheHoveredWords: true },
+      ),
+    ).toBe(true);
+  });
+
+  it("does not persist hovered phrases when hover caching is enabled", () => {
+    expect(
+      shouldPersistTranslation(
+        {
+          ...selectionRequest,
+          context: "hover",
+          text: "het huis",
+        },
+        undefined,
+        { cacheHoveredWords: true },
+      ),
+    ).toBe(false);
+  });
+
   it("does not persist selected phrases", () => {
     expect(
       shouldPersistTranslation({

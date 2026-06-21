@@ -5,10 +5,26 @@ import {
   type RuntimeTranslationExtensionApi,
   type TranslateMessageResponse,
 } from "./runtime-translation-client";
+import {
+  requestRuntimeSavedVocabularyList,
+  requestRuntimeSaveVocabularyBatch,
+  type RuntimeSaveVocabularyRequest,
+} from "./runtime-vocabulary-client";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { isValidTextRangeBoundary } from "./text-range-boundary";
 import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
-import type { MvpLanguageCode } from "../shared/languages";
+import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
+import type { TranslationRequest, TranslationResult } from "../translation/provider";
+import {
+  PersistentTranslationCache,
+  type PersistentTranslationCacheStorage,
+} from "../translation/persistent-translation-cache";
+import { shouldPersistTranslation } from "../translation/persistent-cache-policy";
+import {
+  getSavedVocabularyEntryId,
+  isSingleSavedVocabularyWord,
+  normalizeSavedVocabularyText,
+} from "../vocabulary/saved-vocabulary";
 
 const MIN_TEXT_LENGTH = 1;
 const DEFAULT_PROVIDER_ENDPOINT = "https://dutchmate-backend.onrender.com/translate";
@@ -17,6 +33,9 @@ const MAX_HOVER_CONTEXT_LENGTH = 180;
 const MIN_SELECTION_LENGTH = 50;
 const MAX_SELECTION_LENGTH = 150;
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
+const TOOLTIP_TRANSLATION_TIMEOUT_MS = 9000;
+const CHROME_DIRECT_TRANSLATION_FALLBACK_MS = 1200;
+const DIRECT_TRANSLATION_TIMEOUT_MS = 15000;
 const defaultLanguageRoles = {
   learningLanguage: "nl" as const,
   nativeLanguage: "te" as const,
@@ -26,6 +45,7 @@ const defaultSettings: ExtensionSettings = {
   isEnabled: true,
   translateOnHover: true,
   translateOnSelection: true,
+  cacheHoveredWords: false,
   hoverTranslationMode: "word",
   hoverDelayMs: 450,
   maxSelectionLength: MAX_SELECTION_LENGTH,
@@ -115,6 +135,7 @@ type ExtensionSettings = {
   isEnabled: boolean;
   translateOnHover: boolean;
   translateOnSelection: boolean;
+  cacheHoveredWords: boolean;
   hoverTranslationMode: string;
   hoverDelayMs: number;
   maxSelectionLength: number;
@@ -136,6 +157,10 @@ type TranslationContext = TooltipContext;
 
 type ExtensionStorageApi = {
   storage: {
+    local: {
+      get(keys: string | string[], callback: (items: Record<string, unknown>) => void): void;
+      set(items: Record<string, unknown>, callback?: () => void): void;
+    };
     sync: {
       get(defaults: ExtensionSettings, callback: (settings: Partial<ExtensionSettings>) => void): void;
     };
@@ -153,11 +178,15 @@ const extensionGlobal = globalThis as typeof globalThis & {
   chrome?: ExtensionStorageApi;
 };
 const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
+let directTranslationCache: PersistentTranslationCache | undefined;
 
 let hoverTimer: number | undefined;
 let lastHoverKey = "";
 let activeSelectionText = "";
 let currentSettings = defaultSettings;
+let savedVocabularyIds: Set<string> | undefined;
+let savedVocabularyIdsRequest: Promise<Set<string> | undefined> | undefined;
+let tooltipTimeout: number | undefined;
 const tooltipRequestState = new TooltipRequestState();
 
 const tooltip = document.createElement("div");
@@ -179,8 +208,33 @@ style.textContent = `
     color: #f9fafb;
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
     font: 13px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    pointer-events: none;
+    pointer-events: auto;
     white-space: pre-line;
+  }
+
+  #hover-translate-tooltip .hover-translate-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  #hover-translate-tooltip .hover-translate-save {
+    appearance: none;
+    border: 1px solid rgba(249, 250, 251, 0.42);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    line-height: 1.2;
+    padding: 4px 8px;
+  }
+
+  #hover-translate-tooltip .hover-translate-save:disabled {
+    cursor: default;
+    opacity: 0.76;
   }
 
   #hover-translate-tooltip[data-state="loading"] {
@@ -213,8 +267,13 @@ document.addEventListener("keydown", handleKeyDown);
 extensionApi?.storage.onChanged.addListener(handleStorageChanged);
 
 void refreshSettings();
+void refreshSavedVocabularyIds();
 
 function handleMouseMove(event: MouseEvent): void {
+  if (isTooltipEvent(event)) {
+    return;
+  }
+
   window.clearTimeout(hoverTimer);
 
   if (!currentSettings.isEnabled || !currentSettings.translateOnHover) {
@@ -258,7 +317,11 @@ function handleMouseMove(event: MouseEvent): void {
   }, currentSettings.hoverDelayMs);
 }
 
-function handleSelection(): void {
+function handleSelection(event: MouseEvent): void {
+  if (isTooltipEvent(event)) {
+    return;
+  }
+
   window.clearTimeout(hoverTimer);
 
   if (!currentSettings.isEnabled || !currentSettings.translateOnSelection) {
@@ -306,28 +369,45 @@ async function showTranslation(
   context: TranslationContext,
   x: number,
   y: number,
-  sourceLanguageHint?: string,
+  sourceLanguageHint?: MvpLanguageCode,
   languageSample = text,
 ): Promise<void> {
   const requestId = beginTooltipRequest("Translating...", context, x, y);
 
-  const response = await requestTranslationForCurrentSettings(
-    text,
-    context,
-    languageSample,
-    sourceLanguageHint,
-  );
+  let outcome: TranslationOutcome;
+
+  try {
+    outcome = await withTooltipTranslationTimeout(
+      requestTranslationForCurrentSettings(text, context, languageSample, sourceLanguageHint),
+    );
+  } catch (error) {
+    if (tooltipRequestState.isCurrent(requestId)) {
+      showTooltipMessage(
+        error instanceof Error ? error.message : "Translation request failed.",
+        "error",
+        context,
+        x,
+        y,
+      );
+    }
+    return;
+  }
 
   if (!tooltipRequestState.isCurrent(requestId)) {
     return;
   }
 
   try {
-    showTooltipResult(response, x, y);
+    showTooltipResult(
+      outcome.response,
+      x,
+      y,
+      getEligibleSaveCandidates(text, context, outcome.saveCandidates),
+    );
   } catch {
     showTooltipMessage(
-      response.ok ? response.result.translatedText : response.error,
-      response.ok ? "success" : "error",
+      outcome.response.ok ? outcome.response.result.translatedText : outcome.response.error,
+      outcome.response.ok ? "success" : "error",
       context,
       x,
       y,
@@ -342,6 +422,18 @@ function beginTooltipRequest(
   y: number,
 ): number {
   const requestId = tooltipRequestState.begin(context);
+  window.clearTimeout(tooltipTimeout);
+  tooltipTimeout = window.setTimeout(() => {
+    if (tooltipRequestState.isCurrent(requestId) && tooltip.dataset.state === "loading") {
+      showTooltipMessage(
+        "Translation request did not finish. Reload the extension and try again.",
+        "error",
+        context,
+        x,
+        y,
+      );
+    }
+  }, TOOLTIP_TRANSLATION_TIMEOUT_MS);
   tooltip.dataset.state = "loading";
   tooltip.textContent = message;
   positionTooltip(x, y);
@@ -356,6 +448,7 @@ function showTooltipMessage(
   x: number,
   y: number,
 ): void {
+  window.clearTimeout(tooltipTimeout);
   tooltipRequestState.begin(context);
   tooltip.dataset.state = state;
   tooltip.textContent = message;
@@ -363,7 +456,13 @@ function showTooltipMessage(
   tooltip.hidden = false;
 }
 
-function showTooltipResult(response: TranslateMessageResponse, x: number, y: number): void {
+function showTooltipResult(
+  response: TranslateMessageResponse,
+  x: number,
+  y: number,
+  saveCandidates: RuntimeSaveVocabularyRequest[] = [],
+): void {
+  window.clearTimeout(tooltipTimeout);
   tooltip.dataset.state = response.ok ? "success" : "error";
 
   if (response.ok && response.result.providerName === "multi-target") {
@@ -372,7 +471,128 @@ function showTooltipResult(response: TranslateMessageResponse, x: number, y: num
     tooltip.textContent = truncateTooltipText(response.ok ? response.result.translatedText : response.error);
   }
 
+  renderSaveAction(saveCandidates);
   positionTooltip(x, y);
+}
+
+function renderSaveAction(saveCandidates: RuntimeSaveVocabularyRequest[]): void {
+  if (saveCandidates.length === 0) {
+    return;
+  }
+
+  const actions = document.createElement("div");
+  actions.className = "hover-translate-actions";
+
+  const saveButton = document.createElement("button");
+  saveButton.type = "button";
+  saveButton.className = "hover-translate-save";
+  const saveCandidateIds = getSaveCandidateIds(saveCandidates);
+  const isAlreadySaved =
+    savedVocabularyIds !== undefined &&
+    saveCandidateIds.every((id) => savedVocabularyIds?.has(id));
+
+  saveButton.disabled = isAlreadySaved || savedVocabularyIds === undefined;
+  saveButton.textContent = isAlreadySaved
+    ? "Already saved"
+    : savedVocabularyIds === undefined
+      ? "Checking..."
+      : "Save";
+  saveButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    void saveVocabularyFromTooltip(saveButton, saveCandidates);
+  });
+
+  actions.append(saveButton);
+  tooltip.appendChild(actions);
+
+  if (savedVocabularyIds === undefined) {
+    void refreshSaveButtonState(saveButton, saveCandidates);
+  }
+}
+
+async function saveVocabularyFromTooltip(
+  saveButton: HTMLButtonElement,
+  saveCandidates: RuntimeSaveVocabularyRequest[],
+): Promise<void> {
+  saveButton.disabled = true;
+  saveButton.textContent = "Saving...";
+
+  const response = await requestRuntimeSaveVocabularyBatch(extensionApi, saveCandidates);
+
+  if (!response.ok) {
+    saveButton.disabled = false;
+    saveButton.textContent = "Try again";
+    saveButton.title = response.error;
+    return;
+  }
+
+  const saveResults = response.result.results;
+  const maxEntriesResult = saveResults.find((result) => result.status === "max-entries-reached");
+
+  if (maxEntriesResult?.status === "max-entries-reached") {
+    saveButton.textContent = "Vocabulary full";
+    return;
+  }
+
+  if (saveResults.every((result) => result.status === "already-saved")) {
+    saveButton.textContent = "Already saved";
+    return;
+  }
+
+  const savedEntries = saveResults.flatMap((result) =>
+    "entry" in result && result.entry ? [result.entry] : [],
+  );
+  const savedIds = savedEntries.map((entry) => entry.id);
+  savedVocabularyIds = new Set([...(savedVocabularyIds ?? []), ...savedIds]);
+  saveButton.textContent = "Saved";
+}
+
+async function refreshSaveButtonState(
+  saveButton: HTMLButtonElement,
+  saveCandidates: RuntimeSaveVocabularyRequest[],
+): Promise<void> {
+  const latestSavedVocabularyIds = await refreshSavedVocabularyIds();
+
+  if (!latestSavedVocabularyIds) {
+    saveButton.disabled = false;
+    saveButton.textContent = "Save";
+    return;
+  }
+
+  if (getSaveCandidateIds(saveCandidates).every((id) => latestSavedVocabularyIds.has(id))) {
+    saveButton.textContent = "Already saved";
+    saveButton.disabled = true;
+    return;
+  }
+
+  saveButton.textContent = "Save";
+  saveButton.disabled = false;
+}
+
+async function refreshSavedVocabularyIds(): Promise<Set<string> | undefined> {
+  if (savedVocabularyIdsRequest) {
+    return savedVocabularyIdsRequest;
+  }
+
+  savedVocabularyIdsRequest = requestRuntimeSavedVocabularyList(extensionApi)
+    .then((response) => {
+      if (!response.ok) {
+        return undefined;
+      }
+
+      savedVocabularyIds = new Set(response.result.entries.map((entry) => entry.id));
+      return savedVocabularyIds;
+    })
+    .finally(() => {
+      savedVocabularyIdsRequest = undefined;
+    });
+
+  return savedVocabularyIdsRequest;
+}
+
+function getSaveCandidateIds(saveCandidates: RuntimeSaveVocabularyRequest[]): string[] {
+  return saveCandidates.map((candidate) => getSavedVocabularyEntryId(candidate));
 }
 
 function renderMultiTargetTooltip(text: string): void {
@@ -424,6 +644,7 @@ function positionTooltip(x: number, y: number): void {
 }
 
 function hideTooltip(): void {
+  window.clearTimeout(tooltipTimeout);
   tooltipRequestState.clear();
   tooltip.hidden = true;
   delete tooltip.dataset.state;
@@ -435,7 +656,11 @@ function clearSelectionAndHideTooltip(): void {
   hideTooltip();
 }
 
-function handlePageClick(): void {
+function handlePageClick(event: MouseEvent): void {
+  if (isTooltipEvent(event)) {
+    return;
+  }
+
   if (hasActiveSelection()) {
     return;
   }
@@ -455,6 +680,10 @@ function handleKeyDown(event: KeyboardEvent): void {
   if (event.key === "Escape") {
     clearSelectionAndHideTooltip();
   }
+}
+
+function isTooltipEvent(event: Event): boolean {
+  return event.target instanceof Node && tooltip.contains(event.target);
 }
 
 function hasActiveSelection(): boolean {
@@ -482,7 +711,7 @@ function getWordAtPoint(
   y: number;
   start: number;
   end: number;
-  sourceLanguageHint?: string;
+  sourceLanguageHint?: MvpLanguageCode;
   languageSample: string;
 } | null {
   const range = getRangeAtPoint(clientX, clientY);
@@ -636,6 +865,7 @@ function settingChangesToPartialSettings(
     isEnabled: getOptionalBooleanSetting(changes.isEnabled?.newValue),
     translateOnHover: getOptionalBooleanSetting(changes.translateOnHover?.newValue),
     translateOnSelection: getOptionalBooleanSetting(changes.translateOnSelection?.newValue),
+    cacheHoveredWords: getOptionalBooleanSetting(changes.cacheHoveredWords?.newValue),
     hoverTranslationMode: getOptionalHoverTranslationModeSetting(
       changes.hoverTranslationMode?.newValue,
     ),
@@ -672,6 +902,10 @@ async function readSettings(): Promise<ExtensionSettings> {
         translateOnSelection: getBooleanSetting(
           stored.translateOnSelection,
           defaultSettings.translateOnSelection,
+        ),
+        cacheHoveredWords: getBooleanSetting(
+          stored.cacheHoveredWords,
+          defaultSettings.cacheHoveredWords,
         ),
         hoverTranslationMode: getHoverTranslationModeSetting(
           stored.hoverTranslationMode,
@@ -825,31 +1059,235 @@ function getOptionalSelectionLengthSetting(value: unknown): number | undefined {
   return Math.min(Math.max(numberValue, MIN_SELECTION_LENGTH), MAX_SELECTION_LENGTH);
 }
 
+function withTooltipTranslationTimeout<T>(request: Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeout = globalThis.setTimeout(() => {
+      reject(new Error("Translation request did not finish. Reload the extension and try again."));
+    }, TOOLTIP_TRANSLATION_TIMEOUT_MS);
+
+    request.then(
+      (result) => {
+        globalThis.clearTimeout(timeout);
+        resolve(result);
+      },
+      (error) => {
+        globalThis.clearTimeout(timeout);
+        reject(error);
+      },
+    );
+  });
+}
+
 async function requestTranslation(
   text: string,
   context: TranslationContext,
-  sourceLanguage: string,
-  targetLanguage: string,
+  sourceLanguage: SourceLanguageCode,
+  targetLanguage: MvpLanguageCode,
 ): Promise<TranslateMessageResponse> {
-  return requestRuntimeTranslation(extensionApi, {
+  const request: TranslationRequest = {
     text,
     context,
     sourceLanguage,
     targetLanguage,
+  };
+  const cache = getDirectTranslationCache();
+  const cachedResult = await cache.get(request);
+
+  if (cachedResult) {
+    return {
+      ok: true,
+      result: cachedResult,
+    };
+  }
+
+  if (__BROWSER_TARGET__ === "chrome") {
+    await delay(CHROME_DIRECT_TRANSLATION_FALLBACK_MS);
+    const response = await requestDirectTranslation(request);
+    await cacheTranslationResponse(request, response);
+    return response;
+  }
+
+  const response = await requestRuntimeTranslation(extensionApi, request);
+  await cacheTranslationResponse(request, response);
+  return response;
+}
+
+async function requestDirectTranslation(
+  request: TranslationRequest,
+): Promise<TranslateMessageResponse> {
+  if (!currentSettings.providerEndpoint) {
+    return {
+      ok: true,
+      result: {
+        translatedText: `Translation will appear here. (${request.targetLanguage})`,
+        providerName: "placeholder",
+      },
+    };
+  }
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (currentSettings.providerApiKey) {
+    headers.Authorization = `Bearer ${currentSettings.providerApiKey}`;
+  }
+
+  const controller = new AbortController();
+  const timeout = globalThis.setTimeout(() => {
+    controller.abort();
+  }, DIRECT_TRANSLATION_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(currentSettings.providerEndpoint, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(request),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error:
+          response.status === 429
+            ? "Translation is temporarily busy. Try again soon."
+            : `Translation failed: Provider returned ${response.status}`,
+      };
+    }
+
+    const body = await response.json() as unknown;
+    const translatedText = getTranslatedText(body);
+
+    if (!translatedText) {
+      return {
+        ok: false,
+        error: "Translation failed: Provider response is missing translatedText",
+      };
+    }
+
+    const result: TranslationResult = {
+      translatedText,
+      providerName: "custom-endpoint",
+    };
+
+    return {
+      ok: true,
+      result,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof DOMException && error.name === "AbortError"
+          ? "Translation request timed out before the backend responded."
+          : "Translation failed: Provider endpoint is unreachable. Check that the backend is running and the endpoint URL is correct.",
+    };
+  } finally {
+    globalThis.clearTimeout(timeout);
+  }
+}
+
+async function cacheTranslationResponse(
+  request: TranslationRequest,
+  response: TranslateMessageResponse,
+): Promise<void> {
+  if (!response.ok) {
+    return;
+  }
+
+  await getDirectTranslationCache().set(request, response.result);
+}
+
+function getTranslatedText(body: unknown): string | null {
+  return (
+    typeof body === "object" &&
+      body !== null &&
+      "translatedText" in body &&
+      typeof body.translatedText === "string"
+  )
+    ? body.translatedText
+    : null;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    globalThis.setTimeout(resolve, ms);
   });
 }
+
+function getDirectTranslationCache(): PersistentTranslationCache {
+  directTranslationCache ??= new PersistentTranslationCache(
+    new ContentLocalCacheStorage(extensionApi),
+    {
+      shouldPersist: (request) =>
+        shouldPersistTranslation(request, undefined, {
+          cacheHoveredWords: currentSettings.cacheHoveredWords,
+        }),
+    },
+  );
+
+  return directTranslationCache;
+}
+
+class ContentLocalCacheStorage implements PersistentTranslationCacheStorage {
+  constructor(private readonly api: ExtensionStorageApi | undefined) {}
+
+  async get(key: string): Promise<unknown> {
+    if (!this.api) {
+      return undefined;
+    }
+
+    return new Promise((resolve) => {
+      this.api?.storage.local.get(key, (items) => {
+        if (this.api?.runtime.lastError) {
+          resolve(undefined);
+          return;
+        }
+
+        resolve(items[key]);
+      });
+    });
+  }
+
+  async set(key: string, value: unknown): Promise<void> {
+    if (!this.api) {
+      return;
+    }
+
+    return new Promise((resolve) => {
+      this.api?.storage.local.set({ [key]: value }, () => {
+        resolve();
+      });
+    });
+  }
+}
+
+type TranslationOutcome = {
+  response: TranslateMessageResponse;
+  saveCandidates: RuntimeSaveVocabularyRequest[];
+};
 
 async function requestTranslationForCurrentSettings(
   text: string,
   context: TranslationContext,
   languageSample: string,
-  sourceLanguageHint?: string,
-): Promise<TranslateMessageResponse> {
+  sourceLanguageHint?: MvpLanguageCode,
+): Promise<TranslationOutcome> {
   const sourceLanguage = getActiveSourceLanguage(languageSample, sourceLanguageHint);
   const targetLanguages = getActiveTargetLanguages(sourceLanguage);
 
   if (targetLanguages.length <= 1) {
-    return requestTranslation(text, context, sourceLanguage, currentSettings.targetLanguage);
+    const response = await requestTranslation(text, context, sourceLanguage, currentSettings.targetLanguage);
+    return {
+      response,
+      saveCandidates: getSaveCandidatesFromResponses(text, sourceLanguage, [
+        {
+          targetLanguage: currentSettings.targetLanguage,
+          response,
+        },
+      ]),
+    };
   }
 
   const responses = await Promise.all(
@@ -861,24 +1299,90 @@ async function requestTranslationForCurrentSettings(
   const failedResponse = responses.find(({ response }) => !response.ok);
 
   if (failedResponse?.response.ok === false) {
-    return failedResponse.response;
+    return {
+      response: failedResponse.response,
+      saveCandidates: [],
+    };
   }
 
   return {
-    ok: true,
-    result: {
-      translatedText: responses
-        .map(({ targetLanguage, response }) => {
-          const label = getLanguageLabel(targetLanguage);
-          return `${label}: ${response.ok ? response.result.translatedText : ""}`;
-        })
-        .join("\n"),
-      providerName: "multi-target",
+    response: {
+      ok: true,
+      result: {
+        translatedText: responses
+          .map(({ targetLanguage, response }) => {
+            const label = getLanguageLabel(targetLanguage);
+            return `${label}: ${response.ok ? response.result.translatedText : ""}`;
+          })
+          .join("\n"),
+        providerName: "multi-target",
+      },
     },
+    saveCandidates: getSaveCandidatesFromResponses(text, sourceLanguage, responses),
   };
 }
 
-function getActiveTargetLanguages(sourceLanguage: string): string[] {
+function getSaveCandidatesFromResponses(
+  text: string,
+  activeSourceLanguage: SourceLanguageCode,
+  responses: Array<{
+    targetLanguage: MvpLanguageCode;
+    response: TranslateMessageResponse;
+  }>,
+): RuntimeSaveVocabularyRequest[] {
+  const sourceLanguage = getRequestedSourceLanguage();
+  const detectedSourceLanguage = getDetectedSourceLanguage(sourceLanguage, activeSourceLanguage);
+
+  return responses.flatMap(({ targetLanguage, response }) => {
+    if (!response.ok) {
+      return [];
+    }
+
+    return [
+      {
+        text,
+        sourceLanguage,
+        detectedSourceLanguage,
+        targetLanguage,
+        translatedText: response.result.translatedText,
+        providerName: response.result.providerName,
+      },
+    ];
+  });
+}
+
+function getEligibleSaveCandidates(
+  text: string,
+  context: TranslationContext,
+  candidates: RuntimeSaveVocabularyRequest[],
+): RuntimeSaveVocabularyRequest[] {
+  if (
+    context !== "selection" ||
+    !isSingleSavedVocabularyWord(normalizeSavedVocabularyText(text))
+  ) {
+    return [];
+  }
+
+  return candidates;
+}
+
+function getRequestedSourceLanguage(): SourceLanguageCode {
+  return currentSettings.sourceLanguage === "auto" ||
+    supportedTargetLanguages.has(currentSettings.sourceLanguage)
+    ? (currentSettings.sourceLanguage as SourceLanguageCode)
+    : "auto";
+}
+
+function getDetectedSourceLanguage(
+  requestedSourceLanguage: SourceLanguageCode,
+  activeSourceLanguage: SourceLanguageCode,
+): MvpLanguageCode | undefined {
+  return requestedSourceLanguage === "auto" && supportedTargetLanguages.has(activeSourceLanguage)
+    ? (activeSourceLanguage as MvpLanguageCode)
+    : undefined;
+}
+
+function getActiveTargetLanguages(sourceLanguage: SourceLanguageCode): MvpLanguageCode[] {
   if (!currentSettings.translateToOtherMvpLanguages) {
     return [currentSettings.targetLanguage];
   }
@@ -896,12 +1400,17 @@ function getActiveTargetLanguages(sourceLanguage: string): string[] {
           currentSettings.nativeLanguage,
         ];
 
-  return Array.from(new Set(orderedLanguages)).filter((languageCode) => languageCode !== sourceLanguage);
+  return Array.from(new Set(orderedLanguages)).filter(
+    (languageCode): languageCode is MvpLanguageCode => languageCode !== sourceLanguage,
+  );
 }
 
-function getActiveSourceLanguage(text: string, sourceLanguageHint?: string): string {
+function getActiveSourceLanguage(
+  text: string,
+  sourceLanguageHint?: MvpLanguageCode,
+): SourceLanguageCode {
   if (currentSettings.sourceLanguage !== "auto") {
-    return currentSettings.sourceLanguage;
+    return getRequestedSourceLanguage();
   }
 
   if (!currentSettings.translateToOtherMvpLanguages) {
@@ -911,7 +1420,10 @@ function getActiveSourceLanguage(text: string, sourceLanguageHint?: string): str
   return detectMvpSourceLanguage(text, sourceLanguageHint);
 }
 
-function detectMvpSourceLanguage(text: string, sourceLanguageHint?: string): string {
+function detectMvpSourceLanguage(
+  text: string,
+  sourceLanguageHint?: MvpLanguageCode,
+): MvpLanguageCode {
   if (/[\u0C00-\u0C7F]/u.test(text)) {
     return "te";
   }
@@ -958,7 +1470,7 @@ function getLanguageLabel(languageCode: string): string {
   return mvpLanguages.find((language) => language.code === languageCode)?.label ?? languageCode;
 }
 
-function getLanguageHintForNode(node: Node | null): string | undefined {
+function getLanguageHintForNode(node: Node | null): MvpLanguageCode | undefined {
   const element =
     node instanceof Element
       ? node
@@ -970,8 +1482,10 @@ function getLanguageHintForNode(node: Node | null): string | undefined {
   return language;
 }
 
-function normalizeLanguageCode(value: string | null | undefined): string | undefined {
+function normalizeLanguageCode(value: string | null | undefined): MvpLanguageCode | undefined {
   const languageCode = value?.trim().toLowerCase().split("-")[0];
 
-  return languageCode && supportedTargetLanguages.has(languageCode) ? languageCode : undefined;
+  return languageCode && supportedTargetLanguages.has(languageCode)
+    ? (languageCode as MvpLanguageCode)
+    : undefined;
 }

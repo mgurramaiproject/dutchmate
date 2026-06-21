@@ -1,5 +1,33 @@
 # Release Notes
 
+## 0.2.0
+
+Target: first saved-vocabulary learning release after `0.1.2`.
+
+Changes:
+
+- Added local saved-vocabulary storage for intentional selected single-word saves.
+- Added background messages for saving, listing, deleting, and clearing saved vocabulary.
+- Added a Save action to successful selected single-word translation tooltips.
+- Added an Options page saved-vocabulary view with count, empty state, delete, and clear-all controls.
+- Added a scrollable saved-vocabulary list and clearer privacy copy for cached words versus saved words.
+- Added an opt-in hover-word cache setting and reused cached single-word translations across hover and selection.
+- Fixed Chrome-specific translation and multi-language save issues so Firefox and Chrome behave consistently.
+- Updated privacy, store, manual-testing, and release documentation for saved vocabulary.
+
+Verification:
+
+- `npm run test`
+- `npm run typecheck`
+- `npm run build`
+
+Notes:
+
+- No new browser permissions.
+- No backend provider change.
+- No account, sync, flashcards, or spaced repetition yet.
+- Saved vocabulary is local-only browser data and does not include page URLs or page titles in this release.
+
 ## 0.1.2
 
 Target: production-readiness follow-up after `0.1.1`.

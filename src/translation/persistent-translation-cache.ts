@@ -1,5 +1,8 @@
 import type { TranslationRequest, TranslationResult } from "./provider";
-import { normalizeCacheText, shouldPersistTranslation } from "./persistent-cache-policy";
+import {
+  normalizeCacheText,
+  shouldPersistTranslation,
+} from "./persistent-cache-policy";
 
 const DEFAULT_CACHE_KEY = "dutchmate.translationCache.v1";
 const DEFAULT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -15,6 +18,7 @@ type PersistentTranslationCacheOptions = {
   maxEntries?: number;
   ttlMs?: number;
   now?: () => number;
+  shouldPersist?: (request: TranslationRequest) => boolean;
 };
 
 type PersistentTranslationCacheEntry = {
@@ -32,6 +36,7 @@ export class PersistentTranslationCache {
   private readonly maxEntries: number;
   private readonly ttlMs: number;
   private readonly now: () => number;
+  private readonly shouldPersist: (request: TranslationRequest) => boolean;
 
   constructor(
     private readonly storage: PersistentTranslationCacheStorage,
@@ -41,10 +46,11 @@ export class PersistentTranslationCache {
     this.maxEntries = options.maxEntries ?? DEFAULT_MAX_ENTRIES;
     this.ttlMs = options.ttlMs ?? DEFAULT_TTL_MS;
     this.now = options.now ?? Date.now;
+    this.shouldPersist = options.shouldPersist ?? shouldPersistTranslation;
   }
 
   async get(request: TranslationRequest): Promise<TranslationResult | null> {
-    if (!shouldPersistTranslation(request)) {
+    if (!this.shouldPersist(request)) {
       return null;
     }
 
@@ -60,7 +66,7 @@ export class PersistentTranslationCache {
   }
 
   async set(request: TranslationRequest, result: TranslationResult): Promise<void> {
-    if (!shouldPersistTranslation(request)) {
+    if (!this.shouldPersist(request)) {
       return;
     }
 
@@ -120,7 +126,6 @@ export function getPersistentCacheEntryKey(request: TranslationRequest): string 
     normalizeCacheText(request.text),
     request.sourceLanguage,
     request.targetLanguage,
-    request.context,
   ].join("\u001f");
 }
 

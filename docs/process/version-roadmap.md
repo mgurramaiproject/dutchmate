@@ -10,6 +10,8 @@ Treat `0.1.1` as the stable released baseline.
 
 Each meaningful feature or release-prep step should happen in its own git branch, with one focused pull request and a clear version target. Avoid mixing product features, release cleanup, backend hardening, and broad refactors in the same branch.
 
+For a single product feature, prefer one feature branch with multiple focused commits over many tiny feature branches. The commits preserve the incremental trail, while the pull request tells the full feature story.
+
 ## Version Direction
 
 - `0.1.x`: production hardening and release cleanup.
@@ -30,29 +32,29 @@ Each meaningful feature or release-prep step should happen in its own git branch
 | `0.4.0` | Spaced repetition | `feature/spaced-repetition-local` | Add simple review scheduling with choices such as Again, Good, and Easy. |
 | `0.5.0` | Context learning | `feature/saved-word-context` | Optionally save short example context for selected words. |
 
-## Recommended Next Version
+## Current Next Version
 
 The next version should be:
 
 ```text
-0.1.2
+0.2.0
 ```
 
 Purpose:
 
 ```text
-Production readiness after the 0.1.1 release.
+Local saved vocabulary.
 ```
 
 Suggested scope:
 
-- Confirm Chrome, Firefox, and Edge package story.
-- Make release docs match actual artifacts.
-- Add or refresh the manual verification log.
-- Confirm the backend smoke test path.
-- Avoid new product behavior.
+- Define the saved-vocabulary data model and privacy boundary.
+- Add local storage for intentional saved words.
+- Add a save action for successful selected single-word translations.
+- Add an Options page view for managing saved words.
+- Update privacy/store copy and release notes before packaging.
 
-This keeps `0.1.2` intentionally boring. After a first release, boring release hygiene is valuable because it protects the stable baseline before larger learning features start.
+The `0.1.2` production-readiness branch has been merged. The next work should start the first learning loop while keeping saved vocabulary local-only and separate from the automatic translation cache.
 
 ## Branch Naming
 

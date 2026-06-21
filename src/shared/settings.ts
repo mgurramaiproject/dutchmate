@@ -29,6 +29,7 @@ export type ExtensionSettings = {
   isEnabled: boolean;
   translateOnHover: boolean;
   translateOnSelection: boolean;
+  cacheHoveredWords: boolean;
   hoverTranslationMode: HoverTranslationMode;
   hoverDelayMs: number;
   maxSelectionLength: number;
@@ -46,6 +47,7 @@ export const defaultSettings: ExtensionSettings = {
   isEnabled: true,
   translateOnHover: true,
   translateOnSelection: true,
+  cacheHoveredWords: false,
   hoverTranslationMode: "word",
   hoverDelayMs: 450,
   maxSelectionLength: 150,
@@ -74,6 +76,10 @@ export async function readSettings(): Promise<ExtensionSettings> {
     translateOnSelection: getBooleanSetting(
       stored.translateOnSelection,
       defaultSettings.translateOnSelection,
+    ),
+    cacheHoveredWords: getBooleanSetting(
+      stored.cacheHoveredWords,
+      defaultSettings.cacheHoveredWords,
     ),
     hoverTranslationMode: getHoverTranslationMode(
       stored.hoverTranslationMode,

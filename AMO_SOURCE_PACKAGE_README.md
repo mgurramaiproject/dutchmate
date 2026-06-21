@@ -41,7 +41,7 @@ corepack pnpm package:firefox
 The build creates this Firefox upload artifact:
 
 ```text
-release/dutchmate-firefox-0.1.2.zip
+release/dutchmate-firefox-0.2.0.zip
 ```
 
 ## How The Build Works

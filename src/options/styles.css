@@ -291,6 +291,63 @@ input[type="range"] {
   font-size: 14px;
 }
 
+.vocabulary-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.vocabulary-list {
+  display: grid;
+  gap: 8px;
+  max-height: 360px;
+  margin: 0;
+  overflow-y: auto;
+  padding: 0;
+  list-style: none;
+  scrollbar-gutter: stable;
+}
+
+.vocabulary-item {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(120px, 1.3fr) minmax(90px, auto) auto;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.vocabulary-text,
+.vocabulary-translation,
+.vocabulary-meta {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.vocabulary-text {
+  color: #111827;
+  font-weight: 700;
+}
+
+.vocabulary-translation {
+  color: #374151;
+}
+
+.vocabulary-meta {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.compact-button {
+  min-height: 32px;
+  padding: 0 10px;
+}
+
 .settings-note {
   margin: 0;
   color: #64748b;
@@ -361,6 +418,15 @@ button:disabled {
   .settings-section > label:not(.checkbox-label):not(.range-label),
   .setting-choice-group {
     grid-template-columns: 1fr;
+  }
+
+  .vocabulary-item {
+    grid-template-columns: 1fr auto;
+  }
+
+  .vocabulary-translation,
+  .vocabulary-meta {
+    grid-column: 1 / -1;
   }
 }
 

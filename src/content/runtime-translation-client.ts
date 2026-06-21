@@ -21,7 +21,7 @@ export type RuntimeTranslationExtensionApi = {
     lastError?: { message?: string };
     sendMessage(
       message: unknown,
-      callback: (response?: TranslateMessageResponse) => void,
+      callback: (response?: unknown) => void,
     ): void;
   };
 };
@@ -83,8 +83,33 @@ export function requestRuntimeTranslation(
           return;
         }
 
-        settle(response ?? { ok: false, error: "No translation response received." });
+        settle(
+          isTranslateMessageResponse(response)
+            ? response
+            : { ok: false, error: "No translation response received." },
+        );
       },
     );
   });
+}
+
+function isTranslateMessageResponse(response: unknown): response is TranslateMessageResponse {
+  if (typeof response !== "object" || response === null || !("ok" in response)) {
+    return false;
+  }
+
+  if (response.ok === false) {
+    return "error" in response && typeof response.error === "string";
+  }
+
+  return (
+    response.ok === true &&
+    "result" in response &&
+    typeof response.result === "object" &&
+    response.result !== null &&
+    "translatedText" in response.result &&
+    typeof response.result.translatedText === "string" &&
+    "providerName" in response.result &&
+    typeof response.result.providerName === "string"
+  );
 }

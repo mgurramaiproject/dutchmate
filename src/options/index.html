@@ -121,6 +121,25 @@
           </label>
         </section>
 
+        <section class="settings-section" aria-labelledby="saved-vocabulary-heading">
+          <h2 id="saved-vocabulary-heading">Saved vocabulary</h2>
+
+          <div class="vocabulary-toolbar">
+            <span id="vocabulary-count">Saved words: 0</span>
+            <button id="clear-vocabulary" type="button" class="secondary-button">Clear saved words</button>
+          </div>
+
+          <p id="vocabulary-empty" class="settings-note">
+            No saved words yet. Select a single word on a webpage, translate it, then choose Save.
+          </p>
+
+          <ul id="vocabulary-list" class="vocabulary-list" aria-label="Saved vocabulary"></ul>
+
+          <p class="settings-note">
+            Saved vocabulary is your learning list. Words appear here only when you choose Save, and they stay local in this browser until you delete them.
+          </p>
+        </section>
+
         <section id="privacy-section" class="settings-section" aria-labelledby="privacy-heading">
           <h2 id="privacy-heading">Privacy</h2>
 
@@ -130,7 +149,16 @@
           </div>
 
           <p class="settings-note">
-            DutchMate stores selected single words locally in your browser. Hovered words and selected phrases or sentences are not stored.
+            Cached words are automatic repeat-lookup helpers. They make translations faster and reduce translation calls, but they are not your study list. Selected single words are cached by default; hovered single words are cached only if you turn on the setting below.
+          </p>
+
+          <label class="checkbox-label">
+            <input id="cache-hovered-words" name="cacheHoveredWords" type="checkbox" />
+            Cache hovered single-word translations locally
+          </label>
+
+          <p class="settings-note">
+            Turn this on to make repeated hover translations faster and reduce backend translation calls. Hover cache stays local in this browser and can be cleared with the translation cache.
           </p>
         </section>
 
