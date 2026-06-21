@@ -16,10 +16,13 @@ This PR records the production-readiness cleanup work in one branch so the proje
 
 ## What Changed
 
-- Generated the missing Chrome `0.1.1` release package from source.
-- Verified the Chrome package manifest reports version `0.1.1`.
+- Generated the Chrome and Firefox `0.1.2` release packages from source.
+- Verified both package manifests report version `0.1.2`.
 - Documented the current release artifact status.
 - Clarified that Edge can reuse the Chromium Chrome package unless a separate Edge package is created.
+- Bumped the extension version to `0.1.2`.
+- Added `0.1.2` release notes.
+- Added a defensive Chrome hover range guard for unusual page text offsets.
 
 ## What Did Not Change
 
@@ -32,20 +35,19 @@ This PR records the production-readiness cleanup work in one branch so the proje
 
 ## Verification
 
-- [x] `corepack pnpm package:chrome`
-- [x] Inspected `release/dutchmate-chrome-0.1.1.zip` manifest and confirmed version `0.1.1`
+- [x] `corepack pnpm package:extensions`
+- [x] Inspected `release/dutchmate-chrome-0.1.2.zip` manifest and confirmed version `0.1.2`
+- [x] Inspected `release/dutchmate-firefox-0.1.2.zip` manifest and confirmed version `0.1.2`
 - [x] `corepack pnpm test`
 - [x] `corepack pnpm build`
 - [x] TypeScript check through `corepack pnpm build`
-- [ ] Browser smoke test, if relevant
+- [x] Browser smoke test recorded against the `0.1.1` baseline
+- [ ] Manual browser confirmation of the Chrome `IndexSizeError` guard
 
 ## Privacy / Store Impact
 
-No privacy-policy, store-copy, permission, or screenshot changes are expected from this PR. The work is release-readiness documentation and packaging hygiene.
+No privacy-policy, store-copy, permission, or screenshot changes are expected from this PR. The work is release-readiness documentation, packaging hygiene, and a defensive content-script fix.
 
 ## Follow-Up
 
-The next focused PR should either:
-
-- complete `0.1.2` release verification with browser smoke-test evidence; or
-- start the first `0.2.0` saved-vocabulary design/data-model branch after the release path is confirmed.
+The next focused PR should start the first `0.2.0` saved-vocabulary design/data-model branch after the release path is confirmed.

@@ -15,6 +15,8 @@ Verification:
 
 - `corepack pnpm test`
 - `corepack pnpm build`
+- `corepack pnpm package:extensions`
+- inspected Chrome and Firefox package manifests for version `0.1.2`
 
 Notes:
 
