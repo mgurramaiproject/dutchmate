@@ -247,69 +247,55 @@ Test in Chrome and Firefox:
 - browser reload keeps saved vocabulary;
 - uninstall/reinstall behavior follows browser storage behavior.
 
-## Suggested PR Sequence
+## Branch And Commit Plan
 
-Keep `0.2.0` implementation split into focused PRs.
-
-### PR 1: Saved Vocabulary Design
-
-Branch:
+Use one feature branch for the full saved-vocabulary feature:
 
 ```text
-feature/saved-vocabulary-design
+feature/saved-vocabulary-local
 ```
 
-Scope:
+Make multiple focused commits on that branch, then open one PR for the complete feature.
 
-- this planning doc;
-- docs index link;
-- no product code.
+Recommended commit sequence:
 
-### PR 2: Saved Vocabulary Storage
+1. `Plan saved vocabulary 0.2.0`
+   - this planning doc;
+   - docs index link;
+   - no product code.
 
-Branch:
+2. `Add saved vocabulary storage`
+   - storage adapter under `src/background` or `src/vocabulary`;
+   - entry type and normalization helper;
+   - unit tests for add, duplicate, delete, clear, max entries, and one-word eligibility.
+
+3. `Add save action for selected words`
+   - content-to-background message for saving;
+   - save control in selection tooltip;
+   - focused tests around save eligibility and message handling.
+
+4. `Add saved vocabulary options view`
+   - render saved vocabulary list in Options;
+   - delete one entry;
+   - clear all entries;
+   - manual testing docs.
+
+5. `Prepare 0.2.0 release`
+   - bump version to `0.2.0`;
+   - release notes;
+   - privacy/store copy updates;
+   - package Chrome and Firefox;
+   - browser smoke-test log.
+
+Pull request:
 
 ```text
-feature/saved-vocabulary-storage
+Add local saved vocabulary
 ```
 
-Scope:
+The PR should cover the complete `0.2.0` saved-vocabulary feature, with the focused commits preserving the incremental implementation trail.
 
-- storage adapter under `src/background` or `src/vocabulary`;
-- entry type and normalization helper;
-- unit tests for add, duplicate, delete, clear, max entries, and one-word eligibility.
-
-### PR 3: Save From Selection Tooltip
-
-Branch:
-
-```text
-feature/save-selected-word
-```
-
-Scope:
-
-- content-to-background message for saving;
-- save control in selection tooltip;
-- no Options list yet;
-- focused tests around save eligibility and message handling.
-
-### PR 4: Saved Vocabulary Options View
-
-Branch:
-
-```text
-feature/saved-vocabulary-options
-```
-
-Scope:
-
-- render saved vocabulary list in Options;
-- delete one entry;
-- clear all entries;
-- manual testing docs.
-
-### PR 5: 0.2.0 Release Prep
+### Final Release Branch
 
 Branch:
 
@@ -317,7 +303,9 @@ Branch:
 release/0.2.0-saved-vocabulary
 ```
 
-Scope:
+Use this only if the final packaging/version bump becomes easier to review separately after the feature PR. Otherwise keep release prep as the final commit on `feature/saved-vocabulary-local`.
+
+Scope, if split:
 
 - bump version to `0.2.0`;
 - release notes;

@@ -24,7 +24,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [Store disclosure draft](release/store-disclosure-draft.md): browser-store privacy disclosure draft.
 - [Privacy policy](release/privacy-policy.md): public-facing privacy policy source.
 - [Release PR drafts](release/pr-drafts/release-0.1.2-production-readiness.md): saved PR descriptions for release branches.
-- [Saved vocabulary design PR draft](release/pr-drafts/saved-vocabulary-design.md): PR draft for the `0.2.0` planning branch.
+- [Saved vocabulary PR draft](release/pr-drafts/saved-vocabulary-design.md): PR draft for the `0.2.0` saved-vocabulary branch.
 
 ## References
 

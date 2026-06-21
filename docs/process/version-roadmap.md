@@ -10,6 +10,8 @@ Treat `0.1.1` as the stable released baseline.
 
 Each meaningful feature or release-prep step should happen in its own git branch, with one focused pull request and a clear version target. Avoid mixing product features, release cleanup, backend hardening, and broad refactors in the same branch.
 
+For a single product feature, prefer one feature branch with multiple focused commits over many tiny feature branches. The commits preserve the incremental trail, while the pull request tells the full feature story.
+
 ## Version Direction
 
 - `0.1.x`: production hardening and release cleanup.

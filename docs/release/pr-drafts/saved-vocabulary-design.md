@@ -1,8 +1,8 @@
-# Plan Saved Vocabulary 0.2.0
+# Add Local Saved Vocabulary
 
 ## Summary
 
-This PR plans DutchMate `0.2.0`, the first saved-vocabulary release. It defines the user-facing behavior, local storage model, privacy boundary, manual testing scope, and implementation PR sequence before product code starts.
+This PR adds DutchMate `0.2.0`, the first saved-vocabulary release. It starts with the approved plan, then implements local saved-word storage, a save action for selected words, and an Options page view for managing saved vocabulary.
 
 ## Version Target
 
@@ -18,14 +18,13 @@ Planning the boundary first keeps the feature local, privacy-conscious, and easy
 
 - Added the saved vocabulary `0.2.0` feature plan.
 - Documented saved vocabulary as separate from the translation cache.
-- Proposed the local storage key and entry shape.
-- Defined what gets saved, viewed, managed, and tested.
-- Listed the implementation PR sequence for storage, tooltip save action, Options view, and release prep.
-- Linked the plan from the docs index.
+- Added local saved-vocabulary storage.
+- Added a save action for successful selected single-word translations.
+- Added an Options page view for saved vocabulary.
+- Updated privacy, store, release, and manual testing docs as needed.
 
 ## What Did Not Change
 
-- No product code.
 - No new browser permissions.
 - No backend provider change.
 - No account system.
@@ -35,12 +34,14 @@ Planning the boundary first keeps the feature local, privacy-conscious, and easy
 ## Verification
 
 - [x] `git diff --check`
-- [ ] Documentation review
+- [ ] `corepack pnpm test`
+- [ ] `corepack pnpm build`
+- [ ] Browser smoke test, if relevant
 
 ## Privacy / Store Impact
 
-No shipped behavior changes in this PR. The plan says `0.2.0` will need privacy and store-copy updates before release because saved vocabulary is visible local user data.
+Saved vocabulary is local-only browser data. Privacy and store copy should state that selected single words the user chooses to save are stored locally in the browser and are not sent to an account or synced across devices.
 
 ## Follow-Up
 
-Start `feature/saved-vocabulary-storage` to implement the local saved-vocabulary domain model, storage adapter, and unit tests.
+After merge, start the next feature branch for local flashcard review planning or implementation.
