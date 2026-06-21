@@ -126,7 +126,6 @@ export function getPersistentCacheEntryKey(request: TranslationRequest): string 
     normalizeCacheText(request.text),
     request.sourceLanguage,
     request.targetLanguage,
-    request.context,
   ].join("\u001f");
 }
 

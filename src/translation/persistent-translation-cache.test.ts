@@ -5,6 +5,7 @@ import {
   PersistentTranslationCache,
   type PersistentTranslationCacheStorage,
 } from "./persistent-translation-cache";
+import { shouldPersistTranslation } from "./persistent-cache-policy";
 
 const selectionRequest: TranslationRequest = {
   text: "huis",
@@ -37,6 +38,23 @@ describe("PersistentTranslationCache", () => {
     await cache.set(hoverRequest, result);
 
     await expect(cache.get(hoverRequest)).resolves.toBeNull();
+  });
+
+  it("reuses a hovered single-word translation after the same word is selected", async () => {
+    const cache = new PersistentTranslationCache(new MemoryStorage(), {
+      shouldPersist: (request) =>
+        shouldPersistTranslation(request, undefined, {
+          cacheHoveredWords: true,
+        }),
+    });
+    const hoverRequest: TranslationRequest = {
+      ...selectionRequest,
+      context: "hover",
+    };
+
+    await cache.set(hoverRequest, result);
+
+    await expect(cache.get(selectionRequest)).resolves.toEqual(result);
   });
 
   it("does not store selected phrases", async () => {
@@ -91,6 +109,15 @@ describe("PersistentTranslationCache", () => {
       getPersistentCacheEntryKey({
         ...selectionRequest,
         text: " huis ",
+      }),
+    ).toBe(getPersistentCacheEntryKey(selectionRequest));
+  });
+
+  it("uses the same cache key for hover and selection of the same single word", () => {
+    expect(
+      getPersistentCacheEntryKey({
+        ...selectionRequest,
+        context: "hover",
       }),
     ).toBe(getPersistentCacheEntryKey(selectionRequest));
   });
