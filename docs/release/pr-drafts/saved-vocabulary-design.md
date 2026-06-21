@@ -34,8 +34,10 @@ Planning the boundary first keeps the feature local, privacy-conscious, and easy
 ## Verification
 
 - [x] `git diff --check`
-- [ ] `corepack pnpm test`
-- [ ] `corepack pnpm build`
+- [x] `corepack pnpm test`
+- [x] `corepack pnpm package:extensions`
+- [x] Inspected Chrome package manifest and confirmed version `0.2.0`
+- [x] Inspected Firefox package manifest and confirmed version `0.2.0`
 - [ ] Browser smoke test, if relevant
 
 ## Privacy / Store Impact

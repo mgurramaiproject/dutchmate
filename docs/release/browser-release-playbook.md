@@ -41,23 +41,23 @@ You need to do the account and payment steps yourself:
 
 ## File Set To Use
 
-- Firefox package: `release/dutchmate-firefox-0.1.2.zip`
-- Chromium package for Chrome: `release/dutchmate-chrome-0.1.2.zip`
-- Chromium package for Edge: use `release/dutchmate-chrome-0.1.2.zip` unless a separate Edge-specific package is created
+- Firefox package: `release/dutchmate-firefox-0.2.0.zip`
+- Chromium package for Chrome: `release/dutchmate-chrome-0.2.0.zip`
+- Chromium package for Edge: use `release/dutchmate-chrome-0.2.0.zip` unless a separate Edge-specific package is created
 - Privacy policy: `https://dutchmate-frontend.onrender.com/privacy-policy.html`
 - Chrome listing draft: `docs/release/chrome-web-store-listing-draft.md`
 - Shared disclosure draft: `docs/release/store-disclosure-draft.md`
 
-## Current 0.1.2 Artifact Status
+## Current 0.2.0 Artifact Status
 
 Generated locally from the current source:
 
-- `release/dutchmate-firefox-0.1.2.zip`
-- `release/dutchmate-chrome-0.1.2.zip`
+- `release/dutchmate-firefox-0.2.0.zip`
+- `release/dutchmate-chrome-0.2.0.zip`
 
-Older `0.1.0` and `0.1.1` artifacts may still exist locally in `release/` for reference. Use the `0.1.2` artifacts for the current release baseline.
+Older `0.1.x` artifacts may still exist locally in `release/` for reference. Use the `0.2.0` artifacts for the current saved-vocabulary release baseline.
 
-The Firefox source package still needs to be regenerated separately if AMO requests source code for the `0.1.2` submission.
+The Firefox source package still needs to be regenerated separately if AMO requests source code for the `0.2.0` submission.
 
 There is no separate Edge-specific package script yet. For the first Edge submission, use the Chrome Chromium package unless an Edge-specific packaging step is added later.
 
@@ -70,7 +70,7 @@ Use Firefox Add-ons / AMO for the first public release if you want a low-frictio
 1. Sign in to your Mozilla account.
 2. Open the Firefox Add-ons developer page.
 3. For the first submission, create a new add-on listing. For updates, open the existing DutchMate add-on page.
-4. Upload `release/dutchmate-firefox-0.1.2.zip`.
+4. Upload `release/dutchmate-firefox-0.2.0.zip`.
 5. Paste the listing copy and privacy answers from the repo.
 6. Submit the add-on for review or signing.
 
@@ -107,7 +107,7 @@ Use the Chrome Web Store last.
 2. Pay the one-time developer registration fee if prompted.
 3. Create or finish the developer account registration.
 4. Create a new item.
-5. Upload `release/dutchmate-chrome-0.1.2.zip`.
+5. Upload `release/dutchmate-chrome-0.2.0.zip`.
 6. Fill the store listing, privacy, distribution, and review fields.
 7. Submit for review.
 

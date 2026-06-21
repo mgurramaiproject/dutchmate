@@ -1,6 +1,6 @@
 # DutchMate Privacy Policy
 
-Last updated: 2026-06-19
+Last updated: 2026-06-21
 
 DutchMate is a browser extension that helps people learn Dutch online by translating hovered words and selected text between Dutch, English, and a supported mother tongue such as Telugu.
 
@@ -36,6 +36,8 @@ DutchMate stores settings in your browser, including:
 
 DutchMate also stores a local translation cache for successful selected single-word lookups. This cache stays on your device. It is intended to make repeated intentional lookups faster and reduce translation-provider calls.
 
+DutchMate can also store saved vocabulary locally when you choose to save a successful selected single-word translation. Saved vocabulary includes the saved word, translation, source and target language direction, translation provider name, and saved/updated timestamps. DutchMate does not store the page URL or page title with saved vocabulary in the current release.
+
 If a provider API key is configured in a development or custom setup, DutchMate stores it in browser local/sync storage and uses it only for the selected translation provider. Store-ready builds use the DutchMate backend and do not require users to enter a provider API key.
 
 DutchMate does not persistently cache:
@@ -45,7 +47,7 @@ DutchMate does not persistently cache:
 - selected sentences;
 - failed translations.
 
-Users can clear the local translation cache from the Options page.
+Users can clear the local translation cache from the Options page. Users can also delete individual saved vocabulary entries or clear all saved vocabulary from the Options page.
 
 ## Backend Logging
 
@@ -75,6 +77,8 @@ Google Cloud Translation receives the text needed to complete the translation re
 
 DutchMate does not sell user data. DutchMate does not use translated text for advertising or tracking. DutchMate does not share translated text with third parties except as needed to provide translations through the configured translation provider.
 
+Saved vocabulary remains in local browser storage. DutchMate does not send saved vocabulary to an account, sync it across devices, or use it for ads or tracking.
+
 ## User Control
 
 Users can:
@@ -83,6 +87,8 @@ Users can:
 - disable hover translation;
 - disable selected-text translation;
 - clear the local selected-word translation cache;
+- delete individual saved vocabulary entries;
+- clear all saved vocabulary;
 - change source and target language settings.
 
 If you do not want text from a page sent for translation, do not hover or select text with DutchMate enabled on that page. You can also disable the extension from Options.
