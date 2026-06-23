@@ -4,6 +4,8 @@ Last updated: 2026-06-21
 
 This is the canonical, browser-neutral release path for DutchMate.
 
+GitHub Releases should be created through the manual workflow documented in `docs/release/github-release-pipeline.md` before store submission, so the repo has a tagged release record and attached browser artifacts.
+
 ## Safe Setup Rules
 
 Keep these rules true for every public browser release:
@@ -44,6 +46,7 @@ You need to do the account and payment steps yourself:
 - Firefox package: `release/dutchmate-firefox-0.2.0.zip`
 - Chromium package for Chrome: `release/dutchmate-chrome-0.2.0.zip`
 - Chromium package for Edge: use `release/dutchmate-chrome-0.2.0.zip` unless a separate Edge-specific package is created
+- GitHub release notes source: `docs/release/notes/v0.2.0.md`
 - Privacy policy: `https://dutchmate-frontend.onrender.com/privacy-policy.html`
 - Chrome listing draft: `docs/release/chrome-web-store-listing-draft.md`
 - Shared disclosure draft: `docs/release/store-disclosure-draft.md`
