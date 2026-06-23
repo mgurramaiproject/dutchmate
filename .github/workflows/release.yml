@@ -1,0 +1,115 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without the leading v
+        required: true
+        type: string
+      draft:
+        description: Create the GitHub Release as a draft
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+          run_install: false
+
+      - name: Resolve release metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION_INPUT="${{ github.event.inputs.version }}"
+          PACKAGE_VERSION=$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).version")
+          TAG="v${VERSION_INPUT}"
+          NOTES_FILE="docs/release/notes/${TAG}.md"
+          FIREFOX_ASSET="release/dutchmate-firefox-${VERSION_INPUT}.zip"
+          CHROME_ASSET="release/dutchmate-chrome-${VERSION_INPUT}.zip"
+
+          if [ "${GITHUB_REF_NAME}" != "main" ]; then
+            echo "Releases must be published from main. Current ref: ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+          if [ "${VERSION_INPUT}" != "${PACKAGE_VERSION}" ]; then
+            echo "Requested version ${VERSION_INPUT} does not match package.json version ${PACKAGE_VERSION}."
+            exit 1
+          fi
+
+          if [ ! -f "${NOTES_FILE}" ]; then
+            echo "Missing release notes file: ${NOTES_FILE}"
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "Tag ${TAG} already exists on origin."
+            exit 1
+          fi
+
+          echo "version=${VERSION_INPUT}" >> "${GITHUB_OUTPUT}"
+          echo "tag=${TAG}" >> "${GITHUB_OUTPUT}"
+          echo "notes_file=${NOTES_FILE}" >> "${GITHUB_OUTPUT}"
+          echo "firefox_asset=${FIREFOX_ASSET}" >> "${GITHUB_OUTPUT}"
+          echo "chrome_asset=${CHROME_ASSET}" >> "${GITHUB_OUTPUT}"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify project
+        run: pnpm verify
+
+      - name: Package extension artifacts
+        run: pnpm package:extensions
+
+      - name: Confirm release artifacts exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "${{ steps.meta.outputs.firefox_asset }}"
+          test -f "${{ steps.meta.outputs.chrome_asset }}"
+
+      - name: Create git tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "${{ steps.meta.outputs.tag }}"
+          git push origin "${{ steps.meta.outputs.tag }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: DutchMate ${{ steps.meta.outputs.version }}
+          body_path: ${{ steps.meta.outputs.notes_file }}
+          files: |
+            ${{ steps.meta.outputs.firefox_asset }}
+            ${{ steps.meta.outputs.chrome_asset }}
+          draft: ${{ github.event.inputs.draft }}
+          fail_on_unmatched_files: true
