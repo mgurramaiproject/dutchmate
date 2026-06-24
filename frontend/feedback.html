@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="DutchMate feedback form for the Firefox soft launch.">
+    <meta name="description" content="DutchMate feedback options.">
     <title>DutchMate Feedback</title>
     <link rel="icon" href="assets/dutchmate-logo-gpt-image.png" type="image/png">
     <link rel="stylesheet" href="styles.css">
@@ -24,29 +24,15 @@
     </header>
 
     <main class="privacy-page">
-      <p class="eyebrow">Firefox soft launch feedback</p>
+      <p class="eyebrow">Feedback</p>
       <h1>Send feedback to DutchMate</h1>
-      <p>This minimal website form and the direct email link both feed the same review workflow.</p>
-      <p>If your mail app opens after submit, send the drafted message there. If you prefer, email <a href="mailto:dutchmate.project@gmail.com">dutchmate.project@gmail.com</a> directly instead.</p>
+      <p>The lowest-friction option on this static site is a prefilled GitHub issue. It opens in the browser and lands directly in the repo workflow.</p>
+      <p>If you prefer private feedback, email <a href="mailto:dutchmate.project@gmail.com">dutchmate.project@gmail.com</a>.</p>
 
-      <form class="feedback-form" action="mailto:dutchmate.project@gmail.com" method="post" enctype="text/plain">
-        <label class="form-field">
-          <span>Your name</span>
-          <input type="text" name="name" autocomplete="name">
-        </label>
-
-        <label class="form-field">
-          <span>Your email</span>
-          <input type="email" name="email" autocomplete="email">
-        </label>
-
-        <label class="form-field">
-          <span>What happened while reading?</span>
-          <textarea name="message" rows="8" required></textarea>
-        </label>
-
-        <button class="button" type="submit">Send feedback</button>
-      </form>
+      <div class="feedback-actions">
+        <a class="button" href="https://github.com/mgurramaiproject/dutchmate/issues/new?title=Feedback%3A%20&body=What%20were%20you%20trying%20to%20do%3F%0A%0AWhat%20happened%20instead%3F%0A%0AWhich%20page%20or%20site%20were%20you%20reading%3F%20(optional)%0A%0AFirefox%20version%20(optional)%3A%0A%0AAnything%20else%3F">Open a GitHub feedback issue</a>
+        <a class="button secondary" href="mailto:dutchmate.project@gmail.com">Email feedback privately</a>
+      </div>
     </main>
   </body>
 </html>
