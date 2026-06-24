@@ -294,7 +294,7 @@ function setRefreshVocabularyButtonBusy(isBusy: boolean): void {
   }
 
   refreshVocabulary.disabled = isBusy;
-  refreshVocabulary.textContent = isBusy ? "…" : "↻";
+  refreshVocabulary.classList.toggle("is-busy", isBusy);
 }
 
 function renderSavedVocabulary(entries: SavedVocabularyEntry[]): void {
