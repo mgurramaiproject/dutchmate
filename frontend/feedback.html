@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="DutchMate feedback form for the Firefox soft launch.">
+    <title>DutchMate Feedback</title>
+    <link rel="icon" href="assets/dutchmate-logo-gpt-image.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="index.html">
+          <img src="assets/dutchmate-logo-gpt-image.png" alt="" width="36" height="36">
+          <span>DutchMate</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="privacy-policy.html">Privacy policy</a>
+          <a href="mailto:dutchmate.project@gmail.com">Direct email</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="privacy-page">
+      <p class="eyebrow">Firefox soft launch feedback</p>
+      <h1>Send feedback to DutchMate</h1>
+      <p>This minimal website form and the direct email link both feed the same review workflow.</p>
+      <p>If your mail app opens after submit, send the drafted message there. If you prefer, email <a href="mailto:dutchmate.project@gmail.com">dutchmate.project@gmail.com</a> directly instead.</p>
+
+      <form class="feedback-form" action="mailto:dutchmate.project@gmail.com" method="post" enctype="text/plain">
+        <label class="form-field">
+          <span>Your name</span>
+          <input type="text" name="name" autocomplete="name">
+        </label>
+
+        <label class="form-field">
+          <span>Your email</span>
+          <input type="email" name="email" autocomplete="email">
+        </label>
+
+        <label class="form-field">
+          <span>What happened while reading?</span>
+          <textarea name="message" rows="8" required></textarea>
+        </label>
+
+        <button class="button" type="submit">Send feedback</button>
+      </form>
+    </main>
+  </body>
+</html>
