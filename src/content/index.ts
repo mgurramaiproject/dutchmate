@@ -1,41 +1,16 @@
 import { getHoverRequestKey } from "./hover-request-key";
 import { isPointInsideVisibleBox } from "./pointer-hit-box";
-import {
-  requestRuntimeTranslation,
-  type RuntimeTranslationExtensionApi,
-  type TranslateMessageResponse,
-} from "./runtime-translation-client";
-import { requestContentTranslation } from "./content-translation-request";
-import {
-  requestDirectTranslation,
-} from "./direct-translation-request";
-import {
-  requestRuntimeSavedVocabularyList,
-  requestRuntimeSaveVocabularyBatch,
-  type RuntimeSaveVocabularyRequest,
-} from "./runtime-vocabulary-client";
-import { applySavedVocabularyStorageChange } from "./saved-vocabulary-id-cache";
-import {
-  TOOLTIP_TRANSLATION_TIMEOUT_MESSAGE,
-  withTooltipTranslationTimeout,
-} from "./tooltip-translation-timeout";
+import { type RuntimeTranslationExtensionApi } from "./runtime-translation-client";
+import { withTooltipTranslationTimeout } from "./tooltip-translation-timeout";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { isValidTextRangeBoundary } from "./text-range-boundary";
-import type { TooltipContext } from "./tooltip-request-state";
 import {
-  WebpageLookupSession,
-  type TranslationOutcome,
-} from "./webpage-lookup-session";
+  WebpageLookupModule,
+  type WebpageLookupModuleEvent,
+} from "./webpage-lookup-module";
+import { createRuntimeLookupAdapter } from "./runtime-lookup-adapter";
+import { createTooltipViewAdapter } from "./tooltip-view-adapter";
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
-import type { TranslationRequest, TranslationResult } from "../translation/provider";
-import {
-  PersistentTranslationCache,
-  type PersistentTranslationCacheStorage,
-} from "../translation/persistent-translation-cache";
-import { shouldPersistTranslation } from "../translation/persistent-cache-policy";
-import {
-  getSavedVocabularyEntryId,
-} from "../vocabulary/saved-vocabulary";
 import {
   defaultSettings,
   mergeSettings,
@@ -48,90 +23,17 @@ import {
 const MIN_TEXT_LENGTH = 1;
 const MAX_HOVER_WORD_LENGTH = 30;
 const MAX_HOVER_CONTEXT_LENGTH = 180;
-const MAX_TOOLTIP_TEXT_LENGTH = 1000;
 const TOOLTIP_TRANSLATION_TIMEOUT_MS = 9000;
 const CHROME_DIRECT_TRANSLATION_FALLBACK_MS = 1200;
 const DIRECT_TRANSLATION_TIMEOUT_MS = 15000;
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
 const supportedSourceLanguages = new Set(["auto", "en", "nl", "te"]);
-const mvpLanguages = [
-  { code: "en", label: "English" },
-  { code: "nl", label: "Dutch" },
-  { code: "te", label: "Telugu" },
-];
-const dutchLanguageHints = new Set([
-  "aan",
-  "alsjeblieft",
-  "ben",
-  "dank",
-  "dat",
-  "de",
-  "een",
-  "en",
-  "engels",
-  "geen",
-  "goedemorgen",
-  "hallo",
-  "heb",
-  "hebben",
-  "het",
-  "hoe",
-  "huis",
-  "ik",
-  "is",
-  "je",
-  "jij",
-  "kan",
-  "leren",
-  "maar",
-  "met",
-  "nederlands",
-  "niet",
-  "ook",
-  "op",
-  "spreek",
-  "taal",
-  "te",
-  "van",
-  "voor",
-  "waar",
-  "wat",
-  "wij",
-  "zijn",
-]);
-const englishLanguageHints = new Set([
-  "a",
-  "an",
-  "and",
-  "are",
-  "dutch",
-  "english",
-  "for",
-  "good",
-  "hello",
-  "i",
-  "in",
-  "is",
-  "morning",
-  "not",
-  "of",
-  "on",
-  "please",
-  "thank",
-  "thanks",
-  "telugu",
-  "that",
-  "the",
-  "to",
-  "with",
-  "you",
-]);
 
 type StorageChange = {
   newValue?: unknown;
 };
 
-type TranslationContext = TooltipContext;
+type TranslationContext = "hover" | "selection";
 
 type ExtensionStorageApi = {
   storage: {
@@ -156,85 +58,27 @@ const extensionGlobal = globalThis as typeof globalThis & {
   chrome?: ExtensionStorageApi;
 };
 const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
-let directTranslationCache: PersistentTranslationCache | undefined;
 
 let hoverTimer: number | undefined;
 let lastHoverKey = "";
 let activeSelectionText = "";
 let currentSettings = defaultSettings;
-let savedVocabularyIds: Set<string> | undefined;
-let savedVocabularyIdsRequest: Promise<Set<string> | undefined> | undefined;
-let tooltipTimeout: number | undefined;
-const tooltipRequestState = new WebpageLookupSession();
-
-const tooltip = document.createElement("div");
-tooltip.id = "hover-translate-tooltip";
-tooltip.setAttribute("role", "status");
-tooltip.hidden = true;
-tooltip.textContent = "Translation will appear here.";
-
-const style = document.createElement("style");
-style.textContent = `
-  #hover-translate-tooltip {
-    position: fixed;
-    z-index: 2147483647;
-    max-width: min(360px, calc(100vw - 24px));
-    padding: 8px 10px;
-    border: 1px solid rgba(15, 23, 42, 0.18);
-    border-radius: 6px;
-    background: #111827;
-    color: #f9fafb;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
-    font: 13px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    pointer-events: auto;
-    white-space: pre-line;
-  }
-
-  #hover-translate-tooltip .hover-translate-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-top: 8px;
-  }
-
-  #hover-translate-tooltip .hover-translate-save {
-    appearance: none;
-    border: 1px solid rgba(249, 250, 251, 0.42);
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    color: inherit;
-    cursor: pointer;
-    font: inherit;
-    font-weight: 700;
-    line-height: 1.2;
-    padding: 4px 8px;
-  }
-
-  #hover-translate-tooltip .hover-translate-save:disabled {
-    cursor: default;
-    opacity: 0.76;
-  }
-
-  #hover-translate-tooltip[data-state="loading"] {
-    color: #dbeafe;
-  }
-
-  #hover-translate-tooltip[data-state="error"] {
-    border-color: rgba(248, 113, 113, 0.65);
-    background: #7f1d1d;
-    color: #fee2e2;
-  }
-
-  #hover-translate-tooltip .hover-translate-row {
-    display: block;
-  }
-
-  #hover-translate-tooltip .hover-translate-label {
-    font-weight: 700;
-  }
-`;
-
-document.documentElement.append(style, tooltip);
+const lookupModule = new WebpageLookupModule({
+  getSettings: () => currentSettings,
+  transport: createRuntimeLookupAdapter({
+    browserTarget: __BROWSER_TARGET__,
+    chromeDirectTranslationFallbackMs: CHROME_DIRECT_TRANSLATION_FALLBACK_MS,
+    directTranslationTimeoutMs: DIRECT_TRANSLATION_TIMEOUT_MS,
+    extensionApi,
+    getSettings: () => currentSettings,
+    delay,
+  }),
+  runWithTimeout: withTooltipTranslationTimeout,
+  tooltipTimeoutMs: TOOLTIP_TRANSLATION_TIMEOUT_MS,
+});
+const tooltipView = createTooltipViewAdapter(() => {
+  void lookupModule.handleSaveAction();
+});
 
 document.addEventListener("mousemove", handleMouseMove, { passive: true });
 document.addEventListener("mouseleave", handleMouseLeave, { passive: true });
@@ -243,9 +87,9 @@ document.addEventListener("scroll", clearSelectionAndHideTooltip, { passive: tru
 document.addEventListener("click", handlePageClick, { passive: true });
 document.addEventListener("keydown", handleKeyDown);
 extensionApi?.storage.onChanged.addListener(handleStorageChanged);
+lookupModule.subscribe(handleLookupModuleEvent);
 
 void refreshSettings();
-void refreshSavedVocabularyIds();
 
 function handleMouseMove(event: MouseEvent): void {
   if (isTooltipEvent(event)) {
@@ -255,7 +99,7 @@ function handleMouseMove(event: MouseEvent): void {
   window.clearTimeout(hoverTimer);
 
   if (!currentSettings.isEnabled || !currentSettings.translateOnHover) {
-    hideTooltip();
+    lookupModule.clear();
     return;
   }
 
@@ -267,7 +111,7 @@ function handleMouseMove(event: MouseEvent): void {
     const hit = getWordAtPoint(event.clientX, event.clientY);
 
     if (!hit) {
-      hideTooltip();
+      lookupModule.clear();
       return;
     }
 
@@ -321,13 +165,7 @@ function handleSelection(event: MouseEvent): void {
 
   if (selectedText.length > currentSettings.maxSelectionLength) {
     activeSelectionText = selectedText;
-    showTooltipMessage(
-      getSelectionTooLongMessage(currentSettings.maxSelectionLength),
-      "error",
-      "selection",
-      rect.left,
-      rect.bottom,
-    );
+    tooltipView.showError(getSelectionTooLongMessage(currentSettings.maxSelectionLength), rect.left, rect.bottom);
     return;
   }
 
@@ -350,292 +188,48 @@ async function showTranslation(
   sourceLanguageHint?: MvpLanguageCode,
   languageSample = text,
 ): Promise<void> {
-  const requestId = beginTooltipRequest("Translating...", context, x, y);
-
-  let outcome: TranslationOutcome;
-
-  try {
-    outcome = await withTooltipTranslationTimeout(
-      requestTranslationForCurrentSettings(text, context, languageSample, sourceLanguageHint),
-      TOOLTIP_TRANSLATION_TIMEOUT_MS,
-    );
-  } catch (error) {
-    const failedLookup = tooltipRequestState.acceptFailure(
-      requestId,
-      error instanceof Error ? error.message : "Translation request failed.",
-    );
-
-    if (failedLookup.status === "current") {
-      showTooltipMessage(failedLookup.error, "error", failedLookup.context, x, y);
-    }
-    return;
-  }
-
-  const completedLookup = tooltipRequestState.acceptSuccess(requestId, text, outcome);
-
-  if (completedLookup.status === "stale") {
-    return;
-  }
-
-  try {
-    showTooltipResult(
-      completedLookup.response,
-      x,
-      y,
-      completedLookup.saveCandidates,
-    );
-  } catch {
-    showTooltipMessage(
-      completedLookup.response.ok
-        ? completedLookup.response.result.translatedText
-        : completedLookup.response.error,
-      completedLookup.response.ok ? "success" : "error",
-      completedLookup.context,
-      x,
-      y,
-    );
-  }
-}
-
-function beginTooltipRequest(
-  message: string,
-  context: TranslationContext,
-  x: number,
-  y: number,
-): number {
-  const requestId = tooltipRequestState.begin(context);
-  window.clearTimeout(tooltipTimeout);
-  tooltipTimeout = window.setTimeout(() => {
-    if (tooltipRequestState.isCurrent(requestId) && tooltip.dataset.state === "loading") {
-      showTooltipMessage(
-        TOOLTIP_TRANSLATION_TIMEOUT_MESSAGE,
-        "error",
-        context,
-        x,
-        y,
-      );
-    }
-  }, TOOLTIP_TRANSLATION_TIMEOUT_MS);
-  tooltip.dataset.state = "loading";
-  tooltip.textContent = message;
-  positionTooltip(x, y);
-  tooltip.hidden = false;
-  return requestId;
-}
-
-function showTooltipMessage(
-  message: string,
-  state: "error" | "success",
-  context: TranslationContext,
-  x: number,
-  y: number,
-): void {
-  window.clearTimeout(tooltipTimeout);
-  tooltipRequestState.begin(context);
-  tooltip.dataset.state = state;
-  tooltip.textContent = message;
-  positionTooltip(x, y);
-  tooltip.hidden = false;
-}
-
-function showTooltipResult(
-  response: TranslateMessageResponse,
-  x: number,
-  y: number,
-  saveCandidates: RuntimeSaveVocabularyRequest[] = [],
-): void {
-  window.clearTimeout(tooltipTimeout);
-  tooltip.dataset.state = response.ok ? "success" : "error";
-
-  if (response.ok && response.result.providerName === "multi-target") {
-    renderMultiTargetTooltip(truncateTooltipText(response.result.translatedText));
-  } else {
-    tooltip.textContent = truncateTooltipText(response.ok ? response.result.translatedText : response.error);
-  }
-
-  renderSaveAction(saveCandidates);
-  positionTooltip(x, y);
-}
-
-function renderSaveAction(saveCandidates: RuntimeSaveVocabularyRequest[]): void {
-  if (saveCandidates.length === 0) {
-    return;
-  }
-
-  const actions = document.createElement("div");
-  actions.className = "hover-translate-actions";
-
-  const saveButton = document.createElement("button");
-  saveButton.type = "button";
-  saveButton.className = "hover-translate-save";
-  const saveCandidateIds = getSaveCandidateIds(saveCandidates);
-  const isAlreadySaved =
-    savedVocabularyIds !== undefined &&
-    saveCandidateIds.every((id) => savedVocabularyIds?.has(id));
-
-  saveButton.disabled = isAlreadySaved || savedVocabularyIds === undefined;
-  saveButton.textContent = isAlreadySaved
-    ? "Already saved"
-    : savedVocabularyIds === undefined
-      ? "Checking..."
-      : "Save";
-  saveButton.addEventListener("click", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    void saveVocabularyFromTooltip(saveButton, saveCandidates);
+  await lookupModule.beginLookup({
+    text,
+    context,
+    x,
+    y,
+    sourceLanguageHint,
+    languageSample,
   });
-
-  actions.append(saveButton);
-  tooltip.appendChild(actions);
-
-  if (savedVocabularyIds === undefined) {
-    void refreshSaveButtonState(saveButton, saveCandidates);
-  }
 }
 
-async function saveVocabularyFromTooltip(
-  saveButton: HTMLButtonElement,
-  saveCandidates: RuntimeSaveVocabularyRequest[],
-): Promise<void> {
-  saveButton.disabled = true;
-  saveButton.textContent = "Saving...";
-
-  const response = await requestRuntimeSaveVocabularyBatch(extensionApi, saveCandidates);
-
-  if (!response.ok) {
-    saveButton.disabled = false;
-    saveButton.textContent = "Try again";
-    saveButton.title = response.error;
+function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
+  if (event.type === "render-loading") {
+    tooltipView.showLoading(event.message, event.x, event.y);
     return;
   }
 
-  const saveResults = response.result.results;
-  const maxEntriesResult = saveResults.find((result) => result.status === "max-entries-reached");
-
-  if (maxEntriesResult?.status === "max-entries-reached") {
-    saveButton.textContent = "Vocabulary full";
+  if (event.type === "render-error") {
+    tooltipView.showError(event.message, event.x, event.y);
     return;
   }
 
-  if (saveResults.every((result) => result.status === "already-saved")) {
-    saveButton.textContent = "Already saved";
+  if (event.type === "render-result") {
+    tooltipView.showResult(event.response, event.x, event.y, event.saveAction);
     return;
   }
 
-  const savedEntries = saveResults.flatMap((result) =>
-    "entry" in result && result.entry ? [result.entry] : [],
-  );
-  const savedIds = savedEntries.map((entry) => entry.id);
-  savedVocabularyIds = new Set([...(savedVocabularyIds ?? []), ...savedIds]);
-  saveButton.textContent = "Saved";
-}
-
-async function refreshSaveButtonState(
-  saveButton: HTMLButtonElement,
-  saveCandidates: RuntimeSaveVocabularyRequest[],
-): Promise<void> {
-  const latestSavedVocabularyIds = await refreshSavedVocabularyIds();
-
-  if (!latestSavedVocabularyIds) {
-    saveButton.disabled = false;
-    saveButton.textContent = "Save";
+  if (event.type === "save-state-changed") {
+    tooltipView.updateSaveButton(event.saveAction);
     return;
   }
 
-  if (getSaveCandidateIds(saveCandidates).every((id) => latestSavedVocabularyIds.has(id))) {
-    saveButton.textContent = "Already saved";
-    saveButton.disabled = true;
-    return;
-  }
-
-  saveButton.textContent = "Save";
-  saveButton.disabled = false;
-}
-
-async function refreshSavedVocabularyIds(): Promise<Set<string> | undefined> {
-  if (savedVocabularyIdsRequest) {
-    return savedVocabularyIdsRequest;
-  }
-
-  savedVocabularyIdsRequest = requestRuntimeSavedVocabularyList(extensionApi)
-    .then((response) => {
-      if (!response.ok) {
-        return undefined;
-      }
-
-      savedVocabularyIds = new Set(response.result.entries.map((entry) => entry.id));
-      return savedVocabularyIds;
-    })
-    .finally(() => {
-      savedVocabularyIdsRequest = undefined;
-    });
-
-  return savedVocabularyIdsRequest;
-}
-
-function getSaveCandidateIds(saveCandidates: RuntimeSaveVocabularyRequest[]): string[] {
-  return saveCandidates.map((candidate) => getSavedVocabularyEntryId(candidate));
-}
-
-function renderMultiTargetTooltip(text: string): void {
-  const rows = text.split("\n").map((line) => {
-    const separatorIndex = line.indexOf(":");
-    const row = document.createElement("span");
-    row.className = "hover-translate-row";
-
-    if (separatorIndex === -1) {
-      row.textContent = line;
-      return row;
-    }
-
-    const label = document.createElement("span");
-    label.className = "hover-translate-label";
-    label.textContent = line.slice(0, separatorIndex + 1);
-
-    row.append(label, " " + line.slice(separatorIndex + 1).trimStart());
-    return row;
-  });
-
-  tooltip.textContent = "";
-  for (const row of rows) {
-    tooltip.appendChild(row);
-  }
-}
-
-function truncateTooltipText(text: string): string {
-  if (text.length <= MAX_TOOLTIP_TEXT_LENGTH) {
-    return text;
-  }
-
-  return `${text.slice(0, MAX_TOOLTIP_TEXT_LENGTH).trimEnd()}...`;
-}
-
-function positionTooltip(x: number, y: number): void {
-  const padding = 12;
-  const offset = 14;
-
-  tooltip.style.left = `${Math.min(x + offset, window.innerWidth - padding)}px`;
-  tooltip.style.top = `${Math.min(y + offset, window.innerHeight - padding)}px`;
-
-  const rect = tooltip.getBoundingClientRect();
-  const left = Math.max(padding, Math.min(rect.left, window.innerWidth - rect.width - padding));
-  const top = Math.max(padding, Math.min(rect.top, window.innerHeight - rect.height - padding));
-
-  tooltip.style.left = `${left}px`;
-  tooltip.style.top = `${top}px`;
+  hideTooltip();
 }
 
 function hideTooltip(): void {
-  window.clearTimeout(tooltipTimeout);
-  tooltipRequestState.clear();
-  tooltip.hidden = true;
-  delete tooltip.dataset.state;
+  tooltipView.hide();
   lastHoverKey = "";
 }
 
 function clearSelectionAndHideTooltip(): void {
   activeSelectionText = "";
-  hideTooltip();
+  lookupModule.clear();
 }
 
 function handlePageClick(event: MouseEvent): void {
@@ -651,11 +245,11 @@ function handlePageClick(event: MouseEvent): void {
 }
 
 function handleMouseLeave(): void {
-  if (tooltipRequestState.shouldKeepVisibleOnMouseLeave()) {
+  if (lookupModule.shouldKeepVisibleOnMouseLeave()) {
     return;
   }
 
-  hideTooltip();
+  lookupModule.clear();
 }
 
 function handleKeyDown(event: KeyboardEvent): void {
@@ -665,7 +259,7 @@ function handleKeyDown(event: KeyboardEvent): void {
 }
 
 function isTooltipEvent(event: Event): boolean {
-  return event.target instanceof Node && tooltip.contains(event.target);
+  return tooltipView.isTooltipEvent(event);
 }
 
 function hasActiveSelection(): boolean {
@@ -676,7 +270,7 @@ function hasActiveSelection(): boolean {
     return false;
   }
 
-  return selectedText === activeSelectionText || tooltipRequestState.hasActiveSelectionControl();
+  return selectedText === activeSelectionText || lookupModule.hasActiveSelectionControl();
 }
 
 function getHoverTextForSettings(hit: { word: string; translationText: string }): string {
@@ -826,22 +420,14 @@ async function refreshSettings(): Promise<void> {
 }
 
 function handleStorageChanged(changes: Record<string, StorageChange>, areaName: string): void {
-  const nextSavedVocabularyIds = applySavedVocabularyStorageChange(
-    savedVocabularyIds,
-    changes,
-    areaName,
-  );
-
-  if (nextSavedVocabularyIds !== savedVocabularyIds) {
-    savedVocabularyIds = nextSavedVocabularyIds;
-    savedVocabularyIdsRequest = undefined;
-  }
+  lookupModule.handleStorageChanged(changes, areaName);
 
   if (areaName !== "sync") {
     return;
   }
 
   currentSettings = mergeSettings(currentSettings, settingChangesToPartialSettings(changes));
+  lookupModule.applySettings();
 
   if (!currentSettings.isEnabled) {
     hideTooltip();
@@ -932,272 +518,10 @@ function getOptionalSelectionLengthSetting(value: unknown): number | undefined {
   );
 }
 
-async function requestTranslation(
-  text: string,
-  context: TranslationContext,
-  sourceLanguage: SourceLanguageCode,
-  targetLanguage: MvpLanguageCode,
-): Promise<TranslateMessageResponse> {
-  const request: TranslationRequest = {
-    text,
-    context,
-    sourceLanguage,
-    targetLanguage,
-  };
-  return requestContentTranslation(request, {
-    browserTarget: __BROWSER_TARGET__,
-    cache: getDirectTranslationCache(),
-    extensionApi,
-    requestDirectTranslation: (directRequest) =>
-      requestDirectTranslation(directRequest, {
-        providerEndpoint: currentSettings.providerEndpoint,
-        providerApiKey: currentSettings.providerApiKey,
-        timeoutMs: DIRECT_TRANSLATION_TIMEOUT_MS,
-      }),
-    requestRuntimeTranslation,
-    chromeDirectTranslationFallbackMs: CHROME_DIRECT_TRANSLATION_FALLBACK_MS,
-    delay,
-  });
-}
-
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => {
     globalThis.setTimeout(resolve, ms);
   });
-}
-
-function getDirectTranslationCache(): PersistentTranslationCache {
-  directTranslationCache ??= new PersistentTranslationCache(
-    new ContentLocalCacheStorage(extensionApi),
-    {
-      shouldPersist: (request) =>
-        shouldPersistTranslation(request, undefined, {
-          cacheHoveredWords: currentSettings.cacheHoveredWords,
-        }),
-    },
-  );
-
-  return directTranslationCache;
-}
-
-class ContentLocalCacheStorage implements PersistentTranslationCacheStorage {
-  constructor(private readonly api: ExtensionStorageApi | undefined) {}
-
-  async get(key: string): Promise<unknown> {
-    if (!this.api) {
-      return undefined;
-    }
-
-    return new Promise((resolve) => {
-      this.api?.storage.local.get(key, (items) => {
-        if (this.api?.runtime.lastError) {
-          resolve(undefined);
-          return;
-        }
-
-        resolve(items[key]);
-      });
-    });
-  }
-
-  async set(key: string, value: unknown): Promise<void> {
-    if (!this.api) {
-      return;
-    }
-
-    return new Promise((resolve) => {
-      this.api?.storage.local.set({ [key]: value }, () => {
-        resolve();
-      });
-    });
-  }
-}
-
-async function requestTranslationForCurrentSettings(
-  text: string,
-  context: TranslationContext,
-  languageSample: string,
-  sourceLanguageHint?: MvpLanguageCode,
-): Promise<TranslationOutcome> {
-  const sourceLanguage = getActiveSourceLanguage(languageSample, sourceLanguageHint);
-  const targetLanguages = getActiveTargetLanguages(sourceLanguage);
-
-  if (targetLanguages.length <= 1) {
-    const response = await requestTranslation(text, context, sourceLanguage, currentSettings.targetLanguage);
-    return {
-      response,
-      saveCandidates: getSaveCandidatesFromResponses(text, sourceLanguage, [
-        {
-          targetLanguage: currentSettings.targetLanguage,
-          response,
-        },
-      ]),
-    };
-  }
-
-  const responses = await Promise.all(
-    targetLanguages.map(async (targetLanguage) => ({
-      targetLanguage,
-      response: await requestTranslation(text, context, sourceLanguage, targetLanguage),
-    })),
-  );
-  const failedResponse = responses.find(({ response }) => !response.ok);
-
-  if (failedResponse?.response.ok === false) {
-    return {
-      response: failedResponse.response,
-      saveCandidates: [],
-    };
-  }
-
-  return {
-    response: {
-      ok: true,
-      result: {
-        translatedText: responses
-          .map(({ targetLanguage, response }) => {
-            const label = getLanguageLabel(targetLanguage);
-            return `${label}: ${response.ok ? response.result.translatedText : ""}`;
-          })
-          .join("\n"),
-        providerName: "multi-target",
-      },
-    },
-    saveCandidates: getSaveCandidatesFromResponses(text, sourceLanguage, responses),
-  };
-}
-
-function getSaveCandidatesFromResponses(
-  text: string,
-  activeSourceLanguage: SourceLanguageCode,
-  responses: Array<{
-    targetLanguage: MvpLanguageCode;
-    response: TranslateMessageResponse;
-  }>,
-): RuntimeSaveVocabularyRequest[] {
-  const sourceLanguage = getRequestedSourceLanguage();
-  const detectedSourceLanguage = getDetectedSourceLanguage(sourceLanguage, activeSourceLanguage);
-
-  return responses.flatMap(({ targetLanguage, response }) => {
-    if (!response.ok) {
-      return [];
-    }
-
-    return [
-      {
-        text,
-        sourceLanguage,
-        detectedSourceLanguage,
-        targetLanguage,
-        translatedText: response.result.translatedText,
-        providerName: response.result.providerName,
-      },
-    ];
-  });
-}
-
-function getRequestedSourceLanguage(): SourceLanguageCode {
-  return currentSettings.sourceLanguage === "auto" ||
-    supportedTargetLanguages.has(currentSettings.sourceLanguage)
-    ? (currentSettings.sourceLanguage as SourceLanguageCode)
-    : "auto";
-}
-
-function getDetectedSourceLanguage(
-  requestedSourceLanguage: SourceLanguageCode,
-  activeSourceLanguage: SourceLanguageCode,
-): MvpLanguageCode | undefined {
-  return requestedSourceLanguage === "auto" && supportedTargetLanguages.has(activeSourceLanguage)
-    ? (activeSourceLanguage as MvpLanguageCode)
-    : undefined;
-}
-
-function getActiveTargetLanguages(sourceLanguage: SourceLanguageCode): MvpLanguageCode[] {
-  if (!currentSettings.translateToOtherMvpLanguages) {
-    return [currentSettings.targetLanguage];
-  }
-
-  const orderedLanguages =
-    sourceLanguage === currentSettings.learningLanguage
-      ? [
-          currentSettings.bridgeLanguage,
-          currentSettings.nativeLanguage,
-          currentSettings.learningLanguage,
-        ]
-      : [
-          currentSettings.learningLanguage,
-          currentSettings.bridgeLanguage,
-          currentSettings.nativeLanguage,
-        ];
-
-  return Array.from(new Set(orderedLanguages)).filter(
-    (languageCode): languageCode is MvpLanguageCode => languageCode !== sourceLanguage,
-  );
-}
-
-function getActiveSourceLanguage(
-  text: string,
-  sourceLanguageHint?: MvpLanguageCode,
-): SourceLanguageCode {
-  if (currentSettings.sourceLanguage !== "auto") {
-    return getRequestedSourceLanguage();
-  }
-
-  if (!currentSettings.translateToOtherMvpLanguages) {
-    return "auto";
-  }
-
-  return detectMvpSourceLanguage(text, sourceLanguageHint);
-}
-
-function detectMvpSourceLanguage(
-  text: string,
-  sourceLanguageHint?: MvpLanguageCode,
-): MvpLanguageCode {
-  if (/[\u0C00-\u0C7F]/u.test(text)) {
-    return "te";
-  }
-
-  if (sourceLanguageHint) {
-    return sourceLanguageHint;
-  }
-
-  const words = text.toLowerCase().match(/[\p{Letter}]+/gu) ?? [];
-  let dutchScore = 0;
-  let englishScore = 0;
-
-  for (const word of words) {
-    if (dutchLanguageHints.has(word)) {
-      dutchScore += 1;
-    }
-
-    if (englishLanguageHints.has(word)) {
-      englishScore += 1;
-    }
-
-    if (
-      word.includes("ij") ||
-      word.includes("sch") ||
-      word.includes("oe") ||
-      word.includes("ui")
-    ) {
-      dutchScore += 1;
-    }
-  }
-
-  if (dutchScore > englishScore) {
-    return "nl";
-  }
-
-  if (englishScore > dutchScore || words.length > 0) {
-    return "en";
-  }
-
-  return "nl";
-}
-
-function getLanguageLabel(languageCode: string): string {
-  return mvpLanguages.find((language) => language.code === languageCode)?.label ?? languageCode;
 }
 
 function getLanguageHintForNode(node: Node | null): MvpLanguageCode | undefined {
