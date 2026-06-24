@@ -66,6 +66,26 @@ describe("WebpageLookupSession", () => {
     });
   });
 
+  it("recovers cleanly on the next lookup after a failed request", () => {
+    const session = new WebpageLookupSession();
+    const failedRequestId = session.begin("hover");
+
+    expect(session.acceptFailure(failedRequestId, "Translation request timed out before the backend responded.")).toEqual({
+      status: "current",
+      context: "hover",
+      error: "Translation request timed out before the backend responded.",
+    });
+
+    const recoveredRequestId = session.begin("hover");
+
+    expect(session.acceptSuccess(recoveredRequestId, "huis", singleWordOutcome)).toEqual({
+      status: "current",
+      context: "hover",
+      response: singleWordOutcome.response,
+      saveCandidates: [],
+    });
+  });
+
   it("keeps selection lifecycle rules behind the same interface", () => {
     const session = new WebpageLookupSession();
 

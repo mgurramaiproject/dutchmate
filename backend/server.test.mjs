@@ -1,27 +1,7 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { Readable } from "node:stream";
+import { describe, expect, it, vi } from "vitest";
 import { ProviderError } from "./provider-error.mjs";
 import { createTranslationBackendServer } from "./server.mjs";
-
-let server;
-
-afterEach(async () => {
-  if (!server) {
-    return;
-  }
-
-  await new Promise((resolve, reject) => {
-    server.close((error) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-
-      resolve();
-    });
-  });
-
-  server = undefined;
-});
 
 describe("createTranslationBackendServer", () => {
   it("returns a health response without calling the translation service", async () => {
@@ -29,10 +9,11 @@ describe("createTranslationBackendServer", () => {
       translate: vi.fn(),
     };
 
-    server = createTranslationBackendServer({ service, logger: createTestLogger() });
-    const baseUrl = await listen(server);
-
-    const response = await fetch(`${baseUrl}/health`);
+    const server = createTranslationBackendServer({ service, logger: createTestLogger() });
+    const response = await inject(server, {
+      method: "GET",
+      url: "/health",
+    });
 
     const body = await response.json();
 
@@ -69,7 +50,7 @@ describe("createTranslationBackendServer", () => {
       })),
     };
 
-    server = createTranslationBackendServer({
+    const server = createTranslationBackendServer({
       service,
       logger,
       diagnostics: {
@@ -77,10 +58,9 @@ describe("createTranslationBackendServer", () => {
         myMemoryEmailConfigured: true,
       },
     });
-    const baseUrl = await listen(server);
-
-    const response = await fetch(`${baseUrl}/translate`, {
+    const response = await inject(server, {
       method: "POST",
+      url: "/translate",
       headers: {
         "Content-Type": "application/json",
       },
@@ -122,11 +102,10 @@ describe("createTranslationBackendServer", () => {
       translate: vi.fn(),
     };
 
-    server = createTranslationBackendServer({ service, logger: createTestLogger() });
-    const baseUrl = await listen(server);
-
-    const response = await fetch(`${baseUrl}/translate`, {
+    const server = createTranslationBackendServer({ service, logger: createTestLogger() });
+    const response = await inject(server, {
       method: "POST",
+      url: "/translate",
       headers: {
         "Content-Type": "application/json",
       },
@@ -150,11 +129,10 @@ describe("createTranslationBackendServer", () => {
       translate: vi.fn(),
     };
 
-    server = createTranslationBackendServer({ service, logger: createTestLogger() });
-    const baseUrl = await listen(server);
-
-    const response = await fetch(`${baseUrl}/translate`, {
+    const server = createTranslationBackendServer({ service, logger: createTestLogger() });
+    const response = await inject(server, {
       method: "POST",
+      url: "/translate",
       headers: {
         "Content-Type": "application/json",
       },
@@ -182,7 +160,7 @@ describe("createTranslationBackendServer", () => {
       })),
     };
 
-    server = createTranslationBackendServer({
+    const server = createTranslationBackendServer({
       service,
       logger,
       rateLimit: {
@@ -191,12 +169,11 @@ describe("createTranslationBackendServer", () => {
         now: () => currentTime,
       },
     });
-    const baseUrl = await listen(server);
 
-    await expect(postTranslate(baseUrl)).resolves.toMatchObject({ status: 200 });
-    await expect(postTranslate(baseUrl)).resolves.toMatchObject({ status: 200 });
+    await expect(postTranslate(server)).resolves.toMatchObject({ status: 200 });
+    await expect(postTranslate(server)).resolves.toMatchObject({ status: 200 });
 
-    const limitedResponse = await postTranslate(baseUrl);
+    const limitedResponse = await postTranslate(server);
 
     await expect(limitedResponse.json()).resolves.toEqual({
       error: "Too many translation requests. Try again soon.",
@@ -212,7 +189,7 @@ describe("createTranslationBackendServer", () => {
 
     currentTime += 60_000;
 
-    await expect(postTranslate(baseUrl)).resolves.toMatchObject({ status: 200 });
+    await expect(postTranslate(server)).resolves.toMatchObject({ status: 200 });
     expect(service.translate).toHaveBeenCalledTimes(3);
   });
 
@@ -223,7 +200,7 @@ describe("createTranslationBackendServer", () => {
       })),
     };
 
-    server = createTranslationBackendServer({
+    const server = createTranslationBackendServer({
       service,
       logger: createTestLogger(),
       rateLimit: {
@@ -231,12 +208,11 @@ describe("createTranslationBackendServer", () => {
         windowMs: 60_000,
       },
     });
-    const baseUrl = await listen(server);
 
-    await fetch(`${baseUrl}/health`);
-    await fetch(`${baseUrl}/health`);
+    await inject(server, { method: "GET", url: "/health" });
+    await inject(server, { method: "GET", url: "/health" });
 
-    await expect(postTranslate(baseUrl)).resolves.toMatchObject({ status: 200 });
+    await expect(postTranslate(server)).resolves.toMatchObject({ status: 200 });
     expect(service.translate).toHaveBeenCalledTimes(1);
   });
 
@@ -254,7 +230,7 @@ describe("createTranslationBackendServer", () => {
         ),
     };
 
-    server = createTranslationBackendServer({
+    const server = createTranslationBackendServer({
       service,
       logger: createTestLogger(),
       rateLimit: {
@@ -262,13 +238,13 @@ describe("createTranslationBackendServer", () => {
         windowMs: 60_000,
       },
     });
-    const baseUrl = await listen(server);
 
-    await postTranslate(baseUrl);
-    await postTranslate(baseUrl, { text: "english", context: "hover" });
-    await postTranslate(baseUrl);
-    await fetch(`${baseUrl}/translate`, {
+    await postTranslate(server);
+    await postTranslate(server, { text: "english", context: "hover" });
+    await postTranslate(server);
+    await inject(server, {
       method: "POST",
+      url: "/translate",
       headers: {
         "Content-Type": "application/json",
       },
@@ -280,7 +256,10 @@ describe("createTranslationBackendServer", () => {
       }),
     });
 
-    const response = await fetch(`${baseUrl}/health`);
+    const response = await inject(server, {
+      method: "GET",
+      url: "/health",
+    });
     const body = await response.json();
 
     expect(body.runtime).toMatchObject({
@@ -312,7 +291,7 @@ describe("createTranslationBackendServer", () => {
       }),
     };
 
-    server = createTranslationBackendServer({
+    const server = createTranslationBackendServer({
       service,
       logger,
       diagnostics: {
@@ -320,9 +299,8 @@ describe("createTranslationBackendServer", () => {
         myMemoryEmailConfigured: true,
       },
     });
-    const baseUrl = await listen(server);
 
-    const response = await postTranslate(baseUrl);
+    const response = await postTranslate(server);
 
     await expect(response.json()).resolves.toEqual({
       error: "MyMemory returned 429",
@@ -347,10 +325,11 @@ describe("createTranslationBackendServer", () => {
       translate: vi.fn(),
     };
 
-    server = createTranslationBackendServer({ service, logger: createTestLogger() });
-    const baseUrl = await listen(server);
-
-    const response = await fetch(`${baseUrl}/unknown`);
+    const server = createTranslationBackendServer({ service, logger: createTestLogger() });
+    const response = await inject(server, {
+      method: "GET",
+      url: "/unknown",
+    });
 
     await expect(response.json()).resolves.toEqual({
       error: "Use POST /translate",
@@ -360,23 +339,10 @@ describe("createTranslationBackendServer", () => {
   });
 });
 
-async function listen(server) {
-  await new Promise((resolve) => {
-    server.listen(0, "127.0.0.1", resolve);
-  });
-
-  const address = server.address();
-
-  if (!address || typeof address === "string") {
-    throw new Error("Server address is unavailable");
-  }
-
-  return `http://127.0.0.1:${address.port}`;
-}
-
-function postTranslate(baseUrl, overrides = {}) {
-  return fetch(`${baseUrl}/translate`, {
+function postTranslate(server, overrides = {}) {
+  return inject(server, {
     method: "POST",
+    url: "/translate",
     headers: {
       "Content-Type": "application/json",
       "X-Forwarded-For": "203.0.113.10",
@@ -388,6 +354,65 @@ function postTranslate(baseUrl, overrides = {}) {
       context: "selection",
       ...overrides,
     }),
+  });
+}
+
+async function inject(server, { method, url, headers = {}, body = "" }) {
+  const request = Readable.from(body ? [Buffer.from(body)] : []);
+  request.method = method;
+  request.url = url;
+  request.headers = Object.fromEntries(
+    Object.entries(headers).map(([key, value]) => [key.toLowerCase(), value]),
+  );
+  request.socket = {
+    remoteAddress: "127.0.0.1",
+  };
+
+  return new Promise((resolve, reject) => {
+    let statusCode = 200;
+    const responseHeaders = new Map();
+    const chunks = [];
+
+    const response = {
+      setHeader(name, value) {
+        responseHeaders.set(name.toLowerCase(), String(value));
+      },
+      writeHead(nextStatusCode, nextHeaders = {}) {
+        statusCode = nextStatusCode;
+        for (const [name, value] of Object.entries(nextHeaders)) {
+          responseHeaders.set(name.toLowerCase(), String(value));
+        }
+      },
+      end(chunk = "") {
+        if (chunk) {
+          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk)));
+        }
+
+        const text = Buffer.concat(chunks).toString("utf8");
+        resolve({
+          status: statusCode,
+          headers: {
+            get(name) {
+              return responseHeaders.get(name.toLowerCase()) ?? null;
+            },
+          },
+          async json() {
+            return JSON.parse(text);
+          },
+          async text() {
+            return text;
+          },
+        });
+      },
+    };
+
+    request.on("error", reject);
+
+    try {
+      server.emit("request", request, response);
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 

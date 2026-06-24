@@ -8,6 +8,12 @@ describe("getTranslationErrorMessage", () => {
     );
   });
 
+  it("maps provider timeouts to a clear backend timeout message", () => {
+    expect(getTranslationErrorMessage(new Error("Provider request timed out"))).toBe(
+      "Translation request timed out before the backend responded.",
+    );
+  });
+
   it("keeps other provider errors debuggable", () => {
     expect(getTranslationErrorMessage(new Error("Provider returned 503"))).toBe(
       "Translation failed: Provider returned 503",

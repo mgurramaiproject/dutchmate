@@ -5,11 +5,19 @@ import {
   type RuntimeTranslationExtensionApi,
   type TranslateMessageResponse,
 } from "./runtime-translation-client";
+import { requestContentTranslation } from "./content-translation-request";
+import {
+  requestDirectTranslation,
+} from "./direct-translation-request";
 import {
   requestRuntimeSavedVocabularyList,
   requestRuntimeSaveVocabularyBatch,
   type RuntimeSaveVocabularyRequest,
 } from "./runtime-vocabulary-client";
+import {
+  TOOLTIP_TRANSLATION_TIMEOUT_MESSAGE,
+  withTooltipTranslationTimeout,
+} from "./tooltip-translation-timeout";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { isValidTextRangeBoundary } from "./text-range-boundary";
 import type { TooltipContext } from "./tooltip-request-state";
@@ -381,6 +389,7 @@ async function showTranslation(
   try {
     outcome = await withTooltipTranslationTimeout(
       requestTranslationForCurrentSettings(text, context, languageSample, sourceLanguageHint),
+      TOOLTIP_TRANSLATION_TIMEOUT_MS,
     );
   } catch (error) {
     const failedLookup = tooltipRequestState.acceptFailure(
@@ -431,7 +440,7 @@ function beginTooltipRequest(
   tooltipTimeout = window.setTimeout(() => {
     if (tooltipRequestState.isCurrent(requestId) && tooltip.dataset.state === "loading") {
       showTooltipMessage(
-        "Translation request did not finish. Reload the extension and try again.",
+        TOOLTIP_TRANSLATION_TIMEOUT_MESSAGE,
         "error",
         context,
         x,
@@ -1064,25 +1073,6 @@ function getOptionalSelectionLengthSetting(value: unknown): number | undefined {
   return Math.min(Math.max(numberValue, MIN_SELECTION_LENGTH), MAX_SELECTION_LENGTH);
 }
 
-function withTooltipTranslationTimeout<T>(request: Promise<T>): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timeout = globalThis.setTimeout(() => {
-      reject(new Error("Translation request did not finish. Reload the extension and try again."));
-    }, TOOLTIP_TRANSLATION_TIMEOUT_MS);
-
-    request.then(
-      (result) => {
-        globalThis.clearTimeout(timeout);
-        resolve(result);
-      },
-      (error) => {
-        globalThis.clearTimeout(timeout);
-        reject(error);
-      },
-    );
-  });
-}
-
 async function requestTranslation(
   text: string,
   context: TranslationContext,
@@ -1095,124 +1085,20 @@ async function requestTranslation(
     sourceLanguage,
     targetLanguage,
   };
-  const cache = getDirectTranslationCache();
-  const cachedResult = await cache.get(request);
-
-  if (cachedResult) {
-    return {
-      ok: true,
-      result: cachedResult,
-    };
-  }
-
-  if (__BROWSER_TARGET__ === "chrome") {
-    await delay(CHROME_DIRECT_TRANSLATION_FALLBACK_MS);
-    const response = await requestDirectTranslation(request);
-    await cacheTranslationResponse(request, response);
-    return response;
-  }
-
-  const response = await requestRuntimeTranslation(extensionApi, request);
-  await cacheTranslationResponse(request, response);
-  return response;
-}
-
-async function requestDirectTranslation(
-  request: TranslationRequest,
-): Promise<TranslateMessageResponse> {
-  if (!currentSettings.providerEndpoint) {
-    return {
-      ok: true,
-      result: {
-        translatedText: `Translation will appear here. (${request.targetLanguage})`,
-        providerName: "placeholder",
-      },
-    };
-  }
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  if (currentSettings.providerApiKey) {
-    headers.Authorization = `Bearer ${currentSettings.providerApiKey}`;
-  }
-
-  const controller = new AbortController();
-  const timeout = globalThis.setTimeout(() => {
-    controller.abort();
-  }, DIRECT_TRANSLATION_TIMEOUT_MS);
-
-  try {
-    const response = await fetch(currentSettings.providerEndpoint, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(request),
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        error:
-          response.status === 429
-            ? "Translation is temporarily busy. Try again soon."
-            : `Translation failed: Provider returned ${response.status}`,
-      };
-    }
-
-    const body = await response.json() as unknown;
-    const translatedText = getTranslatedText(body);
-
-    if (!translatedText) {
-      return {
-        ok: false,
-        error: "Translation failed: Provider response is missing translatedText",
-      };
-    }
-
-    const result: TranslationResult = {
-      translatedText,
-      providerName: "custom-endpoint",
-    };
-
-    return {
-      ok: true,
-      result,
-    };
-  } catch (error) {
-    return {
-      ok: false,
-      error:
-        error instanceof DOMException && error.name === "AbortError"
-          ? "Translation request timed out before the backend responded."
-          : "Translation failed: Provider endpoint is unreachable. Check that the backend is running and the endpoint URL is correct.",
-    };
-  } finally {
-    globalThis.clearTimeout(timeout);
-  }
-}
-
-async function cacheTranslationResponse(
-  request: TranslationRequest,
-  response: TranslateMessageResponse,
-): Promise<void> {
-  if (!response.ok) {
-    return;
-  }
-
-  await getDirectTranslationCache().set(request, response.result);
-}
-
-function getTranslatedText(body: unknown): string | null {
-  return (
-    typeof body === "object" &&
-      body !== null &&
-      "translatedText" in body &&
-      typeof body.translatedText === "string"
-  )
-    ? body.translatedText
-    : null;
+  return requestContentTranslation(request, {
+    browserTarget: __BROWSER_TARGET__,
+    cache: getDirectTranslationCache(),
+    extensionApi,
+    requestDirectTranslation: (directRequest) =>
+      requestDirectTranslation(directRequest, {
+        providerEndpoint: currentSettings.providerEndpoint,
+        providerApiKey: currentSettings.providerApiKey,
+        timeoutMs: DIRECT_TRANSLATION_TIMEOUT_MS,
+      }),
+    requestRuntimeTranslation,
+    chromeDirectTranslationFallbackMs: CHROME_DIRECT_TRANSLATION_FALLBACK_MS,
+    delay,
+  });
 }
 
 function delay(ms: number): Promise<void> {
