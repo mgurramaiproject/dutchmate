@@ -17,6 +17,7 @@ import {
 import { MVP_LANGUAGES, getMvpLanguageCode, getSourceLanguageCode } from "../shared/languages";
 import { getCachedWordCount } from "./cache-summary";
 import { createSavedVocabularyClient } from "./saved-vocabulary-client";
+import { shouldRefreshSavedVocabulary, type StorageChange } from "./saved-vocabulary-refresh";
 import type { SavedVocabularyEntry } from "../vocabulary/saved-vocabulary";
 import "./styles.css";
 
@@ -56,6 +57,7 @@ renderLanguageOptions();
 void restoreSettings();
 void refreshCacheCount();
 void refreshSavedVocabulary();
+browser.storage.onChanged.addListener(handleStorageChanged);
 
 form?.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -263,6 +265,14 @@ async function refreshSavedVocabulary(): Promise<void> {
       4000,
     );
   }
+}
+
+function handleStorageChanged(changes: Record<string, StorageChange>, areaName: string): void {
+  if (!shouldRefreshSavedVocabulary(changes, areaName)) {
+    return;
+  }
+
+  void refreshSavedVocabulary();
 }
 
 function renderSavedVocabulary(entries: SavedVocabularyEntry[]): void {
