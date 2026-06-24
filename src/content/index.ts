@@ -1,9 +1,5 @@
-import { getHoverRequestKey } from "./hover-request-key";
-import { isPointInsideVisibleBox } from "./pointer-hit-box";
 import { type RuntimeTranslationExtensionApi } from "./runtime-translation-client";
 import { withTooltipTranslationTimeout } from "./tooltip-translation-timeout";
-import { getSelectionTooLongMessage } from "./selection-limit-message";
-import { isValidTextRangeBoundary } from "./text-range-boundary";
 import {
   WebpageLookupModule,
   type WebpageLookupModuleEvent,
@@ -15,15 +11,12 @@ import {
 } from "./content-settings-adapter";
 import { createRuntimeLookupAdapter } from "./runtime-lookup-adapter";
 import { createTooltipViewAdapter } from "./tooltip-view-adapter";
-import {
-  getHoverLookupInput,
-  getSelectionLookupInput,
-} from "./webpage-input-adapter";
-import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
+import type { SourceLanguageCode } from "../shared/languages";
 import {
   defaultSettings,
   type ExtensionSettings,
 } from "../shared/settings";
+import { createWebpageLifecycleController } from "./webpage-lifecycle-controller";
 
 const TOOLTIP_TRANSLATION_TIMEOUT_MS = 9000;
 const CHROME_DIRECT_TRANSLATION_FALLBACK_MS = 1200;
@@ -32,8 +25,6 @@ const DIRECT_TRANSLATION_TIMEOUT_MS = 15000;
 type StorageChange = {
   newValue?: unknown;
 };
-
-type TranslationContext = "hover" | "selection";
 
 type ExtensionStorageApi = {
   storage: {
@@ -60,9 +51,6 @@ const extensionGlobal = globalThis as typeof globalThis & {
 const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
 const settingsExtensionApi = extensionApi as ContentSettingsExtensionApi | undefined;
 
-let hoverTimer: number | undefined;
-let lastHoverKey = "";
-let activeSelectionText = "";
 let currentSettings = defaultSettings;
 const lookupModule = new WebpageLookupModule({
   getSettings: () => currentSettings,
@@ -80,123 +68,22 @@ const lookupModule = new WebpageLookupModule({
 const tooltipView = createTooltipViewAdapter(() => {
   void lookupModule.handleSaveAction();
 });
+const lifecycleController = createWebpageLifecycleController({
+  getSettings: () => currentSettings,
+  lookupModule,
+  tooltipView,
+});
 
-document.addEventListener("mousemove", handleMouseMove, { passive: true });
-document.addEventListener("mouseleave", handleMouseLeave, { passive: true });
-document.addEventListener("mouseup", handleSelection, { passive: true });
-document.addEventListener("scroll", clearSelectionAndHideTooltip, { passive: true });
-document.addEventListener("click", handlePageClick, { passive: true });
-document.addEventListener("keydown", handleKeyDown);
+document.addEventListener("mousemove", lifecycleController.handleMouseMove, { passive: true });
+document.addEventListener("mouseleave", lifecycleController.handleMouseLeave, { passive: true });
+document.addEventListener("mouseup", lifecycleController.handleSelection, { passive: true });
+document.addEventListener("scroll", lifecycleController.clearSelectionAndHideTooltip, { passive: true });
+document.addEventListener("click", lifecycleController.handlePageClick, { passive: true });
+document.addEventListener("keydown", lifecycleController.handleKeyDown);
 extensionApi?.storage.onChanged.addListener(handleStorageChanged);
 lookupModule.subscribe(handleLookupModuleEvent);
 
 void refreshSettings();
-
-function handleMouseMove(event: MouseEvent): void {
-  if (isTooltipEvent(event)) {
-    return;
-  }
-
-  window.clearTimeout(hoverTimer);
-
-  if (!currentSettings.isEnabled || !currentSettings.translateOnHover) {
-    lookupModule.clear();
-    return;
-  }
-
-  hoverTimer = window.setTimeout(() => {
-    if (hasActiveSelection()) {
-      return;
-    }
-
-    const hit = getHoverLookupInput(
-      event.clientX,
-      event.clientY,
-      currentSettings.hoverTranslationMode,
-    );
-
-    if (!hit) {
-      lookupModule.clear();
-      return;
-    }
-
-    const hoverKey = getHoverRequestKey({
-      text: hit.text,
-      languageSample: hit.languageSample,
-      sourceLanguageHint: hit.sourceLanguageHint,
-      start: hit.start,
-      end: hit.end,
-    });
-    if (hoverKey === lastHoverKey) {
-      return;
-    }
-
-    lastHoverKey = hoverKey;
-    showTranslation(
-      hit.text,
-      "hover",
-      hit.x,
-      hit.y,
-      hit.sourceLanguageHint,
-      hit.languageSample,
-    );
-  }, currentSettings.hoverDelayMs);
-}
-
-function handleSelection(event: MouseEvent): void {
-  if (isTooltipEvent(event)) {
-    return;
-  }
-
-  window.clearTimeout(hoverTimer);
-
-  if (!currentSettings.isEnabled || !currentSettings.translateOnSelection) {
-    return;
-  }
-
-  const selection = getSelectionLookupInput(currentSettings.maxSelectionLength);
-  if (selection.status === "none") {
-    return;
-  }
-
-  if (selection.status === "too-long") {
-    activeSelectionText = selection.text;
-    tooltipView.showError(
-      getSelectionTooLongMessage(currentSettings.maxSelectionLength),
-      selection.x,
-      selection.y,
-    );
-    return;
-  }
-
-  activeSelectionText = selection.text;
-  showTranslation(
-    selection.text,
-    "selection",
-    selection.x,
-    selection.y,
-    selection.sourceLanguageHint,
-    selection.languageSample,
-  );
-}
-
-async function showTranslation(
-  text: string,
-  context: TranslationContext,
-  x: number,
-  y: number,
-  sourceLanguageHint?: MvpLanguageCode,
-  languageSample = text,
-): Promise<void> {
-  await lookupModule.beginLookup({
-    text,
-    context,
-    x,
-    y,
-    sourceLanguageHint,
-    languageSample,
-  });
-}
 
 function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
   if (event.type === "render-loading") {
@@ -223,54 +110,7 @@ function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
 }
 
 function hideTooltip(): void {
-  tooltipView.hide();
-  lastHoverKey = "";
-}
-
-function clearSelectionAndHideTooltip(): void {
-  activeSelectionText = "";
-  lookupModule.clear();
-}
-
-function handlePageClick(event: MouseEvent): void {
-  if (isTooltipEvent(event)) {
-    return;
-  }
-
-  if (hasActiveSelection()) {
-    return;
-  }
-
-  clearSelectionAndHideTooltip();
-}
-
-function handleMouseLeave(): void {
-  if (lookupModule.shouldKeepVisibleOnMouseLeave()) {
-    return;
-  }
-
-  lookupModule.clear();
-}
-
-function handleKeyDown(event: KeyboardEvent): void {
-  if (event.key === "Escape") {
-    clearSelectionAndHideTooltip();
-  }
-}
-
-function isTooltipEvent(event: Event): boolean {
-  return tooltipView.isTooltipEvent(event);
-}
-
-function hasActiveSelection(): boolean {
-  const selectedText = window.getSelection()?.toString().trim() ?? "";
-
-  if (!selectedText) {
-    activeSelectionText = "";
-    return false;
-  }
-
-  return selectedText === activeSelectionText || lookupModule.hasActiveSelectionControl();
+  lifecycleController.hideTooltip();
 }
 
 async function refreshSettings(): Promise<void> {
