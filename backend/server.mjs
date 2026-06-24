@@ -1,7 +1,13 @@
 import { createServer } from "node:http";
+import {
+  applyHeaders,
+  getClientKey,
+  readJsonBody,
+  sendEmpty,
+  sendJson,
+  setCorsHeaders,
+} from "./http-transport.mjs";
 import { createTranslateRequestModule } from "./translate-request-module.mjs";
-
-const MAX_TRANSLATE_REQUEST_BYTES = 10 * 1024;
 
 export function createTranslationBackendServer({
   service,
@@ -49,11 +55,7 @@ export function createTranslationBackendServer({
         clientKey: getClientKey(request),
       });
 
-      if (result.headers) {
-        for (const [name, value] of Object.entries(result.headers)) {
-          response.setHeader(name, value);
-        }
-      }
+      applyHeaders(response, result.headers);
       sendJson(response, result.statusCode, result.payload);
     } catch (error) {
       sendJson(response, 400, {
@@ -61,54 +63,4 @@ export function createTranslationBackendServer({
       });
     }
   });
-}
-
-function getClientKey(request) {
-  const forwardedFor = request.headers["x-forwarded-for"];
-
-  if (typeof forwardedFor === "string" && forwardedFor.trim()) {
-    return forwardedFor.split(",")[0].trim();
-  }
-
-  return request.socket.remoteAddress ?? "unknown";
-}
-
-function setCorsHeaders(response) {
-  response.setHeader("Access-Control-Allow-Origin", "*");
-  response.setHeader("Access-Control-Allow-Headers", "content-type, authorization");
-  response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-}
-
-function sendEmpty(response, statusCode) {
-  response.writeHead(statusCode);
-  response.end();
-}
-
-function sendJson(response, statusCode, payload) {
-  response.writeHead(statusCode, {
-    "Content-Type": "application/json; charset=utf-8",
-  });
-  response.end(`${JSON.stringify(payload)}\n`);
-}
-
-async function readJsonBody(request) {
-  const chunks = [];
-  let totalBytes = 0;
-
-  for await (const chunk of request) {
-    totalBytes += chunk.length;
-
-    if (totalBytes > MAX_TRANSLATE_REQUEST_BYTES) {
-      throw new Error("Request body is too large");
-    }
-
-    chunks.push(chunk);
-  }
-
-  const rawBody = Buffer.concat(chunks).toString("utf8");
-  if (!rawBody) {
-    throw new Error("Request body is required");
-  }
-
-  return JSON.parse(rawBody);
 }

@@ -54,8 +54,6 @@ export function createTranslateRequestModule({
         return response;
       }
 
-      let shouldLeavePressure = true;
-
       try {
         const rateLimitResult = rateLimiter.check(clientKey);
         if (!rateLimitResult.allowed) {
@@ -152,9 +150,7 @@ export function createTranslateRequestModule({
           },
         });
       } finally {
-        if (shouldLeavePressure) {
-          backendPressure.leave();
-        }
+        backendPressure.leave();
       }
     },
   };
