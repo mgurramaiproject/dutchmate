@@ -1,18 +1,12 @@
 import type { TranslationProviderSettings } from "../translation/translation-service";
-
-const DEFAULT_PROVIDER_ENDPOINT = "https://dutchmate-backend.onrender.com/translate";
-
-const defaultProviderSettings: TranslationProviderSettings = {
-  providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
-  providerApiKey: "",
-};
+import { defaultSettings, normalizeSettings } from "../shared/settings";
 
 export type BackgroundExtensionApi = {
   storage: {
     sync: {
       get(
-        defaults: TranslationProviderSettings,
-        callback: (settings: Partial<TranslationProviderSettings>) => void,
+        defaults: typeof defaultSettings,
+        callback: (settings: Partial<typeof defaultSettings>) => void,
       ): void;
     };
   };
@@ -25,30 +19,24 @@ export async function readProviderSettings(
   extensionApi: BackgroundExtensionApi | undefined,
 ): Promise<TranslationProviderSettings> {
   if (!extensionApi) {
-    return defaultProviderSettings;
+    return toProviderSettings(defaultSettings);
   }
 
   return new Promise((resolve) => {
-    extensionApi.storage.sync.get(defaultProviderSettings, (stored) => {
+    extensionApi.storage.sync.get(defaultSettings, (stored) => {
       if (extensionApi.runtime.lastError) {
-        resolve(defaultProviderSettings);
+        resolve(toProviderSettings(defaultSettings));
         return;
       }
 
-      resolve({
-        providerEndpoint: getStringSetting(
-          stored.providerEndpoint,
-          defaultProviderSettings.providerEndpoint,
-        ),
-        providerApiKey: getStringSetting(
-          stored.providerApiKey,
-          defaultProviderSettings.providerApiKey,
-        ),
-      });
+      resolve(toProviderSettings(normalizeSettings(stored)));
     });
   });
 }
 
-function getStringSetting(value: unknown, fallback: string): string {
-  return typeof value === "string" ? value : fallback;
+function toProviderSettings(settings: typeof defaultSettings): TranslationProviderSettings {
+  return {
+    providerEndpoint: settings.providerEndpoint,
+    providerApiKey: settings.providerApiKey,
+  };
 }

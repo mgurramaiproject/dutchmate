@@ -11,6 +11,10 @@ describe("readBackendConfig", () => {
         maxRequests: 60,
         windowMs: 60000,
       },
+      backpressure: {
+        maxInFlightRequests: 4,
+        retryAfterSeconds: 15,
+      },
       azureTranslator: {
         apiUrl: "https://api.cognitive.microsofttranslator.com/translate",
         region: undefined,
@@ -37,6 +41,8 @@ describe("readBackendConfig", () => {
         PORT: "3000",
         RATE_LIMIT_MAX_REQUESTS: "30",
         RATE_LIMIT_WINDOW_MS: "15000",
+        BACKPRESSURE_MAX_IN_FLIGHT_REQUESTS: "8",
+        BACKPRESSURE_RETRY_AFTER_SECONDS: "9",
         AZURE_TRANSLATOR_API_URL: " https://example.test/translate ",
         AZURE_TRANSLATOR_REGION: " westeurope ",
         DEEPL_API_URL: " https://example.test/v2/translate ",
@@ -52,6 +58,10 @@ describe("readBackendConfig", () => {
       rateLimit: {
         maxRequests: 30,
         windowMs: 15000,
+      },
+      backpressure: {
+        maxInFlightRequests: 8,
+        retryAfterSeconds: 9,
       },
       azureTranslator: {
         apiUrl: "https://example.test/translate",
@@ -85,6 +95,10 @@ describe("readBackendConfig", () => {
       rateLimit: {
         maxRequests: 60,
         windowMs: 60000,
+      },
+      backpressure: {
+        maxInFlightRequests: 4,
+        retryAfterSeconds: 15,
       },
       azureTranslator: {
         apiUrl: "https://api.cognitive.microsofttranslator.com/translate",
@@ -121,6 +135,10 @@ describe("readBackendConfig", () => {
         maxRequests: 60,
         windowMs: 60000,
       },
+      backpressure: {
+        maxInFlightRequests: 4,
+        retryAfterSeconds: 15,
+      },
       azureTranslator: {
         apiKey: "test-key",
         apiUrl: "https://example.test/translate",
@@ -154,6 +172,10 @@ describe("readBackendConfig", () => {
       rateLimit: {
         maxRequests: 60,
         windowMs: 60000,
+      },
+      backpressure: {
+        maxInFlightRequests: 4,
+        retryAfterSeconds: 15,
       },
       azureTranslator: {
         apiUrl: "https://api.cognitive.microsofttranslator.com/translate",
@@ -226,6 +248,12 @@ describe("readBackendConfig", () => {
     );
     expect(() => readBackendConfig({ RATE_LIMIT_WINDOW_MS: "60000ms" })).toThrow(
       "RATE_LIMIT_WINDOW_MS must be a positive integer",
+    );
+    expect(() => readBackendConfig({ BACKPRESSURE_MAX_IN_FLIGHT_REQUESTS: "0" })).toThrow(
+      "BACKPRESSURE_MAX_IN_FLIGHT_REQUESTS must be a positive integer",
+    );
+    expect(() => readBackendConfig({ BACKPRESSURE_RETRY_AFTER_SECONDS: "soon" })).toThrow(
+      "BACKPRESSURE_RETRY_AFTER_SECONDS must be a positive integer",
     );
   });
 

@@ -14,6 +14,8 @@ vi.mock("webextension-polyfill", () => ({
 
 import {
   defaultSettings,
+  mergeSettings,
+  normalizeSettings,
   readSettings,
   validateMaxSelectionLength,
 } from "./settings";
@@ -52,6 +54,40 @@ describe("settings", () => {
     });
 
     await expect(readSettings()).resolves.toMatchObject({
+      learningLanguage: "nl",
+      nativeLanguage: "te",
+      bridgeLanguage: "en",
+    });
+  });
+
+  it("normalizes a stored snapshot through the shared settings seam", () => {
+    expect(
+      normalizeSettings({
+        ...defaultSettings,
+        maxSelectionLength: 600,
+        learningLanguage: "nl",
+        nativeLanguage: "nl",
+        bridgeLanguage: "en",
+      }),
+    ).toMatchObject({
+      maxSelectionLength: 150,
+      learningLanguage: "nl",
+      nativeLanguage: "te",
+      bridgeLanguage: "en",
+      providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
+    });
+  });
+
+  it("keeps runtime setting updates coherent with options reads", () => {
+    expect(
+      mergeSettings(defaultSettings, {
+        learningLanguage: "nl",
+        nativeLanguage: "nl",
+        bridgeLanguage: "en",
+        maxSelectionLength: 600,
+      }),
+    ).toMatchObject({
+      maxSelectionLength: 150,
       learningLanguage: "nl",
       nativeLanguage: "te",
       bridgeLanguage: "en",

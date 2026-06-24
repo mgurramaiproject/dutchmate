@@ -61,47 +61,61 @@ export const defaultSettings: ExtensionSettings = {
 
 export async function readSettings(): Promise<ExtensionSettings> {
   const stored = await browser.storage.sync.get(defaultSettings);
+  return normalizeSettings(stored);
+}
+
+export function normalizeSettings(
+  stored: Partial<ExtensionSettings> | null | undefined,
+  fallback: ExtensionSettings = defaultSettings,
+): ExtensionSettings {
   const languageRoles: LanguageRoleSettings = normalizeLanguageRoles({
-    learningLanguage: getMvpLanguageCode(
-      stored.learningLanguage,
-      defaultSettings.learningLanguage,
-    ),
-    nativeLanguage: getMvpLanguageCode(stored.nativeLanguage, defaultSettings.nativeLanguage),
-    bridgeLanguage: getMvpLanguageCode(stored.bridgeLanguage, defaultSettings.bridgeLanguage),
+    learningLanguage: getMvpLanguageCode(stored?.learningLanguage, fallback.learningLanguage),
+    nativeLanguage: getMvpLanguageCode(stored?.nativeLanguage, fallback.nativeLanguage),
+    bridgeLanguage: getMvpLanguageCode(stored?.bridgeLanguage, fallback.bridgeLanguage),
   });
 
   return {
-    isEnabled: getBooleanSetting(stored.isEnabled, defaultSettings.isEnabled),
-    translateOnHover: getBooleanSetting(stored.translateOnHover, defaultSettings.translateOnHover),
+    isEnabled: getBooleanSetting(stored?.isEnabled, fallback.isEnabled),
+    translateOnHover: getBooleanSetting(stored?.translateOnHover, fallback.translateOnHover),
     translateOnSelection: getBooleanSetting(
-      stored.translateOnSelection,
-      defaultSettings.translateOnSelection,
+      stored?.translateOnSelection,
+      fallback.translateOnSelection,
     ),
-    cacheHoveredWords: getBooleanSetting(
-      stored.cacheHoveredWords,
-      defaultSettings.cacheHoveredWords,
-    ),
+    cacheHoveredWords: getBooleanSetting(stored?.cacheHoveredWords, fallback.cacheHoveredWords),
     hoverTranslationMode: getHoverTranslationMode(
-      stored.hoverTranslationMode,
-      defaultSettings.hoverTranslationMode,
+      stored?.hoverTranslationMode,
+      fallback.hoverTranslationMode,
     ),
-    hoverDelayMs: getNumberSetting(stored.hoverDelayMs, defaultSettings.hoverDelayMs),
+    hoverDelayMs: getNumberSetting(stored?.hoverDelayMs, fallback.hoverDelayMs),
     maxSelectionLength: getNumberSettingInRange(
-      stored.maxSelectionLength,
-      defaultSettings.maxSelectionLength,
+      stored?.maxSelectionLength,
+      fallback.maxSelectionLength,
       SELECTION_LENGTH_LIMITS.min,
       SELECTION_LENGTH_LIMITS.max,
     ),
-    sourceLanguage: getSourceLanguageCode(stored.sourceLanguage, defaultSettings.sourceLanguage),
-    targetLanguage: getMvpLanguageCode(stored.targetLanguage, defaultSettings.targetLanguage),
+    sourceLanguage: getSourceLanguageCode(stored?.sourceLanguage, fallback.sourceLanguage),
+    targetLanguage: getMvpLanguageCode(stored?.targetLanguage, fallback.targetLanguage),
     translateToOtherMvpLanguages: getBooleanSetting(
-      stored.translateToOtherMvpLanguages,
-      defaultSettings.translateToOtherMvpLanguages,
+      stored?.translateToOtherMvpLanguages,
+      fallback.translateToOtherMvpLanguages,
     ),
     ...languageRoles,
-    providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
-    providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
+    providerEndpoint: getStringSetting(stored?.providerEndpoint, fallback.providerEndpoint),
+    providerApiKey: getStringSetting(stored?.providerApiKey, fallback.providerApiKey),
   };
+}
+
+export function mergeSettings(
+  current: ExtensionSettings,
+  changes: Partial<ExtensionSettings>,
+): ExtensionSettings {
+  return normalizeSettings(
+    {
+      ...current,
+      ...changes,
+    },
+    current,
+  );
 }
 
 function getHoverTranslationMode(

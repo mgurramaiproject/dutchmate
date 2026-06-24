@@ -12,16 +12,23 @@ import {
 const MAX_TRANSLATE_REQUEST_BYTES = 10 * 1024;
 const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 60;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const DEFAULT_BACKPRESSURE_MAX_IN_FLIGHT_REQUESTS = 4;
+const DEFAULT_BACKPRESSURE_RETRY_AFTER_SECONDS = 15;
+const BACKEND_BUSY_MESSAGE = "Translation backend is busy. Try again soon.";
 
 export function createTranslationBackendServer({
   service,
   rateLimit = {},
+  backpressure = {},
   logger = console,
   diagnostics = {},
 }) {
   const rateLimiter = createRateLimiter(rateLimit);
+  const backendPressure = createBackendPressureGuard(backpressure);
   const safeDiagnostics = getSafeDiagnostics(diagnostics);
-  const runtimeSummary = createRuntimeSummary();
+  const runtimeSummary = createRuntimeSummary({
+    maxInFlightRequests: backendPressure.maxInFlightRequests,
+  });
 
   return createServer(async (request, response) => {
     setCorsHeaders(response);
@@ -48,8 +55,25 @@ export function createTranslationBackendServer({
     }
 
     const startedAt = Date.now();
+    const backendPressureResult = backendPressure.tryEnter();
+    if (!backendPressureResult.allowed) {
+      runtimeSummary.recordBackendBusy();
+      response.setHeader("Retry-After", backendPressureResult.retryAfterSeconds.toString());
+      sendJson(response, 503, {
+        error: BACKEND_BUSY_MESSAGE,
+      });
+      logTranslateRequest(logger, startedAt, {
+        statusCode: 503,
+        backendBusy: true,
+        retryAfterSeconds: backendPressureResult.retryAfterSeconds,
+        ...safeDiagnostics,
+      });
+      return;
+    }
+
     const rateLimitResult = rateLimiter.check(getClientKey(request));
     if (!rateLimitResult.allowed) {
+      backendPressure.leave();
       runtimeSummary.recordClientRateLimit();
       response.setHeader("Retry-After", rateLimitResult.retryAfterSeconds.toString());
       sendJson(response, 429, {
@@ -115,6 +139,8 @@ export function createTranslationBackendServer({
         ...getProviderErrorMetadata(error),
         ...safeDiagnostics,
       });
+    } finally {
+      backendPressure.leave();
     }
   });
 }
@@ -148,7 +174,10 @@ function getSafeDiagnostics(diagnostics) {
   };
 }
 
-function createRuntimeSummary(now = () => new Date()) {
+function createRuntimeSummary(
+  { maxInFlightRequests = DEFAULT_BACKPRESSURE_MAX_IN_FLIGHT_REQUESTS } = {},
+  now = () => new Date(),
+) {
   const summary = {
     startedAt: now().toISOString(),
     lastTranslateAt: null,
@@ -158,8 +187,11 @@ function createRuntimeSummary(now = () => new Date()) {
     translateFailureTotal: 0,
     badRequestTotal: 0,
     clientRateLimitedTotal: 0,
+    backendBusyTotal: 0,
     providerErrorTotal: 0,
     providerRateLimitedTotal: 0,
+    inFlightRequests: 0,
+    maxInFlightRequests,
     byContext: {
       hover: 0,
       selection: 0,
@@ -171,6 +203,7 @@ function createRuntimeSummary(now = () => new Date()) {
       summary.lastTranslateAt = now().toISOString();
       summary.translateRequestsAcceptedTotal += 1;
       summary.requestedTextCharactersTotal += request.text.length;
+      summary.inFlightRequests += 1;
 
       if (request.context === "hover" || request.context === "selection") {
         summary.byContext[request.context] += 1;
@@ -178,6 +211,7 @@ function createRuntimeSummary(now = () => new Date()) {
     },
     recordSuccess() {
       summary.translateSuccessTotal += 1;
+      summary.inFlightRequests = Math.max(0, summary.inFlightRequests - 1);
     },
     recordBadRequest() {
       summary.badRequestTotal += 1;
@@ -187,8 +221,13 @@ function createRuntimeSummary(now = () => new Date()) {
       summary.clientRateLimitedTotal += 1;
       summary.translateFailureTotal += 1;
     },
+    recordBackendBusy() {
+      summary.backendBusyTotal += 1;
+      summary.translateFailureTotal += 1;
+    },
     recordFailure({ statusCode, providerRateLimited }) {
       summary.translateFailureTotal += 1;
+      summary.inFlightRequests = Math.max(0, summary.inFlightRequests - 1);
 
       if (statusCode >= 500 || statusCode === 429) {
         summary.providerErrorTotal += 1;
@@ -200,6 +239,34 @@ function createRuntimeSummary(now = () => new Date()) {
     },
     snapshot() {
       return structuredClone(summary);
+    },
+  };
+}
+
+function createBackendPressureGuard({
+  maxInFlightRequests = DEFAULT_BACKPRESSURE_MAX_IN_FLIGHT_REQUESTS,
+  retryAfterSeconds = DEFAULT_BACKPRESSURE_RETRY_AFTER_SECONDS,
+} = {}) {
+  let inFlightRequests = 0;
+
+  return {
+    maxInFlightRequests,
+    tryEnter() {
+      if (inFlightRequests >= maxInFlightRequests) {
+        return {
+          allowed: false,
+          retryAfterSeconds,
+        };
+      }
+
+      inFlightRequests += 1;
+      return {
+        allowed: true,
+        retryAfterSeconds: 0,
+      };
+    },
+    leave() {
+      inFlightRequests = Math.max(0, inFlightRequests - 1);
     },
   };
 }

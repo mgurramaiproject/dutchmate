@@ -10,6 +10,7 @@ const service = createTranslationService(provider);
 const server = createTranslationBackendServer({
   service,
   rateLimit: config.rateLimit,
+  backpressure: config.backpressure,
   diagnostics: {
     configuredProvider: provider.name,
     myMemoryEmailConfigured: Boolean(config.mymemory.email),
@@ -32,5 +33,8 @@ server.listen(config.port, config.host, () => {
   console.log(`MyMemory email configured: ${Boolean(config.mymemory.email)}`);
   console.log(
     `Rate limit: ${config.rateLimit.maxRequests} translate requests per ${config.rateLimit.windowMs} ms`,
+  );
+  console.log(
+    `Backpressure: ${config.backpressure.maxInFlightRequests} in-flight requests, retry after ${config.backpressure.retryAfterSeconds} s`,
   );
 });
