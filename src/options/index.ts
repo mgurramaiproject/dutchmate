@@ -22,6 +22,7 @@ import type { SavedVocabularyEntry } from "../vocabulary/saved-vocabulary";
 import "./styles.css";
 
 const PERSISTENT_TRANSLATION_CACHE_KEY = "dutchmate.translationCache.v1";
+const MANUAL_REFRESH_MIN_BUSY_MS = 450;
 
 const form = document.querySelector<HTMLFormElement>("#options-form");
 const isEnabled = document.querySelector<HTMLInputElement>("#is-enabled");
@@ -261,9 +262,12 @@ async function refreshSavedVocabulary(options: { showSuccessStatus?: boolean } =
   }
 
   setRefreshVocabularyButtonBusy(true);
+  const minimumBusyTime = options.showSuccessStatus
+    ? delay(MANUAL_REFRESH_MIN_BUSY_MS)
+    : Promise.resolve();
 
   try {
-    const entries = await vocabularyClient.list();
+    const [entries] = await Promise.all([vocabularyClient.list(), minimumBusyTime]);
     renderSavedVocabulary(entries);
 
     if (options.showSuccessStatus) {
@@ -278,6 +282,12 @@ async function refreshSavedVocabulary(options: { showSuccessStatus?: boolean } =
   } finally {
     setRefreshVocabularyButtonBusy(false);
   }
+}
+
+function delay(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, milliseconds);
+  });
 }
 
 function handleStorageChanged(changes: Record<string, StorageChange>, areaName: string): void {
