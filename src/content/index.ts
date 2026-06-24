@@ -14,6 +14,7 @@ import {
   requestRuntimeSaveVocabularyBatch,
   type RuntimeSaveVocabularyRequest,
 } from "./runtime-vocabulary-client";
+import { applySavedVocabularyStorageChange } from "./saved-vocabulary-id-cache";
 import {
   TOOLTIP_TRANSLATION_TIMEOUT_MESSAGE,
   withTooltipTranslationTimeout,
@@ -858,6 +859,17 @@ async function refreshSettings(): Promise<void> {
 }
 
 function handleStorageChanged(changes: Record<string, StorageChange>, areaName: string): void {
+  const nextSavedVocabularyIds = applySavedVocabularyStorageChange(
+    savedVocabularyIds,
+    changes,
+    areaName,
+  );
+
+  if (nextSavedVocabularyIds !== savedVocabularyIds) {
+    savedVocabularyIds = nextSavedVocabularyIds;
+    savedVocabularyIdsRequest = undefined;
+  }
+
   if (areaName !== "sync") {
     return;
   }
