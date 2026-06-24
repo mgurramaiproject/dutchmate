@@ -301,6 +301,13 @@ input[type="range"] {
   font-size: 14px;
 }
 
+.vocabulary-toolbar-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
 .vocabulary-list {
   display: grid;
   gap: 8px;
@@ -346,6 +353,13 @@ input[type="range"] {
 .compact-button {
   min-height: 32px;
   padding: 0 10px;
+}
+
+.icon-button {
+  min-width: 32px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
 }
 
 .settings-note {

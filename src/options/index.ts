@@ -46,6 +46,7 @@ const clearCache = document.querySelector<HTMLButtonElement>("#clear-cache");
 const vocabularyCount = document.querySelector<HTMLSpanElement>("#vocabulary-count");
 const vocabularyEmpty = document.querySelector<HTMLParagraphElement>("#vocabulary-empty");
 const vocabularyList = document.querySelector<HTMLUListElement>("#vocabulary-list");
+const refreshVocabulary = document.querySelector<HTMLButtonElement>("#refresh-vocabulary");
 const clearVocabulary = document.querySelector<HTMLButtonElement>("#clear-vocabulary");
 const status = document.querySelector<HTMLParagraphElement>("#status");
 let statusTimer: number | undefined;
@@ -70,6 +71,10 @@ clearCache?.addEventListener("click", () => {
 
 clearVocabulary?.addEventListener("click", () => {
   void clearSavedVocabulary();
+});
+
+refreshVocabulary?.addEventListener("click", () => {
+  void refreshSavedVocabulary({ showSuccessStatus: true });
 });
 
 hoverDelayMs?.addEventListener("input", updateTuningValueLabels);
@@ -250,20 +255,28 @@ async function refreshCacheCount(): Promise<void> {
   cacheCount.textContent = `Cached words: ${count}`;
 }
 
-async function refreshSavedVocabulary(): Promise<void> {
+async function refreshSavedVocabulary(options: { showSuccessStatus?: boolean } = {}): Promise<void> {
   if (!vocabularyCount || !vocabularyEmpty || !vocabularyList) {
     return;
   }
 
+  setRefreshVocabularyButtonBusy(true);
+
   try {
     const entries = await vocabularyClient.list();
     renderSavedVocabulary(entries);
+
+    if (options.showSuccessStatus) {
+      showStatus("Saved vocabulary refreshed", "success");
+    }
   } catch (error) {
     showStatus(
       `Could not load saved vocabulary: ${error instanceof Error ? error.message : "Unknown error"}`,
       "error",
       4000,
     );
+  } finally {
+    setRefreshVocabularyButtonBusy(false);
   }
 }
 
@@ -273,6 +286,15 @@ function handleStorageChanged(changes: Record<string, StorageChange>, areaName: 
   }
 
   void refreshSavedVocabulary();
+}
+
+function setRefreshVocabularyButtonBusy(isBusy: boolean): void {
+  if (!refreshVocabulary) {
+    return;
+  }
+
+  refreshVocabulary.disabled = isBusy;
+  refreshVocabulary.textContent = isBusy ? "…" : "↻";
 }
 
 function renderSavedVocabulary(entries: SavedVocabularyEntry[]): void {
