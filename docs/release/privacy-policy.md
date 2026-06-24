@@ -1,6 +1,6 @@
 # DutchMate Privacy Policy
 
-Last updated: 2026-06-21
+Last updated: 2026-06-24
 
 DutchMate is a browser extension that helps people learn Dutch online by translating hovered words and selected text between Dutch, English, and a supported mother tongue such as Telugu.
 
@@ -94,7 +94,7 @@ If you do not want text from a page sent for translation, do not hover or select
 
 ## Contact
 
-For questions or feedback, contact:
+For questions or feedback, use this single feedback intake:
 
 ```text
 dutchmate.project@gmail.com

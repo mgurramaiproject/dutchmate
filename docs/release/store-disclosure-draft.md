@@ -1,10 +1,20 @@
 # DutchMate Store Disclosure Draft
 
-Last updated: 2026-06-21
+Last updated: 2026-06-24
 
 Use this as working copy for Chrome Web Store and Firefox Add-ons submission fields. Recheck the store forms during submission, because field names and policy wording can change.
 
 This draft is based on [privacy-policy.md](privacy-policy.md) and the current release behavior.
+
+## Support Contact
+
+Use one single feedback intake across the website, privacy policy, and store listings:
+
+```text
+dutchmate.project@gmail.com
+```
+
+For the current soft launch, keep every public support path pointed at that same single feedback intake.
 
 ## Product Summary
 
