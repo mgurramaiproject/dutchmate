@@ -12,7 +12,11 @@ import {
 } from "./runtime-vocabulary-client";
 import { getSelectionTooLongMessage } from "./selection-limit-message";
 import { isValidTextRangeBoundary } from "./text-range-boundary";
-import { TooltipRequestState, type TooltipContext } from "./tooltip-request-state";
+import type { TooltipContext } from "./tooltip-request-state";
+import {
+  WebpageLookupSession,
+  type TranslationOutcome,
+} from "./webpage-lookup-session";
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import type { TranslationRequest, TranslationResult } from "../translation/provider";
 import {
@@ -22,8 +26,6 @@ import {
 import { shouldPersistTranslation } from "../translation/persistent-cache-policy";
 import {
   getSavedVocabularyEntryId,
-  isSingleSavedVocabularyWord,
-  normalizeSavedVocabularyText,
 } from "../vocabulary/saved-vocabulary";
 
 const MIN_TEXT_LENGTH = 1;
@@ -187,7 +189,7 @@ let currentSettings = defaultSettings;
 let savedVocabularyIds: Set<string> | undefined;
 let savedVocabularyIdsRequest: Promise<Set<string> | undefined> | undefined;
 let tooltipTimeout: number | undefined;
-const tooltipRequestState = new TooltipRequestState();
+const tooltipRequestState = new WebpageLookupSession();
 
 const tooltip = document.createElement("div");
 tooltip.id = "hover-translate-tooltip";
@@ -381,34 +383,37 @@ async function showTranslation(
       requestTranslationForCurrentSettings(text, context, languageSample, sourceLanguageHint),
     );
   } catch (error) {
-    if (tooltipRequestState.isCurrent(requestId)) {
-      showTooltipMessage(
-        error instanceof Error ? error.message : "Translation request failed.",
-        "error",
-        context,
-        x,
-        y,
-      );
+    const failedLookup = tooltipRequestState.acceptFailure(
+      requestId,
+      error instanceof Error ? error.message : "Translation request failed.",
+    );
+
+    if (failedLookup.status === "current") {
+      showTooltipMessage(failedLookup.error, "error", failedLookup.context, x, y);
     }
     return;
   }
 
-  if (!tooltipRequestState.isCurrent(requestId)) {
+  const completedLookup = tooltipRequestState.acceptSuccess(requestId, text, outcome);
+
+  if (completedLookup.status === "stale") {
     return;
   }
 
   try {
     showTooltipResult(
-      outcome.response,
+      completedLookup.response,
       x,
       y,
-      getEligibleSaveCandidates(text, context, outcome.saveCandidates),
+      completedLookup.saveCandidates,
     );
   } catch {
     showTooltipMessage(
-      outcome.response.ok ? outcome.response.result.translatedText : outcome.response.error,
-      outcome.response.ok ? "success" : "error",
-      context,
+      completedLookup.response.ok
+        ? completedLookup.response.result.translatedText
+        : completedLookup.response.error,
+      completedLookup.response.ok ? "success" : "error",
+      completedLookup.context,
       x,
       y,
     );
@@ -669,7 +674,7 @@ function handlePageClick(event: MouseEvent): void {
 }
 
 function handleMouseLeave(): void {
-  if (tooltipRequestState.activeContext === "selection") {
+  if (tooltipRequestState.shouldKeepVisibleOnMouseLeave()) {
     return;
   }
 
@@ -694,7 +699,7 @@ function hasActiveSelection(): boolean {
     return false;
   }
 
-  return selectedText === activeSelectionText || tooltipRequestState.activeContext === "selection";
+  return selectedText === activeSelectionText || tooltipRequestState.hasActiveSelectionControl();
 }
 
 function getHoverTextForSettings(hit: { word: string; translationText: string }): string {
@@ -1263,11 +1268,6 @@ class ContentLocalCacheStorage implements PersistentTranslationCacheStorage {
   }
 }
 
-type TranslationOutcome = {
-  response: TranslateMessageResponse;
-  saveCandidates: RuntimeSaveVocabularyRequest[];
-};
-
 async function requestTranslationForCurrentSettings(
   text: string,
   context: TranslationContext,
@@ -1349,21 +1349,6 @@ function getSaveCandidatesFromResponses(
       },
     ];
   });
-}
-
-function getEligibleSaveCandidates(
-  text: string,
-  context: TranslationContext,
-  candidates: RuntimeSaveVocabularyRequest[],
-): RuntimeSaveVocabularyRequest[] {
-  if (
-    context !== "selection" ||
-    !isSingleSavedVocabularyWord(normalizeSavedVocabularyText(text))
-  ) {
-    return [];
-  }
-
-  return candidates;
 }
 
 function getRequestedSourceLanguage(): SourceLanguageCode {
