@@ -8,6 +8,11 @@ import {
   WebpageLookupModule,
   type WebpageLookupModuleEvent,
 } from "./webpage-lookup-module";
+import {
+  applyContentSettingChanges,
+  readContentSettings,
+  type ContentSettingsExtensionApi,
+} from "./content-settings-adapter";
 import { createRuntimeLookupAdapter } from "./runtime-lookup-adapter";
 import { createTooltipViewAdapter } from "./tooltip-view-adapter";
 import {
@@ -17,18 +22,12 @@ import {
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import {
   defaultSettings,
-  mergeSettings,
-  normalizeSettings,
-  SELECTION_LENGTH_LIMITS,
   type ExtensionSettings,
-  type HoverTranslationMode,
 } from "../shared/settings";
 
 const TOOLTIP_TRANSLATION_TIMEOUT_MS = 9000;
 const CHROME_DIRECT_TRANSLATION_FALLBACK_MS = 1200;
 const DIRECT_TRANSLATION_TIMEOUT_MS = 15000;
-const supportedTargetLanguages = new Set(["en", "nl", "te"]);
-const supportedSourceLanguages = new Set(["auto", "en", "nl", "te"]);
 
 type StorageChange = {
   newValue?: unknown;
@@ -59,6 +58,7 @@ const extensionGlobal = globalThis as typeof globalThis & {
   chrome?: ExtensionStorageApi;
 };
 const extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;
+const settingsExtensionApi = extensionApi as ContentSettingsExtensionApi | undefined;
 
 let hoverTimer: number | undefined;
 let lastHoverKey = "";
@@ -274,7 +274,7 @@ function hasActiveSelection(): boolean {
 }
 
 async function refreshSettings(): Promise<void> {
-  currentSettings = await readSettings();
+  currentSettings = await readContentSettings(settingsExtensionApi);
 }
 
 function handleStorageChanged(changes: Record<string, StorageChange>, areaName: string): void {
@@ -284,96 +284,12 @@ function handleStorageChanged(changes: Record<string, StorageChange>, areaName: 
     return;
   }
 
-  currentSettings = mergeSettings(currentSettings, settingChangesToPartialSettings(changes));
+  currentSettings = applyContentSettingChanges(currentSettings, changes);
   lookupModule.applySettings();
 
   if (!currentSettings.isEnabled) {
     hideTooltip();
   }
-}
-
-function settingChangesToPartialSettings(
-  changes: Record<string, StorageChange>,
-): Partial<ExtensionSettings> {
-  return {
-    isEnabled: getOptionalBooleanSetting(changes.isEnabled?.newValue),
-    translateOnHover: getOptionalBooleanSetting(changes.translateOnHover?.newValue),
-    translateOnSelection: getOptionalBooleanSetting(changes.translateOnSelection?.newValue),
-    cacheHoveredWords: getOptionalBooleanSetting(changes.cacheHoveredWords?.newValue),
-    hoverTranslationMode: getOptionalHoverTranslationModeSetting(
-      changes.hoverTranslationMode?.newValue,
-    ),
-    hoverDelayMs: getOptionalNumberSetting(changes.hoverDelayMs?.newValue),
-    maxSelectionLength: getOptionalSelectionLengthSetting(changes.maxSelectionLength?.newValue),
-    sourceLanguage: getOptionalSourceLanguageSetting(changes.sourceLanguage?.newValue),
-    targetLanguage: getOptionalTargetLanguageSetting(changes.targetLanguage?.newValue),
-    translateToOtherMvpLanguages: getOptionalBooleanSetting(
-      changes.translateToOtherMvpLanguages?.newValue,
-    ),
-    learningLanguage: getOptionalTargetLanguageSetting(changes.learningLanguage?.newValue),
-    nativeLanguage: getOptionalTargetLanguageSetting(changes.nativeLanguage?.newValue),
-    bridgeLanguage: getOptionalTargetLanguageSetting(changes.bridgeLanguage?.newValue),
-    providerEndpoint: getOptionalStringSetting(changes.providerEndpoint?.newValue),
-    providerApiKey: getOptionalStringSetting(changes.providerApiKey?.newValue),
-  };
-}
-
-async function readSettings(): Promise<ExtensionSettings> {
-  if (!extensionApi) {
-    return defaultSettings;
-  }
-
-  return new Promise((resolve) => {
-    extensionApi.storage.sync.get(defaultSettings, (stored) => {
-      if (extensionApi.runtime.lastError) {
-        resolve(defaultSettings);
-        return;
-      }
-
-      resolve(normalizeSettings(stored, defaultSettings));
-    });
-  });
-}
-
-function getOptionalHoverTranslationModeSetting(value: unknown): HoverTranslationMode | undefined {
-  return value === "word" || value === "sentence" ? value : undefined;
-}
-
-function getOptionalStringSetting(value: unknown): string | undefined {
-  return typeof value === "string" ? value : undefined;
-}
-
-function getOptionalTargetLanguageSetting(value: unknown): MvpLanguageCode | undefined {
-  return typeof value === "string" && supportedTargetLanguages.has(value)
-    ? (value as MvpLanguageCode)
-    : undefined;
-}
-
-function getOptionalSourceLanguageSetting(value: unknown): SourceLanguageCode | undefined {
-  return typeof value === "string" && supportedSourceLanguages.has(value)
-    ? (value as SourceLanguageCode)
-    : undefined;
-}
-
-function getOptionalBooleanSetting(value: unknown): boolean | undefined {
-  return typeof value === "boolean" ? value : undefined;
-}
-
-function getOptionalNumberSetting(value: unknown): number | undefined {
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
-function getOptionalSelectionLengthSetting(value: unknown): number | undefined {
-  const numberValue = getOptionalNumberSetting(value);
-
-  if (numberValue === undefined) {
-    return undefined;
-  }
-
-  return Math.min(
-    Math.max(numberValue, SELECTION_LENGTH_LIMITS.min),
-    SELECTION_LENGTH_LIMITS.max,
-  );
 }
 
 function delay(ms: number): Promise<void> {
