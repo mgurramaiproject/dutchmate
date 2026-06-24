@@ -193,7 +193,56 @@
           <h2 id="privacy-heading">Privacy</h2>
 
           <div class="cache-control">
-            <span id="cache-count">Cached words: 0</span>
+            <div class="vocabulary-toolbar-meta">
+              <span id="cache-count">Cached words: 0</span>
+              <button
+                id="refresh-cache"
+                type="button"
+                class="secondary-button compact-button icon-button"
+                aria-label="Refresh cached word count"
+                title="Refresh cached word count"
+              >
+                <svg
+                  class="icon-button-svg"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path
+                    d="M21 12a9 9 0 0 1-15.36 6.36"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M3 12a9 9 0 0 1 15.36-6.36"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M18 2.75v5.5h-5.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M6 21.25v-5.5h5.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  />
+                </svg>
+              </button>
+            </div>
             <button id="clear-cache" type="button" class="secondary-button">Clear translation cache</button>
           </div>
 

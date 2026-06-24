@@ -16,12 +16,12 @@ import {
 } from "../shared/language-roles";
 import { MVP_LANGUAGES, getMvpLanguageCode, getSourceLanguageCode } from "../shared/languages";
 import { getCachedWordCount } from "./cache-summary";
+import { PERSISTENT_TRANSLATION_CACHE_KEY, shouldRefreshCacheCount } from "./cache-refresh";
 import { createSavedVocabularyClient } from "./saved-vocabulary-client";
 import { shouldRefreshSavedVocabulary, type StorageChange } from "./saved-vocabulary-refresh";
 import type { SavedVocabularyEntry } from "../vocabulary/saved-vocabulary";
 import "./styles.css";
 
-const PERSISTENT_TRANSLATION_CACHE_KEY = "dutchmate.translationCache.v1";
 const MANUAL_REFRESH_MIN_BUSY_MS = 450;
 
 const form = document.querySelector<HTMLFormElement>("#options-form");
@@ -43,6 +43,7 @@ let providerEndpoint: HTMLInputElement | null = null;
 let providerApiKey: HTMLInputElement | null = null;
 let testEndpoint: HTMLButtonElement | null = null;
 const cacheCount = document.querySelector<HTMLSpanElement>("#cache-count");
+const refreshCache = document.querySelector<HTMLButtonElement>("#refresh-cache");
 const clearCache = document.querySelector<HTMLButtonElement>("#clear-cache");
 const vocabularyCount = document.querySelector<HTMLSpanElement>("#vocabulary-count");
 const vocabularyEmpty = document.querySelector<HTMLParagraphElement>("#vocabulary-empty");
@@ -68,6 +69,10 @@ form?.addEventListener("submit", (event) => {
 
 clearCache?.addEventListener("click", () => {
   void clearTranslationCache();
+});
+
+refreshCache?.addEventListener("click", () => {
+  void refreshCacheCount({ showSuccessStatus: true });
 });
 
 clearVocabulary?.addEventListener("click", () => {
@@ -246,14 +251,30 @@ function renderAdvancedLocalTesting(): void {
   form.insertBefore(details, form.querySelector("#privacy-section"));
 }
 
-async function refreshCacheCount(): Promise<void> {
+async function refreshCacheCount(options: { showSuccessStatus?: boolean } = {}): Promise<void> {
   if (!cacheCount) {
     return;
   }
 
-  const storedCache = await browser.storage.local.get(PERSISTENT_TRANSLATION_CACHE_KEY);
-  const count = getCachedWordCount(storedCache[PERSISTENT_TRANSLATION_CACHE_KEY]);
-  cacheCount.textContent = `Cached words: ${count}`;
+  setRefreshCacheButtonBusy(true);
+  const minimumBusyTime = options.showSuccessStatus
+    ? delay(MANUAL_REFRESH_MIN_BUSY_MS)
+    : Promise.resolve();
+
+  try {
+    const [storedCache] = await Promise.all([
+      browser.storage.local.get(PERSISTENT_TRANSLATION_CACHE_KEY),
+      minimumBusyTime,
+    ]);
+    const count = getCachedWordCount(storedCache[PERSISTENT_TRANSLATION_CACHE_KEY]);
+    cacheCount.textContent = `Cached words: ${count}`;
+
+    if (options.showSuccessStatus) {
+      showStatus("Cached word count refreshed", "success");
+    }
+  } finally {
+    setRefreshCacheButtonBusy(false);
+  }
 }
 
 async function refreshSavedVocabulary(options: { showSuccessStatus?: boolean } = {}): Promise<void> {
@@ -291,11 +312,24 @@ function delay(milliseconds: number): Promise<void> {
 }
 
 function handleStorageChanged(changes: Record<string, StorageChange>, areaName: string): void {
+  if (shouldRefreshCacheCount(changes, areaName)) {
+    void refreshCacheCount();
+  }
+
   if (!shouldRefreshSavedVocabulary(changes, areaName)) {
     return;
   }
 
   void refreshSavedVocabulary();
+}
+
+function setRefreshCacheButtonBusy(isBusy: boolean): void {
+  if (!refreshCache) {
+    return;
+  }
+
+  refreshCache.disabled = isBusy;
+  refreshCache.classList.toggle("is-busy", isBusy);
 }
 
 function setRefreshVocabularyButtonBusy(isBusy: boolean): void {
