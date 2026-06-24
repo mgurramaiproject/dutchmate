@@ -193,6 +193,65 @@ describe("createTranslationBackendServer", () => {
     expect(service.translate).toHaveBeenCalledTimes(3);
   });
 
+  it("rejects new translation requests when backend pressure reaches the in-flight limit", async () => {
+    let releaseFirstRequest = () => {};
+    const logger = createTestLogger();
+    const service = {
+      translate: vi.fn(
+        () =>
+          new Promise((resolve) => {
+            releaseFirstRequest = () => {
+              resolve({
+                translatedText: "house",
+              });
+            };
+          }),
+      ),
+    };
+
+    const server = createTranslationBackendServer({
+      service,
+      logger,
+      backpressure: {
+        maxInFlightRequests: 1,
+        retryAfterSeconds: 7,
+      },
+    });
+
+    const firstResponsePromise = postTranslate(server);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const busyResponse = await postTranslate(server, { text: "druk" });
+
+    await expect(busyResponse.json()).resolves.toEqual({
+      error: "Translation backend is busy. Try again soon.",
+    });
+    expect(busyResponse.status).toBe(503);
+    expect(busyResponse.headers.get("retry-after")).toBe("7");
+    expect(service.translate).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(logger.messages[0])).toMatchObject({
+      event: "translate_request",
+      statusCode: 503,
+      backendBusy: true,
+      retryAfterSeconds: 7,
+    });
+
+    const healthResponse = await inject(server, {
+      method: "GET",
+      url: "/health",
+    });
+
+    await expect(healthResponse.json()).resolves.toMatchObject({
+      runtime: {
+        inFlightRequests: 1,
+        maxInFlightRequests: 1,
+        backendBusyTotal: 1,
+      },
+    });
+
+    releaseFirstRequest();
+    await expect(firstResponsePromise).resolves.toMatchObject({ status: 200 });
+  });
+
   it("does not count health checks against the translation rate limit", async () => {
     const service = {
       translate: vi.fn(async () => ({
@@ -269,8 +328,10 @@ describe("createTranslationBackendServer", () => {
       translateFailureTotal: 3,
       badRequestTotal: 1,
       clientRateLimitedTotal: 1,
+      backendBusyTotal: 0,
       providerErrorTotal: 1,
       providerRateLimitedTotal: 1,
+      inFlightRequests: 0,
       byContext: {
         hover: 1,
         selection: 1,

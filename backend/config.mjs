@@ -4,6 +4,8 @@ const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 8787;
 const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 60;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const DEFAULT_BACKPRESSURE_MAX_IN_FLIGHT_REQUESTS = 4;
+const DEFAULT_BACKPRESSURE_RETRY_AFTER_SECONDS = 15;
 const DEFAULT_AZURE_TRANSLATOR_API_URL =
   "https://api.cognitive.microsofttranslator.com/translate";
 const DEFAULT_DEEPL_API_URL = "https://api-free.deepl.com/v2/translate";
@@ -25,6 +27,7 @@ export function readBackendConfig(environment = process.env) {
   const host = normalizeHost(environment.HOST);
   const port = normalizePort(environment.PORT);
   const rateLimit = normalizeRateLimitConfig(environment);
+  const backpressure = normalizeBackpressureConfig(environment);
   const azureTranslator = normalizeAzureTranslatorConfig(provider, environment);
   const deepl = normalizeDeepLConfig(provider, environment);
   const googleTranslate = normalizeGoogleTranslateConfig(provider, environment);
@@ -35,6 +38,7 @@ export function readBackendConfig(environment = process.env) {
     host,
     port,
     rateLimit,
+    backpressure,
     azureTranslator,
     deepl,
     googleTranslate,
@@ -93,6 +97,21 @@ function normalizeRateLimitConfig(environment) {
       "RATE_LIMIT_WINDOW_MS",
       environment.RATE_LIMIT_WINDOW_MS,
       DEFAULT_RATE_LIMIT_WINDOW_MS,
+    ),
+  };
+}
+
+function normalizeBackpressureConfig(environment) {
+  return {
+    maxInFlightRequests: normalizePositiveInteger(
+      "BACKPRESSURE_MAX_IN_FLIGHT_REQUESTS",
+      environment.BACKPRESSURE_MAX_IN_FLIGHT_REQUESTS,
+      DEFAULT_BACKPRESSURE_MAX_IN_FLIGHT_REQUESTS,
+    ),
+    retryAfterSeconds: normalizePositiveInteger(
+      "BACKPRESSURE_RETRY_AFTER_SECONDS",
+      environment.BACKPRESSURE_RETRY_AFTER_SECONDS,
+      DEFAULT_BACKPRESSURE_RETRY_AFTER_SECONDS,
     ),
   };
 }

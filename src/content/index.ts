@@ -36,37 +36,22 @@ import { shouldPersistTranslation } from "../translation/persistent-cache-policy
 import {
   getSavedVocabularyEntryId,
 } from "../vocabulary/saved-vocabulary";
+import {
+  defaultSettings,
+  mergeSettings,
+  normalizeSettings,
+  SELECTION_LENGTH_LIMITS,
+  type ExtensionSettings,
+  type HoverTranslationMode,
+} from "../shared/settings";
 
 const MIN_TEXT_LENGTH = 1;
-const DEFAULT_PROVIDER_ENDPOINT = "https://dutchmate-backend.onrender.com/translate";
 const MAX_HOVER_WORD_LENGTH = 30;
 const MAX_HOVER_CONTEXT_LENGTH = 180;
-const MIN_SELECTION_LENGTH = 50;
-const MAX_SELECTION_LENGTH = 150;
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
 const TOOLTIP_TRANSLATION_TIMEOUT_MS = 9000;
 const CHROME_DIRECT_TRANSLATION_FALLBACK_MS = 1200;
 const DIRECT_TRANSLATION_TIMEOUT_MS = 15000;
-const defaultLanguageRoles = {
-  learningLanguage: "nl" as const,
-  nativeLanguage: "te" as const,
-  bridgeLanguage: "en" as const,
-};
-const defaultSettings: ExtensionSettings = {
-  isEnabled: true,
-  translateOnHover: true,
-  translateOnSelection: true,
-  cacheHoveredWords: false,
-  hoverTranslationMode: "word",
-  hoverDelayMs: 450,
-  maxSelectionLength: MAX_SELECTION_LENGTH,
-  sourceLanguage: "auto",
-  targetLanguage: "en",
-  translateToOtherMvpLanguages: true,
-  ...defaultLanguageRoles,
-  providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
-  providerApiKey: "",
-};
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
 const supportedSourceLanguages = new Set(["auto", "en", "nl", "te"]);
 const mvpLanguages = [
@@ -141,24 +126,6 @@ const englishLanguageHints = new Set([
   "with",
   "you",
 ]);
-
-type ExtensionSettings = {
-  isEnabled: boolean;
-  translateOnHover: boolean;
-  translateOnSelection: boolean;
-  cacheHoveredWords: boolean;
-  hoverTranslationMode: string;
-  hoverDelayMs: number;
-  maxSelectionLength: number;
-  sourceLanguage: string;
-  targetLanguage: MvpLanguageCode;
-  translateToOtherMvpLanguages: boolean;
-  learningLanguage: MvpLanguageCode;
-  nativeLanguage: MvpLanguageCode;
-  bridgeLanguage: MvpLanguageCode;
-  providerEndpoint: string;
-  providerApiKey: string;
-};
 
 type StorageChange = {
   newValue?: unknown;
@@ -874,10 +841,7 @@ function handleStorageChanged(changes: Record<string, StorageChange>, areaName: 
     return;
   }
 
-  currentSettings = normalizeCurrentLanguageRoles({
-    ...currentSettings,
-    ...settingChangesToPartialSettings(changes),
-  });
+  currentSettings = mergeSettings(currentSettings, settingChangesToPartialSettings(changes));
 
   if (!currentSettings.isEnabled) {
     hideTooltip();
@@ -922,134 +886,12 @@ async function readSettings(): Promise<ExtensionSettings> {
         return;
       }
 
-      resolve(normalizeCurrentLanguageRoles({
-        isEnabled: getBooleanSetting(stored.isEnabled, defaultSettings.isEnabled),
-        translateOnHover: getBooleanSetting(stored.translateOnHover, defaultSettings.translateOnHover),
-        translateOnSelection: getBooleanSetting(
-          stored.translateOnSelection,
-          defaultSettings.translateOnSelection,
-        ),
-        cacheHoveredWords: getBooleanSetting(
-          stored.cacheHoveredWords,
-          defaultSettings.cacheHoveredWords,
-        ),
-        hoverTranslationMode: getHoverTranslationModeSetting(
-          stored.hoverTranslationMode,
-          defaultSettings.hoverTranslationMode,
-        ),
-        hoverDelayMs: getNumberSetting(stored.hoverDelayMs, defaultSettings.hoverDelayMs),
-        maxSelectionLength: getNumberSettingInRange(
-          stored.maxSelectionLength,
-          defaultSettings.maxSelectionLength,
-          MIN_SELECTION_LENGTH,
-          MAX_SELECTION_LENGTH,
-        ),
-        sourceLanguage: getSourceLanguageSetting(stored.sourceLanguage, defaultSettings.sourceLanguage),
-        targetLanguage: getTargetLanguageSetting(stored.targetLanguage, defaultSettings.targetLanguage),
-        translateToOtherMvpLanguages: getBooleanSetting(
-          stored.translateToOtherMvpLanguages,
-          defaultSettings.translateToOtherMvpLanguages,
-        ),
-        providerEndpoint: getStringSetting(stored.providerEndpoint, defaultSettings.providerEndpoint),
-        providerApiKey: getStringSetting(stored.providerApiKey, defaultSettings.providerApiKey),
-        learningLanguage: getTargetLanguageSetting(
-          stored.learningLanguage,
-          defaultSettings.learningLanguage,
-        ),
-        nativeLanguage: getTargetLanguageSetting(
-          stored.nativeLanguage,
-          defaultSettings.nativeLanguage,
-        ),
-        bridgeLanguage: getTargetLanguageSetting(
-          stored.bridgeLanguage,
-          defaultSettings.bridgeLanguage,
-        ),
-      }));
+      resolve(normalizeSettings(stored, defaultSettings));
     });
   });
 }
 
-function normalizeCurrentLanguageRoles(settings: ExtensionSettings): ExtensionSettings {
-  const learningLanguage = getTargetLanguageSetting(
-    settings.learningLanguage,
-    defaultSettings.learningLanguage,
-  );
-  const nativeLanguage = getTargetLanguageSetting(settings.nativeLanguage, defaultSettings.nativeLanguage);
-  const bridgeLanguage = getTargetLanguageSetting(
-    settings.bridgeLanguage,
-    defaultSettings.bridgeLanguage,
-  );
-
-  if (learningLanguage === nativeLanguage) {
-    return {
-      ...settings,
-      learningLanguage,
-      nativeLanguage: bridgeLanguage,
-      bridgeLanguage: nativeLanguage,
-    };
-  }
-
-  if (learningLanguage === bridgeLanguage) {
-    return {
-      ...settings,
-      learningLanguage,
-      bridgeLanguage: nativeLanguage,
-      nativeLanguage,
-    };
-  }
-
-  if (nativeLanguage === bridgeLanguage) {
-    return {
-      ...settings,
-      learningLanguage,
-      nativeLanguage,
-      bridgeLanguage:
-        learningLanguage === defaultLanguageRoles.learningLanguage
-          ? defaultLanguageRoles.bridgeLanguage
-          : defaultLanguageRoles.learningLanguage,
-    };
-  }
-
-  return {
-    ...settings,
-    learningLanguage,
-    nativeLanguage,
-    bridgeLanguage,
-  };
-}
-
-function getHoverTranslationModeSetting(value: unknown, fallback: string): string {
-  return value === "word" || value === "sentence" ? value : fallback;
-}
-
-function getStringSetting(value: unknown, fallback: string): string {
-  return typeof value === "string" ? value : fallback;
-}
-
-function getTargetLanguageSetting(value: unknown, fallback: MvpLanguageCode): MvpLanguageCode {
-  return typeof value === "string" && supportedTargetLanguages.has(value)
-    ? (value as MvpLanguageCode)
-    : fallback;
-}
-
-function getSourceLanguageSetting(value: unknown, fallback: string): string {
-  return typeof value === "string" && supportedSourceLanguages.has(value) ? value : fallback;
-}
-
-function getBooleanSetting(value: unknown, fallback: boolean): boolean {
-  return typeof value === "boolean" ? value : fallback;
-}
-
-function getNumberSetting(value: unknown, fallback: number): number {
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
-}
-
-function getNumberSettingInRange(value: unknown, fallback: number, min: number, max: number): number {
-  const numberValue = getNumberSetting(value, fallback);
-  return Math.min(Math.max(numberValue, min), max);
-}
-
-function getOptionalHoverTranslationModeSetting(value: unknown): string | undefined {
+function getOptionalHoverTranslationModeSetting(value: unknown): HoverTranslationMode | undefined {
   return value === "word" || value === "sentence" ? value : undefined;
 }
 
@@ -1063,8 +905,10 @@ function getOptionalTargetLanguageSetting(value: unknown): MvpLanguageCode | und
     : undefined;
 }
 
-function getOptionalSourceLanguageSetting(value: unknown): string | undefined {
-  return typeof value === "string" && supportedSourceLanguages.has(value) ? value : undefined;
+function getOptionalSourceLanguageSetting(value: unknown): SourceLanguageCode | undefined {
+  return typeof value === "string" && supportedSourceLanguages.has(value)
+    ? (value as SourceLanguageCode)
+    : undefined;
 }
 
 function getOptionalBooleanSetting(value: unknown): boolean | undefined {
@@ -1082,7 +926,10 @@ function getOptionalSelectionLengthSetting(value: unknown): number | undefined {
     return undefined;
   }
 
-  return Math.min(Math.max(numberValue, MIN_SELECTION_LENGTH), MAX_SELECTION_LENGTH);
+  return Math.min(
+    Math.max(numberValue, SELECTION_LENGTH_LIMITS.min),
+    SELECTION_LENGTH_LIMITS.max,
+  );
 }
 
 async function requestTranslation(
