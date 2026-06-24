@@ -15,16 +15,18 @@ describe("public website", () => {
     expect(homepage).toContain("https://addons.mozilla.org/en-US/firefox/addon/dutchmate/");
   });
 
-  it("routes feedback through GitHub or email without a mailto form submit", () => {
+  it("supports public sharing plus private feedback without repo-dependent links", () => {
     const homepage = readFrontendFile("index.html");
     const feedbackPage = readFrontendFile("feedback.html");
 
     expect(homepage).toContain('href="feedback.html"');
-    expect(homepage).toContain("Open a prefilled GitHub issue");
+    expect(homepage).toContain("Rate on Firefox Add-ons");
+    expect(homepage).toContain("Share on X");
+    expect(homepage).toContain("twitter.com/intent/tweet");
 
-    expect(feedbackPage).toContain("Open a GitHub feedback issue");
-    expect(feedbackPage).toContain("https://github.com/mgurramaiproject/dutchmate/issues/new?");
-    expect(feedbackPage).not.toContain("<form");
-    expect(feedbackPage).not.toContain('action="mailto:');
+    expect(feedbackPage).toContain("Email feedback privately");
+    expect(feedbackPage).toContain("Rate on Firefox Add-ons");
+    expect(feedbackPage).toContain("Share on X");
+    expect(feedbackPage).not.toContain("github.com/mgurramaiproject/dutchmate/issues/new");
   });
 });
