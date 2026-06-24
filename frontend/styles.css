@@ -168,10 +168,8 @@ a {
   min-height: 56px;
   padding: 12px 16px;
   border: 1px solid var(--dm-black);
-  border-radius: 10px;
-  background:
-    radial-gradient(circle at top right, rgba(255, 111, 0, 0.18), transparent 42%),
-    linear-gradient(180deg, #fff7ef 0%, #ffffff 100%);
+  border-radius: 8px;
+  background: var(--dm-white);
   color: var(--dm-black);
   font-family: var(--dm-sans);
   text-decoration: none;
@@ -180,9 +178,7 @@ a {
 .feedback-cta:hover,
 .feedback-cta:focus-visible {
   border-color: var(--dm-orange);
-  background:
-    radial-gradient(circle at top right, rgba(255, 111, 0, 0.28), transparent 42%),
-    linear-gradient(180deg, #fff4e8 0%, #ffffff 100%);
+  background: rgba(255, 111, 0, 0.06);
 }
 
 .feedback-cta strong {
@@ -451,9 +447,6 @@ h3 {
 }
 
 .feedback-preview-primary {
-  background:
-    radial-gradient(circle at top right, rgba(255, 111, 0, 0.14), transparent 38%),
-    linear-gradient(180deg, #fff7ef 0%, #ffffff 100%);
   border-color: rgba(255, 111, 0, 0.38);
 }
 
@@ -557,10 +550,8 @@ h3 {
   align-items: center;
   padding: 34px;
   border: 1px solid var(--dm-line);
-  border-radius: 12px;
-  background:
-    radial-gradient(circle at top right, rgba(255, 111, 0, 0.14), transparent 32%),
-    linear-gradient(180deg, #fffaf4 0%, #ffffff 100%);
+  border-radius: 8px;
+  background: var(--dm-white);
 }
 
 .feedback-hero-copy h1 {
@@ -580,8 +571,8 @@ h3 {
 .feedback-hero-mark img {
   width: 112px;
   height: 112px;
-  border-radius: 24px;
-  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: 1px solid var(--dm-line);
 }
 
 .feedback-lanes {
@@ -594,14 +585,12 @@ h3 {
 .feedback-lane {
   padding: 30px;
   border: 1px solid var(--dm-line);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--dm-white);
 }
 
 .feedback-lane-primary {
-  background:
-    radial-gradient(circle at top right, rgba(255, 111, 0, 0.12), transparent 36%),
-    linear-gradient(180deg, #fff7ef 0%, #ffffff 100%);
+  border-color: rgba(255, 111, 0, 0.38);
 }
 
 .feedback-lane h2 {
@@ -647,8 +636,8 @@ h3 {
   gap: 6px;
   padding: 18px;
   border: 1px solid var(--dm-line);
-  border-radius: 10px;
-  background: linear-gradient(180deg, #ffffff 0%, #faf8f6 100%);
+  border-radius: 8px;
+  background: var(--dm-white);
   font-family: var(--dm-sans);
   text-decoration: none;
 }
@@ -656,7 +645,7 @@ h3 {
 .feedback-action-card:hover,
 .feedback-action-card:focus-visible {
   border-color: var(--dm-orange);
-  background: #fff4e8;
+  background: rgba(255, 111, 0, 0.06);
 }
 
 .feedback-action-card strong {
