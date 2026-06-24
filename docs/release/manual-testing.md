@@ -2,6 +2,18 @@
 
 Use this checklist after each extension behavior change.
 
+## Public Release Gate
+
+Use this short gate before the Firefox-first soft launch and before copying final store answers.
+
+- Verify Firefox and Chrome against the real hosted backend at `https://dutchmate-backend.onrender.com/translate`, not only a local mock endpoint.
+- Verify hover and selection both work on normal readable webpages, and selection still wins when the pointer is resting over a hovered word.
+- Save action appears only for successful selected single-word translations.
+- Saved vocabulary stays local, duplicate saves stay deduplicated, and hover lookups plus selected phrases or sentences do not create saved vocabulary entries.
+- Clear user-facing errors appear for busy and unreachable backend states.
+- After a timeout, unreachable backend, or busy response, the next hover or selection still works normally.
+- Store-ready builds keep provider override controls hidden, while the privacy section and saved-vocabulary section still reflect the real local-only behavior.
+
 ## Build
 
 ```bash

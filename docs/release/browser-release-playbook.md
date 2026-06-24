@@ -1,10 +1,11 @@
 # Browser Release Playbook
 
-Last updated: 2026-06-21
+Last updated: 2026-06-24
 
 This is the canonical, browser-neutral release path for DutchMate.
 
 GitHub Releases should be created through the manual workflow documented in `docs/release/github-release-pipeline.md` before store submission, so the repo has a tagged release record and attached browser artifacts.
+Use it to drive the current soft Firefox launch before Edge and Chrome follow.
 
 ## Safe Setup Rules
 
@@ -40,6 +41,14 @@ You need to do the account and payment steps yourself:
 - complete any account registration steps each store asks for;
 - pay the Chrome Web Store registration fee when you are ready to publish there;
 - click the final submit buttons in the store dashboards.
+
+## Soft-Launch Support
+
+Keep one single feedback intake for the soft Firefox launch:
+
+- support mailbox: `dutchmate.project@gmail.com`
+- website contact links and privacy policy should point to the same mailbox
+- if additional website feedback UI is added later, it should still feed this same single feedback intake
 
 ## File Set To Use
 
