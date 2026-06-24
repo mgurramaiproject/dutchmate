@@ -5,5 +5,9 @@ export function getTranslationErrorMessage(error: unknown): string {
     return "Translation is temporarily busy. Try again soon.";
   }
 
+  if (message === "Provider request timed out") {
+    return "Translation request timed out before the backend responded.";
+  }
+
   return `Translation failed: ${message}`;
 }
