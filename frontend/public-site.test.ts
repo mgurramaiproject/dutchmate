@@ -20,15 +20,18 @@ describe("public website", () => {
     const feedbackPage = readFrontendFile("feedback.html");
 
     expect(homepage).toContain('href="feedback.html"');
-    expect(homepage).toContain("Rate on Firefox Add-ons");
+    expect(homepage).toContain("Share DutchMate with friends and family.");
+    expect(homepage).toContain("Review on Firefox");
     expect(homepage).toContain("Share on X");
     expect(homepage).toContain("twitter.com/intent/tweet");
     expect(homepage).toContain("https://forms.gle/9KSsqfE1NNZcPEaaA");
 
-    expect(feedbackPage).toContain("Open the private feedback form");
+    expect(homepage).not.toContain('<a href="#privacy">Privacy</a>');
+
+    expect(feedbackPage).toContain("Open feedback form");
     expect(feedbackPage).toContain("https://forms.gle/9KSsqfE1NNZcPEaaA");
-    expect(feedbackPage).toContain("Email feedback privately");
-    expect(feedbackPage).toContain("Rate on Firefox Add-ons");
+    expect(feedbackPage).toContain("Email us");
+    expect(feedbackPage).toContain("Review on Firefox");
     expect(feedbackPage).toContain("Share on X");
     expect(feedbackPage).not.toContain("github.com/mgurramaiproject/dutchmate/issues/new");
   });
