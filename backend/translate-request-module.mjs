@@ -31,34 +31,46 @@ export function createTranslateRequestModule({
   return {
     runtimeSummary,
 
-    async handle({ body, clientKey }) {
+    admit({ clientKey }) {
       const startedAt = Date.now();
       const backendPressureResult = backendPressure.tryEnter();
       if (!backendPressureResult.allowed) {
         runtimeSummary.recordBackendBusy();
-        const response = {
-          statusCode: 503,
-          headers: {
-            "Retry-After": backendPressureResult.retryAfterSeconds.toString(),
-          },
-          payload: {
-            error: BACKEND_BUSY_MESSAGE,
-          },
+        return {
+          ok: false,
+          response: buildAndLogResult({
+            logger,
+            startedAt,
+            safeDiagnostics,
+            response: {
+              statusCode: 503,
+              headers: {
+                "Retry-After": backendPressureResult.retryAfterSeconds.toString(),
+              },
+              payload: {
+                error: BACKEND_BUSY_MESSAGE,
+              },
+            },
+            logMetadata: {
+              statusCode: 503,
+              backendBusy: true,
+              retryAfterSeconds: backendPressureResult.retryAfterSeconds,
+            },
+          }),
         };
-        logTranslateRequest(logger, startedAt, {
-          statusCode: response.statusCode,
-          backendBusy: true,
-          retryAfterSeconds: backendPressureResult.retryAfterSeconds,
-          ...safeDiagnostics,
-        });
-        return response;
       }
 
-      try {
-        const rateLimitResult = rateLimiter.check(clientKey);
-        if (!rateLimitResult.allowed) {
-          runtimeSummary.recordClientRateLimit();
-          return buildAndLogResult({
+      const requestContext = createRequestContext({
+        startedAt,
+        backendPressure,
+      });
+      const rateLimitResult = rateLimiter.check(clientKey);
+      if (!rateLimitResult.allowed) {
+        runtimeSummary.recordClientRateLimit();
+        requestContext.release();
+        return {
+          ok: false,
+          response: buildAndLogResult({
             logger,
             startedAt,
             safeDiagnostics,
@@ -75,15 +87,24 @@ export function createTranslateRequestModule({
               statusCode: 429,
               rateLimited: true,
             },
-          });
-        }
+          }),
+        };
+      }
 
+      return {
+        ok: true,
+        requestContext,
+      };
+    },
+
+    async handleAdmitted({ body, requestContext }) {
+      try {
         const validationError = validateTranslationRequest(body);
         if (validationError) {
           runtimeSummary.recordBadRequest();
           return buildAndLogResult({
             logger,
-            startedAt,
+            startedAt: requestContext.startedAt,
             safeDiagnostics,
             response: {
               statusCode: 400,
@@ -106,7 +127,7 @@ export function createTranslateRequestModule({
 
         return buildAndLogResult({
           logger,
-          startedAt,
+          startedAt: requestContext.startedAt,
           safeDiagnostics,
           response: {
             statusCode: 200,
@@ -130,7 +151,7 @@ export function createTranslateRequestModule({
 
         return buildAndLogResult({
           logger,
-          startedAt,
+          startedAt: requestContext.startedAt,
           safeDiagnostics,
           response: {
             statusCode,
@@ -150,8 +171,50 @@ export function createTranslateRequestModule({
           },
         });
       } finally {
-        backendPressure.leave();
+        requestContext.release();
       }
+    },
+
+    handleBadRequest({ requestContext, error, body }) {
+      const errorMessage = error instanceof Error ? error.message : "Invalid request";
+      runtimeSummary.recordBadRequest();
+
+      try {
+        return buildAndLogResult({
+          logger,
+          startedAt: requestContext.startedAt,
+          safeDiagnostics,
+          response: {
+            statusCode: 400,
+            payload: {
+              error: errorMessage,
+            },
+          },
+          logMetadata: {
+            statusCode: 400,
+            error: errorMessage,
+            ...getSafeRequestMetadata(body),
+          },
+        });
+      } finally {
+        requestContext.release();
+      }
+    },
+  };
+}
+
+function createRequestContext({ startedAt, backendPressure }) {
+  let released = false;
+
+  return {
+    startedAt,
+    release() {
+      if (released) {
+        return;
+      }
+
+      released = true;
+      backendPressure.leave();
     },
   };
 }
@@ -180,7 +243,7 @@ function logTranslateRequest(logger, startedAt, metadata) {
   );
 }
 
-function getSafeRequestMetadata(body) {
+function getSafeRequestMetadata(body = {}) {
   return {
     context: typeof body.context === "string" ? body.context : undefined,
     sourceLanguage: typeof body.sourceLanguage === "string" ? body.sourceLanguage : undefined,

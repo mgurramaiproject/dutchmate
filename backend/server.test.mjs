@@ -151,6 +151,46 @@ describe("createTranslationBackendServer", () => {
     expect(service.translate).not.toHaveBeenCalled();
   });
 
+  it("accounts for malformed request bodies in runtime and logs", async () => {
+    const logger = createTestLogger();
+    const service = {
+      translate: vi.fn(),
+    };
+
+    const server = createTranslationBackendServer({ service, logger });
+    const response = await inject(server, {
+      method: "POST",
+      url: "/translate",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: "{",
+    });
+
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBeTypeOf("string");
+    expect(service.translate).not.toHaveBeenCalled();
+    expect(JSON.parse(logger.messages[0])).toMatchObject({
+      event: "translate_request",
+      statusCode: 400,
+      error: body.error,
+    });
+
+    const healthResponse = await inject(server, {
+      method: "GET",
+      url: "/health",
+    });
+
+    await expect(healthResponse.json()).resolves.toMatchObject({
+      runtime: {
+        badRequestTotal: 1,
+        translateFailureTotal: 1,
+      },
+    });
+  });
+
   it("rate limits repeated translation requests from the same client", async () => {
     let currentTime = 1000;
     const logger = createTestLogger();
@@ -247,6 +287,52 @@ describe("createTranslationBackendServer", () => {
         backendBusyTotal: 1,
       },
     });
+
+    releaseFirstRequest();
+    await expect(firstResponsePromise).resolves.toMatchObject({ status: 200 });
+  });
+
+  it("checks backend pressure before reading the request body", async () => {
+    let releaseFirstRequest = () => {};
+    const service = {
+      translate: vi.fn(
+        () =>
+          new Promise((resolve) => {
+            releaseFirstRequest = () => {
+              resolve({
+                translatedText: "house",
+              });
+            };
+          }),
+      ),
+    };
+
+    const server = createTranslationBackendServer({
+      service,
+      logger: createTestLogger(),
+      backpressure: {
+        maxInFlightRequests: 1,
+        retryAfterSeconds: 7,
+      },
+    });
+
+    const firstResponsePromise = postTranslate(server);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const busyResponse = await inject(server, {
+      method: "POST",
+      url: "/translate",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: "{",
+    });
+
+    await expect(busyResponse.json()).resolves.toEqual({
+      error: "Translation backend is busy. Try again soon.",
+    });
+    expect(busyResponse.status).toBe(503);
+    expect(service.translate).toHaveBeenCalledTimes(1);
 
     releaseFirstRequest();
     await expect(firstResponsePromise).resolves.toMatchObject({ status: 200 });

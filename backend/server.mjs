@@ -48,19 +48,30 @@ export function createTranslationBackendServer({
       return;
     }
 
+    const admission = translateRequests.admit({
+      clientKey: getClientKey(request),
+    });
+    if (!admission.ok) {
+      applyHeaders(response, admission.response.headers);
+      sendJson(response, admission.response.statusCode, admission.response.payload);
+      return;
+    }
+
+    let result;
     try {
       const body = await readJsonBody(request);
-      const result = await translateRequests.handle({
+      result = await translateRequests.handleAdmitted({
         body,
-        clientKey: getClientKey(request),
+        requestContext: admission.requestContext,
       });
-
-      applyHeaders(response, result.headers);
-      sendJson(response, result.statusCode, result.payload);
     } catch (error) {
-      sendJson(response, 400, {
-        error: error instanceof Error ? error.message : "Invalid request",
+      result = translateRequests.handleBadRequest({
+        requestContext: admission.requestContext,
+        error,
       });
     }
+
+    applyHeaders(response, result.headers);
+    sendJson(response, result.statusCode, result.payload);
   });
 }
