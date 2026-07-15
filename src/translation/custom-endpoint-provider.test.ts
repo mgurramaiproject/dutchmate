@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { TranslationRequest } from "./provider";
 import { CustomEndpointTranslationProvider } from "./custom-endpoint-provider";
 import { PersistentTranslationCache } from "./persistent-translation-cache";
+import { shouldPersistTranslation } from "./persistent-cache-policy";
 import { TranslationCache } from "./translation-cache";
 
 const request: TranslationRequest = {
@@ -205,11 +206,14 @@ describe("CustomEndpointTranslationProvider", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("does not persist hover translations", async () => {
+  it("does not persist hover translations when hover caching is disabled", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
       return new Response(JSON.stringify({ translatedText: "hello" }), { status: 200 });
     });
-    const persistentCache = new PersistentTranslationCache(new MemoryStorage());
+    const persistentCache = new PersistentTranslationCache(new MemoryStorage(), {
+      shouldPersist: (cacheRequest) =>
+        shouldPersistTranslation(cacheRequest, undefined, { cacheHoveredWords: false }),
+    });
 
     const firstProvider = new CustomEndpointTranslationProvider(
       {

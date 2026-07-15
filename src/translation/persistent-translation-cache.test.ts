@@ -28,7 +28,7 @@ describe("PersistentTranslationCache", () => {
     await expect(cache.get(selectionRequest)).resolves.toEqual(result);
   });
 
-  it("does not store hovered words", async () => {
+  it("stores hovered words by default", async () => {
     const cache = new PersistentTranslationCache(new MemoryStorage());
     const hoverRequest: TranslationRequest = {
       ...selectionRequest,
@@ -37,7 +37,7 @@ describe("PersistentTranslationCache", () => {
 
     await cache.set(hoverRequest, result);
 
-    await expect(cache.get(hoverRequest)).resolves.toBeNull();
+    await expect(cache.get(hoverRequest)).resolves.toEqual(result);
   });
 
   it("reuses a hovered single-word translation after the same word is selected", async () => {
@@ -120,6 +120,25 @@ describe("PersistentTranslationCache", () => {
         context: "hover",
       }),
     ).toBe(getPersistentCacheEntryKey(selectionRequest));
+  });
+
+  it("reads selected and hovered cache preferences independently", async () => {
+    let policy = { cacheHoveredWords: true, cacheSelectedWords: true };
+    const cache = new PersistentTranslationCache(new MemoryStorage(), {
+      readPolicy: async () => policy,
+    });
+    const hoverRequest = { ...selectionRequest, context: "hover" as const };
+
+    await cache.set(selectionRequest, result);
+    await cache.set(hoverRequest, result);
+    policy = { cacheHoveredWords: false, cacheSelectedWords: true };
+
+    await expect(cache.get(selectionRequest)).resolves.toEqual(result);
+    await expect(cache.get(hoverRequest)).resolves.toBeNull();
+
+    policy = { cacheHoveredWords: true, cacheSelectedWords: false };
+    await expect(cache.get(selectionRequest)).resolves.toBeNull();
+    await expect(cache.get(hoverRequest)).resolves.toEqual(result);
   });
 });
 

@@ -31,6 +31,7 @@ export type ExtensionSettings = {
   translateOnHover: boolean;
   translateOnSelection: boolean;
   cacheHoveredWords: boolean;
+  cacheSelectedWords: boolean;
   hoverTranslationMode: HoverTranslationMode;
   hoverDelayMs: number;
   maxSelectionLength: number;
@@ -52,7 +53,8 @@ export const defaultSettings: ExtensionSettings = {
   isEnabled: true,
   translateOnHover: true,
   translateOnSelection: true,
-  cacheHoveredWords: false,
+  cacheHoveredWords: true,
+  cacheSelectedWords: true,
   hoverTranslationMode: "word",
   hoverDelayMs: 450,
   maxSelectionLength: 150,
@@ -91,6 +93,7 @@ export function normalizeSettings(
       fallback.translateOnSelection,
     ),
     cacheHoveredWords: getBooleanSetting(stored?.cacheHoveredWords, fallback.cacheHoveredWords),
+    cacheSelectedWords: getBooleanSetting(stored?.cacheSelectedWords, fallback.cacheSelectedWords),
     hoverTranslationMode: getHoverTranslationMode(
       stored?.hoverTranslationMode,
       fallback.hoverTranslationMode,

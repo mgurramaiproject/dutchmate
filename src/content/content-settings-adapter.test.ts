@@ -18,7 +18,8 @@ const defaultSettings = {
   isEnabled: true,
   translateOnHover: true,
   translateOnSelection: true,
-  cacheHoveredWords: false,
+  cacheHoveredWords: true,
+  cacheSelectedWords: true,
   hoverTranslationMode: "word",
   hoverDelayMs: 450,
   maxSelectionLength: 150,
@@ -79,11 +80,13 @@ describe("content-settings-adapter", () => {
   it("applies sync storage changes through the shared settings merge rules", () => {
     const next = applyContentSettingChanges(defaultSettings, {
       hoverTranslationMode: { newValue: "sentence" },
+      cacheSelectedWords: { newValue: false },
       maxSelectionLength: { newValue: 9999 },
       providerEndpoint: { newValue: "https://example.test/translate" },
     });
 
     expect(next.hoverTranslationMode).toBe("sentence");
+    expect(next.cacheSelectedWords).toBe(false);
     expect(next.maxSelectionLength).toBe(150);
     expect(next.providerEndpoint).toBe("https://example.test/translate");
   });

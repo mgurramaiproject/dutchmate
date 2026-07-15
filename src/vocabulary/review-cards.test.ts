@@ -118,6 +118,37 @@ describe("review card migration", () => {
     ]);
   });
 
+  it("keeps Telugu output when an English source produces Dutch and Telugu entries", () => {
+    expect(
+      migrateSavedVocabulary([
+        savedEntry({
+          id: "en\u001fhouse\u001fnl",
+          text: "house",
+          normalizedText: "house",
+          sourceLanguage: "en",
+          detectedSourceLanguage: "en",
+          targetLanguage: "nl",
+          translatedText: "huis",
+        }),
+        savedEntry({
+          id: "en\u001fhouse\u001fte",
+          text: "house",
+          normalizedText: "house",
+          sourceLanguage: "en",
+          detectedSourceLanguage: "en",
+          targetLanguage: "te",
+          translatedText: "ఇల్లు",
+        }),
+      ]),
+    ).toEqual([
+      expect.objectContaining({
+        dutch: "huis",
+        english: "house",
+        telugu: "ఇల్లు",
+      }),
+    ]);
+  });
+
   it("shows an English-source save in the persisted review list", async () => {
     const storage = new MemoryStorage();
     const savedVocabulary = new SavedVocabularyStore(storage);

@@ -108,9 +108,8 @@ export class ReviewCardStore {
 
     const normalizedDutch = normalizeSavedVocabularyText(card.dutch);
     const savedEntries = await this.savedVocabulary.list();
-    for (const entry of savedEntries) {
-      const contribution = getReviewCardContribution(entry);
-      if (contribution && normalizeSavedVocabularyText(contribution.dutch) === normalizedDutch) {
+    for (const { entry, contribution } of getReviewCardContributions(savedEntries)) {
+      if (normalizeSavedVocabularyText(contribution.dutch) === normalizedDutch) {
         await this.savedVocabulary.delete(entry.id);
       }
     }
@@ -155,12 +154,7 @@ export function migrateSavedVocabulary(
     existingCards.map((card) => [card.id, { ...card }]),
   );
 
-  for (const entry of entries) {
-    const contribution = getReviewCardContribution(entry);
-    if (!contribution) {
-      continue;
-    }
-
+  for (const { entry, contribution } of getReviewCardContributions(entries)) {
     const id = getReviewCardId(contribution.dutch);
     const existingCard = cards.get(id);
     const card = existingCard ?? createReviewCard(contribution, entry);
@@ -296,7 +290,38 @@ function createReviewCard(
   };
 }
 
-function getReviewCardContribution(entry: SavedVocabularyEntry): ReviewCardContribution | null {
+function getReviewCardContributions(
+  entries: SavedVocabularyEntry[],
+): Array<{ entry: SavedVocabularyEntry; contribution: ReviewCardContribution }> {
+  const dutchBySource = new Map<string, string>();
+
+  for (const entry of entries) {
+    const sourceLanguage = entry.detectedSourceLanguage ?? entry.sourceLanguage;
+    if (sourceLanguage === "nl" && (entry.targetLanguage === "en" || entry.targetLanguage === "te")) {
+      dutchBySource.set(getSourceKey(sourceLanguage, entry.text), entry.text);
+    }
+
+    if ((sourceLanguage === "en" || sourceLanguage === "te") && entry.targetLanguage === "nl") {
+      dutchBySource.set(getSourceKey(sourceLanguage, entry.text), entry.translatedText);
+    }
+  }
+
+  return entries.flatMap((entry) => {
+    const sourceLanguage = entry.detectedSourceLanguage ?? entry.sourceLanguage;
+    const contribution = getReviewCardContribution(
+      entry,
+      sourceLanguage === "en" || sourceLanguage === "te"
+        ? dutchBySource.get(getSourceKey(sourceLanguage, entry.text))
+        : undefined,
+    );
+    return contribution ? [{ entry, contribution }] : [];
+  });
+}
+
+function getReviewCardContribution(
+  entry: SavedVocabularyEntry,
+  dutchFromSource?: string,
+): ReviewCardContribution | null {
   const sourceLanguage = entry.detectedSourceLanguage ?? entry.sourceLanguage;
 
   if (sourceLanguage === "nl" && (entry.targetLanguage === "en" || entry.targetLanguage === "te")) {
@@ -308,16 +333,38 @@ function getReviewCardContribution(entry: SavedVocabularyEntry): ReviewCardContr
     };
   }
 
-  if ((sourceLanguage === "en" || sourceLanguage === "te") && entry.targetLanguage === "nl") {
+  if (sourceLanguage !== "en" && sourceLanguage !== "te") {
+    return null;
+  }
+
+  const dutch = entry.targetLanguage === "nl" ? entry.translatedText : dutchFromSource;
+  if (!dutch) {
+    return null;
+  }
+
+  if (entry.targetLanguage === "nl") {
     return {
-      dutch: entry.translatedText,
+      dutch,
       meaningLanguage: sourceLanguage,
       meaning: entry.text,
       originalLanguage: sourceLanguage,
     };
   }
 
+  if (entry.targetLanguage === "en" || entry.targetLanguage === "te") {
+    return {
+      dutch,
+      meaningLanguage: entry.targetLanguage,
+      meaning: entry.translatedText,
+      originalLanguage: sourceLanguage,
+    };
+  }
+
   return null;
+}
+
+function getSourceKey(sourceLanguage: string, text: string): string {
+  return `${sourceLanguage}\u001f${normalizeSavedVocabularyText(text)}`;
 }
 
 function parseReviewCardData(value: unknown): Record<string, ReviewCard> {

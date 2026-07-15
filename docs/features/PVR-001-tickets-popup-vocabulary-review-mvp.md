@@ -120,3 +120,18 @@ GitHub issue: [#27](https://github.com/mgurramaiproject/dutchmate/issues/27)
 - [x] Popup Settings no longer contains the Auto-save selected words control or duplicate settings controls; those preferences are available from the Options page with clear descriptions.
 - [x] Options Behaviour states that selected text is saved only after the user clicks Save by default, and explains how the optional auto-save preference changes that behavior.
 - [x] Focused tests cover English/Telugu source normalization, saved-surface synchronization, language-role constraints, and the settings copy/controls; typecheck and the full regression suite pass.
+
+## PVR-001-T08: Telugu meanings, cache controls, and split settings UX
+
+GitHub issue: [#28](https://github.com/mgurramaiproject/dutchmate/issues/28)
+
+**What to build:** Complete the learning-triangle data path and make caching and settings boundaries understandable. Preserve Telugu meanings when a non-Dutch source produces multiple translations, expose independent cache choices for hovered and selected words, show flashcard preferences in both Settings surfaces, and keep non-flashcard settings in Options. Keep translation-cache state separate from learner-controlled vocabulary backups.
+
+**Blocked by:** [PVR-001-T07 / #27](https://github.com/mgurramaiproject/dutchmate/issues/27)
+
+- [x] Telugu meanings from Dutch, English, and Telugu source saves are assembled into the canonical review card and appear in both popup review views and the Options table when available.
+- [x] Popup Settings displays flashcard-related preferences (example sentence, due-review badge, and card direction), explains that these are also available in Options, and clearly directs all other settings to Options.
+- [x] Options Behavior has independent Translate and Cache controls for hovered and selected text; both cache controls are enabled by default and persist independently.
+- [x] Cache policy changes affect actual persistent lookup caching without changing the separate learner-controlled saved-vocabulary behavior.
+- [x] Vocabulary export/import remains focused on saved review cards and does not include transient translation-cache entries; Options explains what cached words are for and why they are not in vocabulary backups.
+- [x] Focused regression tests cover Telugu cross-source assembly, popup flashcard settings, cache defaults/toggles/persistence, and backup scope; typecheck, full tests, and release verification pass.

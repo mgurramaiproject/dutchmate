@@ -28,12 +28,14 @@
             <colgroup>
               <col class="settings-matrix-label" />
               <col class="settings-matrix-action" />
+              <col class="settings-matrix-cache-column" />
               <col class="settings-matrix-note-column" />
             </colgroup>
             <thead>
               <tr>
                 <th scope="col">Text</th>
                 <th scope="col">Translate</th>
+                <th scope="col">Cache</th>
                 <th scope="col">Save selected words</th>
               </tr>
             </thead>
@@ -43,12 +45,18 @@
                 <td class="settings-matrix-control">
                   <input id="translate-on-hover" name="translateOnHover" type="checkbox" aria-label="Translate hovered text" />
                 </td>
+                <td class="settings-matrix-control">
+                  <input id="cache-hovered-words" name="cacheHoveredWords" type="checkbox" aria-label="Cache hovered text" />
+                </td>
                 <td class="matrix-note">Never saved</td>
               </tr>
               <tr>
                 <th scope="row">Selected text</th>
                 <td class="settings-matrix-control">
                   <input id="translate-on-selection" name="translateOnSelection" type="checkbox" aria-label="Translate selected text" />
+                </td>
+                <td class="settings-matrix-control">
+                  <input id="cache-selected-words" name="cacheSelectedWords" type="checkbox" aria-label="Cache selected text" />
                 </td>
                 <td class="matrix-note">Manual Save by default</td>
               </tr>
@@ -308,16 +316,7 @@
           </div>
 
           <p class="settings-note">
-            Cached words are automatic repeat-lookup helpers. They make translations faster and reduce translation calls, but they are not your study list. Selected single words are cached by default; hovered single words are cached only if you turn on the setting below.
-          </p>
-
-          <label class="checkbox-label">
-            <input id="cache-hovered-words" name="cacheHoveredWords" type="checkbox" />
-            Cache hovered single-word translations locally
-          </label>
-
-          <p class="settings-note">
-            Turn this on to make repeated hover translations faster and reduce backend translation calls. Hover cache stays local in this browser and can be cleared with the translation cache.
+            Cached words are automatic repeat-lookup helpers. They make translations faster and reduce translation calls, but they are not your study list. Use the Cache controls in Behavior to choose whether hovered or selected lookups are stored. Cached words are intentionally excluded from vocabulary backups because they expire and do not represent words you chose to study.
           </p>
         </section>
 

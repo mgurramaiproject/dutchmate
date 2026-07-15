@@ -32,6 +32,7 @@ describe("vocabulary backups", () => {
       cards: [card],
     }, null, 2)}\n`);
     expect(serializeVocabularyBackup([card])).not.toContain("providerApiKey");
+    expect(serializeVocabularyBackup([card])).not.toContain("translationCache");
   });
 
   it("parses a valid backup and rejects malformed or unsupported documents", () => {

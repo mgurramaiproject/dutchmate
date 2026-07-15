@@ -234,8 +234,12 @@ input[type="range"] {
   width: 24%;
 }
 
+.settings-matrix-cache-column {
+  width: 16%;
+}
+
 .settings-matrix-note-column {
-  width: 38%;
+  width: 22%;
 }
 
 .settings-matrix th,

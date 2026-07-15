@@ -23,12 +23,26 @@ describe("persistent cache policy", () => {
     ).toBe(true);
   });
 
-  it("does not persist hovered words", () => {
+  it("persists hovered words by default", () => {
     expect(
       shouldPersistTranslation({
         ...selectionRequest,
         context: "hover",
       }),
+    ).toBe(true);
+  });
+
+  it("can disable selected-word caching independently", () => {
+    expect(shouldPersistTranslation(selectionRequest, undefined, { cacheSelectedWords: false })).toBe(false);
+  });
+
+  it("can disable hovered-word caching independently", () => {
+    expect(
+      shouldPersistTranslation(
+        { ...selectionRequest, context: "hover" },
+        undefined,
+        { cacheHoveredWords: false },
+      ),
     ).toBe(false);
   });
 

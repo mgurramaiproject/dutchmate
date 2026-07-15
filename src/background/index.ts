@@ -51,7 +51,15 @@ const localStorage = new LocalCacheStorage(extensionApi);
 const translationService = new TranslationService(
   () => readProviderSettings(extensionApi),
   new TranslationCache(MAX_CACHE_ENTRIES),
-  new PersistentTranslationCache(localStorage),
+  new PersistentTranslationCache(localStorage, {
+    readPolicy: async () => {
+      const settings = await readExtensionSettings(extensionApi);
+      return {
+        cacheHoveredWords: settings.cacheHoveredWords,
+        cacheSelectedWords: settings.cacheSelectedWords,
+      };
+    },
+  }),
 );
 const savedVocabularyStore = new SavedVocabularyStore(localStorage);
 const reviewCardStore = new ReviewCardStore(savedVocabularyStore, localStorage);

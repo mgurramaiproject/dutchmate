@@ -61,6 +61,7 @@ function settingChangesToPartialSettings(
     translateOnHover: getOptionalBooleanSetting(changes.translateOnHover?.newValue),
     translateOnSelection: getOptionalBooleanSetting(changes.translateOnSelection?.newValue),
     cacheHoveredWords: getOptionalBooleanSetting(changes.cacheHoveredWords?.newValue),
+    cacheSelectedWords: getOptionalBooleanSetting(changes.cacheSelectedWords?.newValue),
     hoverTranslationMode: getOptionalHoverTranslationModeSetting(
       changes.hoverTranslationMode?.newValue,
     ),

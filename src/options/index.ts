@@ -36,6 +36,7 @@ const showExampleSentence = document.querySelector<HTMLInputElement>("#show-exam
 const dailyReviewBadge = document.querySelector<HTMLInputElement>("#daily-review-badge");
 const cardDirectionInputs = document.querySelectorAll<HTMLInputElement>('input[name="cardDirection"]');
 const cacheHoveredWords = document.querySelector<HTMLInputElement>("#cache-hovered-words");
+const cacheSelectedWords = document.querySelector<HTMLInputElement>("#cache-selected-words");
 const hoverTranslationModes = document.querySelectorAll<HTMLInputElement>(
   'input[name="hoverTranslationMode"]',
 );
@@ -141,6 +142,14 @@ async function restoreSettings(): Promise<void> {
     translateOnSelection.checked = settings.translateOnSelection;
   }
 
+  if (cacheHoveredWords) {
+    cacheHoveredWords.checked = settings.cacheHoveredWords;
+  }
+
+  if (cacheSelectedWords) {
+    cacheSelectedWords.checked = settings.cacheSelectedWords;
+  }
+
   if (autoSaveSelectedWords) {
     autoSaveSelectedWords.checked = settings.autoSaveSelectedWords;
   }
@@ -156,10 +165,6 @@ async function restoreSettings(): Promise<void> {
   cardDirectionInputs.forEach((input) => {
     input.checked = input.value === settings.cardDirection;
   });
-
-  if (cacheHoveredWords) {
-    cacheHoveredWords.checked = settings.cacheHoveredWords;
-  }
 
   setHoverTranslationMode(settings.hoverTranslationMode);
 
@@ -220,6 +225,7 @@ async function saveSettings(): Promise<void> {
     translateOnHover: translateOnHover?.checked ?? defaultSettings.translateOnHover,
     translateOnSelection: translateOnSelection?.checked ?? defaultSettings.translateOnSelection,
     cacheHoveredWords: cacheHoveredWords?.checked ?? defaultSettings.cacheHoveredWords,
+    cacheSelectedWords: cacheSelectedWords?.checked ?? defaultSettings.cacheSelectedWords,
     hoverTranslationMode: getHoverTranslationMode(
       getSelectedHoverTranslationMode(),
       defaultSettings.hoverTranslationMode,

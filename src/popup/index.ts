@@ -14,6 +14,7 @@ import {
   defaultSettings,
   type ExtensionSettings,
 } from "../shared/settings";
+import type { ReviewSettingsChanges } from "../background/messages";
 import { createSettingsClient } from "./settings-client";
 import { getPopupTabForKey, type PopupTab } from "./tab-navigation";
 import "./styles.css";
@@ -210,11 +211,25 @@ function renderSettings(): HTMLElement {
   const wrapper = document.createElement("section");
   wrapper.className = "settings-content";
   wrapper.append(
-    createEyebrow("Extension settings"),
-    createHeading("Change settings in Options"),
+    createEyebrow("Flashcard settings"),
+    createHeading("Tune your review"),
     createText(
-      "Choose languages, saving behavior, review preferences, and translation settings on the Options page.",
+      "These flashcard preferences are also available in Options. Change languages, saving, caching, translation, and privacy settings there.",
     ),
+    createSettingToggle(
+      "Show example sentence",
+      "Display stored page context on review cards.",
+      settings.showExampleSentence,
+      (checked) => void saveReviewSettings({ showExampleSentence: checked }),
+    ),
+    createSettingToggle(
+      "Daily review badge",
+      "Show the number of reviewed cards due today.",
+      settings.dailyReviewBadge,
+      (checked) => void saveReviewSettings({ dailyReviewBadge: checked }),
+    ),
+    createDirectionSetting(),
+    createText("For all other extension settings, open the Options page.", "local-note"),
     createOptionsButton("Open Options page"),
     createLocalNote(),
   );
@@ -235,6 +250,65 @@ function createOptionsButton(label: string): HTMLButtonElement {
     void browser.runtime.openOptionsPage();
   });
   return button;
+}
+
+function createSettingToggle(
+  labelText: string,
+  description: string,
+  checked: boolean,
+  onChange: (checked: boolean) => void,
+): HTMLElement {
+  const label = document.createElement("label");
+  label.className = "setting-control";
+
+  const copy = document.createElement("span");
+  copy.className = "setting-copy";
+  const title = document.createElement("strong");
+  title.textContent = labelText;
+  const note = document.createElement("small");
+  note.textContent = description;
+  copy.append(title, note);
+
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.checked = checked;
+  input.addEventListener("change", () => onChange(input.checked));
+  label.append(copy, input);
+  return label;
+}
+
+function createDirectionSetting(): HTMLElement {
+  const fieldset = document.createElement("fieldset");
+  fieldset.className = "direction-setting";
+  const legend = document.createElement("legend");
+  legend.textContent = "Card direction";
+  fieldset.append(legend);
+
+  for (const option of [
+    { value: "dutch-to-helpers" as const, label: "Dutch to helper languages" },
+    { value: "helpers-to-dutch" as const, label: "Helper languages to Dutch" },
+  ]) {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "card-direction";
+    input.value = option.value;
+    input.checked = settings.cardDirection === option.value;
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        void saveReviewSettings({ cardDirection: option.value });
+      }
+    });
+    label.append(input, document.createTextNode(option.label));
+    fieldset.append(label);
+  }
+
+  return fieldset;
+}
+
+async function saveReviewSettings(changes: Partial<ReviewSettingsChanges>): Promise<void> {
+  settings = await settingsClient.updateSettings(changes);
+  render();
 }
 
 function renderError(message: string): void {

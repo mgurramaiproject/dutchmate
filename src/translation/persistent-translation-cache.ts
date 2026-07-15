@@ -2,6 +2,7 @@ import type { TranslationRequest, TranslationResult } from "./provider";
 import {
   normalizeCacheText,
   shouldPersistTranslation,
+  type PersistentCachePolicyOptions,
 } from "./persistent-cache-policy";
 
 const DEFAULT_CACHE_KEY = "dutchmate.translationCache.v1";
@@ -19,6 +20,7 @@ type PersistentTranslationCacheOptions = {
   ttlMs?: number;
   now?: () => number;
   shouldPersist?: (request: TranslationRequest) => boolean;
+  readPolicy?: () => Promise<PersistentCachePolicyOptions>;
 };
 
 type PersistentTranslationCacheEntry = {
@@ -37,6 +39,7 @@ export class PersistentTranslationCache {
   private readonly ttlMs: number;
   private readonly now: () => number;
   private readonly shouldPersist: (request: TranslationRequest) => boolean;
+  private readonly readPolicy?: () => Promise<PersistentCachePolicyOptions>;
 
   constructor(
     private readonly storage: PersistentTranslationCacheStorage,
@@ -47,10 +50,11 @@ export class PersistentTranslationCache {
     this.ttlMs = options.ttlMs ?? DEFAULT_TTL_MS;
     this.now = options.now ?? Date.now;
     this.shouldPersist = options.shouldPersist ?? shouldPersistTranslation;
+    this.readPolicy = options.readPolicy;
   }
 
   async get(request: TranslationRequest): Promise<TranslationResult | null> {
-    if (!this.shouldPersist(request)) {
+    if (!(await this.canPersist(request))) {
       return null;
     }
 
@@ -66,7 +70,7 @@ export class PersistentTranslationCache {
   }
 
   async set(request: TranslationRequest, result: TranslationResult): Promise<void> {
-    if (!this.shouldPersist(request)) {
+    if (!(await this.canPersist(request))) {
       return;
     }
 
@@ -85,6 +89,14 @@ export class PersistentTranslationCache {
 
   private async readData(): Promise<PersistentTranslationCacheData> {
     return parsePersistentCacheData(await this.storage.get(this.cacheKey));
+  }
+
+  private async canPersist(request: TranslationRequest): Promise<boolean> {
+    if (this.readPolicy) {
+      return shouldPersistTranslation(request, undefined, await this.readPolicy());
+    }
+
+    return this.shouldPersist(request);
   }
 
   private async writeData(data: PersistentTranslationCacheData): Promise<void> {

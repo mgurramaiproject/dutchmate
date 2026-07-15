@@ -122,4 +122,16 @@ describe("settings", () => {
       cardDirection: "helpers-to-dutch",
     });
   });
+
+  it("enables selected and hovered caching by default and normalizes both settings", () => {
+    expect(normalizeSettings({})).toMatchObject({
+      cacheHoveredWords: true,
+      cacheSelectedWords: true,
+    });
+
+    expect(normalizeSettings({ cacheHoveredWords: false, cacheSelectedWords: false })).toMatchObject({
+      cacheHoveredWords: false,
+      cacheSelectedWords: false,
+    });
+  });
 });
