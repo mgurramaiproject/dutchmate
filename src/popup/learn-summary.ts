@@ -16,6 +16,7 @@ export type LearnSummaryView = {
   actions: {
     label: string;
     enabled: boolean;
+    mode: "due" | "new" | "all";
   }[];
 };
 
@@ -43,9 +44,9 @@ export function getLearnSummaryView(summary: ReviewCardSummary): LearnSummaryVie
         ? "No saved words yet. Select a single word on a webpage, translate it, then choose Save."
         : null,
     actions: [
-      { label: "Review due words", enabled: summary.due > 0 },
-      { label: "Practice new words", enabled: summary.new > 0 },
-      { label: "Review all words", enabled: summary.total > 0 },
+      { label: "Review due words", enabled: summary.due > 0, mode: "due" },
+      { label: "Practice new words", enabled: summary.new > 0, mode: "new" },
+      { label: "Review all words", enabled: summary.total > 0, mode: "all" },
     ],
   };
 }

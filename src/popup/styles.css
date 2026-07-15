@@ -55,6 +55,16 @@ button { font: inherit; cursor: pointer; }
 .button { min-height: 48px; padding: 8px 6px; border: 1px solid var(--black); background: var(--white); color: var(--black); font-size: 0.68rem; font-weight: 850; text-align: center; }
 .button:first-child { background: var(--orange); }
 .button:disabled { cursor: not-allowed; opacity: 0.42; }
+.practice-content { display: grid; align-content: start; gap: 16px; }
+.practice-progress { margin: 0; color: var(--muted); font-size: 0.75rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
+.practice-card { display: grid; gap: 14px; padding: 18px; border: 1px solid var(--black); border-top: 5px solid var(--orange); }
+.meaning-row { display: grid; gap: 4px; padding-top: 10px; border-top: 1px solid var(--soft-line); }
+.meaning-row strong { font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.meaning-row span { font-size: 1rem; line-height: 1.4; }
+.meaning-unavailable { color: var(--muted); font-style: italic; }
+.answer-button, .practice-back { width: 100%; }
+.rating-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
+.rating-actions .button:first-child { background: var(--orange); }
 .local-note { margin-top: 0; color: var(--muted); font-size: 0.75rem; line-height: 1.4; }
 .settings-content { overflow-y: auto; }
 .info-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; border-top: 1px solid var(--soft-line); border-bottom: 1px solid var(--soft-line); }

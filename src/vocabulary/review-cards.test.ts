@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   getReviewCardSummary,
+  getNewReviewQueue,
   migrateSavedVocabulary,
+  rateReviewCard,
   ReviewCardStore,
   type ReviewCard,
 } from "./review-cards";
@@ -124,6 +126,61 @@ describe("review card summary", () => {
       due: 1,
       new: 2,
       recent: [cards[3], cards[1], cards[2]],
+    });
+  });
+});
+
+describe("new-card practice", () => {
+  it("selects only never-rated cards in oldest-first order", () => {
+    const cards = [
+      card({ id: "nl\u001fnewest", createdAt: 3_000 }),
+      card({ id: "nl\u001foldest", createdAt: 1_000 }),
+      card({ id: "nl\u001freviewed", createdAt: 500, reviewCount: 1, dueAt: 2_000 }),
+    ];
+
+    expect(getNewReviewQueue(cards)).toEqual([
+      expect.objectContaining({ id: "nl\u001foldest" }),
+      expect.objectContaining({ id: "nl\u001fnewest" }),
+    ]);
+  });
+
+  it.each([
+    ["again", 1],
+    ["hard", 1],
+    ["good", 3],
+    ["easy", 7],
+  ] as const)("schedules %s after its rating", (rating, days) => {
+    const reviewedAt = 10_000;
+
+    expect(rateReviewCard(card(), rating, reviewedAt)).toMatchObject({
+      dueAt: reviewedAt + days * 24 * 60 * 60 * 1_000,
+      lastReviewedAt: reviewedAt,
+      lastRating: rating,
+      reviewCount: 1,
+      updatedAt: reviewedAt,
+    });
+  });
+
+  it("persists a rating and returns the updated card", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage);
+    await savedVocabulary.save(savedEntry({ text: "huis", translatedText: "house" }));
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => 20_000);
+
+    const [newCard] = await reviewCards.newQueue();
+    const updated = await reviewCards.rate(newCard.id, "good");
+
+    expect(updated).toMatchObject({
+      id: newCard.id,
+      dueAt: 20_000 + 3 * 24 * 60 * 60 * 1_000,
+      lastRating: "good",
+      reviewCount: 1,
+    });
+    await expect(reviewCards.newQueue()).resolves.toEqual([]);
+    expect(storage.values.get("dutchmate.reviewCards.v1")).toMatchObject({
+      cards: {
+        [newCard.id]: updated,
+      },
     });
   });
 });

@@ -1,7 +1,14 @@
 import browser from "webextension-polyfill";
-import { createReviewSummaryClient } from "./review-client";
+import { createReviewClient } from "./review-client";
 import { getLearnSummaryView, type LearnSummaryView } from "./learn-summary";
-import type { ReviewCardSummary } from "../vocabulary/review-cards";
+import {
+  advancePracticeSession,
+  createPracticeSession,
+  getCurrentPracticeCard,
+  revealPracticeAnswer,
+  type PracticeSessionState,
+} from "./practice-session";
+import type { ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
 import "./styles.css";
 
 type PopupTab = "learn" | "settings";
@@ -10,12 +17,17 @@ const content = document.querySelector<HTMLElement>("#popup-content");
 const dueBadge = document.querySelector<HTMLElement>("#due-badge");
 const learnTab = document.querySelector<HTMLButtonElement>("#learn-tab");
 const settingsTab = document.querySelector<HTMLButtonElement>("#settings-tab");
-const summaryClient = createReviewSummaryClient(browser);
+const reviewClient = createReviewClient(browser);
 let activeTab: PopupTab = "learn";
 let summary: ReviewCardSummary | null = null;
+let practiceSession: PracticeSessionState | null = null;
+let practicePending = false;
+let ratingPending = false;
 
 learnTab?.addEventListener("click", () => {
   activeTab = "learn";
+  practiceSession = null;
+  void loadSummary();
   render();
 });
 
@@ -29,7 +41,7 @@ void loadSummary();
 
 async function loadSummary(): Promise<void> {
   try {
-    summary = await summaryClient.getSummary();
+    summary = await reviewClient.getSummary();
   } catch (error) {
     renderError(error instanceof Error ? error.message : "Review summary is unavailable.");
     return;
@@ -49,6 +61,10 @@ function render(): void {
 }
 
 function renderLearn(): HTMLElement {
+  if (practiceSession) {
+    return renderPractice(practiceSession);
+  }
+
   const wrapper = document.createElement("div");
   wrapper.className = "learn-content";
 
@@ -78,9 +94,68 @@ function renderLearn(): HTMLElement {
 
   const actions = document.createElement("div");
   actions.className = "actions";
-  actions.append(...view.actions.map((action) => createReviewAction(action.label, action.enabled)));
+  actions.append(...view.actions.map(createReviewAction));
 
   wrapper.append(intro, stats, recent, actions, createLocalNote());
+  return wrapper;
+}
+
+function renderPractice(session: PracticeSessionState): HTMLElement {
+  const wrapper = document.createElement("div");
+  wrapper.className = "practice-content";
+
+  if (session.completed) {
+    wrapper.append(
+      createEyebrow("Practice complete"),
+      createHeading("That is a good set."),
+      createText("Your ratings are saved locally. Review again when the cards are due."),
+    );
+    const backButton = createButton("Back to Learn", "button practice-back");
+    backButton.addEventListener("click", () => {
+      practiceSession = null;
+      void loadSummary();
+    });
+    wrapper.append(backButton);
+    return wrapper;
+  }
+
+  const card = getCurrentPracticeCard(session);
+  if (!card) {
+    return wrapper;
+  }
+
+  const progress = createText(`Card ${session.currentIndex + 1} of ${session.queue.length}`, "practice-progress");
+  const cardSection = document.createElement("section");
+  cardSection.className = "practice-card";
+  cardSection.append(createEyebrow(session.revealed ? "Answer" : "New word"), createHeading(card.dutch));
+
+  if (session.revealed) {
+    cardSection.append(createMeaningRow("Dutch", card.dutch));
+    cardSection.append(createMeaningRow("English", card.english));
+    cardSection.append(createMeaningRow("Telugu", card.telugu));
+    if (card.pageContext) {
+      cardSection.append(createMeaningRow("Page context", card.pageContext));
+    }
+
+    const ratings = document.createElement("div");
+    ratings.className = "rating-actions";
+    for (const rating of ["again", "hard", "good", "easy"] as const) {
+      const button = createButton(rating[0].toUpperCase() + rating.slice(1), "button");
+      button.disabled = ratingPending;
+      button.addEventListener("click", () => void rateCurrentCard(rating));
+      ratings.append(button);
+    }
+    cardSection.append(ratings);
+  } else {
+    const answerButton = createButton("Show Answer", "button answer-button");
+    answerButton.addEventListener("click", () => {
+      practiceSession = revealPracticeAnswer(session);
+      render();
+    });
+    cardSection.append(answerButton);
+  }
+
+  wrapper.append(progress, cardSection, createLocalNote());
   return wrapper;
 }
 
@@ -128,14 +203,83 @@ function createRecentList(cards: LearnSummaryView["recent"]): HTMLElement {
   return list;
 }
 
-function createReviewAction(label: string, hasCards: boolean): HTMLButtonElement {
+function createReviewAction(action: LearnSummaryView["actions"][number]): HTMLButtonElement {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "button";
-  button.textContent = label;
-  button.disabled = !hasCards;
-  button.title = hasCards ? "Review sessions are coming next." : "Save a word to enable this action.";
+  button.textContent = action.label;
+  button.disabled = !action.enabled || practicePending;
+  button.title = action.enabled
+    ? action.mode === "new" ? "Practice your new words." : "Review sessions are coming next."
+    : "Save a word to enable this action.";
+  if (action.mode === "new" && action.enabled) {
+    button.addEventListener("click", () => void startNewPractice());
+  }
   return button;
+}
+
+function createButton(text: string, className: string): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = className;
+  button.textContent = text;
+  return button;
+}
+
+function createMeaningRow(label: string, value: string | null): HTMLElement {
+  const row = document.createElement("div");
+  row.className = "meaning-row";
+  const name = document.createElement("strong");
+  name.textContent = label;
+  const meaning = document.createElement("span");
+  meaning.textContent = value ?? "unavailable";
+  if (!value) {
+    meaning.className = "meaning-unavailable";
+  }
+  row.append(name, meaning);
+  return row;
+}
+
+async function startNewPractice(): Promise<void> {
+  if (practicePending) {
+    return;
+  }
+
+  practicePending = true;
+  render();
+  let errorMessage: string | null = null;
+  try {
+    practiceSession = createPracticeSession(await reviewClient.getNewQueue());
+  } catch (error) {
+    errorMessage = error instanceof Error ? error.message : "New-word practice is unavailable.";
+  } finally {
+    practicePending = false;
+    errorMessage ? renderError(errorMessage) : render();
+  }
+}
+
+async function rateCurrentCard(rating: ReviewRating): Promise<void> {
+  if (!practiceSession || practiceSession.completed || ratingPending) {
+    return;
+  }
+
+  const card = getCurrentPracticeCard(practiceSession);
+  if (!card) {
+    return;
+  }
+
+  ratingPending = true;
+  render();
+  let errorMessage: string | null = null;
+  try {
+    const reviewedCard = await reviewClient.rateCard(card.id, rating);
+    practiceSession = advancePracticeSession(practiceSession, reviewedCard);
+  } catch (error) {
+    errorMessage = error instanceof Error ? error.message : "Your rating could not be saved.";
+  } finally {
+    ratingPending = false;
+    errorMessage ? renderError(errorMessage) : render();
+  }
 }
 
 function createStat(value: number, label: string): HTMLElement {

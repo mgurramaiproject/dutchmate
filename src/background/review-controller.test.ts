@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { handleReviewMessage } from "./review-controller";
-import { REVIEW_SUMMARY_MESSAGE } from "./messages";
+import { REVIEW_NEW_QUEUE_MESSAGE, REVIEW_RATE_MESSAGE, REVIEW_SUMMARY_MESSAGE } from "./messages";
+import type { ReviewCard } from "../vocabulary/review-cards";
 
 describe("handleReviewMessage", () => {
   it("returns the canonical review summary", async () => {
@@ -26,5 +27,44 @@ describe("handleReviewMessage", () => {
         },
       }),
     ).resolves.toEqual({ ok: false, error: "Review summary is unavailable." });
+  });
+
+  it("returns a stable snapshot of new cards", async () => {
+    const cards = [{ id: "nl\u001fhuis" }] as never[];
+
+    await expect(
+      handleReviewMessage({ type: REVIEW_NEW_QUEUE_MESSAGE }, {
+        summary: async () => ({ total: 0, due: 0, new: 0, recent: [] }),
+        newQueue: async () => cards,
+      }),
+    ).resolves.toEqual({ ok: true, result: { cards } });
+  });
+
+  it("persists the selected rating through the review provider", async () => {
+    const card = { id: "nl\u001fhuis" } as ReviewCard;
+
+    await expect(
+      handleReviewMessage(
+        { type: REVIEW_RATE_MESSAGE, payload: { id: card.id, rating: "easy" } },
+        {
+          summary: async () => ({ total: 0, due: 0, new: 0, recent: [] }),
+          rate: async (id, rating) => ({ ...card, id: `${id}:${rating}` }),
+        },
+      ),
+    ).resolves.toEqual({ ok: true, result: { card: { id: "nl\u001fhuis:easy" } } });
+  });
+
+  it("uses operation-specific errors for failed ratings", async () => {
+    await expect(
+      handleReviewMessage(
+        { type: REVIEW_RATE_MESSAGE, payload: { id: "nl\u001fmissing", rating: "again" } },
+        {
+          summary: async () => ({ total: 0, due: 0, new: 0, recent: [] }),
+          rate: async () => {
+            throw new Error("missing");
+          },
+        },
+      ),
+    ).resolves.toEqual({ ok: false, error: "Your rating could not be saved." });
   });
 });

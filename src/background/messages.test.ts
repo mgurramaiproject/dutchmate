@@ -8,6 +8,8 @@ import {
   SAVE_VOCABULARY_BATCH_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
   REVIEW_SUMMARY_MESSAGE,
+  REVIEW_NEW_QUEUE_MESSAGE,
+  REVIEW_RATE_MESSAGE,
 } from "./messages";
 
 const saveMessage = {
@@ -49,6 +51,13 @@ describe("isVocabularyMessage", () => {
     ).toBe(true);
     expect(isVocabularyMessage({ type: CLEAR_VOCABULARY_MESSAGE })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_SUMMARY_MESSAGE })).toBe(true);
+    expect(isReviewMessage({ type: REVIEW_NEW_QUEUE_MESSAGE })).toBe(true);
+    expect(
+      isReviewMessage({
+        type: REVIEW_RATE_MESSAGE,
+        payload: { id: "nl\u001fhuis", rating: "good" },
+      }),
+    ).toBe(true);
   });
 
   it("rejects invalid save payloads", () => {
@@ -98,6 +107,15 @@ describe("isVocabularyMessage", () => {
       isVocabularyMessage({
         type: DELETE_VOCABULARY_MESSAGE,
         payload: {},
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects invalid review ratings", () => {
+    expect(
+      isReviewMessage({
+        type: REVIEW_RATE_MESSAGE,
+        payload: { id: "nl\u001fhuis", rating: "soon" },
       }),
     ).toBe(false);
   });

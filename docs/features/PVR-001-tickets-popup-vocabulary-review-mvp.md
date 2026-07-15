@@ -30,12 +30,12 @@ GitHub issue: [#22](https://github.com/mgurramaiproject/dutchmate/issues/22)
 
 **Blocked by:** [PVR-001-T01 / #21](https://github.com/mgurramaiproject/dutchmate/issues/21)
 
-- [ ] Practice New Words selects only never-rated cards and creates a stable queue snapshot.
-- [ ] The front shows progress, the Dutch word, and Show Answer.
-- [ ] The back shows Dutch, English, Telugu, optional available page context, and the four rating actions.
-- [ ] Again and Hard schedule 24 hours later, Good schedules 3 days later, and Easy schedules 7 days later.
-- [ ] Every rating persists review metadata and advances to the next card or a completion state.
-- [ ] New-card queue, schedule, rating, and popup state transitions have focused tests.
+- [x] Practice New Words selects only never-rated cards and creates a stable queue snapshot.
+- [x] The front shows progress, the Dutch word, and Show Answer.
+- [x] The back shows Dutch, English, Telugu, optional available page context, and the four rating actions.
+- [x] Again and Hard schedule 24 hours later, Good schedules 3 days later, and Easy schedules 7 days later.
+- [x] Every rating persists review metadata and advances to the next card or a completion state.
+- [x] New-card queue, schedule, rating, and popup state transitions have focused tests.
 
 ## PVR-001-T03: Review due and all cards with badge updates
 

@@ -7,6 +7,7 @@ import {
 
 export const REVIEW_CARDS_STORAGE_KEY = "dutchmate.reviewCards.v1";
 export const REVIEW_CARD_RECENT_LIMIT = 3;
+const DAY_IN_MS = 24 * 60 * 60 * 1_000;
 
 export type ReviewRating = "again" | "hard" | "good" | "easy";
 
@@ -55,6 +56,29 @@ export class ReviewCardStore {
 
   async summary(): Promise<ReviewCardSummary> {
     return getReviewCardSummary(await this.list(), this.now());
+  }
+
+  async newQueue(): Promise<ReviewCard[]> {
+    return getNewReviewQueue(await this.list());
+  }
+
+  async rate(id: string, rating: ReviewRating): Promise<ReviewCard> {
+    const cards = await this.list();
+    const card = cards.find((candidate) => candidate.id === id);
+
+    if (!card) {
+      throw new Error("Review card not found.");
+    }
+
+    const updatedCard = rateReviewCard(card, rating, this.now());
+    await this.storage.set(
+      REVIEW_CARDS_STORAGE_KEY,
+      { cards: Object.fromEntries(cards.map((candidate) => [
+        candidate.id,
+        candidate.id === id ? updatedCard : candidate,
+      ])) },
+    );
+    return updatedCard;
   }
 }
 
@@ -108,6 +132,25 @@ export function getReviewCardSummary(
     recent: [...cards]
       .sort((first, second) => second.createdAt - first.createdAt)
       .slice(0, recentLimit),
+  };
+}
+
+export function getNewReviewQueue(cards: ReviewCard[]): ReviewCard[] {
+  return cards
+    .filter((card) => card.reviewCount === 0)
+    .sort((first, second) => first.createdAt - second.createdAt || first.id.localeCompare(second.id));
+}
+
+export function rateReviewCard(card: ReviewCard, rating: ReviewRating, reviewedAt: number): ReviewCard {
+  const intervalDays = rating === "good" ? 3 : rating === "easy" ? 7 : 1;
+
+  return {
+    ...card,
+    updatedAt: reviewedAt,
+    dueAt: reviewedAt + intervalDays * DAY_IN_MS,
+    lastReviewedAt: reviewedAt,
+    lastRating: rating,
+    reviewCount: card.reviewCount + 1,
   };
 }
 

@@ -5,7 +5,7 @@ import type {
   SaveVocabularyInput,
   SaveVocabularyResult,
 } from "../vocabulary/saved-vocabulary";
-import type { ReviewCardSummary } from "../vocabulary/review-cards";
+import type { ReviewCard, ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
 
 export const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 export const SAVE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.save";
@@ -14,6 +14,8 @@ export const LIST_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.list";
 export const DELETE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.delete";
 export const CLEAR_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.clear";
 export const REVIEW_SUMMARY_MESSAGE = "dutchmate.review.summary";
+export const REVIEW_NEW_QUEUE_MESSAGE = "dutchmate.review.newQueue";
+export const REVIEW_RATE_MESSAGE = "dutchmate.review.rate";
 
 export type TranslateMessage = {
   type: typeof TRANSLATE_MESSAGE;
@@ -51,6 +53,18 @@ export type ReviewSummaryMessage = {
   type: typeof REVIEW_SUMMARY_MESSAGE;
 };
 
+export type ReviewNewQueueMessage = {
+  type: typeof REVIEW_NEW_QUEUE_MESSAGE;
+};
+
+export type ReviewRateMessage = {
+  type: typeof REVIEW_RATE_MESSAGE;
+  payload: {
+    id: string;
+    rating: ReviewRating;
+  };
+};
+
 export type VocabularyMessage =
   | SaveVocabularyMessage
   | SaveVocabularyBatchMessage
@@ -58,7 +72,7 @@ export type VocabularyMessage =
   | DeleteVocabularyMessage
   | ClearVocabularyMessage;
 
-export type ReviewMessage = ReviewSummaryMessage;
+export type ReviewMessage = ReviewSummaryMessage | ReviewNewQueueMessage | ReviewRateMessage;
 
 export type TranslateMessageResponse =
   | {
@@ -96,7 +110,7 @@ export type VocabularyMessageResponse =
 export type ReviewMessageResponse =
   | {
       ok: true;
-      result: ReviewCardSummary;
+      result: ReviewCardSummary | { cards: ReviewCard[] } | { card: ReviewCard };
     }
   | {
       ok: false;
@@ -149,12 +163,42 @@ export function isVocabularyMessage(message: unknown): message is VocabularyMess
 }
 
 export function isReviewMessage(message: unknown): message is ReviewMessage {
-  return (
+  if (
     typeof message === "object" &&
     message !== null &&
     "type" in message &&
     message.type === REVIEW_SUMMARY_MESSAGE
-  );
+  ) {
+    return true;
+  }
+
+  if (
+    typeof message === "object" &&
+    message !== null &&
+    "type" in message &&
+    message.type === REVIEW_NEW_QUEUE_MESSAGE
+  ) {
+    return true;
+  }
+
+  if (
+    typeof message !== "object" ||
+    message === null ||
+    !("type" in message) ||
+    message.type !== REVIEW_RATE_MESSAGE ||
+    !("payload" in message) ||
+    typeof message.payload !== "object" ||
+    message.payload === null
+  ) {
+    return false;
+  }
+
+  const payload = message.payload as Record<string, unknown>;
+  return typeof payload.id === "string" && isReviewRating(payload.rating);
+}
+
+function isReviewRating(value: unknown): value is ReviewRating {
+  return value === "again" || value === "hard" || value === "good" || value === "easy";
 }
 
 function isSaveVocabularyPayload(payload: unknown): payload is SaveVocabularyInput {
