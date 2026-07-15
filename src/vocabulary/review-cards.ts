@@ -62,6 +62,14 @@ export class ReviewCardStore {
     return getNewReviewQueue(await this.list());
   }
 
+  async dueQueue(): Promise<ReviewCard[]> {
+    return getDueReviewQueue(await this.list(), this.now());
+  }
+
+  async allQueue(): Promise<ReviewCard[]> {
+    return getAllReviewQueue(await this.list());
+  }
+
   async rate(id: string, rating: ReviewRating): Promise<ReviewCard> {
     const cards = await this.list();
     const card = cards.find((candidate) => candidate.id === id);
@@ -138,7 +146,21 @@ export function getReviewCardSummary(
 export function getNewReviewQueue(cards: ReviewCard[]): ReviewCard[] {
   return cards
     .filter((card) => card.reviewCount === 0)
-    .sort((first, second) => first.createdAt - second.createdAt || first.id.localeCompare(second.id));
+    .sort(compareByCreationTime);
+}
+
+export function getDueReviewQueue(cards: ReviewCard[], now = Date.now()): ReviewCard[] {
+  return cards
+    .filter((card) => card.reviewCount > 0 && card.dueAt !== null && card.dueAt <= now)
+    .sort((first, second) => first.dueAt! - second.dueAt! || first.id.localeCompare(second.id));
+}
+
+export function getAllReviewQueue(cards: ReviewCard[]): ReviewCard[] {
+  return [...cards].sort(compareByCreationTime);
+}
+
+function compareByCreationTime(first: ReviewCard, second: ReviewCard): number {
+  return first.createdAt - second.createdAt || first.id.localeCompare(second.id);
 }
 
 export function rateReviewCard(card: ReviewCard, rating: ReviewRating, reviewedAt: number): ReviewCard {

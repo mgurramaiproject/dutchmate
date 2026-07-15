@@ -8,7 +8,7 @@ import {
   revealPracticeAnswer,
   type PracticeSessionState,
 } from "./practice-session";
-import type { ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
+import type { ReviewCard, ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
 import "./styles.css";
 
 type PopupTab = "learn" | "settings";
@@ -23,6 +23,17 @@ let summary: ReviewCardSummary | null = null;
 let practiceSession: PracticeSessionState | null = null;
 let practicePending = false;
 let ratingPending = false;
+
+const practiceModeLabel: Record<PracticeSessionState["mode"], string> = {
+  due: "Due review",
+  new: "New word",
+  all: "All words",
+};
+const practiceModeDescription: Record<PracticeSessionState["mode"], string> = {
+  due: "Review your due words.",
+  new: "Practice your new words.",
+  all: "Review all your words.",
+};
 
 learnTab?.addEventListener("click", () => {
   activeTab = "learn";
@@ -106,7 +117,7 @@ function renderPractice(session: PracticeSessionState): HTMLElement {
 
   if (session.completed) {
     wrapper.append(
-      createEyebrow("Practice complete"),
+      createEyebrow(`${getPracticeModeLabel(session.mode)} complete`),
       createHeading("That is a good set."),
       createText("Your ratings are saved locally. Review again when the cards are due."),
     );
@@ -127,7 +138,10 @@ function renderPractice(session: PracticeSessionState): HTMLElement {
   const progress = createText(`Card ${session.currentIndex + 1} of ${session.queue.length}`, "practice-progress");
   const cardSection = document.createElement("section");
   cardSection.className = "practice-card";
-  cardSection.append(createEyebrow(session.revealed ? "Answer" : "New word"), createHeading(card.dutch));
+  cardSection.append(
+    createEyebrow(session.revealed ? "Answer" : getPracticeModeLabel(session.mode)),
+    createHeading(card.dutch),
+  );
 
   if (session.revealed) {
     cardSection.append(createMeaningRow("Dutch", card.dutch));
@@ -209,11 +223,9 @@ function createReviewAction(action: LearnSummaryView["actions"][number]): HTMLBu
   button.className = "button";
   button.textContent = action.label;
   button.disabled = !action.enabled || practicePending;
-  button.title = action.enabled
-    ? action.mode === "new" ? "Practice your new words." : "Review sessions are coming next."
-    : "Save a word to enable this action.";
-  if (action.mode === "new" && action.enabled) {
-    button.addEventListener("click", () => void startNewPractice());
+  button.title = action.enabled ? practiceModeDescription[action.mode] : "Save a word to enable this action.";
+  if (action.enabled) {
+    button.addEventListener("click", () => void startPractice(action.mode));
   }
   return button;
 }
@@ -240,7 +252,7 @@ function createMeaningRow(label: string, value: string | null): HTMLElement {
   return row;
 }
 
-async function startNewPractice(): Promise<void> {
+async function startPractice(mode: LearnSummaryView["actions"][number]["mode"]): Promise<void> {
   if (practicePending) {
     return;
   }
@@ -249,13 +261,28 @@ async function startNewPractice(): Promise<void> {
   render();
   let errorMessage: string | null = null;
   try {
-    practiceSession = createPracticeSession(await reviewClient.getNewQueue());
+    const queue = await getPracticeQueue(mode);
+    practiceSession = createPracticeSession(queue, mode);
   } catch (error) {
-    errorMessage = error instanceof Error ? error.message : "New-word practice is unavailable.";
+    errorMessage = error instanceof Error ? error.message : `${getPracticeModeLabel(mode)} is unavailable.`;
   } finally {
     practicePending = false;
     errorMessage ? renderError(errorMessage) : render();
   }
+}
+
+function getPracticeModeLabel(mode: PracticeSessionState["mode"]): string {
+  return practiceModeLabel[mode];
+}
+
+function getPracticeQueue(mode: PracticeSessionState["mode"]): Promise<ReviewCard[]> {
+  if (mode === "new") {
+    return reviewClient.getNewQueue();
+  }
+  if (mode === "due") {
+    return reviewClient.getDueQueue();
+  }
+  return reviewClient.getAllQueue();
 }
 
 async function rateCurrentCard(rating: ReviewRating): Promise<void> {

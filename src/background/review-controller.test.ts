@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { handleReviewMessage } from "./review-controller";
-import { REVIEW_NEW_QUEUE_MESSAGE, REVIEW_RATE_MESSAGE, REVIEW_SUMMARY_MESSAGE } from "./messages";
+import {
+  REVIEW_ALL_QUEUE_MESSAGE,
+  REVIEW_DUE_QUEUE_MESSAGE,
+  REVIEW_NEW_QUEUE_MESSAGE,
+  REVIEW_RATE_MESSAGE,
+  REVIEW_SUMMARY_MESSAGE,
+} from "./messages";
 import type { ReviewCard } from "../vocabulary/review-cards";
 
 describe("handleReviewMessage", () => {
@@ -38,6 +44,25 @@ describe("handleReviewMessage", () => {
         newQueue: async () => cards,
       }),
     ).resolves.toEqual({ ok: true, result: { cards } });
+  });
+
+  it("returns stable snapshots for due and all-card review", async () => {
+    const dueCards = [{ id: "nl\u001fdue" }] as never[];
+    const allCards = [{ id: "nl\u001fall" }] as never[];
+
+    await expect(
+      handleReviewMessage({ type: REVIEW_DUE_QUEUE_MESSAGE }, {
+        summary: async () => ({ total: 0, due: 0, new: 0, recent: [] }),
+        dueQueue: async () => dueCards,
+      }),
+    ).resolves.toEqual({ ok: true, result: { cards: dueCards } });
+
+    await expect(
+      handleReviewMessage({ type: REVIEW_ALL_QUEUE_MESSAGE }, {
+        summary: async () => ({ total: 0, due: 0, new: 0, recent: [] }),
+        allQueue: async () => allCards,
+      }),
+    ).resolves.toEqual({ ok: true, result: { cards: allCards } });
   });
 
   it("persists the selected rating through the review provider", async () => {

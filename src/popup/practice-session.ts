@@ -2,14 +2,19 @@ import type { ReviewCard } from "../vocabulary/review-cards";
 
 export type PracticeSessionState = {
   queue: ReviewCard[];
+  mode: "due" | "new" | "all";
   currentIndex: number;
   revealed: boolean;
   completed: boolean;
 };
 
-export function createPracticeSession(queue: ReviewCard[]): PracticeSessionState {
+export function createPracticeSession(
+  queue: ReviewCard[],
+  mode: PracticeSessionState["mode"] = "new",
+): PracticeSessionState {
   return {
     queue: [...queue],
+    mode,
     currentIndex: 0,
     revealed: false,
     completed: queue.length === 0,
@@ -31,6 +36,7 @@ export function advancePracticeSession(
 
   return {
     queue,
+    mode: session.mode,
     currentIndex,
     revealed: false,
     completed: currentIndex >= queue.length,

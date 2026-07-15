@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import { createReviewClient } from "./review-client";
 import {
   REVIEW_NEW_QUEUE_MESSAGE,
+  REVIEW_ALL_QUEUE_MESSAGE,
+  REVIEW_DUE_QUEUE_MESSAGE,
   REVIEW_RATE_MESSAGE,
   REVIEW_SUMMARY_MESSAGE,
   type ReviewMessageResponse,
@@ -47,6 +49,23 @@ describe("createReviewClient", () => {
     });
 
     await expect(createReviewClient({ runtime: { sendMessage } }).getNewQueue()).resolves.toEqual([]);
+  });
+
+  it("starts due and all-card review through the background runtime", async () => {
+    const sendMessage = vi.fn(async (message): Promise<ReviewMessageResponse> => ({
+      ok: true,
+      result: {
+        cards: message.type === REVIEW_DUE_QUEUE_MESSAGE
+          ? [{ id: "nl\u001fdue" }]
+          : [{ id: "nl\u001fall" }],
+      },
+    } as never));
+    const client = createReviewClient({ runtime: { sendMessage } });
+
+    await expect(client.getDueQueue()).resolves.toEqual([{ id: "nl\u001fdue" }]);
+    await expect(client.getAllQueue()).resolves.toEqual([{ id: "nl\u001fall" }]);
+    expect(sendMessage).toHaveBeenNthCalledWith(1, { type: REVIEW_DUE_QUEUE_MESSAGE });
+    expect(sendMessage).toHaveBeenNthCalledWith(2, { type: REVIEW_ALL_QUEUE_MESSAGE });
   });
 
   it("sends a rating and returns the persisted card", async () => {

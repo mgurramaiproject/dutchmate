@@ -45,12 +45,12 @@ GitHub issue: [#23](https://github.com/mgurramaiproject/dutchmate/issues/23)
 
 **Blocked by:** [PVR-001-T02 / #22](https://github.com/mgurramaiproject/dutchmate/issues/22)
 
-- [ ] Review Due Words selects only previously reviewed cards whose due time has arrived.
-- [ ] Review All Words includes every canonical card without changing the due/new classification.
-- [ ] Due cards are ordered by earliest due time and new/all cards use oldest creation time first.
-- [ ] The badge initializes from local vocabulary state and shows the count of reviewed due cards.
-- [ ] The badge updates after vocabulary saves and ratings, and is hidden when the count is zero.
-- [ ] Due/all queue behavior and initialization/mutation badge behavior have focused tests.
+- [x] Review Due Words selects only previously reviewed cards whose due time has arrived.
+- [x] Review All Words includes every canonical card without changing the due/new classification.
+- [x] Due cards are ordered by earliest due time and new/all cards use oldest creation time first.
+- [x] The badge initializes from local vocabulary state and shows the count of reviewed due cards.
+- [x] The badge updates after vocabulary saves and ratings, and is hidden when the count is zero.
+- [x] Due/all queue behavior and initialization/mutation badge behavior have focused tests.
 
 ## PVR-001-T04: Add review settings and page context
 

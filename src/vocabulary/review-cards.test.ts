@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   getReviewCardSummary,
+  getDueReviewQueue,
+  getAllReviewQueue,
   getNewReviewQueue,
   migrateSavedVocabulary,
   rateReviewCard,
@@ -182,6 +184,56 @@ describe("new-card practice", () => {
         [newCard.id]: updated,
       },
     });
+  });
+
+  it("provides due and all queues from the persisted canonical cards", async () => {
+    let now = 20_000;
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
+    await savedVocabulary.save(savedEntry({ text: "huis", translatedText: "house" }));
+    await savedVocabulary.save(savedEntry({ text: "boom", translatedText: "tree" }));
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => now);
+
+    await reviewCards.rate("nl\u001fhuis", "again");
+    now += 24 * 60 * 60 * 1_000;
+
+    await expect(reviewCards.dueQueue()).resolves.toEqual([
+      expect.objectContaining({ id: "nl\u001fhuis" }),
+    ]);
+    await expect(reviewCards.allQueue()).resolves.toEqual([
+      expect.objectContaining({ id: "nl\u001fboom" }),
+      expect.objectContaining({ id: "nl\u001fhuis" }),
+    ]);
+  });
+});
+
+describe("review queues", () => {
+  it("selects only reviewed due cards in earliest-due order", () => {
+    const cards = [
+      card({ id: "nl\u001flate", dutch: "late", reviewCount: 1, dueAt: 9_000 }),
+      card({ id: "nl\u001fnew", dutch: "new", createdAt: 500 }),
+      card({ id: "nl\u001fold", dutch: "old", reviewCount: 2, dueAt: 4_000 }),
+      card({ id: "nl\u001ffuture", dutch: "future", reviewCount: 1, dueAt: 20_000 }),
+    ];
+
+    expect(getDueReviewQueue(cards, 10_000)).toEqual([
+      expect.objectContaining({ id: "nl\u001fold" }),
+      expect.objectContaining({ id: "nl\u001flate" }),
+    ]);
+  });
+
+  it("includes every card in oldest-creation order for all-card review", () => {
+    const cards = [
+      card({ id: "nl\u001fnewest", createdAt: 3_000 }),
+      card({ id: "nl\u001foldest", createdAt: 1_000, reviewCount: 1, dueAt: 5_000 }),
+      card({ id: "nl\u001fmiddle", createdAt: 2_000 }),
+    ];
+
+    expect(getAllReviewQueue(cards)).toEqual([
+      expect.objectContaining({ id: "nl\u001foldest" }),
+      expect.objectContaining({ id: "nl\u001fmiddle" }),
+      expect.objectContaining({ id: "nl\u001fnewest" }),
+    ]);
   });
 });
 

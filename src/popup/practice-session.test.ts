@@ -16,6 +16,7 @@ describe("practice session state", () => {
 
     expect(session).toEqual({
       queue: [card("huis"), card("boom")],
+      mode: "new",
       currentIndex: 0,
       revealed: false,
       completed: false,
@@ -37,6 +38,7 @@ describe("practice session state", () => {
     const second = card("boom");
     const session: PracticeSessionState = {
       queue: [first, second],
+      mode: "new",
       currentIndex: 0,
       revealed: true,
       completed: false,
@@ -45,6 +47,7 @@ describe("practice session state", () => {
     const next = advancePracticeSession(session, { ...first, lastRating: "good" });
     expect(next).toEqual({
       queue: [{ ...first, lastRating: "good" }, second],
+      mode: "new",
       currentIndex: 1,
       revealed: false,
       completed: false,
@@ -52,6 +55,7 @@ describe("practice session state", () => {
 
     expect(advancePracticeSession(next, { ...second, lastRating: "easy" })).toEqual({
       queue: [{ ...first, lastRating: "good" }, { ...second, lastRating: "easy" }],
+      mode: "new",
       currentIndex: 2,
       revealed: false,
       completed: true,

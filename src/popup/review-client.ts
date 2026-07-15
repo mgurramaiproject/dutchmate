@@ -1,6 +1,8 @@
 import type { ReviewCard, ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
 import {
   REVIEW_NEW_QUEUE_MESSAGE,
+  REVIEW_DUE_QUEUE_MESSAGE,
+  REVIEW_ALL_QUEUE_MESSAGE,
   REVIEW_RATE_MESSAGE,
   REVIEW_SUMMARY_MESSAGE,
   type ReviewMessage,
@@ -16,6 +18,8 @@ export type PopupRuntimeApi = {
 export type ReviewClient = {
   getSummary(): Promise<ReviewCardSummary>;
   getNewQueue(): Promise<ReviewCard[]>;
+  getDueQueue(): Promise<ReviewCard[]>;
+  getAllQueue(): Promise<ReviewCard[]>;
   rateCard(id: string, rating: ReviewRating): Promise<ReviewCard>;
 };
 
@@ -37,15 +41,13 @@ export function createReviewClient(extensionApi: PopupRuntimeApi): ReviewClient 
       throw new Error("Review summary is unavailable.");
     },
     async getNewQueue() {
-      const response = await extensionApi.runtime.sendMessage({
-        type: REVIEW_NEW_QUEUE_MESSAGE,
-      });
-
-      if (isNewQueueResponse(response)) {
-        return response.result.cards;
-      }
-
-      throw new Error(getReviewError(response, "New-word practice is unavailable."));
+      return getQueue(extensionApi, REVIEW_NEW_QUEUE_MESSAGE, "New-word practice is unavailable.");
+    },
+    async getDueQueue() {
+      return getQueue(extensionApi, REVIEW_DUE_QUEUE_MESSAGE, "Due-word review is unavailable.");
+    },
+    async getAllQueue() {
+      return getQueue(extensionApi, REVIEW_ALL_QUEUE_MESSAGE, "All-word review is unavailable.");
     },
     async rateCard(id, rating) {
       const response = await extensionApi.runtime.sendMessage({
@@ -60,6 +62,20 @@ export function createReviewClient(extensionApi: PopupRuntimeApi): ReviewClient 
       throw new Error(getReviewError(response, "Your rating could not be saved."));
     },
   };
+}
+
+async function getQueue(
+  extensionApi: PopupRuntimeApi,
+  type: typeof REVIEW_NEW_QUEUE_MESSAGE | typeof REVIEW_DUE_QUEUE_MESSAGE | typeof REVIEW_ALL_QUEUE_MESSAGE,
+  fallback: string,
+): Promise<ReviewCard[]> {
+  const response = await extensionApi.runtime.sendMessage({ type });
+
+  if (isReviewQueueResponse(response)) {
+    return response.result.cards;
+  }
+
+  throw new Error(getReviewError(response, fallback));
 }
 
 function isReviewSummaryResponse(response: unknown): response is {
@@ -98,7 +114,7 @@ function isErrorResponse(response: unknown): response is { ok: false; error: str
   );
 }
 
-function isNewQueueResponse(response: unknown): response is { ok: true; result: { cards: ReviewCard[] } } {
+function isReviewQueueResponse(response: unknown): response is { ok: true; result: { cards: ReviewCard[] } } {
   return isSuccessfulResponse(response) && "cards" in response.result && Array.isArray(response.result.cards);
 }
 

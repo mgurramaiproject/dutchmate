@@ -15,6 +15,8 @@ export const DELETE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.delete";
 export const CLEAR_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.clear";
 export const REVIEW_SUMMARY_MESSAGE = "dutchmate.review.summary";
 export const REVIEW_NEW_QUEUE_MESSAGE = "dutchmate.review.newQueue";
+export const REVIEW_DUE_QUEUE_MESSAGE = "dutchmate.review.dueQueue";
+export const REVIEW_ALL_QUEUE_MESSAGE = "dutchmate.review.allQueue";
 export const REVIEW_RATE_MESSAGE = "dutchmate.review.rate";
 
 export type TranslateMessage = {
@@ -57,6 +59,14 @@ export type ReviewNewQueueMessage = {
   type: typeof REVIEW_NEW_QUEUE_MESSAGE;
 };
 
+export type ReviewDueQueueMessage = {
+  type: typeof REVIEW_DUE_QUEUE_MESSAGE;
+};
+
+export type ReviewAllQueueMessage = {
+  type: typeof REVIEW_ALL_QUEUE_MESSAGE;
+};
+
 export type ReviewRateMessage = {
   type: typeof REVIEW_RATE_MESSAGE;
   payload: {
@@ -72,7 +82,12 @@ export type VocabularyMessage =
   | DeleteVocabularyMessage
   | ClearVocabularyMessage;
 
-export type ReviewMessage = ReviewSummaryMessage | ReviewNewQueueMessage | ReviewRateMessage;
+export type ReviewMessage =
+  | ReviewSummaryMessage
+  | ReviewNewQueueMessage
+  | ReviewDueQueueMessage
+  | ReviewAllQueueMessage
+  | ReviewRateMessage;
 
 export type TranslateMessageResponse =
   | {
@@ -176,7 +191,9 @@ export function isReviewMessage(message: unknown): message is ReviewMessage {
     typeof message === "object" &&
     message !== null &&
     "type" in message &&
-    message.type === REVIEW_NEW_QUEUE_MESSAGE
+    (message.type === REVIEW_NEW_QUEUE_MESSAGE ||
+      message.type === REVIEW_DUE_QUEUE_MESSAGE ||
+      message.type === REVIEW_ALL_QUEUE_MESSAGE)
   ) {
     return true;
   }
