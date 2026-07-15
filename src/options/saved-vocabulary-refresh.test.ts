@@ -31,6 +31,20 @@ describe("shouldRefreshSavedVocabulary", () => {
     ).toBe(false);
   });
 
+  it("refreshes when canonical review cards change in local storage", () => {
+    expect(
+      shouldRefreshSavedVocabulary(
+        {
+          "dutchmate.reviewCards.v1": {
+            oldValue: { cards: [] },
+            newValue: { cards: [{ id: "nl\u001fhuis" }] },
+          },
+        },
+        "local",
+      ),
+    ).toBe(true);
+  });
+
   it("ignores saved vocabulary changes outside local storage", () => {
     expect(
       shouldRefreshSavedVocabulary(

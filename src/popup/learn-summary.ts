@@ -7,6 +7,7 @@ export type LearnSummaryView = {
     value: number;
     label: string;
   }[];
+  recentLabel: string;
   recent: {
     dutch: string;
     english: string;
@@ -34,6 +35,10 @@ export function getLearnSummaryView(summary: ReviewCardSummary): LearnSummaryVie
       { value: summary.total, label: "Saved" },
       { value: summary.new, label: "New" },
     ],
+    recentLabel:
+      summary.total > summary.recent.length
+        ? `Recently saved · ${summary.recent.length} of ${summary.total}`
+        : "Recently saved",
     recent: summary.recent.map((card) => ({
       dutch: card.dutch,
       english: card.english ?? "unavailable",

@@ -5,7 +5,7 @@ import type {
   SaveVocabularyInput,
   SaveVocabularyResult,
 } from "../vocabulary/saved-vocabulary";
-import type { ReviewCard, ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
+import type { ReviewCard, ReviewCardSummary, ReviewImportResult, ReviewRating } from "../vocabulary/review-cards";
 import type { VocabularyBackup } from "../vocabulary/vocabulary-backup";
 import type { ExtensionSettings } from "../shared/settings";
 
@@ -20,6 +20,7 @@ export const REVIEW_NEW_QUEUE_MESSAGE = "dutchmate.review.newQueue";
 export const REVIEW_DUE_QUEUE_MESSAGE = "dutchmate.review.dueQueue";
 export const REVIEW_ALL_QUEUE_MESSAGE = "dutchmate.review.allQueue";
 export const REVIEW_RATE_MESSAGE = "dutchmate.review.rate";
+export const REVIEW_DELETE_MESSAGE = "dutchmate.review.delete";
 export const REVIEW_EXPORT_MESSAGE = "dutchmate.review.export";
 export const REVIEW_IMPORT_MESSAGE = "dutchmate.review.import";
 export const REVIEW_CLEAR_MESSAGE = "dutchmate.review.clear";
@@ -87,6 +88,11 @@ export type ReviewRateMessage = {
   };
 };
 
+export type ReviewDeleteMessage = {
+  type: typeof REVIEW_DELETE_MESSAGE;
+  payload: { id: string };
+};
+
 export type ReviewExportMessage = {
   type: typeof REVIEW_EXPORT_MESSAGE;
 };
@@ -122,6 +128,7 @@ export type ReviewMessage =
   | ReviewDueQueueMessage
   | ReviewAllQueueMessage
   | ReviewRateMessage
+  | ReviewDeleteMessage
   | ReviewExportMessage
   | ReviewImportMessage
   | ReviewClearMessage;
@@ -167,7 +174,9 @@ export type ReviewMessageResponse =
       result:
         | ReviewCardSummary
         | { cards: ReviewCard[] }
+        | ReviewImportResult
         | { card: ReviewCard }
+        | { deleted: true }
         | { backup: VocabularyBackup }
         | { cleared: true };
     }
@@ -240,6 +249,19 @@ export function isReviewMessage(message: unknown): message is ReviewMessage {
     message.type === REVIEW_SUMMARY_MESSAGE
   ) {
     return true;
+  }
+
+  if (
+    typeof message === "object" &&
+    message !== null &&
+    "type" in message &&
+    message.type === REVIEW_DELETE_MESSAGE &&
+    "payload" in message &&
+    typeof message.payload === "object" &&
+    message.payload !== null &&
+    "id" in message.payload
+  ) {
+    return typeof message.payload.id === "string";
   }
 
   if (

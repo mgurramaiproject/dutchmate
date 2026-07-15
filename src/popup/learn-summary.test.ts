@@ -33,6 +33,7 @@ describe("getLearnSummaryView", () => {
         { value: 2, label: "Saved" },
         { value: 1, label: "New" },
       ],
+      recentLabel: "Recently saved · 1 of 2",
       recent: [{ dutch: "huis", english: "house", telugu: "unavailable" }],
       actions: [
         { label: "Review due words", enabled: true },

@@ -96,9 +96,9 @@ GitHub issue: [#26](https://github.com/mgurramaiproject/dutchmate/issues/26)
 - [x] Focused tests, typecheck, and the full test suite pass.
 - [ ] The popup remains usable at browser popup dimensions, preserves the Direction A composition at a 390x844 baseline, and remains usable at narrow viewport widths.
 - [ ] Keyboard navigation, focus states, labels, and button states are accessible.
-- [ ] Vocabulary import is initiated from a persistent page so the native file picker cannot dismiss the popup before feedback is shown.
-- [ ] A completed import reports how many cards were imported and the resulting total saved-word count.
-- [ ] The Learn preview identifies the recent subset as "3 of N" and provides a clear path to the complete vocabulary list.
-- [ ] Imported review cards are included in the complete vocabulary list, including cards that did not previously have saved translation-pair entries.
+- [x] Vocabulary import is initiated from a persistent page so the native file picker cannot dismiss the popup before feedback is shown.
+- [x] A completed import reports how many cards were imported and the resulting total saved-word count.
+- [x] The Learn preview identifies the recent subset as "3 of N" and provides a clear path to the complete vocabulary list.
+- [x] Imported review cards are included in the complete vocabulary list, including cards that did not previously have saved translation-pair entries.
 - [x] Generated manifests and packaged outputs are inspected for the expected entry points.
 - [ ] A standards/spec review finds no unresolved MVP gaps.

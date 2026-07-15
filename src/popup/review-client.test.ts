@@ -94,4 +94,19 @@ describe("createReviewClient", () => {
       createReviewClient({ runtime: { sendMessage } }).rateCard(card.id, "good"),
     ).resolves.toEqual(card);
   });
+
+  it("deletes a canonical review card", async () => {
+    const sendMessage = vi.fn(async () => ({
+      ok: true as const,
+      result: { deleted: true as const },
+    }));
+
+    await expect(
+      createReviewClient({ runtime: { sendMessage } }).deleteCard("nl\u001fhuis"),
+    ).resolves.toBeUndefined();
+    expect(sendMessage).toHaveBeenCalledWith({
+      type: "dutchmate.review.delete",
+      payload: { id: "nl\u001fhuis" },
+    });
+  });
 });

@@ -33,7 +33,7 @@ describe("handleReviewMessage", () => {
     const clear = vi.fn(async () => undefined);
     const provider = {
       summary: async () => ({ total: 0, due: 0, new: 0, recent: [] }),
-      importBackup: async () => [],
+      importBackup: async () => ({ cards: [], importedCount: 0, totalCount: 0 }),
       clear,
     };
 
@@ -48,6 +48,55 @@ describe("handleReviewMessage", () => {
       handleReviewMessage({ type: REVIEW_CLEAR_MESSAGE }, provider),
     ).resolves.toEqual({ ok: true, result: { cleared: true } });
     expect(clear).toHaveBeenCalledOnce();
+  });
+
+  it("returns import counts and deletes a canonical review card", async () => {
+    const cards = [{
+      id: "nl\u001fhuis",
+      dutch: "huis",
+      english: "house",
+      telugu: null,
+      pageContext: null,
+      createdAt: 1_000,
+      updatedAt: 1_000,
+      dueAt: null,
+      lastReviewedAt: null,
+      lastRating: null,
+      reviewCount: 0,
+    }];
+    const deleteCard = vi.fn(async () => undefined);
+
+    await expect(
+      handleReviewMessage({
+        type: REVIEW_IMPORT_MESSAGE,
+        payload: {
+          document: JSON.stringify({
+            format: "dutchmate-vocabulary-backup",
+            version: 1,
+            exportedAt: 1_000,
+            cards,
+          }),
+        },
+      }, {
+        summary: async () => ({ total: 0, due: 0, new: 0, recent: [] }),
+        importBackup: async () => ({ cards, importedCount: 1, totalCount: 3 }),
+        deleteCard,
+      }),
+    ).resolves.toEqual({
+      ok: true,
+      result: { cards, importedCount: 1, totalCount: 3 },
+    });
+
+    await expect(
+      handleReviewMessage({
+        type: "dutchmate.review.delete" as never,
+        payload: { id: "nl\u001fhuis" },
+      }, {
+        summary: async () => ({ total: 0, due: 0, new: 0, recent: [] }),
+        deleteCard,
+      }),
+    ).resolves.toEqual({ ok: true, result: { deleted: true } });
+    expect(deleteCard).toHaveBeenCalledWith("nl\u001fhuis");
   });
 
   it("returns the canonical review summary", async () => {

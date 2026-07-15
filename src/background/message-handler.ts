@@ -5,6 +5,7 @@ import {
   CLEAR_VOCABULARY_MESSAGE,
   LIST_VOCABULARY_MESSAGE,
   REVIEW_CLEAR_MESSAGE,
+  REVIEW_DELETE_MESSAGE,
   REVIEW_IMPORT_MESSAGE,
   REVIEW_RATE_MESSAGE,
   type BackgroundMessageResponse,
@@ -46,7 +47,8 @@ export function createBackgroundMessageHandler(
         if (
           (message.type === REVIEW_RATE_MESSAGE ||
             message.type === REVIEW_IMPORT_MESSAGE ||
-            message.type === REVIEW_CLEAR_MESSAGE) &&
+            message.type === REVIEW_CLEAR_MESSAGE ||
+            message.type === REVIEW_DELETE_MESSAGE) &&
           response.ok
         ) {
           await dependencies.refreshBadge();

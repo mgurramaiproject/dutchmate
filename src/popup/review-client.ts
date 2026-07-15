@@ -3,6 +3,7 @@ import {
   REVIEW_NEW_QUEUE_MESSAGE,
   REVIEW_DUE_QUEUE_MESSAGE,
   REVIEW_ALL_QUEUE_MESSAGE,
+  REVIEW_DELETE_MESSAGE,
   REVIEW_RATE_MESSAGE,
   REVIEW_SUMMARY_MESSAGE,
   type ReviewMessage,
@@ -21,6 +22,7 @@ export type ReviewClient = {
   getDueQueue(): Promise<ReviewCard[]>;
   getAllQueue(): Promise<ReviewCard[]>;
   rateCard(id: string, rating: ReviewRating): Promise<ReviewCard>;
+  deleteCard(id: string): Promise<void>;
 };
 
 export function createReviewClient(extensionApi: PopupRuntimeApi): ReviewClient {
@@ -60,6 +62,18 @@ export function createReviewClient(extensionApi: PopupRuntimeApi): ReviewClient 
       }
 
       throw new Error(getReviewError(response, "Your rating could not be saved."));
+    },
+    async deleteCard(id) {
+      const response = await extensionApi.runtime.sendMessage({
+        type: REVIEW_DELETE_MESSAGE,
+        payload: { id },
+      });
+
+      if (isDeletedResponse(response)) {
+        return;
+      }
+
+      throw new Error(getReviewError(response, "Vocabulary card could not be deleted."));
     },
   };
 }
@@ -120,6 +134,10 @@ function isReviewQueueResponse(response: unknown): response is { ok: true; resul
 
 function isRatedCardResponse(response: unknown): response is { ok: true; result: { card: ReviewCard } } {
   return isSuccessfulResponse(response) && "card" in response.result && typeof response.result.card === "object";
+}
+
+function isDeletedResponse(response: unknown): response is { ok: true; result: { deleted: true } } {
+  return isSuccessfulResponse(response) && response.result.deleted === true;
 }
 
 function isSuccessfulResponse(response: unknown): response is {

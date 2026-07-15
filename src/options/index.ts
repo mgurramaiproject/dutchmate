@@ -17,9 +17,11 @@ import {
 import { MVP_LANGUAGES, getMvpLanguageCode, getSourceLanguageCode } from "../shared/languages";
 import { getCachedWordCount } from "./cache-summary";
 import { PERSISTENT_TRANSLATION_CACHE_KEY, shouldRefreshCacheCount } from "./cache-refresh";
-import { createSavedVocabularyClient } from "./saved-vocabulary-client";
+import { createReviewClient } from "../popup/review-client";
+import { createSettingsClient } from "../popup/settings-client";
+import { serializeVocabularyBackup } from "../vocabulary/vocabulary-backup";
 import { shouldRefreshSavedVocabulary, type StorageChange } from "./saved-vocabulary-refresh";
-import type { SavedVocabularyEntry } from "../vocabulary/saved-vocabulary";
+import type { ReviewCard } from "../vocabulary/review-cards";
 import "./styles.css";
 
 const MANUAL_REFRESH_MIN_BUSY_MS = 450;
@@ -49,11 +51,15 @@ const vocabularyCount = document.querySelector<HTMLSpanElement>("#vocabulary-cou
 const vocabularyEmpty = document.querySelector<HTMLParagraphElement>("#vocabulary-empty");
 const vocabularyList = document.querySelector<HTMLUListElement>("#vocabulary-list");
 const refreshVocabulary = document.querySelector<HTMLButtonElement>("#refresh-vocabulary");
+const exportVocabulary = document.querySelector<HTMLButtonElement>("#export-vocabulary");
+const importVocabulary = document.querySelector<HTMLButtonElement>("#import-vocabulary");
+const importVocabularyFile = document.querySelector<HTMLInputElement>("#import-vocabulary-file");
 const clearVocabulary = document.querySelector<HTMLButtonElement>("#clear-vocabulary");
 const status = document.querySelector<HTMLParagraphElement>("#status");
 let statusTimer: number | undefined;
 let currentLanguageRoles: LanguageRoleSettings = normalizeLanguageRoles(undefined);
-const vocabularyClient = createSavedVocabularyClient(browser);
+const reviewClient = createReviewClient(browser);
+const settingsClient = createSettingsClient(browser);
 
 renderAdvancedLocalTesting();
 renderLanguageOptions();
@@ -81,6 +87,19 @@ clearVocabulary?.addEventListener("click", () => {
 
 refreshVocabulary?.addEventListener("click", () => {
   void refreshSavedVocabulary({ showSuccessStatus: true });
+});
+
+exportVocabulary?.addEventListener("click", () => {
+  void exportVocabularyBackup();
+});
+
+importVocabulary?.addEventListener("click", () => importVocabularyFile?.click());
+importVocabularyFile?.addEventListener("change", () => {
+  const file = importVocabularyFile.files?.[0];
+  importVocabularyFile.value = "";
+  if (file) {
+    void importVocabularyBackup(file);
+  }
 });
 
 hoverDelayMs?.addEventListener("input", updateTuningValueLabels);
@@ -292,8 +311,8 @@ async function refreshSavedVocabulary(options: { showSuccessStatus?: boolean } =
     : Promise.resolve();
 
   try {
-    const [entries] = await Promise.all([vocabularyClient.list(), minimumBusyTime]);
-    renderSavedVocabulary(entries);
+    const [cards] = await Promise.all([reviewClient.getAllQueue(), minimumBusyTime]);
+    renderSavedVocabulary(cards);
 
     if (options.showSuccessStatus) {
       showStatus("Saved vocabulary refreshed", "success");
@@ -345,46 +364,47 @@ function setRefreshVocabularyButtonBusy(isBusy: boolean): void {
   refreshVocabulary.classList.toggle("is-busy", isBusy);
 }
 
-function renderSavedVocabulary(entries: SavedVocabularyEntry[]): void {
+function renderSavedVocabulary(cards: ReviewCard[]): void {
   if (!vocabularyCount || !vocabularyEmpty || !vocabularyList) {
     return;
   }
 
-  vocabularyCount.textContent = `Saved words: ${getUniqueSavedVocabularyWordCount(entries)}`;
-  vocabularyEmpty.hidden = entries.length > 0;
-  vocabularyList.hidden = entries.length === 0;
-  vocabularyList.replaceChildren(...entries.map(createVocabularyListItem));
+  const newestFirst = [...cards].sort((first, second) => second.createdAt - first.createdAt);
+  vocabularyCount.textContent = `Saved words: ${newestFirst.length}`;
+  vocabularyEmpty.hidden = newestFirst.length > 0;
+  vocabularyList.hidden = newestFirst.length === 0;
+  vocabularyList.replaceChildren(...newestFirst.map(createVocabularyListItem));
 }
 
-function createVocabularyListItem(entry: SavedVocabularyEntry): HTMLLIElement {
+function createVocabularyListItem(card: ReviewCard): HTMLLIElement {
   const item = document.createElement("li");
   item.className = "vocabulary-item";
 
   const text = document.createElement("span");
   text.className = "vocabulary-text";
-  text.textContent = entry.text;
+  text.textContent = card.dutch;
 
   const translation = document.createElement("span");
   translation.className = "vocabulary-translation";
-  translation.textContent = entry.translatedText;
+  translation.textContent = `English: ${card.english ?? "unavailable"}`;
 
   const meta = document.createElement("span");
   meta.className = "vocabulary-meta";
-  meta.textContent = `${formatLanguage(entry.detectedSourceLanguage ?? entry.sourceLanguage)} -> ${formatLanguage(entry.targetLanguage)}`;
+  meta.textContent = `Telugu: ${card.telugu ?? "unavailable"}`;
 
   const deleteButton = document.createElement("button");
   deleteButton.type = "button";
   deleteButton.className = "secondary-button compact-button";
   deleteButton.textContent = "Delete";
   deleteButton.addEventListener("click", () => {
-    void deleteSavedVocabularyEntry(entry.id, deleteButton);
+    void deleteReviewCard(card.id, deleteButton);
   });
 
   item.append(text, translation, meta, deleteButton);
   return item;
 }
 
-async function deleteSavedVocabularyEntry(
+async function deleteReviewCard(
   id: string,
   deleteButton: HTMLButtonElement,
 ): Promise<void> {
@@ -392,7 +412,7 @@ async function deleteSavedVocabularyEntry(
   deleteButton.textContent = "Deleting...";
 
   try {
-    await vocabularyClient.delete(id);
+    await reviewClient.deleteCard(id);
     await refreshSavedVocabulary();
     showStatus("Saved word deleted", "success");
   } catch (error) {
@@ -414,7 +434,7 @@ async function clearSavedVocabulary(): Promise<void> {
   setClearVocabularyButtonBusy(true);
 
   try {
-    await vocabularyClient.clear();
+    await settingsClient.clearVocabulary();
     await refreshSavedVocabulary();
     showStatus("Saved vocabulary cleared", "success");
   } catch (error) {
@@ -428,12 +448,60 @@ async function clearSavedVocabulary(): Promise<void> {
   }
 }
 
-function getUniqueSavedVocabularyWordCount(entries: SavedVocabularyEntry[]): number {
-  return new Set(entries.map((entry) => entry.normalizedText)).size;
+async function exportVocabularyBackup(): Promise<void> {
+  setVocabularyActionsBusy(true);
+
+  try {
+    const backup = await settingsClient.exportVocabulary();
+    const blob = new Blob([serializeVocabularyBackup(backup.cards, backup.exportedAt)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `dutchmate-vocabulary-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    showStatus(`Exported ${backup.cards.length} saved words`, "success");
+  } catch (error) {
+    showStatus(
+      `Could not export vocabulary: ${error instanceof Error ? error.message : "Unknown error"}`,
+      "error",
+      4000,
+    );
+  } finally {
+    setVocabularyActionsBusy(false);
+  }
 }
 
-function formatLanguage(languageCode: string): string {
-  return MVP_LANGUAGES.find((language) => language.code === languageCode)?.label ?? languageCode;
+async function importVocabularyBackup(file: File): Promise<void> {
+  setVocabularyActionsBusy(true);
+
+  try {
+    const result = await settingsClient.importVocabulary(await file.text());
+    await refreshSavedVocabulary();
+    showStatus(
+      `Imported ${result.importedCount} cards. You now have ${result.totalCount} saved words.`,
+      "success",
+      5000,
+    );
+  } catch (error) {
+    showStatus(
+      error instanceof Error ? error.message : "Vocabulary import failed.",
+      "error",
+      5000,
+    );
+  } finally {
+    setVocabularyActionsBusy(false);
+  }
+}
+
+function setVocabularyActionsBusy(isBusy: boolean): void {
+  for (const button of [exportVocabulary, importVocabulary, clearVocabulary, refreshVocabulary]) {
+    if (button) {
+      button.disabled = isBusy;
+    }
+  }
 }
 
 async function clearTranslationCache(): Promise<void> {

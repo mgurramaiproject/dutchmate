@@ -175,6 +175,11 @@
                 </svg>
               </button>
             </div>
+            <div class="vocabulary-toolbar-meta">
+              <button id="export-vocabulary" type="button" class="secondary-button">Export backup</button>
+              <button id="import-vocabulary" type="button" class="secondary-button">Import backup</button>
+              <input id="import-vocabulary-file" type="file" accept="application/json,.json" hidden />
+            </div>
             <button id="clear-vocabulary" type="button" class="secondary-button">Clear saved words</button>
           </div>
 
@@ -185,7 +190,7 @@
           <ul id="vocabulary-list" class="vocabulary-list" aria-label="Saved vocabulary"></ul>
 
           <p class="settings-note">
-            Saved vocabulary is your learning list. Words appear here only when you choose Save, and they stay local in this browser until you delete them.
+            This is your complete local learning list, including words restored from a DutchMate backup. Delete individual words here or clear the whole list.
           </p>
         </section>
 

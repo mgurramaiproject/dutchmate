@@ -298,6 +298,19 @@ describe("imported review cards", () => {
     await expect(reviewCards.list()).resolves.toEqual([imported]);
   });
 
+  it("deletes a canonical card and its saved translation pairs", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage);
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage);
+    await savedVocabulary.save(savedEntry({ text: "huis", targetLanguage: "en" }));
+    await savedVocabulary.save(savedEntry({ text: "huis", targetLanguage: "te" }));
+
+    await reviewCards.deleteCard("nl\u001fhuis");
+
+    await expect(reviewCards.list()).resolves.toEqual([]);
+    await expect(savedVocabulary.list()).resolves.toEqual([]);
+  });
+
   it("clears saved pairs and canonical review cards together", async () => {
     const storage = new MemoryStorage();
     const savedVocabulary = new SavedVocabularyStore(storage);

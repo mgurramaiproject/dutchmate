@@ -30,12 +30,18 @@ describe("settings client", () => {
     };
     const sendMessage = vi.fn()
       .mockResolvedValueOnce({ ok: true as const, result: { backup } })
-      .mockResolvedValueOnce({ ok: true as const, result: { cards: [] } })
+      .mockResolvedValueOnce({
+        ok: true as const,
+        result: { cards: [], importedCount: 0, totalCount: 0 },
+      })
       .mockResolvedValueOnce({ ok: true as const, result: { cleared: true } });
     const client = createSettingsClient({ runtime: { sendMessage } });
 
     await expect(client.exportVocabulary()).resolves.toEqual(backup);
-    await expect(client.importVocabulary(JSON.stringify(backup))).resolves.toBeUndefined();
+    await expect(client.importVocabulary(JSON.stringify(backup))).resolves.toEqual({
+      importedCount: 0,
+      totalCount: 0,
+    });
     await expect(client.clearVocabulary()).resolves.toBeUndefined();
     expect(sendMessage).toHaveBeenNthCalledWith(1, { type: REVIEW_EXPORT_MESSAGE });
     expect(sendMessage).toHaveBeenNthCalledWith(2, {

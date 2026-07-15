@@ -11,6 +11,7 @@ import {
   type SettingsMessageResponse,
 } from "../background/messages";
 import type { ExtensionSettings } from "../shared/settings";
+import type { ReviewCard } from "../vocabulary/review-cards";
 import type { VocabularyBackup } from "../vocabulary/vocabulary-backup";
 
 export type PopupSettingsRuntimeApi = {
@@ -23,7 +24,7 @@ export type SettingsClient = {
   getSettings(): Promise<ExtensionSettings>;
   updateSettings(changes: Partial<ReviewSettingsChanges>): Promise<ExtensionSettings>;
   exportVocabulary(): Promise<VocabularyBackup>;
-  importVocabulary(document: string): Promise<void>;
+  importVocabulary(document: string): Promise<{ importedCount: number; totalCount: number }>;
   clearVocabulary(): Promise<void>;
 };
 
@@ -52,9 +53,13 @@ export function createSettingsClient(extensionApi: PopupSettingsRuntimeApi): Set
         type: REVIEW_IMPORT_MESSAGE,
         payload: { document },
       });
-      if (!isSuccessfulResponse(response) || !("cards" in response.result)) {
+      if (!isImportedResponse(response)) {
         throw new Error(getResponseError(response, "Vocabulary import failed."));
       }
+      return {
+        importedCount: response.result.importedCount,
+        totalCount: response.result.totalCount,
+      };
     },
     async clearVocabulary() {
       const response = await extensionApi.runtime.sendMessage({ type: REVIEW_CLEAR_MESSAGE });
@@ -88,6 +93,18 @@ function isSuccessfulResponse(response: unknown): response is { ok: true; result
     "result" in response &&
     typeof response.result === "object" &&
     response.result !== null
+  );
+}
+
+function isImportedResponse(response: unknown): response is {
+  ok: true;
+  result: { cards: ReviewCard[]; importedCount: number; totalCount: number };
+} {
+  return (
+    isSuccessfulResponse(response) &&
+    Array.isArray(response.result.cards) &&
+    typeof response.result.importedCount === "number" &&
+    typeof response.result.totalCount === "number"
   );
 }
 

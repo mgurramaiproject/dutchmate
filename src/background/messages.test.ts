@@ -11,6 +11,7 @@ import {
   REVIEW_SUMMARY_MESSAGE,
   REVIEW_NEW_QUEUE_MESSAGE,
   REVIEW_RATE_MESSAGE,
+  REVIEW_DELETE_MESSAGE,
   REVIEW_EXPORT_MESSAGE,
   REVIEW_IMPORT_MESSAGE,
   REVIEW_CLEAR_MESSAGE,
@@ -77,6 +78,12 @@ describe("isVocabularyMessage", () => {
       isReviewMessage({
         type: REVIEW_RATE_MESSAGE,
         payload: { id: "nl\u001fhuis", rating: "good" },
+      }),
+    ).toBe(true);
+    expect(
+      isReviewMessage({
+        type: REVIEW_DELETE_MESSAGE,
+        payload: { id: "nl\u001fhuis" },
       }),
     ).toBe(true);
   });

@@ -91,6 +91,7 @@ button { font: inherit; cursor: pointer; }
 .settings-actions { display: grid; gap: 8px; padding-top: 8px; }
 .settings-actions .button { width: 100%; }
 .settings-actions .danger-button { border-color: var(--orange); }
+.vocabulary-link { border: 0; background: transparent; color: var(--black); font-size: 0.68rem; min-height: 36px; padding: 4px 0; text-align: left; text-decoration: underline; }
 .settings-notice { padding: 10px 12px; border-left: 3px solid var(--orange); background: rgba(255, 111, 0, 0.08); }
 .settings-notice.error { border-left-color: var(--black); }
 .error-state { display: grid; align-content: start; gap: 12px; }

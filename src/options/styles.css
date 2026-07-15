@@ -301,6 +301,10 @@ input[type="range"] {
   font-size: 14px;
 }
 
+.vocabulary-toolbar > .vocabulary-toolbar-meta:last-of-type {
+  margin-left: auto;
+}
+
 .vocabulary-toolbar-meta {
   display: flex;
   flex-wrap: wrap;

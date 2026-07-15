@@ -36,6 +36,12 @@ export type ReviewCardSummary = {
   recent: ReviewCard[];
 };
 
+export type ReviewImportResult = {
+  cards: ReviewCard[];
+  importedCount: number;
+  totalCount: number;
+};
+
 export class ReviewCardStore {
   constructor(
     private readonly savedVocabulary: SavedVocabularyStore,
@@ -78,13 +84,38 @@ export class ReviewCardStore {
     return createVocabularyBackup(await this.list(), this.now());
   }
 
-  async importBackup(backup: VocabularyBackup): Promise<ReviewCard[]> {
+  async importBackup(backup: VocabularyBackup): Promise<ReviewImportResult> {
     const cards = mergeImportedReviewCards(await this.list(), backup.cards);
     await this.storage.set(
       REVIEW_CARDS_STORAGE_KEY,
       { cards: Object.fromEntries(cards.map((card) => [card.id, card])) },
     );
-    return cards;
+    return {
+      cards,
+      importedCount: backup.cards.length,
+      totalCount: cards.length,
+    };
+  }
+
+  async deleteCard(id: string): Promise<void> {
+    const cards = await this.list();
+    const card = cards.find((candidate) => candidate.id === id);
+    if (!card) {
+      return;
+    }
+
+    const normalizedDutch = normalizeSavedVocabularyText(card.dutch);
+    const savedEntries = await this.savedVocabulary.list();
+    for (const entry of savedEntries) {
+      if (isDutchLearningEntry(entry) && entry.normalizedText === normalizedDutch) {
+        await this.savedVocabulary.delete(entry.id);
+      }
+    }
+    const remainingCards = cards.filter((candidate) => candidate.id !== id);
+    await this.storage.set(
+      REVIEW_CARDS_STORAGE_KEY,
+      { cards: Object.fromEntries(remainingCards.map((candidate) => [candidate.id, candidate])) },
+    );
   }
 
   async clear(): Promise<void> {

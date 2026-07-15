@@ -1,9 +1,10 @@
-import type { ReviewCard, ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
+import type { ReviewCard, ReviewCardSummary, ReviewImportResult, ReviewRating } from "../vocabulary/review-cards";
 import {
   REVIEW_NEW_QUEUE_MESSAGE,
   REVIEW_DUE_QUEUE_MESSAGE,
   REVIEW_ALL_QUEUE_MESSAGE,
   REVIEW_CLEAR_MESSAGE,
+  REVIEW_DELETE_MESSAGE,
   REVIEW_EXPORT_MESSAGE,
   REVIEW_IMPORT_MESSAGE,
   REVIEW_RATE_MESSAGE,
@@ -20,7 +21,8 @@ export type ReviewProvider = {
   allQueue?(): Promise<ReviewCard[]>;
   rate?(id: string, rating: ReviewRating): Promise<ReviewCard>;
   exportBackup?(): Promise<VocabularyBackup>;
-  importBackup?(backup: VocabularyBackup): Promise<ReviewCard[]>;
+  importBackup?(backup: VocabularyBackup): Promise<ReviewImportResult>;
+  deleteCard?(id: string): Promise<void>;
   clear?(): Promise<void>;
 };
 
@@ -35,7 +37,12 @@ export async function handleReviewMessage(
 
     if (message.type === REVIEW_IMPORT_MESSAGE && provider.importBackup) {
       const backup = parseVocabularyBackup(message.payload.document);
-      return { ok: true, result: { cards: await provider.importBackup(backup) } };
+      return { ok: true, result: await provider.importBackup(backup) };
+    }
+
+    if (message.type === REVIEW_DELETE_MESSAGE && provider.deleteCard) {
+      await provider.deleteCard(message.payload.id);
+      return { ok: true, result: { deleted: true } };
     }
 
     if (message.type === REVIEW_CLEAR_MESSAGE && provider.clear) {
@@ -86,6 +93,8 @@ function getReviewMessageError(message: ReviewMessage, error: unknown): string {
       return "Vocabulary export is unavailable.";
     case REVIEW_IMPORT_MESSAGE:
       return error instanceof Error ? error.message : "Vocabulary import failed.";
+    case REVIEW_DELETE_MESSAGE:
+      return "Vocabulary card could not be deleted.";
     case REVIEW_CLEAR_MESSAGE:
       return "Vocabulary could not be cleared.";
     case REVIEW_RATE_MESSAGE:
