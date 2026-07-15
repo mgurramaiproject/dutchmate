@@ -1,5 +1,6 @@
 import type { ReviewCard, ReviewRating } from "./review-cards";
 import { normalizeSavedVocabularyText } from "./saved-vocabulary";
+import { isMvpLanguageCode } from "../shared/languages";
 
 export const VOCABULARY_BACKUP_FORMAT = "dutchmate-vocabulary-backup";
 export const VOCABULARY_BACKUP_VERSION = 1;
@@ -77,6 +78,9 @@ function isReviewCard(value: unknown): value is ReviewCard {
     value.dutch === normalizedDutch &&
     isNullableString(value.english) &&
     isNullableString(value.telugu) &&
+    (value.originalLanguage === undefined || (
+      typeof value.originalLanguage === "string" && isMvpLanguageCode(value.originalLanguage)
+    )) &&
     isNullableString(value.pageContext) &&
     (value.pageContext === null || value.pageContext.length <= 240) &&
     isFiniteNumber(value.createdAt) &&

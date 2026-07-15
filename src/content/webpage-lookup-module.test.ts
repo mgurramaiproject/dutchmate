@@ -192,6 +192,57 @@ describe("WebpageLookupModule", () => {
     });
   });
 
+  it("keeps English-source candidates in the manual save flow", async () => {
+    const savedRequests: Array<{ targetLanguage: string; detectedSourceLanguage?: string }> = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({
+        saveVocabularyBatch: async (requests) => {
+          savedRequests.push(...requests);
+          return {
+            ok: true,
+            result: {
+              results: requests.map((request) => ({
+                status: "saved" as const,
+                entry: {
+                  id: `${request.detectedSourceLanguage}\u001f${request.text}\u001f${request.targetLanguage}`,
+                  text: request.text,
+                  normalizedText: request.text,
+                  sourceLanguage: request.sourceLanguage,
+                  detectedSourceLanguage: request.detectedSourceLanguage,
+                  targetLanguage: request.targetLanguage,
+                  translatedText: request.translatedText,
+                  providerName: request.providerName,
+                  createdAt: 1,
+                  updatedAt: 1,
+                },
+              })),
+            },
+          };
+        },
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    await module.beginLookup({
+      text: "house",
+      context: "selection",
+      x: 10,
+      y: 20,
+      languageSample: "house",
+      sourceLanguageHint: "en",
+    });
+    await module.handleSaveAction();
+
+    expect(savedRequests).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        targetLanguage: "nl",
+        detectedSourceLanguage: "en",
+      }),
+    ]));
+  });
+
   it("auto-saves eligible selected words with reliable page context when enabled", async () => {
     const savedRequests: unknown[] = [];
     const module = new WebpageLookupModule({

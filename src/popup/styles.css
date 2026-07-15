@@ -39,7 +39,7 @@ button { font: inherit; cursor: pointer; }
 .tab:last-child { border-right: 0; }
 .tab.is-active { background: var(--black); color: var(--white); }
 .popup-content { display: grid; align-content: start; height: 496px; overflow-y: auto; padding: 16px 18px 18px; }
-.learn-content, .settings-content { display: grid; align-content: start; gap: 16px; }
+.learn-content, .settings-content { display: grid; align-content: start; gap: 12px; }
 .summary-intro, .settings-content { gap: 8px; }
 .eyebrow, .section-title, .stat-label { margin: 0; font-size: 0.7rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
 .eyebrow { color: var(--orange); }
@@ -88,9 +88,8 @@ button { font: inherit; cursor: pointer; }
 .direction-setting legend { padding: 0; font-size: 0.78rem; font-weight: 850; }
 .direction-setting label { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 0; color: var(--muted); font-size: 0.74rem; }
 .direction-setting input { accent-color: var(--orange); }
-.settings-actions { display: grid; gap: 8px; padding-top: 8px; }
-.settings-actions .button { width: 100%; }
-.settings-actions .danger-button { border-color: var(--orange); }
+.options-button { width: 100%; min-height: 44px; }
+.options-button:first-child { background: var(--orange); }
 .vocabulary-link { border: 0; background: transparent; color: var(--black); font-size: 0.68rem; min-height: 36px; padding: 4px 0; text-align: left; text-decoration: underline; }
 .settings-notice { padding: 10px 12px; border-left: 3px solid var(--orange); background: rgba(255, 111, 0, 0.08); }
 .settings-notice.error { border-left-color: var(--black); }

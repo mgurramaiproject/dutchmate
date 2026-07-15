@@ -102,3 +102,21 @@ GitHub issue: [#26](https://github.com/mgurramaiproject/dutchmate/issues/26)
 - [x] Imported review cards are included in the complete vocabulary list, including cards that did not previously have saved translation-pair entries.
 - [x] Generated manifests and packaged outputs are inspected for the expected entry points.
 - [ ] A standards/spec review finds no unresolved MVP gaps.
+
+## PVR-001-T07: Vocabulary visibility, language roles, and settings UX
+
+GitHub issue: [#27](https://github.com/mgurramaiproject/dutchmate/issues/27)
+
+**What to build:** Make saved vocabulary direction-independent and easy to manage. Normalize words saved from Dutch, English, or Telugu into one compact canonical table, keep the saved-word and review surfaces synchronized, constrain the MVP language roles, and make the popup Settings tab a clear route to the Options page instead of a second settings panel.
+
+**Blocked by:** [PVR-001-T06 / #26](https://github.com/mgurramaiproject/dutchmate/issues/26)
+
+- [x] Options Saved vocabulary uses a compact, accessible table with Dutch, English, Telugu, original-language indication, and delete controls.
+- [x] A word saved from an English or Telugu source is converted into the same canonical Dutch/English/Telugu card as a Dutch-source save; missing meanings remain explicitly unavailable.
+- [x] Saving a selected word from an English website updates the saved-vocabulary table, popup summary/recent list, and canonical review count; hover-only translations remain cache-only and are clearly not presented as saved.
+- [x] Existing saved entries and imported backups remain readable, and the original source language is preserved or defaults safely for legacy Dutch-source cards.
+- [x] Options Languages allows only Dutch for the learning language and excludes Dutch from the native and bridge-language dropdowns.
+- [x] Popup Settings fits its short routing content without unnecessary scrolling, identifies the Options page as the place for settings, and uses a clearly actionable “Open Options page” control.
+- [x] Popup Settings no longer contains the Auto-save selected words control or duplicate settings controls; those preferences are available from the Options page with clear descriptions.
+- [x] Options Behaviour states that selected text is saved only after the user clicks Save by default, and explains how the optional auto-save preference changes that behavior.
+- [x] Focused tests cover English/Telugu source normalization, saved-surface synchronization, language-role constraints, and the settings copy/controls; typecheck and the full regression suite pass.

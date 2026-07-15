@@ -20,6 +20,8 @@ export type ReviewCard = {
   dutch: string;
   english: string | null;
   telugu: string | null;
+  /** The language of the source text that first created this card. */
+  originalLanguage?: "en" | "nl" | "te";
   pageContext: string | null;
   createdAt: number;
   updatedAt: number;
@@ -107,7 +109,8 @@ export class ReviewCardStore {
     const normalizedDutch = normalizeSavedVocabularyText(card.dutch);
     const savedEntries = await this.savedVocabulary.list();
     for (const entry of savedEntries) {
-      if (isDutchLearningEntry(entry) && entry.normalizedText === normalizedDutch) {
+      const contribution = getReviewCardContribution(entry);
+      if (contribution && normalizeSavedVocabularyText(contribution.dutch) === normalizedDutch) {
         await this.savedVocabulary.delete(entry.id);
       }
     }
@@ -153,25 +156,26 @@ export function migrateSavedVocabulary(
   );
 
   for (const entry of entries) {
-    if (!isDutchLearningEntry(entry)) {
+    const contribution = getReviewCardContribution(entry);
+    if (!contribution) {
       continue;
     }
 
-    const id = getReviewCardId(entry.text);
+    const id = getReviewCardId(contribution.dutch);
     const existingCard = cards.get(id);
-    const card = existingCard ?? createReviewCard(entry, existingById.get(id));
+    const card = existingCard ?? createReviewCard(contribution, entry);
 
     if (!existingById.has(id)) {
       card.createdAt = Math.min(card.createdAt, entry.createdAt);
       card.updatedAt = Math.max(card.updatedAt, entry.updatedAt);
     }
 
-    if (entry.targetLanguage === "en" && card.english === null) {
-      card.english = entry.translatedText;
+    if (contribution.meaningLanguage === "en" && card.english === null) {
+      card.english = contribution.meaning;
     }
 
-    if (entry.targetLanguage === "te" && card.telugu === null) {
-      card.telugu = entry.translatedText;
+    if (contribution.meaningLanguage === "te" && card.telugu === null) {
+      card.telugu = contribution.meaning;
     }
 
     if (card.pageContext === null && entry.pageContext) {
@@ -206,6 +210,7 @@ export function mergeImportedReviewCards(
       english: existing.english ?? imported.english,
       telugu: existing.telugu ?? imported.telugu,
       pageContext: existing.pageContext ?? imported.pageContext,
+      originalLanguage: existing.originalLanguage ?? imported.originalLanguage,
     });
   }
 
@@ -262,28 +267,57 @@ export function rateReviewCard(card: ReviewCard, rating: ReviewRating, reviewedA
   };
 }
 
-function createReviewCard(entry: SavedVocabularyEntry, existing?: ReviewCard): ReviewCard {
-  return (
-    existing ? { ...existing } : {
-      id: getReviewCardId(entry.text),
-      dutch: normalizeSavedVocabularyText(entry.text),
-      english: null,
-      telugu: null,
-      pageContext: null,
-      createdAt: entry.createdAt,
-      updatedAt: entry.updatedAt,
-      dueAt: null,
-      lastReviewedAt: null,
-      lastRating: null,
-      reviewCount: 0,
-    }
-  );
+type ReviewCardContribution = {
+  dutch: string;
+  meaningLanguage: "en" | "te";
+  meaning: string;
+  originalLanguage: "en" | "nl" | "te";
+};
+
+function createReviewCard(
+  contribution: ReviewCardContribution,
+  entry: SavedVocabularyEntry,
+): ReviewCard {
+  return {
+    id: getReviewCardId(contribution.dutch),
+    dutch: normalizeSavedVocabularyText(contribution.dutch),
+    english: contribution.meaningLanguage === "en" ? contribution.meaning : null,
+    telugu: contribution.meaningLanguage === "te" ? contribution.meaning : null,
+    pageContext: null,
+    createdAt: entry.createdAt,
+    updatedAt: entry.updatedAt,
+    dueAt: null,
+    lastReviewedAt: null,
+    lastRating: null,
+    reviewCount: 0,
+    ...(contribution.originalLanguage !== "nl"
+      ? { originalLanguage: contribution.originalLanguage }
+      : {}),
+  };
 }
 
-function isDutchLearningEntry(entry: SavedVocabularyEntry): boolean {
+function getReviewCardContribution(entry: SavedVocabularyEntry): ReviewCardContribution | null {
   const sourceLanguage = entry.detectedSourceLanguage ?? entry.sourceLanguage;
-  return sourceLanguage === "nl" &&
-    (entry.targetLanguage === "en" || entry.targetLanguage === "te");
+
+  if (sourceLanguage === "nl" && (entry.targetLanguage === "en" || entry.targetLanguage === "te")) {
+    return {
+      dutch: entry.text,
+      meaningLanguage: entry.targetLanguage,
+      meaning: entry.translatedText,
+      originalLanguage: "nl",
+    };
+  }
+
+  if ((sourceLanguage === "en" || sourceLanguage === "te") && entry.targetLanguage === "nl") {
+    return {
+      dutch: entry.translatedText,
+      meaningLanguage: sourceLanguage,
+      meaning: entry.text,
+      originalLanguage: sourceLanguage,
+    };
+  }
+
+  return null;
 }
 
 function parseReviewCardData(value: unknown): Record<string, ReviewCard> {

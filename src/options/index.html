@@ -34,7 +34,7 @@
               <tr>
                 <th scope="col">Text</th>
                 <th scope="col">Translate</th>
-                <th scope="col">Save single words</th>
+                <th scope="col">Save selected words</th>
               </tr>
             </thead>
             <tbody>
@@ -50,10 +50,53 @@
                 <td class="settings-matrix-control">
                   <input id="translate-on-selection" name="translateOnSelection" type="checkbox" aria-label="Translate selected text" />
                 </td>
-                <td class="matrix-note">Single words only</td>
+                <td class="matrix-note">Manual Save by default</td>
               </tr>
             </tbody>
           </table>
+          <p class="settings-note">
+            Selected text is saved only when you click Save unless you enable automatic saving below. Hover-only translations are cached for faster lookups, but are never added to this study list.
+          </p>
+        </section>
+
+        <section class="settings-section" aria-labelledby="study-preferences-heading">
+          <h2 id="study-preferences-heading">Study preferences</h2>
+
+          <label class="checkbox-label preference-row">
+            <input id="auto-save-selected-words" name="autoSaveSelectedWords" type="checkbox" />
+            <span>
+              <span class="setting-label">Automatically save selected words</span>
+              <span class="setting-help">When off, click Save in the translation popup to add a selected single word.</span>
+            </span>
+          </label>
+
+          <label class="checkbox-label preference-row">
+            <input id="show-example-sentence" name="showExampleSentence" type="checkbox" />
+            <span>
+              <span class="setting-label">Show example sentence on review cards</span>
+              <span class="setting-help">Use the saved page context when it is available.</span>
+            </span>
+          </label>
+
+          <label class="checkbox-label preference-row">
+            <input id="daily-review-badge" name="dailyReviewBadge" type="checkbox" />
+            <span>
+              <span class="setting-label">Show due-review badge</span>
+              <span class="setting-help">Display the number of cards ready for review on the extension icon.</span>
+            </span>
+          </label>
+
+          <fieldset>
+            <legend class="setting-label">Card direction</legend>
+            <label class="choice-label">
+              <input name="cardDirection" type="radio" value="dutch-to-helpers" />
+              Dutch to helper languages
+            </label>
+            <label class="choice-label">
+              <input name="cardDirection" type="radio" value="helpers-to-dutch" />
+              Helper languages to Dutch
+            </label>
+          </fieldset>
         </section>
 
         <section class="settings-section" aria-labelledby="tuning-heading">
@@ -187,7 +230,20 @@
             No saved words yet. Select a single word on a webpage, translate it, then choose Save.
           </p>
 
-          <ul id="vocabulary-list" class="vocabulary-list" aria-label="Saved vocabulary"></ul>
+          <div class="vocabulary-table-wrap">
+            <table id="vocabulary-list" class="vocabulary-list" aria-label="Saved vocabulary">
+              <thead>
+                <tr>
+                  <th scope="col">Dutch</th>
+                  <th scope="col">English</th>
+                  <th scope="col">Telugu</th>
+                  <th scope="col">Original</th>
+                  <th scope="col"><span class="visually-hidden">Delete</span></th>
+                </tr>
+              </thead>
+              <tbody id="vocabulary-list-body"></tbody>
+            </table>
+          </div>
 
           <p class="settings-note">
             This is your complete local learning list, including words restored from a DutchMate backup. Delete individual words here or clear the whole list.

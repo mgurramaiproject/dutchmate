@@ -14,7 +14,6 @@ import {
   defaultSettings,
   type ExtensionSettings,
 } from "../shared/settings";
-import type { ReviewSettingsChanges } from "../background/messages";
 import { createSettingsClient } from "./settings-client";
 import { getPopupTabForKey, type PopupTab } from "./tab-navigation";
 import "./styles.css";
@@ -211,44 +210,15 @@ function renderSettings(): HTMLElement {
   const wrapper = document.createElement("section");
   wrapper.className = "settings-content";
   wrapper.append(
-    createEyebrow("Study preferences"),
-    createHeading("Your study desk"),
-    createInfoRow("Learning language", "Dutch"),
-    createInfoRow("Helper languages", "English + Telugu"),
-    createSettingToggle(
-      "Auto-save selected words",
-      "Save eligible single words after a successful selection.",
-      settings.autoSaveSelectedWords,
-      (checked) => void saveReviewSettings({ autoSaveSelectedWords: checked }),
+    createEyebrow("Extension settings"),
+    createHeading("Change settings in Options"),
+    createText(
+      "Choose languages, saving behavior, review preferences, and translation settings on the Options page.",
     ),
-    createSettingToggle(
-      "Show example sentence",
-      "Display stored page context on review cards.",
-      settings.showExampleSentence,
-      (checked) => void saveReviewSettings({ showExampleSentence: checked }),
-    ),
-    createSettingToggle(
-      "Daily review badge",
-      "Show the number of reviewed cards due today.",
-      settings.dailyReviewBadge,
-      (checked) => void saveReviewSettings({ dailyReviewBadge: checked }),
-    ),
-    createDirectionSetting(),
-    createVocabularyActions(),
+    createOptionsButton("Open Options page"),
     createLocalNote(),
   );
   return wrapper;
-}
-
-function createVocabularyActions(): HTMLElement {
-  const actions = document.createElement("section");
-  actions.className = "settings-actions";
-
-  actions.append(
-    createVocabularyManagerButton("Manage vocabulary"),
-    createText("Import, export, and view all saved words in the Options page.", "local-note"),
-  );
-  return actions;
 }
 
 function createVocabularyManagerButton(label: string): HTMLButtonElement {
@@ -259,63 +229,12 @@ function createVocabularyManagerButton(label: string): HTMLButtonElement {
   return button;
 }
 
-function createSettingToggle(
-  labelText: string,
-  description: string,
-  checked: boolean,
-  onChange: (checked: boolean) => void,
-): HTMLElement {
-  const label = document.createElement("label");
-  label.className = "setting-control";
-
-  const copy = document.createElement("span");
-  copy.className = "setting-copy";
-  const title = document.createElement("strong");
-  title.textContent = labelText;
-  const note = document.createElement("small");
-  note.textContent = description;
-  copy.append(title, note);
-
-  const input = document.createElement("input");
-  input.type = "checkbox";
-  input.checked = checked;
-  input.addEventListener("change", () => onChange(input.checked));
-  label.append(copy, input);
-  return label;
-}
-
-function createDirectionSetting(): HTMLElement {
-  const fieldset = document.createElement("fieldset");
-  fieldset.className = "direction-setting";
-  const legend = document.createElement("legend");
-  legend.textContent = "Card direction";
-  fieldset.append(legend);
-
-  for (const option of [
-    { value: "dutch-to-helpers" as const, label: "Dutch to helpers" },
-    { value: "helpers-to-dutch" as const, label: "Helpers to Dutch" },
-  ]) {
-    const label = document.createElement("label");
-    const input = document.createElement("input");
-    input.type = "radio";
-    input.name = "card-direction";
-    input.value = option.value;
-    input.checked = settings.cardDirection === option.value;
-    input.addEventListener("change", () => {
-      if (input.checked) {
-        void saveReviewSettings({ cardDirection: option.value });
-      }
-    });
-    label.append(input, document.createTextNode(option.label));
-    fieldset.append(label);
-  }
-
-  return fieldset;
-}
-
-async function saveReviewSettings(changes: Partial<ReviewSettingsChanges>): Promise<void> {
-  settings = await settingsClient.updateSettings(changes);
-  render();
+function createOptionsButton(label: string): HTMLButtonElement {
+  const button = createButton(label, "button options-button");
+  button.addEventListener("click", () => {
+    void browser.runtime.openOptionsPage();
+  });
+  return button;
 }
 
 function renderError(message: string): void {
@@ -457,17 +376,6 @@ function createStat(value: number, label: string): HTMLElement {
   caption.textContent = label;
   stat.append(number, caption);
   return stat;
-}
-
-function createInfoRow(label: string, value: string): HTMLElement {
-  const row = document.createElement("div");
-  row.className = "info-row";
-  const name = document.createElement("strong");
-  name.textContent = label;
-  const setting = document.createElement("span");
-  setting.textContent = value;
-  row.append(name, setting);
-  return row;
 }
 
 function createEmptyState(message: string): HTMLElement {

@@ -10,6 +10,7 @@ import {
 } from "../shared/settings";
 import {
   applyLanguageRoleSelection,
+  getLanguageOptions,
   normalizeLanguageRoles,
   type LanguageRole,
   type LanguageRoleSettings,
@@ -30,6 +31,10 @@ const form = document.querySelector<HTMLFormElement>("#options-form");
 const isEnabled = document.querySelector<HTMLInputElement>("#is-enabled");
 const translateOnHover = document.querySelector<HTMLInputElement>("#translate-on-hover");
 const translateOnSelection = document.querySelector<HTMLInputElement>("#translate-on-selection");
+const autoSaveSelectedWords = document.querySelector<HTMLInputElement>("#auto-save-selected-words");
+const showExampleSentence = document.querySelector<HTMLInputElement>("#show-example-sentence");
+const dailyReviewBadge = document.querySelector<HTMLInputElement>("#daily-review-badge");
+const cardDirectionInputs = document.querySelectorAll<HTMLInputElement>('input[name="cardDirection"]');
 const cacheHoveredWords = document.querySelector<HTMLInputElement>("#cache-hovered-words");
 const hoverTranslationModes = document.querySelectorAll<HTMLInputElement>(
   'input[name="hoverTranslationMode"]',
@@ -49,7 +54,8 @@ const refreshCache = document.querySelector<HTMLButtonElement>("#refresh-cache")
 const clearCache = document.querySelector<HTMLButtonElement>("#clear-cache");
 const vocabularyCount = document.querySelector<HTMLSpanElement>("#vocabulary-count");
 const vocabularyEmpty = document.querySelector<HTMLParagraphElement>("#vocabulary-empty");
-const vocabularyList = document.querySelector<HTMLUListElement>("#vocabulary-list");
+const vocabularyList = document.querySelector<HTMLTableElement>("#vocabulary-list");
+const vocabularyListBody = document.querySelector<HTMLTableSectionElement>("#vocabulary-list-body");
 const refreshVocabulary = document.querySelector<HTMLButtonElement>("#refresh-vocabulary");
 const exportVocabulary = document.querySelector<HTMLButtonElement>("#export-vocabulary");
 const importVocabulary = document.querySelector<HTMLButtonElement>("#import-vocabulary");
@@ -135,6 +141,22 @@ async function restoreSettings(): Promise<void> {
     translateOnSelection.checked = settings.translateOnSelection;
   }
 
+  if (autoSaveSelectedWords) {
+    autoSaveSelectedWords.checked = settings.autoSaveSelectedWords;
+  }
+
+  if (showExampleSentence) {
+    showExampleSentence.checked = settings.showExampleSentence;
+  }
+
+  if (dailyReviewBadge) {
+    dailyReviewBadge.checked = settings.dailyReviewBadge;
+  }
+
+  cardDirectionInputs.forEach((input) => {
+    input.checked = input.value === settings.cardDirection;
+  });
+
   if (cacheHoveredWords) {
     cacheHoveredWords.checked = settings.cacheHoveredWords;
   }
@@ -210,10 +232,10 @@ async function saveSettings(): Promise<void> {
     learningLanguage: languageRoles.learningLanguage,
     nativeLanguage: languageRoles.nativeLanguage,
     bridgeLanguage: languageRoles.bridgeLanguage,
-    autoSaveSelectedWords: currentSettings.autoSaveSelectedWords,
-    showExampleSentence: currentSettings.showExampleSentence,
-    dailyReviewBadge: currentSettings.dailyReviewBadge,
-    cardDirection: currentSettings.cardDirection,
+    autoSaveSelectedWords: autoSaveSelectedWords?.checked ?? currentSettings.autoSaveSelectedWords,
+    showExampleSentence: showExampleSentence?.checked ?? currentSettings.showExampleSentence,
+    dailyReviewBadge: dailyReviewBadge?.checked ?? currentSettings.dailyReviewBadge,
+    cardDirection: getCardDirectionSelection(currentSettings.cardDirection),
     providerEndpoint: endpoint,
     providerApiKey: providerApiKey ? providerApiKey.value.trim() : currentSettings.providerApiKey,
   };
@@ -301,7 +323,7 @@ async function refreshCacheCount(options: { showSuccessStatus?: boolean } = {}):
 }
 
 async function refreshSavedVocabulary(options: { showSuccessStatus?: boolean } = {}): Promise<void> {
-  if (!vocabularyCount || !vocabularyEmpty || !vocabularyList) {
+  if (!vocabularyCount || !vocabularyEmpty || !vocabularyList || !vocabularyListBody) {
     return;
   }
 
@@ -365,7 +387,7 @@ function setRefreshVocabularyButtonBusy(isBusy: boolean): void {
 }
 
 function renderSavedVocabulary(cards: ReviewCard[]): void {
-  if (!vocabularyCount || !vocabularyEmpty || !vocabularyList) {
+  if (!vocabularyCount || !vocabularyEmpty || !vocabularyList || !vocabularyListBody) {
     return;
   }
 
@@ -373,24 +395,19 @@ function renderSavedVocabulary(cards: ReviewCard[]): void {
   vocabularyCount.textContent = `Saved words: ${newestFirst.length}`;
   vocabularyEmpty.hidden = newestFirst.length > 0;
   vocabularyList.hidden = newestFirst.length === 0;
-  vocabularyList.replaceChildren(...newestFirst.map(createVocabularyListItem));
+  vocabularyListBody.replaceChildren(...newestFirst.map(createVocabularyListRow));
 }
 
-function createVocabularyListItem(card: ReviewCard): HTMLLIElement {
-  const item = document.createElement("li");
+function createVocabularyListRow(card: ReviewCard): HTMLTableRowElement {
+  const item = document.createElement("tr");
   item.className = "vocabulary-item";
 
-  const text = document.createElement("span");
-  text.className = "vocabulary-text";
-  text.textContent = card.dutch;
-
-  const translation = document.createElement("span");
-  translation.className = "vocabulary-translation";
-  translation.textContent = `English: ${card.english ?? "unavailable"}`;
-
-  const meta = document.createElement("span");
-  meta.className = "vocabulary-meta";
-  meta.textContent = `Telugu: ${card.telugu ?? "unavailable"}`;
+  item.append(
+    createVocabularyCell(card.dutch, true),
+    createVocabularyCell(card.english, false),
+    createVocabularyCell(card.telugu, false),
+    createVocabularyCell(getLanguageLabel(card.originalLanguage ?? "nl"), false, "vocabulary-origin"),
+  );
 
   const deleteButton = document.createElement("button");
   deleteButton.type = "button";
@@ -400,8 +417,24 @@ function createVocabularyListItem(card: ReviewCard): HTMLLIElement {
     void deleteReviewCard(card.id, deleteButton);
   });
 
-  item.append(text, translation, meta, deleteButton);
+  const deleteCell = document.createElement("td");
+  deleteCell.append(deleteButton);
+  item.append(deleteCell);
   return item;
+}
+
+function createVocabularyCell(
+  value: string | null,
+  isPrimary = false,
+  className?: string,
+): HTMLTableCellElement {
+  const cell = document.createElement("td");
+  cell.className = [isPrimary ? "vocabulary-text" : "", className ?? ""].filter(Boolean).join(" ");
+  cell.textContent = value ?? "Unavailable";
+  if (value === null) {
+    cell.classList.add("vocabulary-unavailable");
+  }
+  return cell;
 }
 
 async function deleteReviewCard(
@@ -632,16 +665,32 @@ async function requestEndpointTest(endpoint: string, apiKey: string): Promise<st
 }
 
 function renderLanguageOptions(): void {
-  const options = MVP_LANGUAGES.map((language) => {
-    const option = document.createElement("option");
-    option.value = language.code;
-    option.textContent = language.label;
-    return option;
-  });
+  for (const [role, select] of [
+    ["learningLanguage", learningLanguage],
+    ["nativeLanguage", nativeLanguage],
+    ["bridgeLanguage", bridgeLanguage],
+  ] as const) {
+    if (!select) {
+      continue;
+    }
 
-  learningLanguage?.replaceChildren(...options.map((option) => option.cloneNode(true)));
-  nativeLanguage?.replaceChildren(...options.map((option) => option.cloneNode(true)));
-  bridgeLanguage?.replaceChildren(...options.map((option) => option.cloneNode(true)));
+    select.replaceChildren(...getLanguageOptions(role).map((code) => {
+      const language = MVP_LANGUAGES.find((candidate) => candidate.code === code);
+      const option = document.createElement("option");
+      option.value = code;
+      option.textContent = language?.label ?? code;
+      return option;
+    }));
+  }
+}
+
+function getCardDirectionSelection(fallback: ExtensionSettings["cardDirection"]): ExtensionSettings["cardDirection"] {
+  const value = Array.from(cardDirectionInputs).find((input) => input.checked)?.value;
+  return value === "helpers-to-dutch" || value === "dutch-to-helpers" ? value : fallback;
+}
+
+function getLanguageLabel(code: "en" | "nl" | "te"): string {
+  return MVP_LANGUAGES.find((language) => language.code === code)?.label ?? code;
 }
 
 function updateLanguageRoleSelection(role: LanguageRole, selectedValue: string): void {

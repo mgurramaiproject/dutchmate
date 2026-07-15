@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_LANGUAGE_ROLES,
   applyLanguageRoleSelection,
+  getLanguageOptions,
   normalizeLanguageRoles,
 } from "./language-roles";
 
@@ -32,5 +33,16 @@ describe("language roles", () => {
       nativeLanguage: "en",
       bridgeLanguage: "te",
     });
+  });
+
+  it("limits learning to Dutch and helper roles to English or Telugu", () => {
+    expect(getLanguageOptions("learningLanguage")).toEqual(["nl"]);
+    expect(getLanguageOptions("nativeLanguage")).toEqual(["en", "te"]);
+    expect(getLanguageOptions("bridgeLanguage")).toEqual(["en", "te"]);
+    expect(normalizeLanguageRoles({
+      learningLanguage: "en",
+      nativeLanguage: "nl",
+      bridgeLanguage: "nl",
+    })).toEqual(DEFAULT_LANGUAGE_ROLES);
   });
 });

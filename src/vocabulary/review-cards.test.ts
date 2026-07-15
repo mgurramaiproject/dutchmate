@@ -81,6 +81,64 @@ describe("review card migration", () => {
     ]);
   });
 
+  it("normalizes English and Telugu source saves into the Dutch card", () => {
+    expect(
+      migrateSavedVocabulary([
+        savedEntry({
+          id: "en\u001fhouse\u001fnl",
+          text: "house",
+          normalizedText: "house",
+          sourceLanguage: "en",
+          detectedSourceLanguage: "en",
+          targetLanguage: "nl",
+          translatedText: "huis",
+          createdAt: 2_000,
+          updatedAt: 2_000,
+        }),
+        savedEntry({
+          id: "te\u001fఇల్లు\u001fnl",
+          text: "ఇల్లు",
+          normalizedText: "ఇల్లు",
+          sourceLanguage: "te",
+          detectedSourceLanguage: "te",
+          targetLanguage: "nl",
+          translatedText: "huis",
+          createdAt: 3_000,
+          updatedAt: 3_000,
+        }),
+      ]),
+    ).toEqual([
+      expect.objectContaining({
+        id: "nl\u001fhuis",
+        dutch: "huis",
+        english: "house",
+        telugu: "ఇల్లు",
+        originalLanguage: "en",
+      }),
+    ]);
+  });
+
+  it("shows an English-source save in the persisted review list", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage);
+    await savedVocabulary.save({
+      text: "house",
+      sourceLanguage: "en",
+      detectedSourceLanguage: "en",
+      targetLanguage: "nl",
+      translatedText: "huis",
+      providerName: "test",
+    });
+
+    await expect(new ReviewCardStore(savedVocabulary, storage).list()).resolves.toEqual([
+      expect.objectContaining({
+        dutch: "huis",
+        english: "house",
+        originalLanguage: "en",
+      }),
+    ]);
+  });
+
   it("carries saved page context into the canonical card", () => {
     expect(
       migrateSavedVocabulary([
@@ -308,6 +366,24 @@ describe("imported review cards", () => {
     await reviewCards.deleteCard("nl\u001fhuis");
 
     await expect(reviewCards.list()).resolves.toEqual([]);
+    await expect(savedVocabulary.list()).resolves.toEqual([]);
+  });
+
+  it("deletes source-direction pairs for a non-Dutch source card", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage);
+    await savedVocabulary.save({
+      text: "house",
+      sourceLanguage: "en",
+      detectedSourceLanguage: "en",
+      targetLanguage: "nl",
+      translatedText: "huis",
+      providerName: "test",
+    });
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage);
+
+    await reviewCards.deleteCard("nl\u001fhuis");
+
     await expect(savedVocabulary.list()).resolves.toEqual([]);
   });
 
