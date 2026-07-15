@@ -4,8 +4,13 @@ import {
   type TranslateMessageResponse,
 } from "./messages";
 import { LocalCacheStorage, type LocalCacheExtensionApi } from "./local-cache-storage";
-import { readProviderSettings, type BackgroundExtensionApi } from "./settings-adapter";
+import {
+  readExtensionSettings,
+  readProviderSettings,
+  type BackgroundExtensionApi,
+} from "./settings-adapter";
 import { createBackgroundMessageHandler } from "./message-handler";
+import { mergeSettings } from "../shared/settings";
 import { PersistentTranslationCache } from "../translation/persistent-translation-cache";
 import { TranslationCache } from "../translation/translation-cache";
 import { TranslationService } from "../translation/translation-service";
@@ -18,6 +23,11 @@ const MAX_CACHE_ENTRIES = 100;
 
 type BackgroundRuntimeApi = BackgroundExtensionApi & LocalCacheExtensionApi & {
   action?: ReviewBadgeExtensionApi["action"];
+  storage: BackgroundExtensionApi["storage"] & LocalCacheExtensionApi["storage"] & {
+    onChanged?: {
+      addListener(callback: (changes: Record<string, { newValue?: unknown }>, areaName: string) => void): void;
+    };
+  };
   runtime: {
     lastError?: { message?: string };
     onMessage: {
@@ -45,10 +55,21 @@ const translationService = new TranslationService(
 );
 const savedVocabularyStore = new SavedVocabularyStore(localStorage);
 const reviewCardStore = new ReviewCardStore(savedVocabularyStore, localStorage);
+const reviewSettings = {
+  read: () => readExtensionSettings(extensionApi),
+  async update(changes: Parameters<typeof mergeSettings>[1]) {
+    const settings = mergeSettings(await readExtensionSettings(extensionApi), changes);
+    if (extensionApi?.storage.sync.set) {
+      await new Promise<void>((resolve) => extensionApi.storage.sync.set?.(changes, resolve));
+    }
+    return settings;
+  },
+};
 
 async function refreshReviewBadge(): Promise<void> {
   try {
-    await updateReviewBadge(extensionApi, reviewCardStore);
+    const settings = await readExtensionSettings(extensionApi);
+    await updateReviewBadge(extensionApi, reviewCardStore, settings.dailyReviewBadge);
   } catch {
     // Badge refresh must not make vocabulary or review mutations fail.
   }
@@ -57,6 +78,7 @@ async function refreshReviewBadge(): Promise<void> {
 const handleBackgroundMessage = createBackgroundMessageHandler({
   savedVocabulary: savedVocabularyStore,
   reviewCards: reviewCardStore,
+  reviewSettings,
   refreshBadge: refreshReviewBadge,
 });
 
@@ -71,6 +93,12 @@ extensionApi?.runtime.onMessage.addListener((message, _sender, sendResponse) => 
 
   void handleTranslate(message.payload).then(sendResponse);
   return true;
+});
+
+extensionApi?.storage.onChanged?.addListener((_changes, areaName) => {
+  if (areaName === "sync") {
+    void refreshReviewBadge();
+  }
 });
 
 void refreshReviewBadge();

@@ -2,6 +2,7 @@ import { isPointInsideVisibleBox } from "./pointer-hit-box";
 import { isValidTextRangeBoundary } from "./text-range-boundary";
 import type { MvpLanguageCode } from "../shared/languages";
 import type { HoverTranslationMode } from "../shared/settings";
+import { getSelectionPageContext } from "./page-context";
 
 const MIN_TEXT_LENGTH = 1;
 const MAX_HOVER_WORD_LENGTH = 30;
@@ -28,6 +29,7 @@ export type SelectionLookupInput =
       y: number;
       sourceLanguageHint?: MvpLanguageCode;
       languageSample: string;
+      pageContext: string | null;
     };
 
 export function getHoverLookupInput(
@@ -95,6 +97,7 @@ export function getSelectionLookupInput(maxSelectionLength: number): SelectionLo
     y: rect.bottom,
     sourceLanguageHint: getLanguageHintForNode(selection.anchorNode),
     languageSample: selectedText,
+    pageContext: getSelectionPageContext(selection, selectedText),
   };
 }
 

@@ -1,12 +1,24 @@
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("webextension-polyfill", () => ({
+  default: {
+    storage: {
+      sync: {
+        get: vi.fn(),
+      },
+    },
+  },
+}));
 import {
   REVIEW_RATE_MESSAGE,
+  REVIEW_SETTINGS_UPDATE_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
 import { createBackgroundMessageHandler } from "./message-handler";
 import { ReviewCardStore } from "../vocabulary/review-cards";
 import { SavedVocabularyStore, type SavedVocabularyStorage } from "../vocabulary/saved-vocabulary";
+import { defaultSettings } from "../shared/settings";
 
 describe("createBackgroundMessageHandler", () => {
   it("refreshes the badge after vocabulary saves and ratings", async () => {
@@ -17,6 +29,10 @@ describe("createBackgroundMessageHandler", () => {
     const handleMessage = createBackgroundMessageHandler({
       savedVocabulary,
       reviewCards,
+      reviewSettings: {
+        read: async () => defaultSettings,
+        update: async (changes) => ({ ...defaultSettings, ...changes }),
+      },
       refreshBadge,
     });
 
@@ -35,8 +51,14 @@ describe("createBackgroundMessageHandler", () => {
       type: REVIEW_RATE_MESSAGE,
       payload: { id: "nl\u001fhuis", rating: "good" },
     });
+    await expect(
+      send(handleMessage, {
+        type: REVIEW_SETTINGS_UPDATE_MESSAGE,
+        payload: { dailyReviewBadge: false },
+      }),
+    ).resolves.toMatchObject({ ok: true, result: { settings: { dailyReviewBadge: false } } });
 
-    expect(refreshBadge).toHaveBeenCalledTimes(2);
+    expect(refreshBadge).toHaveBeenCalledTimes(3);
   });
 });
 

@@ -80,6 +80,19 @@ describe("review card migration", () => {
     ]);
   });
 
+  it("carries saved page context into the canonical card", () => {
+    expect(
+      migrateSavedVocabulary([
+        savedEntry({ pageContext: "Een huis staat daar." }),
+      ]),
+    ).toEqual([
+      expect.objectContaining({
+        id: "nl\u001fhuis",
+        pageContext: "Een huis staat daar.",
+      }),
+    ]);
+  });
+
   it("persists the canonical migration alongside saved vocabulary", async () => {
     const storage = new MemoryStorage();
     const savedVocabulary = new SavedVocabularyStore(storage);

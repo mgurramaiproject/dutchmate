@@ -16,6 +16,7 @@ export type SavedVocabularyEntry = {
   providerName: string;
   createdAt: number;
   updatedAt: number;
+  pageContext?: string | null;
 };
 
 export type SaveVocabularyInput = {
@@ -25,6 +26,7 @@ export type SaveVocabularyInput = {
   targetLanguage: MvpLanguageCode;
   translatedText: string;
   providerName: string;
+  pageContext?: string | null;
 };
 
 export type SaveVocabularyResult =
@@ -124,6 +126,7 @@ export class SavedVocabularyStore {
       providerName: input.providerName,
       createdAt: timestamp,
       updatedAt: timestamp,
+      ...(input.pageContext ? { pageContext: input.pageContext.slice(0, 240) } : {}),
     };
 
     await this.writeData({

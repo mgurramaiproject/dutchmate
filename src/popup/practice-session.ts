@@ -1,4 +1,5 @@
 import type { ReviewCard } from "../vocabulary/review-cards";
+import type { CardDirection } from "../shared/settings";
 
 export type PracticeSessionState = {
   queue: ReviewCard[];
@@ -45,4 +46,13 @@ export function advancePracticeSession(
 
 export function getCurrentPracticeCard(session: PracticeSessionState): ReviewCard | null {
   return session.completed ? null : session.queue[session.currentIndex] ?? null;
+}
+
+export function getPracticePrompt(
+  card: ReviewCard,
+  direction: CardDirection,
+): { label: "Dutch" | "English"; value: string | null } {
+  return direction === "helpers-to-dutch"
+    ? { label: "English", value: card.english }
+    : { label: "Dutch", value: card.dutch };
 }

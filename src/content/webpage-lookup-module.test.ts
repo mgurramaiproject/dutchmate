@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { WebpageLookupModule, type TranslationTransport } from "./webpage-lookup-module";
 
 const defaultSettings = {
@@ -15,6 +15,10 @@ const defaultSettings = {
   learningLanguage: "nl",
   nativeLanguage: "te",
   bridgeLanguage: "en",
+  autoSaveSelectedWords: false,
+  showExampleSentence: true,
+  dailyReviewBadge: true,
+  cardDirection: "dutch-to-helpers",
   providerEndpoint: "https://example.test/translate",
   providerApiKey: "",
 } as const;
@@ -186,5 +190,77 @@ describe("WebpageLookupModule", () => {
         disabled: true,
       },
     });
+  });
+
+  it("auto-saves eligible selected words with reliable page context when enabled", async () => {
+    const savedRequests: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => ({ ...defaultSettings, autoSaveSelectedWords: true }),
+      transport: createTransport({
+        saveVocabularyBatch: async (requests) => {
+          savedRequests.push(...requests);
+          return {
+            ok: true,
+            result: { results: [{ status: "saved", entry: {
+              id: "nl\u001fhuis\u001fen",
+              text: "huis",
+              normalizedText: "huis",
+              sourceLanguage: "auto",
+              detectedSourceLanguage: "nl",
+              targetLanguage: "en",
+              translatedText: "house",
+              providerName: "custom-endpoint",
+              createdAt: 1,
+              updatedAt: 1,
+            } }] },
+          };
+        },
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    await module.beginLookup({
+      text: "huis",
+      context: "selection",
+      x: 10,
+      y: 20,
+      languageSample: "huis",
+      sourceLanguageHint: "nl",
+      pageContext: "Een huis staat daar.",
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(savedRequests).toContainEqual(
+      expect.objectContaining({
+        text: "huis",
+        pageContext: "Een huis staat daar.",
+      }),
+    );
+  });
+
+  it("keeps the manual save action when automatic saving is disabled", async () => {
+    const saveVocabularyBatch = vi.fn(async () => ({
+      ok: true as const,
+      result: { results: [] },
+    }));
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({ saveVocabularyBatch }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    await module.beginLookup({
+      text: "huis",
+      context: "selection",
+      x: 10,
+      y: 20,
+      languageSample: "huis",
+      sourceLanguageHint: "nl",
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(saveVocabularyBatch).not.toHaveBeenCalled();
   });
 });

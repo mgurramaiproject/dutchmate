@@ -28,6 +28,10 @@ const defaultSettings = {
   learningLanguage: "nl",
   nativeLanguage: "te",
   bridgeLanguage: "en",
+  autoSaveSelectedWords: false,
+  showExampleSentence: true,
+  dailyReviewBadge: true,
+  cardDirection: "dutch-to-helpers",
   providerEndpoint: "https://example.test/translate",
   providerApiKey: "",
 } as const;

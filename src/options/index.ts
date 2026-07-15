@@ -191,6 +191,10 @@ async function saveSettings(): Promise<void> {
     learningLanguage: languageRoles.learningLanguage,
     nativeLanguage: languageRoles.nativeLanguage,
     bridgeLanguage: languageRoles.bridgeLanguage,
+    autoSaveSelectedWords: currentSettings.autoSaveSelectedWords,
+    showExampleSentence: currentSettings.showExampleSentence,
+    dailyReviewBadge: currentSettings.dailyReviewBadge,
+    cardDirection: currentSettings.cardDirection,
     providerEndpoint: endpoint,
     providerApiKey: providerApiKey ? providerApiKey.value.trim() : currentSettings.providerApiKey,
   };

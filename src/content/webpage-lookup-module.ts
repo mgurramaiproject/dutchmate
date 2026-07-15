@@ -91,6 +91,7 @@ export type WebpageLookupInput = {
   y: number;
   languageSample?: string;
   sourceLanguageHint?: MvpLanguageCode;
+  pageContext?: string | null;
 };
 
 export type SaveActionState =
@@ -248,6 +249,7 @@ export class WebpageLookupModule {
           input.context,
           input.languageSample ?? input.text,
           input.sourceLanguageHint,
+          input.pageContext,
         ),
         this.#deps.tooltipTimeoutMs,
       );
@@ -291,6 +293,10 @@ export class WebpageLookupModule {
 
     if (saveAction.status === "checking") {
       void this.#refreshCurrentSaveState();
+    }
+
+    if (this.#deps.getSettings().autoSaveSelectedWords && saveAction.status !== "hidden") {
+      void this.#autoSaveCurrentSelection();
     }
   }
 
@@ -379,6 +385,13 @@ export class WebpageLookupModule {
     });
   }
 
+  async #autoSaveCurrentSelection(): Promise<void> {
+    await this.#refreshCurrentSaveState();
+    if (this.#getSaveActionState().status === "ready") {
+      await this.handleSaveAction();
+    }
+  }
+
   async #refreshSavedVocabularyIds(): Promise<Set<string> | undefined> {
     if (this.#savedVocabularyIdsRequest) {
       return this.#savedVocabularyIdsRequest;
@@ -426,6 +439,7 @@ export class WebpageLookupModule {
     context: "hover" | "selection",
     languageSample: string,
     sourceLanguageHint?: MvpLanguageCode,
+    pageContext?: string | null,
   ): Promise<TranslationOutcome> {
     const settings = this.#deps.getSettings();
     const sourceLanguage = this.#getActiveSourceLanguage(settings, languageSample, sourceLanguageHint);
@@ -441,12 +455,13 @@ export class WebpageLookupModule {
 
       return {
         response,
-        saveCandidates: this.#getSaveCandidatesFromResponses(settings, text, sourceLanguage, [
-          {
-            targetLanguage: settings.targetLanguage,
-            response,
-          },
-        ]),
+        saveCandidates: this.#getSaveCandidatesFromResponses(
+          settings,
+          text,
+          sourceLanguage,
+          pageContext,
+          [{ targetLanguage: settings.targetLanguage, response }],
+        ),
       };
     }
 
@@ -487,6 +502,7 @@ export class WebpageLookupModule {
         settings,
         text,
         sourceLanguage,
+        pageContext,
         responses,
       ),
     };
@@ -496,6 +512,7 @@ export class WebpageLookupModule {
     settings: ExtensionSettings,
     text: string,
     activeSourceLanguage: SourceLanguageCode,
+    pageContext: string | null | undefined,
     responses: Array<{
       targetLanguage: MvpLanguageCode;
       response: TranslateMessageResponse;
@@ -520,6 +537,7 @@ export class WebpageLookupModule {
           targetLanguage,
           translatedText: response.result.translatedText,
           providerName: response.result.providerName,
+          ...(pageContext ? { pageContext } : {}),
         },
       ];
     });

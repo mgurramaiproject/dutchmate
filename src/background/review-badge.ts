@@ -13,11 +13,14 @@ export type ReviewBadgeExtensionApi = {
 export async function updateReviewBadge(
   extensionApi: ReviewBadgeExtensionApi | undefined,
   provider: ReviewBadgeProvider,
+  enabled = true,
 ): Promise<void> {
   if (!extensionApi?.action) {
     return;
   }
 
   const { due } = await provider.summary();
-  await Promise.resolve(extensionApi.action.setBadgeText({ text: due > 0 ? String(due) : "" }));
+  await Promise.resolve(
+    extensionApi.action.setBadgeText({ text: enabled && due > 0 ? String(due) : "" }),
+  );
 }

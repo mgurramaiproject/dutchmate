@@ -26,6 +26,18 @@ describe("updateReviewBadge", () => {
     expect(setBadgeText).toHaveBeenCalledWith({ text: "" });
   });
 
+  it("hides the badge when the preference is disabled", async () => {
+    const setBadgeText = vi.fn(async () => undefined);
+
+    await updateReviewBadge(
+      { action: { setBadgeText } },
+      { summary: async () => ({ total: 1, due: 2, new: 0, recent: [] }) },
+      false,
+    );
+
+    expect(setBadgeText).toHaveBeenCalledWith({ text: "" });
+  });
+
   it("reflects initialization and later local review mutations", async () => {
     let now = 1_000;
     const storage = new MemoryStorage();

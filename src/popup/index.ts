@@ -6,9 +6,16 @@ import {
   createPracticeSession,
   getCurrentPracticeCard,
   revealPracticeAnswer,
+  getPracticePrompt,
   type PracticeSessionState,
 } from "./practice-session";
 import type { ReviewCard, ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
+import {
+  defaultSettings,
+  type ExtensionSettings,
+} from "../shared/settings";
+import type { ReviewSettingsChanges } from "../background/messages";
+import { createSettingsClient } from "./settings-client";
 import "./styles.css";
 
 type PopupTab = "learn" | "settings";
@@ -18,11 +25,13 @@ const dueBadge = document.querySelector<HTMLElement>("#due-badge");
 const learnTab = document.querySelector<HTMLButtonElement>("#learn-tab");
 const settingsTab = document.querySelector<HTMLButtonElement>("#settings-tab");
 const reviewClient = createReviewClient(browser);
+const settingsClient = createSettingsClient(browser);
 let activeTab: PopupTab = "learn";
 let summary: ReviewCardSummary | null = null;
 let practiceSession: PracticeSessionState | null = null;
 let practicePending = false;
 let ratingPending = false;
+let settings: ExtensionSettings = defaultSettings;
 
 const practiceModeLabel: Record<PracticeSessionState["mode"], string> = {
   due: "Due review",
@@ -49,6 +58,12 @@ settingsTab?.addEventListener("click", () => {
 
 render();
 void loadSummary();
+void loadSettings();
+
+async function loadSettings(): Promise<void> {
+  settings = await settingsClient.getSettings();
+  render();
+}
 
 async function loadSummary(): Promise<void> {
   try {
@@ -138,16 +153,17 @@ function renderPractice(session: PracticeSessionState): HTMLElement {
   const progress = createText(`Card ${session.currentIndex + 1} of ${session.queue.length}`, "practice-progress");
   const cardSection = document.createElement("section");
   cardSection.className = "practice-card";
+  const prompt = getPracticePrompt(card, settings.cardDirection);
   cardSection.append(
-    createEyebrow(session.revealed ? "Answer" : getPracticeModeLabel(session.mode)),
-    createHeading(card.dutch),
+    createEyebrow(session.revealed ? "Answer" : prompt.label),
+    createHeading(session.revealed ? card.dutch : prompt.value ?? "unavailable"),
   );
 
   if (session.revealed) {
     cardSection.append(createMeaningRow("Dutch", card.dutch));
     cardSection.append(createMeaningRow("English", card.english));
     cardSection.append(createMeaningRow("Telugu", card.telugu));
-    if (card.pageContext) {
+    if (settings.showExampleSentence && card.pageContext) {
       cardSection.append(createMeaningRow("Page context", card.pageContext));
     }
 
@@ -179,12 +195,89 @@ function renderSettings(): HTMLElement {
   wrapper.append(
     createEyebrow("Study preferences"),
     createHeading("Your study desk"),
-    createText("Settings will be available in the next vocabulary review slice."),
     createInfoRow("Learning language", "Dutch"),
     createInfoRow("Helper languages", "English + Telugu"),
+    createSettingToggle(
+      "Auto-save selected words",
+      "Save eligible single words after a successful selection.",
+      settings.autoSaveSelectedWords,
+      (checked) => void saveReviewSettings({ autoSaveSelectedWords: checked }),
+    ),
+    createSettingToggle(
+      "Show example sentence",
+      "Display stored page context on review cards.",
+      settings.showExampleSentence,
+      (checked) => void saveReviewSettings({ showExampleSentence: checked }),
+    ),
+    createSettingToggle(
+      "Daily review badge",
+      "Show the number of reviewed cards due today.",
+      settings.dailyReviewBadge,
+      (checked) => void saveReviewSettings({ dailyReviewBadge: checked }),
+    ),
+    createDirectionSetting(),
     createLocalNote(),
   );
   return wrapper;
+}
+
+function createSettingToggle(
+  labelText: string,
+  description: string,
+  checked: boolean,
+  onChange: (checked: boolean) => void,
+): HTMLElement {
+  const label = document.createElement("label");
+  label.className = "setting-control";
+
+  const copy = document.createElement("span");
+  copy.className = "setting-copy";
+  const title = document.createElement("strong");
+  title.textContent = labelText;
+  const note = document.createElement("small");
+  note.textContent = description;
+  copy.append(title, note);
+
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.checked = checked;
+  input.addEventListener("change", () => onChange(input.checked));
+  label.append(copy, input);
+  return label;
+}
+
+function createDirectionSetting(): HTMLElement {
+  const fieldset = document.createElement("fieldset");
+  fieldset.className = "direction-setting";
+  const legend = document.createElement("legend");
+  legend.textContent = "Card direction";
+  fieldset.append(legend);
+
+  for (const option of [
+    { value: "dutch-to-helpers" as const, label: "Dutch to helpers" },
+    { value: "helpers-to-dutch" as const, label: "Helpers to Dutch" },
+  ]) {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "card-direction";
+    input.value = option.value;
+    input.checked = settings.cardDirection === option.value;
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        void saveReviewSettings({ cardDirection: option.value });
+      }
+    });
+    label.append(input, document.createTextNode(option.label));
+    fieldset.append(label);
+  }
+
+  return fieldset;
+}
+
+async function saveReviewSettings(changes: Partial<ReviewSettingsChanges>): Promise<void> {
+  settings = await settingsClient.updateSettings(changes);
+  render();
 }
 
 function renderError(message: string): void {
@@ -372,7 +465,7 @@ function updateBadge(): void {
     return;
   }
 
-  const due = summary?.due ?? 0;
+  const due = settings.dailyReviewBadge ? summary?.due ?? 0 : 0;
   dueBadge.hidden = due === 0;
   dueBadge.textContent = String(due);
 }

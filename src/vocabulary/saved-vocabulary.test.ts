@@ -158,6 +158,22 @@ describe("SavedVocabularyStore", () => {
       { text: "huis" },
     ]);
   });
+
+  it("stores page context with a saved word and keeps it bounded", async () => {
+    const store = new SavedVocabularyStore(new MemoryStorage());
+    const result = await store.save({
+      ...saveInput,
+      pageContext: `${"Een huis ".repeat(40)}staat daar.`,
+    });
+
+    expect(result).toMatchObject({
+      status: "saved",
+      entry: { pageContext: expect.any(String) },
+    });
+    if (result.status === "saved") {
+      expect(result.entry.pageContext).toHaveLength(240);
+    }
+  });
 });
 
 describe("saved vocabulary helpers", () => {

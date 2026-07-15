@@ -6,6 +6,7 @@ import type {
   SaveVocabularyResult,
 } from "../vocabulary/saved-vocabulary";
 import type { ReviewCard, ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
+import type { ExtensionSettings } from "../shared/settings";
 
 export const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 export const SAVE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.save";
@@ -18,6 +19,13 @@ export const REVIEW_NEW_QUEUE_MESSAGE = "dutchmate.review.newQueue";
 export const REVIEW_DUE_QUEUE_MESSAGE = "dutchmate.review.dueQueue";
 export const REVIEW_ALL_QUEUE_MESSAGE = "dutchmate.review.allQueue";
 export const REVIEW_RATE_MESSAGE = "dutchmate.review.rate";
+export const REVIEW_SETTINGS_MESSAGE = "dutchmate.review.settings";
+export const REVIEW_SETTINGS_UPDATE_MESSAGE = "dutchmate.review.settings.update";
+
+export type ReviewSettingsChanges = Pick<
+  ExtensionSettings,
+  "autoSaveSelectedWords" | "showExampleSentence" | "dailyReviewBadge" | "cardDirection"
+>;
 
 export type TranslateMessage = {
   type: typeof TRANSLATE_MESSAGE;
@@ -75,6 +83,15 @@ export type ReviewRateMessage = {
   };
 };
 
+export type ReviewSettingsMessage = {
+  type: typeof REVIEW_SETTINGS_MESSAGE;
+};
+
+export type ReviewSettingsUpdateMessage = {
+  type: typeof REVIEW_SETTINGS_UPDATE_MESSAGE;
+  payload: Partial<ReviewSettingsChanges>;
+};
+
 export type VocabularyMessage =
   | SaveVocabularyMessage
   | SaveVocabularyBatchMessage
@@ -88,6 +105,8 @@ export type ReviewMessage =
   | ReviewDueQueueMessage
   | ReviewAllQueueMessage
   | ReviewRateMessage;
+
+export type SettingsMessage = ReviewSettingsMessage | ReviewSettingsUpdateMessage;
 
 export type TranslateMessageResponse =
   | {
@@ -130,12 +149,23 @@ export type ReviewMessageResponse =
   | {
       ok: false;
       error: string;
+  };
+
+export type SettingsMessageResponse =
+  | {
+      ok: true;
+      result: { settings: ExtensionSettings };
+    }
+  | {
+      ok: false;
+      error: string;
     };
 
 export type BackgroundMessageResponse =
   | TranslateMessageResponse
   | VocabularyMessageResponse
-  | ReviewMessageResponse;
+  | ReviewMessageResponse
+  | SettingsMessageResponse;
 
 export function isTranslateMessage(message: unknown): message is TranslateMessage {
   return (
@@ -214,6 +244,47 @@ export function isReviewMessage(message: unknown): message is ReviewMessage {
   return typeof payload.id === "string" && isReviewRating(payload.rating);
 }
 
+export function isSettingsMessage(message: unknown): message is SettingsMessage {
+  if (
+    typeof message !== "object" ||
+    message === null ||
+    !("type" in message)
+  ) {
+    return false;
+  }
+
+  if (message.type === REVIEW_SETTINGS_MESSAGE) {
+    return true;
+  }
+
+  if (
+    message.type !== REVIEW_SETTINGS_UPDATE_MESSAGE ||
+    !("payload" in message) ||
+    typeof message.payload !== "object" ||
+    message.payload === null
+  ) {
+    return false;
+  }
+
+  const payload = message.payload as Record<string, unknown>;
+  const keys = Object.keys(payload);
+  return (
+    keys.length > 0 &&
+    keys.every((key) =>
+      key === "autoSaveSelectedWords" ||
+      key === "showExampleSentence" ||
+      key === "dailyReviewBadge" ||
+      key === "cardDirection",
+    ) &&
+    (payload.autoSaveSelectedWords === undefined || typeof payload.autoSaveSelectedWords === "boolean") &&
+    (payload.showExampleSentence === undefined || typeof payload.showExampleSentence === "boolean") &&
+    (payload.dailyReviewBadge === undefined || typeof payload.dailyReviewBadge === "boolean") &&
+    (payload.cardDirection === undefined ||
+      payload.cardDirection === "dutch-to-helpers" ||
+      payload.cardDirection === "helpers-to-dutch")
+  );
+}
+
 function isReviewRating(value: unknown): value is ReviewRating {
   return value === "again" || value === "hard" || value === "good" || value === "easy";
 }
@@ -238,7 +309,10 @@ function isSaveVocabularyPayload(payload: unknown): payload is SaveVocabularyInp
     typeof targetLanguage === "string" &&
     isMvpLanguageCode(targetLanguage) &&
     typeof candidate.translatedText === "string" &&
-    typeof candidate.providerName === "string"
+    typeof candidate.providerName === "string" &&
+    (candidate.pageContext === undefined ||
+      candidate.pageContext === null ||
+      typeof candidate.pageContext === "string")
   );
 }
 

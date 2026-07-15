@@ -61,6 +61,7 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
     y: number,
     sourceLanguageHint?: MvpLanguageCode,
     languageSample = text,
+    pageContext?: string | null,
   ): Promise<void> {
     await dependencies.lookupModule.beginLookup({
       text,
@@ -69,6 +70,7 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
       y,
       sourceLanguageHint,
       languageSample,
+      pageContext,
     });
   }
 
@@ -160,6 +162,7 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
         selection.y,
         selection.sourceLanguageHint,
         selection.languageSample,
+        selection.pageContext,
       );
     },
 

@@ -60,13 +60,13 @@ GitHub issue: [#24](https://github.com/mgurramaiproject/dutchmate/issues/24)
 
 **Blocked by:** [PVR-001-T02 / #22](https://github.com/mgurramaiproject/dutchmate/issues/22)
 
-- [ ] Settings shows Dutch as the learning language and English/Telugu as fixed helper languages.
-- [ ] Auto-save selected words is off by default and saves only eligible single-word selections when enabled.
-- [ ] A reliable sentence containing a saved word is stored locally with a maximum length of 240 characters; unreliable context is omitted.
-- [ ] Show example sentence is on by default and controls display without deleting stored context.
-- [ ] Daily review badge is on by default and disabling it hides the badge.
-- [ ] Card direction defaults to Dutch-to-helpers and reverse mode presents English-to-Dutch.
-- [ ] Settings normalization, page-context extraction, auto-save gating, and direction behavior have focused tests.
+- [x] Settings shows Dutch as the learning language and English/Telugu as fixed helper languages.
+- [x] Auto-save selected words is off by default and saves only eligible single-word selections when enabled.
+- [x] A reliable sentence containing a saved word is stored locally with a maximum length of 240 characters; unreliable context is omitted.
+- [x] Show example sentence is on by default and controls display without deleting stored context.
+- [x] Daily review badge is on by default and disabling it hides the badge.
+- [x] Card direction defaults to Dutch-to-helpers and reverse mode presents English-to-Dutch.
+- [x] Settings normalization, page-context extraction, auto-save gating, and direction behavior have focused tests.
 
 ## PVR-001-T05: Import, export, and clear local vocabulary
 

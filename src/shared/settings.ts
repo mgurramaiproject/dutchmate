@@ -24,6 +24,7 @@ export const SELECTION_LENGTH_LIMITS = {
 };
 
 export type HoverTranslationMode = "word" | "sentence";
+export type CardDirection = "dutch-to-helpers" | "helpers-to-dutch";
 
 export type ExtensionSettings = {
   isEnabled: boolean;
@@ -39,6 +40,10 @@ export type ExtensionSettings = {
   learningLanguage: MvpLanguageCode;
   nativeLanguage: MvpLanguageCode;
   bridgeLanguage: MvpLanguageCode;
+  autoSaveSelectedWords: boolean;
+  showExampleSentence: boolean;
+  dailyReviewBadge: boolean;
+  cardDirection: CardDirection;
   providerEndpoint: string;
   providerApiKey: string;
 };
@@ -55,6 +60,10 @@ export const defaultSettings: ExtensionSettings = {
   targetLanguage: DEFAULT_TARGET_LANGUAGE,
   translateToOtherMvpLanguages: true,
   ...DEFAULT_LANGUAGE_ROLES,
+  autoSaveSelectedWords: false,
+  showExampleSentence: true,
+  dailyReviewBadge: true,
+  cardDirection: "dutch-to-helpers",
   providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
   providerApiKey: "",
 };
@@ -100,9 +109,23 @@ export function normalizeSettings(
       fallback.translateToOtherMvpLanguages,
     ),
     ...languageRoles,
+    autoSaveSelectedWords: getBooleanSetting(
+      stored?.autoSaveSelectedWords,
+      fallback.autoSaveSelectedWords,
+    ),
+    showExampleSentence: getBooleanSetting(
+      stored?.showExampleSentence,
+      fallback.showExampleSentence,
+    ),
+    dailyReviewBadge: getBooleanSetting(stored?.dailyReviewBadge, fallback.dailyReviewBadge),
+    cardDirection: getCardDirection(stored?.cardDirection, fallback.cardDirection),
     providerEndpoint: getStringSetting(stored?.providerEndpoint, fallback.providerEndpoint),
     providerApiKey: getStringSetting(stored?.providerApiKey, fallback.providerApiKey),
   };
+}
+
+function getCardDirection(value: unknown, fallback: CardDirection): CardDirection {
+  return value === "dutch-to-helpers" || value === "helpers-to-dutch" ? value : fallback;
 }
 
 export function mergeSettings(

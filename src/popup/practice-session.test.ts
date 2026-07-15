@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   advancePracticeSession,
   createPracticeSession,
+  getPracticePrompt,
   revealPracticeAnswer,
   type PracticeSessionState,
 } from "./practice-session";
@@ -59,6 +60,19 @@ describe("practice session state", () => {
       currentIndex: 2,
       revealed: false,
       completed: true,
+    });
+  });
+
+  it("uses Dutch by default and English for reverse prompts", () => {
+    const currentCard = card("huis");
+
+    expect(getPracticePrompt(currentCard, "dutch-to-helpers")).toEqual({
+      label: "Dutch",
+      value: "huis",
+    });
+    expect(getPracticePrompt(currentCard, "helpers-to-dutch")).toEqual({
+      label: "English",
+      value: "house",
     });
   });
 });

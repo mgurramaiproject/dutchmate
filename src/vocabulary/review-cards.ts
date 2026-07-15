@@ -116,6 +116,10 @@ export function migrateSavedVocabulary(
       card.telugu = entry.translatedText;
     }
 
+    if (card.pageContext === null && entry.pageContext) {
+      card.pageContext = entry.pageContext.slice(0, 240);
+    }
+
     cards.set(id, card);
   }
 
