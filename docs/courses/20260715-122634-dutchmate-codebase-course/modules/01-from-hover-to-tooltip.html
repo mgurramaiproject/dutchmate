@@ -1,0 +1,170 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+    <header class="module-header">
+      <span class="module-number">01</span>
+      <h1 class="module-title">From Hover To Tooltip</h1>
+      <p class="module-subtitle">Start with the user experience: you hover a Dutch word, and a tiny translation appears without breaking your reading flow.</p>
+    </header>
+
+    <div class="screen">
+      <h2 class="screen-heading">What this app actually is</h2>
+      <p class="animate-in">DutchMate is a browser <span class="term" data-definition="A browser extension is a small add-on that can change what your browser does, like adding a new power-up without changing the whole browser.">extension</span> for people reading Dutch websites while thinking in English and Telugu.</p>
+      <p class="animate-in">The key promise is simple: keep reading the web, and let translation come to you instead of forcing you into a new tab.</p>
+      <div class="pattern-cards stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🖱️</div>
+          <h4 class="pattern-title">Hover mode</h4>
+          <p class="pattern-desc">Pause over a single word and DutchMate quietly checks whether a tooltip should appear.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">✂️</div>
+          <h4 class="pattern-title">Selection mode</h4>
+          <p class="pattern-desc">Select a short phrase or sentence when one word is not enough.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+          <div class="pattern-icon" style="background: var(--color-actor-4)">📚</div>
+          <h4 class="pattern-title">Learning first</h4>
+          <p class="pattern-desc">This is not a generic translator. It is tuned for a Dutch, English, Telugu learning triangle.</p>
+        </div>
+      </div>
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why this matters for steering AI</strong>
+          <p>If you can describe the product as "a context-aware translation tooltip inside a browser extension," AI tools stop suggesting the wrong architecture, like building a full website or chat app instead.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">The core journey is a relay race</h2>
+      <p class="animate-in">Think of DutchMate like a relay team. Each runner touches the baton briefly, does one job, and passes it on fast.</p>
+      <div class="step-cards">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>You hover or select text</strong>
+            <p>The web page is the track. DutchMate notices a real reading action, not a random background event.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>The content script packages the request</strong>
+            <p>It captures the text, location, and context like hover or selection.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>The background worker asks for translation</strong>
+            <p>That keeps network work out of the page-facing layer.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>The tooltip renders the answer</strong>
+            <p>The reader sees a tiny result right where their eyes already are.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-animation animate-in" data-steps='[
+        {"highlight":"flow-actor-1","label":"Reader pauses on Dutch text"},
+        {"highlight":"flow-actor-2","label":"Page sends text to content script","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-3","label":"Content script asks background for translation","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-4","label":"Background calls backend","packet":true,"from":"actor-3","to":"actor-4"},
+        {"highlight":"flow-actor-5","label":"Tooltip shows the returned answer","packet":true,"from":"actor-4","to":"actor-5"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1"><div class="flow-actor-icon">👤</div><span>Reader</span></div>
+          <div class="flow-actor" id="flow-actor-2"><div class="flow-actor-icon">📄</div><span>Web page</span></div>
+          <div class="flow-actor" id="flow-actor-3"><div class="flow-actor-icon">🧩</div><span>Content script</span></div>
+          <div class="flow-actor" id="flow-actor-4"><div class="flow-actor-icon">⚙️</div><span>Background</span></div>
+          <div class="flow-actor" id="flow-actor-5"><div class="flow-actor-icon">💬</div><span>Tooltip</span></div>
+        </div>
+        <div class="flow-info">Click through the trip one handoff at a time.</div>
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Replay</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">Where the page wires itself up</h2>
+      <p class="animate-in">This snippet from [src/content/index.ts](/home/mgurram/MGurramAI/projects/dutchmate-proj/dutchmate/src/content/index.ts:54) is the stage manager. It creates the lookup module, the tooltip view, and all the page event listeners.</p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-line"><span class="code-keyword">let</span> currentSettings = defaultSettings;</span>
+<span class="code-line"><span class="code-keyword">const</span> lookupModule = <span class="code-keyword">new</span> <span class="code-function">WebpageLookupModule</span>({</span>
+<span class="code-line">  <span class="code-property">getSettings</span>: () <span class="code-operator">=&gt;</span> currentSettings,</span>
+<span class="code-line">  <span class="code-property">transport</span>: <span class="code-function">createRuntimeLookupAdapter</span>({</span>
+<span class="code-line">    <span class="code-property">browserTarget</span>: __BROWSER_TARGET__,</span>
+<span class="code-line">    <span class="code-property">chromeDirectTranslationFallbackMs</span>: CHROME_DIRECT_TRANSLATION_FALLBACK_MS,</span>
+<span class="code-line">    <span class="code-property">directTranslationTimeoutMs</span>: DIRECT_TRANSLATION_TIMEOUT_MS,</span>
+<span class="code-line">    extensionApi,</span>
+<span class="code-line">    <span class="code-property">getSettings</span>: () <span class="code-operator">=&gt;</span> currentSettings,</span>
+<span class="code-line">    delay,</span>
+<span class="code-line">  }),</span>
+<span class="code-line">  <span class="code-property">runWithTimeout</span>: withTooltipTranslationTimeout,</span>
+<span class="code-line">  <span class="code-property">tooltipTimeoutMs</span>: TOOLTIP_TRANSLATION_TIMEOUT_MS,</span>
+<span class="code-line">});</span>
+<span class="code-line"><span class="code-keyword">const</span> tooltipView = <span class="code-function">createTooltipViewAdapter</span>(() <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">  <span class="code-keyword">void</span> lookupModule.<span class="code-function">handleSaveAction</span>();</span>
+<span class="code-line">});</span>
+<span class="code-line"><span class="code-keyword">const</span> lifecycleController = <span class="code-function">createWebpageLifecycleController</span>({</span>
+<span class="code-line">  <span class="code-property">getSettings</span>: () <span class="code-operator">=&gt;</span> currentSettings,</span>
+<span class="code-line">  lookupModule,</span>
+<span class="code-line">  tooltipView,</span>
+<span class="code-line">});</span>
+<span class="code-line">document.<span class="code-function">addEventListener</span>(<span class="code-string">"mousemove"</span>, lifecycleController.handleMouseMove, { <span class="code-property">passive</span>: <span class="code-keyword">true</span> });</span></code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Start with the current settings the user has saved.</p>
+            <p class="tl">Create the main brain that knows how to run lookups.</p>
+            <p class="tl">Give that brain a transport layer so it can talk to the rest of the extension.</p>
+            <p class="tl">Tell it which browser it is running in, and what time limits to respect.</p>
+            <p class="tl">Hand over the real extension API so messages and storage work.</p>
+            <p class="tl">Use the latest settings every time instead of freezing old ones.</p>
+            <p class="tl">Keep a generic delay helper around for timed behavior.</p>
+            <p class="tl">Finish the transport object.</p>
+            <p class="tl">Wrap every lookup in a timeout so the tooltip does not hang forever.</p>
+            <p class="tl">Define the timeout length for the tooltip workflow.</p>
+            <p class="tl">Finish building the lookup module.</p>
+            <p class="tl">Create the visual tooltip layer.</p>
+            <p class="tl">If the user presses save in the tooltip, hand that action back to the lookup module.</p>
+            <p class="tl">End the tooltip setup.</p>
+            <p class="tl">Create a lifecycle controller for page events like hover, click, and selection.</p>
+            <p class="tl">That controller also reads live settings whenever it needs them.</p>
+            <p class="tl">It can tell the lookup module when to start or clear work.</p>
+            <p class="tl">It can tell the tooltip when to show or hide itself.</p>
+            <p class="tl">Finish the controller setup.</p>
+            <p class="tl">Finally, listen for mouse movement so the whole hover experience can begin.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-container animate-in" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. The content script is the first layer that can see the user's action inside the page."
+             data-explanation-wrong="Not quite. The browser page event is noticed first by the content script, then it gets passed deeper.">
+          <h3 class="quiz-question">If hover translations stop appearing, which layer should you inspect first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The hosted backend</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The content script and lifecycle controller</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The marketing homepage</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
