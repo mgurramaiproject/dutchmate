@@ -74,6 +74,8 @@ Review cards are canonical learning items centered on a Dutch learning word. Dut
 - Import merges by canonical card ID. Existing card review metadata wins on conflicts; missing meanings or page context may be filled from the imported card without rescheduling the existing card.
 - Clear vocabulary requires confirmation and removes canonical cards, review metadata, and associated page context.
 - The popup is a new extension entry point. The build configuration and generated browser manifests must include it for both Chrome and Firefox while preserving the existing background, content, and Options entries.
+- Direction A is the selected visual direction. The popup uses a mobile-shaped composition with a 390x844 baseline content viewport, so the same Learn, flashcard, and Settings structure can later become a mobile app screen without redesigning the information architecture.
+- The mobile-shaped composition keeps primary actions at least 44px tall, allows Settings to scroll vertically, and treats the phone frame as a design-preview device rather than a production UI dependency.
 - Popup-to-background communication uses typed runtime messages. The popup does not access storage through an ad hoc second storage model.
 - The existing Options page remains available for broader extension settings and existing vocabulary maintenance; the popup owns the review MVP interaction.
 

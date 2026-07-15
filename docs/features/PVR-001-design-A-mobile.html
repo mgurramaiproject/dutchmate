@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PVR-001 Direction A Mobile Mockup</title>
+    <style>
+      :root {
+        --black: #000000;
+        --white: #ffffff;
+        --orange: #ff6f00;
+        --muted: rgba(0, 0, 0, 0.62);
+        --line: rgba(0, 0, 0, 0.18);
+        --soft-line: rgba(0, 0, 0, 0.1);
+        --serif: Iowan Old Style, Palatino Linotype, Book Antiqua, Georgia, "Times New Roman", serif;
+        --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background: var(--white); color: var(--black); font-family: var(--sans); }
+      h1, h2, h3, p { margin: 0; }
+      h1, h2, h3 { font-family: var(--serif); line-height: 1.08; }
+      h1 { max-width: 780px; font-size: clamp(3rem, 8vw, 6.6rem); }
+      h2 { font-size: 1.8rem; }
+      h3 { font-size: 1.2rem; }
+      button, a { font: inherit; }
+      button { cursor: pointer; }
+
+      .page { width: min(1260px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 80px; }
+      .intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 0.48fr); gap: 48px; align-items: end; margin-bottom: 38px; }
+      .eyebrow, .label, .status, .nav-link, .stat-label, .settings-label, .phone-tab { font-size: 0.7rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
+      .eyebrow, .orange { color: var(--orange); }
+      .intro-copy { display: grid; gap: 16px; }
+      .intro-copy > p:not(.eyebrow), .intro-note { color: var(--muted); line-height: 1.55; }
+      .intro-note { border-left: 3px solid var(--orange); padding-left: 16px; }
+      .state-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+      .nav-link { padding: 10px 12px; border: 1px solid var(--black); color: var(--black); text-decoration: none; }
+      .nav-link:hover, .nav-link:focus-visible { background: var(--orange); outline: 0; }
+      .phones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px 24px; justify-items: center; }
+      .state { display: grid; gap: 12px; justify-items: center; }
+      .state > h2 { width: 390px; max-width: 100%; font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; }
+
+      .phone {
+        width: 410px;
+        max-width: 100%;
+        padding: 9px;
+        border: 2px solid var(--black);
+        border-radius: 30px;
+        background: var(--black);
+      }
+      .phone-screen {
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        width: 390px;
+        max-width: 100%;
+        min-height: 844px;
+        overflow: hidden;
+        border-radius: 22px;
+        background: var(--white);
+      }
+      .phone-head { display: flex; align-items: center; justify-content: space-between; min-height: 68px; padding: 15px 18px; border-bottom: 1px solid var(--black); }
+      .brand { display: flex; align-items: center; gap: 9px; font-weight: 850; }
+      .brand img { width: 29px; height: 29px; border-radius: 6px; }
+      .badge { display: inline-grid; min-width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--orange); font-size: 0.75rem; font-weight: 900; }
+      .phone-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--black); }
+      .phone-tab { min-height: 48px; border: 0; border-right: 1px solid var(--black); background: var(--white); color: var(--black); }
+      .phone-tab:last-child { border-right: 0; }
+      .phone-tab.active { background: var(--black); color: var(--white); }
+      .phone-content { display: grid; align-content: start; gap: 24px; padding: 24px 20px 28px; }
+      .summary { display: grid; gap: 10px; }
+      .summary h3 { font-size: 2.3rem; }
+      .summary p { color: var(--muted); font-size: 0.9rem; line-height: 1.48; }
+      .summary h3::after { display: block; width: 48px; height: 3px; margin-top: 13px; background: var(--orange); content: ""; }
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .stat { display: grid; gap: 6px; min-height: 80px; padding: 12px 10px; border: 1px solid var(--line); border-top: 4px solid var(--orange); }
+      .stat strong { font-family: var(--serif); font-size: 1.75rem; line-height: 1; }
+      .stat-label { color: var(--muted); font-size: 0.58rem; }
+      .section { display: grid; gap: 10px; }
+      .section-title { font-size: 0.7rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
+      .recent-list, .settings-list { display: grid; border-top: 1px solid var(--black); }
+      .recent-row, .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; border-bottom: 1px solid var(--soft-line); }
+      .recent-row strong { font-family: var(--serif); font-size: 1.1rem; }
+      .recent-row span, .setting-row span { color: var(--muted); font-size: 0.78rem; text-align: right; }
+      .actions { display: grid; gap: 10px; margin-top: auto; }
+      .button { min-height: 48px; padding: 12px 14px; border: 1px solid var(--black); background: var(--white); color: var(--black); font-size: 0.76rem; font-weight: 850; text-align: left; }
+      .button.primary { background: var(--orange); }
+      .button.center { text-align: center; }
+      .button:hover, .button:focus-visible, .phone-tab:focus-visible, .nav-link:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+      .local-note { margin-top: auto; color: var(--muted); font-size: 0.75rem; line-height: 1.4; }
+
+      .flash-progress { display: flex; align-items: center; justify-content: space-between; color: var(--muted); }
+      .flash-progress strong { color: var(--black); font-size: 0.8rem; }
+      .progress-line { height: 4px; background: var(--soft-line); }
+      .progress-line::after { display: block; width: 34%; height: 4px; background: var(--orange); content: ""; }
+      .flashcard { display: grid; gap: 22px; padding: 22px 0; border-top: 1px solid var(--black); border-bottom: 1px solid var(--black); }
+      .flashcard .word { font-family: var(--serif); font-size: 3.4rem; font-weight: 700; }
+      .flashcard .hint { color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
+      .answer-list { display: grid; gap: 12px; }
+      .answer-row { display: flex; justify-content: space-between; gap: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--soft-line); }
+      .answer-row span { color: var(--muted); font-size: 0.8rem; }
+      .answer-row strong { font-size: 0.98rem; text-align: right; }
+      .context { padding: 14px; border-left: 3px solid var(--orange); background: rgba(0, 0, 0, 0.04); font-family: var(--serif); font-size: 1rem; line-height: 1.45; }
+      .ratings { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .ratings .button { text-align: center; }
+      .ratings .button:last-child { background: var(--orange); }
+
+      .settings-content { gap: 18px; overflow-y: auto; }
+      .settings-intro { display: grid; gap: 8px; padding-bottom: 4px; }
+      .settings-intro h3 { font-size: 2rem; }
+      .settings-intro p { color: var(--muted); font-size: 0.86rem; line-height: 1.45; }
+      .setting-row { min-height: 64px; }
+      .setting-row strong { font-size: 0.82rem; }
+      .setting-row small { display: block; margin-top: 3px; color: var(--muted); font-size: 0.7rem; font-weight: 400; }
+      .toggle { position: relative; width: 38px; height: 22px; flex: 0 0 auto; border: 1px solid var(--black); border-radius: 18px; background: var(--black); }
+      .toggle::after { position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--orange); content: ""; }
+      .radio { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 0.74rem; }
+      .radio::before { width: 13px; height: 13px; border: 1px solid var(--black); border-radius: 50%; content: ""; }
+      .radio.selected { color: var(--black); font-weight: 800; }
+      .radio.selected::before { box-shadow: inset 0 0 0 3px var(--white); background: var(--orange); }
+      .settings-actions { display: grid; gap: 8px; margin-top: 4px; }
+      .danger { border-color: var(--black); }
+
+      .decision { margin-top: 48px; padding: 22px; border: 1px solid var(--black); border-top: 5px solid var(--orange); }
+      .decision p { max-width: 780px; margin-top: 8px; color: var(--muted); line-height: 1.5; }
+      @media (max-width: 900px) { .intro { grid-template-columns: 1fr; gap: 20px; } .phones { grid-template-columns: 1fr; } }
+      @media (max-width: 450px) { .page { width: min(100% - 20px, 410px); padding-top: 28px; } .phone { width: 100%; } .phone-screen { width: 100%; } }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="intro">
+        <div class="intro-copy">
+          <p class="eyebrow">PVR-001 / Direction A selected</p>
+          <h1>A reading desk that fits in your hand.</h1>
+          <p>Direction A keeps DutchMate editorial, calm, and black-white-orange. The content is now sized like a 390x844 smartphone surface so the extension popup can become a mobile screen later without changing the core interaction.</p>
+        </div>
+        <p class="intro-note">The outer phone frame belongs to this mockup only. The production UI should use the same composition fluidly inside an extension popup or a mobile viewport.</p>
+      </section>
+
+      <nav class="state-nav" aria-label="Mockup states">
+        <a class="nav-link" href="#learn-home">Learn home</a>
+        <a class="nav-link" href="#flash-front">Flashcard front</a>
+        <a class="nav-link" href="#flash-back">Flashcard back</a>
+        <a class="nav-link" href="#settings">Settings</a>
+      </nav>
+
+      <section class="phones" aria-label="Direction A mobile states">
+        <article class="state" id="learn-home">
+          <h2>01 / Learn home</h2>
+          <div class="phone">
+            <div class="phone-screen">
+              <header class="phone-head"><div class="brand"><img src="../../public/icons/icon-48.png" alt="" /> DutchMate</div><span class="badge">6</span></header>
+              <nav class="phone-tabs" aria-label="Learn home tabs"><button class="phone-tab active">Learn</button><button class="phone-tab">Settings</button></nav>
+              <div class="phone-content">
+                <section class="summary"><p class="eyebrow">Daily review</p><h3>Keep reading.<br /><span class="orange">Review a little.</span></h3><p>Six words are waiting. Your next card is already here.</p></section>
+                <div class="stats"><div class="stat"><strong>6</strong><span class="stat-label">Due now</span></div><div class="stat"><strong>18</strong><span class="stat-label">Saved</span></div><div class="stat"><strong>4</strong><span class="stat-label">New</span></div></div>
+                <section class="section"><span class="section-title">Recently saved</span><div class="recent-list"><div class="recent-row"><strong>gezellig</strong><span>cozy</span></div><div class="recent-row"><strong>boodschap</strong><span>message</span></div><div class="recent-row"><strong>fiets</strong><span>bicycle</span></div></div></section>
+                <div class="actions"><button class="button primary">Review due words</button><button class="button">Practice new words</button><button class="button">Review all words</button></div>
+                <p class="local-note">Local vocabulary only. No account required.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="state" id="flash-front">
+          <h2>02 / Flashcard front</h2>
+          <div class="phone">
+            <div class="phone-screen">
+              <header class="phone-head"><div class="brand"><img src="../../public/icons/icon-48.png" alt="" /> DutchMate</div><span class="status">Exit review</span></header>
+              <nav class="phone-tabs" aria-label="Flashcard front tabs"><button class="phone-tab active">Learn</button><button class="phone-tab">Settings</button></nav>
+              <div class="phone-content">
+                <div class="flash-progress"><strong>2 of 6</strong><span class="label">Due review</span></div>
+                <div class="progress-line" aria-hidden="true"></div>
+                <section class="flashcard"><span class="eyebrow">Dutch word</span><p class="word">gezellig</p><p class="hint">What does this word mean in English and Telugu?</p><button class="button primary center">Show answer</button></section>
+                <p class="local-note">Take a moment before revealing the answer.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="state" id="flash-back">
+          <h2>03 / Flashcard back</h2>
+          <div class="phone">
+            <div class="phone-screen">
+              <header class="phone-head"><div class="brand"><img src="../../public/icons/icon-48.png" alt="" /> DutchMate</div><span class="status">Exit review</span></header>
+              <nav class="phone-tabs" aria-label="Flashcard back tabs"><button class="phone-tab active">Learn</button><button class="phone-tab">Settings</button></nav>
+              <div class="phone-content">
+                <div class="flash-progress"><strong>2 of 6</strong><span class="label">Rate this card</span></div>
+                <div class="progress-line" aria-hidden="true"></div>
+                <section class="flashcard"><span class="eyebrow">Answer</span><p class="word">gezellig</p><div class="answer-list"><div class="answer-row"><span>English</span><strong>cozy</strong></div><div class="answer-row"><span>Telugu</span><strong>హాయిగా ఉండే</strong></div></div><p class="context">We had a gezellig evening with friends.</p></section>
+                <div class="ratings"><button class="button">Again<br /><span class="label">1 day</span></button><button class="button">Hard<br /><span class="label">1 day</span></button><button class="button">Good<br /><span class="label">3 days</span></button><button class="button">Easy<br /><span class="label">7 days</span></button></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="state" id="settings">
+          <h2>04 / Settings</h2>
+          <div class="phone">
+            <div class="phone-screen">
+              <header class="phone-head"><div class="brand"><img src="../../public/icons/icon-48.png" alt="" /> DutchMate</div><span class="badge">6</span></header>
+              <nav class="phone-tabs" aria-label="Settings tabs"><button class="phone-tab">Learn</button><button class="phone-tab active">Settings</button></nav>
+              <div class="phone-content settings-content">
+                <section class="settings-intro"><p class="eyebrow">Study preferences</p><h3>Your study desk</h3><p>Keep the review loop close to the way you read.</p></section>
+                <div class="settings-list"><div class="setting-row"><div><strong>Learning language</strong><small>Fixed for this MVP</small></div><span>Dutch</span></div><div class="setting-row"><div><strong>Helper languages</strong><small>Fixed for this MVP</small></div><span>English + Telugu</span></div><div class="setting-row"><div><strong>Auto-save selected words</strong><small>Save eligible single words</small></div><span class="toggle" aria-hidden="true"></span></div><div class="setting-row"><div><strong>Show page context</strong><small>Display stored context on cards</small></div><span class="toggle" aria-hidden="true"></span></div><div class="setting-row"><div><strong>Daily review badge</strong><small>Show reviewed cards due</small></div><span class="toggle" aria-hidden="true"></span></div><div class="setting-row"><div><strong>Card direction</strong><small class="radio selected">Dutch to helpers</small><small class="radio">Helpers to Dutch</small></div><span></span></div></div>
+                <div class="settings-actions"><button class="button primary center">Export vocabulary</button><button class="button center">Import vocabulary</button><button class="button danger center">Clear vocabulary</button></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="decision"><p class="eyebrow">Chosen direction</p><h2>Direction A, mobile-first.</h2><p>The implementation should preserve this information architecture at extension-popup size and remain comfortable at 390x844. The future mobile app can reuse the same screen hierarchy, copy, and interaction states.</p></section>
+    </main>
+  </body>
+</html>

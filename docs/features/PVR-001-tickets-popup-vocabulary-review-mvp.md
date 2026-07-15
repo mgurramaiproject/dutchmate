@@ -94,7 +94,7 @@ GitHub issue: [#26](https://github.com/mgurramaiproject/dutchmate/issues/26)
 
 - [ ] Chrome and Firefox builds include popup, background, content, Options, icons, and correct browser-specific background declarations.
 - [ ] Focused tests, typecheck, and the full test suite pass.
-- [ ] The popup remains usable at browser popup dimensions and narrow viewport widths.
+- [ ] The popup remains usable at browser popup dimensions, preserves the Direction A composition at a 390x844 baseline, and remains usable at narrow viewport widths.
 - [ ] Keyboard navigation, focus states, labels, and button states are accessible.
 - [ ] Generated manifests and packaged outputs are inspected for the expected entry points.
 - [ ] A standards/spec review finds no unresolved MVP gaps.
