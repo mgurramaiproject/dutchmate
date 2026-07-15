@@ -17,9 +17,8 @@ import {
 import type { ReviewSettingsChanges } from "../background/messages";
 import { createSettingsClient } from "./settings-client";
 import { serializeVocabularyBackup } from "../vocabulary/vocabulary-backup";
+import { getPopupTabForKey, type PopupTab } from "./tab-navigation";
 import "./styles.css";
-
-type PopupTab = "learn" | "settings";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
 const dueBadge = document.querySelector<HTMLElement>("#due-badge");
@@ -47,21 +46,35 @@ const practiceModeDescription: Record<PracticeSessionState["mode"], string> = {
   all: "Review all your words.",
 };
 
-learnTab?.addEventListener("click", () => {
-  activeTab = "learn";
-  practiceSession = null;
-  void loadSummary();
-  render();
-});
+learnTab?.addEventListener("click", () => activateTab("learn"));
 
-settingsTab?.addEventListener("click", () => {
-  activeTab = "settings";
-  render();
-});
+settingsTab?.addEventListener("click", () => activateTab("settings"));
+
+for (const [tab, button] of [["learn", learnTab], ["settings", settingsTab]] as const) {
+  button?.addEventListener("keydown", (event) => {
+    const nextTab = getPopupTabForKey(tab, event.key);
+    if (!nextTab) {
+      return;
+    }
+
+    event.preventDefault();
+    activateTab(nextTab);
+    document.querySelector<HTMLButtonElement>(`#${nextTab}-tab`)?.focus();
+  });
+}
 
 render();
 void loadSummary();
 void loadSettings();
+
+function activateTab(tab: PopupTab): void {
+  activeTab = tab;
+  if (tab === "learn") {
+    practiceSession = null;
+    void loadSummary();
+  }
+  render();
+}
 
 async function loadSettings(): Promise<void> {
   settings = await settingsClient.getSettings();
@@ -557,11 +570,17 @@ function createEyebrow(text: string): HTMLElement {
 }
 
 function createHeading(text: string): HTMLElement {
-  return createText(text, "heading");
+  const heading = document.createElement("h1");
+  heading.className = "heading";
+  heading.textContent = text;
+  return heading;
 }
 
 function createSectionTitle(text: string): HTMLElement {
-  return createText(text, "section-title");
+  const heading = document.createElement("h2");
+  heading.className = "section-title";
+  heading.textContent = text;
+  return heading;
 }
 
 function createText(text: string, className = "body-copy"): HTMLElement {
@@ -576,7 +595,11 @@ function updateTabs(): void {
     const isActive = activeTab === tab;
     button?.classList.toggle("is-active", isActive);
     button?.setAttribute("aria-selected", String(isActive));
+    if (button) {
+      button.tabIndex = isActive ? 0 : -1;
+    }
   }
+  content?.setAttribute("aria-labelledby", activeTab === "learn" ? "learn-tab" : "settings-tab");
 }
 
 function updateBadge(): void {
@@ -587,4 +610,5 @@ function updateBadge(): void {
   const due = settings.dailyReviewBadge ? summary?.due ?? 0 : 0;
   dueBadge.hidden = due === 0;
   dueBadge.textContent = String(due);
+  dueBadge.setAttribute("aria-label", `${due} ${due === 1 ? "word" : "words"} due for review`);
 }

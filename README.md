@@ -116,6 +116,12 @@ Package store-ready builds:
 corepack pnpm package:extensions
 ```
 
+Build, package, and verify both store-ready artifacts, including their generated manifests and ZIP contents:
+
+```bash
+corepack pnpm verify:release
+```
+
 ## Load In A Browser
 
 Chrome:

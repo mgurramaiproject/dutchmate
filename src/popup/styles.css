@@ -12,8 +12,8 @@
 * { box-sizing: border-box; }
 html,
 body {
-  width: 390px;
-  min-width: 390px;
+  width: 100%;
+  min-width: 0;
 }
 
 body {
@@ -24,7 +24,7 @@ body {
 }
 button { font: inherit; cursor: pointer; }
 
-.popup-shell { width: 390px; min-width: 390px; background: var(--white); }
+.popup-shell { width: min(390px, 100%); min-width: 0; margin: 0 auto; background: var(--white); }
 .popup-header { display: flex; align-items: center; justify-content: space-between; min-height: 60px; padding: 12px 18px; border-bottom: 1px solid var(--black); }
 .brand { display: flex; align-items: center; gap: 9px; font-weight: 850; }
 .brand img { display: block; width: 29px; height: 29px; border-radius: 6px; }
@@ -36,7 +36,7 @@ button { font: inherit; cursor: pointer; }
 .popup-content { display: grid; align-content: start; padding: 16px 18px 18px; }
 .learn-content, .settings-content { display: grid; align-content: start; gap: 16px; }
 .summary-intro, .settings-content { gap: 8px; }
-.eyebrow, .section-title, .stat-label { font-size: 0.7rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
+.eyebrow, .section-title, .stat-label { margin: 0; font-size: 0.7rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
 .eyebrow { color: var(--orange); }
 .heading { margin: 0; font-family: var(--serif); font-size: 2rem; font-weight: 700; line-height: 1.08; }
 .body-copy { margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 1.48; }
@@ -66,7 +66,7 @@ button { font: inherit; cursor: pointer; }
 .rating-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
 .rating-actions .button:first-child { background: var(--orange); }
 .local-note { margin-top: 0; color: var(--muted); font-size: 0.75rem; line-height: 1.4; }
-.settings-content { overflow-y: auto; }
+.settings-content { max-height: calc(100vh - 120px); overflow-y: auto; }
 .info-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; border-top: 1px solid var(--soft-line); border-bottom: 1px solid var(--soft-line); }
 .info-row + .info-row { border-top: 0; }
 .info-row strong { font-size: 0.82rem; }

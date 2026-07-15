@@ -26,6 +26,16 @@ Expected outputs:
 - Chrome extension: `dist/chrome`
 - Firefox extension: `dist/firefox`
 
+## Popup Review Release Checks
+
+Run the artifact gate after the popup review MVP changes:
+
+```bash
+corepack pnpm verify:release
+```
+
+After loading each generated build, confirm that the popup opens on Learn, the Learn and Settings tabs can be reached by keyboard, arrow/Home/End keys move focus between tabs, focus is visible, Settings scrolls at the 390x844 baseline, and the layout remains usable at a narrower popup width. Confirm the generated ZIP contains the popup, Options page, background, content script, icons, and browser-specific background declaration.
+
 ## Verification Log
 
 Use this small log after a real browser pass. Keep entries newest first.

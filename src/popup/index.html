@@ -13,15 +13,15 @@
           <img src="../../public/icons/icon-48.png" alt="" width="29" height="29" />
           <span>DutchMate</span>
         </div>
-        <span id="due-badge" class="due-badge" hidden aria-label="Words due for review"></span>
+        <span id="due-badge" class="due-badge" role="status" hidden aria-label="Words due for review"></span>
       </header>
 
-      <nav class="tabs" aria-label="Popup sections">
-        <button id="learn-tab" class="tab is-active" type="button" aria-controls="popup-content" aria-selected="true">Learn</button>
-        <button id="settings-tab" class="tab" type="button" aria-controls="popup-content" aria-selected="false">Settings</button>
+      <nav class="tabs" aria-label="Popup sections" role="tablist">
+        <button id="learn-tab" class="tab is-active" type="button" role="tab" aria-controls="popup-content" aria-selected="true" tabindex="0">Learn</button>
+        <button id="settings-tab" class="tab" type="button" role="tab" aria-controls="popup-content" aria-selected="false" tabindex="-1">Settings</button>
       </nav>
 
-      <div id="popup-content" class="popup-content" aria-live="polite"></div>
+      <div id="popup-content" class="popup-content" role="tabpanel" aria-labelledby="learn-tab" tabindex="0" aria-live="polite"></div>
     </main>
   </body>
 </html>

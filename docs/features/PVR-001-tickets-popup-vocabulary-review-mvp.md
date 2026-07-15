@@ -92,9 +92,9 @@ GitHub issue: [#26](https://github.com/mgurramaiproject/dutchmate/issues/26)
 
 **Blocked by:** [PVR-001-T01 / #21](https://github.com/mgurramaiproject/dutchmate/issues/21), [PVR-001-T02 / #22](https://github.com/mgurramaiproject/dutchmate/issues/22), [PVR-001-T03 / #23](https://github.com/mgurramaiproject/dutchmate/issues/23), [PVR-001-T04 / #24](https://github.com/mgurramaiproject/dutchmate/issues/24), [PVR-001-T05 / #25](https://github.com/mgurramaiproject/dutchmate/issues/25)
 
-- [ ] Chrome and Firefox builds include popup, background, content, Options, icons, and correct browser-specific background declarations.
-- [ ] Focused tests, typecheck, and the full test suite pass.
+- [x] Chrome and Firefox builds include popup, background, content, Options, icons, and correct browser-specific background declarations.
+- [x] Focused tests, typecheck, and the full test suite pass.
 - [ ] The popup remains usable at browser popup dimensions, preserves the Direction A composition at a 390x844 baseline, and remains usable at narrow viewport widths.
 - [ ] Keyboard navigation, focus states, labels, and button states are accessible.
-- [ ] Generated manifests and packaged outputs are inspected for the expected entry points.
+- [x] Generated manifests and packaged outputs are inspected for the expected entry points.
 - [ ] A standards/spec review finds no unresolved MVP gaps.
