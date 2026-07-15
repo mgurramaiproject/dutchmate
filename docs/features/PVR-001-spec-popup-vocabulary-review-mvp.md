@@ -1,4 +1,6 @@
-# Popup Vocabulary Review MVP
+# PVR-001: Popup Vocabulary Review MVP
+
+Parent issue: #20
 
 ## Problem Statement
 

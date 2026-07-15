@@ -1,3 +1,7 @@
+# PVR-001: Popup Vocabulary Review MVP
+
+Parent issue: #20
+
 Implement the popup-based vocabulary review MVP described below.
 
 Before changing code:
