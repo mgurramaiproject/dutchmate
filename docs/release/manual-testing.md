@@ -34,7 +34,7 @@ Run the artifact gate after the popup review MVP changes:
 corepack pnpm verify:release
 ```
 
-After loading each generated build, confirm that the popup opens on Learn, the Learn and Settings tabs can be reached by keyboard, arrow/Home/End keys move focus between tabs, focus is visible, Settings scrolls at the 390x844 baseline, and the layout remains usable at a narrower popup width. Confirm the generated ZIP contains the popup, Options page, background, content script, icons, and browser-specific background declaration.
+After loading each generated build, confirm that the popup opens on Learn, stays at the fixed 390x600 size while moving between Learn, flashcards, and Settings, and scrolls content inside that frame. Confirm the Learn and Settings tabs can be reached by keyboard, arrow/Home/End keys move focus between tabs, focus is visible, and the layout remains usable at a narrower popup width. Confirm the generated ZIP contains the popup, Options page, background, content script, icons, and browser-specific background declaration.
 
 ## Verification Log
 

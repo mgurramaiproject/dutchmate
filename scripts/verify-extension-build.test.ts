@@ -109,7 +109,7 @@ async function createExtensionFixture(
     await writeFile(
       join(distDir, file),
       file === "assets/popup.css"
-        ? "width:min(390px,100%);max-height:calc(100vh - 120px);button:focus-visible{outline:3px solid orange}"
+        ? "width:min(390px,100%);height:600px;height:496px;overflow-y:auto;button:focus-visible{outline:3px solid orange}"
         : "fixture",
     );
   }
