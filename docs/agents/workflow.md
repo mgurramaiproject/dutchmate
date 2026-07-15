@@ -62,6 +62,17 @@ Important:
 7. Move to `In Review` when the PR is open.
 8. Move to `Done` when the PR is merged and the issue is closed.
 
+## Implementation Checklist
+
+When implementing an issue:
+
+- Confirm the current branch, worktree, issue, and source specification before editing.
+- Keep the change within one coherent, independently verifiable slice.
+- Test behavior at stable public seams, and update the issue or ticket acceptance checklist as each requirement is completed.
+- Before committing, run the focused checks, typecheck, full relevant suite, and build or packaging checks required by the change.
+- Review the diff against the pre-work baseline, run the repository's whitespace checks, and commit the implementation together with its documentation updates.
+- Finish with a clean worktree and report any checks or external actions that could not be completed.
+
 ## Status Rules
 
 Use this mapping consistently:
