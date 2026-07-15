@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   CLEAR_VOCABULARY_MESSAGE,
   DELETE_VOCABULARY_MESSAGE,
+  isReviewMessage,
   isVocabularyMessage,
   LIST_VOCABULARY_MESSAGE,
   SAVE_VOCABULARY_BATCH_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
+  REVIEW_SUMMARY_MESSAGE,
 } from "./messages";
 
 const saveMessage = {
@@ -46,6 +48,7 @@ describe("isVocabularyMessage", () => {
       }),
     ).toBe(true);
     expect(isVocabularyMessage({ type: CLEAR_VOCABULARY_MESSAGE })).toBe(true);
+    expect(isReviewMessage({ type: REVIEW_SUMMARY_MESSAGE })).toBe(true);
   });
 
   it("rejects invalid save payloads", () => {

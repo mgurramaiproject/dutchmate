@@ -76,7 +76,9 @@ export class SavedVocabularyStore {
 
   async list(): Promise<SavedVocabularyEntry[]> {
     const data = await this.readData();
-    return Object.values(data.entries).sort((first, second) => second.createdAt - first.createdAt);
+    return Object.values(data.entries).sort(
+      (first, second) => second.createdAt - first.createdAt || first.id.localeCompare(second.id),
+    );
   }
 
   async save(input: SaveVocabularyInput): Promise<SaveVocabularyResult> {

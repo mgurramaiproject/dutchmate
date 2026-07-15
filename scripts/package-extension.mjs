@@ -51,7 +51,8 @@ async function getRequiredExtensionFiles(distRoot) {
   const files = new Set(["manifest.json"]);
 
   addManifestFiles(files, manifest);
-  await addOptionsPageFiles(files, distRoot, manifest.options_ui?.page);
+  await addHtmlPageFiles(files, distRoot, manifest.options_ui?.page);
+  await addHtmlPageFiles(files, distRoot, manifest.action?.default_popup);
 
   return [...files].sort();
 }
@@ -75,7 +76,7 @@ function addManifestFiles(files, manifest) {
   }
 }
 
-async function addOptionsPageFiles(files, distRoot, pagePath) {
+async function addHtmlPageFiles(files, distRoot, pagePath) {
   if (!pagePath) {
     return;
   }

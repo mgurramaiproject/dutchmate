@@ -5,6 +5,7 @@ import type {
   SaveVocabularyInput,
   SaveVocabularyResult,
 } from "../vocabulary/saved-vocabulary";
+import type { ReviewCardSummary } from "../vocabulary/review-cards";
 
 export const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 export const SAVE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.save";
@@ -12,6 +13,7 @@ export const SAVE_VOCABULARY_BATCH_MESSAGE = "hoverTranslate.vocabulary.saveBatc
 export const LIST_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.list";
 export const DELETE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.delete";
 export const CLEAR_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.clear";
+export const REVIEW_SUMMARY_MESSAGE = "dutchmate.review.summary";
 
 export type TranslateMessage = {
   type: typeof TRANSLATE_MESSAGE;
@@ -45,12 +47,18 @@ export type ClearVocabularyMessage = {
   type: typeof CLEAR_VOCABULARY_MESSAGE;
 };
 
+export type ReviewSummaryMessage = {
+  type: typeof REVIEW_SUMMARY_MESSAGE;
+};
+
 export type VocabularyMessage =
   | SaveVocabularyMessage
   | SaveVocabularyBatchMessage
   | ListVocabularyMessage
   | DeleteVocabularyMessage
   | ClearVocabularyMessage;
+
+export type ReviewMessage = ReviewSummaryMessage;
 
 export type TranslateMessageResponse =
   | {
@@ -85,7 +93,20 @@ export type VocabularyMessageResponse =
       error: string;
     };
 
-export type BackgroundMessageResponse = TranslateMessageResponse | VocabularyMessageResponse;
+export type ReviewMessageResponse =
+  | {
+      ok: true;
+      result: ReviewCardSummary;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export type BackgroundMessageResponse =
+  | TranslateMessageResponse
+  | VocabularyMessageResponse
+  | ReviewMessageResponse;
 
 export function isTranslateMessage(message: unknown): message is TranslateMessage {
   return (
@@ -125,6 +146,15 @@ export function isVocabularyMessage(message: unknown): message is VocabularyMess
   }
 
   return false;
+}
+
+export function isReviewMessage(message: unknown): message is ReviewMessage {
+  return (
+    typeof message === "object" &&
+    message !== null &&
+    "type" in message &&
+    message.type === REVIEW_SUMMARY_MESSAGE
+  );
 }
 
 function isSaveVocabularyPayload(payload: unknown): payload is SaveVocabularyInput {

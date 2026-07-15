@@ -40,6 +40,10 @@ const manifest = {
       run_at: "document_idle",
     },
   ],
+  action: {
+    default_popup: "src/popup/index.html",
+    default_title: "Open DutchMate Learn",
+  },
   options_ui: {
     page: "src/options/index.html",
     open_in_tab: true,

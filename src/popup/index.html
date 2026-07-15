@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DutchMate Learn</title>
+    <script type="module" src="./index.ts"></script>
+  </head>
+  <body>
+    <main class="popup-shell">
+      <header class="popup-header">
+        <div class="brand">
+          <img src="../../public/icons/icon-48.png" alt="" width="29" height="29" />
+          <span>DutchMate</span>
+        </div>
+        <span id="due-badge" class="due-badge" hidden aria-label="Words due for review"></span>
+      </header>
+
+      <nav class="tabs" aria-label="Popup sections">
+        <button id="learn-tab" class="tab is-active" type="button" aria-controls="popup-content" aria-selected="true">Learn</button>
+        <button id="settings-tab" class="tab" type="button" aria-controls="popup-content" aria-selected="false">Settings</button>
+      </nav>
+
+      <div id="popup-content" class="popup-content" aria-live="polite"></div>
+    </main>
+  </body>
+</html>

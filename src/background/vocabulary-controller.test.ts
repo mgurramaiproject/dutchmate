@@ -52,7 +52,7 @@ describe("handleVocabularyMessage", () => {
   });
 
   it("saves both target-language vocabulary entries in one batch", async () => {
-    const store = new SavedVocabularyStore(new MemoryStorage());
+    const store = new SavedVocabularyStore(new MemoryStorage(), { now: () => 1_000 });
 
     await expect(
       handleVocabularyMessage(
