@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PVR-001 Popup Design Mockups</title>
+    <style>
+      :root {
+        --black: #000000;
+        --white: #ffffff;
+        --orange: #ff6f00;
+        --muted: rgba(0, 0, 0, 0.62);
+        --line: rgba(0, 0, 0, 0.2);
+        --soft-line: rgba(0, 0, 0, 0.1);
+        --serif: Iowan Old Style, Palatino Linotype, Book Antiqua, Georgia, "Times New Roman", serif;
+        --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--white);
+        color: var(--black);
+        font-family: var(--sans);
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 72px;
+      }
+
+      .intro {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.55fr);
+        gap: 48px;
+        align-items: end;
+        margin-bottom: 40px;
+      }
+
+      h1, h2, h3, p { margin: 0; }
+      h1, h2, h3 { font-family: var(--serif); line-height: 1.08; }
+      h1 { max-width: 700px; font-size: clamp(2.8rem, 7vw, 5.4rem); font-weight: 700; }
+      h2 { font-size: 1.55rem; }
+      h3 { font-size: 1.1rem; }
+      .eyebrow, .micro, button, .tab, .stat-label, .meta, .option-label {
+        font-family: var(--sans);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .eyebrow, .orange { color: var(--orange); }
+      .intro-copy { display: grid; gap: 16px; }
+      .intro-copy p, .intro-note { color: var(--muted); line-height: 1.55; }
+      .intro-note { border-left: 3px solid var(--orange); padding-left: 16px; }
+
+      .directions {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .direction {
+        display: grid;
+        gap: 12px;
+        align-content: start;
+      }
+
+      .option-label { color: var(--muted); }
+      .option-label strong { color: var(--black); }
+
+      .popup {
+        position: relative;
+        display: grid;
+        min-height: 650px;
+        overflow: hidden;
+        border: 1px solid var(--black);
+        background: var(--white);
+      }
+
+      .popup button, .popup .tab {
+        border: 0;
+        color: inherit;
+        cursor: pointer;
+      }
+
+      .popup-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 58px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--black);
+      }
+
+      .brand { display: flex; align-items: center; gap: 9px; font-weight: 850; }
+      .brand img { width: 26px; height: 26px; border-radius: 5px; }
+      .badge {
+        display: inline-grid;
+        min-width: 22px;
+        height: 22px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--orange);
+        color: var(--black);
+        font-size: 0.72rem;
+        font-weight: 900;
+      }
+
+      .tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-bottom: 1px solid var(--black);
+      }
+
+      .tab {
+        min-height: 40px;
+        background: var(--white);
+      }
+
+      .tab + .tab { border-left: 1px solid var(--black); }
+      .tab.active { background: var(--black); color: var(--white); }
+
+      .popup-main { display: grid; align-content: start; gap: 18px; padding: 20px 16px 18px; }
+      .summary { display: grid; gap: 8px; }
+      .summary h2 { font-size: 1.75rem; }
+      .summary p { color: var(--muted); font-size: 0.84rem; line-height: 1.4; }
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .stat { display: grid; gap: 4px; min-height: 70px; padding: 10px; border: 1px solid var(--line); }
+      .stat strong { font-family: var(--serif); font-size: 1.55rem; line-height: 1; }
+      .stat-label { color: var(--muted); font-size: 0.58rem; }
+      .recent { display: grid; gap: 8px; }
+      .recent-list { display: grid; gap: 6px; }
+      .recent-row { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--soft-line); }
+      .recent-row strong { font-family: var(--serif); font-size: 1.02rem; }
+      .recent-row span { color: var(--muted); font-size: 0.75rem; text-align: right; }
+      .actions { display: grid; gap: 8px; margin-top: 2px; }
+      .action { min-height: 44px; padding: 10px 12px; border: 1px solid var(--black) !important; background: var(--white); color: var(--black); font-size: 0.7rem; font-weight: 850; }
+      .action.primary { background: var(--orange); }
+      .action:hover, .action:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+      .footer-note { align-self: end; padding: 12px 16px 16px; color: var(--muted); font-size: 0.72rem; line-height: 1.4; }
+
+      .flashcard { display: grid; gap: 18px; padding: 18px; border: 1px solid var(--black); }
+      .flash-meta { display: flex; justify-content: space-between; color: var(--muted); }
+      .flash-word { font-family: var(--serif); font-size: 2.2rem; font-weight: 700; }
+      .flash-answer { display: grid; gap: 9px; padding-top: 14px; border-top: 1px solid var(--black); }
+      .meaning { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--soft-line); }
+      .meaning span { color: var(--muted); font-size: 0.78rem; }
+      .meaning strong { font-size: 0.9rem; text-align: right; }
+      .ratings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+      .ratings button { min-height: 38px; padding: 6px 4px; border: 1px solid var(--black); background: var(--white); font-size: 0.57rem; }
+      .ratings button:last-child { background: var(--orange); }
+
+      .settings-list { display: grid; gap: 0; border-top: 1px solid var(--black); }
+      .setting { display: flex; justify-content: space-between; gap: 18px; padding: 13px 0; border-bottom: 1px solid var(--soft-line); }
+      .setting strong { font-size: 0.8rem; }
+      .setting span { color: var(--muted); font-size: 0.75rem; text-align: right; }
+      .toggle { position: relative; width: 34px; height: 20px; flex: 0 0 auto; border: 1px solid var(--black); border-radius: 20px; background: var(--black); }
+      .toggle::after { position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--orange); content: ""; }
+
+      /* Direction A: editorial reading desk. */
+      .a .popup { grid-template-rows: auto auto 1fr auto; }
+      .a .popup-head { background: var(--white); }
+      .a .summary h2::after { display: block; width: 42px; height: 3px; margin-top: 10px; background: var(--orange); content: ""; }
+      .a .stats .stat:first-child { border-top: 4px solid var(--orange); }
+
+      /* Direction B: orange action-led. */
+      .b .popup { grid-template-rows: auto auto 1fr auto; }
+      .b .popup-head { background: var(--black); color: var(--white); border-color: var(--black); }
+      .b .brand img { border: 1px solid var(--white); }
+      .b .tabs { border-color: var(--black); }
+      .b .tab.active { background: var(--orange); color: var(--black); }
+      .b .summary { padding: 16px; background: var(--orange); }
+      .b .summary p { color: var(--black); }
+      .b .stats { grid-template-columns: 1fr 1fr; }
+      .b .stats .stat:first-child { grid-row: span 2; align-content: end; min-height: 148px; background: var(--black); color: var(--white); border-color: var(--black); }
+      .b .stats .stat:first-child .stat-label { color: var(--white); }
+      .b .action.primary { background: var(--black); color: var(--white); }
+
+      /* Direction C: book spine. */
+      .c .popup { grid-template-rows: auto auto 1fr auto; }
+      .c .popup-head { border-bottom: 0; }
+      .c .popup-main { grid-template-columns: 18px 1fr; gap: 14px; padding: 0 16px 18px 0; }
+      .c .popup-main::before { display: block; height: 100%; background: var(--orange); content: ""; }
+      .c .summary, .c .stats, .c .recent, .c .actions { grid-column: 2; }
+      .c .summary { padding-top: 20px; }
+      .c .summary h2 { font-size: 2rem; }
+      .c .stat { border: 0; border-bottom: 1px solid var(--black); padding-left: 0; }
+      .c .flashcard { border-width: 0 0 1px; padding: 16px 0; }
+      .c .footer-note { border-left: 18px solid var(--orange); }
+
+      /* Direction D: compact drill utility. */
+      .d .popup { grid-template-rows: auto auto 1fr auto; }
+      .d .popup-head { background: var(--black); color: var(--white); }
+      .d .popup-main { gap: 12px; padding: 14px; }
+      .d .summary { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 3px solid var(--orange); }
+      .d .summary h2 { font-family: var(--sans); font-size: 1rem; font-weight: 850; text-transform: uppercase; }
+      .d .summary p { font-size: 0.7rem; text-align: right; }
+      .d .stats { grid-template-columns: repeat(3, 1fr); }
+      .d .stat { min-height: 58px; padding: 8px; }
+      .d .stat strong { font-family: var(--sans); font-size: 1.25rem; }
+      .d .recent-row { padding: 6px 8px; border: 1px solid var(--soft-line); }
+      .d .recent-row span { font-size: 0.68rem; }
+      .d .action { text-align: left; }
+      .d .action::after { float: right; color: var(--orange); content: "->"; }
+
+      .learn-preview { display: block; }
+      .settings-preview { display: none; }
+      .popup.show-settings .learn-preview { display: none; }
+      .popup.show-settings .settings-preview { display: grid; align-content: start; gap: 18px; padding: 20px 16px; }
+      .popup.show-settings .popup-main { display: block; padding: 0; }
+      .popup.show-settings .footer-note { display: none; }
+
+      .mockup-caption { color: var(--muted); font-size: 0.78rem; line-height: 1.45; }
+      .mockup-caption strong { color: var(--black); }
+      .choose { margin-top: 42px; padding: 22px; border: 1px solid var(--black); border-top: 5px solid var(--orange); }
+      .choose p { max-width: 760px; margin-top: 8px; color: var(--muted); line-height: 1.5; }
+
+      @media (max-width: 980px) {
+        .directions { grid-template-columns: repeat(2, minmax(280px, 1fr)); }
+      }
+
+      @media (max-width: 640px) {
+        .page { width: min(100% - 24px, 420px); padding-top: 28px; }
+        .intro { grid-template-columns: 1fr; gap: 18px; }
+        .directions { grid-template-columns: 1fr; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="intro">
+        <div class="intro-copy">
+          <p class="eyebrow">PVR-001 / four directions</p>
+          <h1>Choose the shape of review.</h1>
+          <p>DutchMate stays black, white, and orange. These four popup directions change the hierarchy, density, and emotional temperature without changing the agreed MVP behavior.</p>
+        </div>
+        <p class="intro-note">Click Learn or Settings in any mockup. Each frame is drawn at a realistic extension-popup width and uses the real DutchMate icon.</p>
+      </section>
+
+      <section class="directions" aria-label="Popup design directions">
+        <article class="direction a">
+          <p class="option-label"><strong>A</strong> / Editorial reading desk</p>
+          <div class="popup" data-popup>
+            <header class="popup-head">
+              <div class="brand"><img src="../../public/icons/icon-48.png" alt="" /> DutchMate</div>
+              <span class="badge">6</span>
+            </header>
+            <nav class="tabs" aria-label="A tabs"><button class="tab active" data-tab="learn">Learn</button><button class="tab" data-tab="settings">Settings</button></nav>
+            <div class="popup-main">
+              <div class="learn-preview">
+                <section class="summary"><h2>Keep reading.<br /><span class="orange">Review a little.</span></h2><p>Six words are waiting. Your next card is already here.</p></section>
+                <div class="stats"><div class="stat"><strong>6</strong><span class="stat-label">Due now</span></div><div class="stat"><strong>18</strong><span class="stat-label">Saved</span></div><div class="stat"><strong>4</strong><span class="stat-label">New</span></div></div>
+                <section class="recent"><span class="micro">Recently saved</span><div class="recent-list"><div class="recent-row"><strong>gezellig</strong><span>cozy<br />gezellig</span></div><div class="recent-row"><strong>boodschap</strong><span>message<br />boodschap</span></div><div class="recent-row"><strong>fiets</strong><span>bicycle<br />fiets</span></div></div></section>
+                <div class="actions"><button class="action primary">Review due words</button><button class="action">Practice new words</button><button class="action">Review all words</button></div>
+              </div>
+              <div class="settings-preview"><section class="summary"><p class="eyebrow">Settings</p><h2>Your study desk</h2></section><div class="settings-list"><div class="setting"><strong>Learning language</strong><span>Dutch</span></div><div class="setting"><strong>Helper languages</strong><span>English + Telugu</span></div><div class="setting"><strong>Auto-save words</strong><span class="toggle" aria-hidden="true"></span></div><div class="setting"><strong>Show page context</strong><span class="toggle" aria-hidden="true"></span></div><div class="setting"><strong>Card direction</strong><span>Dutch to helpers</span></div></div><button class="action primary">Export vocabulary</button></div>
+            </div>
+            <p class="footer-note">Local vocabulary only. No account required.</p>
+          </div>
+          <p class="mockup-caption"><strong>Best for:</strong> calm, literary daily use. The due number feels like a reading bookmark rather than a dashboard alert.</p>
+        </article>
+
+        <article class="direction b">
+          <p class="option-label"><strong>B</strong> / Orange action-led</p>
+          <div class="popup" data-popup>
+            <header class="popup-head"><div class="brand"><img src="../../public/icons/icon-48.png" alt="" /> DutchMate</div><span class="badge">6</span></header>
+            <nav class="tabs" aria-label="B tabs"><button class="tab active" data-tab="learn">Learn</button><button class="tab" data-tab="settings">Settings</button></nav>
+            <div class="popup-main">
+              <div class="learn-preview">
+                <section class="summary"><p class="eyebrow">Daily review</p><h2>Six words.<br />One good minute.</h2><p>Start with the words that are due today.</p></section>
+                <div class="stats"><div class="stat"><strong>6</strong><span class="stat-label">Due now</span></div><div class="stat"><strong>18</strong><span class="stat-label">Saved</span></div><div class="stat"><strong>4</strong><span class="stat-label">New</span></div></div>
+                <section class="recent"><span class="micro">Your latest words</span><div class="recent-list"><div class="recent-row"><strong>gezellig</strong><span>cozy</span></div><div class="recent-row"><strong>boodschap</strong><span>message</span></div><div class="recent-row"><strong>fiets</strong><span>bicycle</span></div></div></section>
+                <div class="actions"><button class="action primary">Review due words</button><button class="action">Practice new words</button><button class="action">Review all words</button></div>
+              </div>
+              <div class="settings-preview"><section class="summary"><p class="eyebrow">Settings</p><h2>Make it yours.</h2></section><div class="settings-list"><div class="setting"><strong>Learning language</strong><span>Dutch</span></div><div class="setting"><strong>Helper languages</strong><span>English + Telugu</span></div><div class="setting"><strong>Auto-save words</strong><span class="toggle" aria-hidden="true"></span></div><div class="setting"><strong>Show page context</strong><span class="toggle" aria-hidden="true"></span></div><div class="setting"><strong>Card direction</strong><span>Dutch to helpers</span></div></div><button class="action primary">Export vocabulary</button></div>
+            </div>
+            <p class="footer-note">A small orange nudge, never a loud notification.</p>
+          </div>
+          <p class="mockup-caption"><strong>Best for:</strong> immediate action. Orange owns the moment and the first button, while the black header gives the popup a crisp tool-like edge.</p>
+        </article>
+
+        <article class="direction c">
+          <p class="option-label"><strong>C</strong> / Book spine</p>
+          <div class="popup" data-popup>
+            <header class="popup-head"><div class="brand"><img src="../../public/icons/icon-48.png" alt="" /> DutchMate</div><span class="badge">6</span></header>
+            <nav class="tabs" aria-label="C tabs"><button class="tab active" data-tab="learn">Learn</button><button class="tab" data-tab="settings">Settings</button></nav>
+            <div class="popup-main">
+              <div class="learn-preview">
+                <section class="summary"><p class="eyebrow">Volume 01</p><h2>Words worth<br />keeping.</h2><p>Your saved vocabulary, arranged like a small study book.</p></section>
+                <div class="stats"><div class="stat"><strong>6</strong><span class="stat-label">Due now</span></div><div class="stat"><strong>18</strong><span class="stat-label">Saved</span></div><div class="stat"><strong>4</strong><span class="stat-label">New</span></div></div>
+                <section class="recent"><span class="micro">Last marked</span><div class="recent-list"><div class="recent-row"><strong>gezellig</strong><span>cozy</span></div><div class="recent-row"><strong>boodschap</strong><span>message</span></div><div class="recent-row"><strong>fiets</strong><span>bicycle</span></div></div></section>
+                <div class="actions"><button class="action primary">Review due words</button><button class="action">Practice new words</button><button class="action">Review all words</button></div>
+              </div>
+              <div class="settings-preview"><section class="summary"><p class="eyebrow">The bookplate</p><h2>Study settings</h2></section><div class="settings-list"><div class="setting"><strong>Learning language</strong><span>Dutch</span></div><div class="setting"><strong>Helper languages</strong><span>English + Telugu</span></div><div class="setting"><strong>Auto-save words</strong><span class="toggle" aria-hidden="true"></span></div><div class="setting"><strong>Show page context</strong><span class="toggle" aria-hidden="true"></span></div><div class="setting"><strong>Card direction</strong><span>Dutch to helpers</span></div></div><button class="action primary">Export vocabulary</button></div>
+            </div>
+            <p class="footer-note">A reading companion with a visible orange spine.</p>
+          </div>
+          <p class="mockup-caption"><strong>Best for:</strong> making the learning feature feel ownable. The orange vertical spine becomes the signature element and carries into the flashcard state.</p>
+        </article>
+
+        <article class="direction d">
+          <p class="option-label"><strong>D</strong> / Compact drill utility</p>
+          <div class="popup" data-popup>
+            <header class="popup-head"><div class="brand"><img src="../../public/icons/icon-48.png" alt="" /> DutchMate</div><span class="badge">6</span></header>
+            <nav class="tabs" aria-label="D tabs"><button class="tab active" data-tab="learn">Learn</button><button class="tab" data-tab="settings">Settings</button></nav>
+            <div class="popup-main">
+              <div class="learn-preview">
+                <section class="summary"><h2>Review</h2><p>6 due / 18 saved / 4 new</p></section>
+                <div class="stats"><div class="stat"><strong>6</strong><span class="stat-label">Due</span></div><div class="stat"><strong>18</strong><span class="stat-label">Saved</span></div><div class="stat"><strong>4</strong><span class="stat-label">New</span></div></div>
+                <section class="recent"><span class="micro">Recently saved</span><div class="recent-list"><div class="recent-row"><strong>gezellig</strong><span>cozy</span></div><div class="recent-row"><strong>boodschap</strong><span>message</span></div><div class="recent-row"><strong>fiets</strong><span>bicycle</span></div></div></section>
+                <div class="actions"><button class="action primary">Review due words</button><button class="action">Practice new words</button><button class="action">Review all words</button></div>
+              </div>
+              <div class="settings-preview"><section class="summary"><h2>Settings</h2><p>Review preferences</p></section><div class="settings-list"><div class="setting"><strong>Learning language</strong><span>Dutch</span></div><div class="setting"><strong>Helper languages</strong><span>English + Telugu</span></div><div class="setting"><strong>Auto-save words</strong><span class="toggle" aria-hidden="true"></span></div><div class="setting"><strong>Show page context</strong><span class="toggle" aria-hidden="true"></span></div><div class="setting"><strong>Card direction</strong><span>Dutch to helpers</span></div></div><button class="action primary">Export vocabulary</button></div>
+            </div>
+            <p class="footer-note">Fast to scan. Ready for one more card.</p>
+          </div>
+          <p class="mockup-caption"><strong>Best for:</strong> frequent use. The hierarchy is compact, the copy is operational, and each button reads like a keyboard shortcut.</p>
+        </article>
+      </section>
+
+      <section class="choose">
+        <p class="eyebrow">Decision</p>
+        <h2>Choose A, B, C, or D.</h2>
+        <p>After you choose, I’ll turn that direction into the popup implementation language and keep the other three as rejected visual alternatives in the design record. No production UI code has been changed by this mockup page.</p>
+      </section>
+    </main>
+    <script>
+      document.querySelectorAll("[data-popup]").forEach((popup) => {
+        popup.querySelectorAll("[data-tab]").forEach((tab) => {
+          tab.addEventListener("click", () => {
+            const isSettings = tab.dataset.tab === "settings";
+            popup.classList.toggle("show-settings", isSettings);
+            popup.querySelectorAll("[data-tab]").forEach((candidate) => {
+              candidate.classList.toggle("active", candidate === tab);
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
