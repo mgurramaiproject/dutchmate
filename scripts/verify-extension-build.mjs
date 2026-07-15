@@ -160,7 +160,7 @@ async function validatePopupStyles(distDir, html) {
 
     const css = (await readFile(resolve(distDir, stylesheet), "utf8")).replace(/\s+/g, "");
     for (const [rule, label] of [
-      ["width:min(390px,100%);", "fluid popup width"],
+      ["width:390px;", "fixed popup width"],
       ["height:600px;", "fixed popup height"],
       ["height:496px;overflow-y:auto;", "scrollable popup content"],
       ["button:focus-visible", "visible keyboard focus"],

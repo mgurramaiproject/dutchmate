@@ -424,22 +424,29 @@ function renderError(message: string): void {
 }
 
 function createRecentList(cards: LearnSummaryView["recent"]): HTMLElement {
-  const list = document.createElement("div");
-  list.className = "recent-list";
+  const table = document.createElement("table");
+  table.className = "recent-table";
+  table.setAttribute("aria-label", "Recently saved vocabulary");
 
-  for (const card of cards) {
-    const row = document.createElement("div");
-    row.className = "recent-row";
-
-    const dutch = document.createElement("strong");
-    dutch.textContent = card.dutch;
-    const meanings = document.createElement("span");
-    meanings.textContent = `English: ${card.english} · Telugu: ${card.telugu}`;
-    row.append(dutch, meanings);
-    list.append(row);
+  const headerRow = table.createTHead().insertRow();
+  for (const label of ["Dutch", "English", "Telugu"]) {
+    const header = document.createElement("th");
+    header.scope = "col";
+    header.textContent = label;
+    headerRow.append(header);
   }
 
-  return list;
+  const body = table.createTBody();
+
+  for (const card of cards) {
+    const row = body.insertRow();
+    for (const value of [card.dutch, card.english, card.telugu ?? "unavailable"]) {
+      const cell = row.insertCell();
+      cell.textContent = value;
+    }
+  }
+
+  return table;
 }
 
 function createReviewAction(action: LearnSummaryView["actions"][number]): HTMLButtonElement {
