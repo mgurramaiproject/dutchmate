@@ -1,8 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { handleReviewMessage } from "./review-controller";
 import {
   REVIEW_ALL_QUEUE_MESSAGE,
   REVIEW_DUE_QUEUE_MESSAGE,
+  REVIEW_EXPORT_MESSAGE,
+  REVIEW_IMPORT_MESSAGE,
+  REVIEW_CLEAR_MESSAGE,
   REVIEW_NEW_QUEUE_MESSAGE,
   REVIEW_RATE_MESSAGE,
   REVIEW_SUMMARY_MESSAGE,
@@ -10,6 +13,43 @@ import {
 import type { ReviewCard } from "../vocabulary/review-cards";
 
 describe("handleReviewMessage", () => {
+  it("exports the versioned local vocabulary backup", async () => {
+    const backup = {
+      format: "dutchmate-vocabulary-backup" as const,
+      version: 1 as const,
+      exportedAt: 10_000,
+      cards: [],
+    };
+
+    await expect(
+      handleReviewMessage({ type: REVIEW_EXPORT_MESSAGE }, {
+        summary: async () => ({ total: 0, due: 0, new: 0, recent: [] }),
+        exportBackup: async () => backup,
+      }),
+    ).resolves.toEqual({ ok: true, result: { backup } });
+  });
+
+  it("rejects malformed imports and clears through the review provider", async () => {
+    const clear = vi.fn(async () => undefined);
+    const provider = {
+      summary: async () => ({ total: 0, due: 0, new: 0, recent: [] }),
+      importBackup: async () => [],
+      clear,
+    };
+
+    await expect(
+      handleReviewMessage({
+        type: REVIEW_IMPORT_MESSAGE,
+        payload: { document: "not json" },
+      }, provider),
+    ).resolves.toEqual({ ok: false, error: "This vocabulary file is not valid JSON." });
+
+    await expect(
+      handleReviewMessage({ type: REVIEW_CLEAR_MESSAGE }, provider),
+    ).resolves.toEqual({ ok: true, result: { cleared: true } });
+    expect(clear).toHaveBeenCalledOnce();
+  });
+
   it("returns the canonical review summary", async () => {
     const summary = {
       total: 2,

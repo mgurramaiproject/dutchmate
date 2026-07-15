@@ -4,6 +4,7 @@ import {
   getDueReviewQueue,
   getAllReviewQueue,
   getNewReviewQueue,
+  mergeImportedReviewCards,
   migrateSavedVocabulary,
   rateReviewCard,
   ReviewCardStore,
@@ -247,6 +248,67 @@ describe("review queues", () => {
       expect.objectContaining({ id: "nl\u001fmiddle" }),
       expect.objectContaining({ id: "nl\u001fnewest" }),
     ]);
+  });
+});
+
+describe("imported review cards", () => {
+  it("fills missing meanings and context without changing local review metadata", () => {
+    const local = card({
+      english: null,
+      telugu: "ఇల్లు",
+      pageContext: null,
+      dueAt: 5_000,
+      lastReviewedAt: 4_000,
+      lastRating: "hard",
+      reviewCount: 2,
+    });
+    const imported = card({
+      english: "house",
+      telugu: "home",
+      pageContext: "Een huis staat daar.",
+      updatedAt: 99_000,
+      dueAt: 99_000,
+      lastReviewedAt: 98_000,
+      lastRating: "easy",
+      reviewCount: 99,
+    });
+
+    expect(mergeImportedReviewCards([local], [imported])).toEqual([
+      {
+        ...local,
+        english: "house",
+        pageContext: "Een huis staat daar.",
+      },
+    ]);
+  });
+
+  it("retains imported canonical cards when no saved pair exists locally", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage);
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage);
+    const imported = card({ id: "nl\u001fboom", dutch: "boom" });
+
+    await reviewCards.importBackup({
+      format: "dutchmate-vocabulary-backup",
+      version: 1,
+      exportedAt: 10_000,
+      cards: [imported],
+    });
+
+    await expect(reviewCards.list()).resolves.toEqual([imported]);
+  });
+
+  it("clears saved pairs and canonical review cards together", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage);
+    await savedVocabulary.save(savedEntry({ text: "huis" }));
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage);
+    await reviewCards.list();
+
+    await reviewCards.clear();
+
+    await expect(savedVocabulary.list()).resolves.toEqual([]);
+    await expect(reviewCards.list()).resolves.toEqual([]);
   });
 });
 

@@ -76,13 +76,13 @@ GitHub issue: [#25](https://github.com/mgurramaiproject/dutchmate/issues/25)
 
 **Blocked by:** [PVR-001-T03 / #23](https://github.com/mgurramaiproject/dutchmate/issues/23), [PVR-001-T04 / #24](https://github.com/mgurramaiproject/dutchmate/issues/24)
 
-- [ ] Export produces versioned JSON containing canonical cards, meanings, page context, and review metadata.
-- [ ] Export excludes provider credentials and unrelated extension settings.
-- [ ] Import rejects malformed or unsupported documents with a clear error.
-- [ ] Import merges by canonical card ID and preserves existing local review metadata on conflicts.
-- [ ] Clear requires confirmation and removes cards, review metadata, and page context.
-- [ ] Import and clear update the toolbar badge correctly.
-- [ ] Import/export/clear behavior has focused tests.
+- [x] Export produces versioned JSON containing canonical cards, meanings, page context, and review metadata.
+- [x] Export excludes provider credentials and unrelated extension settings.
+- [x] Import rejects malformed or unsupported documents with a clear error.
+- [x] Import merges by canonical card ID and preserves existing local review metadata on conflicts.
+- [x] Clear requires confirmation and removes cards, review metadata, and page context.
+- [x] Import and clear update the toolbar badge correctly.
+- [x] Import/export/clear behavior has focused tests.
 
 ## PVR-001-T06: Cross-browser hardening and release verification
 

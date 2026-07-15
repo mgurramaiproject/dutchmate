@@ -407,6 +407,10 @@ async function deleteSavedVocabularyEntry(
 }
 
 async function clearSavedVocabulary(): Promise<void> {
+  if (!window.confirm("Clear all local vocabulary and review data? This cannot be undone.")) {
+    return;
+  }
+
   setClearVocabularyButtonBusy(true);
 
   try {

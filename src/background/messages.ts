@@ -6,6 +6,7 @@ import type {
   SaveVocabularyResult,
 } from "../vocabulary/saved-vocabulary";
 import type { ReviewCard, ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
+import type { VocabularyBackup } from "../vocabulary/vocabulary-backup";
 import type { ExtensionSettings } from "../shared/settings";
 
 export const TRANSLATE_MESSAGE = "hoverTranslate.translate";
@@ -19,6 +20,9 @@ export const REVIEW_NEW_QUEUE_MESSAGE = "dutchmate.review.newQueue";
 export const REVIEW_DUE_QUEUE_MESSAGE = "dutchmate.review.dueQueue";
 export const REVIEW_ALL_QUEUE_MESSAGE = "dutchmate.review.allQueue";
 export const REVIEW_RATE_MESSAGE = "dutchmate.review.rate";
+export const REVIEW_EXPORT_MESSAGE = "dutchmate.review.export";
+export const REVIEW_IMPORT_MESSAGE = "dutchmate.review.import";
+export const REVIEW_CLEAR_MESSAGE = "dutchmate.review.clear";
 export const REVIEW_SETTINGS_MESSAGE = "dutchmate.review.settings";
 export const REVIEW_SETTINGS_UPDATE_MESSAGE = "dutchmate.review.settings.update";
 
@@ -83,6 +87,19 @@ export type ReviewRateMessage = {
   };
 };
 
+export type ReviewExportMessage = {
+  type: typeof REVIEW_EXPORT_MESSAGE;
+};
+
+export type ReviewImportMessage = {
+  type: typeof REVIEW_IMPORT_MESSAGE;
+  payload: { document: string };
+};
+
+export type ReviewClearMessage = {
+  type: typeof REVIEW_CLEAR_MESSAGE;
+};
+
 export type ReviewSettingsMessage = {
   type: typeof REVIEW_SETTINGS_MESSAGE;
 };
@@ -104,7 +121,10 @@ export type ReviewMessage =
   | ReviewNewQueueMessage
   | ReviewDueQueueMessage
   | ReviewAllQueueMessage
-  | ReviewRateMessage;
+  | ReviewRateMessage
+  | ReviewExportMessage
+  | ReviewImportMessage
+  | ReviewClearMessage;
 
 export type SettingsMessage = ReviewSettingsMessage | ReviewSettingsUpdateMessage;
 
@@ -144,7 +164,12 @@ export type VocabularyMessageResponse =
 export type ReviewMessageResponse =
   | {
       ok: true;
-      result: ReviewCardSummary | { cards: ReviewCard[] } | { card: ReviewCard };
+      result:
+        | ReviewCardSummary
+        | { cards: ReviewCard[] }
+        | { card: ReviewCard }
+        | { backup: VocabularyBackup }
+        | { cleared: true };
     }
   | {
       ok: false;
@@ -215,6 +240,28 @@ export function isReviewMessage(message: unknown): message is ReviewMessage {
     message.type === REVIEW_SUMMARY_MESSAGE
   ) {
     return true;
+  }
+
+  if (
+    typeof message === "object" &&
+    message !== null &&
+    "type" in message &&
+    (message.type === REVIEW_EXPORT_MESSAGE || message.type === REVIEW_CLEAR_MESSAGE)
+  ) {
+    return true;
+  }
+
+  if (
+    typeof message === "object" &&
+    message !== null &&
+    "type" in message &&
+    message.type === REVIEW_IMPORT_MESSAGE &&
+    "payload" in message &&
+    typeof message.payload === "object" &&
+    message.payload !== null &&
+    "document" in message.payload
+  ) {
+    return typeof message.payload.document === "string";
   }
 
   if (

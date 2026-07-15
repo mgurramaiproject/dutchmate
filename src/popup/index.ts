@@ -16,6 +16,7 @@ import {
 } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
 import { createSettingsClient } from "./settings-client";
+import { serializeVocabularyBackup } from "../vocabulary/vocabulary-backup";
 import "./styles.css";
 
 type PopupTab = "learn" | "settings";
@@ -31,6 +32,8 @@ let summary: ReviewCardSummary | null = null;
 let practiceSession: PracticeSessionState | null = null;
 let practicePending = false;
 let ratingPending = false;
+let vocabularyActionPending = false;
+let vocabularyActionNotice: { message: string; kind: "success" | "error" } | null = null;
 let settings: ExtensionSettings = defaultSettings;
 
 const practiceModeLabel: Record<PracticeSessionState["mode"], string> = {
@@ -216,9 +219,125 @@ function renderSettings(): HTMLElement {
       (checked) => void saveReviewSettings({ dailyReviewBadge: checked }),
     ),
     createDirectionSetting(),
+    createVocabularyActions(),
+    ...(vocabularyActionNotice
+      ? [createText(vocabularyActionNotice.message, `settings-notice ${vocabularyActionNotice.kind}`)]
+      : []),
     createLocalNote(),
   );
   return wrapper;
+}
+
+function createVocabularyActions(): HTMLElement {
+  const actions = document.createElement("section");
+  actions.className = "settings-actions";
+
+  const exportButton = createButton("Export vocabulary", "button");
+  exportButton.disabled = vocabularyActionPending;
+  exportButton.addEventListener("click", () => void exportVocabulary());
+
+  const importButton = createButton("Import vocabulary", "button");
+  importButton.disabled = vocabularyActionPending;
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "application/json,.json";
+  fileInput.hidden = true;
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files?.[0];
+    fileInput.value = "";
+    if (file) {
+      void importVocabulary(file);
+    }
+  });
+  importButton.addEventListener("click", () => fileInput.click());
+
+  const clearButton = createButton("Clear vocabulary", "button danger-button");
+  clearButton.disabled = vocabularyActionPending;
+  clearButton.addEventListener("click", () => {
+    if (window.confirm("Clear all local vocabulary and review data? This cannot be undone.")) {
+      void clearVocabulary();
+    }
+  });
+
+  actions.append(exportButton, importButton, clearButton, fileInput);
+  return actions;
+}
+
+async function exportVocabulary(): Promise<void> {
+  if (vocabularyActionPending) {
+    return;
+  }
+
+  vocabularyActionPending = true;
+  vocabularyActionNotice = null;
+  render();
+  try {
+    const backup = await settingsClient.exportVocabulary();
+    const blob = new Blob([serializeVocabularyBackup(backup.cards, backup.exportedAt)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `dutchmate-vocabulary-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    vocabularyActionNotice = { message: "Vocabulary backup exported.", kind: "success" };
+  } catch (error) {
+    vocabularyActionNotice = {
+      message: error instanceof Error ? error.message : "Vocabulary export is unavailable.",
+      kind: "error",
+    };
+  } finally {
+    vocabularyActionPending = false;
+    render();
+  }
+}
+
+async function importVocabulary(file: File): Promise<void> {
+  if (vocabularyActionPending) {
+    return;
+  }
+
+  vocabularyActionPending = true;
+  vocabularyActionNotice = null;
+  render();
+  try {
+    await settingsClient.importVocabulary(await file.text());
+    await loadSummary();
+    vocabularyActionNotice = { message: "Vocabulary backup imported.", kind: "success" };
+  } catch (error) {
+    vocabularyActionNotice = {
+      message: error instanceof Error ? error.message : "Vocabulary import failed.",
+      kind: "error",
+    };
+  } finally {
+    vocabularyActionPending = false;
+    render();
+  }
+}
+
+async function clearVocabulary(): Promise<void> {
+  if (vocabularyActionPending) {
+    return;
+  }
+
+  vocabularyActionPending = true;
+  vocabularyActionNotice = null;
+  render();
+  try {
+    await settingsClient.clearVocabulary();
+    await loadSummary();
+    vocabularyActionNotice = { message: "Local vocabulary cleared.", kind: "success" };
+  } catch (error) {
+    vocabularyActionNotice = {
+      message: error instanceof Error ? error.message : "Vocabulary could not be cleared.",
+      kind: "error",
+    };
+  } finally {
+    vocabularyActionPending = false;
+    render();
+  }
 }
 
 function createSettingToggle(

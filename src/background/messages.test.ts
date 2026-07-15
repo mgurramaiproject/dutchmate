@@ -11,6 +11,9 @@ import {
   REVIEW_SUMMARY_MESSAGE,
   REVIEW_NEW_QUEUE_MESSAGE,
   REVIEW_RATE_MESSAGE,
+  REVIEW_EXPORT_MESSAGE,
+  REVIEW_IMPORT_MESSAGE,
+  REVIEW_CLEAR_MESSAGE,
   REVIEW_SETTINGS_MESSAGE,
   REVIEW_SETTINGS_UPDATE_MESSAGE,
 } from "./messages";
@@ -55,6 +58,14 @@ describe("isVocabularyMessage", () => {
     expect(isVocabularyMessage({ type: CLEAR_VOCABULARY_MESSAGE })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_SUMMARY_MESSAGE })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_NEW_QUEUE_MESSAGE })).toBe(true);
+    expect(isReviewMessage({ type: REVIEW_EXPORT_MESSAGE })).toBe(true);
+    expect(isReviewMessage({ type: REVIEW_CLEAR_MESSAGE })).toBe(true);
+    expect(
+      isReviewMessage({
+        type: REVIEW_IMPORT_MESSAGE,
+        payload: { document: "{}" },
+      }),
+    ).toBe(true);
     expect(isSettingsMessage({ type: REVIEW_SETTINGS_MESSAGE })).toBe(true);
     expect(
       isSettingsMessage({
@@ -128,6 +139,10 @@ describe("isVocabularyMessage", () => {
         payload: { id: "nl\u001fhuis", rating: "soon" },
       }),
     ).toBe(false);
+  });
+
+  it("rejects imports without a JSON document", () => {
+    expect(isReviewMessage({ type: REVIEW_IMPORT_MESSAGE, payload: {} })).toBe(false);
   });
 
   it("rejects settings outside the review preference contract", () => {

@@ -12,12 +12,39 @@ vi.mock("webextension-polyfill", () => ({
 
 import { defaultSettings } from "../shared/settings";
 import {
+  REVIEW_CLEAR_MESSAGE,
+  REVIEW_EXPORT_MESSAGE,
+  REVIEW_IMPORT_MESSAGE,
   REVIEW_SETTINGS_MESSAGE,
   REVIEW_SETTINGS_UPDATE_MESSAGE,
 } from "../background/messages";
 import { createSettingsClient } from "./settings-client";
 
 describe("settings client", () => {
+  it("exports, imports, and clears vocabulary through typed review messages", async () => {
+    const backup = {
+      format: "dutchmate-vocabulary-backup" as const,
+      version: 1 as const,
+      exportedAt: 10_000,
+      cards: [],
+    };
+    const sendMessage = vi.fn()
+      .mockResolvedValueOnce({ ok: true as const, result: { backup } })
+      .mockResolvedValueOnce({ ok: true as const, result: { cards: [] } })
+      .mockResolvedValueOnce({ ok: true as const, result: { cleared: true } });
+    const client = createSettingsClient({ runtime: { sendMessage } });
+
+    await expect(client.exportVocabulary()).resolves.toEqual(backup);
+    await expect(client.importVocabulary(JSON.stringify(backup))).resolves.toBeUndefined();
+    await expect(client.clearVocabulary()).resolves.toBeUndefined();
+    expect(sendMessage).toHaveBeenNthCalledWith(1, { type: REVIEW_EXPORT_MESSAGE });
+    expect(sendMessage).toHaveBeenNthCalledWith(2, {
+      type: REVIEW_IMPORT_MESSAGE,
+      payload: { document: JSON.stringify(backup) },
+    });
+    expect(sendMessage).toHaveBeenNthCalledWith(3, { type: REVIEW_CLEAR_MESSAGE });
+  });
+
   it("reads review settings through the background runtime", async () => {
     const sendMessage = vi.fn(async () => ({
       ok: true as const,

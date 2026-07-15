@@ -4,6 +4,10 @@ import {
   type SavedVocabularyEntry,
   type SavedVocabularyStorage,
 } from "./saved-vocabulary";
+import {
+  createVocabularyBackup,
+  type VocabularyBackup,
+} from "./vocabulary-backup";
 
 export const REVIEW_CARDS_STORAGE_KEY = "dutchmate.reviewCards.v1";
 export const REVIEW_CARD_RECENT_LIMIT = 3;
@@ -70,6 +74,24 @@ export class ReviewCardStore {
     return getAllReviewQueue(await this.list());
   }
 
+  async exportBackup(): Promise<VocabularyBackup> {
+    return createVocabularyBackup(await this.list(), this.now());
+  }
+
+  async importBackup(backup: VocabularyBackup): Promise<ReviewCard[]> {
+    const cards = mergeImportedReviewCards(await this.list(), backup.cards);
+    await this.storage.set(
+      REVIEW_CARDS_STORAGE_KEY,
+      { cards: Object.fromEntries(cards.map((card) => [card.id, card])) },
+    );
+    return cards;
+  }
+
+  async clear(): Promise<void> {
+    await this.savedVocabulary.clear();
+    await this.storage.set(REVIEW_CARDS_STORAGE_KEY, { cards: {} });
+  }
+
   async rate(id: string, rating: ReviewRating): Promise<ReviewCard> {
     const cards = await this.list();
     const card = cards.find((candidate) => candidate.id === id);
@@ -95,7 +117,9 @@ export function migrateSavedVocabulary(
   existingCards: ReviewCard[] = [],
 ): ReviewCard[] {
   const existingById = new Map(existingCards.map((card) => [card.id, card]));
-  const cards = new Map<string, ReviewCard>();
+  const cards = new Map<string, ReviewCard>(
+    existingCards.map((card) => [card.id, { ...card }]),
+  );
 
   for (const entry of entries) {
     if (!isDutchLearningEntry(entry)) {
@@ -103,10 +127,13 @@ export function migrateSavedVocabulary(
     }
 
     const id = getReviewCardId(entry.text);
-    const card = cards.get(id) ?? createReviewCard(entry, existingById.get(id));
+    const existingCard = cards.get(id);
+    const card = existingCard ?? createReviewCard(entry, existingById.get(id));
 
-    card.createdAt = Math.min(card.createdAt, entry.createdAt);
-    card.updatedAt = Math.max(card.updatedAt, entry.updatedAt);
+    if (!existingById.has(id)) {
+      card.createdAt = Math.min(card.createdAt, entry.createdAt);
+      card.updatedAt = Math.max(card.updatedAt, entry.updatedAt);
+    }
 
     if (entry.targetLanguage === "en" && card.english === null) {
       card.english = entry.translatedText;
@@ -128,6 +155,30 @@ export function migrateSavedVocabulary(
 
 export function getReviewCardId(dutch: string): string {
   return `nl\u001f${normalizeSavedVocabularyText(dutch)}`;
+}
+
+export function mergeImportedReviewCards(
+  existingCards: ReviewCard[],
+  importedCards: ReviewCard[],
+): ReviewCard[] {
+  const cards = new Map(existingCards.map((card) => [card.id, { ...card }]));
+
+  for (const imported of importedCards) {
+    const existing = cards.get(imported.id);
+    if (!existing) {
+      cards.set(imported.id, { ...imported });
+      continue;
+    }
+
+    cards.set(imported.id, {
+      ...existing,
+      english: existing.english ?? imported.english,
+      telugu: existing.telugu ?? imported.telugu,
+      pageContext: existing.pageContext ?? imported.pageContext,
+    });
+  }
+
+  return [...cards.values()].sort(compareByCreationTime);
 }
 
 export function getReviewCardSummary(
@@ -182,7 +233,7 @@ export function rateReviewCard(card: ReviewCard, rating: ReviewRating, reviewedA
 
 function createReviewCard(entry: SavedVocabularyEntry, existing?: ReviewCard): ReviewCard {
   return (
-    existing ?? {
+    existing ? { ...existing } : {
       id: getReviewCardId(entry.text),
       dutch: normalizeSavedVocabularyText(entry.text),
       english: null,

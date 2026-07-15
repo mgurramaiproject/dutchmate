@@ -10,6 +10,8 @@ vi.mock("webextension-polyfill", () => ({
   },
 }));
 import {
+  REVIEW_CLEAR_MESSAGE,
+  REVIEW_IMPORT_MESSAGE,
   REVIEW_RATE_MESSAGE,
   REVIEW_SETTINGS_UPDATE_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
@@ -19,6 +21,7 @@ import { createBackgroundMessageHandler } from "./message-handler";
 import { ReviewCardStore } from "../vocabulary/review-cards";
 import { SavedVocabularyStore, type SavedVocabularyStorage } from "../vocabulary/saved-vocabulary";
 import { defaultSettings } from "../shared/settings";
+import { createVocabularyBackup } from "../vocabulary/vocabulary-backup";
 
 describe("createBackgroundMessageHandler", () => {
   it("refreshes the badge after vocabulary saves and ratings", async () => {
@@ -59,6 +62,42 @@ describe("createBackgroundMessageHandler", () => {
     ).resolves.toMatchObject({ ok: true, result: { settings: { dailyReviewBadge: false } } });
 
     expect(refreshBadge).toHaveBeenCalledTimes(3);
+  });
+
+  it("refreshes the badge after import and clear", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => 1_000);
+    const refreshBadge = vi.fn(async () => undefined);
+    const handleMessage = createBackgroundMessageHandler({
+      savedVocabulary,
+      reviewCards,
+      refreshBadge,
+    });
+    const backup = createVocabularyBackup([
+      {
+        id: "nl\u001fhuis",
+        dutch: "huis",
+        english: "house",
+        telugu: null,
+        pageContext: null,
+        createdAt: 1_000,
+        updatedAt: 1_000,
+        dueAt: null,
+        lastReviewedAt: null,
+        lastRating: null,
+        reviewCount: 0,
+      },
+    ], 1_000);
+
+    await send(handleMessage, {
+      type: REVIEW_IMPORT_MESSAGE,
+      payload: { document: JSON.stringify(backup) },
+    });
+    await send(handleMessage, { type: REVIEW_CLEAR_MESSAGE });
+
+    await expect(reviewCards.list()).resolves.toEqual([]);
+    expect(refreshBadge).toHaveBeenCalledTimes(2);
   });
 });
 

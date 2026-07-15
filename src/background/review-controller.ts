@@ -3,11 +3,15 @@ import {
   REVIEW_NEW_QUEUE_MESSAGE,
   REVIEW_DUE_QUEUE_MESSAGE,
   REVIEW_ALL_QUEUE_MESSAGE,
+  REVIEW_CLEAR_MESSAGE,
+  REVIEW_EXPORT_MESSAGE,
+  REVIEW_IMPORT_MESSAGE,
   REVIEW_RATE_MESSAGE,
   REVIEW_SUMMARY_MESSAGE,
   type ReviewMessage,
   type ReviewMessageResponse,
 } from "./messages";
+import { parseVocabularyBackup, type VocabularyBackup } from "../vocabulary/vocabulary-backup";
 
 export type ReviewProvider = {
   summary(): Promise<ReviewCardSummary>;
@@ -15,6 +19,9 @@ export type ReviewProvider = {
   dueQueue?(): Promise<ReviewCard[]>;
   allQueue?(): Promise<ReviewCard[]>;
   rate?(id: string, rating: ReviewRating): Promise<ReviewCard>;
+  exportBackup?(): Promise<VocabularyBackup>;
+  importBackup?(backup: VocabularyBackup): Promise<ReviewCard[]>;
+  clear?(): Promise<void>;
 };
 
 export async function handleReviewMessage(
@@ -22,6 +29,20 @@ export async function handleReviewMessage(
   provider: ReviewProvider,
 ): Promise<ReviewMessageResponse> {
   try {
+    if (message.type === REVIEW_EXPORT_MESSAGE && provider.exportBackup) {
+      return { ok: true, result: { backup: await provider.exportBackup() } };
+    }
+
+    if (message.type === REVIEW_IMPORT_MESSAGE && provider.importBackup) {
+      const backup = parseVocabularyBackup(message.payload.document);
+      return { ok: true, result: { cards: await provider.importBackup(backup) } };
+    }
+
+    if (message.type === REVIEW_CLEAR_MESSAGE && provider.clear) {
+      await provider.clear();
+      return { ok: true, result: { cleared: true } };
+    }
+
     if (message.type === REVIEW_NEW_QUEUE_MESSAGE && provider.newQueue) {
       return { ok: true, result: { cards: await provider.newQueue() } };
     }
@@ -43,19 +64,31 @@ export async function handleReviewMessage(
     }
 
     throw new Error("Unsupported review message.");
-  } catch {
+  } catch (error) {
     return {
       ok: false,
-      error:
-        message.type === REVIEW_SUMMARY_MESSAGE
-          ? "Review summary is unavailable."
-          : message.type === REVIEW_NEW_QUEUE_MESSAGE
-            ? "New-word practice is unavailable."
-            : message.type === REVIEW_DUE_QUEUE_MESSAGE
-              ? "Due-word review is unavailable."
-              : message.type === REVIEW_ALL_QUEUE_MESSAGE
-                ? "All-word review is unavailable."
-                : "Your rating could not be saved.",
+      error: getReviewMessageError(message, error),
     };
+  }
+}
+
+function getReviewMessageError(message: ReviewMessage, error: unknown): string {
+  switch (message.type) {
+    case REVIEW_SUMMARY_MESSAGE:
+      return "Review summary is unavailable.";
+    case REVIEW_NEW_QUEUE_MESSAGE:
+      return "New-word practice is unavailable.";
+    case REVIEW_DUE_QUEUE_MESSAGE:
+      return "Due-word review is unavailable.";
+    case REVIEW_ALL_QUEUE_MESSAGE:
+      return "All-word review is unavailable.";
+    case REVIEW_EXPORT_MESSAGE:
+      return "Vocabulary export is unavailable.";
+    case REVIEW_IMPORT_MESSAGE:
+      return error instanceof Error ? error.message : "Vocabulary import failed.";
+    case REVIEW_CLEAR_MESSAGE:
+      return "Vocabulary could not be cleared.";
+    case REVIEW_RATE_MESSAGE:
+      return "Your rating could not be saved.";
   }
 }
