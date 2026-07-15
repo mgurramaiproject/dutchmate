@@ -10,10 +10,22 @@
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--white); color: var(--black); font-family: var(--sans); }
+html,
+body {
+  width: 390px;
+  min-width: 390px;
+}
+
+body {
+  min-height: 844px;
+  margin: 0;
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--sans);
+}
 button { font: inherit; cursor: pointer; }
 
-.popup-shell { width: min(390px, 100vw); min-height: 844px; background: var(--white); }
+.popup-shell { width: 390px; min-width: 390px; min-height: 844px; background: var(--white); }
 .popup-header { display: flex; align-items: center; justify-content: space-between; min-height: 68px; padding: 15px 18px; border-bottom: 1px solid var(--black); }
 .brand { display: flex; align-items: center; gap: 9px; font-weight: 850; }
 .brand img { display: block; width: 29px; height: 29px; border-radius: 6px; }
