@@ -10,7 +10,7 @@ function readRepoFile(relativePath: string): string {
 }
 
 describe("release docs consistency", () => {
-  it("defines a public release gate for the hardened 0.2.0 baseline", () => {
+  it("defines a public release gate for the current release baseline", () => {
     const manualTesting = readRepoFile("docs/release/manual-testing.md");
 
     expect(manualTesting).toContain("## Public Release Gate");

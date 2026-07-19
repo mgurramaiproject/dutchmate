@@ -20,7 +20,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [GitHub release pipeline](release/github-release-pipeline.md): manual workflow for tags, packaged artifacts, and GitHub Releases.
 - [Manual testing](release/manual-testing.md): Chrome and Firefox regression checklist.
 - [Release notes](release/release-notes.md): version-by-version release summary.
-- [Versioned release notes](release/notes/v0.2.0.md): per-version notes files used by the GitHub release workflow.
+- [Versioned release notes](release/notes/v0.3.0.md): current per-version notes file used by the GitHub release workflow; [0.2.0 notes](release/notes/v0.2.0.md) remain available as the previous release record.
 - [Chrome Web Store listing draft](release/chrome-web-store-listing-draft.md): listing copy draft.
 - [Chrome Web Store screenshot plan](release/chrome-web-store-screenshot-plan.md): screenshot capture plan.
 - [Store disclosure draft](release/store-disclosure-draft.md): browser-store privacy disclosure draft.
