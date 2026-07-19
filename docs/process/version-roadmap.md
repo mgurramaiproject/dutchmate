@@ -1,12 +1,12 @@
-# Post-0.1.1 Version Roadmap
+# Post-0.2.0 Version Roadmap
 
-Last updated: 2026-06-21
+Last updated: 2026-07-19
 
-Use this roadmap after the `0.1.1` release as the planning record for future branches, pull requests, and version changes.
+Use this roadmap after the `0.2.0` release as the planning record for future branches, pull requests, and version changes.
 
 ## Working Rule
 
-Treat `0.1.1` as the stable released baseline.
+Treat `0.2.0` as the stable released baseline. The merged PVR-001 work is the planned `0.3.0` flashcard review release.
 
 Each meaningful feature or release-prep step should happen in its own git branch, with one focused pull request and a clear version target. Avoid mixing product features, release cleanup, backend hardening, and broad refactors in the same branch.
 
@@ -28,7 +28,7 @@ For a single product feature, prefer one feature branch with multiple focused co
 | `0.1.3` | Backend reliability and observability | `feature/backend-production-signals` | Improve confidence in live translation health, failures, and rate limits. |
 | `0.2.0` | Saved vocabulary MVP | `feature/saved-vocabulary-local` | Let users save selected words locally as a real learning list. |
 | `0.2.1` | Vocabulary polish | `feature/vocabulary-management` | Add delete, clear, count, sorting, and privacy-friendly copy. |
-| `0.3.0` | Flashcard review MVP | `feature/local-flashcards` | Let users review saved words from the extension. |
+| `0.3.0` | Flashcard review MVP | `release/0.3.0-pvr-001` | Package the merged PVR-001 review loop for release. |
 | `0.4.0` | Spaced repetition | `feature/spaced-repetition-local` | Add simple review scheduling with choices such as Again, Good, and Easy. |
 | `0.5.0` | Context learning | `feature/saved-word-context` | Optionally save short example context for selected words. |
 
@@ -37,24 +37,23 @@ For a single product feature, prefer one feature branch with multiple focused co
 The next version should be:
 
 ```text
-0.2.0
+0.3.0
 ```
 
 Purpose:
 
 ```text
-Local saved vocabulary.
+Local flashcard review.
 ```
 
 Suggested scope:
 
-- Define the saved-vocabulary data model and privacy boundary.
-- Add local storage for intentional saved words.
-- Add a save action for successful selected single-word translations.
-- Add an Options page view for managing saved words.
-- Update privacy/store copy and release notes before packaging.
+- Add the popup Learn review for due, new, and all saved words.
+- Add local flashcard ratings and predictable review scheduling.
+- Keep Dutch, English, and Telugu review data local-only and separate from translation cache data.
+- Verify Chrome and Firefox packages before creating the GitHub release.
 
-The `0.1.2` production-readiness branch has been merged. The next work should start the first learning loop while keeping saved vocabulary local-only and separate from the automatic translation cache.
+The `0.1.2` production-readiness branch and the PVR-001 learning-loop work have been merged. This release keeps review data local-only and separate from the automatic translation cache.
 
 ## Branch Naming
 

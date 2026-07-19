@@ -1,11 +1,11 @@
 # Browser Release Playbook
 
-Last updated: 2026-06-24
+Last updated: 2026-07-19
 
 This is the canonical, browser-neutral release path for DutchMate.
 
 GitHub Releases should be created through the manual workflow documented in `docs/release/github-release-pipeline.md` before store submission, so the repo has a tagged release record and attached browser artifacts.
-Use it to drive the current soft Firefox launch before Edge and Chrome follow.
+Use it for both new browser listings and updates to existing store listings.
 
 ## Safe Setup Rules
 
@@ -52,37 +52,37 @@ Keep one single feedback intake for the soft Firefox launch:
 
 ## File Set To Use
 
-- Firefox package: `release/dutchmate-firefox-0.2.0.zip`
-- Chromium package for Chrome: `release/dutchmate-chrome-0.2.0.zip`
-- Chromium package for Edge: use `release/dutchmate-chrome-0.2.0.zip` unless a separate Edge-specific package is created
-- GitHub release notes source: `docs/release/notes/v0.2.0.md`
+- Firefox package: `release/dutchmate-firefox-0.3.0.zip`
+- Chromium package for Chrome: `release/dutchmate-chrome-0.3.0.zip`
+- Chromium package for Edge: use `release/dutchmate-chrome-0.3.0.zip` unless a separate Edge-specific package is created
+- GitHub release notes source: `docs/release/notes/v0.3.0.md`
 - Privacy policy: `https://dutchmate-frontend.onrender.com/privacy-policy.html`
 - Chrome listing draft: `docs/release/chrome-web-store-listing-draft.md`
 - Shared disclosure draft: `docs/release/store-disclosure-draft.md`
 
-## Current 0.2.0 Artifact Status
+## Current 0.3.0 Artifact Status
 
 Generated locally from the current source:
 
-- `release/dutchmate-firefox-0.2.0.zip`
-- `release/dutchmate-chrome-0.2.0.zip`
+- `release/dutchmate-firefox-0.3.0.zip`
+- `release/dutchmate-chrome-0.3.0.zip`
 
-Older `0.1.x` artifacts may still exist locally in `release/` for reference. Use the `0.2.0` artifacts for the current saved-vocabulary release baseline.
+Older `0.1.x` and `0.2.0` artifacts may still exist locally in `release/` for reference. Use the `0.3.0` artifacts for the current flashcard-review release baseline.
 
-The Firefox source package still needs to be regenerated separately if AMO requests source code for the `0.2.0` submission.
+The Firefox source package still needs to be regenerated separately if AMO requests source code for the `0.3.0` submission.
 
 There is no separate Edge-specific package script yet. For the first Edge submission, use the Chrome Chromium package unless an Edge-specific packaging step is added later.
 
 ## Firefox
 
-Use Firefox Add-ons / AMO for the first public release if you want a low-friction rollout.
+Use Firefox Add-ons / AMO for the public release and subsequent updates.
 
 ### Your action
 
 1. Sign in to your Mozilla account.
 2. Open the Firefox Add-ons developer page.
-3. For the first submission, create a new add-on listing. For updates, open the existing DutchMate add-on page.
-4. Upload `release/dutchmate-firefox-0.2.0.zip`.
+3. Open the existing DutchMate add-on page for an update. Create a new listing only if the add-on is not yet listed.
+4. Upload `release/dutchmate-firefox-0.3.0.zip`.
 5. Paste the listing copy and privacy answers from the repo.
 6. Submit the add-on for review or signing.
 
@@ -99,7 +99,7 @@ Use Microsoft Edge Add-ons / Partner Center after Firefox.
 ### Your action
 
 1. Sign in to your Microsoft account in Partner Center.
-2. Create a new extension.
+2. Open the existing DutchMate extension listing for an update. Create a new extension only if the listing does not exist.
 3. Upload the Chromium zip package.
 4. Fill in the store listing and privacy fields.
 5. Submit for certification.
@@ -118,8 +118,8 @@ Use the Chrome Web Store last.
 1. Open the Chrome Web Store developer registration page.
 2. Pay the one-time developer registration fee if prompted.
 3. Create or finish the developer account registration.
-4. Create a new item.
-5. Upload `release/dutchmate-chrome-0.2.0.zip`.
+4. Open the existing DutchMate item for an update. Create a new item only if the listing does not exist.
+5. Upload `release/dutchmate-chrome-0.3.0.zip`.
 6. Fill the store listing, privacy, distribution, and review fields.
 7. Submit for review.
 

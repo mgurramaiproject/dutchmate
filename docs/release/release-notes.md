@@ -1,5 +1,29 @@
 # Release Notes
 
+## 0.3.0
+
+Target: first local flashcard review release after `0.2.0`.
+
+Changes:
+
+- Added popup Learn review for due, new, and all saved vocabulary.
+- Added Dutch-English-Telugu flashcards, review ratings, fixed local schedules, page context, card direction, and a due-review badge.
+- Added versioned vocabulary backup import/export and safe clear behavior.
+- Added independent hover and selected-word cache controls while keeping translation cache separate from saved vocabulary backups.
+- Completed cross-browser popup, saved-vocabulary, Telugu-meaning, and settings UX hardening.
+
+Verification:
+
+- `corepack pnpm verify`
+- `corepack pnpm verify:release`
+- Chrome and Firefox browser smoke testing
+
+Notes:
+
+- No new browser permissions.
+- No account, cloud sync, or backend provider change.
+- Saved vocabulary and review data remain local-only browser data.
+
 ## 0.2.0
 
 Target: first saved-vocabulary learning release after `0.1.2`.
