@@ -36,7 +36,7 @@ After T01, T02 and T04 are independent frontiers. After T06, the three lesson-li
 
 ## T01 — Migrate vocabulary into language-keyed learning records
 
-**GitHub:** Pending publication
+**GitHub:** [#32](https://github.com/mgurramaiproject/dutchmate/issues/32)
 
 **Blocked by:** None
 
@@ -80,9 +80,9 @@ Meaningful-chunk capture UI, encounter history, Daily Five, new popup navigation
 
 ## T02 — Capture confirmed meaningful chunks from webpages
 
-**GitHub:** Pending publication
+**GitHub:** [#33](https://github.com/mgurramaiproject/dutchmate/issues/33)
 
-**Blocked by:** T01
+**Blocked by:** [T01 / #32](https://github.com/mgurramaiproject/dutchmate/issues/32)
 
 **Outcome:** A learner can select a useful two-to-eight-token Dutch chunk, inspect its normalized form, helper meanings, and local context, and explicitly keep it in the same vocabulary used for saved words.
 
@@ -122,9 +122,9 @@ Automatic chunk suggestions, saving arbitrary sentences, passive page scanning, 
 
 ## T03 — Remember deliberate encounters with saved language
 
-**GitHub:** Pending publication
+**GitHub:** [#34](https://github.com/mgurramaiproject/dutchmate/issues/34)
 
-**Blocked by:** T02
+**Blocked by:** [T02 / #33](https://github.com/mgurramaiproject/dutchmate/issues/33)
 
 **Outcome:** When a learner deliberately hovers or selects a saved Dutch word or chunk on a webpage, DutchMate quietly shows `Seen before` and remembers a small, local set of authentic contexts without treating exposure as successful recall.
 
@@ -162,9 +162,9 @@ Automatic webpage highlighting, complete-page saved-item scanning, browsing hist
 
 ## T04 — Deliver contextual mastery through Daily Five
 
-**GitHub:** Pending publication
+**GitHub:** [#35](https://github.com/mgurramaiproject/dutchmate/issues/35)
 
-**Blocked by:** T01
+**Blocked by:** [T01 / #32](https://github.com/mgurramaiproject/dutchmate/issues/32)
 
 **Outcome:** The popup opens on Today and offers one calm Daily Five practice action. A learner reveals each answer and taps only `Again` or `Got it`; DutchMate targets recognition or recall internally and keeps the current queue stable.
 
@@ -208,9 +208,9 @@ Mini-lesson catalog/content, personalized scheduling controls, typed answers, sp
 
 ## T05 — Deliver one complete micro-story lesson
 
-**GitHub:** Pending publication
+**GitHub:** [#36](https://github.com/mgurramaiproject/dutchmate/issues/36)
 
-**Blocked by:** T04
+**Blocked by:** [T04 / #35](https://github.com/mgurramaiproject/dutchmate/issues/35)
 
 **Outcome:** The Lessons area contains one complete representative lesson, `A1 · Een afspraak maken`, that proves the bundled content contract and the entire Read, Notice, Practise, Replay and keep loop. Kept candidates enter the same learning record and Daily Five system.
 
@@ -253,9 +253,9 @@ The remaining eleven lessons, remote catalogs, generated or personalized lessons
 
 ## T06 — Make lessons resumable, replayable, and duplicate-safe
 
-**GitHub:** Pending publication
+**GitHub:** [#37](https://github.com/mgurramaiproject/dutchmate/issues/37)
 
-**Blocked by:** T05
+**Blocked by:** [T05 / #36](https://github.com/mgurramaiproject/dutchmate/issues/36)
 
 **Outcome:** Closing and reopening the popup never loses meaningful lesson progress, replay never duplicates saved candidates, and bundled content can evolve safely through explicit versions.
 
@@ -292,9 +292,9 @@ Remote content migration, downloadable lesson packs, cross-device progress, cont
 
 ## T07 — Publish starter lessons 1–4
 
-**GitHub:** Pending publication
+**GitHub:** [#38](https://github.com/mgurramaiproject/dutchmate/issues/38)
 
-**Blocked by:** T06
+**Blocked by:** [T06 / #37](https://github.com/mgurramaiproject/dutchmate/issues/37)
 
 **Outcome:** The first-conversations and shopping/cafe pathway is available as four reviewed, validated micro-story lessons.
 
@@ -331,9 +331,9 @@ Lessons 5–12, audio, animation rewards, remote content, or automated claims ab
 
 ## T08 — Publish starter lessons 5–8
 
-**GitHub:** Pending publication
+**GitHub:** [#39](https://github.com/mgurramaiproject/dutchmate/issues/39)
 
-**Blocked by:** T06
+**Blocked by:** [T06 / #37](https://github.com/mgurramaiproject/dutchmate/issues/37)
 
 **Outcome:** The transport, appointments, and healthcare pathway is available as four reviewed, validated micro-story lessons.
 
@@ -372,9 +372,9 @@ Lessons 1–4 or 9–12, medical advice, audio/pronunciation feedback, remote co
 
 ## T09 — Publish starter lessons 9–12
 
-**GitHub:** Pending publication
+**GitHub:** [#40](https://github.com/mgurramaiproject/dutchmate/issues/40)
 
-**Blocked by:** T06
+**Blocked by:** [T06 / #37](https://github.com/mgurramaiproject/dutchmate/issues/37)
 
 **Outcome:** The home, work/study, and official-life pathway is available as four reviewed, validated micro-story lessons, completing the twelve-lesson starter library.
 
@@ -411,9 +411,9 @@ Lessons beyond the accepted starter library, legal/administrative advice, audio,
 
 ## T10 — Add the calm learning rhythm
 
-**GitHub:** Pending publication
+**GitHub:** [#41](https://github.com/mgurramaiproject/dutchmate/issues/41)
 
-**Blocked by:** T02, T04, T06
+**Blocked by:** [T02 / #33](https://github.com/mgurramaiproject/dutchmate/issues/33), [T04 / #35](https://github.com/mgurramaiproject/dutchmate/issues/35), [T06 / #37](https://github.com/mgurramaiproject/dutchmate/issues/37)
 
 **Outcome:** Today reflects gentle weekly consistency and meaningful learning milestones without punishing missed days or introducing a separate reward economy.
 
@@ -449,9 +449,9 @@ Endless streak pressure, XP, levels, coins, collectibles, avatars, leaderboards,
 
 ## T11 — Contract the legacy review-card model
 
-**GitHub:** Pending publication
+**GitHub:** [#42](https://github.com/mgurramaiproject/dutchmate/issues/42)
 
-**Blocked by:** T02, T03, T04, T06, T10
+**Blocked by:** [T02 / #33](https://github.com/mgurramaiproject/dutchmate/issues/33), [T03 / #34](https://github.com/mgurramaiproject/dutchmate/issues/34), [T04 / #35](https://github.com/mgurramaiproject/dutchmate/issues/35), [T06 / #37](https://github.com/mgurramaiproject/dutchmate/issues/37), [T10 / #41](https://github.com/mgurramaiproject/dutchmate/issues/41)
 
 **Outcome:** Every active learning consumer uses the canonical language-keyed record. Transitional legacy writes are removed without stranding existing storage or version-one backups.
 
@@ -490,9 +490,9 @@ Deleting support for real legacy upgrades, changing language roles, unrelated ar
 
 ## T12 — Verify and prepare the complete Learnloop release
 
-**GitHub:** Pending publication
+**GitHub:** [#43](https://github.com/mgurramaiproject/dutchmate/issues/43)
 
-**Blocked by:** T07, T08, T09, T11
+**Blocked by:** [T07 / #38](https://github.com/mgurramaiproject/dutchmate/issues/38), [T08 / #39](https://github.com/mgurramaiproject/dutchmate/issues/39), [T09 / #40](https://github.com/mgurramaiproject/dutchmate/issues/40), [T11 / #42](https://github.com/mgurramaiproject/dutchmate/issues/42)
 
 **Outcome:** The complete `002-learnloop` initiative has reproducible automated and manual evidence for migration, learning behavior, content, accessibility, and Chrome/Firefox delivery, plus a concrete post-release learner-validation protocol.
 
@@ -532,4 +532,3 @@ Deleting support for real legacy upgrades, changing language roles, unrelated ar
 ### Not in this ticket
 
 Publishing a browser-store release, executing a long-running research study, collecting background telemetry, or expanding the accepted feature/content scope.
-
