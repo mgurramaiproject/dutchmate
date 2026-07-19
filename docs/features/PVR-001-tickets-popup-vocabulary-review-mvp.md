@@ -16,11 +16,11 @@ GitHub issue: [#21](https://github.com/mgurramaiproject/dutchmate/issues/21)
 
 **Blocked by:** None — can start immediately.
 
-- [ ] The popup is included in the Chrome and Firefox extension builds and opens on Learn by default.
-- [ ] Existing Dutch-English-Telugu translation pairs are grouped into one canonical card per Dutch learning word.
-- [ ] Partial cards preserve available meanings and expose an explicit unavailable state for missing meanings.
-- [ ] Learn shows total cards, due cards, new cards, recently saved cards, and the three review actions.
-- [ ] The canonical-card migration and popup summary behavior have focused tests.
+- [x] The popup is included in the Chrome and Firefox extension builds and opens on Learn by default.
+- [x] Existing Dutch-English-Telugu translation pairs are grouped into one canonical card per Dutch learning word.
+- [x] Partial cards preserve available meanings and expose an explicit unavailable state for missing meanings.
+- [x] Learn shows total cards, due cards, new cards, recently saved cards, and the three review actions.
+- [x] The canonical-card migration and popup summary behavior have focused tests.
 
 ## PVR-001-T02: Practice new cards end-to-end
 
@@ -94,14 +94,14 @@ GitHub issue: [#26](https://github.com/mgurramaiproject/dutchmate/issues/26)
 
 - [x] Chrome and Firefox builds include popup, background, content, Options, icons, and correct browser-specific background declarations.
 - [x] Focused tests, typecheck, and the full test suite pass.
-- [ ] The popup remains usable at browser popup dimensions, preserves the Direction A composition at a 390x844 baseline, and remains usable at narrow viewport widths.
-- [ ] Keyboard navigation, focus states, labels, and button states are accessible.
+- [x] The popup remains usable at browser popup dimensions, preserves the Direction A composition at a 390x844 baseline, and remains usable at narrow viewport widths.
+- [x] Keyboard navigation, focus states, labels, and button states are accessible.
 - [x] Vocabulary import is initiated from a persistent page so the native file picker cannot dismiss the popup before feedback is shown.
 - [x] A completed import reports how many cards were imported and the resulting total saved-word count.
 - [x] The Learn preview identifies the recent subset as "3 of N" and provides a clear path to the complete vocabulary list.
 - [x] Imported review cards are included in the complete vocabulary list, including cards that did not previously have saved translation-pair entries.
 - [x] Generated manifests and packaged outputs are inspected for the expected entry points.
-- [ ] A standards/spec review finds no unresolved MVP gaps.
+- [x] A standards/spec review finds no unresolved MVP gaps.
 
 ## PVR-001-T07: Vocabulary visibility, language roles, and settings UX
 
