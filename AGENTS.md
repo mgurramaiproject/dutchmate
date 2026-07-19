@@ -1,5 +1,7 @@
 ## Agent skills
 
+Implementation and delivery conventions are documented in `docs/agents/workflow.md`.
+
 ### Issue tracker
 
 Issues are tracked in GitHub Issues for this repo. External PRs are not part of the triage surface. See `docs/agents/issue-tracker.md`.

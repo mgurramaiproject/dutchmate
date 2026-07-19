@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How DutchMate Works</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --color-accent:       #D4A843;
+      --color-accent-hover: #BF9530;
+      --color-accent-light: #FDF5E0;
+      --color-accent-muted: #E0C070;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">How DutchMate Works</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="From Hover To Tooltip" role="tab" aria-label="Module 1: From Hover To Tooltip"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Meet The Actors" role="tab" aria-label="Module 2: Meet The Actors"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Settings And Boundaries" role="tab" aria-label="Module 3: Settings And Boundaries"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="Translation And Cache" role="tab" aria-label="Module 4: Translation And Cache"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Backend Guardrails" role="tab" aria-label="Module 5: Backend Guardrails"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1">
+  <div class="module-content">
+    <header class="module-header">
+      <span class="module-number">01</span>
+      <h1 class="module-title">From Hover To Tooltip</h1>
+      <p class="module-subtitle">Start with the user experience: you hover a Dutch word, and a tiny translation appears without breaking your reading flow.</p>
+    </header>
+
+    <div class="screen">
+      <h2 class="screen-heading">What this app actually is</h2>
+      <p class="animate-in">DutchMate is a browser <span class="term" data-definition="A browser extension is a small add-on that can change what your browser does, like adding a new power-up without changing the whole browser.">extension</span> for people reading Dutch websites while thinking in English and Telugu.</p>
+      <p class="animate-in">The key promise is simple: keep reading the web, and let translation come to you instead of forcing you into a new tab.</p>
+      <div class="pattern-cards stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🖱️</div>
+          <h4 class="pattern-title">Hover mode</h4>
+          <p class="pattern-desc">Pause over a single word and DutchMate quietly checks whether a tooltip should appear.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">✂️</div>
+          <h4 class="pattern-title">Selection mode</h4>
+          <p class="pattern-desc">Select a short phrase or sentence when one word is not enough.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+          <div class="pattern-icon" style="background: var(--color-actor-4)">📚</div>
+          <h4 class="pattern-title">Learning first</h4>
+          <p class="pattern-desc">This is not a generic translator. It is tuned for a Dutch, English, Telugu learning triangle.</p>
+        </div>
+      </div>
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <strong class="callout-title">Why this matters for steering AI</strong>
+          <p>If you can describe the product as "a context-aware translation tooltip inside a browser extension," AI tools stop suggesting the wrong architecture, like building a full website or chat app instead.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">The core journey is a relay race</h2>
+      <p class="animate-in">Think of DutchMate like a relay team. Each runner touches the baton briefly, does one job, and passes it on fast.</p>
+      <div class="step-cards">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>You hover or select text</strong>
+            <p>The web page is the track. DutchMate notices a real reading action, not a random background event.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>The content script packages the request</strong>
+            <p>It captures the text, location, and context like hover or selection.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>The background worker asks for translation</strong>
+            <p>That keeps network work out of the page-facing layer.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>The tooltip renders the answer</strong>
+            <p>The reader sees a tiny result right where their eyes already are.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-animation animate-in" data-steps='[
+        {"highlight":"flow-actor-1","label":"Reader pauses on Dutch text"},
+        {"highlight":"flow-actor-2","label":"Page sends text to content script","packet":true,"from":"actor-1","to":"actor-2"},
+        {"highlight":"flow-actor-3","label":"Content script asks background for translation","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-4","label":"Background calls backend","packet":true,"from":"actor-3","to":"actor-4"},
+        {"highlight":"flow-actor-5","label":"Tooltip shows the returned answer","packet":true,"from":"actor-4","to":"actor-5"}
+      ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1"><div class="flow-actor-icon">👤</div><span>Reader</span></div>
+          <div class="flow-actor" id="flow-actor-2"><div class="flow-actor-icon">📄</div><span>Web page</span></div>
+          <div class="flow-actor" id="flow-actor-3"><div class="flow-actor-icon">🧩</div><span>Content script</span></div>
+          <div class="flow-actor" id="flow-actor-4"><div class="flow-actor-icon">⚙️</div><span>Background</span></div>
+          <div class="flow-actor" id="flow-actor-5"><div class="flow-actor-icon">💬</div><span>Tooltip</span></div>
+        </div>
+        <div class="flow-info">Click through the trip one handoff at a time.</div>
+        <div class="flow-controls">
+          <button class="btn flow-next-btn">Next Step</button>
+          <button class="btn flow-reset-btn">Replay</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">Where the page wires itself up</h2>
+      <p class="animate-in">This snippet from [src/content/index.ts](/home/mgurram/MGurramAI/projects/dutchmate-proj/dutchmate/src/content/index.ts:54) is the stage manager. It creates the lookup module, the tooltip view, and all the page event listeners.</p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-line"><span class="code-keyword">let</span> currentSettings = defaultSettings;</span>
+<span class="code-line"><span class="code-keyword">const</span> lookupModule = <span class="code-keyword">new</span> <span class="code-function">WebpageLookupModule</span>({</span>
+<span class="code-line">  <span class="code-property">getSettings</span>: () <span class="code-operator">=&gt;</span> currentSettings,</span>
+<span class="code-line">  <span class="code-property">transport</span>: <span class="code-function">createRuntimeLookupAdapter</span>({</span>
+<span class="code-line">    <span class="code-property">browserTarget</span>: __BROWSER_TARGET__,</span>
+<span class="code-line">    <span class="code-property">chromeDirectTranslationFallbackMs</span>: CHROME_DIRECT_TRANSLATION_FALLBACK_MS,</span>
+<span class="code-line">    <span class="code-property">directTranslationTimeoutMs</span>: DIRECT_TRANSLATION_TIMEOUT_MS,</span>
+<span class="code-line">    extensionApi,</span>
+<span class="code-line">    <span class="code-property">getSettings</span>: () <span class="code-operator">=&gt;</span> currentSettings,</span>
+<span class="code-line">    delay,</span>
+<span class="code-line">  }),</span>
+<span class="code-line">  <span class="code-property">runWithTimeout</span>: withTooltipTranslationTimeout,</span>
+<span class="code-line">  <span class="code-property">tooltipTimeoutMs</span>: TOOLTIP_TRANSLATION_TIMEOUT_MS,</span>
+<span class="code-line">});</span>
+<span class="code-line"><span class="code-keyword">const</span> tooltipView = <span class="code-function">createTooltipViewAdapter</span>(() <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">  <span class="code-keyword">void</span> lookupModule.<span class="code-function">handleSaveAction</span>();</span>
+<span class="code-line">});</span>
+<span class="code-line"><span class="code-keyword">const</span> lifecycleController = <span class="code-function">createWebpageLifecycleController</span>({</span>
+<span class="code-line">  <span class="code-property">getSettings</span>: () <span class="code-operator">=&gt;</span> currentSettings,</span>
+<span class="code-line">  lookupModule,</span>
+<span class="code-line">  tooltipView,</span>
+<span class="code-line">});</span>
+<span class="code-line">document.<span class="code-function">addEventListener</span>(<span class="code-string">"mousemove"</span>, lifecycleController.handleMouseMove, { <span class="code-property">passive</span>: <span class="code-keyword">true</span> });</span></code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Start with the current settings the user has saved.</p>
+            <p class="tl">Create the main brain that knows how to run lookups.</p>
+            <p class="tl">Give that brain a transport layer so it can talk to the rest of the extension.</p>
+            <p class="tl">Tell it which browser it is running in, and what time limits to respect.</p>
+            <p class="tl">Hand over the real extension API so messages and storage work.</p>
+            <p class="tl">Use the latest settings every time instead of freezing old ones.</p>
+            <p class="tl">Keep a generic delay helper around for timed behavior.</p>
+            <p class="tl">Finish the transport object.</p>
+            <p class="tl">Wrap every lookup in a timeout so the tooltip does not hang forever.</p>
+            <p class="tl">Define the timeout length for the tooltip workflow.</p>
+            <p class="tl">Finish building the lookup module.</p>
+            <p class="tl">Create the visual tooltip layer.</p>
+            <p class="tl">If the user presses save in the tooltip, hand that action back to the lookup module.</p>
+            <p class="tl">End the tooltip setup.</p>
+            <p class="tl">Create a lifecycle controller for page events like hover, click, and selection.</p>
+            <p class="tl">That controller also reads live settings whenever it needs them.</p>
+            <p class="tl">It can tell the lookup module when to start or clear work.</p>
+            <p class="tl">It can tell the tooltip when to show or hide itself.</p>
+            <p class="tl">Finish the controller setup.</p>
+            <p class="tl">Finally, listen for mouse movement so the whole hover experience can begin.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-container animate-in" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. The content script is the first layer that can see the user's action inside the page."
+             data-explanation-wrong="Not quite. The browser page event is noticed first by the content script, then it gets passed deeper.">
+          <h3 class="quiz-question">If hover translations stop appearing, which layer should you inspect first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The hosted backend</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The content script and lifecycle controller</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The marketing homepage</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+    <header class="module-header">
+      <span class="module-number">02</span>
+      <h1 class="module-title">Meet The Actors</h1>
+      <p class="module-subtitle">Every healthy codebase has a cast. DutchMate stays readable because each actor has a narrow job.</p>
+    </header>
+
+    <div class="screen">
+      <h2 class="screen-heading">The repo is a neighborhood, not a giant blob</h2>
+      <p class="animate-in">A useful way to read this repo is to ask: which folder touches the page, which folder handles cross-tab logic, and which folder talks to the outside world?</p>
+      <div class="file-tree animate-in">
+        <div class="ft-folder open">
+          <span class="ft-name">src/content/</span>
+          <span class="ft-desc">Page-facing logic: hover, selection, tooltip placement</span>
+          <div class="ft-children">
+            <div class="ft-file"><span class="ft-name">index.ts</span><span class="ft-desc">Boots the content script</span></div>
+            <div class="ft-file"><span class="ft-name">webpage-lifecycle-controller.ts</span><span class="ft-desc">Decides what page events matter</span></div>
+          </div>
+        </div>
+        <div class="ft-folder open">
+          <span class="ft-name">src/background/</span>
+          <span class="ft-desc">Message hub, settings read, cache wiring, vocabulary messages</span>
+          <div class="ft-children">
+            <div class="ft-file"><span class="ft-name">index.ts</span><span class="ft-desc">Receives runtime messages</span></div>
+          </div>
+        </div>
+        <div class="ft-folder open">
+          <span class="ft-name">src/options/</span>
+          <span class="ft-desc">Settings page UI</span>
+        </div>
+        <div class="ft-folder open">
+          <span class="ft-name">src/translation/</span>
+          <span class="ft-desc">Provider choice plus cache behavior</span>
+        </div>
+        <div class="ft-folder open">
+          <span class="ft-name">backend/</span>
+          <span class="ft-desc">Hosted or local translation server with provider adapters</span>
+        </div>
+        <div class="ft-folder open">
+          <span class="ft-name">frontend/</span>
+          <span class="ft-desc">Public website and release-facing pages</span>
+        </div>
+      </div>
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">🧭</div>
+        <div class="callout-content">
+          <strong class="callout-title">Steering vocabulary</strong>
+          <p>When telling AI what to change, you can say "content script," "background worker," or "options page" instead of "that part where it kind of happens."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">What the actors say to each other</h2>
+      <p class="animate-in">Imagine a small newsroom. Reporters collect facts, editors route them, and the printer publishes the final page. DutchMate works the same way.</p>
+      <div class="chat-window animate-in" id="chat-module2">
+        <div class="chat-messages">
+          <div class="chat-message" data-msg="0" data-sender="actor-a" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">C</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Content script</span>
+              <p>I found selected text on the page. Can someone translate it?</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="1" data-sender="actor-b" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Background</span>
+              <p>Yes. I will check settings, cache, and the provider path.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="2" data-sender="actor-c" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-4)">S</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4)">Server</span>
+              <p>I have the translated text. Here is the clean JSON response.</p>
+            </div>
+          </div>
+          <div class="chat-message" data-msg="3" data-sender="actor-a" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-5)">T</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-5)">Tooltip view</span>
+              <p>Great. I will place that result next to the word the reader is already looking at.</p>
+            </div>
+          </div>
+        </div>
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">The background worker is the switchboard</h2>
+      <p class="animate-in">This code from [src/background/index.ts](/home/mgurram/MGurramAI/projects/dutchmate-proj/dutchmate/src/background/index.ts:37) is a telephone operator. It decides whether a message is about translation or saved vocabulary, then routes it.</p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-line"><span class="code-keyword">const</span> extensionApi = extensionGlobal.chrome ?? extensionGlobal.browser;</span>
+<span class="code-line"><span class="code-keyword">const</span> translationService = <span class="code-keyword">new</span> <span class="code-function">TranslationService</span>(</span>
+<span class="code-line">  () <span class="code-operator">=&gt;</span> <span class="code-function">readProviderSettings</span>(extensionApi),</span>
+<span class="code-line">  <span class="code-keyword">new</span> <span class="code-function">TranslationCache</span>(MAX_CACHE_ENTRIES),</span>
+<span class="code-line">  <span class="code-keyword">new</span> <span class="code-function">PersistentTranslationCache</span>(<span class="code-keyword">new</span> <span class="code-function">LocalCacheStorage</span>(extensionApi)),</span>
+<span class="code-line">);</span>
+<span class="code-line"><span class="code-keyword">const</span> savedVocabularyStore = <span class="code-keyword">new</span> <span class="code-function">SavedVocabularyStore</span>(<span class="code-keyword">new</span> <span class="code-function">LocalCacheStorage</span>(extensionApi));</span>
+<span class="code-line"></span>
+<span class="code-line">extensionApi?.runtime.onMessage.<span class="code-function">addListener</span>((message, _sender, sendResponse) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!<span class="code-function">isTranslateMessage</span>(message)) {</span>
+<span class="code-line">    <span class="code-keyword">if</span> (!<span class="code-function">isVocabularyMessage</span>(message)) {</span>
+<span class="code-line">      <span class="code-keyword">return</span> <span class="code-keyword">undefined</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">void</span> <span class="code-function">handleVocabularyMessage</span>(message, savedVocabularyStore).<span class="code-function">then</span>(sendResponse);</span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-keyword">true</span>;</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">void</span> <span class="code-function">handleTranslate</span>(message.payload).<span class="code-function">then</span>(sendResponse);</span>
+<span class="code-line">  <span class="code-keyword">return</span> <span class="code-keyword">true</span>;</span>
+<span class="code-line">});</span></code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Pick whichever browser API exists so the code works in Chrome and Firefox.</p>
+            <p class="tl">Build the translation service that knows how to read settings and use caches.</p>
+            <p class="tl">Read provider settings only when needed, not once at startup forever.</p>
+            <p class="tl">Create a fast temporary cache for repeat lookups in the current run.</p>
+            <p class="tl">Create a longer-lived cache that survives between sessions.</p>
+            <p class="tl">Finish the translation service setup.</p>
+            <p class="tl">Build a separate store for words the learner intentionally saves.</p>
+            <p class="tl">Start listening for messages from the rest of the extension.</p>
+            <p class="tl">If this is not a translation request, check whether it is a vocabulary request instead.</p>
+            <p class="tl">If it is neither, ignore it.</p>
+            <p class="tl">End that guard.</p>
+            <p class="tl">If it is vocabulary work, handle it with the saved-word store and send a reply later.</p>
+            <p class="tl">Return true so the message channel stays open for async work.</p>
+            <p class="tl">End the translation-vs-vocabulary fork.</p>
+            <p class="tl">If it is translation work, run the translation handler and reply when done.</p>
+            <p class="tl">Keep the message channel open here too.</p>
+            <p class="tl">Finish the listener.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-container animate-in" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly. The background worker is the router for both translation and saved vocabulary messages."
+             data-explanation-wrong="Close, but this code path is about runtime message routing, which lives in the background worker.">
+          <h3 class="quiz-question">You want to add a new runtime action called "delete saved word." Where is the best place to plug that in first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The public homepage in <code>frontend/</code></span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The tooltip CSS only</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The background message routing and vocabulary controller</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="module" id="module-3">
+  <div class="module-content">
+    <header class="module-header">
+      <span class="module-number">03</span>
+      <h1 class="module-title">Settings And Boundaries</h1>
+      <p class="module-subtitle">The options page is the cockpit. It decides how DutchMate behaves without putting that decision logic inside every other file.</p>
+    </header>
+
+    <div class="screen">
+      <h2 class="screen-heading">The options page is a control tower</h2>
+      <p class="animate-in">A control tower does not fly the plane. It sets safe rules and sends instructions. The <span class="term" data-definition="The options page is the extension screen where users change preferences, similar to a settings panel in any app.">options page</span> plays that role here.</p>
+      <div class="arch-diagram animate-in">
+        <div class="arch-zone arch-zone-browser">
+          <h4 class="arch-zone-label">Browser UI</h4>
+          <div class="arch-component" data-desc="The form users see and edit. It collects toggles, limits, and language choices." onclick="showArchDesc(this)">
+            <div class="arch-icon">🛠️</div>
+            <span>Options form</span>
+          </div>
+          <div class="arch-component" data-desc="Shared rules that normalize and validate settings so bad values do not spread." onclick="showArchDesc(this)">
+            <div class="arch-icon">📏</div>
+            <span>Shared settings</span>
+          </div>
+        </div>
+        <div class="arch-zone arch-zone-external">
+          <h4 class="arch-zone-label">Storage And Consumers</h4>
+          <div class="arch-component" data-desc="Browser storage keeps the chosen settings between sessions." onclick="showArchDesc(this)">
+            <div class="arch-icon">🗃️</div>
+            <span>storage.sync</span>
+          </div>
+          <div class="arch-component" data-desc="Content and background layers read those settings later when they need to make decisions." onclick="showArchDesc(this)">
+            <div class="arch-icon">📡</div>
+            <span>Runtime readers</span>
+          </div>
+        </div>
+        <div class="arch-description" id="arch-desc">Click any component to see its job.</div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">What settings actually control</h2>
+      <p class="animate-in">These are not cosmetic preferences. They shape product behavior: when translation fires, how much text is allowed, which languages matter, and whether local testing knobs appear.</p>
+      <div class="badge-list">
+        <div class="badge-item animate-in"><code class="badge-code">isEnabled</code><span class="badge-desc">Master switch for the whole extension</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">hoverDelayMs</code><span class="badge-desc">How long the user must pause before hover work begins</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">maxSelectionLength</code><span class="badge-desc">Upper bound that prevents giant requests</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">learningLanguage / nativeLanguage / bridgeLanguage</code><span class="badge-desc">The teaching triangle DutchMate is optimized around</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">providerEndpoint</code><span class="badge-desc">Usually hidden from normal users, but useful for local testing</span></div>
+      </div>
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Boundary lesson</strong>
+          <p>Validation happens before saving. That stops weird values from leaking into the rest of the extension and creating harder-to-debug bugs later.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">Saving settings is really a safety checklist</h2>
+      <p class="animate-in">This snippet from [src/options/index.ts](/home/mgurram/MGurramAI/projects/dutchmate-proj/dutchmate/src/options/index.ts:144) reads current values, validates them, normalizes language roles, and only then writes to browser storage.</p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-line"><span class="code-keyword">async function</span> <span class="code-function">saveSettings</span>(): <span class="code-function">Promise</span>&lt;<span class="code-keyword">void</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">const</span> currentSettings = <span class="code-keyword">await</span> <span class="code-function">readSettings</span>();</span>
+<span class="code-line">  <span class="code-keyword">const</span> endpoint = providerEndpoint</span>
+<span class="code-line">    ? providerEndpoint.value.<span class="code-function">trim</span>()</span>
+<span class="code-line">    : currentSettings.providerEndpoint;</span>
+<span class="code-line">  <span class="code-keyword">const</span> hoverDelayValue = <span class="code-function">readNumberInput</span>(hoverDelayMs, defaultSettings.hoverDelayMs);</span>
+<span class="code-line">  <span class="code-keyword">const</span> maxSelectionLengthValue = <span class="code-function">readNumberInput</span>(</span>
+<span class="code-line">    maxSelectionLength,</span>
+<span class="code-line">    defaultSettings.maxSelectionLength,</span>
+<span class="code-line">  );</span>
+<span class="code-line">  <span class="code-keyword">const</span> endpointError = <span class="code-function">validateProviderEndpoint</span>(endpoint);</span>
+<span class="code-line">  <span class="code-keyword">const</span> hoverDelayError = <span class="code-function">validateHoverDelayMs</span>(hoverDelayValue);</span>
+<span class="code-line">  <span class="code-keyword">const</span> selectionLengthError = <span class="code-function">validateMaxSelectionLength</span>(maxSelectionLengthValue);</span>
+<span class="code-line">  <span class="code-keyword">const</span> languageRoles = <span class="code-function">normalizeLanguageRoles</span>(currentLanguageRoles);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (endpointError) {</span>
+<span class="code-line">    <span class="code-function">showStatus</span>(endpointError, <span class="code-string">"error"</span>);</span>
+<span class="code-line">    providerEndpoint?.<span class="code-function">focus</span>();</span>
+<span class="code-line">    <span class="code-keyword">return</span>;</span>
+<span class="code-line">  }</span></code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Start the save routine.</p>
+            <p class="tl">Read whatever settings already exist so you can preserve anything the form does not change.</p>
+            <p class="tl">Figure out which endpoint value to use.</p>
+            <p class="tl">If the hidden endpoint field exists, take the user input and clean off extra spaces.</p>
+            <p class="tl">Otherwise keep the current endpoint setting.</p>
+            <p class="tl">Read the hover delay as a real number with a safe fallback.</p>
+            <p class="tl">Do the same for the maximum selection length.</p>
+            <p class="tl">This is the field being read.</p>
+            <p class="tl">This is the default if the field is bad or empty.</p>
+            <p class="tl">End that value read.</p>
+            <p class="tl">Check whether the endpoint is valid.</p>
+            <p class="tl">Check whether the hover delay is valid.</p>
+            <p class="tl">Check whether the max selection length is valid.</p>
+            <p class="tl">Normalize the language choices into one consistent shape.</p>
+            <p class="tl">Blank line: the code is about to do gate checks.</p>
+            <p class="tl">If the endpoint is invalid, stop the save.</p>
+            <p class="tl">Show an error message the user can understand.</p>
+            <p class="tl">Move the cursor to the field that needs fixing.</p>
+            <p class="tl">Return early so bad settings never get stored.</p>
+            <p class="tl">End the first validation guard.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-container animate-in" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly. Shared validation and normalization let the whole extension trust the saved settings."
+             data-explanation-wrong="Not quite. The deeper win is consistent trusted settings across the whole extension, not just a nicer form.">
+          <h3 class="quiz-question">Why does this page validate before saving instead of letting other modules handle bad values later?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>It keeps invalid settings from spreading into every other layer</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>It makes the homepage load faster</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>It avoids needing any browser storage at all</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="module" id="module-4">
+  <div class="module-content">
+    <header class="module-header">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Translation And Cache</h1>
+      <p class="module-subtitle">This is the engine room: provider choice, fallback behavior, and the little memory system that saves time and money.</p>
+    </header>
+
+    <div class="screen">
+      <h2 class="screen-heading">The engine room has two jobs</h2>
+      <p class="animate-in">Imagine a ferry terminal. One worker decides which boat to use. Another remembers that you already bought a ticket. DutchMate splits those same concerns.</p>
+      <div class="pattern-cards stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🧭</div>
+          <h4 class="pattern-title">Provider choice</h4>
+          <p class="pattern-desc">Use the configured endpoint if one exists. Otherwise fall back to a placeholder path that keeps the extension testable.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">⚡</div>
+          <h4 class="pattern-title">Fast memory</h4>
+          <p class="pattern-desc">A short-lived cache avoids doing the same translation twice in the current session.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+          <div class="pattern-icon" style="background: var(--color-actor-5)">🧳</div>
+          <h4 class="pattern-title">Persistent memory</h4>
+          <p class="pattern-desc">A longer-lived cache keeps useful results between sessions for selected single-word lookups.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">The provider decision is tiny on purpose</h2>
+      <p class="animate-in">This is a great example of a good seam. [src/translation/translation-service.ts](/home/mgurram/MGurramAI/projects/dutchmate-proj/dutchmate/src/translation/translation-service.ts:14) does not know how every provider works. It just decides which door to open.</p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-line"><span class="code-keyword">export class</span> TranslationService {</span>
+<span class="code-line">  <span class="code-keyword">private readonly</span> placeholderProvider = <span class="code-keyword">new</span> <span class="code-function">PlaceholderTranslationProvider</span>();</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">constructor</span>(</span>
+<span class="code-line">    <span class="code-keyword">private readonly</span> readSettings: () <span class="code-operator">=&gt;</span> <span class="code-function">Promise</span>&lt;TranslationProviderSettings&gt;,</span>
+<span class="code-line">    <span class="code-keyword">private readonly</span> cache: TranslationCache,</span>
+<span class="code-line">    <span class="code-keyword">private readonly</span> persistentCache?: PersistentTranslationCacheLayer,</span>
+<span class="code-line">  ) {}</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">async</span> <span class="code-function">translate</span>(request: TranslationRequest): <span class="code-function">Promise</span>&lt;TranslationResult&gt; {</span>
+<span class="code-line">    <span class="code-keyword">const</span> settings = <span class="code-keyword">await</span> <span class="code-keyword">this</span>.readSettings();</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">if</span> (!settings.providerEndpoint) {</span>
+<span class="code-line">      <span class="code-keyword">return</span> <span class="code-keyword">this</span>.placeholderProvider.<span class="code-function">translate</span>(request);</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-function">CustomEndpointTranslationProvider</span>(</span>
+<span class="code-line">      settings,</span>
+<span class="code-line">      <span class="code-keyword">this</span>.cache,</span>
+<span class="code-line">      <span class="code-keyword">this</span>.persistentCache,</span>
+<span class="code-line">    ).<span class="code-function">translate</span>(request);</span>
+<span class="code-line">  }</span>
+<span class="code-line">}</span></code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Define the service class that the background worker will call.</p>
+            <p class="tl">Always keep a placeholder provider ready as the safe fallback.</p>
+            <p class="tl">Blank line for separation.</p>
+            <p class="tl">The constructor takes dependencies instead of hard-coding them.</p>
+            <p class="tl">One dependency knows how to read current provider settings.</p>
+            <p class="tl">One dependency is the fast cache.</p>
+            <p class="tl">One optional dependency is the persistent cache.</p>
+            <p class="tl">Finish the constructor.</p>
+            <p class="tl">Start the main translation method.</p>
+            <p class="tl">Read the latest settings right before the request.</p>
+            <p class="tl">Blank line: now comes the decision point.</p>
+            <p class="tl">If there is no provider endpoint configured, do not try a real network call.</p>
+            <p class="tl">Return a placeholder translation instead.</p>
+            <p class="tl">End the fallback branch.</p>
+            <p class="tl">Otherwise create a real provider adapter.</p>
+            <p class="tl">Pass the provider settings into it.</p>
+            <p class="tl">Give it access to the fast cache.</p>
+            <p class="tl">Give it access to the persistent cache too.</p>
+            <p class="tl">Ask that provider to do the real translation work.</p>
+            <p class="tl">End the method.</p>
+            <p class="tl">End the class.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">The cache acts like a tiny labeled pantry</h2>
+      <p class="animate-in">This second snippet from [src/translation/persistent-translation-cache.ts](/home/mgurram/MGurramAI/projects/dutchmate-proj/dutchmate/src/translation/persistent-translation-cache.ts:52) shows the pantry logic: only keep allowed items, remove expired ones, and index them by a stable key.</p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-line"><span class="code-keyword">async</span> <span class="code-function">get</span>(request: TranslationRequest): <span class="code-function">Promise</span>&lt;TranslationResult | <span class="code-keyword">null</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!<span class="code-keyword">this</span>.shouldPersist(request)) {</span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-keyword">null</span>;</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> data = <span class="code-keyword">await</span> <span class="code-keyword">this</span>.readData();</span>
+<span class="code-line">  <span class="code-keyword">const</span> freshData = <span class="code-keyword">this</span>.removeExpiredEntries(data);</span>
+<span class="code-line">  <span class="code-keyword">const</span> entry = freshData.entries[<span class="code-function">getPersistentCacheEntryKey</span>(request)] ?? <span class="code-keyword">null</span>;</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (freshData !== data) {</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-keyword">this</span>.writeData(freshData);</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">return</span> entry?.result ?? <span class="code-keyword">null</span>;</span>
+<span class="code-line">}</span></code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Start the cache lookup.</p>
+            <p class="tl">If this kind of request should not be persisted, skip the pantry completely.</p>
+            <p class="tl">Return nothing cached.</p>
+            <p class="tl">End that quick exit.</p>
+            <p class="tl">Load the stored cache data.</p>
+            <p class="tl">Throw away anything that has gone stale.</p>
+            <p class="tl">Look up the exact request using a stable key built from the request details.</p>
+            <p class="tl">Blank line: if cleanup changed anything, save the cleaner version back.</p>
+            <p class="tl">If expired items were removed, write the fresh data back to storage.</p>
+            <p class="tl">Finish that cleanup branch.</p>
+            <p class="tl">Return the cached translation result if it exists.</p>
+            <p class="tl">End the method.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-container animate-in" id="quiz-module4">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. A good cache should skip work only when the same request really repeats and the entry is still allowed and fresh."
+             data-explanation-wrong="Not quite. The cache is selective and depends on matching request details plus persistence rules and freshness.">
+          <h3 class="quiz-question">When would this cache help the most?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>When the user opens the privacy policy page</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>When the same allowed translation request happens again soon</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>When the user changes the extension icon</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="module" id="module-5">
+  <div class="module-content">
+    <header class="module-header">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Backend Guardrails</h1>
+      <p class="module-subtitle">The backend is intentionally small, but it still protects itself with clear routes, health checks, and overload controls.</p>
+    </header>
+
+    <div class="screen">
+      <h2 class="screen-heading">A small service still needs a bouncer</h2>
+      <p class="animate-in">Think of the backend like a small venue. It needs a front door, a sign for staff to confirm it is open, and a bouncer who stops the room from becoming chaos.</p>
+      <div class="step-cards">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong><code>GET /health</code> says the venue is alive</strong>
+            <p>Monitoring and debugging can ask whether the service is up without doing a real translation.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong><code>POST /translate</code> is the main work entrance</strong>
+            <p>Translation requests go through one predictable contract.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Rate limits and backpressure protect the room</strong>
+            <p>If too many requests arrive, the server says so clearly instead of silently melting down.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">🛡️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Universal backend lesson</strong>
+          <p>Most reliability work is not "do the happy path." It is "fail early, fail clearly, and recover without poisoning the rest of the system."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">The HTTP contract is explicit</h2>
+      <p class="animate-in">This code from [backend/server.mjs](/home/mgurram/MGurramAI/projects/dutchmate-proj/dutchmate/backend/server.mjs:19) is short, but it does three important things: set CORS, expose health, and reject the wrong path with a readable message.</p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-line"><span class="code-keyword">const</span> translateRequests = <span class="code-function">createTranslateRequestModule</span>({</span>
+<span class="code-line">  service,</span>
+<span class="code-line">  rateLimit,</span>
+<span class="code-line">  backpressure,</span>
+<span class="code-line">  logger,</span>
+<span class="code-line">  diagnostics,</span>
+<span class="code-line">});</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">return</span> <span class="code-function">createServer</span>(<span class="code-keyword">async</span> (request, response) <span class="code-operator">=&gt;</span> {</span>
+<span class="code-line">  <span class="code-function">setCorsHeaders</span>(response);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (request.method === <span class="code-string">"OPTIONS"</span>) {</span>
+<span class="code-line">    <span class="code-function">sendEmpty</span>(response, <span class="code-number">204</span>);</span>
+<span class="code-line">    <span class="code-keyword">return</span>;</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (request.method === <span class="code-string">"GET"</span> &amp;&amp; request.url === <span class="code-string">"/health"</span>) {</span>
+<span class="code-line">    <span class="code-function">sendJson</span>(response, <span class="code-number">200</span>, {</span>
+<span class="code-line">      <span class="code-property">ok</span>: <span class="code-keyword">true</span>,</span>
+<span class="code-line">      <span class="code-property">service</span>: <span class="code-string">"dutchmate-backend"</span>,</span>
+<span class="code-line">      <span class="code-property">runtime</span>: translateRequests.runtimeSummary.<span class="code-function">snapshot</span>(),</span>
+<span class="code-line">    });</span>
+<span class="code-line">    <span class="code-keyword">return</span>;</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (request.method !== <span class="code-string">"POST"</span> || request.url !== <span class="code-string">"/translate"</span>) {</span>
+<span class="code-line">    <span class="code-function">sendJson</span>(response, <span class="code-number">404</span>, {</span>
+<span class="code-line">      <span class="code-property">error</span>: <span class="code-string">"Use POST /translate"</span>,</span>
+<span class="code-line">    });</span></code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Create the request-handling helper that knows about translation, limits, and diagnostics.</p>
+            <p class="tl">Give it the translation service.</p>
+            <p class="tl">Give it rate-limit rules.</p>
+            <p class="tl">Give it backpressure rules for overload.</p>
+            <p class="tl">Give it logging.</p>
+            <p class="tl">Give it diagnostic context.</p>
+            <p class="tl">Finish building that helper.</p>
+            <p class="tl">Start the HTTP server.</p>
+            <p class="tl">Always attach CORS headers so browser requests can work cleanly.</p>
+            <p class="tl">Blank line: first handle a browser preflight request.</p>
+            <p class="tl">If this is an OPTIONS request, send back an empty success response.</p>
+            <p class="tl">Use status 204 because there is no body to send.</p>
+            <p class="tl">Stop here.</p>
+            <p class="tl">End that branch.</p>
+            <p class="tl">Blank line: now handle the health endpoint.</p>
+            <p class="tl">If the caller asked for GET /health, answer with a structured status object.</p>
+            <p class="tl">Send HTTP 200.</p>
+            <p class="tl">Say the service is healthy.</p>
+            <p class="tl">Include the service name.</p>
+            <p class="tl">Include a runtime summary snapshot for debugging.</p>
+            <p class="tl">Finish the JSON payload.</p>
+            <p class="tl">Stop here too.</p>
+            <p class="tl">End the health branch.</p>
+            <p class="tl">Blank line: finally reject the wrong route with a clear hint.</p>
+            <p class="tl">If it is not POST /translate, return a readable 404.</p>
+            <p class="tl">Send a structured JSON error.</p>
+            <p class="tl">Tell the caller the exact route and method to use.</p>
+            <p class="tl">Finish that payload.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge-list">
+        <div class="badge-item animate-in"><code class="badge-code">/health</code><span class="badge-desc">Cheap liveness check</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">/translate</code><span class="badge-desc">The main JSON translation contract</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">Retry-After</code><span class="badge-desc">Tells callers when to try again if the backend is busy</span></div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">What to inspect when things break</h2>
+      <p class="animate-in">If translations fail, trace the chain in order: page event, content script, background message, provider settings, backend route, then provider error. Because DutchMate has clean seams, you can debug it as a path instead of as a mystery.</p>
+      <div class="quiz-container animate-in" id="quiz-module5">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly. A busy or misrouted backend should reveal itself quickly through /health, route checks, or explicit overload responses."
+             data-explanation-wrong="Not quite. If every tooltip suddenly fails, the shared backend contract is the highest-leverage place to inspect first.">
+          <h3 class="quiz-question">The extension suddenly shows clear translation errors for every page, even though hover detection still works. What is the highest-leverage next check?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Redesign the screenshot assets</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Change the font in the options page</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Inspect the backend contract and health endpoint first</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

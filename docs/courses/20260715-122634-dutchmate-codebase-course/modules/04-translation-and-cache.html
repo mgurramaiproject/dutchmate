@@ -1,0 +1,149 @@
+<section class="module" id="module-4">
+  <div class="module-content">
+    <header class="module-header">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Translation And Cache</h1>
+      <p class="module-subtitle">This is the engine room: provider choice, fallback behavior, and the little memory system that saves time and money.</p>
+    </header>
+
+    <div class="screen">
+      <h2 class="screen-heading">The engine room has two jobs</h2>
+      <p class="animate-in">Imagine a ferry terminal. One worker decides which boat to use. Another remembers that you already bought a ticket. DutchMate splits those same concerns.</p>
+      <div class="pattern-cards stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+          <div class="pattern-icon" style="background: var(--color-actor-1)">🧭</div>
+          <h4 class="pattern-title">Provider choice</h4>
+          <p class="pattern-desc">Use the configured endpoint if one exists. Otherwise fall back to a placeholder path that keeps the extension testable.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+          <div class="pattern-icon" style="background: var(--color-actor-2)">⚡</div>
+          <h4 class="pattern-title">Fast memory</h4>
+          <p class="pattern-desc">A short-lived cache avoids doing the same translation twice in the current session.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+          <div class="pattern-icon" style="background: var(--color-actor-5)">🧳</div>
+          <h4 class="pattern-title">Persistent memory</h4>
+          <p class="pattern-desc">A longer-lived cache keeps useful results between sessions for selected single-word lookups.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">The provider decision is tiny on purpose</h2>
+      <p class="animate-in">This is a great example of a good seam. [src/translation/translation-service.ts](/home/mgurram/MGurramAI/projects/dutchmate-proj/dutchmate/src/translation/translation-service.ts:14) does not know how every provider works. It just decides which door to open.</p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-line"><span class="code-keyword">export class</span> TranslationService {</span>
+<span class="code-line">  <span class="code-keyword">private readonly</span> placeholderProvider = <span class="code-keyword">new</span> <span class="code-function">PlaceholderTranslationProvider</span>();</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">constructor</span>(</span>
+<span class="code-line">    <span class="code-keyword">private readonly</span> readSettings: () <span class="code-operator">=&gt;</span> <span class="code-function">Promise</span>&lt;TranslationProviderSettings&gt;,</span>
+<span class="code-line">    <span class="code-keyword">private readonly</span> cache: TranslationCache,</span>
+<span class="code-line">    <span class="code-keyword">private readonly</span> persistentCache?: PersistentTranslationCacheLayer,</span>
+<span class="code-line">  ) {}</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">async</span> <span class="code-function">translate</span>(request: TranslationRequest): <span class="code-function">Promise</span>&lt;TranslationResult&gt; {</span>
+<span class="code-line">    <span class="code-keyword">const</span> settings = <span class="code-keyword">await</span> <span class="code-keyword">this</span>.readSettings();</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">if</span> (!settings.providerEndpoint) {</span>
+<span class="code-line">      <span class="code-keyword">return</span> <span class="code-keyword">this</span>.placeholderProvider.<span class="code-function">translate</span>(request);</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-function">CustomEndpointTranslationProvider</span>(</span>
+<span class="code-line">      settings,</span>
+<span class="code-line">      <span class="code-keyword">this</span>.cache,</span>
+<span class="code-line">      <span class="code-keyword">this</span>.persistentCache,</span>
+<span class="code-line">    ).<span class="code-function">translate</span>(request);</span>
+<span class="code-line">  }</span>
+<span class="code-line">}</span></code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Define the service class that the background worker will call.</p>
+            <p class="tl">Always keep a placeholder provider ready as the safe fallback.</p>
+            <p class="tl">Blank line for separation.</p>
+            <p class="tl">The constructor takes dependencies instead of hard-coding them.</p>
+            <p class="tl">One dependency knows how to read current provider settings.</p>
+            <p class="tl">One dependency is the fast cache.</p>
+            <p class="tl">One optional dependency is the persistent cache.</p>
+            <p class="tl">Finish the constructor.</p>
+            <p class="tl">Start the main translation method.</p>
+            <p class="tl">Read the latest settings right before the request.</p>
+            <p class="tl">Blank line: now comes the decision point.</p>
+            <p class="tl">If there is no provider endpoint configured, do not try a real network call.</p>
+            <p class="tl">Return a placeholder translation instead.</p>
+            <p class="tl">End the fallback branch.</p>
+            <p class="tl">Otherwise create a real provider adapter.</p>
+            <p class="tl">Pass the provider settings into it.</p>
+            <p class="tl">Give it access to the fast cache.</p>
+            <p class="tl">Give it access to the persistent cache too.</p>
+            <p class="tl">Ask that provider to do the real translation work.</p>
+            <p class="tl">End the method.</p>
+            <p class="tl">End the class.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">The cache acts like a tiny labeled pantry</h2>
+      <p class="animate-in">This second snippet from [src/translation/persistent-translation-cache.ts](/home/mgurram/MGurramAI/projects/dutchmate-proj/dutchmate/src/translation/persistent-translation-cache.ts:52) shows the pantry logic: only keep allowed items, remove expired ones, and index them by a stable key.</p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-line"><span class="code-keyword">async</span> <span class="code-function">get</span>(request: TranslationRequest): <span class="code-function">Promise</span>&lt;TranslationResult | <span class="code-keyword">null</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!<span class="code-keyword">this</span>.shouldPersist(request)) {</span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-keyword">null</span>;</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> data = <span class="code-keyword">await</span> <span class="code-keyword">this</span>.readData();</span>
+<span class="code-line">  <span class="code-keyword">const</span> freshData = <span class="code-keyword">this</span>.removeExpiredEntries(data);</span>
+<span class="code-line">  <span class="code-keyword">const</span> entry = freshData.entries[<span class="code-function">getPersistentCacheEntryKey</span>(request)] ?? <span class="code-keyword">null</span>;</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (freshData !== data) {</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-keyword">this</span>.writeData(freshData);</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">return</span> entry?.result ?? <span class="code-keyword">null</span>;</span>
+<span class="code-line">}</span></code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Start the cache lookup.</p>
+            <p class="tl">If this kind of request should not be persisted, skip the pantry completely.</p>
+            <p class="tl">Return nothing cached.</p>
+            <p class="tl">End that quick exit.</p>
+            <p class="tl">Load the stored cache data.</p>
+            <p class="tl">Throw away anything that has gone stale.</p>
+            <p class="tl">Look up the exact request using a stable key built from the request details.</p>
+            <p class="tl">Blank line: if cleanup changed anything, save the cleaner version back.</p>
+            <p class="tl">If expired items were removed, write the fresh data back to storage.</p>
+            <p class="tl">Finish that cleanup branch.</p>
+            <p class="tl">Return the cached translation result if it exists.</p>
+            <p class="tl">End the method.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-container animate-in" id="quiz-module4">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. A good cache should skip work only when the same request really repeats and the entry is still allowed and fresh."
+             data-explanation-wrong="Not quite. The cache is selective and depends on matching request details plus persistence rules and freshness.">
+          <h3 class="quiz-question">When would this cache help the most?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>When the user opens the privacy policy page</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>When the same allowed translation request happens again soon</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>When the user changes the extension icon</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>

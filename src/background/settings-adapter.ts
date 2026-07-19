@@ -1,5 +1,5 @@
 import type { TranslationProviderSettings } from "../translation/translation-service";
-import { defaultSettings, normalizeSettings } from "../shared/settings";
+import { defaultSettings, normalizeSettings, type ExtensionSettings } from "../shared/settings";
 
 export type BackgroundExtensionApi = {
   storage: {
@@ -8,6 +8,7 @@ export type BackgroundExtensionApi = {
         defaults: typeof defaultSettings,
         callback: (settings: Partial<typeof defaultSettings>) => void,
       ): void;
+      set?(settings: Partial<typeof defaultSettings>, callback?: () => void): void;
     };
   };
   runtime: {
@@ -18,18 +19,24 @@ export type BackgroundExtensionApi = {
 export async function readProviderSettings(
   extensionApi: BackgroundExtensionApi | undefined,
 ): Promise<TranslationProviderSettings> {
+  return toProviderSettings(await readExtensionSettings(extensionApi));
+}
+
+export async function readExtensionSettings(
+  extensionApi: BackgroundExtensionApi | undefined,
+): Promise<ExtensionSettings> {
   if (!extensionApi) {
-    return toProviderSettings(defaultSettings);
+    return defaultSettings;
   }
 
   return new Promise((resolve) => {
     extensionApi.storage.sync.get(defaultSettings, (stored) => {
       if (extensionApi.runtime.lastError) {
-        resolve(toProviderSettings(defaultSettings));
+        resolve(defaultSettings);
         return;
       }
 
-      resolve(toProviderSettings(normalizeSettings(stored)));
+      resolve(normalizeSettings(stored));
     });
   });
 }

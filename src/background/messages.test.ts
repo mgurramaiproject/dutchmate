@@ -2,10 +2,21 @@ import { describe, expect, it } from "vitest";
 import {
   CLEAR_VOCABULARY_MESSAGE,
   DELETE_VOCABULARY_MESSAGE,
+  isReviewMessage,
+  isSettingsMessage,
   isVocabularyMessage,
   LIST_VOCABULARY_MESSAGE,
   SAVE_VOCABULARY_BATCH_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
+  REVIEW_SUMMARY_MESSAGE,
+  REVIEW_NEW_QUEUE_MESSAGE,
+  REVIEW_RATE_MESSAGE,
+  REVIEW_DELETE_MESSAGE,
+  REVIEW_EXPORT_MESSAGE,
+  REVIEW_IMPORT_MESSAGE,
+  REVIEW_CLEAR_MESSAGE,
+  REVIEW_SETTINGS_MESSAGE,
+  REVIEW_SETTINGS_UPDATE_MESSAGE,
 } from "./messages";
 
 const saveMessage = {
@@ -46,6 +57,35 @@ describe("isVocabularyMessage", () => {
       }),
     ).toBe(true);
     expect(isVocabularyMessage({ type: CLEAR_VOCABULARY_MESSAGE })).toBe(true);
+    expect(isReviewMessage({ type: REVIEW_SUMMARY_MESSAGE })).toBe(true);
+    expect(isReviewMessage({ type: REVIEW_NEW_QUEUE_MESSAGE })).toBe(true);
+    expect(isReviewMessage({ type: REVIEW_EXPORT_MESSAGE })).toBe(true);
+    expect(isReviewMessage({ type: REVIEW_CLEAR_MESSAGE })).toBe(true);
+    expect(
+      isReviewMessage({
+        type: REVIEW_IMPORT_MESSAGE,
+        payload: { document: "{}" },
+      }),
+    ).toBe(true);
+    expect(isSettingsMessage({ type: REVIEW_SETTINGS_MESSAGE })).toBe(true);
+    expect(
+      isSettingsMessage({
+        type: REVIEW_SETTINGS_UPDATE_MESSAGE,
+        payload: { dailyReviewBadge: false, cardDirection: "helpers-to-dutch" },
+      }),
+    ).toBe(true);
+    expect(
+      isReviewMessage({
+        type: REVIEW_RATE_MESSAGE,
+        payload: { id: "nl\u001fhuis", rating: "good" },
+      }),
+    ).toBe(true);
+    expect(
+      isReviewMessage({
+        type: REVIEW_DELETE_MESSAGE,
+        payload: { id: "nl\u001fhuis" },
+      }),
+    ).toBe(true);
   });
 
   it("rejects invalid save payloads", () => {
@@ -95,6 +135,28 @@ describe("isVocabularyMessage", () => {
       isVocabularyMessage({
         type: DELETE_VOCABULARY_MESSAGE,
         payload: {},
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects invalid review ratings", () => {
+    expect(
+      isReviewMessage({
+        type: REVIEW_RATE_MESSAGE,
+        payload: { id: "nl\u001fhuis", rating: "soon" },
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects imports without a JSON document", () => {
+    expect(isReviewMessage({ type: REVIEW_IMPORT_MESSAGE, payload: {} })).toBe(false);
+  });
+
+  it("rejects settings outside the review preference contract", () => {
+    expect(
+      isSettingsMessage({
+        type: REVIEW_SETTINGS_UPDATE_MESSAGE,
+        payload: { providerApiKey: "secret" },
       }),
     ).toBe(false);
   });

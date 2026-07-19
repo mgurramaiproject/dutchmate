@@ -99,4 +99,39 @@ describe("settings", () => {
       "Max selected text length must be between 50 and 150.",
     );
   });
+
+  it("defaults and normalizes review settings", () => {
+    expect(normalizeSettings({})).toMatchObject({
+      autoSaveSelectedWords: false,
+      showExampleSentence: true,
+      dailyReviewBadge: true,
+      cardDirection: "dutch-to-helpers",
+    });
+
+    expect(
+      normalizeSettings({
+        autoSaveSelectedWords: "yes" as never,
+        showExampleSentence: false,
+        dailyReviewBadge: false,
+        cardDirection: "helpers-to-dutch",
+      }),
+    ).toMatchObject({
+      autoSaveSelectedWords: false,
+      showExampleSentence: false,
+      dailyReviewBadge: false,
+      cardDirection: "helpers-to-dutch",
+    });
+  });
+
+  it("enables selected and hovered caching by default and normalizes both settings", () => {
+    expect(normalizeSettings({})).toMatchObject({
+      cacheHoveredWords: true,
+      cacheSelectedWords: true,
+    });
+
+    expect(normalizeSettings({ cacheHoveredWords: false, cacheSelectedWords: false })).toMatchObject({
+      cacheHoveredWords: false,
+      cacheSelectedWords: false,
+    });
+  });
 });

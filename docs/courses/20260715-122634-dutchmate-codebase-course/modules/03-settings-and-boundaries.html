@@ -1,0 +1,130 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+    <header class="module-header">
+      <span class="module-number">03</span>
+      <h1 class="module-title">Settings And Boundaries</h1>
+      <p class="module-subtitle">The options page is the cockpit. It decides how DutchMate behaves without putting that decision logic inside every other file.</p>
+    </header>
+
+    <div class="screen">
+      <h2 class="screen-heading">The options page is a control tower</h2>
+      <p class="animate-in">A control tower does not fly the plane. It sets safe rules and sends instructions. The <span class="term" data-definition="The options page is the extension screen where users change preferences, similar to a settings panel in any app.">options page</span> plays that role here.</p>
+      <div class="arch-diagram animate-in">
+        <div class="arch-zone arch-zone-browser">
+          <h4 class="arch-zone-label">Browser UI</h4>
+          <div class="arch-component" data-desc="The form users see and edit. It collects toggles, limits, and language choices." onclick="showArchDesc(this)">
+            <div class="arch-icon">🛠️</div>
+            <span>Options form</span>
+          </div>
+          <div class="arch-component" data-desc="Shared rules that normalize and validate settings so bad values do not spread." onclick="showArchDesc(this)">
+            <div class="arch-icon">📏</div>
+            <span>Shared settings</span>
+          </div>
+        </div>
+        <div class="arch-zone arch-zone-external">
+          <h4 class="arch-zone-label">Storage And Consumers</h4>
+          <div class="arch-component" data-desc="Browser storage keeps the chosen settings between sessions." onclick="showArchDesc(this)">
+            <div class="arch-icon">🗃️</div>
+            <span>storage.sync</span>
+          </div>
+          <div class="arch-component" data-desc="Content and background layers read those settings later when they need to make decisions." onclick="showArchDesc(this)">
+            <div class="arch-icon">📡</div>
+            <span>Runtime readers</span>
+          </div>
+        </div>
+        <div class="arch-description" id="arch-desc">Click any component to see its job.</div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">What settings actually control</h2>
+      <p class="animate-in">These are not cosmetic preferences. They shape product behavior: when translation fires, how much text is allowed, which languages matter, and whether local testing knobs appear.</p>
+      <div class="badge-list">
+        <div class="badge-item animate-in"><code class="badge-code">isEnabled</code><span class="badge-desc">Master switch for the whole extension</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">hoverDelayMs</code><span class="badge-desc">How long the user must pause before hover work begins</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">maxSelectionLength</code><span class="badge-desc">Upper bound that prevents giant requests</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">learningLanguage / nativeLanguage / bridgeLanguage</code><span class="badge-desc">The teaching triangle DutchMate is optimized around</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">providerEndpoint</code><span class="badge-desc">Usually hidden from normal users, but useful for local testing</span></div>
+      </div>
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <strong class="callout-title">Boundary lesson</strong>
+          <p>Validation happens before saving. That stops weird values from leaking into the rest of the extension and creating harder-to-debug bugs later.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <h2 class="screen-heading">Saving settings is really a safety checklist</h2>
+      <p class="animate-in">This snippet from [src/options/index.ts](/home/mgurram/MGurramAI/projects/dutchmate-proj/dutchmate/src/options/index.ts:144) reads current values, validates them, normalizes language roles, and only then writes to browser storage.</p>
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-line"><span class="code-keyword">async function</span> <span class="code-function">saveSettings</span>(): <span class="code-function">Promise</span>&lt;<span class="code-keyword">void</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">const</span> currentSettings = <span class="code-keyword">await</span> <span class="code-function">readSettings</span>();</span>
+<span class="code-line">  <span class="code-keyword">const</span> endpoint = providerEndpoint</span>
+<span class="code-line">    ? providerEndpoint.value.<span class="code-function">trim</span>()</span>
+<span class="code-line">    : currentSettings.providerEndpoint;</span>
+<span class="code-line">  <span class="code-keyword">const</span> hoverDelayValue = <span class="code-function">readNumberInput</span>(hoverDelayMs, defaultSettings.hoverDelayMs);</span>
+<span class="code-line">  <span class="code-keyword">const</span> maxSelectionLengthValue = <span class="code-function">readNumberInput</span>(</span>
+<span class="code-line">    maxSelectionLength,</span>
+<span class="code-line">    defaultSettings.maxSelectionLength,</span>
+<span class="code-line">  );</span>
+<span class="code-line">  <span class="code-keyword">const</span> endpointError = <span class="code-function">validateProviderEndpoint</span>(endpoint);</span>
+<span class="code-line">  <span class="code-keyword">const</span> hoverDelayError = <span class="code-function">validateHoverDelayMs</span>(hoverDelayValue);</span>
+<span class="code-line">  <span class="code-keyword">const</span> selectionLengthError = <span class="code-function">validateMaxSelectionLength</span>(maxSelectionLengthValue);</span>
+<span class="code-line">  <span class="code-keyword">const</span> languageRoles = <span class="code-function">normalizeLanguageRoles</span>(currentLanguageRoles);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (endpointError) {</span>
+<span class="code-line">    <span class="code-function">showStatus</span>(endpointError, <span class="code-string">"error"</span>);</span>
+<span class="code-line">    providerEndpoint?.<span class="code-function">focus</span>();</span>
+<span class="code-line">    <span class="code-keyword">return</span>;</span>
+<span class="code-line">  }</span></code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Start the save routine.</p>
+            <p class="tl">Read whatever settings already exist so you can preserve anything the form does not change.</p>
+            <p class="tl">Figure out which endpoint value to use.</p>
+            <p class="tl">If the hidden endpoint field exists, take the user input and clean off extra spaces.</p>
+            <p class="tl">Otherwise keep the current endpoint setting.</p>
+            <p class="tl">Read the hover delay as a real number with a safe fallback.</p>
+            <p class="tl">Do the same for the maximum selection length.</p>
+            <p class="tl">This is the field being read.</p>
+            <p class="tl">This is the default if the field is bad or empty.</p>
+            <p class="tl">End that value read.</p>
+            <p class="tl">Check whether the endpoint is valid.</p>
+            <p class="tl">Check whether the hover delay is valid.</p>
+            <p class="tl">Check whether the max selection length is valid.</p>
+            <p class="tl">Normalize the language choices into one consistent shape.</p>
+            <p class="tl">Blank line: the code is about to do gate checks.</p>
+            <p class="tl">If the endpoint is invalid, stop the save.</p>
+            <p class="tl">Show an error message the user can understand.</p>
+            <p class="tl">Move the cursor to the field that needs fixing.</p>
+            <p class="tl">Return early so bad settings never get stored.</p>
+            <p class="tl">End the first validation guard.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-container animate-in" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly. Shared validation and normalization let the whole extension trust the saved settings."
+             data-explanation-wrong="Not quite. The deeper win is consistent trusted settings across the whole extension, not just a nicer form.">
+          <h3 class="quiz-question">Why does this page validate before saving instead of letting other modules handle bad values later?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>It keeps invalid settings from spreading into every other layer</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>It makes the homepage load faster</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>It avoids needing any browser storage at all</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answer</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>

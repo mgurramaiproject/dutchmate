@@ -20,6 +20,7 @@ export type RuntimeSaveVocabularyRequest = {
   targetLanguage: MvpLanguageCode;
   translatedText: string;
   providerName: string;
+  pageContext?: string | null;
 };
 
 export type RuntimeSaveVocabularyResponse =

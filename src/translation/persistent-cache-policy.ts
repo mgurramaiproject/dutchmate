@@ -5,6 +5,7 @@ const singleWordPattern = /^[\p{Letter}\p{Number}'-]+$/u;
 
 export type PersistentCachePolicyOptions = {
   cacheHoveredWords?: boolean;
+  cacheSelectedWords?: boolean;
 };
 
 export function shouldPersistTranslation(
@@ -12,7 +13,11 @@ export function shouldPersistTranslation(
   maxWordLength = DEFAULT_MAX_PERSISTED_WORD_LENGTH,
   options: PersistentCachePolicyOptions = {},
 ): boolean {
-  if (request.context !== "selection" && !(options.cacheHoveredWords && request.context === "hover")) {
+  if (
+    (request.context === "selection" && options.cacheSelectedWords === false) ||
+    (request.context === "hover" && options.cacheHoveredWords === false) ||
+    (request.context !== "selection" && request.context !== "hover")
+  ) {
     return false;
   }
 

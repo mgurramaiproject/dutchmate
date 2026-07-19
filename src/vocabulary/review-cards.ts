@@ -1,0 +1,382 @@
+import {
+  SavedVocabularyStore,
+  normalizeSavedVocabularyText,
+  type SavedVocabularyEntry,
+  type SavedVocabularyStorage,
+} from "./saved-vocabulary";
+import {
+  createVocabularyBackup,
+  type VocabularyBackup,
+} from "./vocabulary-backup";
+
+export const REVIEW_CARDS_STORAGE_KEY = "dutchmate.reviewCards.v1";
+export const REVIEW_CARD_RECENT_LIMIT = 3;
+const DAY_IN_MS = 24 * 60 * 60 * 1_000;
+
+export type ReviewRating = "again" | "hard" | "good" | "easy";
+
+export type ReviewCard = {
+  id: string;
+  dutch: string;
+  english: string | null;
+  telugu: string | null;
+  /** The language of the source text that first created this card. */
+  originalLanguage?: "en" | "nl" | "te";
+  pageContext: string | null;
+  createdAt: number;
+  updatedAt: number;
+  dueAt: number | null;
+  lastReviewedAt: number | null;
+  lastRating: ReviewRating | null;
+  reviewCount: number;
+};
+
+export type ReviewCardSummary = {
+  total: number;
+  due: number;
+  new: number;
+  recent: ReviewCard[];
+};
+
+export type ReviewImportResult = {
+  cards: ReviewCard[];
+  importedCount: number;
+  totalCount: number;
+};
+
+export class ReviewCardStore {
+  constructor(
+    private readonly savedVocabulary: SavedVocabularyStore,
+    private readonly storage: SavedVocabularyStorage,
+    private readonly now: () => number = Date.now,
+  ) {}
+
+  async list(): Promise<ReviewCard[]> {
+    const previousCards = parseReviewCardData(await this.storage.get(REVIEW_CARDS_STORAGE_KEY));
+    const cards = migrateSavedVocabulary(
+      await this.savedVocabulary.list(),
+      Object.values(previousCards),
+    );
+
+    await this.storage.set(
+      REVIEW_CARDS_STORAGE_KEY,
+      { cards: Object.fromEntries(cards.map((card) => [card.id, card])) },
+    );
+
+    return cards;
+  }
+
+  async summary(): Promise<ReviewCardSummary> {
+    return getReviewCardSummary(await this.list(), this.now());
+  }
+
+  async newQueue(): Promise<ReviewCard[]> {
+    return getNewReviewQueue(await this.list());
+  }
+
+  async dueQueue(): Promise<ReviewCard[]> {
+    return getDueReviewQueue(await this.list(), this.now());
+  }
+
+  async allQueue(): Promise<ReviewCard[]> {
+    return getAllReviewQueue(await this.list());
+  }
+
+  async exportBackup(): Promise<VocabularyBackup> {
+    return createVocabularyBackup(await this.list(), this.now());
+  }
+
+  async importBackup(backup: VocabularyBackup): Promise<ReviewImportResult> {
+    const cards = mergeImportedReviewCards(await this.list(), backup.cards);
+    await this.storage.set(
+      REVIEW_CARDS_STORAGE_KEY,
+      { cards: Object.fromEntries(cards.map((card) => [card.id, card])) },
+    );
+    return {
+      cards,
+      importedCount: backup.cards.length,
+      totalCount: cards.length,
+    };
+  }
+
+  async deleteCard(id: string): Promise<void> {
+    const cards = await this.list();
+    const card = cards.find((candidate) => candidate.id === id);
+    if (!card) {
+      return;
+    }
+
+    const normalizedDutch = normalizeSavedVocabularyText(card.dutch);
+    const savedEntries = await this.savedVocabulary.list();
+    for (const { entry, contribution } of getReviewCardContributions(savedEntries)) {
+      if (normalizeSavedVocabularyText(contribution.dutch) === normalizedDutch) {
+        await this.savedVocabulary.delete(entry.id);
+      }
+    }
+    const remainingCards = cards.filter((candidate) => candidate.id !== id);
+    await this.storage.set(
+      REVIEW_CARDS_STORAGE_KEY,
+      { cards: Object.fromEntries(remainingCards.map((candidate) => [candidate.id, candidate])) },
+    );
+  }
+
+  async clear(): Promise<void> {
+    await this.savedVocabulary.clear();
+    await this.storage.set(REVIEW_CARDS_STORAGE_KEY, { cards: {} });
+  }
+
+  async rate(id: string, rating: ReviewRating): Promise<ReviewCard> {
+    const cards = await this.list();
+    const card = cards.find((candidate) => candidate.id === id);
+
+    if (!card) {
+      throw new Error("Review card not found.");
+    }
+
+    const updatedCard = rateReviewCard(card, rating, this.now());
+    await this.storage.set(
+      REVIEW_CARDS_STORAGE_KEY,
+      { cards: Object.fromEntries(cards.map((candidate) => [
+        candidate.id,
+        candidate.id === id ? updatedCard : candidate,
+      ])) },
+    );
+    return updatedCard;
+  }
+}
+
+export function migrateSavedVocabulary(
+  entries: SavedVocabularyEntry[],
+  existingCards: ReviewCard[] = [],
+): ReviewCard[] {
+  const existingById = new Map(existingCards.map((card) => [card.id, card]));
+  const cards = new Map<string, ReviewCard>(
+    existingCards.map((card) => [card.id, { ...card }]),
+  );
+
+  for (const { entry, contribution } of getReviewCardContributions(entries)) {
+    const id = getReviewCardId(contribution.dutch);
+    const existingCard = cards.get(id);
+    const card = existingCard ?? createReviewCard(contribution, entry);
+
+    if (!existingById.has(id)) {
+      card.createdAt = Math.min(card.createdAt, entry.createdAt);
+      card.updatedAt = Math.max(card.updatedAt, entry.updatedAt);
+    }
+
+    if (contribution.meaningLanguage === "en" && card.english === null) {
+      card.english = contribution.meaning;
+    }
+
+    if (contribution.meaningLanguage === "te" && card.telugu === null) {
+      card.telugu = contribution.meaning;
+    }
+
+    if (card.pageContext === null && entry.pageContext) {
+      card.pageContext = entry.pageContext.slice(0, 240);
+    }
+
+    cards.set(id, card);
+  }
+
+  return [...cards.values()].sort((first, second) => second.createdAt - first.createdAt);
+}
+
+export function getReviewCardId(dutch: string): string {
+  return `nl\u001f${normalizeSavedVocabularyText(dutch)}`;
+}
+
+export function mergeImportedReviewCards(
+  existingCards: ReviewCard[],
+  importedCards: ReviewCard[],
+): ReviewCard[] {
+  const cards = new Map(existingCards.map((card) => [card.id, { ...card }]));
+
+  for (const imported of importedCards) {
+    const existing = cards.get(imported.id);
+    if (!existing) {
+      cards.set(imported.id, { ...imported });
+      continue;
+    }
+
+    cards.set(imported.id, {
+      ...existing,
+      english: existing.english ?? imported.english,
+      telugu: existing.telugu ?? imported.telugu,
+      pageContext: existing.pageContext ?? imported.pageContext,
+      originalLanguage: existing.originalLanguage ?? imported.originalLanguage,
+    });
+  }
+
+  return [...cards.values()].sort(compareByCreationTime);
+}
+
+export function getReviewCardSummary(
+  cards: ReviewCard[],
+  now = Date.now(),
+  recentLimit = REVIEW_CARD_RECENT_LIMIT,
+): ReviewCardSummary {
+  return {
+    total: cards.length,
+    due: cards.filter(
+      (card) => card.reviewCount > 0 && card.dueAt !== null && card.dueAt <= now,
+    ).length,
+    new: cards.filter((card) => card.reviewCount === 0).length,
+    recent: [...cards]
+      .sort((first, second) => second.createdAt - first.createdAt)
+      .slice(0, recentLimit),
+  };
+}
+
+export function getNewReviewQueue(cards: ReviewCard[]): ReviewCard[] {
+  return cards
+    .filter((card) => card.reviewCount === 0)
+    .sort(compareByCreationTime);
+}
+
+export function getDueReviewQueue(cards: ReviewCard[], now = Date.now()): ReviewCard[] {
+  return cards
+    .filter((card) => card.reviewCount > 0 && card.dueAt !== null && card.dueAt <= now)
+    .sort((first, second) => first.dueAt! - second.dueAt! || first.id.localeCompare(second.id));
+}
+
+export function getAllReviewQueue(cards: ReviewCard[]): ReviewCard[] {
+  return [...cards].sort(compareByCreationTime);
+}
+
+function compareByCreationTime(first: ReviewCard, second: ReviewCard): number {
+  return first.createdAt - second.createdAt || first.id.localeCompare(second.id);
+}
+
+export function rateReviewCard(card: ReviewCard, rating: ReviewRating, reviewedAt: number): ReviewCard {
+  const intervalDays = rating === "good" ? 3 : rating === "easy" ? 7 : 1;
+
+  return {
+    ...card,
+    updatedAt: reviewedAt,
+    dueAt: reviewedAt + intervalDays * DAY_IN_MS,
+    lastReviewedAt: reviewedAt,
+    lastRating: rating,
+    reviewCount: card.reviewCount + 1,
+  };
+}
+
+type ReviewCardContribution = {
+  dutch: string;
+  meaningLanguage: "en" | "te";
+  meaning: string;
+  originalLanguage: "en" | "nl" | "te";
+};
+
+function createReviewCard(
+  contribution: ReviewCardContribution,
+  entry: SavedVocabularyEntry,
+): ReviewCard {
+  return {
+    id: getReviewCardId(contribution.dutch),
+    dutch: normalizeSavedVocabularyText(contribution.dutch),
+    english: contribution.meaningLanguage === "en" ? contribution.meaning : null,
+    telugu: contribution.meaningLanguage === "te" ? contribution.meaning : null,
+    pageContext: null,
+    createdAt: entry.createdAt,
+    updatedAt: entry.updatedAt,
+    dueAt: null,
+    lastReviewedAt: null,
+    lastRating: null,
+    reviewCount: 0,
+    ...(contribution.originalLanguage !== "nl"
+      ? { originalLanguage: contribution.originalLanguage }
+      : {}),
+  };
+}
+
+function getReviewCardContributions(
+  entries: SavedVocabularyEntry[],
+): Array<{ entry: SavedVocabularyEntry; contribution: ReviewCardContribution }> {
+  const dutchBySource = new Map<string, string>();
+
+  for (const entry of entries) {
+    const sourceLanguage = entry.detectedSourceLanguage ?? entry.sourceLanguage;
+    if (sourceLanguage === "nl" && (entry.targetLanguage === "en" || entry.targetLanguage === "te")) {
+      dutchBySource.set(getSourceKey(sourceLanguage, entry.text), entry.text);
+    }
+
+    if ((sourceLanguage === "en" || sourceLanguage === "te") && entry.targetLanguage === "nl") {
+      dutchBySource.set(getSourceKey(sourceLanguage, entry.text), entry.translatedText);
+    }
+  }
+
+  return entries.flatMap((entry) => {
+    const sourceLanguage = entry.detectedSourceLanguage ?? entry.sourceLanguage;
+    const contribution = getReviewCardContribution(
+      entry,
+      sourceLanguage === "en" || sourceLanguage === "te"
+        ? dutchBySource.get(getSourceKey(sourceLanguage, entry.text))
+        : undefined,
+    );
+    return contribution ? [{ entry, contribution }] : [];
+  });
+}
+
+function getReviewCardContribution(
+  entry: SavedVocabularyEntry,
+  dutchFromSource?: string,
+): ReviewCardContribution | null {
+  const sourceLanguage = entry.detectedSourceLanguage ?? entry.sourceLanguage;
+
+  if (sourceLanguage === "nl" && (entry.targetLanguage === "en" || entry.targetLanguage === "te")) {
+    return {
+      dutch: entry.text,
+      meaningLanguage: entry.targetLanguage,
+      meaning: entry.translatedText,
+      originalLanguage: "nl",
+    };
+  }
+
+  if (sourceLanguage !== "en" && sourceLanguage !== "te") {
+    return null;
+  }
+
+  const dutch = entry.targetLanguage === "nl" ? entry.translatedText : dutchFromSource;
+  if (!dutch) {
+    return null;
+  }
+
+  if (entry.targetLanguage === "nl") {
+    return {
+      dutch,
+      meaningLanguage: sourceLanguage,
+      meaning: entry.text,
+      originalLanguage: sourceLanguage,
+    };
+  }
+
+  if (entry.targetLanguage === "en" || entry.targetLanguage === "te") {
+    return {
+      dutch,
+      meaningLanguage: entry.targetLanguage,
+      meaning: entry.translatedText,
+      originalLanguage: sourceLanguage,
+    };
+  }
+
+  return null;
+}
+
+function getSourceKey(sourceLanguage: string, text: string): string {
+  return `${sourceLanguage}\u001f${normalizeSavedVocabularyText(text)}`;
+}
+
+function parseReviewCardData(value: unknown): Record<string, ReviewCard> {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "cards" in value &&
+    typeof value.cards === "object" &&
+    value.cards !== null
+  ) {
+    return value.cards as Record<string, ReviewCard>;
+  }
+
+  return {};
+}

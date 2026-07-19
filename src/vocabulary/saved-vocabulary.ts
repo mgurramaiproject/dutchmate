@@ -16,6 +16,7 @@ export type SavedVocabularyEntry = {
   providerName: string;
   createdAt: number;
   updatedAt: number;
+  pageContext?: string | null;
 };
 
 export type SaveVocabularyInput = {
@@ -25,6 +26,7 @@ export type SaveVocabularyInput = {
   targetLanguage: MvpLanguageCode;
   translatedText: string;
   providerName: string;
+  pageContext?: string | null;
 };
 
 export type SaveVocabularyResult =
@@ -76,7 +78,9 @@ export class SavedVocabularyStore {
 
   async list(): Promise<SavedVocabularyEntry[]> {
     const data = await this.readData();
-    return Object.values(data.entries).sort((first, second) => second.createdAt - first.createdAt);
+    return Object.values(data.entries).sort(
+      (first, second) => second.createdAt - first.createdAt || first.id.localeCompare(second.id),
+    );
   }
 
   async save(input: SaveVocabularyInput): Promise<SaveVocabularyResult> {
@@ -122,6 +126,7 @@ export class SavedVocabularyStore {
       providerName: input.providerName,
       createdAt: timestamp,
       updatedAt: timestamp,
+      ...(input.pageContext ? { pageContext: input.pageContext.slice(0, 240) } : {}),
     };
 
     await this.writeData({

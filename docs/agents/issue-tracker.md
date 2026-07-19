@@ -33,3 +33,7 @@ Create a GitHub issue.
 ## When a skill says "fetch the relevant ticket"
 
 Run `gh issue view <number> --comments`.
+
+## When GitHub is unavailable
+
+Use the repository's checked-in issue references, ticket files, and specifications as the temporary source of truth. Do not invent missing requirements. Record the limitation in the handoff and refresh the issue state when GitHub access returns.
