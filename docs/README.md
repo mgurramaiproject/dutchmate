@@ -10,6 +10,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [002-learnloop priority roadmap](features/002-learnloop-priority-roadmap.md): agreed priority order and product boundaries for contextual mastery, curated mini-lessons, and calm engagement.
 - [002-learnloop specification](features/002-learnloop-spec.md): published behavior, implementation, testing, and scope contract for GitHub issue #31.
 - [002-learnloop implementation tickets](features/002-learnloop-tickets.md): approved tracer-bullet slices, dependency edges, acceptance checklists, and verification gates.
+- [002-learnloop design mockups](features/002-learnloop-design-mockups.html): throwaway, switchable popup directions for Today, Daily Five, micro-stories, and lesson keeping pending design approval.
 - [Curated mini-lesson pattern](features/002-learnloop-mini-lesson-pattern.md): agreed micro-story structure, learner flow, authoring rules, and starter lesson order for `002-learnloop`.
 - [Feature parking lot](features/002-learnloop-feature-parking-lot.md): promising `002-learnloop` feature directions that are intentionally deferred until their revisit signals are met.
 
