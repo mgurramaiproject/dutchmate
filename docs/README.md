@@ -8,6 +8,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [Extension naming decision](product/extension-naming-decision.md): naming notes for the extension.
 - [Saved vocabulary 0.2.0 plan](product/saved-vocabulary-0.2.0-plan.md): local saved-word feature plan and implementation slices.
 - [002-learnloop priority roadmap](features/002-learnloop-priority-roadmap.md): agreed priority order and product boundaries for contextual mastery, curated mini-lessons, and calm engagement.
+- [002-learnloop specification](features/002-learnloop-spec.md): published behavior, implementation, testing, and scope contract for GitHub issue #31.
 - [Curated mini-lesson pattern](features/002-learnloop-mini-lesson-pattern.md): agreed micro-story structure, learner flow, authoring rules, and starter lesson order for `002-learnloop`.
 - [Feature parking lot](features/002-learnloop-feature-parking-lot.md): promising `002-learnloop` feature directions that are intentionally deferred until their revisit signals are met.
 
