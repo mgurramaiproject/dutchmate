@@ -140,24 +140,24 @@ Automatic chunk suggestions, saving arbitrary sentences, passive page scanning, 
 
 ### Acceptance criteria
 
-- [ ] Passive page load, scrolling, mutation observation, and ordinary text presence create no encounter.
-- [ ] A deliberate hover or selection that matches a saved canonical item can record one encounter.
-- [ ] Context text is at most 240 characters, contains the learning item, and remains local.
-- [ ] Each item retains at most three contexts; repeated identical contexts are deduplicated and the oldest context is evicted when necessary.
-- [ ] Encounter timestamps and contexts merge through the background learning contract.
-- [ ] A matching interaction can show `Seen before` without covering or permanently highlighting page text.
-- [ ] Encounter recording does not change recognition or recall mastery, schedule due work, or count as a Daily Five answer.
-- [ ] Unsaved text and failed or cancelled interactions create no learning history.
-- [ ] Both words and meaningful chunks are supported.
-- [ ] Review presentation can use a stored context as a cue without exposing unrelated browsing data.
+- [x] Passive page load, scrolling, mutation observation, and ordinary text presence create no encounter.
+- [x] A deliberate hover or selection that matches a saved canonical item can record one encounter.
+- [x] Context text is at most 240 characters, contains the learning item, and remains local.
+- [x] Each item retains at most three contexts; repeated identical contexts are deduplicated and the oldest context is evicted when necessary.
+- [x] Encounter timestamps and contexts merge through the background learning contract.
+- [x] A matching interaction can show `Seen before` without covering or permanently highlighting page text.
+- [x] Encounter recording does not change recognition or recall mastery, schedule due work, or count as a Daily Five answer.
+- [x] Unsaved text and failed or cancelled interactions create no learning history.
+- [x] Both words and meaningful chunks are supported.
+- [x] Review presentation can use a stored context as a cue without exposing unrelated browsing data.
 
 ### Verification
 
-- [ ] Content tests cover deliberate versus passive events, saved and unsaved matches, word and chunk matches, and cue rendering.
-- [ ] Background tests cover deduplication, cap/eviction order, timestamp behavior, and separation from mastery.
-- [ ] `corepack pnpm test` passes.
-- [ ] `corepack pnpm typecheck` passes.
-- [ ] Both browser builds pass.
+- [x] Content tests cover deliberate versus passive events, saved and unsaved matches, word and chunk matches, and cue rendering.
+- [x] Background tests cover deduplication, cap/eviction order, timestamp behavior, and separation from mastery.
+- [x] `corepack pnpm test` passes.
+- [x] `corepack pnpm typecheck` passes.
+- [x] Both browser builds pass.
 
 ### Not in this ticket
 

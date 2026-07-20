@@ -21,6 +21,7 @@ export type LearningMastery = {
 };
 export type LearningItemSource = { type: "webpage" | "lesson"; addedAt: number; sourceLanguage?: MvpLanguageCode | "auto"; detectedSourceLanguage?: MvpLanguageCode; targetLanguage?: MvpLanguageCode; providerName?: string; originalLanguage?: MvpLanguageCode };
 export type LearningContext = { text: string; addedAt: number };
+export type LearningEncounter = { count: number; lastEncounterAt: number | null };
 export type LearningItem = {
   id: string;
   learningLanguage: typeof LEARNING_LANGUAGE;
@@ -31,6 +32,7 @@ export type LearningItem = {
   telugu: string | null;
   sources: LearningItemSource[];
   contexts: LearningContext[];
+  encounters: LearningEncounter;
   recognition: LearningMastery;
   recall: LearningMastery;
   createdAt: number;
@@ -86,6 +88,19 @@ export class LearningRecordStore {
     const record = await this.readMigrated();
     const item = mergeLearningItem(record.items[getLearningItemId(input.dutch)], input, this.now());
     record.items[item.id] = item;
+    await this.write(record);
+    return item;
+  }
+
+  async recordEncounter(id: string, context: string | null | undefined): Promise<LearningItem | null> {
+    const record = await this.readMigrated();
+    const existing = record.items[id];
+    if (!existing) return null;
+    const encounteredAt = this.now();
+    const encounter = normalizeContext(context, existing.dutch, encounteredAt);
+    if (!encounter) return existing;
+    const item = { ...existing, contexts: mergeContexts(existing.contexts, encounter), encounters: { count: existing.encounters.count + 1, lastEncounterAt: encounteredAt }, updatedAt: Math.max(existing.updatedAt, encounteredAt) };
+    record.items[id] = item;
     await this.write(record);
     return item;
   }
@@ -180,7 +195,7 @@ export function serializeLearningBackup(backup: LearningBackup): string { return
 
 function mergeLearningItem(existing: LearningItem | undefined, input: CreateOrMergeLearningItemInput, timestamp: number): LearningItem {
   const dutch = normalizeSavedVocabularyText(input.dutch); const id = getLearningItemId(dutch); const context = normalizeContext(input.context, dutch, timestamp);
-  if (!existing) return { id, learningLanguage: LEARNING_LANGUAGE, normalizedDutch: dutch, dutch, kind: input.kind ?? (dutch.includes(" ") ? "chunk" : "word"), english: input.english ?? null, telugu: input.telugu ?? null, sources: input.source ? [{ type: input.source, addedAt: timestamp, ...input.sourceMetadata }] : [], contexts: context ? [context] : [], recognition: createNewMastery(), recall: createNewMastery(), createdAt: timestamp, updatedAt: timestamp };
+  if (!existing) return { id, learningLanguage: LEARNING_LANGUAGE, normalizedDutch: dutch, dutch, kind: input.kind ?? (dutch.includes(" ") ? "chunk" : "word"), english: input.english ?? null, telugu: input.telugu ?? null, sources: input.source ? [{ type: input.source, addedAt: timestamp, ...input.sourceMetadata }] : [], contexts: context ? [context] : [], encounters: { count: 0, lastEncounterAt: null }, recognition: createNewMastery(), recall: createNewMastery(), createdAt: timestamp, updatedAt: timestamp };
   return { ...existing, english: existing.english ?? input.english ?? null, telugu: existing.telugu ?? input.telugu ?? null, sources: mergeSource(existing.sources, input.source, timestamp, input.sourceMetadata), contexts: mergeContexts(existing.contexts, context), updatedAt: Math.max(existing.updatedAt, timestamp) };
 }
 function mergeLegacyCard(existing: LearningItem | undefined, card: ReviewCard, now: number): LearningItem {
@@ -204,11 +219,12 @@ function parseLegacyCards(value: unknown): LegacyReviewData { return isRecord(va
 function parseLearningItem(value: unknown): LearningItem {
   if (!isRecord(value) || typeof value.dutch !== "string") throw new Error("This learning file contains an invalid learning item.");
   const dutch = value.dutch;
-  if (typeof value.normalizedDutch !== "string" || value.normalizedDutch !== normalizeSavedVocabularyText(dutch) || typeof value.id !== "string" || value.id !== getLearningItemId(dutch) || value.learningLanguage !== LEARNING_LANGUAGE || (value.kind !== "word" && value.kind !== "chunk") || !nullableString(value.english) || !nullableString(value.telugu) || !Array.isArray(value.sources) || !value.sources.every(isLearningSource) || !Array.isArray(value.contexts) || !value.contexts.every((context) => isLearningContext(context, dutch)) || value.contexts.length > 3 || !mastery(value.recognition) || !mastery(value.recall) || !finite(value.createdAt) || !finite(value.updatedAt)) throw new Error("This learning file contains an invalid learning item.");
-  return value as LearningItem;
+  if (typeof value.normalizedDutch !== "string" || value.normalizedDutch !== normalizeSavedVocabularyText(dutch) || typeof value.id !== "string" || value.id !== getLearningItemId(dutch) || value.learningLanguage !== LEARNING_LANGUAGE || (value.kind !== "word" && value.kind !== "chunk") || !nullableString(value.english) || !nullableString(value.telugu) || !Array.isArray(value.sources) || !value.sources.every(isLearningSource) || !Array.isArray(value.contexts) || !value.contexts.every((context) => isLearningContext(context, dutch)) || value.contexts.length > 3 || !mastery(value.recognition) || !mastery(value.recall) || !finite(value.createdAt) || !finite(value.updatedAt) || (value.encounters !== undefined && !learningEncounter(value.encounters))) throw new Error("This learning file contains an invalid learning item.");
+  return { ...value, encounters: value.encounters ?? { count: 0, lastEncounterAt: null } } as LearningItem;
 }
 function isLearningSource(value: unknown): value is LearningItemSource { return isRecord(value) && (value.type === "webpage" || value.type === "lesson") && finite(value.addedAt) && (value.sourceLanguage === undefined || value.sourceLanguage === "auto" || isLanguage(value.sourceLanguage)) && (value.detectedSourceLanguage === undefined || isLanguage(value.detectedSourceLanguage)) && (value.targetLanguage === undefined || isLanguage(value.targetLanguage)) && (value.providerName === undefined || typeof value.providerName === "string") && (value.originalLanguage === undefined || isLanguage(value.originalLanguage)); }
 function isLearningContext(value: unknown, dutch: string): value is LearningContext { return isRecord(value) && typeof value.text === "string" && value.text.length <= 240 && value.text.toLocaleLowerCase().includes(normalizeSavedVocabularyText(dutch)) && finite(value.addedAt); }
+function learningEncounter(value: unknown): value is LearningEncounter { return isRecord(value) && nonNegativeInteger(value.count) && (value.lastEncounterAt === null || finite(value.lastEncounterAt)); }
 function tryJson(input: string): unknown { try { return JSON.parse(input); } catch { throw new Error("This learning file is not valid JSON."); } }
 function mastery(value: unknown): value is LearningMastery { return isRecord(value) && (value.state === "new" || value.state === "learning" || value.state === "familiar" || value.state === "strong") && (value.dueAt === null || finite(value.dueAt)) && finite(value.intervalDays) && nonNegativeInteger(value.attemptCount) && nonNegativeInteger(value.successfulStreak) && (value.lastPractisedAt === null || finite(value.lastPractisedAt)); }
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null; } function finite(value: unknown): value is number { return typeof value === "number" && Number.isFinite(value); } function nonNegativeInteger(value: unknown): value is number { return typeof value === "number" && Number.isInteger(value) && value >= 0; } function nullableString(value: unknown): value is string | null { return value === null || typeof value === "string"; } function isLanguage(value: unknown): value is MvpLanguageCode { return value === "en" || value === "nl" || value === "te"; }

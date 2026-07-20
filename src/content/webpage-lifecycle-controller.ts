@@ -123,6 +123,7 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
           hit.y,
           hit.sourceLanguageHint,
           hit.languageSample,
+          hit.pageContext,
         );
       }, settings.hoverDelayMs);
     },

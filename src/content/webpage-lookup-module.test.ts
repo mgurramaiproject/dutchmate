@@ -63,6 +63,78 @@ function createTransport(
 }
 
 describe("WebpageLookupModule", () => {
+  it("records a deliberate saved-item encounter and renders its Seen before cue", async () => {
+    const recordLearningEncounter = vi.fn(async () => ({ ok: true }));
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({
+        listLearningItems: async () => ({ ok: true, result: { items: [{ id: "nl\u001fgoede morgen", normalizedDutch: "goede morgen" }] } }),
+        recordLearningEncounter,
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "Goede   morgen", context: "selection", x: 1, y: 1, pageContext: "Goede morgen, buur." });
+
+    expect(recordLearningEncounter).toHaveBeenCalledWith({ id: "nl\u001fgoede morgen", context: "Goede morgen, buur." });
+    await vi.waitFor(() => expect(events).toContainEqual({ type: "show-seen-before" }));
+  });
+
+  it("does not record encounters for passive or unsaved text", async () => {
+    const recordLearningEncounter = vi.fn(async () => ({ ok: true }));
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({ listLearningItems: async () => ({ ok: true, result: { items: [] } }), recordLearningEncounter }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    expect(recordLearningEncounter).not.toHaveBeenCalled();
+    await module.beginLookup({ text: "onbekend", context: "hover", x: 1, y: 1, pageContext: "Een onbekend woord." });
+    expect(recordLearningEncounter).not.toHaveBeenCalled();
+  });
+
+  it("does not record encounters when the deliberate translation fails", async () => {
+    const recordLearningEncounter = vi.fn(async () => ({ ok: true }));
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({
+        translate: async () => ({ ok: false, error: "Translation failed." }),
+        listLearningItems: async () => ({ ok: true, result: { items: [{ id: "nl\u001fhuis", normalizedDutch: "huis" }] } }),
+        recordLearningEncounter,
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    await module.beginLookup({ text: "huis", context: "hover", x: 1, y: 1, pageContext: "Een huis staat daar." });
+    expect(recordLearningEncounter).not.toHaveBeenCalled();
+  });
+
+  it("records a saved word but ignores an interaction cleared before lookup completes", async () => {
+    const recordLearningEncounter = vi.fn(async () => ({ ok: true }));
+    let resolveItems: ((value: { ok: true; result: { items: Array<{ id: string; normalizedDutch: string }> } }) => void) | undefined;
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({
+        listLearningItems: () => new Promise((resolve) => { resolveItems = resolve; }),
+        recordLearningEncounter,
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    await module.beginLookup({ text: "huis", context: "hover", x: 1, y: 1, pageContext: "Een huis staat daar." });
+    module.clear();
+    resolveItems?.({ ok: true, result: { items: [{ id: "nl\u001fhuis", normalizedDutch: "huis" }] } });
+
+    await Promise.resolve();
+    expect(recordLearningEncounter).not.toHaveBeenCalled();
+  });
+
   it("emits loading then result with save action for a selected single-word lookup", async () => {
     const events: unknown[] = [];
     const module = new WebpageLookupModule({

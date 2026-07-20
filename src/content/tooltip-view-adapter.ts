@@ -13,6 +13,7 @@ export type TooltipViewAdapter = {
     y: number,
     saveAction: SaveActionState,
   ): void;
+  showSeenBefore(): void;
   updateSaveButton(saveAction: SaveActionState): void;
   hide(): void;
 };
@@ -144,12 +145,23 @@ export function createTooltipViewAdapter(onSaveClick: () => void): TooltipViewAd
       currentSaveButton.title = saveAction.status === "retry" ? saveAction.title : "";
     },
 
+    showSeenBefore() {
+      if (!tooltip.hidden && !tooltip.querySelector(".hover-translate-seen-before")) renderSeenBefore(tooltip);
+    },
+
     hide() {
       currentSaveButton = null;
       tooltip.hidden = true;
       delete tooltip.dataset.state;
     },
   };
+}
+
+function renderSeenBefore(tooltip: HTMLDivElement): void {
+  const cue = document.createElement("span");
+  cue.className = "hover-translate-seen-before";
+  cue.textContent = "Seen before";
+  tooltip.append(" ", cue);
 }
 
 function renderSaveAction(

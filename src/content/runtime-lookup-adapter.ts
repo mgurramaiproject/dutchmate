@@ -5,6 +5,8 @@ import {
   requestRuntimeSavedVocabularyList,
   requestRuntimeSaveVocabularyBatch,
   requestRuntimeCreateLearningItem,
+  requestRuntimeLearningItems,
+  requestRuntimeRecordLearningEncounter,
   type RuntimeSaveVocabularyBatchResponse,
   type RuntimeSaveVocabularyRequest,
   type RuntimeVocabularyExtensionApi,
@@ -54,6 +56,8 @@ export function createRuntimeLookupAdapter(
     requests: RuntimeSaveVocabularyRequest[],
   ): Promise<RuntimeSaveVocabularyBatchResponse>;
   saveLearningItem(input: CreateOrMergeLearningItemInput): ReturnType<typeof requestRuntimeCreateLearningItem>;
+  listLearningItems(): ReturnType<typeof requestRuntimeLearningItems>;
+  recordLearningEncounter(input: { id: string; context: string }): ReturnType<typeof requestRuntimeRecordLearningEncounter>;
 } {
   let directTranslationCache: PersistentTranslationCache | undefined;
 
@@ -104,6 +108,12 @@ export function createRuntimeLookupAdapter(
     },
     saveLearningItem(input) {
       return requestRuntimeCreateLearningItem(dependencies.extensionApi, input);
+    },
+    listLearningItems() {
+      return requestRuntimeLearningItems(dependencies.extensionApi);
+    },
+    recordLearningEncounter(input) {
+      return requestRuntimeRecordLearningEncounter(dependencies.extensionApi, input);
     },
   };
 }

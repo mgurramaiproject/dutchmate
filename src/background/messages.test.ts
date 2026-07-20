@@ -17,6 +17,8 @@ import {
   REVIEW_CLEAR_MESSAGE,
   REVIEW_SETTINGS_MESSAGE,
   REVIEW_SETTINGS_UPDATE_MESSAGE,
+  LEARNING_RECORD_ENCOUNTER_MESSAGE,
+  isLearningMessage,
 } from "./messages";
 
 const saveMessage = {
@@ -58,6 +60,7 @@ describe("isVocabularyMessage", () => {
     ).toBe(true);
     expect(isVocabularyMessage({ type: CLEAR_VOCABULARY_MESSAGE })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_SUMMARY_MESSAGE })).toBe(true);
+    expect(isLearningMessage({ type: LEARNING_RECORD_ENCOUNTER_MESSAGE, payload: { id: "nl\u001fhuis", context: "Een huis staat daar." } })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_NEW_QUEUE_MESSAGE })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_EXPORT_MESSAGE })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_CLEAR_MESSAGE })).toBe(true);
@@ -128,6 +131,10 @@ describe("isVocabularyMessage", () => {
         },
       }),
     ).toBe(false);
+  });
+
+  it("rejects encounters without a local context", () => {
+    expect(isLearningMessage({ type: LEARNING_RECORD_ENCOUNTER_MESSAGE, payload: { id: "nl\u001fhuis" } })).toBe(false);
   });
 
   it("rejects invalid delete payloads", () => {

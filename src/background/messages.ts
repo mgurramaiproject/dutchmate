@@ -34,6 +34,7 @@ export const LEARNING_DELETE_MESSAGE = "dutchmate.learning.delete";
 export const LEARNING_CLEAR_MESSAGE = "dutchmate.learning.clear";
 export const LEARNING_EXPORT_MESSAGE = "dutchmate.learning.export";
 export const LEARNING_IMPORT_MESSAGE = "dutchmate.learning.import";
+export const LEARNING_RECORD_ENCOUNTER_MESSAGE = "dutchmate.learning.recordEncounter";
 
 export type ReviewSettingsChanges = Pick<
   ExtensionSettings,
@@ -129,7 +130,8 @@ export type LearningMessage =
   | { type: typeof LEARNING_DELETE_MESSAGE; payload: { id: string } }
   | { type: typeof LEARNING_CLEAR_MESSAGE }
   | { type: typeof LEARNING_EXPORT_MESSAGE }
-  | { type: typeof LEARNING_IMPORT_MESSAGE; payload: { document: string } };
+  | { type: typeof LEARNING_IMPORT_MESSAGE; payload: { document: string } }
+  | { type: typeof LEARNING_RECORD_ENCOUNTER_MESSAGE; payload: { id: string; context: string } };
 
 export type VocabularyMessage =
   | SaveVocabularyMessage
@@ -219,7 +221,7 @@ export type BackgroundMessageResponse =
   | LearningMessageResponse;
 
 export type LearningMessageResponse =
-  | { ok: true; result: { items: LearningItem[] } | { total: number; due: number; new: number; recent: LearningItem[] } | { item: LearningItem } | { deleted: true } | { cleared: true } | { backup: LearningBackup } | { items: LearningItem[]; importedCount: number; totalCount: number } }
+  | { ok: true; result: { items: LearningItem[] } | { total: number; due: number; new: number; recent: LearningItem[] } | { item: LearningItem } | { deleted: true } | { cleared: true } | { backup: LearningBackup } | { items: LearningItem[]; importedCount: number; totalCount: number } | { recorded: true } }
   | { ok: false; error: string };
 
 export function isTranslateMessage(message: unknown): message is TranslateMessage {
@@ -238,6 +240,7 @@ export function isLearningMessage(message: unknown): message is LearningMessage 
   if (!("payload" in message) || typeof message.payload !== "object" || message.payload === null) return false;
   const payload = message.payload as Record<string, unknown>;
   if (message.type === LEARNING_DELETE_MESSAGE) return typeof payload.id === "string";
+  if (message.type === LEARNING_RECORD_ENCOUNTER_MESSAGE) return typeof payload.id === "string" && typeof payload.context === "string";
   if (message.type === LEARNING_IMPORT_MESSAGE) return typeof payload.document === "string";
   return message.type === LEARNING_CREATE_OR_MERGE_MESSAGE && typeof payload.dutch === "string" && (payload.kind === undefined || payload.kind === "word" || payload.kind === "chunk") && (payload.english === undefined || payload.english === null || typeof payload.english === "string") && (payload.telugu === undefined || payload.telugu === null || typeof payload.telugu === "string") && (payload.context === undefined || payload.context === null || typeof payload.context === "string") && (payload.source === undefined || payload.source === "webpage" || payload.source === "lesson");
 }

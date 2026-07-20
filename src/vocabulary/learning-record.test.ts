@@ -34,6 +34,33 @@ describe("LearningRecordStore", () => {
     expect(JSON.stringify(backup)).not.toContain("secret");
   });
 
+  it("records only distinct recent encounter contexts without changing mastery", async () => {
+    const storage = new MemoryStorage();
+    let now = 1_000;
+    const records = new LearningRecordStore(storage, () => now);
+    const item = await records.createOrMerge({ dutch: "goede morgen", kind: "chunk" });
+
+    await records.recordEncounter(item.id, "Goede morgen, buur.");
+    now = 2_000;
+    await records.recordEncounter(item.id, "Goede morgen, buur.");
+    now = 3_000;
+    await records.recordEncounter(item.id, "Goede morgen, collega.");
+    now = 4_000;
+    await records.recordEncounter(item.id, "Goede morgen, iedereen.");
+    now = 5_000;
+    await records.recordEncounter(item.id, "Goede morgen, vrienden.");
+
+    const [updated] = await records.list();
+    expect(updated.contexts).toEqual([
+      { text: "Goede morgen, collega.", addedAt: 3_000 },
+      { text: "Goede morgen, iedereen.", addedAt: 4_000 },
+      { text: "Goede morgen, vrienden.", addedAt: 5_000 },
+    ]);
+    expect(updated.encounters).toEqual({ count: 5, lastEncounterAt: 5_000 });
+    expect(updated.recognition).toEqual(item.recognition);
+    expect(updated.recall).toEqual(item.recall);
+  });
+
   it("rejects malformed or unsupported imports before changing storage", async () => {
     const storage = new MemoryStorage();
     const records = new LearningRecordStore(storage, () => 1_000);

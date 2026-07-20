@@ -17,6 +17,7 @@ import {
   LEARNING_CREATE_OR_MERGE_MESSAGE,
   LEARNING_EXPORT_MESSAGE,
   LEARNING_IMPORT_MESSAGE,
+  LEARNING_RECORD_ENCOUNTER_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
@@ -116,6 +117,18 @@ describe("createBackgroundMessageHandler", () => {
     expect(exported).toMatchObject({ ok: true, result: { backup: { version: 2, learningItems: [expect.objectContaining({ english: "good morning" })] } } });
     const versionOne = createVocabularyBackup([{ id: "nl\u001fboom", dutch: "boom", english: "tree", telugu: null, pageContext: null, createdAt: 1, updatedAt: 1, dueAt: null, lastReviewedAt: null, lastRating: null, reviewCount: 0 }], 1_000);
     await expect(send(handleMessage, { type: LEARNING_IMPORT_MESSAGE, payload: { document: JSON.stringify(versionOne) } })).resolves.toMatchObject({ ok: true, result: { importedCount: 1, totalCount: 2 } });
+  });
+
+  it("records an encounter without changing mastery through the learning contract", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => 1_000);
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const item = await records.createOrMerge({ dutch: "huis", english: "house" });
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary, reviewCards, learningRecords: records, refreshBadge: async () => undefined });
+
+    await expect(send(handleMessage, { type: LEARNING_RECORD_ENCOUNTER_MESSAGE, payload: { id: item.id, context: "Een huis staat daar." } })).resolves.toEqual({ ok: true, result: { recorded: true } });
+    await expect(records.list()).resolves.toEqual([expect.objectContaining({ contexts: [{ text: "Een huis staat daar.", addedAt: 1_000 }], recognition: item.recognition, recall: item.recall })]);
   });
 });
 

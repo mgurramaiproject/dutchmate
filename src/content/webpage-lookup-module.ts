@@ -8,7 +8,7 @@ import type {
 } from "./runtime-vocabulary-client";
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import type { ExtensionSettings } from "../shared/settings";
-import { getSavedVocabularyEntryId } from "../vocabulary/saved-vocabulary";
+import { getSavedVocabularyEntryId, normalizeSavedVocabularyText } from "../vocabulary/saved-vocabulary";
 import { getChunkCandidate } from "./chunk-candidate";
 import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
 
@@ -121,6 +121,7 @@ export type WebpageLookupModuleEvent =
       y: number;
       response: TranslateMessageResponse;
       saveAction: SaveActionState;
+      seenBefore?: true;
     }
   | {
       type: "render-error";
@@ -132,6 +133,9 @@ export type WebpageLookupModuleEvent =
   | {
       type: "save-state-changed";
       saveAction: SaveActionState;
+    }
+  | {
+      type: "show-seen-before";
     }
   | {
       type: "hide-tooltip";
@@ -151,6 +155,8 @@ export type TranslationTransport = {
     requests: RuntimeSaveVocabularyRequest[],
   ): Promise<RuntimeSaveVocabularyBatchResponse>;
   saveLearningItem?(input: CreateOrMergeLearningItemInput): Promise<{ ok: boolean; error?: string }>;
+  listLearningItems?(): Promise<{ ok: boolean; result?: { items: Array<{ id: string; normalizedDutch: string }> } }>;
+  recordLearningEncounter?(input: { id: string; context: string }): Promise<{ ok: boolean }>;
 };
 
 type StorageChange = {
@@ -301,12 +307,29 @@ export class WebpageLookupModule {
       saveAction,
     });
 
+    if (completedLookup.response.ok) {
+      void this.#recordEncounter(requestId, input.text, input.pageContext).then((seenBefore) => {
+        if (seenBefore && this.#session.isCurrent(requestId)) this.#emit({ type: "show-seen-before" });
+      });
+    }
+
     if (saveAction.status === "checking") {
       void this.#refreshCurrentSaveState();
     }
 
     if (this.#deps.getSettings().autoSaveSelectedWords && saveAction.status !== "hidden") {
       void this.#autoSaveCurrentSelection();
+    }
+  }
+
+  async #recordEncounter(requestId: number, text: string, context: string | null | undefined): Promise<boolean> {
+    if (!context || !this.#deps.transport.listLearningItems || !this.#deps.transport.recordLearningEncounter) return false;
+    try {
+      const response = await this.#deps.transport.listLearningItems();
+      const item = response.ok ? response.result?.items.find((candidate) => candidate.normalizedDutch === normalizeSavedVocabularyText(text)) : undefined;
+      return item && this.#session.isCurrent(requestId) ? (await this.#deps.transport.recordLearningEncounter({ id: item.id, context })).ok : false;
+    } catch {
+      return false;
     }
   }
 

@@ -106,6 +106,11 @@ function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
     return;
   }
 
+  if (event.type === "show-seen-before") {
+    tooltipView.showSeenBefore();
+    return;
+  }
+
   hideTooltip();
 }
 

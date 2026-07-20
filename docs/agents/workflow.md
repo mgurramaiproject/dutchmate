@@ -71,6 +71,7 @@ When implementing an issue:
 - Test behavior at stable public seams, and update the issue or ticket acceptance checklist as each requirement is completed.
 - Before committing, run the focused checks, typecheck, full relevant suite, and build or packaging checks required by the change.
 - Review the diff against the pre-work baseline, run the repository's whitespace checks, and commit the implementation together with its documentation updates.
+- Use commit subjects in the form `<type>: <ticket-id> <branch-codename>: <summary>`; for example, `feat: T03 learnloop: record deliberate encounters`.
 - Finish with a clean worktree and report any checks or external actions that could not be completed.
 
 ## Status Rules
