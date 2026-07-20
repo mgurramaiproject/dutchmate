@@ -244,10 +244,10 @@ Mini-lesson catalog/content, personalized scheduling controls, typed answers, sp
 
 ### Verification
 
-- [ ] Catalog-validator tests cover every structural rule and representative malformed fixtures.
+- [x] Catalog-validator tests cover every structural rule and representative malformed fixtures.
 - [x] Background tests cover atomic keep, canonical merge, lesson provenance, and unchanged storage after failure.
-- [ ] Popup tests cover navigation and all four stages, helper reveal, shared practice controls, selection, keep success/failure, and exit.
-- [ ] Rendered keyboard, focus, reduced-motion, and narrow-popup checks pass.
+- [x] Popup tests cover navigation and all four stages, helper reveal, shared practice controls, selection, keep success/failure, and exit.
+- [x] Rendered keyboard, focus, reduced-motion, and narrow-popup checks pass.
 - [x] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
 
 ### Not in this ticket

@@ -164,6 +164,7 @@ async function validatePopupStyles(distDir, html) {
       ["height:600px;", "fixed popup height"],
       ["height:496px;overflow-y:auto;", "scrollable popup content"],
       ["button:focus-visible", "visible keyboard focus"],
+      ["@media(prefers-reduced-motion:reduce)", "reduced-motion"],
     ]) {
       if (!css.includes(rule)) {
         errors.push(`Popup is missing the ${label} style.`);

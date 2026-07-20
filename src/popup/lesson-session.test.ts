@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advanceLessonStage, createLessonSession, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, toggleLessonCandidate } from "./lesson-session";
+import { advanceLessonPractice, advanceLessonStage, createLessonSession, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, toggleLessonCandidate } from "./lesson-session";
 import { appointmentLesson, lessonCatalog } from "../lessons/catalog";
 
 describe("lesson session", () => {
@@ -32,5 +32,27 @@ describe("lesson session", () => {
     expect(read.lesson.lines.every((line) => line.dutch.length > 0 && line.english.length > 0 && line.telugu.length > 0)).toBe(true);
     expect(getLessonCandidateChoices(read, []).map((candidate) => candidate.id)).toEqual(lesson.candidates.map((candidate) => candidate.id));
     expect(replay).toMatchObject({ lesson, stage: "replay" });
+  });
+
+  it("supports the complete representative lesson flow without typing", () => {
+    const read = revealLessonLine(createLessonSession(appointmentLesson), 0);
+    const notice = advanceLessonStage(read);
+    const practise = advanceLessonStage(notice);
+    const revealedFirstPractice = revealLessonPractice(practise);
+    const secondPractice = advanceLessonPractice(revealedFirstPractice, "got-it");
+    const thirdPractice = advanceLessonPractice(revealLessonPractice(secondPractice), "again");
+    const replay = advanceLessonPractice(revealLessonPractice(thirdPractice), "got-it");
+    const keep = advanceLessonStage(replay);
+
+    expect(read.revealedLineIndexes).toEqual([0]);
+    expect(notice.stage).toBe("notice");
+    expect(practise).toMatchObject({ stage: "practise", practiceRevealed: false });
+    expect(revealedFirstPractice.practiceRevealed).toBe(true);
+    expect(replay).toMatchObject({ stage: "replay", practiceEvidence: [
+      { candidateId: "ik-wil-graag", dimension: "recognition", result: "got-it" },
+      { candidateId: "afspraak-maken", dimension: "recall", result: "again" },
+      { candidateId: "als-het-kan", dimension: "recognition", result: "got-it" },
+    ] });
+    expect(getLessonCandidateChoices(keep, []).map((candidate) => candidate.checked)).toEqual([true, true, true, true]);
   });
 });
