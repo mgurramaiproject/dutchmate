@@ -1,9 +1,11 @@
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import type { SavedVocabularyEntry } from "../vocabulary/saved-vocabulary";
+import type { CreateOrMergeLearningItemInput, LearningItem } from "../vocabulary/learning-record";
 
 const SAVE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.save";
 const SAVE_VOCABULARY_BATCH_MESSAGE = "hoverTranslate.vocabulary.saveBatch";
 const LIST_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.list";
+const LEARNING_CREATE_OR_MERGE_MESSAGE = "dutchmate.learning.createOrMerge";
 const DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS = 7000;
 
 export type RuntimeVocabularyExtensionApi = {
@@ -64,12 +66,20 @@ export type RuntimeListVocabularyResponse =
       ok: true;
       result: {
         entries: SavedVocabularyEntry[];
-      };
+  };
+
     }
   | {
       ok: false;
       error: string;
     };
+
+export type RuntimeLearningSaveResponse = { ok: true; result: { item: LearningItem } } | { ok: false; error: string };
+
+export function requestRuntimeCreateLearningItem(api: RuntimeVocabularyExtensionApi | undefined, payload: CreateOrMergeLearningItemInput, timeoutMs = DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS): Promise<RuntimeLearningSaveResponse> {
+  if (!api) return Promise.resolve({ ok: false, error: "Extension runtime is unavailable." });
+  return new Promise((resolve) => { let settled = false; const finish = (response: RuntimeLearningSaveResponse) => { if (!settled) { settled = true; globalThis.clearTimeout(timeout); resolve(response); } }; const timeout = globalThis.setTimeout(() => finish({ ok: false, error: "Learning save timed out before the extension background worker responded." }), timeoutMs); api.runtime.sendMessage({ type: LEARNING_CREATE_OR_MERGE_MESSAGE, payload }, (response) => { if (api.runtime.lastError) return finish({ ok: false, error: api.runtime.lastError.message ?? "Learning save failed." }); if (typeof response === "object" && response !== null && "ok" in response && response.ok === true && "result" in response && typeof response.result === "object" && response.result !== null && "item" in response.result) return finish(response as RuntimeLearningSaveResponse); finish({ ok: false, error: "No learning save response received." }); }); });
+}
 
 export function requestRuntimeSaveVocabulary(
   extensionApi: RuntimeVocabularyExtensionApi | undefined,

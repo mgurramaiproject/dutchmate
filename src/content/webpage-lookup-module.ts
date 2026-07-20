@@ -9,6 +9,8 @@ import type {
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import type { ExtensionSettings } from "../shared/settings";
 import { getSavedVocabularyEntryId } from "../vocabulary/saved-vocabulary";
+import { getChunkCandidate } from "./chunk-candidate";
+import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
 
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
 const mvpLanguages = [
@@ -97,7 +99,7 @@ export type WebpageLookupInput = {
 export type SaveActionState =
   | { status: "hidden" }
   | { status: "checking"; label: "Checking..."; disabled: true }
-  | { status: "ready"; label: "Save"; disabled: false }
+  | { status: "ready"; label: "Save" | "Review & save"; disabled: false }
   | { status: "already-saved"; label: "Already saved"; disabled: true }
   | { status: "saving"; label: "Saving..."; disabled: true }
   | { status: "saved"; label: "Saved"; disabled: true }
@@ -148,6 +150,7 @@ export type TranslationTransport = {
   saveVocabularyBatch(
     requests: RuntimeSaveVocabularyRequest[],
   ): Promise<RuntimeSaveVocabularyBatchResponse>;
+  saveLearningItem?(input: CreateOrMergeLearningItemInput): Promise<{ ok: boolean; error?: string }>;
 };
 
 type StorageChange = {
@@ -170,6 +173,7 @@ export class WebpageLookupModule {
   #savedVocabularyIdsRequest: Promise<Set<string> | undefined> | undefined;
   #currentSaveCandidates: RuntimeSaveVocabularyRequest[] = [];
   #currentSaveCandidateIds: string[] = [];
+  #currentChunk: CreateOrMergeLearningItemInput | null = null;
 
   constructor(dependencies: WebpageLookupModuleDependencies) {
     this.#deps = dependencies;
@@ -225,6 +229,7 @@ export class WebpageLookupModule {
     this.#session.clear();
     this.#currentSaveCandidates = [];
     this.#currentSaveCandidateIds = [];
+    this.#currentChunk = null;
     this.#emit({ type: "hide-tooltip" });
   }
 
@@ -277,10 +282,14 @@ export class WebpageLookupModule {
     }
 
     this.#currentSaveCandidates = completedLookup.saveCandidates;
+    const chunk = input.context === "selection" ? getChunkCandidate(input.text) : null;
+    if (chunk && completedLookup.response.ok) {
+      this.#currentChunk = { dutch: chunk.normalizedDutch, kind: "chunk", source: "webpage", context: input.pageContext, english: completedLookup.response.result.translatedText };
+    }
     this.#currentSaveCandidateIds = completedLookup.saveCandidates.map((candidate) =>
       getSavedVocabularyEntryId(candidate),
     );
-    const saveAction = this.#getSaveActionState();
+    const saveAction: SaveActionState = this.#currentChunk ? { status: "ready", label: "Review & save", disabled: false } : this.#getSaveActionState();
 
     this.#emit({
       type: "render-result",
@@ -301,6 +310,13 @@ export class WebpageLookupModule {
   }
 
   async handleSaveAction(): Promise<void> {
+    if (this.#currentChunk) {
+      const response = this.#deps.transport.saveLearningItem
+        ? await this.#deps.transport.saveLearningItem(this.#currentChunk)
+        : { ok: false, error: "Learning save is unavailable." };
+      this.#emit({ type: "save-state-changed", saveAction: response.ok ? { status: "saved", label: "Saved", disabled: true } : { status: "retry", label: "Try again", disabled: false, title: response.error ?? "Learning item could not be saved." } });
+      return;
+    }
     if (this.#currentSaveCandidates.length === 0) {
       return;
     }

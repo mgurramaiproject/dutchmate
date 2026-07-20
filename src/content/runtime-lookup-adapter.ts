@@ -4,10 +4,12 @@ import { requestRuntimeTranslation, type RuntimeTranslationExtensionApi } from "
 import {
   requestRuntimeSavedVocabularyList,
   requestRuntimeSaveVocabularyBatch,
+  requestRuntimeCreateLearningItem,
   type RuntimeSaveVocabularyBatchResponse,
   type RuntimeSaveVocabularyRequest,
   type RuntimeVocabularyExtensionApi,
 } from "./runtime-vocabulary-client";
+import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import type { ExtensionSettings } from "../shared/settings";
 import {
@@ -51,6 +53,7 @@ export function createRuntimeLookupAdapter(
   saveVocabularyBatch(
     requests: RuntimeSaveVocabularyRequest[],
   ): Promise<RuntimeSaveVocabularyBatchResponse>;
+  saveLearningItem(input: CreateOrMergeLearningItemInput): ReturnType<typeof requestRuntimeCreateLearningItem>;
 } {
   let directTranslationCache: PersistentTranslationCache | undefined;
 
@@ -98,6 +101,9 @@ export function createRuntimeLookupAdapter(
 
     saveVocabularyBatch(requests) {
       return requestRuntimeSaveVocabularyBatch(dependencies.extensionApi, requests);
+    },
+    saveLearningItem(input) {
+      return requestRuntimeCreateLearningItem(dependencies.extensionApi, input);
     },
   };
 }
