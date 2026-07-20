@@ -20,9 +20,15 @@ describe("lesson catalog", () => {
       "A1 · Mijn trein is vertraagd",
       "A1 · Een afspraak maken",
       "A1 · Ik heb last van…",
+      "A1 · Er is iets kapot",
+      "A1 · Ik ben beschikbaar op…",
+      "A1 · Wat moet ik meenemen?",
+      "A2 · Wat staat er in deze brief?",
     ]);
     expect(starterLessons.filter((lesson) => lesson.id === appointmentLesson.id)).toHaveLength(1);
-    expect(starterLessons.every((lesson) => lesson.lines.filter((line) => line.dutch.toLocaleLowerCase().includes(lesson.patternText.toLocaleLowerCase())).length >= 2)).toBe(true);
+    expect(starterLessons.filter((lesson) => lesson.order >= 9).map((lesson) => [lesson.id, lesson.lines.filter((line) => line.dutch.toLocaleLowerCase().includes(lesson.patternText.toLocaleLowerCase())).length])).toEqual([
+      ["a1-er-is-iets-kapot", 2], ["a1-ik-ben-beschikbaar-op", 2], ["a1-wat-moet-ik-meenemen", 3], ["a2-wat-staat-er-in-deze-brief", 2],
+    ]);
     expect(starterLessons.every((lesson) => lesson.lines.every((line) => line.dutch && line.english && line.telugu))).toBe(true);
     expect(starterLessons.every((lesson) => lesson.candidates.length >= 3 && lesson.candidates.length <= 5)).toBe(true);
     expect(starterLessons.every((lesson) => lesson.review.dutch && lesson.review.english && lesson.review.telugu && lesson.review.cefr && lesson.review.cultural && lesson.review.practicalUse)).toBe(true);
