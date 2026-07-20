@@ -40,4 +40,75 @@ describe("lesson catalog", () => {
     invalid.lessons.find((lesson) => lesson.id === appointmentLesson.id)!.contentVersion = 0;
     expect(validateLessonCatalog(invalid)).toContain("a1-een-afspraak-maken.contentVersion: expected positive content version");
   });
+
+  it("reports every malformed metadata field with the lesson identifier", () => {
+    const invalid = structuredClone(lessonCatalog);
+    invalid.version = 2 as never;
+    const appointment = invalid.lessons.find((lesson) => lesson.id === appointmentLesson.id)!;
+    appointment.id = "not a stable id";
+    appointment.contentVersion = 0;
+    appointment.pathway = "";
+    appointment.order = 0;
+    appointment.cefr = "B1" as never;
+    appointment.title = "Appointment";
+    appointment.durationMinutes = 2;
+
+    expect(validateLessonCatalog(invalid)).toEqual(expect.arrayContaining([
+      "catalog.version: unsupported version",
+      "not a stable id.id: expected unique stable kebab-case identifier",
+      "not a stable id.contentVersion: expected positive content version",
+      "not a stable id.pathway: expected pathway with unique order",
+      "not a stable id.order: expected positive order",
+      "not a stable id.cefr: expected A0, A1, or A2 CEFR level",
+      "not a stable id.title: expected CEFR-prefixed title",
+      "not a stable id.durationMinutes: expected 3 to 5 minutes",
+    ]));
+  });
+
+  it("reports every malformed story, candidate, practice, and review field", () => {
+    const invalid = structuredClone(lessonCatalog);
+    const appointment = invalid.lessons.find((lesson) => lesson.id === appointmentLesson.id)!;
+    appointment.lines = appointment.lines.slice(0, 3);
+    appointment.lines[0].english = "";
+    appointment.patternText = "missing pattern";
+    appointment.candidates = appointment.candidates.slice(0, 2);
+    appointment.practice = [{ candidateId: "missing", dimension: "recognition" }];
+    appointment.review.english = false as never;
+
+    expect(validateLessonCatalog(invalid)).toEqual(expect.arrayContaining([
+      "a1-een-afspraak-maken.lines: expected 4 to 6 lines",
+      "a1-een-afspraak-maken.lines: expected 35 to 60 Dutch words",
+      "a1-een-afspraak-maken.lineHelp: expected Dutch, English, and Telugu for every line",
+      "a1-een-afspraak-maken.pattern: expected one story-grounded explained practical pattern",
+      "a1-een-afspraak-maken.candidates: expected 3 to 5 candidates",
+      "a1-een-afspraak-maken.practice: expected prompts for lesson candidates",
+      "a1-een-afspraak-maken.review: expected recorded Dutch, English, Telugu, CEFR, cultural, and practical-use review",
+    ]));
+  });
+
+  it("rejects duplicate pathway positions and malformed candidate identities", () => {
+    const invalid = structuredClone(lessonCatalog);
+    const appointment = invalid.lessons.find((lesson) => lesson.id === appointmentLesson.id)!;
+    appointment.pathway = "first-conversations";
+    appointment.order = 1;
+    appointment.candidates[0].id = "not a candidate id";
+
+    expect(validateLessonCatalog(invalid)).toEqual(expect.arrayContaining([
+      "a1-een-afspraak-maken.pathway: expected pathway with unique order",
+      "a1-een-afspraak-maken.candidates: expected unique trilingual candidates",
+    ]));
+  });
+
+  it.each([
+    ["duplicate candidate IDs", (lesson: typeof appointmentLesson) => { lesson.candidates[1].id = lesson.candidates[0].id; }, "candidates: expected unique trilingual candidates"],
+    ["missing candidate helper text", (lesson: typeof appointmentLesson) => { lesson.candidates[0].telugu = ""; }, "candidates: expected unique trilingual candidates"],
+    ["unsupported candidate kinds", (lesson: typeof appointmentLesson) => { lesson.candidates[0].kind = "phrase" as never; }, "candidates: expected unique trilingual candidates"],
+    ["unsupported practice dimensions", (lesson: typeof appointmentLesson) => { lesson.practice[0].dimension = "typing" as never; }, "practice: expected prompts for lesson candidates"],
+  ])("rejects %s", (_label, mutate, expectedError) => {
+    const invalid = structuredClone(lessonCatalog);
+    const appointment = invalid.lessons.find((lesson) => lesson.id === appointmentLesson.id)!;
+    mutate(appointment);
+
+    expect(validateLessonCatalog(invalid)).toContain(`a1-een-afspraak-maken.${expectedError}`);
+  });
 });
