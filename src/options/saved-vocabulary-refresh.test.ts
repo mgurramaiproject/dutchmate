@@ -45,6 +45,10 @@ describe("shouldRefreshSavedVocabulary", () => {
     ).toBe(true);
   });
 
+  it("refreshes when canonical learning items change", () => {
+    expect(shouldRefreshSavedVocabulary({ "dutchmate.learningRecord.v2": { newValue: {} } }, "local")).toBe(true);
+  });
+
   it("ignores saved vocabulary changes outside local storage", () => {
     expect(
       shouldRefreshSavedVocabulary(

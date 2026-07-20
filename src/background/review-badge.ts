@@ -1,7 +1,5 @@
-import type { ReviewCardSummary } from "../vocabulary/review-cards";
-
 export type ReviewBadgeProvider = {
-  summary(): Promise<ReviewCardSummary>;
+  summary(): Promise<{ due: number }>;
 };
 
 export type ReviewBadgeExtensionApi = {

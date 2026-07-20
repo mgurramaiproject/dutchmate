@@ -17,6 +17,7 @@ export type HoverLookupInput = {
   end: number;
   sourceLanguageHint?: MvpLanguageCode;
   languageSample: string;
+  pageContext: string;
 };
 
 export type SelectionLookupInput =
@@ -69,6 +70,7 @@ export function getHoverLookupInput(
     end: match.end,
     sourceLanguageHint: getLanguageHintForNode(textNode),
     languageSample: text,
+    pageContext: getSentenceContext(text, match.start, match.end),
   };
 }
 

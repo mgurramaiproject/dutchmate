@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { updateReviewBadge, type ReviewBadgeProvider } from "./review-badge";
 import { ReviewCardStore } from "../vocabulary/review-cards";
 import { SavedVocabularyStore, type SavedVocabularyStorage } from "../vocabulary/saved-vocabulary";
+import { LearningRecordStore } from "../vocabulary/learning-record";
 
 describe("updateReviewBadge", () => {
   it("shows the reviewed due count", async () => {
@@ -61,6 +62,17 @@ describe("updateReviewBadge", () => {
 
     expect(setBadgeText).toHaveBeenNthCalledWith(1, { text: "" });
     expect(setBadgeText).toHaveBeenNthCalledWith(2, { text: "1" });
+  });
+
+  it("counts an item with recall-only work due", async () => {
+    const now = 2_000;
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => now);
+    const item = await records.createOrMerge({ dutch: "huis", english: "house" });
+    await storage.set("dutchmate.learningRecord.v2", { version: 2, items: { [item.id]: { ...item, recall: { ...item.recall, attemptCount: 1, dueAt: now } } }, lessonProgress: {}, rhythm: {} });
+    const setBadgeText = vi.fn(async () => undefined);
+    await updateReviewBadge({ action: { setBadgeText } }, records);
+    expect(setBadgeText).toHaveBeenCalledWith({ text: "1" });
   });
 });
 

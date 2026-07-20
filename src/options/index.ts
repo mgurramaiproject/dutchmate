@@ -18,11 +18,12 @@ import {
 import { MVP_LANGUAGES, getMvpLanguageCode, getSourceLanguageCode } from "../shared/languages";
 import { getCachedWordCount } from "./cache-summary";
 import { PERSISTENT_TRANSLATION_CACHE_KEY, shouldRefreshCacheCount } from "./cache-refresh";
-import { createReviewClient } from "../popup/review-client";
+import { createLearningClient } from "../popup/learning-client";
 import { createSettingsClient } from "../popup/settings-client";
 import { serializeVocabularyBackup } from "../vocabulary/vocabulary-backup";
 import { shouldRefreshSavedVocabulary, type StorageChange } from "./saved-vocabulary-refresh";
-import type { ReviewCard } from "../vocabulary/review-cards";
+import type { LearningItem } from "../vocabulary/learning-record";
+import { getVocabularyItemView } from "./vocabulary-item-view";
 import "./styles.css";
 
 const MANUAL_REFRESH_MIN_BUSY_MS = 450;
@@ -65,7 +66,7 @@ const clearVocabulary = document.querySelector<HTMLButtonElement>("#clear-vocabu
 const status = document.querySelector<HTMLParagraphElement>("#status");
 let statusTimer: number | undefined;
 let currentLanguageRoles: LanguageRoleSettings = normalizeLanguageRoles(undefined);
-const reviewClient = createReviewClient(browser);
+const learningClient = createLearningClient(browser);
 const settingsClient = createSettingsClient(browser);
 
 renderAdvancedLocalTesting();
@@ -339,8 +340,8 @@ async function refreshSavedVocabulary(options: { showSuccessStatus?: boolean } =
     : Promise.resolve();
 
   try {
-    const [cards] = await Promise.all([reviewClient.getAllQueue(), minimumBusyTime]);
-    renderSavedVocabulary(cards);
+    const [items] = await Promise.all([learningClient.list(), minimumBusyTime]);
+    renderSavedVocabulary(items);
 
     if (options.showSuccessStatus) {
       showStatus("Saved vocabulary refreshed", "success");
@@ -392,27 +393,28 @@ function setRefreshVocabularyButtonBusy(isBusy: boolean): void {
   refreshVocabulary.classList.toggle("is-busy", isBusy);
 }
 
-function renderSavedVocabulary(cards: ReviewCard[]): void {
+function renderSavedVocabulary(items: LearningItem[]): void {
   if (!vocabularyCount || !vocabularyEmpty || !vocabularyList || !vocabularyListBody) {
     return;
   }
 
-  const newestFirst = [...cards].sort((first, second) => second.createdAt - first.createdAt);
-  vocabularyCount.textContent = `Saved words: ${newestFirst.length}`;
+  const newestFirst = [...items].sort((first, second) => second.createdAt - first.createdAt);
+  vocabularyCount.textContent = `Saved items: ${newestFirst.length}`;
   vocabularyEmpty.hidden = newestFirst.length > 0;
   vocabularyList.hidden = newestFirst.length === 0;
   vocabularyListBody.replaceChildren(...newestFirst.map(createVocabularyListRow));
 }
 
-function createVocabularyListRow(card: ReviewCard): HTMLTableRowElement {
-  const item = document.createElement("tr");
-  item.className = "vocabulary-item";
+function createVocabularyListRow(item: LearningItem): HTMLTableRowElement {
+  const view = getVocabularyItemView(item);
+  const row = document.createElement("tr");
+  row.className = "vocabulary-item";
 
-  item.append(
-    createVocabularyCell(card.dutch, true),
-    createVocabularyCell(card.english, false),
-    createVocabularyCell(card.telugu, false),
-    createVocabularyCell(getLanguageLabel(card.originalLanguage ?? "nl"), false, "vocabulary-origin"),
+  row.append(
+    createVocabularyCell(view.dutch, true),
+    createVocabularyCell(view.english, false),
+    createVocabularyCell(view.telugu, false),
+    createVocabularyCell(view.source, false, "vocabulary-origin"),
   );
 
   const deleteButton = document.createElement("button");
@@ -420,13 +422,13 @@ function createVocabularyListRow(card: ReviewCard): HTMLTableRowElement {
   deleteButton.className = "secondary-button compact-button";
   deleteButton.textContent = "Delete";
   deleteButton.addEventListener("click", () => {
-    void deleteReviewCard(card.id, deleteButton);
+    void deleteLearningItem(item.id, deleteButton);
   });
 
   const deleteCell = document.createElement("td");
   deleteCell.append(deleteButton);
-  item.append(deleteCell);
-  return item;
+  row.append(deleteCell);
+  return row;
 }
 
 function createVocabularyCell(
@@ -443,7 +445,7 @@ function createVocabularyCell(
   return cell;
 }
 
-async function deleteReviewCard(
+async function deleteLearningItem(
   id: string,
   deleteButton: HTMLButtonElement,
 ): Promise<void> {
@@ -451,9 +453,9 @@ async function deleteReviewCard(
   deleteButton.textContent = "Deleting...";
 
   try {
-    await reviewClient.deleteCard(id);
+    await learningClient.delete(id);
     await refreshSavedVocabulary();
-    showStatus("Saved word deleted", "success");
+    showStatus("Saved item deleted", "success");
   } catch (error) {
     showStatus(
       `Could not delete saved word: ${error instanceof Error ? error.message : "Unknown error"}`,

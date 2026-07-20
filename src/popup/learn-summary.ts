@@ -1,4 +1,5 @@
 import type { ReviewCardSummary } from "../vocabulary/review-cards";
+import type { LearningItem } from "../vocabulary/learning-record";
 
 export type LearnSummaryView = {
   heading: string;
@@ -54,4 +55,17 @@ export function getLearnSummaryView(summary: ReviewCardSummary): LearnSummaryVie
       { label: "Review all words", enabled: summary.total > 0, mode: "all" },
     ],
   };
+}
+
+export function getRecentVocabularyItems(
+  recent: LearnSummaryView["recent"],
+  learningItems: LearningItem[],
+): LearnSummaryView["recent"] {
+  const chunks = learningItems
+    .filter((item) => item.kind === "chunk")
+    .map((item) => ({ dutch: item.dutch, english: item.english ?? "unavailable", telugu: item.telugu ?? "unavailable", createdAt: item.createdAt }));
+  return [...recent.map((item) => ({ ...item, createdAt: 0 })), ...chunks]
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, 3)
+    .map(({ createdAt: _createdAt, ...item }) => item);
 }
