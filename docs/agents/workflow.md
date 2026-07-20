@@ -62,6 +62,14 @@ Important:
 7. Move to `In Review` when the PR is open.
 8. Move to `Done` when the PR is merged and the issue is closed.
 
+### Bundled PRs
+
+A pull request automatically closes only the issues it explicitly links with
+`Closes #N`. When one PR includes completed work for other tickets, reconcile
+each additional ticket after merge: confirm its checklist and verification
+evidence, synchronize the GitHub issue, close it, and update its Delivery
+Status.
+
 ## Implementation Checklist
 
 When implementing an issue:
@@ -110,6 +118,9 @@ When an agent finishes:
 
 - after merge, move `Delivery Status` to `Done`
 - verify the issue is closed
+- verify the custom `Delivery Status` field, rather than inferring status from
+  a board column or GitHub's default `Status` field; the custom field remains
+  authoritative even when both fields show `Done`
 
 If an agent cannot continue:
 
