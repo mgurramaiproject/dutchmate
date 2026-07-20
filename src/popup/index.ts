@@ -6,7 +6,7 @@ import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { LearningItem, LessonProgress } from "../vocabulary/learning-record";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
-import { appointmentLesson } from "../lessons/catalog";
+import { lessonCatalog, type Lesson } from "../lessons/catalog";
 import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonSession } from "./lesson-session";
 import "./styles.css";
 
@@ -23,7 +23,7 @@ let snapshot: DailyFiveSnapshot | null = null;
 let settings: ExtensionSettings = defaultSettings;
 let screen: "today" | "lessons" | "lesson" | "review" | "settings" = "today";
 let lessonSession: LessonSession | null = null;
-let lessonProgress: LessonProgress | null = null;
+let lessonProgressById: Record<string, LessonProgress | null> = {};
 let lessonsError: string | null = null;
 let revealed = false;
 let pending = false;
@@ -36,7 +36,10 @@ void load();
 async function load(continueAfterCompletion = false): Promise<void> {
   try {
     [items, snapshot, settings] = await Promise.all([learningClient.list(), learningClient.getDailyFive(continueAfterCompletion), settingsClient.getSettings()]);
-    try { lessonProgress = await learningClient.getLessonProgress(appointmentLesson.id); lessonsError = null; } catch (error) { lessonsError = error instanceof Error ? error.message : "Lessons are unavailable."; }
+    try {
+      lessonProgressById = Object.fromEntries(await Promise.all(lessonCatalog.lessons.map(async (lesson) => [lesson.id, await learningClient.getLessonProgress(lesson.id)] as const)));
+      lessonsError = null;
+    } catch (error) { lessonsError = error instanceof Error ? error.message : "Lessons are unavailable."; }
     render();
   } catch (error) {
     renderError(error instanceof Error ? error.message : "Today is unavailable.");
@@ -86,12 +89,16 @@ function renderLessons(): HTMLElement {
   wrapper.append(eyebrow("Lessons"), heading("Practical Dutch, one small story at a time."), text("Bundled and human-reviewed for Dutch, English, and Telugu learners."));
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
-  const lesson = section("lesson-card");
-  lesson.append(text(appointmentLesson.pathway.replaceAll("-", " "), "practice-progress"), heading(appointmentLesson.title), text(`${appointmentLesson.durationMinutes} minutes · ${appointmentLesson.pattern}`));
-  const completedLesson = lessonProgress !== null && lessonProgress.completedAt !== null;
-  if (completedLesson) lesson.append(text("Completed · replay any time without changing saved progress.", "practice-progress"));
-  const start = button(completedLesson ? "Replay lesson" : lessonProgress ? "Resume lesson" : "Start lesson", "button primary-button"); start.addEventListener("click", () => void startLesson()); lesson.append(start);
-  wrapper.append(lesson, localNote()); return wrapper;
+  for (const lessonDefinition of lessonCatalog.lessons) {
+    const lesson = section("lesson-card");
+    const lessonProgress = lessonProgressById[lessonDefinition.id] ?? null;
+    lesson.append(text(lessonDefinition.pathway.replaceAll("-", " "), "practice-progress"), heading(lessonDefinition.title), text(`${lessonDefinition.durationMinutes} minutes · ${lessonDefinition.pattern}`));
+    const completedLesson = lessonProgress?.completedAt !== null && lessonProgress !== null;
+    if (completedLesson) lesson.append(text("Completed · replay any time without changing saved progress.", "practice-progress"));
+    const start = button(completedLesson ? "Replay lesson" : lessonProgress ? "Resume lesson" : "Start lesson", "button primary-button"); start.addEventListener("click", () => void startLesson(lessonDefinition)); lesson.append(start);
+    wrapper.append(lesson);
+  }
+  wrapper.append(localNote()); return wrapper;
 }
 
 function renderLesson(): HTMLElement {
@@ -118,10 +125,10 @@ function renderLessonStory(session: LessonSession, allowHelp: boolean): HTMLElem
 function renderLessonNotice(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Notice"), heading(session.lesson.pattern), text(session.lesson.patternExplanation)); for (const line of session.lesson.lines) { const row = document.createElement("p"); row.className = "story-dutch"; const start = line.dutch.indexOf(session.lesson.patternText); if (start < 0) row.textContent = line.dutch; else { row.append(line.dutch.slice(0, start), highlightedPattern(session.lesson.patternText), line.dutch.slice(start + session.lesson.patternText.length)); } panel.append(row); } const next = button("Practise", "button primary-button"); next.addEventListener("click", () => void advanceLesson(session)); panel.append(next); return panel; }
 function renderLessonPractice(session: LessonSession): HTMLElement { const prompt = session.lesson.practice[session.practiceIndex]; const candidate = session.lesson.candidates.find((item) => item.id === prompt.candidateId)!; const panel = section("practice-card"); panel.append(eyebrow(session.practiceRevealed ? "Answer" : prompt.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.practiceRevealed ? candidate.dutch : prompt.dimension === "recognition" ? candidate.dutch : candidate.english)); if (!session.practiceRevealed) { const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { lessonSession = revealLessonPractice(session); render(); }); panel.append(reveal); } else { panel.append(meaning("Dutch", candidate.dutch), meaning("English", candidate.english), meaning("Telugu", candidate.telugu)); const actions = document.createElement("div"); actions.className = "rating-actions"; for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.addEventListener("click", () => void saveLessonPractice(session, result)); actions.append(action); } panel.append(actions); } return panel; }
 function renderLessonKeep(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Keep"), heading("Choose what to keep for review.")); for (const candidate of getLessonCandidateChoices(session, items)) { const label = document.createElement("label"); label.className = "candidate-choice"; const checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = candidate.checked; checkbox.addEventListener("change", () => { lessonSession = toggleLessonCandidate(session, candidate.id); render(); }); label.append(checkbox, text(candidate.dutch)); if (candidate.alreadySaved) label.append(text("Already saved", "already-saved")); panel.append(label); } const keep = button(`Keep ${session.selectedCandidateIds.length} for review`, "button primary-button"); keep.disabled = pending; keep.addEventListener("click", () => void keepLessonCandidates(session)); panel.append(keep); return panel; }
-async function startLesson(): Promise<void> { try { lessonProgress = await learningClient.getLessonProgress(appointmentLesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(appointmentLesson.id, "read"); lessonSession = resumeLessonSession(appointmentLesson, lessonProgress); screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; screen = "lessons"; render(); } }
-async function advanceLesson(session: LessonSession): Promise<void> { const next = advanceLessonStage(session); pending = true; render(); try { lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
-async function saveLessonPractice(session: LessonSession, result: "again" | "got-it"): Promise<void> { const next = advanceLessonPracticeState(session, result); if (next.stage !== "replay") { lessonSession = next; render(); return; } pending = true; render(); try { lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
-async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonSession = null; screen = "lessons"; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
+async function startLesson(lesson: Lesson): Promise<void> { try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; screen = "lessons"; render(); } }
+async function advanceLesson(session: LessonSession): Promise<void> { const next = advanceLessonStage(session); pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
+async function saveLessonPractice(session: LessonSession, result: "again" | "got-it"): Promise<void> { const next = advanceLessonPracticeState(session, result); if (next.stage !== "replay") { lessonSession = next; render(); return; } pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
+async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; const lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonProgressById = { ...lessonProgressById, [session.lesson.id]: lessonProgress }; lessonSession = null; screen = "lessons"; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
 
 function renderReview(): HTMLElement {
   const wrapper = section("practice-content focused-content");

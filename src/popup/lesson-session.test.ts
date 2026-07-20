@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { advanceLessonStage, createLessonSession, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, toggleLessonCandidate } from "./lesson-session";
-import { appointmentLesson } from "../lessons/catalog";
+import { appointmentLesson, lessonCatalog } from "../lessons/catalog";
 
 describe("lesson session", () => {
   it("moves through Read, Notice, Practise, Replay, and Keep while retaining candidate choice", () => {
@@ -22,5 +22,15 @@ describe("lesson session", () => {
     expect(resumeLessonSession(appointmentLesson, { lessonId: appointmentLesson.id, contentVersion: 1, stage: "keep", completedAt: 0, keptCandidateIds: [], updatedAt: 0 })).toMatchObject({ stage: "read" });
     expect(getLessonCandidateChoices(createLessonSession(appointmentLesson), [{ id: "nl\u001feen afspraak maken" } as never])).toEqual(expect.arrayContaining([expect.objectContaining({ id: "afspraak-maken", alreadySaved: true })]));
     expect(getLessonsAvailabilityView("Lessons are unavailable.")).toEqual({ unavailable: true, message: "Lessons are unavailable.", retryLabel: "Try lessons again" });
+  });
+
+  it.each(lessonCatalog.lessons.filter((lesson) => lesson.order <= 4))("opens $title with helper text, candidates, and replay", (lesson) => {
+    const read = createLessonSession(lesson);
+    const replay = createLessonSession(lesson, "replay");
+
+    expect(read).toMatchObject({ lesson, stage: "read" });
+    expect(read.lesson.lines.every((line) => line.dutch.length > 0 && line.english.length > 0 && line.telugu.length > 0)).toBe(true);
+    expect(getLessonCandidateChoices(read, []).map((candidate) => candidate.id)).toEqual(lesson.candidates.map((candidate) => candidate.id));
+    expect(replay).toMatchObject({ lesson, stage: "replay" });
   });
 });

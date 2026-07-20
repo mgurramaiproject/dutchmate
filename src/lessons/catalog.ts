@@ -11,6 +11,102 @@ export type Lesson = {
 };
 export type LessonCatalog = { version: typeof LESSON_CATALOG_VERSION; lessons: Lesson[] };
 
+export const introductionLesson: Lesson = {
+  id: "a0-hallo-ik-ben", contentVersion: 1, pathway: "first-conversations", order: 1,
+  cefr: "A0", title: "A0 · Hallo, ik ben…", durationMinutes: 3,
+  pattern: "Ik ben…", patternText: "ik ben", patternExplanation: "Use ik ben… to say who you are. Add your name after the phrase.",
+  lines: [
+    { dutch: "Hallo, ik ben Ravi. Ik woon sinds kort in Utrecht.", english: "Hello, I am Ravi. I have lived in Utrecht for a short time.", telugu: "హలో, నేను రవి. నేను ఇటీవలే ఉట్రెహ్ట్‌లో నివసిస్తున్నాను." },
+    { dutch: "Hallo Ravi, ik ben Noor. Leuk je te ontmoeten.", english: "Hello Ravi, I am Noor. Nice to meet you.", telugu: "హలో రవి, నేను నూర్. మిమ్మల్ని కలవడం ఆనందంగా ఉంది." },
+    { dutch: "Leuk je te ontmoeten, Noor. Woon je hier ook?", english: "Nice to meet you, Noor. Do you live here too?", telugu: "మిమ్మల్ని కలవడం ఆనందంగా ఉంది, నూర్. మీరు కూడా ఇక్కడే నివసిస్తున్నారా?" },
+    { dutch: "Ja, ik woon vlakbij. Welkom in de buurt!", english: "Yes, I live nearby. Welcome to the neighbourhood!", telugu: "అవును, నేను దగ్గరలోనే నివసిస్తున్నాను. ఈ పరిసరాలకు స్వాగతం!" },
+  ],
+  candidates: [
+    { id: "ik-ben", dutch: "ik ben", english: "I am", telugu: "నేను", kind: "chunk" },
+    { id: "leuk-je-te-ontmoeten", dutch: "leuk je te ontmoeten", english: "nice to meet you", telugu: "మిమ్మల్ని కలవడం ఆనందంగా ఉంది", kind: "chunk" },
+    { id: "ik-woon", dutch: "ik woon", english: "I live", telugu: "నేను నివసిస్తున్నాను", kind: "chunk" },
+    { id: "vlakbij", dutch: "vlakbij", english: "nearby", telugu: "దగ్గరలో", kind: "word" },
+  ],
+  practice: [
+    { candidateId: "ik-ben", dimension: "recognition" }, { candidateId: "leuk-je-te-ontmoeten", dimension: "recall" },
+    { candidateId: "ik-woon", dimension: "recognition" }, { candidateId: "vlakbij", dimension: "recall" },
+  ],
+  review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+};
+
+export const repetitionLesson: Lesson = {
+  id: "a1-kunt-u-dat-herhalen", contentVersion: 1, pathway: "first-conversations", order: 2,
+  cefr: "A1", title: "A1 · Kunt u dat herhalen?", durationMinutes: 3,
+  pattern: "Kunt u dat herhalen?", patternText: "Kunt u dat herhalen", patternExplanation: "Use Kunt u dat herhalen? as a polite way to ask someone to say something again.",
+  lines: [
+    { dutch: "Sorry, ik begrijp het niet helemaal.", english: "Sorry, I do not understand it completely.", telugu: "క్షమించండి, నాకు అది పూర్తిగా అర్థం కాలేదు." },
+    { dutch: "Geen probleem. Kunt u dat herhalen, alstublieft?", english: "No problem. Could you repeat that, please?", telugu: "సమస్య లేదు. దయచేసి మీరు దాన్ని మళ్లీ చెప్పగలరా?" },
+    { dutch: "Natuurlijk. De trein vertrekt van spoor vier.", english: "Of course. The train leaves from platform four.", telugu: "తప్పకుండా. రైలు నాలుగో ప్లాట్‌ఫారం నుంచి బయలుదేరుతుంది." },
+    { dutch: "Dank u. Kunt u dat herhalen als ik het vergeet?", english: "Thank you. Could you repeat that if I forget it?", telugu: "ధన్యవాదాలు. నేను మర్చిపోతే మీరు దాన్ని మళ్లీ చెప్పగలరా?" },
+    { dutch: "Ja hoor: spoor vier, aan de rechterkant.", english: "Certainly: platform four, on the right-hand side.", telugu: "అవును: నాలుగో ప్లాట్‌ఫారం, కుడి వైపున." },
+  ],
+  candidates: [
+    { id: "kunt-u-dat-herhalen", dutch: "kunt u dat herhalen", english: "could you repeat that", telugu: "మీరు దాన్ని మళ్లీ చెప్పగలరా", kind: "chunk" },
+    { id: "alstublieft", dutch: "alstublieft", english: "please", telugu: "దయచేసి", kind: "word" },
+    { id: "ik-begrijp-het-niet", dutch: "ik begrijp het niet", english: "I do not understand it", telugu: "నాకు అది అర్థం కాదు", kind: "chunk" },
+    { id: "geen-probleem", dutch: "geen probleem", english: "no problem", telugu: "సమస్య లేదు", kind: "chunk" },
+  ],
+  practice: [
+    { candidateId: "kunt-u-dat-herhalen", dimension: "recognition" }, { candidateId: "alstublieft", dimension: "recall" },
+    { candidateId: "ik-begrijp-het-niet", dimension: "recognition" }, { candidateId: "geen-probleem", dimension: "recall" },
+  ],
+  review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+};
+
+export const cafeOrderLesson: Lesson = {
+  id: "a1-ik-wil-graag-bestellen", contentVersion: 1, pathway: "shopping-and-cafes", order: 3,
+  cefr: "A1", title: "A1 · Ik wil graag bestellen", durationMinutes: 4,
+  pattern: "Ik wil graag…", patternText: "Ik wil graag", patternExplanation: "Use Ik wil graag… to order politely. Say what you want after the phrase.",
+  lines: [
+    { dutch: "In het café bekijk ik de kaart.", english: "In the cafe, I look at the menu.", telugu: "కేఫేలో నేను మెనూను చూస్తున్నాను." },
+    { dutch: "Goedemiddag, wat wilt u drinken?", english: "Good afternoon, what would you like to drink?", telugu: "శుభ మధ్యాహ్నం, మీరు ఏమి తాగాలనుకుంటున్నారు?" },
+    { dutch: "Ik wil graag een koffie met melk, alstublieft.", english: "I would like a coffee with milk, please.", telugu: "నాకు పాలతో ఒక కాఫీ కావాలి, దయచేసి." },
+    { dutch: "Natuurlijk. Wilt u er ook iets bij?", english: "Of course. Would you like something with it too?", telugu: "తప్పకుండా. దానితో పాటు ఇంకేమైనా కావాలా?" },
+    { dutch: "Ja, ik wil graag een broodje kaas.", english: "Yes, I would like a cheese roll.", telugu: "అవును, నాకు ఒక చీజ్ రోల్ కావాలి." },
+    { dutch: "Dat komt zo. U kunt straks betalen.", english: "That will come shortly. You can pay in a moment.", telugu: "అది కాసేపట్లో వస్తుంది. మీరు కొద్దిసేపటికి చెల్లించవచ్చు." },
+  ],
+  candidates: [
+    { id: "ik-wil-graag", dutch: "ik wil graag", english: "I would like", telugu: "నాకు కావాలి", kind: "chunk" },
+    { id: "een-koffie-met-melk", dutch: "een koffie met melk", english: "a coffee with milk", telugu: "పాలతో ఒక కాఫీ", kind: "chunk" },
+    { id: "iets-bij", dutch: "iets bij", english: "something with it", telugu: "దానితో పాటు ఇంకేదైనా", kind: "chunk" },
+    { id: "graag", dutch: "graag", english: "please / gladly", telugu: "దయచేసి / ఇష్టంగా", kind: "word" },
+  ],
+  practice: [
+    { candidateId: "ik-wil-graag", dimension: "recognition" }, { candidateId: "een-koffie-met-melk", dimension: "recall" },
+    { candidateId: "iets-bij", dimension: "recognition" }, { candidateId: "graag", dimension: "recall" },
+  ],
+  review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+};
+
+export const cardPaymentLesson: Lesson = {
+  id: "a1-kan-ik-met-pin-betalen", contentVersion: 1, pathway: "shopping-and-cafes", order: 4,
+  cefr: "A1", title: "A1 · Kan ik met pin betalen?", durationMinutes: 3,
+  pattern: "Kan ik met pin betalen?", patternText: "met pin betalen", patternExplanation: "Use Kan ik met pin betalen? to ask whether you can pay by debit card.",
+  lines: [
+    { dutch: "Na het eten vraag ik om de rekening.", english: "After eating, I ask for the bill.", telugu: "తిన్న తర్వాత నేను బిల్లు అడుగుతాను." },
+    { dutch: "Natuurlijk. Wilt u contant of met pin betalen?", english: "Of course. Would you like to pay with cash or by card?", telugu: "తప్పకుండా. మీరు నగదుతో లేదా కార్డుతో చెల్లించాలనుకుంటున్నారా?" },
+    { dutch: "Kan ik met pin betalen? Ik heb geen contant geld.", english: "Can I pay by debit card? I do not have cash.", telugu: "నేను డెబిట్ కార్డుతో చెల్లించవచ్చా? నా దగ్గర నగదు లేదు." },
+    { dutch: "Ja, u kunt met pin betalen. Houd uw pas hier even tegenaan.", english: "Yes, you can pay by debit card. Hold your card against the reader for a moment.", telugu: "అవును, మీరు డెబిట్ కార్డుతో చెల్లించవచ్చు. మీ కార్డును క్షణం ఇక్కడ తాకించండి." },
+    { dutch: "Dank u. De betaling is gelukt.", english: "Thank you. The payment worked.", telugu: "ధన్యవాదాలు. చెల్లింపు విజయవంతమైంది." },
+  ],
+  candidates: [
+    { id: "met-pin-betalen", dutch: "met pin betalen", english: "to pay by debit card", telugu: "డెబిట్ కార్డుతో చెల్లించడం", kind: "chunk" },
+    { id: "contant-geld", dutch: "contant geld", english: "cash", telugu: "నగదు", kind: "chunk" },
+    { id: "de-rekening", dutch: "de rekening", english: "the bill", telugu: "బిల్లు", kind: "word" },
+    { id: "is-gelukt", dutch: "is gelukt", english: "worked", telugu: "విజయవంతమైంది", kind: "chunk" },
+  ],
+  practice: [
+    { candidateId: "met-pin-betalen", dimension: "recognition" }, { candidateId: "contant-geld", dimension: "recall" },
+    { candidateId: "de-rekening", dimension: "recognition" }, { candidateId: "is-gelukt", dimension: "recall" },
+  ],
+  review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+};
+
 export const appointmentLesson: Lesson = {
   id: "a1-een-afspraak-maken", contentVersion: 1, pathway: "appointments-and-healthcare", order: 7,
   cefr: "A1", title: "A1 · Een afspraak maken", durationMinutes: 4,
@@ -36,7 +132,10 @@ export const appointmentLesson: Lesson = {
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
 };
 
-export const lessonCatalog: LessonCatalog = { version: LESSON_CATALOG_VERSION, lessons: [appointmentLesson] };
+export const lessonCatalog: LessonCatalog = {
+  version: LESSON_CATALOG_VERSION,
+  lessons: [introductionLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, appointmentLesson],
+};
 
 export function validateLessonCatalog(catalog: LessonCatalog): string[] {
   const errors: string[] = [];

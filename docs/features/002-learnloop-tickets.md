@@ -310,23 +310,23 @@ Remote content migration, downloadable lesson packs, cross-device progress, cont
 
 ### Acceptance criteria
 
-- [ ] Each lesson follows the checked-in mini-lesson pattern and has a stable ID, pathway, order, content version, CEFR title, and duration.
-- [ ] Each lesson contains one coherent four-to-six-line, 35-to-60-word Dutch story and one naturally reused practical pattern.
-- [ ] Each Dutch line has accurate, clear English and Telugu help.
-- [ ] Each lesson has three to five reusable candidates with stable canonical identities and valid recognition/recall prompts.
-- [ ] Vocabulary and grammar load fit the stated A0 or A1 level.
-- [ ] Situations are credible in the Netherlands, culturally suitable, and useful within days rather than generic tourist trivia.
-- [ ] Replay remains understandable with reduced support.
-- [ ] All four lessons pass the one catalog validator.
-- [ ] Human review explicitly records Dutch accuracy, English meaning, Telugu meaning, CEFR fit, cultural suitability, and practical usefulness.
-- [ ] Any content-review correction is made in the bundled source and covered by validation before completion.
+- [x] Each lesson follows the checked-in mini-lesson pattern and has a stable ID, pathway, order, content version, CEFR title, and duration.
+- [x] Each lesson contains one coherent four-to-six-line, 35-to-60-word Dutch story and one naturally reused practical pattern.
+- [x] Each Dutch line has accurate, clear English and Telugu help.
+- [x] Each lesson has three to five reusable candidates with stable canonical identities and valid recognition/recall prompts.
+- [x] Vocabulary and grammar load fit the stated A0 or A1 level.
+- [x] Situations are credible in the Netherlands, culturally suitable, and useful within days rather than generic tourist trivia.
+- [x] Replay remains understandable with reduced support.
+- [x] All four lessons pass the one catalog validator.
+- [x] Human review explicitly records Dutch accuracy, English meaning, Telugu meaning, CEFR fit, cultural suitability, and practical usefulness.
+- [x] Any content-review correction is made in the bundled source and covered by validation before completion.
 
 ### Verification
 
-- [ ] Validator tests load the real bundled catalog rather than duplicated lesson fixtures.
-- [ ] Focused popup tests sample catalog ordering, opening each lesson, helper availability, candidate rendering, and replay.
-- [ ] `corepack pnpm test` and `corepack pnpm typecheck` pass.
-- [ ] Both browser builds include the validated catalog.
+- [x] Validator tests load the real bundled catalog rather than duplicated lesson fixtures.
+- [x] Focused popup tests sample catalog ordering, opening each lesson, helper availability, candidate rendering, and replay.
+- [x] `corepack pnpm test` and `corepack pnpm typecheck` pass.
+- [x] Both browser builds include the validated catalog.
 
 ### Not in this ticket
 
