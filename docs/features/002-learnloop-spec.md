@@ -235,6 +235,8 @@ Each slice must be independently verified and committed before the next meaningf
 
 The extension continues to use DutchMate's black, white, and orange design system. Dutch micro-story text is the lesson's visual anchor; orange marks only the current pattern or learning item. English and Telugu help remains secondary and revealed on demand. Focused screens avoid decorative illustrations, gradients, confetti, and unrelated rewards.
 
+The accepted popup direction is [Daily Edition with an explicit lesson stage rail](./002-learnloop-approved-popup-design.html), recorded in [ADR 0005](../adr/0005-002-learnloop-daily-edition-uses-lesson-stage-rail.md). Today uses the approved editorial direction A; focused lessons use direction B's equal-width `Read | Notice | Practise | Keep` rail. Top-level `Today | Lessons` navigation disappears during focused review and lesson work, which keeps an explicit Exit action.
+
 ### Artifact family
 
-All feature-specific follow-on artifacts use `002-learnloop` in their filename. The next approved workflow step after this spec is `$to-tickets`, which should create `002-learnloop-tickets.md`. Implementation must not start until the resulting ticket plan is approved.
+All feature-specific follow-on artifacts use `002-learnloop` in their filename. The ticket plan and popup design are approved. Implementation still begins one frontier ticket at a time only after the user approves that ticket.

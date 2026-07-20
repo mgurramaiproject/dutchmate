@@ -6,6 +6,8 @@ Local specification: [002-learnloop-spec.md](./002-learnloop-spec.md)
 
 Lesson contract: [002-learnloop-mini-lesson-pattern.md](./002-learnloop-mini-lesson-pattern.md)
 
+Approved popup design: [002-learnloop-approved-popup-design.html](./002-learnloop-approved-popup-design.html)
+
 Deferred scope: [002-learnloop-feature-parking-lot.md](./002-learnloop-feature-parking-lot.md)
 
 ## Delivery rules
@@ -15,6 +17,7 @@ Deferred scope: [002-learnloop-feature-parking-lot.md](./002-learnloop-feature-p
 - Keep the feature on `feature/002-learnloop` unless the approved delivery workflow establishes a different branch or worktree for an individual ticket.
 - Preserve local-only learning data, the fixed Dutch learning / English bridge / Telugu native-language roles, the no-typing interaction, and the existing black, white, and orange design system.
 - Use the typed background learning contract as the main integration seam, the content capture boundary for webpage behavior, public popup state and view models for UI behavior, one lesson-catalog validator for bundled content, and existing generated-build checks for Chrome and Firefox.
+- Use the approved Daily Edition shell for Today and focused review. Use its explicit `Read | Notice | Practise | Keep` rail for focused lessons; do not retain the exploratory variant switcher or losing layouts.
 - Run focused tests during development. Before completing a ticket, run `corepack pnpm test`, `corepack pnpm typecheck`, and any browser build or release verification named by that ticket.
 - Do not pull parked features into an implementation ticket. In particular, do not add accounts, synchronization, telemetry, typed answers, AI-generated lessons, audio, passive page scanning, full-page highlighting, game economies, or Telugu-as-the-learning-language mode.
 - Commit every meaningful completed slice. Stop at ticket boundaries for approval before starting the next ticket.

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>002-learnloop approved popup design</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --black: #000000;
+        --white: #ffffff;
+        --orange: #ff6f00;
+        --muted: rgba(0, 0, 0, 0.64);
+        --line: rgba(0, 0, 0, 0.18);
+        --soft: rgba(0, 0, 0, 0.05);
+        --serif: Iowan Old Style, "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
+        --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--white); color: var(--black); font-family: var(--sans); }
+      button { color: inherit; font: inherit; cursor: pointer; }
+      button:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+      h1, h2, p { margin: 0; }
+
+      .page {
+        display: grid;
+        grid-template-columns: minmax(280px, 0.72fr) minmax(430px, 1.28fr);
+        gap: 48px;
+        width: min(1080px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 44px 0 72px;
+      }
+      .notes { display: grid; align-content: start; gap: 22px; }
+      .eyebrow, .micro, .screen-name { font-size: 0.68rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
+      .eyebrow { color: var(--orange); }
+      .notes h1 { font-family: var(--serif); font-size: clamp(2.8rem, 6vw, 5.3rem); line-height: 0.98; }
+      .notes > p { color: var(--muted); font-family: var(--serif); font-size: 1.02rem; line-height: 1.55; }
+      .decision { display: grid; gap: 7px; padding: 18px 0; border-top: 4px solid var(--orange); border-bottom: 1px solid var(--black); }
+      .decision h2 { font-family: var(--serif); font-size: 1.65rem; line-height: 1.08; }
+      .decision p { color: var(--muted); font-size: 0.82rem; line-height: 1.45; }
+      .principles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; margin: 0; padding: 0; list-style: none; font-size: 0.74rem; font-weight: 750; }
+      .principles li { min-height: 44px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+      .screens { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .screen-button { min-height: 44px; border: 1px solid var(--black); background: var(--white); font-size: 0.72rem; font-weight: 850; }
+      .screen-button[aria-pressed="true"] { background: var(--orange); }
+      .reference-note { padding-left: 14px; border-left: 3px solid var(--orange); color: var(--muted); font-size: 0.74rem; line-height: 1.45; }
+
+      .stage { display: grid; align-content: start; justify-items: center; gap: 10px; }
+      .screen-name { width: 390px; max-width: 100%; color: var(--muted); }
+      .popup { width: 390px; height: 600px; overflow: hidden; border: 2px solid var(--black); border-radius: 8px; background: var(--white); }
+      .popup button { min-height: 44px; }
+      .header { display: flex; align-items: center; justify-content: space-between; height: 58px; padding: 0 18px; border-bottom: 1px solid var(--black); }
+      .focused .header { border-bottom: 0; }
+      .brand { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 850; }
+      .brand img { width: 28px; height: 28px; border-radius: 6px; }
+      .header-action, .help { border: 0; background: transparent; font-size: 0.68rem; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+      .tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--black); }
+      .tab { border: 0; border-right: 1px solid var(--black); background: var(--white); font-size: 0.68rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
+      .tab:last-child { border-right: 0; }
+      .tab.active { background: var(--black); color: var(--white); }
+      .content { display: grid; align-content: start; gap: 15px; height: 497px; overflow-y: auto; padding: 18px; }
+      .button { width: 100%; min-height: 48px; padding: 10px 14px; border: 1px solid var(--black); background: var(--white); font-size: 0.76rem; font-weight: 850; }
+      .button.primary { background: var(--orange); }
+      .progress { height: 4px; background: rgba(0, 0, 0, 0.12); }
+      .progress span { display: block; height: 100%; background: var(--orange); }
+
+      .today-hero { display: grid; gap: 7px; }
+      .today-hero h2 { font-family: var(--serif); font-size: 2.15rem; line-height: 1.03; }
+      .today-hero h2 span { color: var(--orange); }
+      .today-hero p:last-child { color: var(--muted); font-size: 0.78rem; line-height: 1.4; }
+      .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+      .day { display: grid; place-items: center; gap: 4px; min-height: 43px; border-bottom: 2px solid var(--line); font-size: 0.58rem; font-weight: 800; }
+      .day strong { display: grid; width: 24px; height: 24px; place-items: center; border: 1px solid var(--black); border-radius: 50%; font-size: 0.62rem; }
+      .day.done strong { background: var(--black); color: var(--white); }
+      .day.today { border-bottom-color: var(--orange); }
+      .day.today strong { background: var(--orange); }
+      .daily-five { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 12px; padding: 14px 0; border-top: 1px solid var(--black); border-bottom: 1px solid var(--black); }
+      .daily-five strong { display: block; font-family: var(--serif); font-size: 1.2rem; }
+      .daily-five span { color: var(--muted); font-size: 0.7rem; }
+      .daily-five b { font-family: var(--serif); font-size: 2rem; }
+      .mastery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .mastery div { display: grid; gap: 3px; padding-top: 8px; border-top: 3px solid var(--orange); }
+      .mastery strong { font-family: var(--serif); font-size: 1rem; }
+      .mastery span { color: var(--muted); font-size: 0.65rem; }
+      .continue { display: grid; gap: 3px; padding: 10px 12px; border-left: 3px solid var(--orange); background: var(--soft); }
+      .continue strong { font-family: var(--serif); font-size: 0.95rem; }
+      .continue span { color: var(--muted); font-size: 0.64rem; }
+
+      .focused { display: grid; grid-template-rows: auto auto 1fr auto; height: 100%; }
+      .review-meta { display: flex; justify-content: space-between; padding: 12px 18px 8px; color: var(--muted); }
+      .card { display: grid; align-content: center; gap: 14px; margin: 0 18px; padding: 24px 0; border-top: 1px solid var(--black); border-bottom: 1px solid var(--black); }
+      .card h2 { font-family: var(--serif); font-size: 2.5rem; line-height: 1.05; }
+      .context { padding-left: 12px; border-left: 3px solid var(--orange); font-family: var(--serif); font-size: 0.9rem; line-height: 1.4; }
+      .meaning { display: grid; grid-template-columns: 70px 1fr; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 0.78rem; line-height: 1.35; }
+      .meaning span { color: var(--muted); }
+      .meaning strong { text-align: right; }
+      .ratings { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px 18px 18px; }
+
+      .lesson-rail { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--black); border-bottom: 1px solid var(--black); }
+      .lesson-rail span { display: grid; min-height: 48px; place-items: center; align-content: center; gap: 1px; border-right: 1px solid var(--black); font-size: 0.58rem; font-weight: 850; text-transform: uppercase; }
+      .lesson-rail span:last-child { border-right: 0; }
+      .lesson-rail .active { background: var(--orange); }
+      .lesson-rail .active::after { content: "Now"; font-size: 0.46rem; }
+      .lesson-content { display: grid; align-content: start; gap: 0; overflow-y: auto; padding: 14px 18px 18px; }
+      .lesson-title { display: grid; gap: 4px; padding: 0 0 12px; }
+      .lesson-title h2 { font-family: var(--serif); font-size: 1.55rem; line-height: 1.05; }
+      .story-line { display: grid; grid-template-columns: 28px 1fr; gap: 8px; min-height: 55px; padding: 8px 0; border-top: 1px solid var(--black); }
+      .story-line > span { font-family: var(--serif); font-size: 0.82rem; }
+      .story-line p { font-family: var(--serif); font-size: 0.86rem; line-height: 1.35; }
+      .story-line small { display: block; margin-top: 3px; color: var(--muted); font-size: 0.61rem; }
+      .keep-content { display: grid; align-content: start; overflow-y: auto; padding: 14px 18px 0; }
+      .keep-title { display: grid; gap: 5px; padding-bottom: 12px; border-bottom: 1px solid var(--black); }
+      .keep-title h2 { font-family: var(--serif); font-size: 1.55rem; }
+      .keep-title p { color: var(--muted); font-size: 0.68rem; line-height: 1.4; }
+      .candidate { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; min-height: 53px; border-bottom: 1px solid var(--line); font-size: 0.72rem; }
+      .candidate input { width: 18px; height: 18px; accent-color: var(--orange); }
+      .candidate > span { display: grid; gap: 2px; }
+      .candidate strong { font-family: var(--serif); font-size: 0.94rem; }
+      .candidate small { color: var(--muted); font-size: 0.6rem; }
+      .keep-action { padding: 12px 18px 18px; }
+
+      @media (max-width: 840px) {
+        .page { grid-template-columns: 1fr; justify-items: center; gap: 34px; }
+        .notes { width: min(620px, 100%); }
+      }
+      @media (max-width: 430px) {
+        .page { width: 100%; padding-top: 0; }
+        .notes { padding: 24px 16px 0; }
+        .notes h1 { font-size: 2.8rem; }
+        .stage, .screen-name { width: 100%; }
+        .screen-name { padding-inline: 12px; }
+        .popup { width: 100%; border-right: 0; border-left: 0; border-radius: 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * { scroll-behavior: auto !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Approved design reference, not production code. Switch screens with ?screen=today|review|lesson|keep. -->
+    <main class="page">
+      <section class="notes" aria-labelledby="title">
+        <p class="eyebrow">002-learnloop / accepted design</p>
+        <h1 id="title">Daily Edition, with a lesson rail.</h1>
+        <p>Direction A supplies the calm editorial shell. Direction B contributes only its explicit Read, Notice, Practise, and Keep rail.</p>
+
+        <section class="decision">
+          <p class="eyebrow">Accepted 20 July 2026</p>
+          <h2>One next action on Today. Four visible stages inside a lesson.</h2>
+          <p>Top-level navigation disappears during review and lesson work. Focused screens keep a clear Exit action.</p>
+        </section>
+
+        <ul class="principles">
+          <li>390 × 600 popup</li>
+          <li>Today + Lessons</li>
+          <li>Settings in header</li>
+          <li>Focused flows hide tabs</li>
+          <li>44px minimum targets</li>
+          <li>No typing</li>
+        </ul>
+
+        <nav class="screens" aria-label="Approved design screens">
+          <button class="screen-button" data-screen="today" type="button">Today</button>
+          <button class="screen-button" data-screen="review" type="button">Daily Five</button>
+          <button class="screen-button" data-screen="lesson" type="button">Micro-story</button>
+          <button class="screen-button" data-screen="keep" type="button">Replay + keep</button>
+        </nav>
+
+        <p class="reference-note">This is a design reference, not production code. Implementation must recreate the behavior through the approved popup state and background-contract seams.</p>
+      </section>
+
+      <section class="stage" aria-label="Approved popup design">
+        <p id="screen-name" class="screen-name"></p>
+        <div id="popup" class="popup"></div>
+      </section>
+    </main>
+
+    <script>
+      const names = {
+        today: "Today / Daily Five ready",
+        review: "Focused review / answer revealed",
+        lesson: "Lesson / Read the situation",
+        keep: "Lesson / Replay and keep"
+      };
+      const icon = '<img src="../../public/icons/icon-48.png" alt="" width="28" height="28">';
+      const brand = `<span class="brand">${icon}<span>DutchMate</span></span>`;
+      const story = [
+        ["Goedemorgen. Waarmee kan ik u helpen?", "Good morning. How can I help you?"],
+        ["Ik wil graag een afspraak maken met de huisarts.", "I would like to make an appointment with the GP."],
+        ["Wanneer kunt u langskomen?", "When can you come in?"],
+        ["Dinsdagmiddag, als het kan.", "Tuesday afternoon, if possible."],
+        ["Dinsdag om drie uur is nog vrij.", "Tuesday at three is still available."],
+        ["Dat is goed. Bedankt en tot dinsdag.", "That works. Thank you, see you Tuesday."]
+      ];
+      const candidates = [
+        ["ik wil graag…", "I would like…", "Already saved"],
+        ["de afspraak", "the appointment", "New"],
+        ["een afspraak maken", "make an appointment", "New"],
+        ["als het kan", "if possible", "New"]
+      ];
+
+      function header(focused = false) {
+        return `<header class="header">${brand}<button class="header-action" type="button">${focused ? "Exit" : "Settings"}</button></header>`;
+      }
+
+      function rail(active) {
+        return `<div class="lesson-rail" aria-label="Lesson stages"><span class="${active === 1 ? "active" : ""}">1 Read</span><span class="${active === 2 ? "active" : ""}">2 Notice</span><span class="${active === 3 ? "active" : ""}">3 Practise</span><span class="${active === 4 ? "active" : ""}">4 Keep</span></div>`;
+      }
+
+      function today() {
+        return `${header()}<nav class="tabs" aria-label="Popup sections"><button class="tab active" type="button">Today</button><button class="tab" type="button">Lessons</button></nav><div class="content"><section class="today-hero"><p class="eyebrow">Saturday · Today</p><h2>Five small wins.<br><span>Then keep reading.</span></h2><p>Your next useful action is ready. No choices to configure.</p></section><div class="week" aria-label="Weekly learning rhythm"><span class="day done"><strong>✓</strong>M</span><span class="day done"><strong>✓</strong>T</span><span class="day"><strong>·</strong>W</span><span class="day done"><strong>✓</strong>T</span><span class="day done"><strong>✓</strong>F</span><span class="day today"><strong>5</strong>S</span><span class="day"><strong>·</strong>S</span></div><div class="daily-five"><div><strong>Daily Five</strong><span>5 useful words and chunks</span></div><b>0/5</b></div><button class="button primary" type="button">Start Daily Five</button><div class="mastery"><div><strong>Recognition · Familiar</strong><span>14 items growing steadily</span></div><div><strong>Recall · Learning</strong><span>Your next focus</span></div></div><div class="continue"><span class="micro">Continue lesson</span><strong>A1 · Een afspraak maken</strong><span>Notice the pattern · 3 min left</span></div></div>`;
+      }
+
+      function review() {
+        return `<section class="focused">${header(true)}<div><div class="review-meta"><span class="micro">Recall</span><span class="micro">2 of 5</span></div><div class="progress"><span style="width:40%"></span></div></div><article class="card"><p class="eyebrow">Say it in Dutch</p><p class="context">You are calling the GP. You want to make an appointment.</p><h2>Ik wil graag een afspraak maken.</h2><div class="meaning"><span>English</span><strong>I would like to make an appointment.</strong></div><div class="meaning"><span>Telugu</span><strong>నేను అపాయింట్‌మెంట్ తీసుకోవాలనుకుంటున్నాను.</strong></div></article><div class="ratings"><button class="button" type="button">Again</button><button class="button primary" type="button">Got it</button></div></section>`;
+      }
+
+      function lesson() {
+        return `<section class="focused">${header(true)}${rail(1)}<div class="lesson-content"><section class="lesson-title"><p class="eyebrow">Read · 1 of 4 · 3–5 min</p><h2>A1 · Een afspraak maken</h2></section>${story.map((line, index) => `<div class="story-line"><span>${index + 1}</span><div><p>${line[0]}</p>${index === 1 ? `<small>${line[1]}</small>` : `<button class="help" type="button">Show help</button>`}</div></div>`).join("")}<button class="button primary" type="button">Go to Notice</button></div></section>`;
+      }
+
+      function keep() {
+        return `<section class="focused">${header(true)}${rail(4)}<div class="keep-content"><section class="keep-title"><p class="eyebrow">Replay + keep</p><h2>What should return in Daily Five?</h2><p>Everything is selected. Remove what you do not want to practise.</p></section>${candidates.map(item => `<label class="candidate"><input type="checkbox" checked><span><strong>${item[0]}</strong><small>${item[1]}</small></span><small>${item[2]}</small></label>`).join("")}</div><div class="keep-action"><button class="button primary" type="button">Keep 4 for review</button></div></section>`;
+      }
+
+      const screens = { today, review, lesson, keep };
+
+      function currentScreen() {
+        const screen = new URLSearchParams(location.search).get("screen");
+        return Object.hasOwn(screens, screen) ? screen : "today";
+      }
+
+      function render() {
+        const screen = currentScreen();
+        document.getElementById("popup").innerHTML = screens[screen]();
+        document.getElementById("screen-name").textContent = names[screen];
+        document.querySelectorAll("[data-screen]").forEach(button => {
+          button.setAttribute("aria-pressed", String(button.dataset.screen === screen));
+        });
+      }
+
+      document.querySelectorAll("[data-screen]").forEach(button => {
+        button.addEventListener("click", () => {
+          const params = new URLSearchParams(location.search);
+          params.set("screen", button.dataset.screen);
+          history.replaceState(null, "", `${location.pathname}?${params}`);
+          render();
+        });
+      });
+      addEventListener("popstate", render);
+      render();
+    </script>
+  </body>
+</html>
