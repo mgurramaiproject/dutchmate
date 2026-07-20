@@ -36,6 +36,43 @@ corepack pnpm verify:release
 
 After loading each generated build, confirm that the popup opens on Learn, stays at the fixed 390x600 size while moving between Learn, flashcards, and Settings, and scrolls content inside that frame. Confirm the Learn and Settings tabs can be reached by keyboard, arrow/Home/End keys move focus between tabs, focus is visible, and the layout remains usable at a narrower popup width. Confirm the generated ZIP contains the popup, Options page, background, content script, icons, and browser-specific background declaration.
 
+## LearnLoop Release Checks
+
+Run the complete automated gate from a clean checkout before a browser pass:
+
+```bash
+corepack pnpm test
+corepack pnpm typecheck
+corepack pnpm build:chrome
+corepack pnpm build:firefox
+corepack pnpm verify:release
+git diff --check
+```
+
+The automated suite covers representative legacy migration, version-two backup round trips, version-one backup import, twelve-lesson structural validation, and rendered popup contracts. Inspect each generated `manifest.json` and package result as part of `verify:release`; each browser must include the background worker, content script, popup, Options page, icons, bundled lesson catalog, and its browser-specific background declaration and popup entry point.
+
+The human lesson-content gate is recorded in the completed T05, T07, T08, and T09 ticket acceptance criteria. Together they record Dutch accuracy, English and Telugu meaning, CEFR fit, cultural suitability, and practical usefulness for the twelve shipped lessons; `src/lessons/catalog.test.ts` independently verifies that the published catalog contains exactly those twelve reviewed entries.
+
+For each browser, load the store-ready artifact and record the result in the Verification Log. Check all of the following:
+
+- the popup remains usable at its narrow `390x600` frame; Today is the default, Daily Five starts and completes, Settings is available from its labelled header control, Lessons opens and resumes, and a focused review or lesson flow has a clear exit;
+- keyboard tab order is logical; visible focus, roles and labels, pending and disabled controls, reduced motion, and no horizontal scrolling hold throughout Today, Lessons, Settings, and focused flows;
+- export then import restores learning items, English and Telugu meanings, capped contexts, recognition and recall mastery, lesson progress, and learning rhythm; importing a version-one vocabulary backup also succeeds;
+- representative webpage capture requires confirmation for a chunk, cancellation persists nothing, and a deliberate lookup of an existing item records an encounter without changing mastery.
+
+Use a normal readable Dutch webpage and the local mock endpoint when a deterministic translation response is needed. Do not use a private page for this check.
+
+## Voluntary Learner Validation Protocol
+
+This is a small post-release learning check, not product telemetry or a research claim. Invite a small voluntary cohort of Telugu-speaking adult Dutch learners. Obtain informed agreement, let participants stop without explanation, and collect only the notes they choose to share outside the extension.
+
+1. Ask each participant to use two or more bundled lessons and keep only the words or chunks they want for review.
+2. After an item has reached Familiar or Strong, ask a delayed check at least seven days later: show the Dutch item in a new short context and ask for its meaning or appropriate use without opening DutchMate first.
+3. At a later delayed check, use a short reduced-support version of a practised story: remove most English and Telugu help and ask practical comprehension questions about the situation and the central pattern.
+4. Record voluntary qualitative feedback and the observed delayed-recall/comprehension result per participant. Treat results as directional product evidence, not a statistically generalizable study.
+
+Do not treat review count, lesson completion, time in product, or background analytics as evidence of learning. DutchMate must not add background telemetry, remote identifiers, or automatic study reporting for this protocol.
+
 ## Verification Log
 
 Use this small log after a real browser pass. Keep entries newest first.
@@ -51,6 +88,7 @@ Notes:
 
 Recent entries:
 
+- 2026-07-20 | `4d6359e` + T12 release-documentation worktree | Chrome 149.0.7827.114 and Firefox 152.0.6 on Linux | Codex | Automated pass; interactive browser pass deferred | 460 tests, typecheck, Chrome/Firefox builds, package verification, manifest inspection, ZIP inspection, and whitespace check passed. The remaining interactive popup, keyboard/focus, import/export, and webpage-capture checks need a human browser tester and are listed in LearnLoop Release Checks.
 - 2026-06-21 | `91f518b` | Chrome 0.1.1 production-backed build | MGurram | Pass with notes | Hover and selection translations worked with the default Render backend. Chrome console showed `Extension context invalidated` and `IndexSizeError: Failed to execute 'setEnd' on 'Range'`; behavior still worked, but the range error needs a focused follow-up fix.
 - 2026-06-21 | `91f518b` | Firefox 0.1.1 production-backed build | MGurram | Pass | Hover and selection translations worked as intended.
 - 2026-06-17 | `096aff1` | Chrome production-backed build | MGurram | Pass | After reloading Chrome and reopening the test page, hover/selection translations worked. This verifies the defensive tooltip render fallback fixed the Chrome `Translating...` stall.

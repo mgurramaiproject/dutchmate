@@ -34,4 +34,20 @@ describe("release docs consistency", () => {
 
     expect(releasePlaybook).toContain("soft Firefox launch");
   });
+
+  it("documents LearnLoop's local-data boundary and learner validation", () => {
+    const manualTesting = readRepoFile("docs/release/manual-testing.md");
+    const privacyPolicy = readRepoFile("docs/release/privacy-policy.md");
+    const storeDisclosure = readRepoFile("docs/release/store-disclosure-draft.md");
+    const releaseNotes = readRepoFile("docs/release/notes/v0.3.0.md");
+
+    expect(manualTesting).toContain("## LearnLoop Release Checks");
+    expect(manualTesting).toContain("## Voluntary Learner Validation Protocol");
+    expect(privacyPolicy).toContain("learning items");
+    expect(privacyPolicy).toContain("capped page contexts");
+    expect(privacyPolicy).toContain("lesson progress");
+    expect(storeDisclosure).toContain("learning items");
+    expect(storeDisclosure).toContain("translation cache entries");
+    expect(releaseNotes).toContain("Daily Five");
+  });
 });

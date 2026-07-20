@@ -509,28 +509,28 @@ Deleting support for real legacy upgrades, changing language roles, unrelated ar
 
 ### Acceptance criteria
 
-- [ ] Focused learning tests, the complete regression suite, and typecheck pass from a clean checkout.
-- [ ] Chrome and Firefox builds contain background, content, popup, Options, icons, bundled catalog, correct browser-specific declarations, and correct popup entry points.
-- [ ] Packaged-output verification passes for both browsers and generated manifests are inspected.
+- [x] Focused learning tests, the complete regression suite, and typecheck pass from a clean checkout.
+- [x] Chrome and Firefox builds contain background, content, popup, Options, icons, bundled catalog, correct browser-specific declarations, and correct popup entry points.
+- [x] Packaged-output verification passes for both browsers and generated manifests are inspected.
 - [ ] Manual Chrome and Firefox checks cover narrow popup dimensions, Today, Daily Five, Settings access, Lessons, focused-flow exit, import, and representative webpage capture/encounter behavior.
 - [ ] Keyboard order, visible focus, roles/labels, pending/disabled states, reduced motion, and absence of horizontal scrolling are checked and recorded.
-- [ ] A representative pre-`002-learnloop` storage snapshot migrates without lost meanings or review history.
-- [ ] New-version export/import round-trips the complete learning record and version-one import remains successful.
-- [ ] All twelve lessons pass structural validation and have recorded Dutch, English, Telugu, CEFR, cultural, and practical-use acceptance.
-- [ ] Privacy and store-facing documentation accurately describe local learning items, capped contexts, lesson progress, rhythm, and excluded credentials/cache data.
-- [ ] Manual testing documentation records environments, commit, results, and any consciously deferred browser-only checks.
-- [ ] The post-release learner protocol checks delayed Familiar/Strong retention and reduced-support story comprehension with a small voluntary Telugu-speaking Dutch-learner cohort.
-- [ ] The protocol does not treat review count, lesson completion, time in product, or background analytics as proof of learning.
+- [x] A representative pre-`002-learnloop` storage snapshot migrates without lost meanings or review history.
+- [x] New-version export/import round-trips the complete learning record and version-one import remains successful.
+- [x] All twelve lessons pass structural validation and have recorded Dutch, English, Telugu, CEFR, cultural, and practical-use acceptance.
+- [x] Privacy and store-facing documentation accurately describe local learning items, capped contexts, lesson progress, rhythm, and excluded credentials/cache data.
+- [x] Manual testing documentation records environments, commit, results, and any consciously deferred browser-only checks.
+- [x] The post-release learner protocol checks delayed Familiar/Strong retention and reduced-support story comprehension with a small voluntary Telugu-speaking Dutch-learner cohort.
+- [x] The protocol does not treat review count, lesson completion, time in product, or background analytics as proof of learning.
 - [ ] Any defect found is fixed in the owning ticket's seam or recorded as a separate blocked issue before this ticket completes.
 
 ### Verification commands
 
-- [ ] `corepack pnpm test`
-- [ ] `corepack pnpm typecheck`
-- [ ] `corepack pnpm build:chrome`
-- [ ] `corepack pnpm build:firefox`
-- [ ] `corepack pnpm verify:release`
-- [ ] `git diff --check`
+- [x] `corepack pnpm test`
+- [x] `corepack pnpm typecheck`
+- [x] `corepack pnpm build:chrome`
+- [x] `corepack pnpm build:firefox`
+- [x] `corepack pnpm verify:release`
+- [x] `git diff --check`
 
 ### Not in this ticket
 

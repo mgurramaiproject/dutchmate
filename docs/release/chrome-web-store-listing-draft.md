@@ -1,6 +1,6 @@
 # Chrome Web Store Listing Draft
 
-Last updated: 2026-06-21
+Last updated: 2026-07-20
 
 Use this as working copy for DutchMate's first Chrome Web Store submission. Recheck the Chrome Developer Dashboard fields during submission because field names and limits can change.
 
@@ -51,7 +51,7 @@ It helps you use Dutch, English, and your mother tongue together while reading n
 
 Hover over a word or select a short phrase or sentence to see translations in context. You can choose your learning language, use English as a bridge language, and keep your mother tongue close for meaning.
 
-Selected single-word lookups can be stored locally in your browser to make repeat learning faster. You can also save selected single-word translations locally as vocabulary and manage them from Options. Hovered single-word lookups are stored locally only if you enable hover-word caching in Options. Selected phrases, selected sentences, and failed translations are not stored in the local translation cache.
+Selected single-word lookups can be stored locally in your browser to make repeat learning faster. You can also save selected single-word translations locally as vocabulary and manage them from Options. LearnLoop keeps local learning items, up to three capped contexts per item, recognition and recall mastery, lesson progress, and learning rhythm for Daily Five and bundled lessons. Hovered single-word lookups are stored locally only if you enable hover-word caching in Options. Selected phrases, selected sentences, and failed translations are not stored in the local translation cache.
 
 The product direction is local word collection and spaced-repetition flashcards, using words you choose while browsing.
 
@@ -84,7 +84,7 @@ Likely data types to disclose:
 
 - Website content: hovered words, nearby sentence context, selected words, selected phrases, or selected short sentences from webpages.
 - User activity / interaction data: translation context such as `hover` or `selection`.
-- User settings and local learning data: source language, target language, hover/selection settings, cache/privacy preferences, and saved vocabulary entries stored locally when the user saves them.
+- User settings and local learning data: source language, target language, hover/selection settings, cache/privacy preferences, learning items, capped contexts, mastery, lesson progress, rhythm, and saved vocabulary entries stored locally in the browser.
 
 Do not claim DutchMate collects personally identifiable information, financial information, health information, authentication information, or payment information unless the product behavior changes.
 
@@ -99,7 +99,7 @@ DutchMate uses the text and language settings only to provide the user-facing tr
 ```text
 DutchMate sends translation requests to the DutchMate backend at https://dutchmate-backend.onrender.com. The backend sends the text needed for translation to Google Cloud Translation.
 
-Selected single-word translations can be saved locally as vocabulary when the user chooses. Saved vocabulary is not sent to an account or synced across devices.
+Selected single-word translations can be saved locally as vocabulary when the user chooses. Learning items, capped contexts, mastery, lesson progress, rhythm, and saved vocabulary are not sent to an account or synced across devices. LearnLoop backups exclude provider credentials, translation cache entries, and unrelated extension settings.
 
 DutchMate does not sell user data. DutchMate does not use translated text for advertising. DutchMate does not share translated text with third parties except as needed to provide translations through the configured translation provider, comply with law, or protect the service from abuse.
 ```
