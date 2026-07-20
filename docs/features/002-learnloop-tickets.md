@@ -98,15 +98,15 @@ Meaningful-chunk capture UI, encounter history, Daily Five, new popup navigation
 
 ### Acceptance criteria
 
-- [ ] A chunk candidate has two to eight Unicode word tokens, at most eighty characters, one line, and no sentence-ending punctuation.
-- [ ] Whitespace and Dutch text are normalized before the confirmation is shown and before identity is calculated.
-- [ ] The confirmation distinguishes an unavailable helper meaning from a completed translation.
-- [ ] Confirming creates or enriches exactly one Dutch learning item with webpage provenance and capped local context.
-- [ ] Cancelling or dismissing confirmation creates no learning item, mastery, context, or due work.
-- [ ] Re-saving a canonical match enriches the existing item instead of creating a duplicate.
+- [x] A chunk candidate has two to eight Unicode word tokens, at most eighty characters, one line, and no sentence-ending punctuation.
+- [x] Whitespace and Dutch text are normalized before the confirmation is shown and before identity is calculated.
+- [x] The confirmation distinguishes an unavailable helper meaning from a completed translation.
+- [x] Confirming creates or enriches exactly one Dutch learning item with webpage provenance and capped local context.
+- [x] Cancelling or dismissing confirmation creates no learning item, mastery, context, or due work.
+- [x] Re-saving a canonical match enriches the existing item instead of creating a duplicate.
 - [ ] Overlong, multiline, sentence-like, or otherwise arbitrary selections remain translatable but cannot be saved as learning chunks.
-- [ ] Existing eligible single-word saving still works.
-- [ ] Automatic saving never saves a multiword selection, even when automatic single-word saving is enabled.
+- [x] Existing eligible single-word saving still works.
+- [x] Automatic saving never saves a multiword selection, even when automatic single-word saving is enabled.
 - [ ] The popup and Options vocabulary surfaces can render a saved chunk without assuming that every item is one word.
 - [ ] Capture errors are recoverable and do not leave partial records.
 
@@ -115,9 +115,9 @@ Meaningful-chunk capture UI, encounter history, Daily Five, new popup navigation
 - [ ] Content-boundary tests cover eligible words, eligible chunks, punctuation, Unicode tokens, length limits, whitespace, confirmation, cancellation, missing meanings, duplicate merging, and automatic-save gating.
 - [ ] Background-handler tests prove confirmed chunk persistence and atomic failure behavior.
 - [ ] Popup and Options tests cover rendering and deleting a meaningful chunk.
-- [ ] `corepack pnpm test` passes.
-- [ ] `corepack pnpm typecheck` passes.
-- [ ] Both browser builds pass.
+- [x] `corepack pnpm test` passes.
+- [x] `corepack pnpm typecheck` passes.
+- [x] Both browser builds pass.
 
 ### Not in this ticket
 

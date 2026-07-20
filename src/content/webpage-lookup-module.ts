@@ -284,7 +284,8 @@ export class WebpageLookupModule {
     this.#currentSaveCandidates = completedLookup.saveCandidates;
     const chunk = input.context === "selection" ? getChunkCandidate(input.text) : null;
     if (chunk && completedLookup.response.ok) {
-      this.#currentChunk = { dutch: chunk.normalizedDutch, kind: "chunk", source: "webpage", context: input.pageContext, english: completedLookup.response.result.translatedText };
+      const helpers = getChunkHelpers(completedLookup.response.result.translatedText);
+      this.#currentChunk = { dutch: chunk.normalizedDutch, kind: "chunk", source: "webpage", context: input.pageContext, ...helpers };
     }
     this.#currentSaveCandidateIds = completedLookup.saveCandidates.map((candidate) =>
       getSavedVocabularyEntryId(candidate),
@@ -667,4 +668,9 @@ export class WebpageLookupModule {
       listener(event);
     }
   }
+}
+
+function getChunkHelpers(translatedText: string): Pick<CreateOrMergeLearningItemInput, "english" | "telugu"> {
+  const lines = new Map(translatedText.split("\n").map((line) => { const [label, ...value] = line.split(":"); return [label.trim(), value.join(":").trim()]; }));
+  return { english: lines.get("English") || null, telugu: lines.get("Telugu") || null };
 }
