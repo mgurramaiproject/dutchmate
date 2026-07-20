@@ -116,6 +116,9 @@ When an agent opens a PR:
 
 When an agent finishes:
 
+- own normal delivery through PR merge, issue closure, and Delivery-board
+  reconciliation; stop only for a failed check, missing authority, or a user
+  decision
 - after merge, move `Delivery Status` to `Done`
 - verify the issue is closed
 - verify the custom `Delivery Status` field, rather than inferring status from
