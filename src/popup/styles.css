@@ -47,7 +47,7 @@ button { font: inherit; cursor: pointer; }
 .mastery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .mastery > div { display: grid; gap: 4px; padding: 8px; border-top: 3px solid var(--orange); background: rgba(0, 0, 0, 0.04); }
 .focused-content { gap: 12px; }
-.learn-content, .settings-content { display: grid; align-content: start; gap: 12px; }
+.learn-content, .settings-content, .lessons-content, .lesson-content { display: grid; align-content: start; gap: 12px; }
 .summary-intro, .settings-content { gap: 8px; }
 .eyebrow, .section-title, .stat-label { margin: 0; font-size: 0.7rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
 .eyebrow { color: var(--orange); }
@@ -102,6 +102,18 @@ button { font: inherit; cursor: pointer; }
 .settings-notice { padding: 10px 12px; border-left: 3px solid var(--orange); background: rgba(255, 111, 0, 0.08); }
 .settings-notice.error { border-left-color: var(--black); }
 .error-state { display: grid; align-content: start; gap: 12px; }
+.lesson-card, .lesson-story { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--black); border-top: 5px solid var(--orange); }
+.lesson-rail { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
+.lesson-stage { margin: 0; padding: 6px 2px; border: 1px solid var(--black); font-size: 0.58rem; font-weight: 850; text-align: center; text-transform: uppercase; }
+.lesson-stage.active { background: var(--black); color: var(--white); }
+.story-line { display: grid; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--soft-line); }
+.story-dutch { margin: 0; font-family: var(--serif); font-size: 1rem; line-height: 1.35; }
+.helper-copy { color: var(--muted); }
+.line-help { justify-self: start; min-height: 34px; border: 0; background: transparent; color: var(--black); font-size: 0.7rem; font-weight: 850; text-decoration: underline; }
+.pattern-highlight { background: var(--orange); color: var(--black); }
+.candidate-choice { display: flex; align-items: center; gap: 8px; min-height: 44px; border-bottom: 1px solid var(--soft-line); font-family: var(--serif); }
+.candidate-choice input { width: 18px; height: 18px; accent-color: var(--orange); }
+.already-saved { margin-left: auto; color: var(--muted); font-family: var(--sans); font-size: 0.68rem; }
 button:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
 
 @media (max-width: 360px) {

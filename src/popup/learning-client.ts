@@ -3,11 +3,13 @@ import {
   LEARNING_LIST_MESSAGE,
   LEARNING_DAILY_FIVE_MESSAGE,
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
+  LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
   type LearningMessage,
   type LearningMessageResponse,
 } from "../background/messages";
 import type { LearningItem } from "../vocabulary/learning-record";
 import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../vocabulary/daily-five";
+import type { LessonPracticeEvidence } from "./lesson-session";
 
 export type LearningRuntimeApi = { runtime: { sendMessage(message: LearningMessage): Promise<LearningMessageResponse> } };
 export type LearningClient = {
@@ -15,6 +17,7 @@ export type LearningClient = {
   delete(id: string): Promise<void>;
   getDailyFive(continueAfterCompletion?: boolean): Promise<DailyFiveSnapshot>;
   recordDailyFiveResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult): Promise<{ item: LearningItem; snapshot: DailyFiveSnapshot }>;
+  keepLessonCandidates(lessonId: string, candidateIds: string[], evidence: LessonPracticeEvidence[]): Promise<LearningItem[]>;
 };
 
 export function createLearningClient(extensionApi: LearningRuntimeApi): LearningClient {
@@ -37,6 +40,11 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
       const response = await extensionApi.runtime.sendMessage({ type: LEARNING_DAILY_FIVE_RESULT_MESSAGE, payload: { itemId, dimension, result } });
       if (response.ok && "item" in response.result && "snapshot" in response.result) return response.result;
       throw new Error(response.ok ? "Your result could not be saved." : response.error);
+    },
+    async keepLessonCandidates(lessonId, candidateIds, evidence) {
+      const response = await extensionApi.runtime.sendMessage({ type: LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE, payload: { lessonId, candidateIds, evidence } });
+      if (response.ok && "items" in response.result) return response.result.items;
+      throw new Error(response.ok ? "Lesson candidates could not be kept." : response.error);
     },
   };
 }

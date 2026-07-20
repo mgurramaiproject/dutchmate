@@ -12,7 +12,9 @@ import {
   LEARNING_SUMMARY_MESSAGE,
   LEARNING_DAILY_FIVE_MESSAGE,
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
+  LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
 } from "./messages";
+import { lessonCatalog } from "../lessons/catalog";
 
 export async function handleLearningMessage(message: LearningMessage, store: LearningRecordStore): Promise<LearningMessageResponse> {
   try {
@@ -25,6 +27,15 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
     }
     if (message.type === LEARNING_DAILY_FIVE_MESSAGE) return { ok: true, result: { snapshot: await store.getDailyFive(message.payload?.continueAfterCompletion) } };
     if (message.type === LEARNING_DAILY_FIVE_RESULT_MESSAGE) return { ok: true, result: await store.recordDailyFiveResult(message.payload.itemId, message.payload.dimension, message.payload.result) };
+    if (message.type === LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE) {
+      const lesson = lessonCatalog.lessons.find((candidate) => candidate.id === message.payload.lessonId);
+      if (!lesson || new Set(message.payload.candidateIds).size !== message.payload.candidateIds.length || message.payload.evidence.some((entry) => !message.payload.candidateIds.includes(entry.candidateId))) return { ok: false, error: "Lesson candidates are unavailable." };
+      const candidates = message.payload.candidateIds.map((id) => lesson.candidates.find((candidate) => candidate.id === id));
+      if (candidates.some((candidate) => !candidate)) return { ok: false, error: "Lesson candidates are unavailable." };
+      const selected = candidates.filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== undefined);
+      const evidence = message.payload.evidence.map((entry) => ({ ...entry, dutch: selected.find((candidate) => candidate.id === entry.candidateId)!.dutch }));
+      return { ok: true, result: { items: await store.keepLessonCandidates(lesson.id, selected, evidence) } };
+    }
     if (message.type === LEARNING_DELETE_MESSAGE) { await store.delete(message.payload.id); return { ok: true, result: { deleted: true } }; }
     if (message.type === LEARNING_CLEAR_MESSAGE) { await store.clear(); return { ok: true, result: { cleared: true } }; }
     if (message.type === LEARNING_EXPORT_MESSAGE) return { ok: true, result: { backup: await store.exportBackup() } };

@@ -226,29 +226,29 @@ Mini-lesson catalog/content, personalized scheduling controls, typed answers, sp
 
 ### Acceptance criteria
 
-- [ ] Lessons is a distinct top-level area beside Today; Settings is not a third primary tab.
-- [ ] The catalog has a stable version and the lesson has stable identifiers, pathway, order, CEFR-prefixed title, and three-to-five-minute duration metadata.
-- [ ] `A1 · Een afspraak maken` contains one coherent four-to-six-line, 35-to-60-word Dutch micro-story with complete English and Telugu line help.
-- [ ] The lesson teaches one practical pattern with only the grammar needed to use it.
-- [ ] It defines three to five reusable candidate words or chunks and structurally valid practice prompts.
-- [ ] Read presents Dutch as the visual anchor and reveals English or Telugu help line by line.
-- [ ] Notice highlights only the active pattern or learning item in orange.
-- [ ] Practise reuses the same reveal, `Again`, and `Got it` controls as Daily Five and requires no typing.
-- [ ] Replay shows the story with reduced helper support before the keep decision.
-- [ ] Candidates are preselected, removable, and committed by one `Keep N for review` action.
-- [ ] Keeping is atomic and creates or merges canonical learning items with lesson provenance; an existing saved item is not duplicated.
-- [ ] Unchosen candidates create no durable learning item, mastery, or due work.
-- [ ] Leaving a focused lesson returns predictably to Lessons.
-- [ ] The validator rejects structural violations with actionable lesson identifiers and fields.
-- [ ] Dutch, English, Telugu, CEFR, cultural, and practical-use review is recorded; structural validation is not treated as linguistic review.
+- [x] Lessons is a distinct top-level area beside Today; Settings is not a third primary tab.
+- [x] The catalog has a stable version and the lesson has stable identifiers, pathway, order, CEFR-prefixed title, and three-to-five-minute duration metadata.
+- [x] `A1 · Een afspraak maken` contains one coherent four-to-six-line, 35-to-60-word Dutch micro-story with complete English and Telugu line help.
+- [x] The lesson teaches one practical pattern with only the grammar needed to use it.
+- [x] It defines three to five reusable candidate words or chunks and structurally valid practice prompts.
+- [x] Read presents Dutch as the visual anchor and reveals English or Telugu help line by line.
+- [x] Notice highlights only the active pattern or learning item in orange.
+- [x] Practise reuses the same reveal, `Again`, and `Got it` controls as Daily Five and requires no typing.
+- [x] Replay shows the story with reduced helper support before the keep decision.
+- [x] Candidates are preselected, removable, and committed by one `Keep N for review` action.
+- [x] Keeping is atomic and creates or merges canonical learning items with lesson provenance; an existing saved item is not duplicated.
+- [x] Unchosen candidates create no durable learning item, mastery, or due work.
+- [x] Leaving a focused lesson returns predictably to Lessons.
+- [x] The validator rejects structural violations with actionable lesson identifiers and fields.
+- [x] Dutch, English, Telugu, CEFR, cultural, and practical-use review is recorded; structural validation is not treated as linguistic review.
 
 ### Verification
 
 - [ ] Catalog-validator tests cover every structural rule and representative malformed fixtures.
-- [ ] Background tests cover atomic keep, canonical merge, lesson provenance, and unchanged storage after failure.
+- [x] Background tests cover atomic keep, canonical merge, lesson provenance, and unchanged storage after failure.
 - [ ] Popup tests cover navigation and all four stages, helper reveal, shared practice controls, selection, keep success/failure, and exit.
 - [ ] Rendered keyboard, focus, reduced-motion, and narrow-popup checks pass.
-- [ ] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
+- [x] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
 
 ### Not in this ticket
 

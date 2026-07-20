@@ -20,7 +20,7 @@ export type LearningMastery = {
   successfulStreak: number;
   lastPractisedAt: number | null;
 };
-export type LearningItemSource = { type: "webpage" | "lesson"; addedAt: number; sourceLanguage?: MvpLanguageCode | "auto"; detectedSourceLanguage?: MvpLanguageCode; targetLanguage?: MvpLanguageCode; providerName?: string; originalLanguage?: MvpLanguageCode };
+export type LearningItemSource = { type: "webpage" | "lesson"; addedAt: number; lessonId?: string; sourceLanguage?: MvpLanguageCode | "auto"; detectedSourceLanguage?: MvpLanguageCode; targetLanguage?: MvpLanguageCode; providerName?: string; originalLanguage?: MvpLanguageCode };
 export type LearningContext = { text: string; addedAt: number };
 export type LearningEncounter = { count: number; lastEncounterAt: number | null };
 export type LearningItem = {
@@ -91,6 +91,21 @@ export class LearningRecordStore {
     record.items[item.id] = item;
     await this.write(record);
     return item;
+  }
+
+  async keepLessonCandidates(lessonId: string, candidates: Array<Pick<CreateOrMergeLearningItemInput, "dutch" | "kind" | "english" | "telugu">>, evidence: Array<{ dutch: string; dimension: DailyFiveDimension; result: DailyFiveResult }>): Promise<LearningItem[]> {
+    const record = await this.readMigrated();
+    const timestamp = this.now();
+    const next = { ...record, items: { ...record.items } };
+    const items = candidates.map((candidate) => {
+      const item = mergeLearningItem(next.items[getLearningItemId(candidate.dutch)], { ...candidate, source: "lesson", sourceMetadata: { lessonId } }, timestamp);
+      const results = evidence.filter((entry) => normalizeSavedVocabularyText(entry.dutch) === item.normalizedDutch);
+      const practised = results.reduce((current, entry) => applyDailyFiveResult(current, entry.dimension, entry.result, timestamp).item, item);
+      next.items[practised.id] = practised;
+      return practised;
+    });
+    await this.write(next);
+    return items;
   }
 
   async recordEncounter(id: string, context: string | null | undefined): Promise<LearningItem | null> {
@@ -262,7 +277,7 @@ function parseDailyFiveSnapshot(value: unknown): DailyFiveSnapshot | null {
   return { createdAt: value.createdAt, dayStartAt: value.dayStartAt, tasks, completedTaskIds: value.completedTaskIds as string[], goalCompleted: value.goalCompleted };
 }
 function taskId(task: DailyFiveSnapshot["tasks"][number]): string { return `${task.itemId}\u001f${task.dimension}`; }
-function isLearningSource(value: unknown): value is LearningItemSource { return isRecord(value) && (value.type === "webpage" || value.type === "lesson") && finite(value.addedAt) && (value.sourceLanguage === undefined || value.sourceLanguage === "auto" || isLanguage(value.sourceLanguage)) && (value.detectedSourceLanguage === undefined || isLanguage(value.detectedSourceLanguage)) && (value.targetLanguage === undefined || isLanguage(value.targetLanguage)) && (value.providerName === undefined || typeof value.providerName === "string") && (value.originalLanguage === undefined || isLanguage(value.originalLanguage)); }
+function isLearningSource(value: unknown): value is LearningItemSource { return isRecord(value) && (value.type === "webpage" || value.type === "lesson") && finite(value.addedAt) && (value.lessonId === undefined || typeof value.lessonId === "string") && (value.sourceLanguage === undefined || value.sourceLanguage === "auto" || isLanguage(value.sourceLanguage)) && (value.detectedSourceLanguage === undefined || isLanguage(value.detectedSourceLanguage)) && (value.targetLanguage === undefined || isLanguage(value.targetLanguage)) && (value.providerName === undefined || typeof value.providerName === "string") && (value.originalLanguage === undefined || isLanguage(value.originalLanguage)); }
 function isLearningContext(value: unknown, dutch: string): value is LearningContext { return isRecord(value) && typeof value.text === "string" && value.text.length <= 240 && value.text.toLocaleLowerCase().includes(normalizeSavedVocabularyText(dutch)) && finite(value.addedAt); }
 function learningEncounter(value: unknown): value is LearningEncounter { return isRecord(value) && nonNegativeInteger(value.count) && (value.lastEncounterAt === null || finite(value.lastEncounterAt)); }
 function tryJson(input: string): unknown { try { return JSON.parse(input); } catch { throw new Error("This learning file is not valid JSON."); } }

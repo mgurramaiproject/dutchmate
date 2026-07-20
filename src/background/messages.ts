@@ -38,6 +38,7 @@ export const LEARNING_IMPORT_MESSAGE = "dutchmate.learning.import";
 export const LEARNING_RECORD_ENCOUNTER_MESSAGE = "dutchmate.learning.recordEncounter";
 export const LEARNING_DAILY_FIVE_MESSAGE = "dutchmate.learning.dailyFive";
 export const LEARNING_DAILY_FIVE_RESULT_MESSAGE = "dutchmate.learning.dailyFive.result";
+export const LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE = "dutchmate.learning.keepLessonCandidates";
 
 export type ReviewSettingsChanges = Pick<
   ExtensionSettings,
@@ -136,7 +137,8 @@ export type LearningMessage =
   | { type: typeof LEARNING_IMPORT_MESSAGE; payload: { document: string } }
   | { type: typeof LEARNING_RECORD_ENCOUNTER_MESSAGE; payload: { id: string; context: string } }
   | { type: typeof LEARNING_DAILY_FIVE_MESSAGE; payload?: { continueAfterCompletion?: boolean } }
-  | { type: typeof LEARNING_DAILY_FIVE_RESULT_MESSAGE; payload: { itemId: string; dimension: DailyFiveDimension; result: DailyFiveResult } };
+  | { type: typeof LEARNING_DAILY_FIVE_RESULT_MESSAGE; payload: { itemId: string; dimension: DailyFiveDimension; result: DailyFiveResult } }
+  | { type: typeof LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE; payload: { lessonId: string; candidateIds: string[]; evidence: Array<{ candidateId: string; dimension: DailyFiveDimension; result: DailyFiveResult }> } };
 
 export type VocabularyMessage =
   | SaveVocabularyMessage
@@ -251,6 +253,7 @@ export function isLearningMessage(message: unknown): message is LearningMessage 
   if (message.type === LEARNING_DELETE_MESSAGE) return typeof payload.id === "string";
   if (message.type === LEARNING_RECORD_ENCOUNTER_MESSAGE) return typeof payload.id === "string" && typeof payload.context === "string";
   if (message.type === LEARNING_DAILY_FIVE_RESULT_MESSAGE) return typeof payload.itemId === "string" && (payload.dimension === "recognition" || payload.dimension === "recall") && (payload.result === "again" || payload.result === "got-it");
+  if (message.type === LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE) return typeof payload.lessonId === "string" && Array.isArray(payload.candidateIds) && payload.candidateIds.every((id) => typeof id === "string") && Array.isArray(payload.evidence) && payload.evidence.every((entry) => typeof entry === "object" && entry !== null && "candidateId" in entry && typeof entry.candidateId === "string" && "dimension" in entry && (entry.dimension === "recognition" || entry.dimension === "recall") && "result" in entry && (entry.result === "again" || entry.result === "got-it"));
   if (message.type === LEARNING_IMPORT_MESSAGE) return typeof payload.document === "string";
   return message.type === LEARNING_CREATE_OR_MERGE_MESSAGE && typeof payload.dutch === "string" && (payload.kind === undefined || payload.kind === "word" || payload.kind === "chunk") && (payload.english === undefined || payload.english === null || typeof payload.english === "string") && (payload.telugu === undefined || payload.telugu === null || typeof payload.telugu === "string") && (payload.context === undefined || payload.context === null || typeof payload.context === "string") && (payload.source === undefined || payload.source === "webpage" || payload.source === "lesson");
 }

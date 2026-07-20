@@ -6,21 +6,29 @@ import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { LearningItem } from "../vocabulary/learning-record";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
+import { appointmentLesson } from "../lessons/catalog";
+import { advanceLessonPractice, advanceLessonStage, createLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonSession } from "./lesson-session";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
 const dueBadge = document.querySelector<HTMLElement>("#due-badge");
 const settingsButton = document.querySelector<HTMLButtonElement>("#settings-button");
+const primaryNavigation = document.querySelector<HTMLElement>("#primary-navigation");
+const todayTab = document.querySelector<HTMLButtonElement>("#today-tab");
+const lessonsTab = document.querySelector<HTMLButtonElement>("#lessons-tab");
 const learningClient = createLearningClient(browser);
 const settingsClient = createSettingsClient(browser);
 let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "review" | "settings" = "today";
+let screen: "today" | "lessons" | "lesson" | "review" | "settings" = "today";
+let lessonSession: LessonSession | null = null;
 let revealed = false;
 let pending = false;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
+todayTab?.addEventListener("click", () => { screen = "today"; render(); });
+lessonsTab?.addEventListener("click", () => { screen = "lessons"; render(); });
 void load();
 
 async function load(continueAfterCompletion = false): Promise<void> {
@@ -34,9 +42,13 @@ async function load(continueAfterCompletion = false): Promise<void> {
 
 function render(): void {
   if (!content) return;
-  settingsButton?.toggleAttribute("hidden", screen === "review");
+  const focused = screen === "review" || screen === "lesson";
+  settingsButton?.toggleAttribute("hidden", focused);
+  primaryNavigation?.toggleAttribute("hidden", focused);
+  todayTab?.classList.toggle("is-active", screen === "today"); todayTab?.setAttribute("aria-selected", String(screen === "today"));
+  lessonsTab?.classList.toggle("is-active", screen === "lessons"); lessonsTab?.setAttribute("aria-selected", String(screen === "lessons"));
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "review" ? renderReview() : renderSettings());
+  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : renderSettings());
 }
 
 function renderToday(): HTMLElement {
@@ -65,6 +77,41 @@ function renderToday(): HTMLElement {
   wrapper.append(createMasterySummary(), localNote());
   return wrapper;
 }
+
+function renderLessons(): HTMLElement {
+  const wrapper = section("lessons-content");
+  wrapper.append(eyebrow("Lessons"), heading("Practical Dutch, one small story at a time."), text("Bundled and human-reviewed for Dutch, English, and Telugu learners."));
+  const lesson = section("lesson-card");
+  lesson.append(text(appointmentLesson.pathway.replaceAll("-", " "), "practice-progress"), heading(appointmentLesson.title), text(`${appointmentLesson.durationMinutes} minutes · ${appointmentLesson.pattern}`));
+  const start = button("Start lesson", "button primary-button"); start.addEventListener("click", () => { lessonSession = createLessonSession(appointmentLesson); screen = "lesson"; render(); content?.focus(); }); lesson.append(start);
+  wrapper.append(lesson, localNote()); return wrapper;
+}
+
+function renderLesson(): HTMLElement {
+  const session = lessonSession;
+  if (!session) { screen = "lessons"; return renderLessons(); }
+  const wrapper = section("lesson-content focused-content");
+  const exit = button("Exit lesson", "exit-button"); exit.addEventListener("click", () => { lessonSession = null; screen = "lessons"; render(); });
+  const rail = document.createElement("div"); rail.className = "lesson-rail";
+  for (const stage of ["read", "notice", "practise", "keep"] as const) rail.append(text(stage, `lesson-stage${session.stage === stage || (stage === "keep" && session.stage === "replay") ? " active" : ""}`));
+  wrapper.append(exit, rail);
+  if (session.stage === "read" || session.stage === "replay") wrapper.append(renderLessonStory(session, session.stage === "read"));
+  if (session.stage === "notice") wrapper.append(renderLessonNotice(session));
+  if (session.stage === "practise") wrapper.append(renderLessonPractice(session));
+  if (session.stage === "keep") wrapper.append(renderLessonKeep(session));
+  return wrapper;
+}
+
+function renderLessonStory(session: LessonSession, allowHelp: boolean): HTMLElement {
+  const story = section("lesson-story"); story.append(eyebrow(session.stage === "read" ? "Read the situation" : "Replay"), heading(session.lesson.title));
+  session.lesson.lines.forEach((line, index) => { const row = section("story-line"); row.append(text(line.dutch, "story-dutch")); if (allowHelp && session.revealedLineIndexes.includes(index)) row.append(text(`English: ${line.english}`), text(`Telugu: ${line.telugu}`, "helper-copy")); else if (allowHelp) { const help = button("Show line help", "line-help"); help.addEventListener("click", () => { lessonSession = revealLessonLine(session, index); render(); }); row.append(help); } story.append(row); });
+  const next = button(session.stage === "read" ? "Notice the pattern" : "Choose what to keep", "button primary-button"); next.addEventListener("click", () => { lessonSession = advanceLessonStage(session); render(); }); story.append(next); return story;
+}
+
+function renderLessonNotice(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Notice"), heading(session.lesson.pattern), text(session.lesson.patternExplanation)); for (const line of session.lesson.lines) { const row = document.createElement("p"); row.className = "story-dutch"; const start = line.dutch.indexOf(session.lesson.patternText); if (start < 0) row.textContent = line.dutch; else { row.append(line.dutch.slice(0, start), highlightedPattern(session.lesson.patternText), line.dutch.slice(start + session.lesson.patternText.length)); } panel.append(row); } const next = button("Practise", "button primary-button"); next.addEventListener("click", () => { lessonSession = advanceLessonStage(session); render(); }); panel.append(next); return panel; }
+function renderLessonPractice(session: LessonSession): HTMLElement { const prompt = session.lesson.practice[session.practiceIndex]; const candidate = session.lesson.candidates.find((item) => item.id === prompt.candidateId)!; const panel = section("practice-card"); panel.append(eyebrow(session.practiceRevealed ? "Answer" : prompt.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.practiceRevealed ? candidate.dutch : prompt.dimension === "recognition" ? candidate.dutch : candidate.english)); if (!session.practiceRevealed) { const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { lessonSession = revealLessonPractice(session); render(); }); panel.append(reveal); } else { panel.append(meaning("Dutch", candidate.dutch), meaning("English", candidate.english), meaning("Telugu", candidate.telugu)); const actions = document.createElement("div"); actions.className = "rating-actions"; for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.addEventListener("click", () => { lessonSession = advanceLessonPractice(session, result); render(); }); actions.append(action); } panel.append(actions); } return panel; }
+function renderLessonKeep(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Keep"), heading("Choose what to keep for review.")); for (const candidate of session.lesson.candidates) { const label = document.createElement("label"); label.className = "candidate-choice"; const checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = session.selectedCandidateIds.includes(candidate.id); checkbox.addEventListener("change", () => { lessonSession = toggleLessonCandidate(session, candidate.id); render(); }); label.append(checkbox, text(candidate.dutch)); if (items.some((item) => item.dutch === candidate.dutch)) label.append(text("Already saved", "already-saved")); panel.append(label); } const keep = button(`Keep ${session.selectedCandidateIds.length} for review`, "button primary-button"); keep.disabled = pending; keep.addEventListener("click", () => void keepLessonCandidates(session)); panel.append(keep); return panel; }
+async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; lessonSession = null; screen = "lessons"; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
 
 function renderReview(): HTMLElement {
   const wrapper = section("practice-content focused-content");
@@ -127,5 +174,6 @@ function eyebrow(value: string): HTMLElement { return text(value, "eyebrow"); }
 function heading(value: string): HTMLElement { const element = document.createElement("h1"); element.className = "heading"; element.textContent = value; return element; }
 function text(value: string, className = "body-copy"): HTMLElement { const element = document.createElement("p"); element.className = className; element.textContent = value; return element; }
 function meaning(label: string, value: string | null): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; row.append(name, content); return row; }
+function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }
 function toggle(labelText: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement { const label = document.createElement("label"); label.className = "setting-control"; const textNode = document.createElement("strong"); textNode.textContent = labelText; const input = document.createElement("input"); input.type = "checkbox"; input.checked = checked; input.addEventListener("change", () => onChange(input.checked)); label.append(textNode, input); return label; }
 function localNote(): HTMLElement { return text("Local learning only. No account required.", "local-note"); }

@@ -20,6 +20,7 @@ import {
   LEARNING_RECORD_ENCOUNTER_MESSAGE,
   LEARNING_DAILY_FIVE_MESSAGE,
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
+  LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
@@ -179,6 +180,28 @@ describe("createBackgroundMessageHandler", () => {
     now += 2 * 86_400_000;
     await expect(send(handleMessage, { type: LEARNING_DAILY_FIVE_MESSAGE })).resolves.toMatchObject({ ok: true, result: { snapshot: { createdAt: now } } });
     expect(refreshBadge).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps selected lesson candidates atomically with lesson provenance", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary: new SavedVocabularyStore(storage), reviewCards: new ReviewCardStore(new SavedVocabularyStore(storage), storage), learningRecords: records, refreshBadge: async () => undefined });
+
+    await expect(send(handleMessage, { type: LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE, payload: { lessonId: "a1-een-afspraak-maken", candidateIds: ["afspraak-maken", "als-het-kan"], evidence: [{ candidateId: "afspraak-maken", dimension: "recognition", result: "got-it" }] } })).resolves.toMatchObject({ ok: true, result: { items: [expect.objectContaining({ dutch: "een afspraak maken", recognition: expect.objectContaining({ state: "learning" }), sources: expect.arrayContaining([expect.objectContaining({ type: "lesson", lessonId: "a1-een-afspraak-maken" })]) }), expect.objectContaining({ dutch: "als het kan" })] } });
+    await expect(send(handleMessage, { type: LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE, payload: { lessonId: "a1-een-afspraak-maken", candidateIds: ["afspraak-maken"], evidence: [] } })).resolves.toMatchObject({ ok: true });
+    await expect(records.list()).resolves.toHaveLength(2);
+  });
+
+  it("does not change storage when keeping lesson candidates fails", async () => {
+    const storage = new FailingLearningStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    await records.createOrMerge({ dutch: "huis", english: "house" });
+    storage.failLearningWrites = true;
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary: new SavedVocabularyStore(storage), reviewCards: new ReviewCardStore(new SavedVocabularyStore(storage), storage), learningRecords: records, refreshBadge: async () => undefined });
+
+    await expect(send(handleMessage, { type: LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE, payload: { lessonId: "a1-een-afspraak-maken", candidateIds: ["afspraak-maken"], evidence: [] } })).resolves.toEqual({ ok: false, error: "Learning records are unavailable." });
+    storage.failLearningWrites = false;
+    await expect(records.list()).resolves.toEqual([expect.objectContaining({ dutch: "huis" })]);
   });
 });
 
