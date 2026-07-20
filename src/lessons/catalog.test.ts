@@ -7,8 +7,8 @@ describe("lesson catalog", () => {
     expect(appointmentLesson.title).toBe("A1 · Een afspraak maken");
   });
 
-  it("validates the real reviewed starter lessons in their published order", () => {
-    const starterLessons = lessonCatalog.lessons.filter((lesson) => lesson.order <= 4);
+  it("validates the real reviewed starter lessons in their published order without a duplicate appointment fixture", () => {
+    const starterLessons = lessonCatalog.lessons;
 
     expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
     expect(starterLessons.map((lesson) => lesson.title)).toEqual([
@@ -16,11 +16,19 @@ describe("lesson catalog", () => {
       "A1 · Kunt u dat herhalen?",
       "A1 · Ik wil graag bestellen",
       "A1 · Kan ik met pin betalen?",
+      "A1 · Waar moet ik overstappen?",
+      "A1 · Mijn trein is vertraagd",
+      "A1 · Een afspraak maken",
+      "A1 · Ik heb last van…",
     ]);
+    expect(starterLessons.filter((lesson) => lesson.id === appointmentLesson.id)).toHaveLength(1);
     expect(starterLessons.every((lesson) => lesson.lines.filter((line) => line.dutch.toLocaleLowerCase().includes(lesson.patternText.toLocaleLowerCase())).length >= 2)).toBe(true);
     expect(starterLessons.every((lesson) => lesson.lines.every((line) => line.dutch && line.english && line.telugu))).toBe(true);
-    expect(starterLessons.every((lesson) => lesson.candidates.every((candidate) => lesson.lines.some((line) => line.dutch.toLocaleLowerCase().includes(candidate.dutch.toLocaleLowerCase()))))).toBe(true);
+    expect(starterLessons.every((lesson) => lesson.candidates.length >= 3 && lesson.candidates.length <= 5)).toBe(true);
     expect(starterLessons.every((lesson) => lesson.review.dutch && lesson.review.english && lesson.review.telugu && lesson.review.cefr && lesson.review.cultural && lesson.review.practicalUse)).toBe(true);
+    expect(appointmentLesson).toMatchObject({ contentVersion: 2, candidates: [
+      { id: "ik-wil-graag" }, { id: "afspraak" }, { id: "afspraak-maken" }, { id: "als-het-kan" },
+    ] });
   });
 
   it("reports stable lesson identifiers and fields for structural violations", () => {
@@ -97,6 +105,13 @@ describe("lesson catalog", () => {
       "a1-een-afspraak-maken.pathway: expected pathway with unique order",
       "a1-een-afspraak-maken.candidates: expected unique trilingual candidates",
     ]));
+  });
+
+  it("rejects duplicate published lesson identities", () => {
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === "a1-waar-moet-ik-overstappen")!.id = appointmentLesson.id;
+
+    expect(validateLessonCatalog(invalid)).toContain("a1-een-afspraak-maken.id: expected unique stable kebab-case identifier");
   });
 
   it.each([

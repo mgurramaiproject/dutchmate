@@ -79,7 +79,9 @@ describe("lesson popup", () => {
     button("Keep 3 for review").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Completed · replay any time"));
 
-    lessonCard("A1 · Een afspraak maken").querySelector<HTMLButtonElement>("button")!.click();
+    const replay = lessonCard("A1 · Een afspraak maken").querySelector<HTMLButtonElement>("button")!;
+    expect(replay.textContent).toBe("Replay lesson");
+    replay.click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
     button("Exit lesson").click();
     await vi.waitFor(() => expect(content().textContent).toContain("A1 · Een afspraak maken"));
@@ -108,6 +110,50 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
     button("Keep 4 for review").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson candidates could not be kept."));
+  });
+
+  it("lists the eight bundled lessons in order and opens every T08 lesson with help and trilingual practice", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("A1 · Ik heb last van…"));
+    expect([...content().querySelectorAll<HTMLElement>(".lesson-card h1")].map((heading) => heading.textContent)).toEqual([
+      "A0 · Hallo, ik ben…",
+      "A1 · Kunt u dat herhalen?",
+      "A1 · Ik wil graag bestellen",
+      "A1 · Kan ik met pin betalen?",
+      "A1 · Waar moet ik overstappen?",
+      "A1 · Mijn trein is vertraagd",
+      "A1 · Een afspraak maken",
+      "A1 · Ik heb last van…",
+    ]);
+
+    for (const { title, candidate } of [
+      { title: "A1 · Waar moet ik overstappen?", candidate: "waar moet ik overstappen" },
+      { title: "A1 · Mijn trein is vertraagd", candidate: "mijn trein is vertraagd" },
+      { title: "A1 · Een afspraak maken", candidate: "ik wil graag" },
+      { title: "A1 · Ik heb last van…", candidate: "ik heb last van" },
+    ]) {
+      lessonCard(title).querySelector<HTMLButtonElement>("button")!.click();
+      await vi.waitFor(() => expect(button("Show line help")).toBeTruthy());
+      button("Show line help").click();
+      await vi.waitFor(() => expect(content().textContent).toContain("English:"));
+      button("Notice the pattern").click();
+      await vi.waitFor(() => expect(button("Practise")).toBeTruthy());
+      button("Practise").click();
+      await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+      button("Show answer").click();
+      await vi.waitFor(() => expect(content().textContent).toContain(candidate));
+      expect(content().textContent).toContain("Telugu");
+      if (title === "A1 · Waar moet ik overstappen?") {
+        for (let index = 0; index < 4; index += 1) {
+          button("Got it").click();
+          await vi.waitFor(() => expect(index === 3 ? button("Choose what to keep") : button("Show answer")).toBeTruthy());
+          if (index < 3) button("Show answer").click();
+        }
+        expect(content().textContent).toContain("Replay");
+      }
+      button("Exit lesson").click();
+      await vi.waitFor(() => expect(lessonCard(title)).toBeTruthy());
+    }
   });
 });
 
