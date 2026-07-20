@@ -105,7 +105,6 @@ describe("settings", () => {
       autoSaveSelectedWords: false,
       showExampleSentence: true,
       dailyReviewBadge: true,
-      cardDirection: "dutch-to-helpers",
     });
 
     expect(
@@ -113,13 +112,11 @@ describe("settings", () => {
         autoSaveSelectedWords: "yes" as never,
         showExampleSentence: false,
         dailyReviewBadge: false,
-        cardDirection: "helpers-to-dutch",
       }),
     ).toMatchObject({
       autoSaveSelectedWords: false,
       showExampleSentence: false,
       dailyReviewBadge: false,
-      cardDirection: "helpers-to-dutch",
     });
   });
 

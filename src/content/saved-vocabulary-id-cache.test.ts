@@ -2,16 +2,16 @@ import { describe, expect, it } from "vitest";
 import { applySavedVocabularyStorageChange } from "./saved-vocabulary-id-cache";
 
 describe("applySavedVocabularyStorageChange", () => {
-  it("invalidates cached saved vocabulary ids when local saved vocabulary changes", () => {
-    const cachedIds = new Set(["nl\u001fhuis\u001fen"]);
+  it("invalidates cached learning item ids when the canonical learning record changes", () => {
+    const cachedIds = new Set(["nl\u001fhuis"]);
 
     expect(
       applySavedVocabularyStorageChange(
         cachedIds,
         {
-          "dutchmate.savedVocabulary.v1": {
+          "dutchmate.learningRecord.v2": {
             newValue: {
-              entries: {},
+              items: {},
             },
           },
         },

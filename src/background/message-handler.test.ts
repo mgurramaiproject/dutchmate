@@ -10,9 +10,6 @@ vi.mock("webextension-polyfill", () => ({
   },
 }));
 import {
-  REVIEW_CLEAR_MESSAGE,
-  REVIEW_IMPORT_MESSAGE,
-  REVIEW_RATE_MESSAGE,
   REVIEW_SETTINGS_UPDATE_MESSAGE,
   LEARNING_CREATE_OR_MERGE_MESSAGE,
   LEARNING_EXPORT_MESSAGE,
@@ -22,7 +19,6 @@ import {
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
   LEARNING_LESSON_PROGRESS_MESSAGE,
-  SAVE_VOCABULARY_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
 import { createBackgroundMessageHandler } from "./message-handler";

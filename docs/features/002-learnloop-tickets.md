@@ -467,25 +467,25 @@ Endless streak pressure, XP, levels, coins, collectibles, avatars, leaderboards,
 
 ### Acceptance criteria
 
-- [ ] Popup Today/Lessons, Options vocabulary management, content capture/encounters, badge, backup/import, delete, and clear use the canonical learning contract.
-- [ ] No normal runtime mutation writes the legacy saved-vocabulary or review-card format.
-- [ ] Upgrade migration from a real representative legacy snapshot remains idempotent and tested.
-- [ ] Version-one backup import remains supported and maps to canonical learning records.
-- [ ] Existing meanings, contexts, sources, mastery, lesson progress, and rhythm remain intact after contraction.
-- [ ] Removing obsolete review choices does not remove unrelated translation, cache, provider, badge, or context settings.
-- [ ] Persistent-page import still avoids native file-picker popup dismissal and reports an understandable result.
-- [ ] Delete and clear behavior is consistent across Today, Lessons, Options, badge, progress, and backup.
-- [ ] Dead compatibility code and tests are removed only after equivalent public-contract coverage exists.
-- [ ] No parked scope is introduced during cleanup.
+- [x] Popup Today/Lessons, Options vocabulary management, content capture/encounters, badge, backup/import, delete, and clear use the canonical learning contract.
+- [x] No normal runtime mutation writes the legacy saved-vocabulary or review-card format.
+- [x] Upgrade migration from a real representative legacy snapshot remains idempotent and tested.
+- [x] Version-one backup import remains supported and maps to canonical learning records.
+- [x] Existing meanings, contexts, sources, mastery, lesson progress, and rhythm remain intact after contraction.
+- [x] Removing obsolete review choices does not remove unrelated translation, cache, provider, badge, or context settings.
+- [x] Persistent-page import still avoids native file-picker popup dismissal and reports an understandable result.
+- [x] Delete and clear behavior is consistent across Today, Lessons, Options, badge, progress, and backup.
+- [x] Dead compatibility code and tests are removed only after equivalent public-contract coverage exists.
+- [x] No parked scope is introduced during cleanup.
 
 ### Verification
 
-- [ ] Migration, import, popup, Options, content, background, badge, and clear regression tests exercise public seams after legacy writes are removed.
-- [ ] A repository search confirms no unintended normal-runtime legacy storage writes remain.
-- [ ] `corepack pnpm test` passes.
-- [ ] `corepack pnpm typecheck` passes.
-- [ ] `corepack pnpm build:chrome` and `corepack pnpm build:firefox` pass.
-- [ ] `corepack pnpm verify:release` passes if packaged output contracts changed.
+- [x] Migration, import, popup, Options, content, background, badge, and clear regression tests exercise public seams after legacy writes are removed.
+- [x] A repository search confirms no unintended normal-runtime legacy storage writes remain.
+- [x] `corepack pnpm test` passes.
+- [x] `corepack pnpm typecheck` passes.
+- [x] `corepack pnpm build:chrome` and `corepack pnpm build:firefox` pass.
+- [ ] `corepack pnpm verify:release` passes if packaged output contracts changed. (Blocked by pre-existing popup accessibility assertions in `scripts/verify-extension-release.mjs`.)
 
 ### Not in this ticket
 

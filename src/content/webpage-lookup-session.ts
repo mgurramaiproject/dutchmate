@@ -1,12 +1,12 @@
 import { LookupSession } from "./lookup-session";
-import { getEligibleSaveCandidates } from "./save-action-eligibility";
 import type { TranslateMessageResponse } from "./runtime-translation-client";
-import type { RuntimeSaveVocabularyRequest } from "./runtime-vocabulary-client";
+import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import type { TooltipContext } from "./tooltip-request-state";
 
 export type TranslationOutcome = {
   response: TranslateMessageResponse;
-  saveCandidates: RuntimeSaveVocabularyRequest[];
+  sourceLanguage: SourceLanguageCode;
+  responses: Array<{ targetLanguage: MvpLanguageCode; response: TranslateMessageResponse }>;
 };
 
 export type LookupPresentation =
@@ -17,7 +17,8 @@ export type LookupPresentation =
       status: "current";
       context: TooltipContext;
       response: TranslateMessageResponse;
-      saveCandidates: RuntimeSaveVocabularyRequest[];
+      sourceLanguage: SourceLanguageCode;
+      responses: Array<{ targetLanguage: MvpLanguageCode; response: TranslateMessageResponse }>;
     };
 
 export type LookupFailure =
@@ -45,7 +46,7 @@ export class WebpageLookupSession {
     return this.#session.isCurrent(requestId);
   }
 
-  acceptSuccess(requestId: number, text: string, outcome: TranslationOutcome): LookupPresentation {
+  acceptSuccess(requestId: number, _text: string, outcome: TranslationOutcome): LookupPresentation {
     const completedLookup = this.#session.complete(requestId, outcome);
 
     if (completedLookup.status === "stale") {
@@ -56,11 +57,8 @@ export class WebpageLookupSession {
       status: "current",
       context: completedLookup.context,
       response: completedLookup.value.response,
-      saveCandidates: getEligibleSaveCandidates(
-        text,
-        completedLookup.context,
-        completedLookup.value.saveCandidates,
-      ),
+      sourceLanguage: completedLookup.value.sourceLanguage,
+      responses: completedLookup.value.responses,
     };
   }
 

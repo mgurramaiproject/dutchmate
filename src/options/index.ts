@@ -34,7 +34,6 @@ const translateOnSelection = document.querySelector<HTMLInputElement>("#translat
 const autoSaveSelectedWords = document.querySelector<HTMLInputElement>("#auto-save-selected-words");
 const showExampleSentence = document.querySelector<HTMLInputElement>("#show-example-sentence");
 const dailyReviewBadge = document.querySelector<HTMLInputElement>("#daily-review-badge");
-const cardDirectionInputs = document.querySelectorAll<HTMLInputElement>('input[name="cardDirection"]');
 const cacheHoveredWords = document.querySelector<HTMLInputElement>("#cache-hovered-words");
 const cacheSelectedWords = document.querySelector<HTMLInputElement>("#cache-selected-words");
 const hoverTranslationModes = document.querySelectorAll<HTMLInputElement>(
@@ -162,9 +161,6 @@ async function restoreSettings(): Promise<void> {
     dailyReviewBadge.checked = settings.dailyReviewBadge;
   }
 
-  cardDirectionInputs.forEach((input) => {
-    input.checked = input.value === settings.cardDirection;
-  });
 
   setHoverTranslationMode(settings.hoverTranslationMode);
 
@@ -241,7 +237,6 @@ async function saveSettings(): Promise<void> {
     autoSaveSelectedWords: autoSaveSelectedWords?.checked ?? currentSettings.autoSaveSelectedWords,
     showExampleSentence: showExampleSentence?.checked ?? currentSettings.showExampleSentence,
     dailyReviewBadge: dailyReviewBadge?.checked ?? currentSettings.dailyReviewBadge,
-    cardDirection: getCardDirectionSelection(currentSettings.cardDirection),
     providerEndpoint: endpoint,
     providerApiKey: providerApiKey ? providerApiKey.value.trim() : currentSettings.providerApiKey,
   };
@@ -691,10 +686,6 @@ function renderLanguageOptions(): void {
   }
 }
 
-function getCardDirectionSelection(fallback: ExtensionSettings["cardDirection"]): ExtensionSettings["cardDirection"] {
-  const value = Array.from(cardDirectionInputs).find((input) => input.checked)?.value;
-  return value === "helpers-to-dutch" || value === "dutch-to-helpers" ? value : fallback;
-}
 
 function getLanguageLabel(code: "en" | "nl" | "te"): string {
   return MVP_LANGUAGES.find((language) => language.code === code)?.label ?? code;

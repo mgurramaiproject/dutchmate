@@ -2,13 +2,10 @@ import { applySavedVocabularyStorageChange } from "./saved-vocabulary-id-cache";
 import type { TranslateMessageResponse } from "./runtime-translation-client";
 import { TOOLTIP_TRANSLATION_TIMEOUT_MESSAGE } from "./tooltip-translation-timeout";
 import { WebpageLookupSession, type TranslationOutcome } from "./webpage-lookup-session";
-import type {
-  RuntimeSaveVocabularyBatchResponse,
-  RuntimeSaveVocabularyRequest,
-} from "./runtime-vocabulary-client";
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import type { ExtensionSettings } from "../shared/settings";
-import { getSavedVocabularyEntryId, normalizeSavedVocabularyText } from "../vocabulary/saved-vocabulary";
+import { getLearningItemId } from "../vocabulary/learning-record";
+import { normalizeSavedVocabularyText } from "../vocabulary/saved-vocabulary";
 import { getChunkCandidate } from "./chunk-candidate";
 import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
 
@@ -152,11 +149,8 @@ export type TranslationTransport = {
       targetLanguage: MvpLanguageCode;
     },
   ): Promise<TranslateMessageResponse>;
-  listSavedVocabularyIds(): Promise<Set<string> | undefined>;
-  saveVocabularyBatch(
-    requests: RuntimeSaveVocabularyRequest[],
-  ): Promise<RuntimeSaveVocabularyBatchResponse>;
-  saveLearningItem?(input: CreateOrMergeLearningItemInput): Promise<{ ok: boolean; error?: string }>;
+  listLearningItemIds(): Promise<Set<string> | undefined>;
+  saveLearningItem(input: CreateOrMergeLearningItemInput): Promise<{ ok: boolean; error?: string }>;
   listLearningItems?(): Promise<{ ok: boolean; result?: { items: Array<{ id: string; normalizedDutch: string }> } }>;
   recordLearningEncounter?(input: { id: string; context: string }): Promise<{ ok: boolean }>;
 };
@@ -179,8 +173,8 @@ export class WebpageLookupModule {
 
   #savedVocabularyIds: Set<string> | undefined;
   #savedVocabularyIdsRequest: Promise<Set<string> | undefined> | undefined;
-  #currentSaveCandidates: RuntimeSaveVocabularyRequest[] = [];
-  #currentSaveCandidateIds: string[] = [];
+  #currentSaveItem: CreateOrMergeLearningItemInput | null = null;
+  #currentSaveItemId: string | null = null;
   #currentChunk: CreateOrMergeLearningItemInput | null = null;
 
   constructor(dependencies: WebpageLookupModuleDependencies) {
@@ -222,7 +216,7 @@ export class WebpageLookupModule {
     this.#savedVocabularyIds = nextSavedVocabularyIds;
     this.#savedVocabularyIdsRequest = undefined;
 
-    if (this.#currentSaveCandidates.length === 0) {
+    if (!this.#currentSaveItem) {
       return;
     }
 
@@ -235,16 +229,16 @@ export class WebpageLookupModule {
 
   clear(): void {
     this.#session.clear();
-    this.#currentSaveCandidates = [];
-    this.#currentSaveCandidateIds = [];
+    this.#currentSaveItem = null;
+    this.#currentSaveItemId = null;
     this.#currentChunk = null;
     this.#emit({ type: "hide-tooltip" });
   }
 
   async beginLookup(input: WebpageLookupInput): Promise<void> {
     const requestId = this.#session.begin(input.context);
-    this.#currentSaveCandidates = [];
-    this.#currentSaveCandidateIds = [];
+    this.#currentSaveItem = null;
+    this.#currentSaveItemId = null;
 
     this.#emit({
       type: "render-loading",
@@ -289,7 +283,14 @@ export class WebpageLookupModule {
       return;
     }
 
-    this.#currentSaveCandidates = completedLookup.saveCandidates;
+    this.#currentSaveItem = completedLookup.context === "selection"
+      ? this.#getLearningItemFromResponses(
+        input.text,
+        completedLookup.sourceLanguage,
+        input.pageContext,
+        completedLookup.responses,
+      )
+      : null;
     const chunk = input.context === "selection" ? getChunkCandidate(input.text) : null;
     let chunkConfirmation: ChunkConfirmation | undefined;
     if (chunk && completedLookup.response.ok) {
@@ -297,9 +298,7 @@ export class WebpageLookupModule {
       this.#currentChunk = { dutch: chunk.normalizedDutch, kind: "chunk", source: "webpage", context: input.pageContext, ...helpers };
       chunkConfirmation = { dutch: chunk.normalizedDutch, english: helpers.english ?? null, telugu: helpers.telugu ?? null, context: input.pageContext?.slice(0, 240) ?? null };
     }
-    this.#currentSaveCandidateIds = completedLookup.saveCandidates.map((candidate) =>
-      getSavedVocabularyEntryId(candidate),
-    );
+    this.#currentSaveItemId = this.#currentSaveItem ? getLearningItemId(this.#currentSaveItem.dutch) : null;
     const saveAction: SaveActionState = this.#currentChunk ? { status: "ready", label: "Review & save", disabled: false } : this.#getSaveActionState();
 
     this.#emit({
@@ -351,7 +350,7 @@ export class WebpageLookupModule {
       this.#emit({ type: "save-state-changed", saveAction: response.ok ? { status: "saved", label: "Saved", disabled: true } : { status: "retry", label: "Try again", disabled: false, title: response.error ?? "Learning item could not be saved." } });
       return;
     }
-    if (this.#currentSaveCandidates.length === 0) {
+    if (!this.#currentSaveItem) {
       return;
     }
 
@@ -364,7 +363,7 @@ export class WebpageLookupModule {
       },
     });
 
-    const response = await this.#deps.transport.saveVocabularyBatch(this.#currentSaveCandidates);
+    const response = await this.#deps.transport.saveLearningItem(this.#currentSaveItem);
     if (!response.ok) {
       this.#emit({
         type: "save-state-changed",
@@ -372,43 +371,13 @@ export class WebpageLookupModule {
           status: "retry",
           label: "Try again",
           disabled: false,
-          title: response.error,
+          title: response.error ?? "Learning item could not be saved.",
         },
       });
       return;
     }
 
-    const saveResults = response.result.results;
-    const maxEntriesResult = saveResults.find((result) => result.status === "max-entries-reached");
-    if (maxEntriesResult?.status === "max-entries-reached") {
-      this.#emit({
-        type: "save-state-changed",
-        saveAction: {
-          status: "full",
-          label: "Vocabulary full",
-          disabled: true,
-        },
-      });
-      return;
-    }
-
-    if (saveResults.every((result) => result.status === "already-saved")) {
-      this.#emit({
-        type: "save-state-changed",
-        saveAction: {
-          status: "already-saved",
-          label: "Already saved",
-          disabled: true,
-        },
-      });
-      return;
-    }
-
-    const savedEntries = saveResults.flatMap((result) =>
-      "entry" in result && result.entry ? [result.entry] : [],
-    );
-    const savedIds = savedEntries.map((entry) => entry.id);
-    this.#savedVocabularyIds = new Set([...(this.#savedVocabularyIds ?? []), ...savedIds]);
+    if (this.#currentSaveItemId) this.#savedVocabularyIds = new Set([...(this.#savedVocabularyIds ?? []), this.#currentSaveItemId]);
 
     this.#emit({
       type: "save-state-changed",
@@ -421,10 +390,10 @@ export class WebpageLookupModule {
   }
 
   async #refreshCurrentSaveState(): Promise<void> {
-    const snapshot = this.#currentSaveCandidateIds.join("\u001f");
+    const snapshot = this.#currentSaveItemId;
     const savedVocabularyIds = await this.#refreshSavedVocabularyIds();
 
-    if (snapshot !== this.#currentSaveCandidateIds.join("\u001f")) {
+    if (snapshot !== this.#currentSaveItemId) {
       return;
     }
 
@@ -448,7 +417,7 @@ export class WebpageLookupModule {
     }
 
     this.#savedVocabularyIdsRequest = this.#deps.transport
-      .listSavedVocabularyIds()
+      .listLearningItemIds()
       .finally(() => {
         this.#savedVocabularyIdsRequest = undefined;
       });
@@ -457,7 +426,7 @@ export class WebpageLookupModule {
   }
 
   #getSaveActionState(): SaveActionState {
-    if (this.#currentSaveCandidates.length === 0) {
+    if (!this.#currentSaveItem) {
       return { status: "hidden" };
     }
 
@@ -469,7 +438,7 @@ export class WebpageLookupModule {
       };
     }
 
-    if (this.#currentSaveCandidateIds.every((id) => this.#savedVocabularyIds?.has(id))) {
+    if (this.#currentSaveItemId && this.#savedVocabularyIds?.has(this.#currentSaveItemId)) {
       return {
         status: "already-saved",
         label: "Already saved",
@@ -503,16 +472,7 @@ export class WebpageLookupModule {
         targetLanguage: settings.targetLanguage,
       });
 
-      return {
-        response,
-        saveCandidates: this.#getSaveCandidatesFromResponses(
-          settings,
-          text,
-          sourceLanguage,
-          pageContext,
-          [{ targetLanguage: settings.targetLanguage, response }],
-        ),
-      };
+      return { response, sourceLanguage, responses: [{ targetLanguage: settings.targetLanguage, response }] };
     }
 
     const responses = await Promise.all(
@@ -530,8 +490,7 @@ export class WebpageLookupModule {
 
     if (failedResponse?.response.ok === false) {
       return {
-        response: failedResponse.response,
-        saveCandidates: [],
+        response: failedResponse.response, sourceLanguage, responses,
       };
     }
 
@@ -548,18 +507,11 @@ export class WebpageLookupModule {
           providerName: "multi-target",
         },
       },
-      saveCandidates: this.#getSaveCandidatesFromResponses(
-        settings,
-        text,
-        sourceLanguage,
-        pageContext,
-        responses,
-      ),
+        sourceLanguage, responses,
     };
   }
 
-  #getSaveCandidatesFromResponses(
-    settings: ExtensionSettings,
+  #getLearningItemFromResponses(
     text: string,
     activeSourceLanguage: SourceLanguageCode,
     pageContext: string | null | undefined,
@@ -567,30 +519,33 @@ export class WebpageLookupModule {
       targetLanguage: MvpLanguageCode;
       response: TranslateMessageResponse;
     }>,
-  ): RuntimeSaveVocabularyRequest[] {
-    const sourceLanguage = this.#getRequestedSourceLanguage(settings);
-    const detectedSourceLanguage = this.#getDetectedSourceLanguage(
-      sourceLanguage,
-      activeSourceLanguage,
-    );
-
-    return responses.flatMap(({ targetLanguage, response }) => {
-      if (!response.ok || !this.#isSelectionSaveCandidate(text)) {
-        return [];
-      }
-
-      return [
-        {
-          text,
-          sourceLanguage,
-          detectedSourceLanguage,
-          targetLanguage,
-          translatedText: response.result.translatedText,
-          providerName: response.result.providerName,
-          ...(pageContext ? { pageContext } : {}),
-        },
-      ];
-    });
+  ): CreateOrMergeLearningItemInput | null {
+    if (!this.#isSelectionSaveCandidate(text) || !["en", "nl", "te"].includes(activeSourceLanguage)) return null;
+    const sourceLanguage = this.#getRequestedSourceLanguage(this.#deps.getSettings());
+    const detectedSourceLanguage = this.#getDetectedSourceLanguage(sourceLanguage, activeSourceLanguage);
+    const translated = (language: MvpLanguageCode): string | null => {
+      const response = responses.find((candidate) => candidate.targetLanguage === language)?.response;
+      return response?.ok ? response.result.translatedText : null;
+    };
+    const dutch = activeSourceLanguage === "nl" ? text : translated("nl");
+    if (!dutch) return null;
+    return {
+      dutch,
+      kind: "word",
+      english: activeSourceLanguage === "en" ? text : translated("en"),
+      telugu: activeSourceLanguage === "te" ? text : translated("te"),
+      source: "webpage",
+      sourceMetadata: {
+        sourceLanguage,
+        ...(detectedSourceLanguage ? { detectedSourceLanguage } : {}),
+        targetLanguage: activeSourceLanguage === "nl" ? "en" : "nl",
+        providerName: (() => {
+          const response = responses.find((candidate) => candidate.response.ok)?.response;
+          return response?.ok ? response.result.providerName : undefined;
+        })(),
+      },
+      ...(pageContext ? { context: pageContext } : {}),
+    };
   }
 
   #isSelectionSaveCandidate(text: string): boolean {
