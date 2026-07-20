@@ -9,6 +9,7 @@ import type { ReviewCard, ReviewCardSummary, ReviewImportResult, ReviewRating } 
 import type { VocabularyBackup } from "../vocabulary/vocabulary-backup";
 import type { ExtensionSettings } from "../shared/settings";
 import type { CreateOrMergeLearningItemInput, LearningBackup, LearningItem, LessonProgress, LessonProgressStage } from "../vocabulary/learning-record";
+import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../vocabulary/daily-five";
 
 export const TRANSLATE_MESSAGE = "hoverTranslate.translate";
@@ -30,6 +31,7 @@ export const REVIEW_SETTINGS_MESSAGE = "dutchmate.review.settings";
 export const REVIEW_SETTINGS_UPDATE_MESSAGE = "dutchmate.review.settings.update";
 export const LEARNING_LIST_MESSAGE = "dutchmate.learning.list";
 export const LEARNING_SUMMARY_MESSAGE = "dutchmate.learning.summary";
+export const LEARNING_RHYTHM_MESSAGE = "dutchmate.learning.rhythm";
 export const LEARNING_CREATE_OR_MERGE_MESSAGE = "dutchmate.learning.createOrMerge";
 export const LEARNING_DELETE_MESSAGE = "dutchmate.learning.delete";
 export const LEARNING_CLEAR_MESSAGE = "dutchmate.learning.clear";
@@ -132,6 +134,7 @@ export type ReviewSettingsUpdateMessage = {
 export type LearningMessage =
   | { type: typeof LEARNING_LIST_MESSAGE }
   | { type: typeof LEARNING_SUMMARY_MESSAGE }
+  | { type: typeof LEARNING_RHYTHM_MESSAGE }
   | { type: typeof LEARNING_CREATE_OR_MERGE_MESSAGE; payload: CreateOrMergeLearningItemInput }
   | { type: typeof LEARNING_DELETE_MESSAGE; payload: { id: string } }
   | { type: typeof LEARNING_CLEAR_MESSAGE }
@@ -232,7 +235,7 @@ export type BackgroundMessageResponse =
   | LearningMessageResponse;
 
 export type LearningMessageResponse =
-  | { ok: true; result: { items: LearningItem[] } | { total: number; due: number; new: number; recent: LearningItem[] } | { item: LearningItem } | { deleted: true } | { cleared: true } | { backup: LearningBackup } | { items: LearningItem[]; importedCount: number; totalCount: number } | { recorded: true } | { snapshot: DailyFiveSnapshot } | { item: LearningItem; snapshot: DailyFiveSnapshot } | { progress: LessonProgress | null } }
+  | { ok: true; result: { items: LearningItem[] } | { total: number; due: number; new: number; recent: LearningItem[] } | { rhythm: LearningRhythm } | { item: LearningItem } | { deleted: true } | { cleared: true } | { backup: LearningBackup } | { items: LearningItem[]; importedCount: number; totalCount: number } | { recorded: true } | { snapshot: DailyFiveSnapshot } | { item: LearningItem; snapshot: DailyFiveSnapshot } | { progress: LessonProgress | null } }
   | { ok: false; error: string };
 
 export function isTranslateMessage(message: unknown): message is TranslateMessage {
@@ -247,7 +250,7 @@ export function isTranslateMessage(message: unknown): message is TranslateMessag
 
 export function isLearningMessage(message: unknown): message is LearningMessage {
   if (typeof message !== "object" || message === null || !("type" in message)) return false;
-  if (message.type === LEARNING_LIST_MESSAGE || message.type === LEARNING_SUMMARY_MESSAGE || message.type === LEARNING_CLEAR_MESSAGE || message.type === LEARNING_EXPORT_MESSAGE) return true;
+  if (message.type === LEARNING_LIST_MESSAGE || message.type === LEARNING_SUMMARY_MESSAGE || message.type === LEARNING_RHYTHM_MESSAGE || message.type === LEARNING_CLEAR_MESSAGE || message.type === LEARNING_EXPORT_MESSAGE) return true;
   if (message.type === LEARNING_DAILY_FIVE_MESSAGE) {
     const payload = "payload" in message ? message.payload : undefined;
     return payload === undefined || (typeof payload === "object" && payload !== null && (!("continueAfterCompletion" in payload) || typeof payload.continueAfterCompletion === "boolean"));

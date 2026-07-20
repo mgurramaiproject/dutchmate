@@ -9,6 +9,7 @@ import {
   LEARNING_IMPORT_MESSAGE,
   LEARNING_LIST_MESSAGE,
   LEARNING_RECORD_ENCOUNTER_MESSAGE,
+  LEARNING_RHYTHM_MESSAGE,
   LEARNING_SUMMARY_MESSAGE,
   LEARNING_DAILY_FIVE_MESSAGE,
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
@@ -32,6 +33,7 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
     }
     if (message.type === LEARNING_LIST_MESSAGE) return { ok: true, result: { items: await store.list() } };
     if (message.type === LEARNING_SUMMARY_MESSAGE) return { ok: true, result: await store.summary() };
+    if (message.type === LEARNING_RHYTHM_MESSAGE) return { ok: true, result: { rhythm: await store.getRhythm() } };
     if (message.type === LEARNING_CREATE_OR_MERGE_MESSAGE) return { ok: true, result: { item: await store.createOrMerge(message.payload) } };
     if (message.type === LEARNING_RECORD_ENCOUNTER_MESSAGE) {
       const item = await store.recordEncounter(message.payload.id, message.payload.context);

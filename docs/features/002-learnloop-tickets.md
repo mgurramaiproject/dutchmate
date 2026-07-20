@@ -429,22 +429,22 @@ Lessons beyond the accepted starter library, legal/administrative advice, audio,
 
 ### Acceptance criteria
 
-- [ ] A day becomes active after Daily Five completion or lesson completion, not after opening the extension or translating arbitrary text.
-- [ ] Repeated qualifying activity on one local calendar day remains one active day.
-- [ ] The seven-day view uses the learner's local date consistently across restarts and deterministic tests.
-- [ ] One missed day can be shown as grace; longer gaps reset gently without loss language, countdown pressure, or fabricated rewards.
-- [ ] Milestones represent meaningful evidence such as first saved chunk, balanced recognition/recall, or completion of a practical pathway.
-- [ ] Milestones do not unlock unrelated decoration, create currency, or imply mastery from activity alone.
-- [ ] Today remains compact and the Daily Five action is still visually primary.
-- [ ] Rhythm and milestone mutations happen through the background contract and survive export/import.
-- [ ] Clearing learning data removes rhythm/milestones only after explicit confirmation.
-- [ ] No telemetry or account is introduced.
+- [x] A day becomes active after Daily Five completion or lesson completion, not after opening the extension or translating arbitrary text.
+- [x] Repeated qualifying activity on one local calendar day remains one active day.
+- [x] The seven-day view uses the learner's local date consistently across restarts and deterministic tests.
+- [x] One missed day can be shown as grace; longer gaps reset gently without loss language, countdown pressure, or fabricated rewards.
+- [x] Milestones represent meaningful evidence such as first saved chunk, balanced recognition/recall, or completion of a practical pathway.
+- [x] Milestones do not unlock unrelated decoration, create currency, or imply mastery from activity alone.
+- [x] Today remains compact and the Daily Five action is still visually primary.
+- [x] Rhythm and milestone mutations happen through the background contract and survive export/import.
+- [x] Clearing learning data removes rhythm/milestones only after explicit confirmation.
+- [x] No telemetry or account is introduced.
 
 ### Verification
 
-- [ ] Deterministic-clock tests cover local-day boundaries, repeated same-day activity, grace behavior, reset behavior, import conflicts, and clear.
-- [ ] Popup tests cover compact weekly presentation, milestone copy, keyboard access, narrow sizing, empty history, and reduced-motion behavior.
-- [ ] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
+- [x] Deterministic-clock tests cover local-day boundaries, repeated same-day activity, grace behavior, reset behavior, import conflicts, and clear.
+- [x] Popup tests cover compact weekly presentation, milestone copy, keyboard access, narrow sizing, empty history, and reduced-motion behavior.
+- [x] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
 
 ### Not in this ticket
 

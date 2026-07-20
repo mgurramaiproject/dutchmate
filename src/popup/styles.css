@@ -43,6 +43,12 @@ button { font: inherit; cursor: pointer; }
 .popup-content { display: grid; align-content: start; height: 540px; overflow-y: auto; overflow-x: hidden; padding: 16px 18px 18px; }
 .today-content { display: grid; gap: 14px; }
 .daily-five { display: grid; gap: 4px; padding: 13px 0; border-top: 1px solid var(--black); border-bottom: 1px solid var(--black); }
+.learning-rhythm { display: grid; gap: 7px; }
+.rhythm-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.rhythm-day { min-height: 16px; border: 1px solid var(--black); background: var(--white); }
+.rhythm-day.active { background: var(--orange); }
+.rhythm-day.grace { border-style: dashed; background: rgba(255, 111, 0, 0.2); }
+.milestone { color: var(--black); font-weight: 750; }
 .primary-button { width: 100%; background: var(--orange); }
 .mastery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .mastery > div { display: grid; gap: 4px; padding: 8px; border-top: 3px solid var(--orange); background: rgba(0, 0, 0, 0.04); }

@@ -1,6 +1,7 @@
 import {
   LEARNING_DELETE_MESSAGE,
   LEARNING_LIST_MESSAGE,
+  LEARNING_RHYTHM_MESSAGE,
   LEARNING_DAILY_FIVE_MESSAGE,
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
@@ -11,11 +12,13 @@ import {
 } from "../background/messages";
 import type { LearningItem, LessonProgress, LessonProgressStage } from "../vocabulary/learning-record";
 import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../vocabulary/daily-five";
+import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import type { LessonPracticeEvidence } from "./lesson-session";
 
 export type LearningRuntimeApi = { runtime: { sendMessage(message: LearningMessage): Promise<LearningMessageResponse> } };
 export type LearningClient = {
   list(): Promise<LearningItem[]>;
+  getRhythm(): Promise<LearningRhythm>;
   delete(id: string): Promise<void>;
   getDailyFive(continueAfterCompletion?: boolean): Promise<DailyFiveSnapshot>;
   recordDailyFiveResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult): Promise<{ item: LearningItem; snapshot: DailyFiveSnapshot }>;
@@ -30,6 +33,11 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
       const response = await extensionApi.runtime.sendMessage({ type: LEARNING_LIST_MESSAGE });
       if (response.ok && "items" in response.result) return response.result.items;
       throw new Error(response.ok ? "Learning items are unavailable." : response.error);
+    },
+    async getRhythm() {
+      const response = await extensionApi.runtime.sendMessage({ type: LEARNING_RHYTHM_MESSAGE });
+      if (response.ok && "rhythm" in response.result) return response.result.rhythm;
+      throw new Error(response.ok ? "Learning rhythm is unavailable." : response.error);
     },
     async delete(id) {
       const response = await extensionApi.runtime.sendMessage({ type: LEARNING_DELETE_MESSAGE, payload: { id } });

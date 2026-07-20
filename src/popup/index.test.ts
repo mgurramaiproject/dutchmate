@@ -19,6 +19,7 @@ describe("lesson popup", () => {
     keepFails = false;
     runtime.sendMessage.mockImplementation(async (message: { type: string; payload?: Record<string, unknown> }) => {
       if (message.type === "dutchmate.learning.list") return { ok: true, result: { items: [] } };
+      if (message.type === "dutchmate.learning.rhythm") return { ok: true, result: { rhythm: { week: [], resetCopy: null, milestones: [] } } };
       if (message.type === "dutchmate.learning.dailyFive") return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: [], completedTaskIds: [], goalCompleted: false } } };
       if (message.type === "dutchmate.review.settings") return { ok: true, result: { settings: defaultSettings } };
       if (message.type === "dutchmate.learning.lessonProgress") return { ok: true, result: { progress: progressByLesson[String(message.payload?.lessonId)] ?? null } };

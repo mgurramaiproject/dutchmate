@@ -4,6 +4,7 @@ import { createSettingsClient } from "./settings-client";
 import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { LearningItem, LessonProgress } from "../vocabulary/learning-record";
+import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
 import { lessonCatalog, type Lesson } from "../lessons/catalog";
@@ -20,6 +21,7 @@ const learningClient = createLearningClient(browser);
 const settingsClient = createSettingsClient(browser);
 let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
+let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
 let screen: "today" | "lessons" | "lesson" | "review" | "settings" = "today";
 let lessonSession: LessonSession | null = null;
@@ -35,7 +37,7 @@ void load();
 
 async function load(continueAfterCompletion = false): Promise<void> {
   try {
-    [items, snapshot, settings] = await Promise.all([learningClient.list(), learningClient.getDailyFive(continueAfterCompletion), settingsClient.getSettings()]);
+    [items, snapshot, rhythm, settings] = await Promise.all([learningClient.list(), learningClient.getDailyFive(continueAfterCompletion), learningClient.getRhythm(), settingsClient.getSettings()]);
     try {
       lessonProgressById = Object.fromEntries(await Promise.all(lessonCatalog.lessons.map(async (lesson) => [lesson.id, await learningClient.getLessonProgress(lesson.id)] as const)));
       lessonsError = null;
@@ -80,8 +82,28 @@ function renderToday(): HTMLElement {
     });
     wrapper.append(action);
   }
+  if (rhythm) wrapper.append(renderRhythm(rhythm));
   wrapper.append(createMasterySummary(), localNote());
   return wrapper;
+}
+
+function renderRhythm(current: LearningRhythm): HTMLElement {
+  const section = document.createElement("section");
+  section.className = "learning-rhythm";
+  section.append(text("This week", "section-title"));
+  const days = document.createElement("div");
+  days.className = "rhythm-days";
+  for (const day of current.week) {
+    const dot = document.createElement("span");
+    dot.className = `rhythm-day ${day.status}`;
+    dot.tabIndex = 0;
+    dot.setAttribute("aria-label", `${new Date(day.dayStartAt).toLocaleDateString(undefined, { weekday: "short" })}: ${day.status === "active" ? "active" : day.status === "grace" ? "grace day" : "rest day"}`);
+    days.append(dot);
+  }
+  section.append(days);
+  if (current.resetCopy) section.append(text(current.resetCopy, "body-copy"));
+  if (current.milestones.length) section.append(text(current.milestones[0].label, "body-copy milestone"));
+  return section;
 }
 
 function renderLessons(): HTMLElement {

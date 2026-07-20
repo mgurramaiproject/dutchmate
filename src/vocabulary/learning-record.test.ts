@@ -116,6 +116,24 @@ describe("LearningRecordStore", () => {
     await expect(local.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toMatchObject({ stage: "replay", updatedAt: 2_000 });
     expect(JSON.stringify((await local.exportBackup()).lessonProgress)).not.toContain("patternExplanation");
   });
+
+  it("keeps qualifying active days through import and removes them on clear", async () => {
+    const storage = new MemoryStorage();
+    let now = 1_000;
+    const records = new LearningRecordStore(storage, () => now);
+    const item = await records.createOrMerge({ dutch: "huis" });
+    await records.getDailyFive();
+    await records.recordDailyFiveResult(item.id, "recognition", "got-it");
+    const backup = await records.exportBackup();
+    expect(backup.rhythm).toMatchObject({ activeDays: { [new Date(now).setHours(0, 0, 0, 0)]: { completedAt: now } } });
+
+    now += 2 * 86_400_000;
+    const restored = new LearningRecordStore(new MemoryStorage(), () => now);
+    await restored.importBackup(backup);
+    expect(await restored.getRhythm()).toMatchObject({ week: expect.arrayContaining([expect.objectContaining({ status: "active" })]) });
+    await restored.clear();
+    expect(await restored.getRhythm()).toMatchObject({ milestones: [], week: expect.not.arrayContaining([expect.objectContaining({ status: "active" })]) });
+  });
 });
 
 function entry(targetLanguage: "en" | "te", translatedText: string) { return { id: `nl\u001fhuis\u001f${targetLanguage}`, text: "huis", normalizedText: "huis", sourceLanguage: "auto" as const, detectedSourceLanguage: "nl" as const, targetLanguage, translatedText, providerName: "test", createdAt: 1_000, updatedAt: 2_000, pageContext: "Een huis staat daar." }; }

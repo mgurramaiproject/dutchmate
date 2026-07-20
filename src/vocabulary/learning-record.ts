@@ -4,6 +4,8 @@ import type { ReviewCard, ReviewRating } from "./review-cards";
 import { parseVocabularyBackup, type VocabularyBackup } from "./vocabulary-backup";
 import { normalizeSavedVocabularyText } from "./saved-vocabulary";
 import { applyDailyFiveResult, createDailyFiveSnapshot, getLocalDayStart, type DailyFiveDimension, type DailyFiveResult, type DailyFiveSnapshot } from "./daily-five";
+import { getLearningRhythm, type LearningRhythm } from "./learning-rhythm";
+import { lessonCatalog } from "../lessons/catalog";
 
 export const LEARNING_RECORD_STORAGE_KEY = "dutchmate.learningRecord.v2";
 export const LEARNING_BACKUP_FORMAT = "dutchmate-learning-backup";
@@ -87,6 +89,11 @@ export class LearningRecordStore {
     };
   }
 
+  async getRhythm(): Promise<LearningRhythm> {
+    const record = await this.readMigrated();
+    return getLearningRhythm(Object.values(record.items), record.lessonProgress, record.rhythm, this.now(), lessonCatalog.lessons);
+  }
+
   async createOrMerge(input: CreateOrMergeLearningItemInput): Promise<LearningItem> {
     const record = await this.readMigrated();
     const item = mergeLearningItem(record.items[getLearningItemId(input.dutch)], input, this.now());
@@ -125,6 +132,7 @@ export class LearningRecordStore {
       return practised;
     });
     next.lessonProgress = { ...next.lessonProgress, [key]: { lessonId, contentVersion, stage: "keep", completedAt: timestamp, keptCandidateIds: candidates.map((candidate) => candidate.id), updatedAt: timestamp } };
+    next.rhythm = { ...next.rhythm, ...withActiveDay(next.rhythm, timestamp, "lessonCompletions") };
     await this.write(next);
     return items;
   }
@@ -168,7 +176,7 @@ export class LearningRecordStore {
       ...record.rhythm,
       dailyFive: nextSnapshot,
       lastDailyFiveDirection: dimension,
-      ...(nextSnapshot.goalCompleted ? { dailyFiveCompletions: { ...(isRecord(record.rhythm.dailyFiveCompletions) ? record.rhythm.dailyFiveCompletions : {}), [snapshot.dayStartAt]: { snapshotCreatedAt: snapshot.createdAt, completedAt: this.now() } } } : {}),
+      ...(nextSnapshot.goalCompleted ? withActiveDay(record.rhythm, this.now(), "dailyFiveCompletions", { snapshotCreatedAt: snapshot.createdAt }) : {}),
     };
     await this.write(record);
     return { item: updated, snapshot: nextSnapshot };
@@ -278,6 +286,7 @@ function mergeImportedLearningItem(existing: LearningItem | undefined, imported:
   return { ...existing, english: existing.english ?? imported.english, telugu: existing.telugu ?? imported.telugu, sources: deduplicateSources([...existing.sources, ...imported.sources]), contexts: mergeContexts(existing.contexts, ...imported.contexts.map((context) => normalizeContext(context.text, existing.dutch, context.addedAt))), recognition: importedIsNewer ? imported.recognition : existing.recognition, recall: importedIsNewer ? imported.recall : existing.recall, createdAt: Math.min(existing.createdAt, imported.createdAt), updatedAt: Math.max(existing.updatedAt, imported.updatedAt) };
 }
 function mergeSource(sources: LearningItemSource[], source: "webpage" | "lesson" | undefined, addedAt: number, metadata?: Omit<LearningItemSource, "type" | "addedAt">): LearningItemSource[] { return source ? deduplicateSources([...sources, { type: source, addedAt, ...metadata }]) : sources; }
+function withActiveDay(rhythm: Record<string, unknown>, timestamp: number, source: "dailyFiveCompletions" | "lessonCompletions", extra: Record<string, unknown> = {}): Record<string, unknown> { const day = getLocalDayStart(timestamp); const entry = { completedAt: timestamp, ...extra }; return { activeDays: { ...(isRecord(rhythm.activeDays) ? rhythm.activeDays : {}), [day]: entry }, [source]: { ...(isRecord(rhythm[source]) ? rhythm[source] : {}), [day]: entry } }; }
 function deduplicateSources(sources: LearningItemSource[]): LearningItemSource[] { return sources.filter((item, index, all) => all.findIndex((candidate) => JSON.stringify(candidate) === JSON.stringify(item)) === index); }
 function mergeContexts(contexts: LearningContext[], ...incoming: Array<LearningContext | null>): LearningContext[] { const result = [...contexts]; for (const context of incoming) { if (!context) continue; const index = result.findIndex((candidate) => normalizeSavedVocabularyText(candidate.text) === normalizeSavedVocabularyText(context.text)); if (index >= 0) continue; result.push(context); } return result.slice(-3); }
 function normalizeContext(value: string | null | undefined, dutch: string, addedAt: number): LearningContext | null { if (!value) return null; const text = value.trim().replace(/\s+/g, " ").slice(0, 240); return text && text.toLocaleLowerCase().includes(dutch.toLocaleLowerCase()) ? { text, addedAt } : null; }
