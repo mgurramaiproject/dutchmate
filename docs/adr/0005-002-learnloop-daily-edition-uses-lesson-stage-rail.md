@@ -10,4 +10,4 @@ The design continues DutchMate's black, white, and orange editorial system, uses
 
 Accepted reference: `docs/features/002-learnloop-approved-popup-design.html`.
 
-The Five-Line Ledger's Today layout, Story Spine, and Action Dock are not selected. Their exploratory code was removed after the decision.
+The Five-Line Ledger's Today layout, Story Spine, and Action Dock are not selected. The original four-direction prototype remains in `docs/features/002-learnloop-design-mockups.html` only as a historical exploration archive; it is not an implementation source of truth.
