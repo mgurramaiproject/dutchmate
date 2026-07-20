@@ -193,6 +193,18 @@ describe("WebpageLookupModule", () => {
     });
   });
 
+  it("requires an explicit action before saving a selected meaningful chunk", async () => {
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport({ saveLearningItem }), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+    module.subscribe((event) => events.push(event));
+    await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, languageSample: "goede morgen", sourceLanguageHint: "nl", pageContext: "Goede morgen, buur." });
+    expect(saveLearningItem).not.toHaveBeenCalled();
+    expect(events).toContainEqual(expect.objectContaining({ type: "render-result", saveAction: { status: "ready", label: "Review & save", disabled: false } }));
+    await module.handleSaveAction();
+    expect(saveLearningItem).toHaveBeenCalledWith(expect.objectContaining({ dutch: "goede morgen", kind: "chunk", source: "webpage" }));
+  });
+
   it("keeps English-source candidates in the manual save flow", async () => {
     const savedRequests: Array<{ targetLanguage: string; detectedSourceLanguage?: string }> = [];
     const module = new WebpageLookupModule({
