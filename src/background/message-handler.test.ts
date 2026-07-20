@@ -14,6 +14,9 @@ import {
   REVIEW_IMPORT_MESSAGE,
   REVIEW_RATE_MESSAGE,
   REVIEW_SETTINGS_UPDATE_MESSAGE,
+  LEARNING_CREATE_OR_MERGE_MESSAGE,
+  LEARNING_EXPORT_MESSAGE,
+  LEARNING_IMPORT_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
@@ -22,6 +25,7 @@ import { ReviewCardStore } from "../vocabulary/review-cards";
 import { SavedVocabularyStore, type SavedVocabularyStorage } from "../vocabulary/saved-vocabulary";
 import { defaultSettings } from "../shared/settings";
 import { createVocabularyBackup } from "../vocabulary/vocabulary-backup";
+import { LearningRecordStore } from "../vocabulary/learning-record";
 
 describe("createBackgroundMessageHandler", () => {
   it("refreshes the badge after vocabulary saves and ratings", async () => {
@@ -98,6 +102,20 @@ describe("createBackgroundMessageHandler", () => {
 
     await expect(reviewCards.list()).resolves.toEqual([]);
     expect(refreshBadge).toHaveBeenCalledTimes(2);
+  });
+
+  it("handles learning records through the typed background contract with an injected clock", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({
+      savedVocabulary, reviewCards, learningRecords: new LearningRecordStore(storage, () => 1_000), refreshBadge: async () => undefined,
+    });
+    await expect(send(handleMessage, { type: LEARNING_CREATE_OR_MERGE_MESSAGE, payload: { dutch: "goedemorgen", english: "good morning", source: "webpage" } })).resolves.toMatchObject({ ok: true, result: { item: { id: "nl\u001fgoedemorgen", createdAt: 1_000 } } });
+    const exported = await send(handleMessage, { type: LEARNING_EXPORT_MESSAGE });
+    expect(exported).toMatchObject({ ok: true, result: { backup: { version: 2, learningItems: [expect.objectContaining({ english: "good morning" })] } } });
+    const versionOne = createVocabularyBackup([{ id: "nl\u001fboom", dutch: "boom", english: "tree", telugu: null, pageContext: null, createdAt: 1, updatedAt: 1, dueAt: null, lastReviewedAt: null, lastRating: null, reviewCount: 0 }], 1_000);
+    await expect(send(handleMessage, { type: LEARNING_IMPORT_MESSAGE, payload: { document: JSON.stringify(versionOne) } })).resolves.toMatchObject({ ok: true, result: { importedCount: 1, totalCount: 2 } });
   });
 });
 

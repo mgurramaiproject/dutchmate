@@ -55,27 +55,27 @@ After T01, T02 and T04 are independent frontiers. After T06, the three lesson-li
 
 ### Acceptance criteria
 
-- [ ] Canonical IDs include the explicit learning-language key and normalized Dutch form.
-- [ ] Words and future meaningful chunks use the same learning-item record.
-- [ ] Migration is idempotent and never creates duplicate items when initialization runs more than once.
-- [ ] Existing English and Telugu meanings, source metadata, page context, and review timestamps are preserved where present.
-- [ ] Existing ratings are mapped conservatively into separate recognition and recall dimensions without overstating mastery.
-- [ ] The typed background contract can list, summarize, create or merge, delete, clear, import, and export learning records.
-- [ ] A new-version export includes learning items, mastery, sources, capped contexts, lesson-progress storage, and rhythm storage, even when the latter two are initially empty.
-- [ ] Import validates the format and version before changing storage; malformed and unsupported documents leave local data unchanged.
-- [ ] Import conflicts preserve newer local mastery while safely filling missing meanings and contexts.
-- [ ] Current version-one backups remain importable.
-- [ ] Provider credentials, translation-cache entries, raw page content outside capped contexts, and unrelated settings remain excluded.
-- [ ] Existing popup and Options vocabulary behavior still works after migration.
-- [ ] Clearing vocabulary remains explicitly confirmed and clears associated learning state without touching unrelated settings.
+- [x] Canonical IDs include the explicit learning-language key and normalized Dutch form.
+- [x] Words and future meaningful chunks use the same learning-item record.
+- [x] Migration is idempotent and never creates duplicate items when initialization runs more than once.
+- [x] Existing English and Telugu meanings, source metadata, page context, and review timestamps are preserved where present.
+- [x] Existing ratings are mapped conservatively into separate recognition and recall dimensions without overstating mastery.
+- [x] The typed background contract can list, summarize, create or merge, delete, clear, import, and export learning records.
+- [x] A new-version export includes learning items, mastery, sources, capped contexts, lesson-progress storage, and rhythm storage, even when the latter two are initially empty.
+- [x] Import validates the format and version before changing storage; malformed and unsupported documents leave local data unchanged.
+- [x] Import conflicts preserve newer local mastery while safely filling missing meanings and contexts.
+- [x] Current version-one backups remain importable.
+- [x] Provider credentials, translation-cache entries, raw page content outside capped contexts, and unrelated settings remain excluded.
+- [x] Existing popup and Options vocabulary behavior still works after migration.
+- [x] Clearing vocabulary remains explicitly confirmed and clears associated learning state without touching unrelated settings.
 
 ### Verification
 
-- [ ] Focused tests cover empty migration, representative legacy migration, partial translations, repeated migration, conflict merging, malformed import, unsupported versions, version-one import, new-version round-trip, and excluded data.
-- [ ] Background-handler integration tests use in-memory storage and a deterministic clock rather than private-helper mocks.
-- [ ] `corepack pnpm test` passes.
-- [ ] `corepack pnpm typecheck` passes.
-- [ ] `corepack pnpm build:chrome` and `corepack pnpm build:firefox` pass because storage and runtime contracts affect every extension entry point.
+- [x] Focused tests cover empty migration, representative legacy migration, partial translations, repeated migration, conflict merging, malformed import, unsupported versions, version-one import, new-version round-trip, and excluded data.
+- [x] Background-handler integration tests use in-memory storage and a deterministic clock rather than private-helper mocks.
+- [x] `corepack pnpm test` passes.
+- [x] `corepack pnpm typecheck` passes.
+- [x] `corepack pnpm build:chrome` and `corepack pnpm build:firefox` pass because storage and runtime contracts affect every extension entry point.
 
 ### Not in this ticket
 

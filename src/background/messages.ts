@@ -8,6 +8,7 @@ import type {
 import type { ReviewCard, ReviewCardSummary, ReviewImportResult, ReviewRating } from "../vocabulary/review-cards";
 import type { VocabularyBackup } from "../vocabulary/vocabulary-backup";
 import type { ExtensionSettings } from "../shared/settings";
+import type { CreateOrMergeLearningItemInput, LearningBackup, LearningItem } from "../vocabulary/learning-record";
 
 export const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 export const SAVE_VOCABULARY_MESSAGE = "hoverTranslate.vocabulary.save";
@@ -26,6 +27,13 @@ export const REVIEW_IMPORT_MESSAGE = "dutchmate.review.import";
 export const REVIEW_CLEAR_MESSAGE = "dutchmate.review.clear";
 export const REVIEW_SETTINGS_MESSAGE = "dutchmate.review.settings";
 export const REVIEW_SETTINGS_UPDATE_MESSAGE = "dutchmate.review.settings.update";
+export const LEARNING_LIST_MESSAGE = "dutchmate.learning.list";
+export const LEARNING_SUMMARY_MESSAGE = "dutchmate.learning.summary";
+export const LEARNING_CREATE_OR_MERGE_MESSAGE = "dutchmate.learning.createOrMerge";
+export const LEARNING_DELETE_MESSAGE = "dutchmate.learning.delete";
+export const LEARNING_CLEAR_MESSAGE = "dutchmate.learning.clear";
+export const LEARNING_EXPORT_MESSAGE = "dutchmate.learning.export";
+export const LEARNING_IMPORT_MESSAGE = "dutchmate.learning.import";
 
 export type ReviewSettingsChanges = Pick<
   ExtensionSettings,
@@ -114,6 +122,14 @@ export type ReviewSettingsUpdateMessage = {
   type: typeof REVIEW_SETTINGS_UPDATE_MESSAGE;
   payload: Partial<ReviewSettingsChanges>;
 };
+export type LearningMessage =
+  | { type: typeof LEARNING_LIST_MESSAGE }
+  | { type: typeof LEARNING_SUMMARY_MESSAGE }
+  | { type: typeof LEARNING_CREATE_OR_MERGE_MESSAGE; payload: CreateOrMergeLearningItemInput }
+  | { type: typeof LEARNING_DELETE_MESSAGE; payload: { id: string } }
+  | { type: typeof LEARNING_CLEAR_MESSAGE }
+  | { type: typeof LEARNING_EXPORT_MESSAGE }
+  | { type: typeof LEARNING_IMPORT_MESSAGE; payload: { document: string } };
 
 export type VocabularyMessage =
   | SaveVocabularyMessage
@@ -199,7 +215,12 @@ export type BackgroundMessageResponse =
   | TranslateMessageResponse
   | VocabularyMessageResponse
   | ReviewMessageResponse
-  | SettingsMessageResponse;
+  | SettingsMessageResponse
+  | LearningMessageResponse;
+
+export type LearningMessageResponse =
+  | { ok: true; result: { items: LearningItem[] } | { total: number; due: number; new: number; recent: LearningItem[] } | { item: LearningItem } | { deleted: true } | { cleared: true } | { backup: LearningBackup } | { items: LearningItem[]; importedCount: number; totalCount: number } }
+  | { ok: false; error: string };
 
 export function isTranslateMessage(message: unknown): message is TranslateMessage {
   return (
@@ -209,6 +230,16 @@ export function isTranslateMessage(message: unknown): message is TranslateMessag
     message.type === TRANSLATE_MESSAGE &&
     "payload" in message
   );
+}
+
+export function isLearningMessage(message: unknown): message is LearningMessage {
+  if (typeof message !== "object" || message === null || !("type" in message)) return false;
+  if (message.type === LEARNING_LIST_MESSAGE || message.type === LEARNING_SUMMARY_MESSAGE || message.type === LEARNING_CLEAR_MESSAGE || message.type === LEARNING_EXPORT_MESSAGE) return true;
+  if (!("payload" in message) || typeof message.payload !== "object" || message.payload === null) return false;
+  const payload = message.payload as Record<string, unknown>;
+  if (message.type === LEARNING_DELETE_MESSAGE) return typeof payload.id === "string";
+  if (message.type === LEARNING_IMPORT_MESSAGE) return typeof payload.document === "string";
+  return message.type === LEARNING_CREATE_OR_MERGE_MESSAGE && typeof payload.dutch === "string" && (payload.kind === undefined || payload.kind === "word" || payload.kind === "chunk") && (payload.english === undefined || payload.english === null || typeof payload.english === "string") && (payload.telugu === undefined || payload.telugu === null || typeof payload.telugu === "string") && (payload.context === undefined || payload.context === null || typeof payload.context === "string") && (payload.source === undefined || payload.source === "webpage" || payload.source === "lesson");
 }
 
 export function isVocabularyMessage(message: unknown): message is VocabularyMessage {

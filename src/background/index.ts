@@ -17,6 +17,7 @@ import { TranslationService } from "../translation/translation-service";
 import { getTranslationErrorMessage } from "./translation-error-message";
 import { SavedVocabularyStore } from "../vocabulary/saved-vocabulary";
 import { ReviewCardStore } from "../vocabulary/review-cards";
+import { LearningRecordStore } from "../vocabulary/learning-record";
 import { updateReviewBadge, type ReviewBadgeExtensionApi } from "./review-badge";
 
 const MAX_CACHE_ENTRIES = 100;
@@ -63,6 +64,7 @@ const translationService = new TranslationService(
 );
 const savedVocabularyStore = new SavedVocabularyStore(localStorage);
 const reviewCardStore = new ReviewCardStore(savedVocabularyStore, localStorage);
+const learningRecordStore = new LearningRecordStore(localStorage);
 const reviewSettings = {
   read: () => readExtensionSettings(extensionApi),
   async update(changes: Parameters<typeof mergeSettings>[1]) {
@@ -86,6 +88,7 @@ async function refreshReviewBadge(): Promise<void> {
 const handleBackgroundMessage = createBackgroundMessageHandler({
   savedVocabulary: savedVocabularyStore,
   reviewCards: reviewCardStore,
+  learningRecords: learningRecordStore,
   reviewSettings,
   refreshBadge: refreshReviewBadge,
 });
