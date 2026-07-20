@@ -271,23 +271,23 @@ The remaining eleven lessons, remote catalogs, generated or personalized lessons
 
 ### Acceptance criteria
 
-- [ ] Progress records contain only stable lesson identity/version and learner state, not copied catalog content.
-- [ ] Closing the popup after Read, Notice, Practise, or Replay resumes at the documented safe state.
-- [ ] A completed lesson remains replayable and retains its completion record.
-- [ ] Replay does not reset recognition/recall mastery or create duplicate due work.
-- [ ] Already-kept candidates are labeled `Already saved` and resolve to the same canonical learning item.
-- [ ] Repeating `Keep N for review` is idempotent and atomic.
-- [ ] A lesson version change is handled explicitly rather than silently applying incompatible old progress.
-- [ ] Missing or invalid catalog entries show a recoverable Lessons error and do not corrupt progress.
-- [ ] Import/export round-trips lesson progress and resolves conflicts without rescheduling newer local mastery.
-- [ ] Clearing learning data removes associated lesson progress only after the existing explicit confirmation.
+- [x] Progress records contain only stable lesson identity/version and learner state, not copied catalog content.
+- [x] Closing the popup after Read, Notice, Practise, or Replay resumes at the documented safe state.
+- [x] A completed lesson remains replayable and retains its completion record.
+- [x] Replay does not reset recognition/recall mastery or create duplicate due work.
+- [x] Already-kept candidates are labeled `Already saved` and resolve to the same canonical learning item.
+- [x] Repeating `Keep N for review` is idempotent and atomic.
+- [x] A lesson version change is handled explicitly rather than silently applying incompatible old progress.
+- [x] Missing or invalid catalog entries show a recoverable Lessons error and do not corrupt progress.
+- [x] Import/export round-trips lesson progress and resolves conflicts without rescheduling newer local mastery.
+- [x] Clearing learning data removes associated lesson progress only after the existing explicit confirmation.
 
 ### Verification
 
-- [ ] Background tests cover progress read/write, resume, completion, replay, duplicate keep, version changes, import/export, and clear behavior.
-- [ ] Popup tests cover restoration at every stage, `Already saved`, completed replay, invalid content, and recoverable errors.
-- [ ] Catalog validation remains the only structural publication seam.
-- [ ] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
+- [x] Background tests cover progress read/write, resume, completion, replay, duplicate keep, version changes, import/export, and clear behavior.
+- [x] Popup tests cover restoration at every stage, `Already saved`, completed replay, invalid content, and recoverable errors.
+- [x] Catalog validation remains the only structural publication seam.
+- [x] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
 
 ### Not in this ticket
 

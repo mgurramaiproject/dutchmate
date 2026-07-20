@@ -4,7 +4,7 @@ export type LessonLine = { dutch: string; english: string; telugu: string };
 export type LessonCandidate = { id: string; dutch: string; english: string; telugu: string; kind: "word" | "chunk" };
 export type LessonPracticePrompt = { candidateId: string; dimension: "recognition" | "recall" };
 export type Lesson = {
-  id: string; pathway: string; order: number; cefr: "A0" | "A1" | "A2"; title: string; durationMinutes: number;
+  id: string; contentVersion: number; pathway: string; order: number; cefr: "A0" | "A1" | "A2"; title: string; durationMinutes: number;
   pattern: string; patternText: string; patternExplanation: string; lines: LessonLine[];
   candidates: LessonCandidate[]; practice: LessonPracticePrompt[];
   review: { dutch: true; english: true; telugu: true; cefr: true; cultural: true; practicalUse: true };
@@ -12,7 +12,7 @@ export type Lesson = {
 export type LessonCatalog = { version: typeof LESSON_CATALOG_VERSION; lessons: Lesson[] };
 
 export const appointmentLesson: Lesson = {
-  id: "a1-een-afspraak-maken", pathway: "appointments-and-healthcare", order: 7,
+  id: "a1-een-afspraak-maken", contentVersion: 1, pathway: "appointments-and-healthcare", order: 7,
   cefr: "A1", title: "A1 · Een afspraak maken", durationMinutes: 4,
   pattern: "Ik wil graag…", patternText: "Ik wil graag", patternExplanation: "Use Ik wil graag… to make a polite request. The verb stays in its normal position after ik.",
   lines: [
@@ -45,6 +45,7 @@ export function validateLessonCatalog(catalog: LessonCatalog): string[] {
   for (const lesson of catalog.lessons) {
     const field = (name: string, valid: boolean, message: string) => { if (!valid) errors.push(`${lesson.id}.${name}: ${message}`); };
     field("id", /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(lesson.id) && !ids.has(lesson.id), "expected unique stable kebab-case identifier"); ids.add(lesson.id);
+    field("contentVersion", Number.isInteger(lesson.contentVersion) && lesson.contentVersion > 0, "expected positive content version");
     const pathwayOrder = `${lesson.pathway}\u001f${lesson.order}`;
     field("pathway", lesson.pathway.length > 0 && !pathwayOrders.has(pathwayOrder), "expected pathway with unique order"); pathwayOrders.add(pathwayOrder); field("order", Number.isInteger(lesson.order) && lesson.order > 0, "expected positive order");
     field("cefr", lesson.cefr === "A0" || lesson.cefr === "A1" || lesson.cefr === "A2", "expected A0, A1, or A2 CEFR level"); field("title", lesson.title.startsWith(`${lesson.cefr} · `), "expected CEFR-prefixed title"); field("durationMinutes", lesson.durationMinutes >= 3 && lesson.durationMinutes <= 5, "expected 3 to 5 minutes");

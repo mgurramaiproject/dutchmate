@@ -17,4 +17,10 @@ describe("lesson catalog", () => {
       "a1-een-afspraak-maken.candidates: expected 3 to 5 candidates",
     ]));
   });
+
+  it("requires an explicit positive version for each lesson's content", () => {
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons[0].contentVersion = 0;
+    expect(validateLessonCatalog(invalid)).toContain("a1-een-afspraak-maken.contentVersion: expected positive content version");
+  });
 });

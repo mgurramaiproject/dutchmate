@@ -82,6 +82,36 @@ describe("LearningRecordStore", () => {
     await records.clear();
     await expect(records.list()).resolves.toEqual([]);
   });
+
+  it("resumes versioned lesson progress, preserves completion on replay, and clears it with learning data", async () => {
+    const storage = new MemoryStorage();
+    let now = 1_000;
+    const records = new LearningRecordStore(storage, () => now);
+    await records.saveLessonProgress("a1-een-afspraak-maken", 1, "notice");
+    await expect(records.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toMatchObject({ stage: "notice", completedAt: null });
+    await expect(records.getLessonProgress("a1-een-afspraak-maken", 2)).resolves.toBeUndefined();
+
+    now = 2_000;
+    const candidates = [{ id: "afspraak-maken", dutch: "een afspraak maken", kind: "chunk" as const, english: "make an appointment", telugu: "అపాయింట్‌మెంట్ తీసుకోవడం" }];
+    const [kept] = await records.keepLessonCandidates("a1-een-afspraak-maken", 1, candidates, [{ dutch: "een afspraak maken", dimension: "recognition", result: "got-it" }]);
+    const beforeReplay = structuredClone(kept);
+    await records.keepLessonCandidates("a1-een-afspraak-maken", 1, candidates, [{ dutch: "een afspraak maken", dimension: "recognition", result: "got-it" }]);
+    await expect(records.list()).resolves.toEqual([beforeReplay]);
+    await expect(records.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toMatchObject({ completedAt: 2_000, keptCandidateIds: ["afspraak-maken"] });
+
+    await records.clear();
+    await expect(records.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toBeUndefined();
+  });
+
+  it("imports newer valid lesson progress without copying catalog content", async () => {
+    const local = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await local.saveLessonProgress("a1-een-afspraak-maken", 1, "read");
+    const imported = await local.exportBackup();
+    imported.lessonProgress = { "a1-een-afspraak-maken\u001f1": { lessonId: "a1-een-afspraak-maken", contentVersion: 1, stage: "replay", completedAt: null, keptCandidateIds: [], updatedAt: 2_000 } };
+    await local.importBackup(imported);
+    await expect(local.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toMatchObject({ stage: "replay", updatedAt: 2_000 });
+    expect(JSON.stringify((await local.exportBackup()).lessonProgress)).not.toContain("patternExplanation");
+  });
 });
 
 function entry(targetLanguage: "en" | "te", translatedText: string) { return { id: `nl\u001fhuis\u001f${targetLanguage}`, text: "huis", normalizedText: "huis", sourceLanguage: "auto" as const, detectedSourceLanguage: "nl" as const, targetLanguage, translatedText, providerName: "test", createdAt: 1_000, updatedAt: 2_000, pageContext: "Een huis staat daar." }; }

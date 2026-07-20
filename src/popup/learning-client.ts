@@ -4,10 +4,12 @@ import {
   LEARNING_DAILY_FIVE_MESSAGE,
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
+  LEARNING_LESSON_PROGRESS_MESSAGE,
+  LEARNING_SAVE_LESSON_PROGRESS_MESSAGE,
   type LearningMessage,
   type LearningMessageResponse,
 } from "../background/messages";
-import type { LearningItem } from "../vocabulary/learning-record";
+import type { LearningItem, LessonProgress, LessonProgressStage } from "../vocabulary/learning-record";
 import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { LessonPracticeEvidence } from "./lesson-session";
 
@@ -18,6 +20,8 @@ export type LearningClient = {
   getDailyFive(continueAfterCompletion?: boolean): Promise<DailyFiveSnapshot>;
   recordDailyFiveResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult): Promise<{ item: LearningItem; snapshot: DailyFiveSnapshot }>;
   keepLessonCandidates(lessonId: string, candidateIds: string[], evidence: LessonPracticeEvidence[]): Promise<LearningItem[]>;
+  getLessonProgress(lessonId: string): Promise<LessonProgress | null>;
+  saveLessonProgress(lessonId: string, stage: LessonProgressStage): Promise<LessonProgress>;
 };
 
 export function createLearningClient(extensionApi: LearningRuntimeApi): LearningClient {
@@ -45,6 +49,16 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
       const response = await extensionApi.runtime.sendMessage({ type: LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE, payload: { lessonId, candidateIds, evidence } });
       if (response.ok && "items" in response.result) return response.result.items;
       throw new Error(response.ok ? "Lesson candidates could not be kept." : response.error);
+    },
+    async getLessonProgress(lessonId) {
+      const response = await extensionApi.runtime.sendMessage({ type: LEARNING_LESSON_PROGRESS_MESSAGE, payload: { lessonId } });
+      if (response.ok && "progress" in response.result) return response.result.progress;
+      throw new Error(response.ok ? "Lesson progress is unavailable." : response.error);
+    },
+    async saveLessonProgress(lessonId, stage) {
+      const response = await extensionApi.runtime.sendMessage({ type: LEARNING_SAVE_LESSON_PROGRESS_MESSAGE, payload: { lessonId, stage } });
+      if (response.ok && "progress" in response.result && response.result.progress) return response.result.progress;
+      throw new Error(response.ok ? "Lesson progress could not be saved." : response.error);
     },
   };
 }

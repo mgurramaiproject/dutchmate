@@ -45,6 +45,8 @@ export type LearningRecord = {
   lessonProgress: Record<string, unknown>;
   rhythm: Record<string, unknown>;
 };
+export type LessonProgressStage = "read" | "notice" | "practise" | "replay" | "keep";
+export type LessonProgress = { lessonId: string; contentVersion: number; stage: LessonProgressStage; completedAt: number | null; keptCandidateIds: string[]; updatedAt: number };
 export type LearningBackup = {
   format: typeof LEARNING_BACKUP_FORMAT;
   version: typeof LEARNING_BACKUP_VERSION;
@@ -93,9 +95,27 @@ export class LearningRecordStore {
     return item;
   }
 
-  async keepLessonCandidates(lessonId: string, candidates: Array<Pick<CreateOrMergeLearningItemInput, "dutch" | "kind" | "english" | "telugu">>, evidence: Array<{ dutch: string; dimension: DailyFiveDimension; result: DailyFiveResult }>): Promise<LearningItem[]> {
+  async getLessonProgress(lessonId: string, contentVersion: number): Promise<LessonProgress | undefined> {
+    const progress = parseLessonProgress((await this.readMigrated()).lessonProgress[lessonProgressKey(lessonId, contentVersion)]);
+    return progress?.contentVersion === contentVersion ? progress : undefined;
+  }
+
+  async saveLessonProgress(lessonId: string, contentVersion: number, stage: LessonProgressStage): Promise<LessonProgress> {
     const record = await this.readMigrated();
     const timestamp = this.now();
+    const existing = parseLessonProgress(record.lessonProgress[lessonProgressKey(lessonId, contentVersion)]);
+    const progress: LessonProgress = existing && existing.completedAt !== null ? existing : { lessonId, contentVersion, stage, completedAt: null, keptCandidateIds: existing?.keptCandidateIds ?? [], updatedAt: timestamp };
+    record.lessonProgress = { ...record.lessonProgress, [lessonProgressKey(lessonId, contentVersion)]: progress };
+    await this.write(record);
+    return progress;
+  }
+
+  async keepLessonCandidates(lessonId: string, contentVersion: number, candidates: Array<Pick<CreateOrMergeLearningItemInput, "dutch" | "kind" | "english" | "telugu"> & { id: string }>, evidence: Array<{ dutch: string; dimension: DailyFiveDimension; result: DailyFiveResult }>): Promise<LearningItem[]> {
+    const record = await this.readMigrated();
+    const timestamp = this.now();
+    const key = lessonProgressKey(lessonId, contentVersion);
+    const existingProgress = parseLessonProgress(record.lessonProgress[key]);
+    if (existingProgress && existingProgress.completedAt !== null) return existingProgress.keptCandidateIds.map((id) => candidates.find((candidate) => candidate.id === id)).filter((candidate): candidate is typeof candidates[number] => candidate !== undefined).map((candidate) => record.items[getLearningItemId(candidate.dutch)]).filter((item): item is LearningItem => item !== undefined);
     const next = { ...record, items: { ...record.items } };
     const items = candidates.map((candidate) => {
       const item = mergeLearningItem(next.items[getLearningItemId(candidate.dutch)], { ...candidate, source: "lesson", sourceMetadata: { lessonId } }, timestamp);
@@ -104,6 +124,7 @@ export class LearningRecordStore {
       next.items[practised.id] = practised;
       return practised;
     });
+    next.lessonProgress = { ...next.lessonProgress, [key]: { lessonId, contentVersion, stage: "keep", completedAt: timestamp, keptCandidateIds: candidates.map((candidate) => candidate.id), updatedAt: timestamp } };
     await this.write(next);
     return items;
   }
@@ -185,7 +206,7 @@ export class LearningRecordStore {
       const id = getLearningItemId(imported.dutch);
       record.items[id] = mergeImportedLearningItem(record.items[id], imported);
     }
-    record.lessonProgress = { ...record.lessonProgress, ...backup.lessonProgress };
+    record.lessonProgress = mergeLessonProgress(record.lessonProgress, backup.lessonProgress);
     record.rhythm = { ...record.rhythm, ...backup.rhythm };
     await this.write(record);
     const items = Object.values(record.items).sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
@@ -260,6 +281,9 @@ function mergeSource(sources: LearningItemSource[], source: "webpage" | "lesson"
 function deduplicateSources(sources: LearningItemSource[]): LearningItemSource[] { return sources.filter((item, index, all) => all.findIndex((candidate) => JSON.stringify(candidate) === JSON.stringify(item)) === index); }
 function mergeContexts(contexts: LearningContext[], ...incoming: Array<LearningContext | null>): LearningContext[] { const result = [...contexts]; for (const context of incoming) { if (!context) continue; const index = result.findIndex((candidate) => normalizeSavedVocabularyText(candidate.text) === normalizeSavedVocabularyText(context.text)); if (index >= 0) continue; result.push(context); } return result.slice(-3); }
 function normalizeContext(value: string | null | undefined, dutch: string, addedAt: number): LearningContext | null { if (!value) return null; const text = value.trim().replace(/\s+/g, " ").slice(0, 240); return text && text.toLocaleLowerCase().includes(dutch.toLocaleLowerCase()) ? { text, addedAt } : null; }
+function lessonProgressKey(lessonId: string, contentVersion: number): string { return `${lessonId}\u001f${contentVersion}`; }
+function parseLessonProgress(value: unknown): LessonProgress | undefined { return isRecord(value) && typeof value.lessonId === "string" && finite(value.contentVersion) && (value.stage === "read" || value.stage === "notice" || value.stage === "practise" || value.stage === "replay" || value.stage === "keep") && (value.completedAt === null || finite(value.completedAt)) && Array.isArray(value.keptCandidateIds) && value.keptCandidateIds.every((id) => typeof id === "string") && finite(value.updatedAt) ? { lessonId: value.lessonId, contentVersion: value.contentVersion, stage: value.stage, completedAt: value.completedAt, keptCandidateIds: value.keptCandidateIds, updatedAt: value.updatedAt } : undefined; }
+function mergeLessonProgress(local: Record<string, unknown>, imported: Record<string, unknown>): Record<string, unknown> { const result = { ...local }; for (const [key, value] of Object.entries(imported)) { const incoming = parseLessonProgress(value); if (!incoming) continue; const existing = parseLessonProgress(result[key]); if (!existing || incoming.updatedAt > existing.updatedAt) result[key] = incoming; } return result; }
 function legacyContribution(entry: SavedVocabularyEntry, entries: SavedVocabularyEntry[]): CreateOrMergeLearningItemInput | null { const source = entry.detectedSourceLanguage ?? entry.sourceLanguage; const sourceMetadata = { sourceLanguage: entry.sourceLanguage, ...(entry.detectedSourceLanguage ? { detectedSourceLanguage: entry.detectedSourceLanguage } : {}), targetLanguage: entry.targetLanguage, providerName: entry.providerName }; if (source === "nl") return entry.targetLanguage === "en" ? { dutch: entry.text, english: entry.translatedText, source: "webpage", sourceMetadata, context: entry.pageContext } : entry.targetLanguage === "te" ? { dutch: entry.text, telugu: entry.translatedText, source: "webpage", sourceMetadata, context: entry.pageContext } : null; if (source !== "en" && source !== "te") return null; const dutch = entry.targetLanguage === "nl" ? entry.translatedText : entries.find((candidate) => (candidate.detectedSourceLanguage ?? candidate.sourceLanguage) === source && candidate.text === entry.text && candidate.targetLanguage === "nl")?.translatedText; if (!dutch) return null; return source === "en" ? { dutch, english: entry.text, source: "webpage", sourceMetadata, context: entry.pageContext } : { dutch, telugu: entry.text, source: "webpage", sourceMetadata, context: entry.pageContext }; }
 function parseRecord(value: unknown): LearningRecord { return isRecord(value) && value.version === 2 && isRecord(value.items) && isRecord(value.lessonProgress) && isRecord(value.rhythm) ? { version: 2, items: Object.fromEntries(Object.entries(value.items).flatMap(([, item]) => { try { const parsed = parseLearningItem(item); return [[parsed.id, parsed]]; } catch { return []; } })), lessonProgress: value.lessonProgress, rhythm: value.rhythm } : { version: 2, items: {}, lessonProgress: {}, rhythm: {} }; }
 function parseLegacyVocabulary(value: unknown): LegacyData { return isRecord(value) && isRecord(value.entries) ? { entries: value.entries as Record<string, SavedVocabularyEntry> } : { entries: {} }; }

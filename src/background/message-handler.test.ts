@@ -21,6 +21,7 @@ import {
   LEARNING_DAILY_FIVE_MESSAGE,
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
+  LEARNING_LESSON_PROGRESS_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
@@ -31,6 +32,7 @@ import { defaultSettings } from "../shared/settings";
 import { createVocabularyBackup } from "../vocabulary/vocabulary-backup";
 import { LearningRecordStore } from "../vocabulary/learning-record";
 import { getLocalDayStart } from "../vocabulary/daily-five";
+import { lessonCatalog } from "../lessons/catalog";
 
 describe("createBackgroundMessageHandler", () => {
   it("refreshes the badge after vocabulary saves and ratings", async () => {
@@ -202,6 +204,19 @@ describe("createBackgroundMessageHandler", () => {
     await expect(send(handleMessage, { type: LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE, payload: { lessonId: "a1-een-afspraak-maken", candidateIds: ["afspraak-maken"], evidence: [] } })).resolves.toEqual({ ok: false, error: "Learning records are unavailable." });
     storage.failLearningWrites = false;
     await expect(records.list()).resolves.toEqual([expect.objectContaining({ dutch: "huis" })]);
+  });
+
+  it("rejects invalid bundled lessons before reading progress", async () => {
+    const storage = new MemoryStorage();
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary: new SavedVocabularyStore(storage), reviewCards: new ReviewCardStore(new SavedVocabularyStore(storage), storage), learningRecords: new LearningRecordStore(storage), refreshBadge: async () => undefined });
+    const lesson = lessonCatalog.lessons[0];
+    const version = lesson.contentVersion;
+    lesson.contentVersion = 0;
+    try {
+      await expect(send(handleMessage, { type: LEARNING_LESSON_PROGRESS_MESSAGE, payload: { lessonId: lesson.id } })).resolves.toEqual({ ok: false, error: "Lessons are unavailable until bundled content is fixed." });
+    } finally {
+      lesson.contentVersion = version;
+    }
   });
 });
 

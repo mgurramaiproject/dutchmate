@@ -18,6 +18,8 @@ import {
   REVIEW_SETTINGS_MESSAGE,
   REVIEW_SETTINGS_UPDATE_MESSAGE,
   LEARNING_RECORD_ENCOUNTER_MESSAGE,
+  LEARNING_LESSON_PROGRESS_MESSAGE,
+  LEARNING_SAVE_LESSON_PROGRESS_MESSAGE,
   isLearningMessage,
 } from "./messages";
 
@@ -61,6 +63,8 @@ describe("isVocabularyMessage", () => {
     expect(isVocabularyMessage({ type: CLEAR_VOCABULARY_MESSAGE })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_SUMMARY_MESSAGE })).toBe(true);
     expect(isLearningMessage({ type: LEARNING_RECORD_ENCOUNTER_MESSAGE, payload: { id: "nl\u001fhuis", context: "Een huis staat daar." } })).toBe(true);
+    expect(isLearningMessage({ type: LEARNING_LESSON_PROGRESS_MESSAGE, payload: { lessonId: "a1-een-afspraak-maken" } })).toBe(true);
+    expect(isLearningMessage({ type: LEARNING_SAVE_LESSON_PROGRESS_MESSAGE, payload: { lessonId: "a1-een-afspraak-maken", stage: "notice" } })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_NEW_QUEUE_MESSAGE })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_EXPORT_MESSAGE })).toBe(true);
     expect(isReviewMessage({ type: REVIEW_CLEAR_MESSAGE })).toBe(true);
@@ -135,6 +139,10 @@ describe("isVocabularyMessage", () => {
 
   it("rejects encounters without a local context", () => {
     expect(isLearningMessage({ type: LEARNING_RECORD_ENCOUNTER_MESSAGE, payload: { id: "nl\u001fhuis" } })).toBe(false);
+  });
+
+  it("rejects lesson-progress reads without a lesson identifier", () => {
+    expect(isLearningMessage({ type: LEARNING_LESSON_PROGRESS_MESSAGE, payload: { id: "a1-een-afspraak-maken" } })).toBe(false);
   });
 
   it("rejects invalid delete payloads", () => {
