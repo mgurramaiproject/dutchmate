@@ -15,11 +15,11 @@
         </div>
         <div class="header-actions"><span id="due-badge" class="due-badge" role="status" hidden aria-label="Items due for review"></span><button id="settings-button" class="header-button" type="button" aria-label="Open settings">Settings</button></div>
       </header>
-      <nav id="primary-navigation" class="tabs" aria-label="Learning areas">
-        <button id="today-tab" class="tab is-active" type="button" aria-selected="true">Today</button>
-        <button id="lessons-tab" class="tab" type="button" aria-selected="false">Lessons</button>
+      <nav id="primary-navigation" class="tabs" role="tablist" aria-label="Learning areas">
+        <button id="today-tab" class="tab is-active" type="button" role="tab" aria-selected="true" tabindex="0">Today</button>
+        <button id="lessons-tab" class="tab" type="button" role="tab" aria-selected="false" tabindex="-1">Lessons</button>
       </nav>
-      <div id="popup-content" class="popup-content" tabindex="0" aria-live="polite"></div>
+      <div id="popup-content" class="popup-content" role="tabpanel" tabindex="0" aria-labelledby="today-tab" aria-live="polite"></div>
     </main>
   </body>
 </html>

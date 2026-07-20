@@ -135,7 +135,7 @@ function validatePopupHtml(html) {
     ["role=\"tablist\"", "tablist role"],
     ["role=\"tab\"", "tab role"],
     ["role=\"tabpanel\"", "tabpanel role"],
-    ["aria-labelledby=\"learn-tab\"", "panel label"],
+    ["aria-labelledby=\"today-tab\"", "panel label"],
     ["aria-selected=\"false\" tabindex=\"-1\"", "roving tab index"],
   ];
   const errors = [];
@@ -162,7 +162,7 @@ async function validatePopupStyles(distDir, html) {
     for (const [rule, label] of [
       ["width:390px;", "fixed popup width"],
       ["height:600px;", "fixed popup height"],
-      ["height:496px;overflow-y:auto;", "scrollable popup content"],
+      ["height:540px;overflow-y:auto;", "scrollable popup content"],
       ["button:focus-visible", "visible keyboard focus"],
       ["@media(prefers-reduced-motion:reduce)", "reduced-motion"],
     ]) {

@@ -485,7 +485,7 @@ Endless streak pressure, XP, levels, coins, collectibles, avatars, leaderboards,
 - [x] `corepack pnpm test` passes.
 - [x] `corepack pnpm typecheck` passes.
 - [x] `corepack pnpm build:chrome` and `corepack pnpm build:firefox` pass.
-- [ ] `corepack pnpm verify:release` passes if packaged output contracts changed. (Blocked by pre-existing popup accessibility assertions in `scripts/verify-extension-release.mjs`.)
+- [x] `corepack pnpm verify:release` passes if packaged output contracts changed.
 
 ### Not in this ticket
 
