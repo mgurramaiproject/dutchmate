@@ -83,13 +83,17 @@ describe("LearningRecordStore", () => {
     await expect(records.list()).resolves.toEqual([]);
   });
 
-  it("resumes versioned lesson progress, preserves completion on replay, and clears it with learning data", async () => {
+  it("keeps earlier appointment progress separate when a reviewed lesson has a new content version", async () => {
     const storage = new MemoryStorage();
     let now = 1_000;
     const records = new LearningRecordStore(storage, () => now);
     await records.saveLessonProgress("a1-een-afspraak-maken", 1, "notice");
     await expect(records.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toMatchObject({ stage: "notice", completedAt: null });
     await expect(records.getLessonProgress("a1-een-afspraak-maken", 2)).resolves.toBeUndefined();
+
+    await records.saveLessonProgress("a1-een-afspraak-maken", 2, "read");
+    await expect(records.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toMatchObject({ stage: "notice", completedAt: null });
+    await expect(records.getLessonProgress("a1-een-afspraak-maken", 2)).resolves.toMatchObject({ stage: "read", completedAt: null });
 
     now = 2_000;
     const candidates = [{ id: "afspraak-maken", dutch: "een afspraak maken", kind: "chunk" as const, english: "make an appointment", telugu: "అపాయింట్‌మెంట్ తీసుకోవడం" }];

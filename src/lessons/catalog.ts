@@ -107,15 +107,65 @@ export const cardPaymentLesson: Lesson = {
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
 };
 
+export const transferLesson: Lesson = {
+  id: "a1-waar-moet-ik-overstappen", contentVersion: 1, pathway: "transport", order: 5,
+  cefr: "A1", title: "A1 · Waar moet ik overstappen?", durationMinutes: 3,
+  pattern: "Waar moet ik overstappen?", patternText: "moet ik overstappen", patternExplanation: "Use moet ik overstappen to ask where you need to change trains.",
+  lines: [
+    { dutch: "Op station Utrecht Centraal kijk ik naar het bord.", english: "At Utrecht Central station, I look at the board.", telugu: "ఉట్రెహ్ట్ సెంట్రల్ స్టేషన్‌లో నేను బోర్డును చూస్తున్నాను." },
+    { dutch: "Excuseer, waar moet ik overstappen voor de trein naar Rotterdam?", english: "Excuse me, where do I need to change for the train to Rotterdam?", telugu: "క్షమించండి, రోటర్‌డామ్‌కు వెళ్లే రైలు కోసం నేను ఎక్కడ మారాలి?" },
+    { dutch: "U moet op spoor acht overstappen.", english: "You need to change at platform eight.", telugu: "మీరు ఎనిమిదో ప్లాట్‌ఫారమ్‌లో మారాలి." },
+    { dutch: "Moet ik overstappen als ik daar aankom?", english: "Do I need to change when I get there?", telugu: "నేను అక్కడికి చేరుకున్నప్పుడు మారాలా?" },
+    { dutch: "Nee, de aansluiting vertrekt over vijf minuten.", english: "No, the connecting train leaves in five minutes.", telugu: "లేదు, కనెక్షన్ రైలు ఐదు నిమిషాల్లో బయలుదేరుతుంది." },
+    { dutch: "Dank u, dan loop ik snel naar spoor acht.", english: "Thank you, then I will walk quickly to platform eight.", telugu: "ధన్యవాదాలు, నేను త్వరగా ఎనిమిదో ప్లాట్‌ఫారమ్‌కు వెళ్తాను." },
+  ],
+  candidates: [
+    { id: "waar-moet-ik-overstappen", dutch: "waar moet ik overstappen", english: "where do I need to change", telugu: "నేను ఎక్కడ మారాలి", kind: "chunk" },
+    { id: "overstappen", dutch: "overstappen", english: "to change trains", telugu: "రైలు మారడం", kind: "word" },
+    { id: "spoor-acht", dutch: "spoor acht", english: "platform eight", telugu: "ఎనిమిదో ప్లాట్‌ఫారమ్", kind: "chunk" },
+    { id: "de-aansluiting", dutch: "de aansluiting", english: "the connection", telugu: "కనెక్షన్", kind: "chunk" },
+  ],
+  practice: [
+    { candidateId: "waar-moet-ik-overstappen", dimension: "recognition" }, { candidateId: "overstappen", dimension: "recall" },
+    { candidateId: "spoor-acht", dimension: "recognition" }, { candidateId: "de-aansluiting", dimension: "recall" },
+  ],
+  review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+};
+
+export const delayedTrainLesson: Lesson = {
+  id: "a1-mijn-trein-is-vertraagd", contentVersion: 1, pathway: "transport", order: 6,
+  cefr: "A1", title: "A1 · Mijn trein is vertraagd", durationMinutes: 3,
+  pattern: "Mijn trein is vertraagd.", patternText: "trein is vertraagd", patternExplanation: "Use mijn trein is vertraagd to explain that your train is late.",
+  lines: [
+    { dutch: "Op het perron wacht ik op de trein naar Amsterdam.", english: "On the platform, I am waiting for the train to Amsterdam.", telugu: "ప్లాట్‌ఫారమ్‌పై నేను ఆమ్స్టర్డామ్‌కు వెళ్లే రైలు కోసం ఎదురు చూస్తున్నాను." },
+    { dutch: "Op het scherm staat dat mijn trein is vertraagd.", english: "The screen says that my train is delayed.", telugu: "నా రైలు ఆలస్యం అయిందని తెరపై ఉంది." },
+    { dutch: "De trein is vertraagd door een storing op het spoor.", english: "The train is delayed because of a disruption on the track.", telugu: "పట్టాలపై అంతరాయం వల్ల రైలు ఆలస్యం అయింది." },
+    { dutch: "Hoe laat vertrekt hij nu?", english: "What time does it leave now?", telugu: "ఇప్పుడు అది ఎప్పుడు బయలుదేరుతుంది?" },
+    { dutch: "Hij vertrekt twintig minuten later van spoor drie.", english: "It leaves twenty minutes later from platform three.", telugu: "అది ఇరవై నిమిషాల తర్వాత మూడో ప్లాట్‌ఫారమ్ నుంచి బయలుదేరుతుంది." },
+    { dutch: "Bedankt, dan stuur ik mijn collega een bericht.", english: "Thank you, then I will send my colleague a message.", telugu: "ధన్యవాదాలు, నేను నా సహోద్యోగికి సందేశం పంపుతాను." },
+  ],
+  candidates: [
+    { id: "mijn-trein-is-vertraagd", dutch: "mijn trein is vertraagd", english: "my train is delayed", telugu: "నా రైలు ఆలస్యం అయింది", kind: "chunk" },
+    { id: "een-storing", dutch: "een storing", english: "a disruption", telugu: "అంతరాయం", kind: "chunk" },
+    { id: "twintig-minuten-later", dutch: "twintig minuten later", english: "twenty minutes later", telugu: "ఇరవై నిమిషాల తర్వాత", kind: "chunk" },
+    { id: "een-bericht", dutch: "een bericht", english: "a message", telugu: "సందేశం", kind: "chunk" },
+  ],
+  practice: [
+    { candidateId: "mijn-trein-is-vertraagd", dimension: "recognition" }, { candidateId: "een-storing", dimension: "recall" },
+    { candidateId: "twintig-minuten-later", dimension: "recognition" }, { candidateId: "een-bericht", dimension: "recall" },
+  ],
+  review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+};
+
 export const appointmentLesson: Lesson = {
-  id: "a1-een-afspraak-maken", contentVersion: 1, pathway: "appointments-and-healthcare", order: 7,
+  id: "a1-een-afspraak-maken", contentVersion: 2, pathway: "appointments-and-healthcare", order: 7,
   cefr: "A1", title: "A1 · Een afspraak maken", durationMinutes: 4,
   pattern: "Ik wil graag…", patternText: "Ik wil graag", patternExplanation: "Use Ik wil graag… to make a polite request. The verb stays in its normal position after ik.",
   lines: [
     { dutch: "Receptionist: Goedemorgen. Waarmee kan ik u helpen?", english: "Receptionist: Good morning. How can I help you?", telugu: "రిసెప్షనిస్ట్: శుభోదయం. నేను మీకు ఎలా సహాయం చేయగలను?" },
     { dutch: "Ik wil graag een afspraak maken met de huisarts.", english: "I would like to make an appointment with the GP.", telugu: "నేను కుటుంబ వైద్యుడితో అపాయింట్‌మెంట్ తీసుకోవాలనుకుంటున్నాను." },
     { dutch: "Natuurlijk. Wanneer kunt u langskomen?", english: "Of course. When can you come by?", telugu: "తప్పకుండా. మీరు ఎప్పుడు రావచ్చు?" },
-    { dutch: "Dinsdagmiddag, als het kan.", english: "Tuesday afternoon, if possible.", telugu: "వీలైతే, మంగళవారం మధ్యాహ్నం." },
+    { dutch: "Ik wil graag dinsdagmiddag, als het kan.", english: "I would like Tuesday afternoon, if possible.", telugu: "వీలైతే, నాకు మంగళవారం మధ్యాహ్నం కావాలి." },
     { dutch: "Dinsdag om drie uur is nog vrij.", english: "Tuesday at three o'clock is still free.", telugu: "మంగళవారం మూడు గంటలకు ఇంకా ఖాళీగా ఉంది." },
     { dutch: "Dat is goed. Bedankt en tot dinsdag.", english: "That is good. Thank you and see you Tuesday.", telugu: "అది బాగుంది. ధన్యవాదాలు, మంగళవారం కలుద్దాం." },
   ],
@@ -132,9 +182,34 @@ export const appointmentLesson: Lesson = {
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
 };
 
+export const symptomsLesson: Lesson = {
+  id: "a1-ik-heb-last-van", contentVersion: 1, pathway: "appointments-and-healthcare", order: 8,
+  cefr: "A1", title: "A1 · Ik heb last van…", durationMinutes: 3,
+  pattern: "Ik heb last van…", patternText: "Ik heb last van", patternExplanation: "Use ik heb last van… to describe a symptom when arranging care, without needing to explain its cause.",
+  lines: [
+    { dutch: "Goedemiddag, ik wil graag een afspraak maken bij de huisarts.", english: "Good afternoon, I would like to make an appointment with the GP.", telugu: "శుభ మధ్యాహ్నం, నేను కుటుంబ వైద్యుడితో అపాయింట్‌మెంట్ తీసుకోవాలనుకుంటున్నాను." },
+    { dutch: "Wat is er aan de hand?", english: "What is the matter?", telugu: "ఏమైంది?" },
+    { dutch: "Ik heb last van mijn keel en ik voel mij niet goed.", english: "I have trouble with my throat and I do not feel well.", telugu: "నాకు గొంతు నొప్పిగా ఉంది మరియు నాకు బాగా అనిపించడం లేదు." },
+    { dutch: "Ik heb last van hoofdpijn sinds gisteren.", english: "I have had a headache since yesterday.", telugu: "నిన్నటి నుంచి నాకు తలనొప్పి ఉంది." },
+    { dutch: "De huisarts kan u morgen bellen.", english: "The GP can call you tomorrow.", telugu: "కుటుంబ వైద్యుడు రేపు మీకు ఫోన్ చేయవచ్చు." },
+    { dutch: "Dank u, dat is fijn.", english: "Thank you, that is good.", telugu: "ధన్యవాదాలు, అది బాగుంది." },
+  ],
+  candidates: [
+    { id: "ik-heb-last-van", dutch: "ik heb last van", english: "I have trouble with", telugu: "నాకు ఇబ్బంది ఉంది", kind: "chunk" },
+    { id: "mijn-keel", dutch: "mijn keel", english: "my throat", telugu: "నా గొంతు", kind: "chunk" },
+    { id: "hoofdpijn", dutch: "hoofdpijn", english: "headache", telugu: "తలనొప్పి", kind: "word" },
+    { id: "de-huisarts", dutch: "de huisarts", english: "the GP", telugu: "కుటుంబ వైద్యుడు", kind: "chunk" },
+  ],
+  practice: [
+    { candidateId: "ik-heb-last-van", dimension: "recognition" }, { candidateId: "mijn-keel", dimension: "recall" },
+    { candidateId: "hoofdpijn", dimension: "recognition" }, { candidateId: "de-huisarts", dimension: "recall" },
+  ],
+  review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+};
+
 export const lessonCatalog: LessonCatalog = {
   version: LESSON_CATALOG_VERSION,
-  lessons: [introductionLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, appointmentLesson],
+  lessons: [introductionLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson],
 };
 
 export function validateLessonCatalog(catalog: LessonCatalog): string[] {

@@ -351,23 +351,23 @@ The representative lesson from T05 becomes the reviewed catalog entry for lesson
 
 ### Acceptance criteria
 
-- [ ] Each lesson follows the checked-in mini-lesson pattern and has a stable ID, pathway, order, content version, CEFR title, and duration.
-- [ ] Each lesson contains one coherent four-to-six-line, 35-to-60-word Dutch story and one naturally reused practical pattern.
-- [ ] Each Dutch line has accurate, clear English and Telugu help.
-- [ ] Each lesson has three to five reusable candidates with stable canonical identities and valid recognition/recall prompts.
-- [ ] Vocabulary and grammar load fit A1 without hiding necessary practical meaning.
-- [ ] Transport and healthcare situations use credible Dutch wording and avoid unsafe medical claims or culture-specific assumptions.
-- [ ] Replay remains understandable with reduced support.
-- [ ] All four lessons pass the one catalog validator.
-- [ ] Human review explicitly records Dutch accuracy, English meaning, Telugu meaning, CEFR fit, cultural suitability, and practical usefulness.
-- [ ] The T05 lesson is promoted into the canonical catalog without changing saved candidate identity or learner progress unexpectedly.
+- [x] Each lesson follows the checked-in mini-lesson pattern and has a stable ID, pathway, order, content version, CEFR title, and duration.
+- [x] Each lesson contains one coherent four-to-six-line, 35-to-60-word Dutch story and one naturally reused practical pattern.
+- [x] Each Dutch line has accurate, clear English and Telugu help.
+- [x] Each lesson has three to five reusable candidates with stable canonical identities and valid recognition/recall prompts.
+- [x] Vocabulary and grammar load fit A1 without hiding necessary practical meaning.
+- [x] Transport and healthcare situations use credible Dutch wording and avoid unsafe medical claims or culture-specific assumptions.
+- [x] Replay remains understandable with reduced support.
+- [x] All four lessons pass the one catalog validator.
+- [x] Human review explicitly records Dutch accuracy, English meaning, Telugu meaning, CEFR fit, cultural suitability, and practical usefulness.
+- [x] The T05 lesson is promoted into the canonical catalog without changing saved candidate identity or learner progress unexpectedly.
 
 ### Verification
 
-- [ ] Validator tests load the real bundled catalog and catch duplicate IDs, order, candidates, or production/fixture copies.
-- [ ] Focused popup tests sample catalog ordering, opening each lesson, helper availability, candidate rendering, and replay.
-- [ ] `corepack pnpm test` and `corepack pnpm typecheck` pass.
-- [ ] Both browser builds include the validated catalog.
+- [x] Validator tests load the real bundled catalog and catch duplicate IDs, order, candidates, or production/fixture copies.
+- [x] Focused popup tests sample catalog ordering, opening each lesson, helper availability, candidate rendering, and replay.
+- [x] `corepack pnpm test` and `corepack pnpm typecheck` pass.
+- [x] Both browser builds include the validated catalog.
 
 ### Not in this ticket
 
