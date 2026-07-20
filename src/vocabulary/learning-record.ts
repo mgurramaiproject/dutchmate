@@ -215,7 +215,7 @@ export class LearningRecordStore {
       record.items[id] = mergeImportedLearningItem(record.items[id], imported);
     }
     record.lessonProgress = mergeLessonProgress(record.lessonProgress, backup.lessonProgress);
-    record.rhythm = { ...record.rhythm, ...backup.rhythm };
+    record.rhythm = mergeRhythm(record.rhythm, backup.rhythm);
     await this.write(record);
     const items = Object.values(record.items).sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
     return { items, importedCount: backup.learningItems.length, totalCount: items.length };
@@ -287,6 +287,7 @@ function mergeImportedLearningItem(existing: LearningItem | undefined, imported:
 }
 function mergeSource(sources: LearningItemSource[], source: "webpage" | "lesson" | undefined, addedAt: number, metadata?: Omit<LearningItemSource, "type" | "addedAt">): LearningItemSource[] { return source ? deduplicateSources([...sources, { type: source, addedAt, ...metadata }]) : sources; }
 function withActiveDay(rhythm: Record<string, unknown>, timestamp: number, source: "dailyFiveCompletions" | "lessonCompletions", extra: Record<string, unknown> = {}): Record<string, unknown> { const day = getLocalDayStart(timestamp); const entry = { completedAt: timestamp, ...extra }; return { activeDays: { ...(isRecord(rhythm.activeDays) ? rhythm.activeDays : {}), [day]: entry }, [source]: { ...(isRecord(rhythm[source]) ? rhythm[source] : {}), [day]: entry } }; }
+function mergeRhythm(existing: Record<string, unknown>, imported: Record<string, unknown>): Record<string, unknown> { return { ...existing, ...imported, ...Object.fromEntries(["activeDays", "dailyFiveCompletions", "lessonCompletions"].map((key) => [key, { ...(isRecord(existing[key]) ? existing[key] : {}), ...(isRecord(imported[key]) ? imported[key] : {}) }])) }; }
 function deduplicateSources(sources: LearningItemSource[]): LearningItemSource[] { return sources.filter((item, index, all) => all.findIndex((candidate) => JSON.stringify(candidate) === JSON.stringify(item)) === index); }
 function mergeContexts(contexts: LearningContext[], ...incoming: Array<LearningContext | null>): LearningContext[] { const result = [...contexts]; for (const context of incoming) { if (!context) continue; const index = result.findIndex((candidate) => normalizeSavedVocabularyText(candidate.text) === normalizeSavedVocabularyText(context.text)); if (index >= 0) continue; result.push(context); } return result.slice(-3); }
 function normalizeContext(value: string | null | undefined, dutch: string, addedAt: number): LearningContext | null { if (!value) return null; const text = value.trim().replace(/\s+/g, " ").slice(0, 240); return text && text.toLocaleLowerCase().includes(dutch.toLocaleLowerCase()) ? { text, addedAt } : null; }

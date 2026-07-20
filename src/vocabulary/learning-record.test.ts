@@ -130,6 +130,10 @@ describe("LearningRecordStore", () => {
     now += 2 * 86_400_000;
     const restored = new LearningRecordStore(new MemoryStorage(), () => now);
     await restored.importBackup(backup);
+    const incoming = structuredClone(backup);
+    incoming.rhythm = { activeDays: { [new Date(now).setHours(0, 0, 0, 0)]: { completedAt: now } } };
+    await restored.importBackup(incoming);
+    expect((await restored.exportBackup()).rhythm).toMatchObject({ activeDays: expect.objectContaining({ [new Date(1_000).setHours(0, 0, 0, 0)]: expect.anything(), [new Date(now).setHours(0, 0, 0, 0)]: expect.anything() }) });
     expect(await restored.getRhythm()).toMatchObject({ week: expect.arrayContaining([expect.objectContaining({ status: "active" })]) });
     await restored.clear();
     expect(await restored.getRhythm()).toMatchObject({ milestones: [], week: expect.not.arrayContaining([expect.objectContaining({ status: "active" })]) });

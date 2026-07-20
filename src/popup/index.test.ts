@@ -12,14 +12,16 @@ vi.mock("webextension-polyfill", () => ({
 describe("lesson popup", () => {
   let progressByLesson: Record<string, Record<string, unknown> | null>;
   let keepFails: boolean;
+  let rhythmResponse: { week: Array<{ dayStartAt: number; status: "active" | "grace" | "idle" }>; resetCopy: string | null; milestones: Array<{ id: string; label: string }> };
 
   beforeEach(async () => {
     vi.resetModules();
     progressByLesson = {};
     keepFails = false;
+    rhythmResponse = rhythmFixture();
     runtime.sendMessage.mockImplementation(async (message: { type: string; payload?: Record<string, unknown> }) => {
       if (message.type === "dutchmate.learning.list") return { ok: true, result: { items: [] } };
-      if (message.type === "dutchmate.learning.rhythm") return { ok: true, result: { rhythm: { week: [], resetCopy: null, milestones: [] } } };
+      if (message.type === "dutchmate.learning.rhythm") return { ok: true, result: { rhythm: rhythmResponse } };
       if (message.type === "dutchmate.learning.dailyFive") return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: [], completedTaskIds: [], goalCompleted: false } } };
       if (message.type === "dutchmate.review.settings") return { ok: true, result: { settings: defaultSettings } };
       if (message.type === "dutchmate.learning.lessonProgress") return { ok: true, result: { progress: progressByLesson[String(message.payload?.lessonId)] ?? null } };
@@ -87,6 +89,14 @@ describe("lesson popup", () => {
     button("Exit lesson").click();
     await vi.waitFor(() => expect(content().textContent).toContain("A1 · Een afspraak maken"));
     expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(false);
+  });
+
+  it("keeps the weekly rhythm compact and exposes milestone copy to keyboard users", async () => {
+    await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day")).toHaveLength(7));
+    expect(content().textContent).toContain("First useful phrase saved");
+    expect(content().textContent).toContain("Recognition and recall practised");
+    expect(content().querySelector<HTMLElement>(".rhythm-day.grace")?.getAttribute("aria-label")).toContain("grace day");
+    expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.tabIndex).toBe(0);
   });
 
   it("keeps the learner in an understandable error state when keeping candidates fails", async () => {
@@ -177,3 +187,5 @@ function button(label: string): HTMLButtonElement {
 function lessonCard(title: string): HTMLElement {
   return [...content().querySelectorAll<HTMLElement>(".lesson-card")].find((card) => card.textContent?.includes(title))!;
 }
+
+function rhythmFixture() { return { week: Array.from({ length: 7 }, (_, index) => ({ dayStartAt: index, status: index === 5 ? "grace" as const : index === 6 ? "active" as const : "idle" as const })), resetCopy: "A fresh week starts whenever you return.", milestones: [{ id: "first-saved-chunk", label: "First useful phrase saved" }, { id: "balanced-practice", label: "Recognition and recall practised" }] }; }
