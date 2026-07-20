@@ -1,5 +1,3 @@
-import { SAVED_VOCABULARY_STORAGE_KEY } from "../vocabulary/saved-vocabulary";
-import { REVIEW_CARDS_STORAGE_KEY } from "../vocabulary/review-cards";
 import { LEARNING_RECORD_STORAGE_KEY } from "../vocabulary/learning-record";
 
 export type StorageChange = {
@@ -15,5 +13,5 @@ export function shouldRefreshSavedVocabulary(
     return false;
   }
 
-  return SAVED_VOCABULARY_STORAGE_KEY in changes || REVIEW_CARDS_STORAGE_KEY in changes || LEARNING_RECORD_STORAGE_KEY in changes;
+  return LEARNING_RECORD_STORAGE_KEY in changes;
 }

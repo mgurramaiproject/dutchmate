@@ -1,5 +1,8 @@
 import {
   LEARNING_DELETE_MESSAGE,
+  LEARNING_CLEAR_MESSAGE,
+  LEARNING_EXPORT_MESSAGE,
+  LEARNING_IMPORT_MESSAGE,
   LEARNING_LIST_MESSAGE,
   LEARNING_RHYTHM_MESSAGE,
   LEARNING_DAILY_FIVE_MESSAGE,
@@ -10,7 +13,7 @@ import {
   type LearningMessage,
   type LearningMessageResponse,
 } from "../background/messages";
-import type { LearningItem, LessonProgress, LessonProgressStage } from "../vocabulary/learning-record";
+import type { LearningBackup, LearningItem, LessonProgress, LessonProgressStage } from "../vocabulary/learning-record";
 import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import type { LessonPracticeEvidence } from "./lesson-session";
@@ -20,6 +23,9 @@ export type LearningClient = {
   list(): Promise<LearningItem[]>;
   getRhythm(): Promise<LearningRhythm>;
   delete(id: string): Promise<void>;
+  clear(): Promise<void>;
+  exportBackup(): Promise<LearningBackup>;
+  importBackup(document: string): Promise<{ importedCount: number; totalCount: number }>;
   getDailyFive(continueAfterCompletion?: boolean): Promise<DailyFiveSnapshot>;
   recordDailyFiveResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult): Promise<{ item: LearningItem; snapshot: DailyFiveSnapshot }>;
   keepLessonCandidates(lessonId: string, candidateIds: string[], evidence: LessonPracticeEvidence[]): Promise<LearningItem[]>;
@@ -43,6 +49,9 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
       const response = await extensionApi.runtime.sendMessage({ type: LEARNING_DELETE_MESSAGE, payload: { id } });
       if (!response.ok || !("deleted" in response.result) || response.result.deleted !== true) throw new Error(response.ok ? "Learning item could not be deleted." : response.error);
     },
+    async clear() { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CLEAR_MESSAGE }); if (!response.ok || !("cleared" in response.result)) throw new Error(response.ok ? "Learning data could not be cleared." : response.error); },
+    async exportBackup() { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_EXPORT_MESSAGE }); if (response.ok && "backup" in response.result) return response.result.backup; throw new Error(response.ok ? "Learning backup is unavailable." : response.error); },
+    async importBackup(document) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_IMPORT_MESSAGE, payload: { document } }); if (response.ok && "importedCount" in response.result) return response.result; throw new Error(response.ok ? "Learning import is unavailable." : response.error); },
     async getDailyFive(continueAfterCompletion = false) {
       const response = await extensionApi.runtime.sendMessage({ type: LEARNING_DAILY_FIVE_MESSAGE, payload: { continueAfterCompletion } });
       if (response.ok && "snapshot" in response.result) return response.result.snapshot;

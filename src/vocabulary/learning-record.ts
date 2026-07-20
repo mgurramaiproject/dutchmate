@@ -186,21 +186,10 @@ export class LearningRecordStore {
     const record = await this.readMigrated();
     delete record.items[id];
     await this.write(record);
-    const legacyCards = parseLegacyCards(await this.storage.get("dutchmate.reviewCards.v1"));
-    delete legacyCards.cards[id];
-    await this.storage.set("dutchmate.reviewCards.v1", legacyCards);
-    const dutch = id.startsWith(`${LEARNING_LANGUAGE}\u001f`) ? id.slice(3) : "";
-    const legacyVocabulary = parseLegacyVocabulary(await this.storage.get("dutchmate.savedVocabulary.v1"));
-    for (const [key, entry] of Object.entries(legacyVocabulary.entries)) {
-      if (normalizeSavedVocabularyText(entry.text) === dutch || normalizeSavedVocabularyText(entry.translatedText) === dutch) delete legacyVocabulary.entries[key];
-    }
-    await this.storage.set("dutchmate.savedVocabulary.v1", legacyVocabulary);
   }
 
   async clear(): Promise<void> {
     await this.write({ version: 2, items: {}, lessonProgress: {}, rhythm: {} });
-    await this.storage.set("dutchmate.reviewCards.v1", { cards: {} });
-    await this.storage.set("dutchmate.savedVocabulary.v1", { entries: {} });
   }
 
   async exportBackup(): Promise<LearningBackup> {
@@ -229,7 +218,9 @@ export class LearningRecordStore {
   }
 
   private async readMigrated(): Promise<LearningRecord> {
-    const stored = parseRecord(await this.storage.get(LEARNING_RECORD_STORAGE_KEY));
+    const raw = await this.storage.get(LEARNING_RECORD_STORAGE_KEY);
+    if (isRecord(raw) && raw.version === 2) return parseRecord(raw);
+    const stored = parseRecord(raw);
     const legacyVocabulary = parseLegacyVocabulary(await this.storage.get("dutchmate.savedVocabulary.v1"));
     const legacyCards = parseLegacyCards(await this.storage.get("dutchmate.reviewCards.v1"));
     const migrated = migrateLegacyLearningRecord(stored, Object.values(legacyVocabulary.entries), Object.values(legacyCards.cards), this.now());
