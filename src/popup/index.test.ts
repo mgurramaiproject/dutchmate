@@ -112,7 +112,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson candidates could not be kept."));
   });
 
-  it("lists the eight bundled lessons in order and opens every T08 lesson with help and trilingual practice", async () => {
+  it("lists the twelve bundled lessons in order and opens the published lessons with help and trilingual practice", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("A1 · Ik heb last van…"));
     expect([...content().querySelectorAll<HTMLElement>(".lesson-card h1")].map((heading) => heading.textContent)).toEqual([
@@ -124,6 +124,10 @@ describe("lesson popup", () => {
       "A1 · Mijn trein is vertraagd",
       "A1 · Een afspraak maken",
       "A1 · Ik heb last van…",
+      "A1 · Er is iets kapot",
+      "A1 · Ik ben beschikbaar op…",
+      "A1 · Wat moet ik meenemen?",
+      "A2 · Wat staat er in deze brief?",
     ]);
 
     for (const { title, candidate } of [
@@ -131,6 +135,10 @@ describe("lesson popup", () => {
       { title: "A1 · Mijn trein is vertraagd", candidate: "mijn trein is vertraagd" },
       { title: "A1 · Een afspraak maken", candidate: "ik wil graag" },
       { title: "A1 · Ik heb last van…", candidate: "ik heb last van" },
+      { title: "A1 · Er is iets kapot", candidate: "er is iets kapot" },
+      { title: "A1 · Ik ben beschikbaar op…", candidate: "ik ben beschikbaar" },
+      { title: "A1 · Wat moet ik meenemen?", candidate: "wat moet ik meenemen" },
+      { title: "A2 · Wat staat er in deze brief?", candidate: "wat staat er in deze brief" },
     ]) {
       lessonCard(title).querySelector<HTMLButtonElement>("button")!.click();
       await vi.waitFor(() => expect(button("Show line help")).toBeTruthy());

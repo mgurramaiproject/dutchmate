@@ -390,23 +390,23 @@ Lessons 1–4 or 9–12, medical advice, audio/pronunciation feedback, remote co
 
 ### Acceptance criteria
 
-- [ ] Each lesson follows the checked-in mini-lesson pattern and has a stable ID, pathway, order, content version, CEFR title, and duration.
-- [ ] Each lesson contains one coherent four-to-six-line, 35-to-60-word Dutch story and one naturally reused practical pattern.
-- [ ] Each Dutch line has accurate, clear English and Telugu help.
-- [ ] Each lesson has three to five reusable candidates with stable canonical identities and valid recognition/recall prompts.
-- [ ] Vocabulary and grammar load fit the stated A1 or A2 level.
-- [ ] Home, work/study, and official-letter situations are credible, inclusive, and avoid implying legal or administrative advice.
-- [ ] Replay remains understandable with reduced support.
-- [ ] All four lessons pass the one catalog validator, and the complete catalog has exactly the accepted twelve lessons in order.
-- [ ] Human review explicitly records Dutch accuracy, English meaning, Telugu meaning, CEFR fit, cultural suitability, and practical usefulness.
-- [ ] The catalog makes the full practical-life pathway understandable without claiming to be a complete A0–A2 curriculum.
+- [x] Each lesson follows the checked-in mini-lesson pattern and has a stable ID, pathway, order, content version, CEFR title, and duration.
+- [x] Each lesson contains one coherent four-to-six-line, 35-to-60-word Dutch story and one naturally reused practical pattern.
+- [x] Each Dutch line has accurate, clear English and Telugu help.
+- [x] Each lesson has three to five reusable candidates with stable canonical identities and valid recognition/recall prompts.
+- [x] Vocabulary and grammar load fit the stated A1 or A2 level.
+- [x] Home, work/study, and official-letter situations are credible, inclusive, and avoid implying legal or administrative advice.
+- [x] Replay remains understandable with reduced support.
+- [x] All four lessons pass the one catalog validator, and the complete catalog has exactly the accepted twelve lessons in order.
+- [x] Human review explicitly records Dutch accuracy, English meaning, Telugu meaning, CEFR fit, cultural suitability, and practical usefulness.
+- [x] The catalog makes the full practical-life pathway understandable without claiming to be a complete A0–A2 curriculum.
 
 ### Verification
 
-- [ ] Validator tests load the complete real catalog and enforce all twelve accepted titles and their ordering.
-- [ ] Focused popup tests sample catalog grouping/order, opening each lesson, helper availability, candidate rendering, and replay.
-- [ ] `corepack pnpm test` and `corepack pnpm typecheck` pass.
-- [ ] Both browser builds include the complete validated catalog.
+- [x] Validator tests load the complete real catalog and enforce all twelve accepted titles and their ordering.
+- [x] Focused popup tests sample catalog grouping/order, opening each lesson, helper availability, candidate rendering, and replay.
+- [x] `corepack pnpm test` and `corepack pnpm typecheck` pass.
+- [x] Both browser builds include the complete validated catalog.
 
 ### Not in this ticket
 
