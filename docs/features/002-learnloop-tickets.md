@@ -180,30 +180,30 @@ Automatic webpage highlighting, complete-page saved-item scanning, browsing hist
 
 ### Acceptance criteria
 
-- [ ] Today is the popup's default area and exposes one primary Daily Five action.
-- [ ] A Daily Five snapshot contains at most five distinct learning items with at most one tested dimension per item.
-- [ ] Due, previously attempted tasks are selected before unattempted items; stable tie-breaking makes the snapshot deterministic.
-- [ ] The snapshot does not reorder when a result changes storage during the session.
-- [ ] A new item starts with recognition; later direction targets the weaker or earlier-due dimension.
-- [ ] Dutch-to-helper or Dutch-to-context practice tests recognition; helper-or-context-to-Dutch practice tests recall.
-- [ ] The answer must be revealed before `Again` or `Got it` is enabled, and no review state requires typing.
-- [ ] `Got it` applies the approved New to Learning, Learning to Familiar, Familiar to Strong, and Strong interval rules only to the tested dimension.
-- [ ] `Again` resets only the tested dimension, schedules it for one day, and applies the approved limited regression.
-- [ ] Overall mastery is the weaker of recognition and recall.
-- [ ] Five completed tasks finish the daily goal; if fewer than five are available, completing all available tasks is valid.
-- [ ] A learner may continue voluntarily after completion.
-- [ ] An empty queue suggests a lesson but never starts one automatically.
-- [ ] The toolbar badge updates on initialization and relevant save, result, import, clear, and delete mutations while respecting the badge setting.
-- [ ] Today communicates understandable status and progress without exposing interval controls or algorithm jargon.
-- [ ] Focused review hides top-level navigation, offers an explicit exit, preserves visible focus, and fits a narrow Chrome or Firefox popup without horizontal scrolling.
+- [x] Today is the popup's default area and exposes one primary Daily Five action.
+- [x] A Daily Five snapshot contains at most five distinct learning items with at most one tested dimension per item.
+- [x] Due, previously attempted tasks are selected before unattempted items; stable tie-breaking makes the snapshot deterministic.
+- [x] The snapshot does not reorder when a result changes storage during the session.
+- [x] A new item starts with recognition; later direction targets the weaker or earlier-due dimension.
+- [x] Dutch-to-helper or Dutch-to-context practice tests recognition; helper-or-context-to-Dutch practice tests recall.
+- [x] The answer must be revealed before `Again` or `Got it` is enabled, and no review state requires typing.
+- [x] `Got it` applies the approved New to Learning, Learning to Familiar, Familiar to Strong, and Strong interval rules only to the tested dimension.
+- [x] `Again` resets only the tested dimension, schedules it for one day, and applies the approved limited regression.
+- [x] Overall mastery is the weaker of recognition and recall.
+- [x] Five completed tasks finish the daily goal; if fewer than five are available, completing all available tasks is valid.
+- [x] A learner may continue voluntarily after completion.
+- [x] An empty queue suggests a lesson but never starts one automatically.
+- [x] The toolbar badge updates on initialization and relevant save, result, import, clear, and delete mutations while respecting the badge setting.
+- [x] Today communicates understandable status and progress without exposing interval controls or algorithm jargon.
+- [x] Focused review hides top-level navigation, offers an explicit exit, preserves visible focus, and fits a narrow Chrome or Firefox popup without horizontal scrolling.
 
 ### Verification
 
-- [ ] Exhaustive domain tests cover both dimensions, every approved success and failure transition, interval cap, weaker-dimension choice, due classification, and stable tie-breaking with an injected clock.
-- [ ] Background-handler tests cover snapshot creation, persistence, binary result mutations, completion, continuation, empty and short queues, and badge updates.
-- [ ] Popup state/view tests cover Today, front/reveal/result transitions, no-typing controls, progress, exit, errors, and completion.
-- [ ] Rendered checks cover roles, labels, keyboard order, visible focus, pending states, and narrow-popup sizing.
-- [ ] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
+- [x] Exhaustive domain tests cover both dimensions, every approved success and failure transition, interval cap, weaker-dimension choice, due classification, and stable tie-breaking with an injected clock.
+- [x] Background-handler tests cover snapshot creation, persistence, binary result mutations, completion, continuation, empty and short queues, and badge updates.
+- [x] Popup state/view tests cover Today, front/reveal/result transitions, no-typing controls, progress, exit, errors, and completion.
+- [x] Rendered checks cover roles, labels, keyboard order, visible focus, pending states, and narrow-popup sizing.
+- [x] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
 
 ### Not in this ticket
 

@@ -79,7 +79,7 @@ const reviewSettings = {
 async function refreshReviewBadge(): Promise<void> {
   try {
     const settings = await readExtensionSettings(extensionApi);
-    await updateReviewBadge(extensionApi, reviewCardStore, settings.dailyReviewBadge);
+    await updateReviewBadge(extensionApi, learningRecordStore, settings.dailyReviewBadge);
   } catch {
     // Badge refresh must not make vocabulary or review mutations fail.
   }

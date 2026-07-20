@@ -18,6 +18,8 @@ import {
   LEARNING_EXPORT_MESSAGE,
   LEARNING_IMPORT_MESSAGE,
   LEARNING_RECORD_ENCOUNTER_MESSAGE,
+  LEARNING_DAILY_FIVE_MESSAGE,
+  LEARNING_DAILY_FIVE_RESULT_MESSAGE,
   SAVE_VOCABULARY_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
@@ -27,6 +29,7 @@ import { SavedVocabularyStore, type SavedVocabularyStorage } from "../vocabulary
 import { defaultSettings } from "../shared/settings";
 import { createVocabularyBackup } from "../vocabulary/vocabulary-backup";
 import { LearningRecordStore } from "../vocabulary/learning-record";
+import { getLocalDayStart } from "../vocabulary/daily-five";
 
 describe("createBackgroundMessageHandler", () => {
   it("refreshes the badge after vocabulary saves and ratings", async () => {
@@ -154,6 +157,28 @@ describe("createBackgroundMessageHandler", () => {
 
     await expect(send(handleMessage, { type: LEARNING_RECORD_ENCOUNTER_MESSAGE, payload: { id: item.id, context: "Een huis staat daar." } })).resolves.toEqual({ ok: true, result: { recorded: true } });
     await expect(records.list()).resolves.toEqual([expect.objectContaining({ contexts: [{ text: "Een huis staat daar.", addedAt: 1_000 }], recognition: item.recognition, recall: item.recall })]);
+  });
+
+  it("persists a Daily Five snapshot and applies only its requested binary result", async () => {
+    let now = 1_000;
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage, { now: () => now });
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => now);
+    const records = new LearningRecordStore(storage, () => now);
+    const item = await records.createOrMerge({ dutch: "huis", english: "house" });
+    const refreshBadge = vi.fn(async () => undefined);
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary, reviewCards, learningRecords: records, refreshBadge });
+
+    const first = await send(handleMessage, { type: LEARNING_DAILY_FIVE_MESSAGE });
+    const second = await send(handleMessage, { type: LEARNING_DAILY_FIVE_MESSAGE });
+    expect(first).toEqual(second);
+    await expect(send(handleMessage, { type: LEARNING_DAILY_FIVE_RESULT_MESSAGE, payload: { itemId: item.id, dimension: "recognition", result: "got-it" } })).resolves.toMatchObject({ ok: true, result: { item: { recognition: { state: "learning", dueAt: 1_000 + 86_400_000 }, recall: { state: "new" } }, snapshot: { completedTaskIds: [`${item.id}\u001frecognition`], goalCompleted: true } } });
+    now += 1;
+    await send(handleMessage, { type: LEARNING_DAILY_FIVE_MESSAGE, payload: { continueAfterCompletion: true } });
+    await expect(records.exportBackup()).resolves.toMatchObject({ rhythm: { dailyFiveCompletions: { [getLocalDayStart(1_000)]: { snapshotCreatedAt: 1_000, completedAt: 1_000 } } } });
+    now += 2 * 86_400_000;
+    await expect(send(handleMessage, { type: LEARNING_DAILY_FIVE_MESSAGE })).resolves.toMatchObject({ ok: true, result: { snapshot: { createdAt: now } } });
+    expect(refreshBadge).toHaveBeenCalledTimes(1);
   });
 });
 

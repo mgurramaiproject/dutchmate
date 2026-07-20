@@ -3,6 +3,7 @@ import type { SavedVocabularyEntry, SavedVocabularyStorage } from "./saved-vocab
 import type { ReviewCard, ReviewRating } from "./review-cards";
 import { parseVocabularyBackup, type VocabularyBackup } from "./vocabulary-backup";
 import { normalizeSavedVocabularyText } from "./saved-vocabulary";
+import { applyDailyFiveResult, createDailyFiveSnapshot, getLocalDayStart, type DailyFiveDimension, type DailyFiveResult, type DailyFiveSnapshot } from "./daily-five";
 
 export const LEARNING_RECORD_STORAGE_KEY = "dutchmate.learningRecord.v2";
 export const LEARNING_BACKUP_FORMAT = "dutchmate-learning-backup";
@@ -78,7 +79,7 @@ export class LearningRecordStore {
     const now = this.now();
     return {
       total: items.length,
-      due: items.filter((item) => item.recognition.attemptCount > 0 && item.recognition.dueAt !== null && item.recognition.dueAt <= now).length,
+      due: items.filter((item) => [item.recognition, item.recall].some((mastery) => mastery.attemptCount > 0 && mastery.dueAt !== null && mastery.dueAt <= now)).length,
       new: items.filter((item) => item.recognition.attemptCount === 0).length,
       recent: [...items].sort((a, b) => b.createdAt - a.createdAt || a.id.localeCompare(b.id)).slice(0, 3),
     };
@@ -103,6 +104,38 @@ export class LearningRecordStore {
     record.items[id] = item;
     await this.write(record);
     return item;
+  }
+
+  async getDailyFive(continueAfterCompletion = false): Promise<DailyFiveSnapshot> {
+    const record = await this.readMigrated();
+    const saved = parseDailyFiveSnapshot(record.rhythm.dailyFive);
+    if (saved && !continueAfterCompletion && saved.dayStartAt === getLocalDayStart(this.now()) && (saved.tasks.length > 0 || Object.keys(record.items).length === 0)) return saved;
+    const lastDirection = record.rhythm.lastDailyFiveDirection === "recognition" || record.rhythm.lastDailyFiveDirection === "recall" ? record.rhythm.lastDailyFiveDirection : undefined;
+    const snapshot = createDailyFiveSnapshot(Object.values(record.items), this.now(), lastDirection);
+    record.rhythm = { ...record.rhythm, dailyFive: snapshot };
+    await this.write(record);
+    return snapshot;
+  }
+
+  async recordDailyFiveResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult): Promise<{ item: LearningItem; snapshot: DailyFiveSnapshot }> {
+    const record = await this.readMigrated();
+    const snapshot = parseDailyFiveSnapshot(record.rhythm.dailyFive);
+    const task = snapshot?.tasks.find((candidate) => candidate.itemId === itemId && candidate.dimension === dimension);
+    const existing = record.items[itemId];
+    if (!snapshot || !task || !existing) throw new Error("This Daily Five task is unavailable.");
+    if (snapshot.completedTaskIds.includes(taskId(task))) return { item: existing, snapshot };
+    const updated = applyDailyFiveResult(existing, dimension, result, this.now()).item;
+    const completedTaskIds = [...snapshot.completedTaskIds, taskId(task)];
+    const nextSnapshot = { ...snapshot, completedTaskIds, goalCompleted: completedTaskIds.length === snapshot.tasks.length };
+    record.items[itemId] = updated;
+    record.rhythm = {
+      ...record.rhythm,
+      dailyFive: nextSnapshot,
+      lastDailyFiveDirection: dimension,
+      ...(nextSnapshot.goalCompleted ? { dailyFiveCompletions: { ...(isRecord(record.rhythm.dailyFiveCompletions) ? record.rhythm.dailyFiveCompletions : {}), [snapshot.dayStartAt]: { snapshotCreatedAt: snapshot.createdAt, completedAt: this.now() } } } : {}),
+    };
+    await this.write(record);
+    return { item: updated, snapshot: nextSnapshot };
   }
 
   async delete(id: string): Promise<void> {
@@ -222,6 +255,13 @@ function parseLearningItem(value: unknown): LearningItem {
   if (typeof value.normalizedDutch !== "string" || value.normalizedDutch !== normalizeSavedVocabularyText(dutch) || typeof value.id !== "string" || value.id !== getLearningItemId(dutch) || value.learningLanguage !== LEARNING_LANGUAGE || (value.kind !== "word" && value.kind !== "chunk") || !nullableString(value.english) || !nullableString(value.telugu) || !Array.isArray(value.sources) || !value.sources.every(isLearningSource) || !Array.isArray(value.contexts) || !value.contexts.every((context) => isLearningContext(context, dutch)) || value.contexts.length > 3 || !mastery(value.recognition) || !mastery(value.recall) || !finite(value.createdAt) || !finite(value.updatedAt) || (value.encounters !== undefined && !learningEncounter(value.encounters))) throw new Error("This learning file contains an invalid learning item.");
   return { ...value, encounters: value.encounters ?? { count: 0, lastEncounterAt: null } } as LearningItem;
 }
+function parseDailyFiveSnapshot(value: unknown): DailyFiveSnapshot | null {
+  if (!isRecord(value) || !finite(value.createdAt) || !finite(value.dayStartAt) || !Array.isArray(value.tasks) || !Array.isArray(value.completedTaskIds) || typeof value.goalCompleted !== "boolean") return null;
+  const tasks = value.tasks.filter((task): task is DailyFiveSnapshot["tasks"][number] => isRecord(task) && typeof task.itemId === "string" && (task.dimension === "recognition" || task.dimension === "recall"));
+  if (tasks.length !== value.tasks.length || tasks.length > 5 || new Set(tasks.map((task) => task.itemId)).size !== tasks.length || !value.completedTaskIds.every((id) => typeof id === "string" && tasks.some((task) => taskId(task) === id))) return null;
+  return { createdAt: value.createdAt, dayStartAt: value.dayStartAt, tasks, completedTaskIds: value.completedTaskIds as string[], goalCompleted: value.goalCompleted };
+}
+function taskId(task: DailyFiveSnapshot["tasks"][number]): string { return `${task.itemId}\u001f${task.dimension}`; }
 function isLearningSource(value: unknown): value is LearningItemSource { return isRecord(value) && (value.type === "webpage" || value.type === "lesson") && finite(value.addedAt) && (value.sourceLanguage === undefined || value.sourceLanguage === "auto" || isLanguage(value.sourceLanguage)) && (value.detectedSourceLanguage === undefined || isLanguage(value.detectedSourceLanguage)) && (value.targetLanguage === undefined || isLanguage(value.targetLanguage)) && (value.providerName === undefined || typeof value.providerName === "string") && (value.originalLanguage === undefined || isLanguage(value.originalLanguage)); }
 function isLearningContext(value: unknown, dutch: string): value is LearningContext { return isRecord(value) && typeof value.text === "string" && value.text.length <= 240 && value.text.toLocaleLowerCase().includes(normalizeSavedVocabularyText(dutch)) && finite(value.addedAt); }
 function learningEncounter(value: unknown): value is LearningEncounter { return isRecord(value) && nonNegativeInteger(value.count) && (value.lastEncounterAt === null || finite(value.lastEncounterAt)); }

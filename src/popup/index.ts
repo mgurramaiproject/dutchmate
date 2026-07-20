@@ -1,514 +1,131 @@
 import browser from "webextension-polyfill";
-import { createReviewClient } from "./review-client";
-import { getLearnSummaryView, getRecentVocabularyItems, type LearnSummaryView } from "./learn-summary";
 import { createLearningClient } from "./learning-client";
-import {
-  advancePracticeSession,
-  createPracticeSession,
-  getCurrentPracticeCard,
-  revealPracticeAnswer,
-  getPracticePrompt,
-  type PracticeSessionState,
-} from "./practice-session";
-import type { ReviewCard, ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
-import type { LearningItem } from "../vocabulary/learning-record";
-import {
-  defaultSettings,
-  type ExtensionSettings,
-} from "../shared/settings";
-import type { ReviewSettingsChanges } from "../background/messages";
 import { createSettingsClient } from "./settings-client";
-import { getPopupTabForKey, type PopupTab } from "./tab-navigation";
+import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
+import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
+import type { LearningItem } from "../vocabulary/learning-record";
+import { defaultSettings, type ExtensionSettings } from "../shared/settings";
+import type { ReviewSettingsChanges } from "../background/messages";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
 const dueBadge = document.querySelector<HTMLElement>("#due-badge");
-const learnTab = document.querySelector<HTMLButtonElement>("#learn-tab");
-const settingsTab = document.querySelector<HTMLButtonElement>("#settings-tab");
-const reviewClient = createReviewClient(browser);
+const settingsButton = document.querySelector<HTMLButtonElement>("#settings-button");
 const learningClient = createLearningClient(browser);
 const settingsClient = createSettingsClient(browser);
-let activeTab: PopupTab = "learn";
-let summary: ReviewCardSummary | null = null;
-let learningItems: LearningItem[] = [];
-let practiceSession: PracticeSessionState | null = null;
-let practicePending = false;
-let ratingPending = false;
+let items: LearningItem[] = [];
+let snapshot: DailyFiveSnapshot | null = null;
 let settings: ExtensionSettings = defaultSettings;
+let screen: "today" | "review" | "settings" = "today";
+let revealed = false;
+let pending = false;
 
-const practiceModeLabel: Record<PracticeSessionState["mode"], string> = {
-  due: "Due review",
-  new: "New word",
-  all: "All words",
-};
-const practiceModeDescription: Record<PracticeSessionState["mode"], string> = {
-  due: "Review your due words.",
-  new: "Practice your new words.",
-  all: "Review all your words.",
-};
+settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
+void load();
 
-learnTab?.addEventListener("click", () => activateTab("learn"));
-
-settingsTab?.addEventListener("click", () => activateTab("settings"));
-
-for (const [tab, button] of [["learn", learnTab], ["settings", settingsTab]] as const) {
-  button?.addEventListener("keydown", (event) => {
-    const nextTab = getPopupTabForKey(tab, event.key);
-    if (!nextTab) {
-      return;
-    }
-
-    event.preventDefault();
-    activateTab(nextTab);
-    document.querySelector<HTMLButtonElement>(`#${nextTab}-tab`)?.focus();
-  });
-}
-
-render();
-void loadSummary();
-void loadSettings();
-
-function activateTab(tab: PopupTab): void {
-  activeTab = tab;
-  if (tab === "learn") {
-    practiceSession = null;
-    void loadSummary();
-  }
-  render();
-}
-
-async function loadSettings(): Promise<void> {
-  settings = await settingsClient.getSettings();
-  render();
-}
-
-async function loadSummary(): Promise<void> {
+async function load(continueAfterCompletion = false): Promise<void> {
   try {
-    [summary, learningItems] = await Promise.all([reviewClient.getSummary(), learningClient.list().catch(() => [])]);
+    [items, snapshot, settings] = await Promise.all([learningClient.list(), learningClient.getDailyFive(continueAfterCompletion), settingsClient.getSettings()]);
+    render();
   } catch (error) {
-    renderError(error instanceof Error ? error.message : "Review summary is unavailable.");
-    return;
+    renderError(error instanceof Error ? error.message : "Today is unavailable.");
   }
-
-  render();
 }
 
 function render(): void {
-  if (!content) {
-    return;
-  }
-
-  updateTabs();
+  if (!content) return;
+  settingsButton?.toggleAttribute("hidden", screen === "review");
   updateBadge();
-  content.replaceChildren(activeTab === "learn" ? renderLearn() : renderSettings());
+  content.replaceChildren(screen === "today" ? renderToday() : screen === "review" ? renderReview() : renderSettings());
 }
 
-function renderLearn(): HTMLElement {
-  if (practiceSession) {
-    return renderPractice(practiceSession);
-  }
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "learn-content";
-
-  if (!summary) {
-    wrapper.append(createEyebrow("Daily review"), createHeading("Loading your words..."));
-    return wrapper;
-  }
-
-  const view = getLearnSummaryView(summary);
-  const recentItems = getRecentVocabularyItems(view.recent, learningItems);
-
-  const intro = document.createElement("section");
-  intro.className = "summary-intro";
-  intro.append(
-    createEyebrow("Daily review"),
-    createHeading(view.heading),
-    createText(view.description),
-  );
-
-  const stats = document.createElement("div");
-  stats.className = "stats";
-  stats.append(...view.stats.map((stat) => createStat(stat.value, stat.label)));
-
-  const recent = document.createElement("section");
-  recent.className = "section";
-  recent.append(createSectionTitle(view.recentLabel));
-  if (recentItems.length === 0) {
-    recent.append(createEmptyState(view.emptyMessage ?? "No saved words or chunks yet."));
+function renderToday(): HTMLElement {
+  const wrapper = section("today-content");
+  if (!snapshot) { wrapper.append(eyebrow("Today"), heading("Loading your Daily Five…")); return wrapper; }
+  const view = getDailyFiveView(snapshot);
+  const completed = view.status === "complete";
+  const total = view.total;
+  const done = view.completed;
+  wrapper.append(eyebrow("Today"), heading(completed ? "Five small wins." : "One calm practice action."), text(completed ? "Your Daily Five is complete. Keep going only if you want to." : total === 0 ? "No review is waiting. A short lesson is a good next step." : "Reveal each answer, then choose Again or Got it."));
+  const progress = document.createElement("section");
+  progress.className = "daily-five";
+  progress.append(text("Daily Five", "section-title"), text(total === 0 ? "Try a lesson when it arrives." : `${done} of ${total} complete`, "body-copy"));
+  wrapper.append(progress);
+  if (total === 0) {
+    wrapper.append(text("Lessons will appear here next. DutchMate will never start one automatically.", "empty-state"));
   } else {
-    recent.append(createRecentList(recentItems));
-    recent.append(createVocabularyManagerButton("View all saved words"));
+    const action = button(view.actionLabel ?? "Start Daily Five", "button primary-button");
+    action.disabled = pending;
+    action.addEventListener("click", () => {
+      if (completed) void startContinuation();
+      else { screen = "review"; revealed = false; render(); content?.focus(); }
+    });
+    wrapper.append(action);
   }
-
-  const actions = document.createElement("div");
-  actions.className = "actions";
-  actions.append(...view.actions.map(createReviewAction));
-
-  wrapper.append(intro, stats, recent, actions, createLocalNote());
+  wrapper.append(createMasterySummary(), localNote());
   return wrapper;
 }
 
-function renderPractice(session: PracticeSessionState): HTMLElement {
-  const wrapper = document.createElement("div");
-  wrapper.className = "practice-content";
-
-  if (session.completed) {
-    wrapper.append(
-      createEyebrow(`${getPracticeModeLabel(session.mode)} complete`),
-      createHeading("That is a good set."),
-      createText("Your ratings are saved locally. Review again when the cards are due."),
-    );
-    const backButton = createButton("Back to Learn", "button practice-back");
-    backButton.addEventListener("click", () => {
-      practiceSession = null;
-      void loadSummary();
-    });
-    wrapper.append(backButton);
-    return wrapper;
-  }
-
-  const card = getCurrentPracticeCard(session);
-  if (!card) {
-    return wrapper;
-  }
-
-  const progress = createText(`Card ${session.currentIndex + 1} of ${session.queue.length}`, "practice-progress");
-  const cardSection = document.createElement("section");
-  cardSection.className = "practice-card";
-  const prompt = getPracticePrompt(card, settings.cardDirection);
-  cardSection.append(
-    createEyebrow(session.revealed ? "Answer" : prompt.label),
-    createHeading(session.revealed ? card.dutch : prompt.value ?? "unavailable"),
-  );
-
-  if (session.revealed) {
-    cardSection.append(createMeaningRow("Dutch", card.dutch));
-    cardSection.append(createMeaningRow("English", card.english));
-    cardSection.append(createMeaningRow("Telugu", card.telugu));
-    if (settings.showExampleSentence && card.pageContext) {
-      cardSection.append(createMeaningRow("Page context", card.pageContext));
-    }
-
-    const ratings = document.createElement("div");
-    ratings.className = "rating-actions";
-    for (const rating of ["again", "hard", "good", "easy"] as const) {
-      const button = createButton(rating[0].toUpperCase() + rating.slice(1), "button");
-      button.disabled = ratingPending;
-      button.addEventListener("click", () => void rateCurrentCard(rating));
-      ratings.append(button);
-    }
-    cardSection.append(ratings);
+function renderReview(): HTMLElement {
+  const wrapper = section("practice-content focused-content");
+  const reviewView = snapshot ? getDailyFiveReviewView(snapshot, revealed) : null;
+  const task = reviewView?.task;
+  const item = task ? items.find((candidate) => candidate.id === task.itemId) : undefined;
+  if (!snapshot || !task || !item) { screen = "today"; return renderToday(); }
+  const exit = button("Exit review", "exit-button");
+  exit.addEventListener("click", () => { screen = "today"; revealed = false; render(); });
+  const progress = text(`${task.dimension === "recognition" ? "Recognition" : "Recall"} · ${snapshot.completedTaskIds.length + 1} of ${snapshot.tasks.length}`, "practice-progress");
+  const card = section("practice-card");
+  const prompt = task.dimension === "recognition" ? item.dutch : item.english ?? item.contexts.at(-1)?.text ?? "Use the context cue";
+  card.append(eyebrow(revealed ? "Answer" : task.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(revealed ? item.dutch : prompt));
+  if (reviewView?.canSubmitResult) {
+    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), meaning("Telugu", item.telugu));
+    if (item.contexts.at(-1)) card.append(meaning("Context", item.contexts.at(-1)?.text ?? null));
+    const actions = document.createElement("div"); actions.className = "rating-actions";
+    for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.disabled = pending; action.addEventListener("click", () => void saveResult(item, task.dimension, result)); actions.append(action); }
+    card.append(actions);
   } else {
-    const answerButton = createButton("Show Answer", "button answer-button");
-    answerButton.addEventListener("click", () => {
-      practiceSession = revealPracticeAnswer(session);
-      render();
-    });
-    cardSection.append(answerButton);
+    const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { revealed = true; render(); }); card.append(reveal);
   }
-
-  wrapper.append(progress, cardSection, createLocalNote());
+  wrapper.append(exit, progress, card, localNote());
   return wrapper;
 }
 
 function renderSettings(): HTMLElement {
-  const wrapper = document.createElement("section");
-  wrapper.className = "settings-content";
-  wrapper.append(
-    createEyebrow("Flashcard settings"),
-    createHeading("Tune your review"),
-    createText(
-      "These flashcard preferences are also available in Options. Change languages, saving, caching, translation, and privacy settings there.",
-    ),
-    createSettingToggle(
-      "Show example sentence",
-      "Display stored page context on review cards.",
-      settings.showExampleSentence,
-      (checked) => void saveReviewSettings({ showExampleSentence: checked }),
-    ),
-    createSettingToggle(
-      "Daily review badge",
-      "Show the number of reviewed cards due today.",
-      settings.dailyReviewBadge,
-      (checked) => void saveReviewSettings({ dailyReviewBadge: checked }),
-    ),
-    createDirectionSetting(),
-    createText("For all other extension settings, open the Options page.", "local-note"),
-    createOptionsButton("Open Options page"),
-    createLocalNote(),
-  );
-  return wrapper;
+  const wrapper = section("settings-content");
+  wrapper.append(eyebrow("Settings"), heading("Review preferences"), toggle("Show page context", settings.showExampleSentence, (checked) => void saveSettings({ showExampleSentence: checked })), toggle("Daily review badge", settings.dailyReviewBadge, (checked) => void saveSettings({ dailyReviewBadge: checked })), text("Other extension settings are available in Options.", "local-note"));
+  const options = button("Open Options page", "button"); options.addEventListener("click", () => void browser.runtime.openOptionsPage()); wrapper.append(options); return wrapper;
 }
 
-function createVocabularyManagerButton(label: string): HTMLButtonElement {
-  const button = createButton(label, "button vocabulary-link");
-  button.addEventListener("click", () => {
-    void browser.runtime.openOptionsPage();
-  });
-  return button;
-}
-
-function createOptionsButton(label: string): HTMLButtonElement {
-  const button = createButton(label, "button options-button");
-  button.addEventListener("click", () => {
-    void browser.runtime.openOptionsPage();
-  });
-  return button;
-}
-
-function createSettingToggle(
-  labelText: string,
-  description: string,
-  checked: boolean,
-  onChange: (checked: boolean) => void,
-): HTMLElement {
-  const label = document.createElement("label");
-  label.className = "setting-control";
-
-  const copy = document.createElement("span");
-  copy.className = "setting-copy";
-  const title = document.createElement("strong");
-  title.textContent = labelText;
-  const note = document.createElement("small");
-  note.textContent = description;
-  copy.append(title, note);
-
-  const input = document.createElement("input");
-  input.type = "checkbox";
-  input.checked = checked;
-  input.addEventListener("change", () => onChange(input.checked));
-  label.append(copy, input);
-  return label;
-}
-
-function createDirectionSetting(): HTMLElement {
-  const fieldset = document.createElement("fieldset");
-  fieldset.className = "direction-setting";
-  const legend = document.createElement("legend");
-  legend.textContent = "Card direction";
-  fieldset.append(legend);
-
-  for (const option of [
-    { value: "dutch-to-helpers" as const, label: "Dutch to helper languages" },
-    { value: "helpers-to-dutch" as const, label: "Helper languages to Dutch" },
-  ]) {
-    const label = document.createElement("label");
-    const input = document.createElement("input");
-    input.type = "radio";
-    input.name = "card-direction";
-    input.value = option.value;
-    input.checked = settings.cardDirection === option.value;
-    input.addEventListener("change", () => {
-      if (input.checked) {
-        void saveReviewSettings({ cardDirection: option.value });
-      }
-    });
-    label.append(input, document.createTextNode(option.label));
-    fieldset.append(label);
-  }
-
-  return fieldset;
-}
-
-async function saveReviewSettings(changes: Partial<ReviewSettingsChanges>): Promise<void> {
-  settings = await settingsClient.updateSettings(changes);
-  render();
-}
-
-function renderError(message: string): void {
-  if (!content) {
-    return;
-  }
-
-  const error = document.createElement("section");
-  error.className = "error-state";
-  error.append(createEyebrow("Review unavailable"), createHeading("Your words could not load."), createText(message));
-  content.replaceChildren(error);
-}
-
-function createRecentList(cards: LearnSummaryView["recent"]): HTMLElement {
-  const table = document.createElement("table");
-  table.className = "recent-table";
-  table.setAttribute("aria-label", "Recently saved vocabulary");
-
-  const headerRow = table.createTHead().insertRow();
-  for (const label of ["Dutch", "English", "Telugu"]) {
-    const header = document.createElement("th");
-    header.scope = "col";
-    header.textContent = label;
-    headerRow.append(header);
-  }
-
-  const body = table.createTBody();
-
-  for (const card of cards) {
-    const row = body.insertRow();
-    for (const value of [card.dutch, card.english, card.telugu ?? "unavailable"]) {
-      const cell = row.insertCell();
-      cell.textContent = value;
-    }
-  }
-
-  return table;
-}
-
-function createReviewAction(action: LearnSummaryView["actions"][number]): HTMLButtonElement {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "button";
-  button.textContent = action.label;
-  button.disabled = !action.enabled || practicePending;
-  button.title = action.enabled ? practiceModeDescription[action.mode] : "Save a word to enable this action.";
-  if (action.enabled) {
-    button.addEventListener("click", () => void startPractice(action.mode));
-  }
-  return button;
-}
-
-function createButton(text: string, className: string): HTMLButtonElement {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = className;
-  button.textContent = text;
-  return button;
-}
-
-function createMeaningRow(label: string, value: string | null): HTMLElement {
-  const row = document.createElement("div");
-  row.className = "meaning-row";
-  const name = document.createElement("strong");
-  name.textContent = label;
-  const meaning = document.createElement("span");
-  meaning.textContent = value ?? "unavailable";
-  if (!value) {
-    meaning.className = "meaning-unavailable";
-  }
-  row.append(name, meaning);
-  return row;
-}
-
-async function startPractice(mode: LearnSummaryView["actions"][number]["mode"]): Promise<void> {
-  if (practicePending) {
-    return;
-  }
-
-  practicePending = true;
-  render();
-  let errorMessage: string | null = null;
+async function saveResult(item: LearningItem, dimension: "recognition" | "recall", result: "again" | "got-it"): Promise<void> {
+  if (pending) return;
+  pending = true; render();
   try {
-    const queue = await getPracticeQueue(mode);
-    practiceSession = createPracticeSession(queue, mode);
-  } catch (error) {
-    errorMessage = error instanceof Error ? error.message : `${getPracticeModeLabel(mode)} is unavailable.`;
-  } finally {
-    practicePending = false;
-    errorMessage ? renderError(errorMessage) : render();
-  }
+    const response = await learningClient.recordDailyFiveResult(item.id, dimension, result);
+    items = items.map((candidate) => candidate.id === item.id ? response.item : candidate);
+    snapshot = response.snapshot; revealed = false;
+    if (snapshot.goalCompleted) screen = "today";
+    render();
+  } catch (error) { renderError(error instanceof Error ? error.message : "Your result could not be saved."); }
+  finally { pending = false; }
 }
 
-function getPracticeModeLabel(mode: PracticeSessionState["mode"]): string {
-  return practiceModeLabel[mode];
+async function startContinuation(): Promise<void> { pending = true; render(); await load(true); pending = false; if (snapshot?.tasks.length) { screen = "review"; revealed = false; render(); content?.focus(); } }
+async function saveSettings(changes: Partial<ReviewSettingsChanges>): Promise<void> { settings = await settingsClient.updateSettings(changes); render(); }
+
+function createMasterySummary(): HTMLElement {
+  const states = ["new", "learning", "familiar", "strong"] as const;
+  const summary = section("mastery");
+  for (const label of ["Recognition", "Recall"] as const) { const key = label.toLowerCase() as "recognition" | "recall"; const count = items.filter((item) => item[key].state !== "new").length; const state = [...states].reverse().find((candidate) => items.some((item) => item[key].state === candidate)) ?? "new"; const block = document.createElement("div"); block.append(text(`${label} · ${state}`, "section-title"), text(`${count} item${count === 1 ? "" : "s"} practised`, "body-copy")); summary.append(block); }
+  return summary;
 }
-
-function getPracticeQueue(mode: PracticeSessionState["mode"]): Promise<ReviewCard[]> {
-  if (mode === "new") {
-    return reviewClient.getNewQueue();
-  }
-  if (mode === "due") {
-    return reviewClient.getDueQueue();
-  }
-  return reviewClient.getAllQueue();
-}
-
-async function rateCurrentCard(rating: ReviewRating): Promise<void> {
-  if (!practiceSession || practiceSession.completed || ratingPending) {
-    return;
-  }
-
-  const card = getCurrentPracticeCard(practiceSession);
-  if (!card) {
-    return;
-  }
-
-  ratingPending = true;
-  render();
-  let errorMessage: string | null = null;
-  try {
-    const reviewedCard = await reviewClient.rateCard(card.id, rating);
-    practiceSession = advancePracticeSession(practiceSession, reviewedCard);
-  } catch (error) {
-    errorMessage = error instanceof Error ? error.message : "Your rating could not be saved.";
-  } finally {
-    ratingPending = false;
-    errorMessage ? renderError(errorMessage) : render();
-  }
-}
-
-function createStat(value: number, label: string): HTMLElement {
-  const stat = document.createElement("div");
-  stat.className = "stat";
-  const number = document.createElement("strong");
-  number.textContent = String(value);
-  const caption = document.createElement("span");
-  caption.className = "stat-label";
-  caption.textContent = label;
-  stat.append(number, caption);
-  return stat;
-}
-
-function createEmptyState(message: string): HTMLElement {
-  return createText(message, "empty-state");
-}
-
-function createLocalNote(): HTMLElement {
-  return createText("Local vocabulary only. No account required.", "local-note");
-}
-
-function createEyebrow(text: string): HTMLElement {
-  return createText(text, "eyebrow");
-}
-
-function createHeading(text: string): HTMLElement {
-  const heading = document.createElement("h1");
-  heading.className = "heading";
-  heading.textContent = text;
-  return heading;
-}
-
-function createSectionTitle(text: string): HTMLElement {
-  const heading = document.createElement("h2");
-  heading.className = "section-title";
-  heading.textContent = text;
-  return heading;
-}
-
-function createText(text: string, className = "body-copy"): HTMLElement {
-  const element = document.createElement("p");
-  element.className = className;
-  element.textContent = text;
-  return element;
-}
-
-function updateTabs(): void {
-  for (const [tab, button] of [["learn", learnTab], ["settings", settingsTab]] as const) {
-    const isActive = activeTab === tab;
-    button?.classList.toggle("is-active", isActive);
-    button?.setAttribute("aria-selected", String(isActive));
-    if (button) {
-      button.tabIndex = isActive ? 0 : -1;
-    }
-  }
-  content?.setAttribute("aria-labelledby", activeTab === "learn" ? "learn-tab" : "settings-tab");
-}
-
-function updateBadge(): void {
-  if (!dueBadge) {
-    return;
-  }
-
-  const due = settings.dailyReviewBadge ? summary?.due ?? 0 : 0;
-  dueBadge.hidden = due === 0;
-  dueBadge.textContent = String(due);
-  dueBadge.setAttribute("aria-label", `${due} ${due === 1 ? "word" : "words"} due for review`);
-}
+function updateBadge(): void { if (!dueBadge) return; const due = settings.dailyReviewBadge ? items.filter((item) => [item.recognition, item.recall].some((mastery) => mastery.attemptCount > 0 && mastery.dueAt !== null && mastery.dueAt <= Date.now())).length : 0; dueBadge.hidden = due === 0; dueBadge.textContent = String(due); dueBadge.setAttribute("aria-label", `${due} items due for review`); }
+function renderError(message: string): void { if (!content) return; content.replaceChildren(eyebrow("Today unavailable"), heading("Your practice could not load."), text(message)); }
+function section(className: string): HTMLElement { const element = document.createElement("section"); element.className = className; return element; }
+function button(label: string, className: string): HTMLButtonElement { const element = document.createElement("button"); element.type = "button"; element.className = className; element.textContent = label; return element; }
+function eyebrow(value: string): HTMLElement { return text(value, "eyebrow"); }
+function heading(value: string): HTMLElement { const element = document.createElement("h1"); element.className = "heading"; element.textContent = value; return element; }
+function text(value: string, className = "body-copy"): HTMLElement { const element = document.createElement("p"); element.className = className; element.textContent = value; return element; }
+function meaning(label: string, value: string | null): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; row.append(name, content); return row; }
+function toggle(labelText: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement { const label = document.createElement("label"); label.className = "setting-control"; const textNode = document.createElement("strong"); textNode.textContent = labelText; const input = document.createElement("input"); input.type = "checkbox"; input.checked = checked; input.addEventListener("change", () => onChange(input.checked)); label.append(textNode, input); return label; }
+function localNote(): HTMLElement { return text("Local learning only. No account required.", "local-note"); }

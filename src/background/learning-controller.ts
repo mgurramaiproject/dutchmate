@@ -10,6 +10,8 @@ import {
   LEARNING_LIST_MESSAGE,
   LEARNING_RECORD_ENCOUNTER_MESSAGE,
   LEARNING_SUMMARY_MESSAGE,
+  LEARNING_DAILY_FIVE_MESSAGE,
+  LEARNING_DAILY_FIVE_RESULT_MESSAGE,
 } from "./messages";
 
 export async function handleLearningMessage(message: LearningMessage, store: LearningRecordStore): Promise<LearningMessageResponse> {
@@ -21,6 +23,8 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
       const item = await store.recordEncounter(message.payload.id, message.payload.context);
       return item ? { ok: true, result: { recorded: true } } : { ok: false, error: "Learning item was not found." };
     }
+    if (message.type === LEARNING_DAILY_FIVE_MESSAGE) return { ok: true, result: { snapshot: await store.getDailyFive(message.payload?.continueAfterCompletion) } };
+    if (message.type === LEARNING_DAILY_FIVE_RESULT_MESSAGE) return { ok: true, result: await store.recordDailyFiveResult(message.payload.itemId, message.payload.dimension, message.payload.result) };
     if (message.type === LEARNING_DELETE_MESSAGE) { await store.delete(message.payload.id); return { ok: true, result: { deleted: true } }; }
     if (message.type === LEARNING_CLEAR_MESSAGE) { await store.clear(); return { ok: true, result: { cleared: true } }; }
     if (message.type === LEARNING_EXPORT_MESSAGE) return { ok: true, result: { backup: await store.exportBackup() } };

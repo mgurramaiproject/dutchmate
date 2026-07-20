@@ -38,7 +38,7 @@ export function createBackgroundMessageHandler(
   return (message, sendResponse) => {
     if (isLearningMessage(message) && dependencies.learningRecords) {
       void handleLearningMessage(message, dependencies.learningRecords).then(async (response) => {
-        if (response.ok && message.type !== "dutchmate.learning.list" && message.type !== "dutchmate.learning.summary" && message.type !== "dutchmate.learning.export") await dependencies.refreshBadge();
+        if (response.ok && message.type !== "dutchmate.learning.list" && message.type !== "dutchmate.learning.summary" && message.type !== "dutchmate.learning.export" && message.type !== "dutchmate.learning.dailyFive") await dependencies.refreshBadge();
         sendResponse(response);
       });
       return true;
