@@ -97,7 +97,7 @@ function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
   }
 
   if (event.type === "render-result") {
-    tooltipView.showResult(event.response, event.x, event.y, event.saveAction);
+    tooltipView.showResult(event.response, event.x, event.y, event.saveAction, event.chunkConfirmation);
     return;
   }
 

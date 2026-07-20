@@ -105,6 +105,7 @@ export type SaveActionState =
   | { status: "saved"; label: "Saved"; disabled: true }
   | { status: "full"; label: "Vocabulary full"; disabled: true }
   | { status: "retry"; label: "Try again"; disabled: false; title: string };
+export type ChunkConfirmation = { dutch: string; english: string | null; telugu: string | null; context: string | null };
 
 export type WebpageLookupModuleEvent =
   | {
@@ -121,6 +122,7 @@ export type WebpageLookupModuleEvent =
       y: number;
       response: TranslateMessageResponse;
       saveAction: SaveActionState;
+      chunkConfirmation?: ChunkConfirmation;
       seenBefore?: true;
     }
   | {
@@ -289,9 +291,11 @@ export class WebpageLookupModule {
 
     this.#currentSaveCandidates = completedLookup.saveCandidates;
     const chunk = input.context === "selection" ? getChunkCandidate(input.text) : null;
+    let chunkConfirmation: ChunkConfirmation | undefined;
     if (chunk && completedLookup.response.ok) {
       const helpers = getChunkHelpers(completedLookup.response.result.translatedText);
       this.#currentChunk = { dutch: chunk.normalizedDutch, kind: "chunk", source: "webpage", context: input.pageContext, ...helpers };
+      chunkConfirmation = { dutch: chunk.normalizedDutch, english: helpers.english ?? null, telugu: helpers.telugu ?? null, context: input.pageContext?.slice(0, 240) ?? null };
     }
     this.#currentSaveCandidateIds = completedLookup.saveCandidates.map((candidate) =>
       getSavedVocabularyEntryId(candidate),
@@ -305,6 +309,7 @@ export class WebpageLookupModule {
       y: input.y,
       response: completedLookup.response,
       saveAction,
+      ...(chunkConfirmation ? { chunkConfirmation } : {}),
     });
 
     if (completedLookup.response.ok) {
@@ -317,7 +322,7 @@ export class WebpageLookupModule {
       void this.#refreshCurrentSaveState();
     }
 
-    if (this.#deps.getSettings().autoSaveSelectedWords && saveAction.status !== "hidden") {
+    if (this.#deps.getSettings().autoSaveSelectedWords && !this.#currentChunk && saveAction.status !== "hidden") {
       void this.#autoSaveCurrentSelection();
     }
   }
@@ -335,9 +340,14 @@ export class WebpageLookupModule {
 
   async handleSaveAction(): Promise<void> {
     if (this.#currentChunk) {
-      const response = this.#deps.transport.saveLearningItem
-        ? await this.#deps.transport.saveLearningItem(this.#currentChunk)
-        : { ok: false, error: "Learning save is unavailable." };
+      let response: { ok: boolean; error?: string };
+      try {
+        response = this.#deps.transport.saveLearningItem
+          ? await this.#deps.transport.saveLearningItem(this.#currentChunk)
+          : { ok: false, error: "Learning save is unavailable." };
+      } catch (error) {
+        response = { ok: false, error: error instanceof Error ? error.message : "Learning item could not be saved." };
+      }
       this.#emit({ type: "save-state-changed", saveAction: response.ok ? { status: "saved", label: "Saved", disabled: true } : { status: "retry", label: "Try again", disabled: false, title: response.error ?? "Learning item could not be saved." } });
       return;
     }

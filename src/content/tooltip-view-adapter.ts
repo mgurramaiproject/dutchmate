@@ -1,5 +1,5 @@
 import type { TranslateMessageResponse } from "./runtime-translation-client";
-import type { SaveActionState } from "./webpage-lookup-module";
+import type { ChunkConfirmation, SaveActionState } from "./webpage-lookup-module";
 
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
 
@@ -12,6 +12,7 @@ export type TooltipViewAdapter = {
     x: number,
     y: number,
     saveAction: SaveActionState,
+    chunkConfirmation?: ChunkConfirmation,
   ): void;
   showSeenBefore(): void;
   updateSaveButton(saveAction: SaveActionState): void;
@@ -111,11 +112,13 @@ export function createTooltipViewAdapter(onSaveClick: () => void): TooltipViewAd
       tooltip.hidden = false;
     },
 
-    showResult(response, x, y, saveAction) {
+    showResult(response, x, y, saveAction, chunkConfirmation) {
       currentSaveButton = null;
       tooltip.dataset.state = response.ok ? "success" : "error";
 
-      if (response.ok && response.result.providerName === "multi-target") {
+      if (chunkConfirmation) {
+        tooltip.textContent = `Save: ${chunkConfirmation.dutch}\nEnglish: ${chunkConfirmation.english ?? "unavailable"}\nTelugu: ${chunkConfirmation.telugu ?? "unavailable"}\nContext: ${chunkConfirmation.context ?? "unavailable"}`;
+      } else if (response.ok && response.result.providerName === "multi-target") {
         renderMultiTargetTooltip(tooltip, truncateTooltipText(response.result.translatedText));
       } else {
         tooltip.textContent = truncateTooltipText(

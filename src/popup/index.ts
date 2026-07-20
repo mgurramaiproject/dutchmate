@@ -1,6 +1,7 @@
 import browser from "webextension-polyfill";
 import { createReviewClient } from "./review-client";
-import { getLearnSummaryView, type LearnSummaryView } from "./learn-summary";
+import { getLearnSummaryView, getRecentVocabularyItems, type LearnSummaryView } from "./learn-summary";
+import { createLearningClient } from "./learning-client";
 import {
   advancePracticeSession,
   createPracticeSession,
@@ -10,6 +11,7 @@ import {
   type PracticeSessionState,
 } from "./practice-session";
 import type { ReviewCard, ReviewCardSummary, ReviewRating } from "../vocabulary/review-cards";
+import type { LearningItem } from "../vocabulary/learning-record";
 import {
   defaultSettings,
   type ExtensionSettings,
@@ -24,9 +26,11 @@ const dueBadge = document.querySelector<HTMLElement>("#due-badge");
 const learnTab = document.querySelector<HTMLButtonElement>("#learn-tab");
 const settingsTab = document.querySelector<HTMLButtonElement>("#settings-tab");
 const reviewClient = createReviewClient(browser);
+const learningClient = createLearningClient(browser);
 const settingsClient = createSettingsClient(browser);
 let activeTab: PopupTab = "learn";
 let summary: ReviewCardSummary | null = null;
+let learningItems: LearningItem[] = [];
 let practiceSession: PracticeSessionState | null = null;
 let practicePending = false;
 let ratingPending = false;
@@ -80,7 +84,7 @@ async function loadSettings(): Promise<void> {
 
 async function loadSummary(): Promise<void> {
   try {
-    summary = await reviewClient.getSummary();
+    [summary, learningItems] = await Promise.all([reviewClient.getSummary(), learningClient.list().catch(() => [])]);
   } catch (error) {
     renderError(error instanceof Error ? error.message : "Review summary is unavailable.");
     return;
@@ -113,6 +117,7 @@ function renderLearn(): HTMLElement {
   }
 
   const view = getLearnSummaryView(summary);
+  const recentItems = getRecentVocabularyItems(view.recent, learningItems);
 
   const intro = document.createElement("section");
   intro.className = "summary-intro";
@@ -129,10 +134,10 @@ function renderLearn(): HTMLElement {
   const recent = document.createElement("section");
   recent.className = "section";
   recent.append(createSectionTitle(view.recentLabel));
-  if (view.emptyMessage) {
-    recent.append(createEmptyState(view.emptyMessage));
+  if (recentItems.length === 0) {
+    recent.append(createEmptyState(view.emptyMessage ?? "No saved words or chunks yet."));
   } else {
-    recent.append(createRecentList(view.recent));
+    recent.append(createRecentList(recentItems));
     recent.append(createVocabularyManagerButton("View all saved words"));
   }
 

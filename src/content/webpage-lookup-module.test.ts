@@ -273,8 +273,34 @@ describe("WebpageLookupModule", () => {
     await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, languageSample: "goede morgen", sourceLanguageHint: "nl", pageContext: "Goede morgen, buur." });
     expect(saveLearningItem).not.toHaveBeenCalled();
     expect(events).toContainEqual(expect.objectContaining({ type: "render-result", saveAction: { status: "ready", label: "Review & save", disabled: false } }));
+    expect(events).toContainEqual(expect.objectContaining({ type: "render-result", chunkConfirmation: { dutch: "goede morgen", english: "goede morgen-en", telugu: "goede morgen-te", context: "Goede morgen, buur." } }));
     await module.handleSaveAction();
     expect(saveLearningItem).toHaveBeenCalledWith(expect.objectContaining({ dutch: "goede morgen", kind: "chunk", source: "webpage" }));
+  });
+
+  it("never auto-saves a selected meaningful chunk", async () => {
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
+    const module = new WebpageLookupModule({ getSettings: () => ({ ...defaultSettings, autoSaveSelectedWords: true }), transport: createTransport({ saveLearningItem }), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+    await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, pageContext: "Goede morgen, buur." });
+    await Promise.resolve();
+    expect(saveLearningItem).not.toHaveBeenCalled();
+  });
+
+  it.each(["een zin.", "een\ntwee", `een ${"x".repeat(78)}`])("keeps %j translatable but hides chunk saving", async (text) => {
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport(), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+    module.subscribe((event) => events.push(event));
+    await module.beginLookup({ text, context: "selection", x: 1, y: 1, pageContext: text });
+    expect(events).toContainEqual(expect.objectContaining({ type: "render-result", response: expect.objectContaining({ ok: true }), saveAction: { status: "hidden" } }));
+  });
+
+  it("keeps a chunk save recoverable when the background request fails", async () => {
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport({ saveLearningItem: async () => { throw new Error("Storage unavailable"); } }), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+    module.subscribe((event) => events.push(event));
+    await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, pageContext: "Goede morgen, buur." });
+    await module.handleSaveAction();
+    expect(events).toContainEqual({ type: "save-state-changed", saveAction: { status: "retry", label: "Try again", disabled: false, title: "Storage unavailable" } });
   });
 
   it("keeps English-source candidates in the manual save flow", async () => {

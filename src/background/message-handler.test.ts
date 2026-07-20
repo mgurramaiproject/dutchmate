@@ -119,6 +119,31 @@ describe("createBackgroundMessageHandler", () => {
     await expect(send(handleMessage, { type: LEARNING_IMPORT_MESSAGE, payload: { document: JSON.stringify(versionOne) } })).resolves.toMatchObject({ ok: true, result: { importedCount: 1, totalCount: 2 } });
   });
 
+  it("persists a confirmed chunk atomically through the typed learning contract", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => 1_000);
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary, reviewCards, learningRecords: records, refreshBadge: async () => undefined });
+
+    await expect(send(handleMessage, { type: LEARNING_CREATE_OR_MERGE_MESSAGE, payload: { dutch: "goede morgen", kind: "chunk", english: "good morning", source: "webpage", context: "Goede morgen, buur." } })).resolves.toMatchObject({ ok: true, result: { item: { id: "nl\u001fgoede morgen", kind: "chunk", contexts: [{ text: "Goede morgen, buur." }] } } });
+    await expect(records.list()).resolves.toHaveLength(1);
+  });
+
+  it("leaves existing learning data intact when chunk persistence fails", async () => {
+    const storage = new FailingLearningStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => 1_000);
+    const records = new LearningRecordStore(storage, () => 1_000);
+    await records.createOrMerge({ dutch: "huis", english: "house" });
+    storage.failLearningWrites = true;
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary, reviewCards, learningRecords: records, refreshBadge: async () => undefined });
+
+    await expect(send(handleMessage, { type: LEARNING_CREATE_OR_MERGE_MESSAGE, payload: { dutch: "goede morgen", kind: "chunk" } })).resolves.toEqual({ ok: false, error: "Learning records are unavailable." });
+    storage.failLearningWrites = false;
+    await expect(records.list()).resolves.toEqual([expect.objectContaining({ dutch: "huis" })]);
+  });
+
   it("records an encounter without changing mastery through the learning contract", async () => {
     const storage = new MemoryStorage();
     const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
@@ -150,5 +175,14 @@ class MemoryStorage implements SavedVocabularyStorage {
 
   async set(key: string, value: unknown): Promise<void> {
     this.values.set(key, value);
+  }
+}
+
+class FailingLearningStorage extends MemoryStorage {
+  failLearningWrites = false;
+
+  override async set(key: string, value: unknown): Promise<void> {
+    if (this.failLearningWrites && key === "dutchmate.learningRecord.v2") throw new Error("Storage unavailable");
+    await super.set(key, value);
   }
 }

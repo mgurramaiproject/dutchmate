@@ -104,17 +104,17 @@ Meaningful-chunk capture UI, encounter history, Daily Five, new popup navigation
 - [x] Confirming creates or enriches exactly one Dutch learning item with webpage provenance and capped local context.
 - [x] Cancelling or dismissing confirmation creates no learning item, mastery, context, or due work.
 - [x] Re-saving a canonical match enriches the existing item instead of creating a duplicate.
-- [ ] Overlong, multiline, sentence-like, or otherwise arbitrary selections remain translatable but cannot be saved as learning chunks.
+- [x] Overlong, multiline, sentence-like, or otherwise arbitrary selections remain translatable but cannot be saved as learning chunks.
 - [x] Existing eligible single-word saving still works.
 - [x] Automatic saving never saves a multiword selection, even when automatic single-word saving is enabled.
-- [ ] The popup and Options vocabulary surfaces can render a saved chunk without assuming that every item is one word.
-- [ ] Capture errors are recoverable and do not leave partial records.
+- [x] The popup and Options vocabulary surfaces can render a saved chunk without assuming that every item is one word.
+- [x] Capture errors are recoverable and do not leave partial records.
 
 ### Verification
 
-- [ ] Content-boundary tests cover eligible words, eligible chunks, punctuation, Unicode tokens, length limits, whitespace, confirmation, cancellation, missing meanings, duplicate merging, and automatic-save gating.
-- [ ] Background-handler tests prove confirmed chunk persistence and atomic failure behavior.
-- [ ] Popup and Options tests cover rendering and deleting a meaningful chunk.
+- [x] Content-boundary tests cover eligible words, eligible chunks, punctuation, Unicode tokens, length limits, whitespace, confirmation, cancellation, missing meanings, duplicate merging, and automatic-save gating.
+- [x] Background-handler tests prove confirmed chunk persistence and atomic failure behavior.
+- [x] Popup and Options tests cover rendering and deleting a meaningful chunk.
 - [x] `corepack pnpm test` passes.
 - [x] `corepack pnpm typecheck` passes.
 - [x] Both browser builds pass.

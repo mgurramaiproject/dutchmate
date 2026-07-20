@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getLearnSummaryView } from "./learn-summary";
+import { getLearnSummaryView, getRecentVocabularyItems } from "./learn-summary";
 import type { ReviewCardSummary } from "../vocabulary/review-cards";
 
 describe("getLearnSummaryView", () => {
@@ -55,5 +55,9 @@ describe("getLearnSummaryView", () => {
         { enabled: false },
       ],
     });
+  });
+
+  it("includes a saved chunk in the popup vocabulary list", () => {
+    expect(getRecentVocabularyItems([], [{ dutch: "goede morgen", english: "good morning", telugu: "శుభోదయం", kind: "chunk", createdAt: 2 } as never])).toEqual([{ dutch: "goede morgen", english: "good morning", telugu: "శుభోదయం" }]);
   });
 });
