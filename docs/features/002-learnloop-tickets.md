@@ -521,7 +521,7 @@ Deleting support for real legacy upgrades, changing language roles, unrelated ar
 - [x] Manual testing documentation records environments, commit, results, and any consciously deferred browser-only checks.
 - [x] The post-release learner protocol checks delayed Familiar/Strong retention and reduced-support story comprehension with a small voluntary Telugu-speaking Dutch-learner cohort.
 - [x] The protocol does not treat review count, lesson completion, time in product, or background analytics as proof of learning.
-- [ ] Any defect found is fixed in the owning ticket's seam or recorded as a separate blocked issue before this ticket completes.
+- [x] Any defect found is fixed in the owning ticket's seam or recorded as a separate blocked issue before this ticket completes.
 
 ### Verification commands
 
