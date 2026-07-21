@@ -512,8 +512,8 @@ Deleting support for real legacy upgrades, changing language roles, unrelated ar
 - [x] Focused learning tests, the complete regression suite, and typecheck pass from a clean checkout.
 - [x] Chrome and Firefox builds contain background, content, popup, Options, icons, bundled catalog, correct browser-specific declarations, and correct popup entry points.
 - [x] Packaged-output verification passes for both browsers and generated manifests are inspected.
-- [ ] Manual Chrome and Firefox checks cover narrow popup dimensions, Today, Daily Five, Settings access, Lessons, focused-flow exit, import, and representative webpage capture/encounter behavior.
-- [ ] Keyboard order, visible focus, roles/labels, pending/disabled states, reduced motion, and absence of horizontal scrolling are checked and recorded.
+- [x] Manual Chrome and Firefox checks cover narrow popup dimensions, Today, Daily Five, Settings access, Lessons, focused-flow exit, import, and representative webpage capture/encounter behavior. *(Manually confirmed by the user on 2026-07-21.)*
+- [x] Keyboard order, visible focus, roles/labels, pending/disabled states, reduced motion, and absence of horizontal scrolling are checked and recorded. *(Manually confirmed by the user on 2026-07-21.)*
 - [x] A representative pre-`002-learnloop` storage snapshot migrates without lost meanings or review history.
 - [x] New-version export/import round-trips the complete learning record and version-one import remains successful.
 - [x] All twelve lessons pass structural validation and have recorded Dutch, English, Telugu, CEFR, cultural, and practical-use acceptance.
