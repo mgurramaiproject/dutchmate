@@ -563,7 +563,7 @@ Publishing a browser-store release, executing a long-running research study, col
 - [x] Week, month, and year activity views support previous/next periods; each day exposes its local review/save count by hover and keyboard focus.
 - [x] Milestones appear as concise, evidence-based chips rather than a vertical sentence stack.
 - [x] Lessons show all twelve items in compact numbered rows, with title, pathway/status, and CEFR in parentheses; the completed/in-progress state remains clear.
-- [ ] The popup keeps visible focus, 44px minimum interactive targets, no horizontal scrolling, reduced-motion support, and a usable 390px Firefox popup. *(Pending a manual Firefox check of the new T13 history and lesson-library layout.)*
+- [x] The popup keeps visible focus, 44px minimum interactive targets, no horizontal scrolling, reduced-motion support, and a usable 390px Firefox popup. *(Manually confirmed by the user after the T13 popup-feedback refinement on 2026-07-21.)*
 - [x] No remote analytics, accounts, synchronization, or change to focused review/lesson behavior is introduced.
 
 ### Verification
