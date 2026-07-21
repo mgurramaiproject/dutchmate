@@ -43,12 +43,23 @@ button { font: inherit; cursor: pointer; }
 .popup-content { display: grid; flex: 1 1 auto; min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; padding: 16px 18px 18px; }
 .today-content { display: grid; gap: 14px; }
 .daily-five { display: grid; gap: 4px; padding: 13px 0; border-top: 1px solid var(--black); border-bottom: 1px solid var(--black); }
-.learning-rhythm { display: grid; gap: 7px; }
-.rhythm-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-.rhythm-day { min-height: 16px; border: 1px solid var(--black); background: var(--white); }
+.learning-rhythm { display: grid; gap: 8px; padding-top: 4px; border-top: 1px solid var(--soft-line); }
+.rhythm-header, .period-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.period-tabs { display: flex; gap: 2px; }
+.period-tab, .period-control, .quiet-action { min-height: 44px; border: 0; background: transparent; color: var(--black); font-size: 0.68rem; font-weight: 850; text-decoration: underline; text-transform: capitalize; }
+.period-tab { min-height: 28px; padding: 2px 5px; color: var(--muted); text-decoration: none; }
+.period-tab.is-active { border-bottom: 2px solid var(--orange); color: var(--black); }
+.period-control { width: 44px; padding: 0; font-size: 0; text-decoration: none; }
+.period-control:first-child::before { content: "←"; font-size: 1rem; }
+.period-control:last-child::before { content: "→"; font-size: 1rem; }
+.period-label { margin: 0; font-size: 0.68rem; font-weight: 750; text-align: center; }
+.rhythm-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.rhythm-day { min-height: 44px; border: 1px solid var(--black); background: var(--white); }
 .rhythm-day.active { background: var(--orange); }
 .rhythm-day.grace { border-style: dashed; background: rgba(255, 111, 0, 0.2); }
-.milestone { color: var(--black); font-weight: 750; }
+.milestone-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.milestone { margin: 0; padding: 5px 7px; border: 1px solid var(--line); background: rgba(255, 111, 0, 0.08); color: var(--black); font-size: 0.67rem; font-weight: 750; line-height: 1.2; }
+.quiet-action { justify-self: start; min-height: 44px; padding: 0; text-align: left; }
 .primary-button { width: 100%; background: var(--orange); }
 .mastery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .mastery > div { display: grid; gap: 4px; padding: 8px; border-top: 3px solid var(--orange); background: rgba(0, 0, 0, 0.04); }
@@ -108,7 +119,14 @@ button { font: inherit; cursor: pointer; }
 .settings-notice { padding: 10px 12px; border-left: 3px solid var(--orange); background: rgba(255, 111, 0, 0.08); }
 .settings-notice.error { border-left-color: var(--black); }
 .error-state { display: grid; align-content: start; gap: 12px; }
+.lesson-group { display: grid; gap: 0; border-top: 3px solid var(--black); }
+.pathway-heading { margin: 0; padding: 8px 0 5px; color: var(--muted); font-size: 0.64rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
 .lesson-card, .lesson-story { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--black); border-top: 5px solid var(--orange); }
+.lesson-row { grid-template-columns: 30px minmax(0, 1fr) auto; gap: 3px 8px; align-items: center; min-height: 62px; padding: 8px 0; border: 0; border-top: 1px solid var(--soft-line); }
+.lesson-row .heading { grid-column: 2; font-family: var(--sans); font-size: 0.8rem; line-height: 1.25; }
+.lesson-number { grid-row: span 2; margin: 0; color: var(--orange); font-family: var(--serif); font-size: 1rem; font-weight: 700; }
+.lesson-meta { grid-column: 2; margin: 0; color: var(--muted); font-size: 0.63rem; line-height: 1.25; overflow-wrap: anywhere; }
+.lesson-action { grid-column: 3; grid-row: span 2; min-width: 54px; min-height: 44px; border: 0; background: transparent; color: var(--black); font-size: 0.65rem; font-weight: 850; text-decoration: underline; }
 .lesson-rail { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
 .lesson-stage { margin: 0; padding: 6px 2px; border: 1px solid var(--black); font-size: 0.58rem; font-weight: 850; text-align: center; text-transform: uppercase; }
 .lesson-stage.active { background: var(--black); color: var(--white); }

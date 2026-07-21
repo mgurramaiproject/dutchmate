@@ -41,7 +41,7 @@ describe("validateExtensionBuild", () => {
     });
     await writeFile(
       join(distDir, "assets", "popup.css"),
-      "width:390px;height:600px;height:540px;overflow-y:auto;button:focus-visible{outline:3px solid orange}",
+      "width:390px;height:600px;display:grid;flex:1 1 auto;min-height:0;overflow-y:auto;button:focus-visible{outline:3px solid orange}",
     );
 
     await expect(validateExtensionBuild(distDir, "chrome")).resolves.toContain(
@@ -123,7 +123,7 @@ async function createExtensionFixture(
     await writeFile(
       join(distDir, file),
       file === "assets/popup.css"
-        ? "width:390px;min-width:390px;max-width:390px;height:600px;height:540px;overflow-y:auto;button:focus-visible{outline:3px solid orange}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}"
+        ? "width:390px;min-width:390px;max-width:390px;height:600px;display:grid;flex:1 1 auto;min-height:0;overflow-y:auto;button:focus-visible{outline:3px solid orange}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}"
         : "fixture",
     );
   }

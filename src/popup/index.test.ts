@@ -12,17 +12,19 @@ vi.mock("webextension-polyfill", () => ({
 describe("lesson popup", () => {
   let progressByLesson: Record<string, Record<string, unknown> | null>;
   let keepFails: boolean;
-  let rhythmResponse: { week: Array<{ dayStartAt: number; status: "active" | "grace" | "idle" }>; resetCopy: string | null; milestones: Array<{ id: string; label: string }> };
+  let rhythmResponse: { week: Array<{ dayStartAt: number; status: "active" | "grace" | "idle" }>; activity: Array<{ dayStartAt: number; reviews: number | null; saved: number | null }>; resetCopy: string | null; milestones: Array<{ id: string; label: string }> };
 
   beforeEach(async () => {
     vi.resetModules();
     progressByLesson = {};
     keepFails = false;
     rhythmResponse = rhythmFixture();
+    const dailyItem = { id: "daily-item", learningLanguage: "nl", normalizedDutch: "huis", dutch: "huis", kind: "word", english: "house", telugu: null, sources: [], contexts: [], encounters: { count: 0, lastEncounterAt: null }, recognition: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, recall: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, createdAt: 1, updatedAt: 1 };
     runtime.sendMessage.mockImplementation(async (message: { type: string; payload?: Record<string, unknown> }) => {
-      if (message.type === "dutchmate.learning.list") return { ok: true, result: { items: [] } };
+      if (message.type === "dutchmate.learning.list") return { ok: true, result: { items: [dailyItem] } };
       if (message.type === "dutchmate.learning.rhythm") return { ok: true, result: { rhythm: rhythmResponse } };
-      if (message.type === "dutchmate.learning.dailyFive") return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: [], completedTaskIds: [], goalCompleted: false } } };
+      if (message.type === "dutchmate.learning.dailyFive") return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [], goalCompleted: false } } };
+      if (message.type === "dutchmate.learning.dailyFive.result") return { ok: true, result: { item: dailyItem, snapshot: { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [`${dailyItem.id}\u001frecognition`], goalCompleted: true } } };
       if (message.type === "dutchmate.review.settings") return { ok: true, result: { settings: defaultSettings } };
       if (message.type === "dutchmate.learning.lessonProgress") return { ok: true, result: { progress: progressByLesson[String(message.payload?.lessonId)] ?? null } };
       if (message.type === "dutchmate.learning.lessonProgress.save") {
@@ -46,12 +48,12 @@ describe("lesson popup", () => {
         <div id="popup-content" tabindex="0"></div>
       </main>`;
     await import("./index");
-    await vi.waitFor(() => expect(content().textContent).toContain("One calm practice action."));
+    await vi.waitFor(() => expect(content().textContent).toContain("Your next five."));
   });
 
   it("renders the appointment lesson through read, notice, practise, replay, selection, keep, and exit", async () => {
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("A1 · Een afspraak maken"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
 
     lessonCard("A1 · Een afspraak maken").querySelector<HTMLButtonElement>("button")!.click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
@@ -80,14 +82,14 @@ describe("lesson popup", () => {
     firstCandidate.click();
     expect(button("Keep 3 for review")).toBeTruthy();
     button("Keep 3 for review").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Completed · replay any time"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Completed · appointments and healthcare · (A1)"));
 
     const replay = lessonCard("A1 · Een afspraak maken").querySelector<HTMLButtonElement>("button")!;
-    expect(replay.textContent).toBe("Replay lesson");
+    expect(replay.textContent).toBe("Replay");
     replay.click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
     button("Exit lesson").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("A1 · Een afspraak maken"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(false);
   });
 
@@ -97,12 +99,36 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("Recognition and recall practised");
     expect(content().querySelector<HTMLElement>(".rhythm-day.grace")?.getAttribute("aria-label")).toContain("grace day");
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.tabIndex).toBe(0);
+    expect(content().querySelector<HTMLButtonElement>(".period-tab.is-active")?.textContent).toBe("week");
+    expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("3 reviews, 1 saved item");
+    expect(content().querySelector<HTMLElement>(".rhythm-day.idle")?.getAttribute("aria-label")).toContain("0 reviews, 0 saved items");
+    button("month").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day").length).toBeGreaterThanOrEqual(28));
+    const monthLabel = content().querySelector<HTMLElement>(".period-label")?.textContent;
+    button("Previous period").click();
+    await vi.waitFor(() => expect(content().querySelector<HTMLElement>(".period-label")?.textContent).not.toBe(monthLabel));
+    button("year").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day")).toHaveLength(365));
+  });
+
+  it("keeps Start Daily Five as the only primary action before the daily goal completes", async () => {
+    expect(button("Start Daily Five").classList.contains("primary-button")).toBe(true);
+    expect(button("Review more")).toBeFalsy();
+  });
+
+  it("offers Review more only after Daily Five completes", async () => {
+    button("Start Daily Five").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    button("Show answer").click();
+    await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
+    button("Got it").click();
+    await vi.waitFor(() => expect(button("Review more")).toBeTruthy());
   });
 
   it("keeps the learner in an understandable error state when keeping candidates fails", async () => {
     keepFails = true;
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("A1 · Een afspraak maken"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     lessonCard("A1 · Een afspraak maken").querySelector<HTMLButtonElement>("button")!.click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
 
@@ -125,20 +151,20 @@ describe("lesson popup", () => {
 
   it("lists the twelve bundled lessons in order and opens the published lessons with help and trilingual practice", async () => {
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("A1 · Ik heb last van…"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Ik heb last van…"));
     expect([...content().querySelectorAll<HTMLElement>(".lesson-card h1")].map((heading) => heading.textContent)).toEqual([
-      "A0 · Hallo, ik ben…",
-      "A1 · Kunt u dat herhalen?",
-      "A1 · Ik wil graag bestellen",
-      "A1 · Kan ik met pin betalen?",
-      "A1 · Waar moet ik overstappen?",
-      "A1 · Mijn trein is vertraagd",
-      "A1 · Een afspraak maken",
-      "A1 · Ik heb last van…",
-      "A1 · Er is iets kapot",
-      "A1 · Ik ben beschikbaar op…",
-      "A1 · Wat moet ik meenemen?",
-      "A2 · Wat staat er in deze brief?",
+      "Hallo, ik ben…",
+      "Kunt u dat herhalen?",
+      "Ik wil graag bestellen",
+      "Kan ik met pin betalen?",
+      "Waar moet ik overstappen?",
+      "Mijn trein is vertraagd",
+      "Een afspraak maken",
+      "Ik heb last van…",
+      "Er is iets kapot",
+      "Ik ben beschikbaar op…",
+      "Wat moet ik meenemen?",
+      "Wat staat er in deze brief?",
     ]);
 
     for (const { title, candidate } of [
@@ -185,7 +211,7 @@ function button(label: string): HTMLButtonElement {
 }
 
 function lessonCard(title: string): HTMLElement {
-  return [...content().querySelectorAll<HTMLElement>(".lesson-card")].find((card) => card.textContent?.includes(title))!;
+  return [...content().querySelectorAll<HTMLElement>(".lesson-card")].find((card) => card.textContent?.includes(title.replace(/^[A-Z0-9]+ · /, "")))!;
 }
 
-function rhythmFixture() { return { week: Array.from({ length: 7 }, (_, index) => ({ dayStartAt: index, status: index === 5 ? "grace" as const : index === 6 ? "active" as const : "idle" as const })), resetCopy: "A fresh week starts whenever you return.", milestones: [{ id: "first-saved-chunk", label: "First useful phrase saved" }, { id: "balanced-practice", label: "Recognition and recall practised" }] }; }
+function rhythmFixture() { const today = new Date(); const day = (offset: number) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + offset).getTime(); return { week: Array.from({ length: 7 }, (_, index) => ({ dayStartAt: day(index - 6), status: index === 5 ? "grace" as const : index === 6 ? "active" as const : "idle" as const })), activity: [{ dayStartAt: day(0), reviews: 3, saved: 1 }], resetCopy: "A fresh week starts whenever you return.", milestones: [{ id: "first-saved-chunk", label: "First useful phrase saved" }, { id: "balanced-practice", label: "Recognition and recall practised" }] }; }

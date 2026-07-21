@@ -138,6 +138,24 @@ describe("LearningRecordStore", () => {
     await restored.clear();
     expect(await restored.getRhythm()).toMatchObject({ milestones: [], week: expect.not.arrayContaining([expect.objectContaining({ status: "active" })]) });
   });
+
+  it("records local review and newly saved-item counts and preserves them through backup import", async () => {
+    const storage = new MemoryStorage();
+    let now = 1_000;
+    const records = new LearningRecordStore(storage, () => now);
+    const item = await records.createOrMerge({ dutch: "huis" });
+    await records.getDailyFive();
+    await records.recordDailyFiveResult(item.id, "recognition", "got-it");
+
+    const day = new Date(now).setHours(0, 0, 0, 0);
+    await expect(records.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 1 }]) });
+
+    const backup = await records.exportBackup();
+    now += 86_400_000;
+    const restored = new LearningRecordStore(new MemoryStorage(), () => now);
+    await restored.importBackup(backup);
+    await expect(restored.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 1 }]) });
+  });
 });
 
 function entry(targetLanguage: "en" | "te", translatedText: string) { return { id: `nl\u001fhuis\u001f${targetLanguage}`, text: "huis", normalizedText: "huis", sourceLanguage: "auto" as const, detectedSourceLanguage: "nl" as const, targetLanguage, translatedText, providerName: "test", createdAt: 1_000, updatedAt: 2_000, pageContext: "Een huis staat daar." }; }

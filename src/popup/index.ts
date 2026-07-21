@@ -29,6 +29,8 @@ let lessonProgressById: Record<string, LessonProgress | null> = {};
 let lessonsError: string | null = null;
 let revealed = false;
 let pending = false;
+let activityPeriod: "week" | "month" | "year" = "week";
+let activityOffset = 0;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
@@ -67,7 +69,7 @@ function renderToday(): HTMLElement {
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
-  wrapper.append(eyebrow("Today"), heading(completed ? "Five small wins." : "One calm practice action."), text(completed ? "Your Daily Five is complete. Keep going only if you want to." : total === 0 ? "No review is waiting. A short lesson is a good next step." : "Reveal each answer, then choose Again or Got it."));
+  wrapper.append(eyebrow("Today"), heading(completed ? "Five small wins." : "Your next five."), text(completed ? "Your Daily Five is complete. Keep going only if you want to." : total === 0 ? "No review is waiting. A short lesson is a good next step." : "A small, focused review for today."));
   const progress = document.createElement("section");
   progress.className = "daily-five";
   progress.append(text("Daily Five", "section-title"), text(total === 0 ? "Try a lesson when it arrives." : `${done} of ${total} complete`, "body-copy"));
@@ -75,7 +77,7 @@ function renderToday(): HTMLElement {
   if (total === 0) {
     wrapper.append(text("Lessons will appear here next. DutchMate will never start one automatically.", "empty-state"));
   } else {
-    const action = button(view.actionLabel ?? "Start Daily Five", "button primary-button");
+    const action = button(completed ? "Review more" : view.actionLabel ?? "Start Daily Five", "button primary-button");
     action.disabled = pending;
     action.addEventListener("click", () => {
       if (completed) void startContinuation();
@@ -84,6 +86,15 @@ function renderToday(): HTMLElement {
     wrapper.append(action);
   }
   if (rhythm) wrapper.append(renderRhythm(rhythm));
+  const inProgress = lessonCatalog.lessons.find((lesson) => {
+    const progress = lessonProgressById[lesson.id];
+    return progress && progress.completedAt === null;
+  });
+  if (inProgress) {
+    const continueLesson = button(`Continue lesson: ${inProgress.title.replace(/^[A-Z0-9]+ · /, "")}`, "quiet-action");
+    continueLesson.addEventListener("click", () => void startLesson(inProgress));
+    wrapper.append(continueLesson);
+  }
   wrapper.append(createMasterySummary(), localNote());
   return wrapper;
 }
@@ -91,19 +102,51 @@ function renderToday(): HTMLElement {
 function renderRhythm(current: LearningRhythm): HTMLElement {
   const section = document.createElement("section");
   section.className = "learning-rhythm";
-  section.append(text("This week", "section-title"));
+  const header = document.createElement("div");
+  header.className = "rhythm-header";
+  header.append(text(activityPeriod === "week" ? "This week" : activityPeriod === "month" ? "This month" : "This year", "section-title"));
+  const periodTabs = document.createElement("div");
+  periodTabs.className = "period-tabs";
+  for (const period of ["week", "month", "year"] as const) {
+    const tab = button(period, `period-tab${activityPeriod === period ? " is-active" : ""}`);
+    tab.setAttribute("aria-pressed", String(activityPeriod === period));
+    tab.addEventListener("click", () => { activityPeriod = period; activityOffset = 0; render(); });
+    periodTabs.append(tab);
+  }
+  header.append(periodTabs);
+  section.append(header);
+  const controls = document.createElement("div");
+  controls.className = "period-controls";
+  const previous = button("Previous period", "period-control");
+  previous.setAttribute("aria-label", `Previous ${activityPeriod}`);
+  previous.addEventListener("click", () => { activityOffset -= 1; render(); });
+  const next = button("Next period", "period-control");
+  next.setAttribute("aria-label", `Next ${activityPeriod}`);
+  next.addEventListener("click", () => { activityOffset += 1; render(); });
+  controls.append(previous, text(activityLabel(activityPeriod, activityOffset), "period-label"), next);
+  section.append(controls);
   const days = document.createElement("div");
   days.className = "rhythm-days";
-  for (const day of current.week) {
-    const dot = document.createElement("span");
-    dot.className = `rhythm-day ${day.status}`;
-    dot.tabIndex = 0;
-    dot.setAttribute("aria-label", `${new Date(day.dayStartAt).toLocaleDateString(undefined, { weekday: "short" })}: ${day.status === "active" ? "active" : day.status === "grace" ? "grace day" : "rest day"}`);
+  const activityByDay = new Map(current.activity.map((day) => [day.dayStartAt, day]));
+  for (const dayStartAt of activityDays(activityPeriod, activityOffset)) {
+    const activity = activityByDay.get(dayStartAt);
+    const day = current.week.find((candidate) => candidate.dayStartAt === dayStartAt);
+    const status = day?.status ?? (activity ? "active" : "idle");
+    const dot = button("", `rhythm-day ${status}`);
+    const label = new Date(dayStartAt).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+    const counts = activity && activity.reviews !== null && activity.saved !== null ? `${activity.reviews} review${activity.reviews === 1 ? "" : "s"}, ${activity.saved} saved item${activity.saved === 1 ? "" : "s"}` : activity ? "activity recorded before counts were available" : `0 reviews, 0 saved items${status === "grace" ? " · grace day" : ""}`;
+    dot.setAttribute("aria-label", `${label}: ${counts}`);
+    dot.title = `${label}: ${counts}`;
     days.append(dot);
   }
   section.append(days);
   if (current.resetCopy) section.append(text(current.resetCopy, "body-copy"));
-  for (const milestone of current.milestones) section.append(text(milestone.label, "body-copy milestone"));
+  if (current.milestones.length) {
+    const milestones = document.createElement("div");
+    milestones.className = "milestone-chips";
+    for (const milestone of current.milestones) milestones.append(text(milestone.label, "milestone"));
+    section.append(milestones);
+  }
   return section;
 }
 
@@ -112,17 +155,37 @@ function renderLessons(): HTMLElement {
   wrapper.append(eyebrow("Lessons"), heading("Practical Dutch, one small story at a time."), text("Bundled and human-reviewed for Dutch, English, and Telugu learners."));
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
-  for (const lessonDefinition of lessonCatalog.lessons) {
-    const lesson = section("lesson-card");
+  const groups = new Map<string, typeof lessonCatalog.lessons>();
+  for (const lessonDefinition of lessonCatalog.lessons) groups.set(lessonDefinition.pathway, [...(groups.get(lessonDefinition.pathway) ?? []), lessonDefinition]);
+  let lessonNumber = 0;
+  for (const [pathway, lessons] of groups) {
+    const group = section("lesson-group");
+    group.append(text(pathway.replaceAll("-", " "), "pathway-heading"));
+    for (const lessonDefinition of lessons) {
+    lessonNumber += 1;
+    const lesson = section("lesson-card lesson-row");
     const lessonProgress = lessonProgressById[lessonDefinition.id] ?? null;
-    lesson.append(text(lessonDefinition.pathway.replaceAll("-", " "), "practice-progress"), heading(lessonDefinition.title), text(`${lessonDefinition.durationMinutes} minutes · ${lessonDefinition.pattern}`));
+    const [level, ...title] = lessonDefinition.title.split(" · ");
     const completedLesson = lessonProgress?.completedAt !== null && lessonProgress !== null;
-    if (completedLesson) lesson.append(text("Completed · replay any time without changing saved progress.", "practice-progress"));
-    const start = button(completedLesson ? "Replay lesson" : lessonProgress ? "Resume lesson" : "Start lesson", "button primary-button"); start.addEventListener("click", () => void startLesson(lessonDefinition)); lesson.append(start);
-    wrapper.append(lesson);
+    const status = completedLesson ? "Completed" : lessonProgress ? "In progress" : "Ready";
+    lesson.append(text(String(lessonNumber).padStart(2, "0"), "lesson-number"), heading(title.join(" · ")), text(`${status} · ${lessonDefinition.pathway.replaceAll("-", " ")} · (${level})`, "lesson-meta"));
+    const start = button(completedLesson ? "Replay" : lessonProgress ? "Continue" : "Start", "lesson-action"); start.addEventListener("click", () => void startLesson(lessonDefinition)); lesson.append(start);
+    group.append(lesson);
+    }
+    wrapper.append(group);
   }
   wrapper.append(localNote()); return wrapper;
 }
+
+function activityDays(period: "week" | "month" | "year", offset: number): number[] {
+  const anchor = new Date();
+  if (period === "week") return Array.from({ length: 7 }, (_, index) => localDay(new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + (offset * 7) + index - 6)));
+  if (period === "month") { const date = new Date(anchor.getFullYear(), anchor.getMonth() + offset, 1); return Array.from({ length: new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate() }, (_, index) => localDay(new Date(date.getFullYear(), date.getMonth(), index + 1))); }
+  const year = anchor.getFullYear() + offset;
+  return Array.from({ length: Math.round((new Date(year + 1, 0, 1).getTime() - new Date(year, 0, 1).getTime()) / 86_400_000) }, (_, index) => localDay(new Date(year, 0, index + 1)));
+}
+function activityLabel(period: "week" | "month" | "year", offset: number): string { const anchor = new Date(); if (period === "week") return offset === 0 ? "Last 7 days" : `${offset > 0 ? "+" : ""}${offset} week${Math.abs(offset) === 1 ? "" : "s"}`; if (period === "month") return new Date(anchor.getFullYear(), anchor.getMonth() + offset, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" }); return String(anchor.getFullYear() + offset); }
+function localDay(date: Date): number { return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime(); }
 
 function renderLesson(): HTMLElement {
   const session = lessonSession;

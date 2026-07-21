@@ -162,7 +162,8 @@ async function validatePopupStyles(distDir, html) {
     for (const [rule, label] of [
       ["width:390px;", "fixed popup width"],
       ["height:600px;", "fixed popup height"],
-      ["height:540px;overflow-y:auto;", "scrollable popup content"],
+      ["flex:11auto;min-height:0;", "scrollable popup content"],
+      ["overflow-y:auto;", "scrollable popup overflow"],
       ["button:focus-visible", "visible keyboard focus"],
       ["@media(prefers-reduced-motion:reduce)", "reduced-motion"],
     ]) {

@@ -31,6 +31,21 @@ describe("learning rhythm", () => {
       { id: "pathway:first-conversations" },
     ] });
   });
+
+  it("keeps local review and saved-item counts while treating older activity as active without inventing a count", () => {
+    const today = 10 * day;
+    const rhythm = getLearningRhythm([], {}, {
+      activeDays: { [8 * day]: { completedAt: 8 * day } },
+      activityDays: {
+        [today]: { reviews: 3, saved: 2, updatedAt: today },
+      },
+    }, today, []);
+
+    expect(rhythm.activity).toEqual(expect.arrayContaining([
+      { dayStartAt: today, reviews: 3, saved: 2 },
+      { dayStartAt: 8 * day, reviews: null, saved: null },
+    ]));
+  });
 });
 
 function learningItem(dutch: string, kind: "word" | "chunk"): LearningItem {

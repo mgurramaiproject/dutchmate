@@ -556,22 +556,22 @@ Publishing a browser-store release, executing a long-running research study, col
 
 ### Acceptance criteria
 
-- [ ] The learning record stores local per-day review and saved-item counts without credentials, cache entries, raw browsing content, or telemetry.
-- [ ] Existing rhythm and backup documents migrate safely; old activity still appears as an active day even when no historical count is available.
-- [ ] Today opens with one visually dominant `Start Daily Five` action whenever a Daily Five is available.
-- [ ] `Review more` cannot compete with an incomplete Daily Five and becomes available only after the daily goal completes.
-- [ ] Week, month, and year activity views support previous/next periods; each day exposes its local review/save count by hover and keyboard focus.
-- [ ] Milestones appear as concise, evidence-based chips rather than a vertical sentence stack.
-- [ ] Lessons show all twelve items in compact numbered rows, with title, pathway/status, and CEFR in parentheses; the completed/in-progress state remains clear.
-- [ ] The popup keeps visible focus, 44px minimum interactive targets, no horizontal scrolling, reduced-motion support, and a usable 390px Firefox popup.
-- [ ] No remote analytics, accounts, synchronization, or change to focused review/lesson behavior is introduced.
+- [x] The learning record stores local per-day review and saved-item counts without credentials, cache entries, raw browsing content, or telemetry.
+- [x] Existing rhythm and backup documents migrate safely; old activity still appears as an active day even when no historical count is available.
+- [x] Today opens with one visually dominant `Start Daily Five` action whenever a Daily Five is available.
+- [x] `Review more` cannot compete with an incomplete Daily Five and becomes available only after the daily goal completes.
+- [x] Week, month, and year activity views support previous/next periods; each day exposes its local review/save count by hover and keyboard focus.
+- [x] Milestones appear as concise, evidence-based chips rather than a vertical sentence stack.
+- [x] Lessons show all twelve items in compact numbered rows, with title, pathway/status, and CEFR in parentheses; the completed/in-progress state remains clear.
+- [ ] The popup keeps visible focus, 44px minimum interactive targets, no horizontal scrolling, reduced-motion support, and a usable 390px Firefox popup. *(Pending a manual Firefox check of the new T13 history and lesson-library layout.)*
+- [x] No remote analytics, accounts, synchronization, or change to focused review/lesson behavior is introduced.
 
 ### Verification
 
-- [ ] Learning-record and rhythm tests cover old/new activity data, merge/import, counts, and period navigation.
-- [ ] Popup tests cover Daily Five hierarchy, post-completion `Review more`, history controls/labels, and compact lesson ordering/status.
-- [ ] Rendered checks cover keyboard focus, hover/focus activity labels, narrow popup geometry, and no horizontal overflow.
-- [ ] `corepack pnpm test`, `corepack pnpm typecheck`, `corepack pnpm build:chrome`, `corepack pnpm build:firefox`, and `git diff --check` pass.
+- [x] Learning-record and rhythm tests cover old/new activity data, merge/import, counts, and period navigation.
+- [x] Popup tests cover Daily Five hierarchy, post-completion `Review more`, history controls/labels, and compact lesson ordering/status.
+- [x] Rendered checks cover keyboard focus, hover/focus activity labels, narrow popup geometry, and no horizontal overflow.
+- [x] `corepack pnpm test`, `corepack pnpm typecheck`, `corepack pnpm build:chrome`, `corepack pnpm build:firefox`, and `git diff --check` pass.
 
 ### Not in this ticket
 
