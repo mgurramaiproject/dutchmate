@@ -17,7 +17,7 @@ T01 — #53 Browse the collection
 
 **Blocked by:** None — can start immediately.
 
-**What to build:** Give a learner a complete, browse-only Saved vocabulary collection in the popup. The learner can open Saved beside Today and Lessons, scroll every canonical Learning item, change between newest-first and A–Z order, and understand its Dutch form, available English and Telugu meanings, and overall Mastery state without using Options.
+**What to build:** Give a learner a complete, browse-only Saved vocabulary collection in the popup. The learner can open Saved beside Today and Lessons, scroll every canonical Learning item, see its stable shelf number, change between newest-first and A–Z order, and understand its Dutch form, available English and Telugu meanings, and overall Mastery state without using Options.
 
 ### Acceptance criteria
 
@@ -25,6 +25,7 @@ T01 — #53 Browse the collection
 - [ ] Saved reads the canonical Local learning record through the existing typed learning contract and displays every Learning item in a vertically scrollable list.
 - [ ] Each compact card makes Dutch visually primary and shows labelled English and Telugu meanings when available plus a neutral New, Learning, Familiar, or Strong label.
 - [ ] Newest-first is the default and an A–Z control changes presentation order without mutating the Local learning record.
+- [ ] Each compact card shows a stable chronological shelf number: the first saved Learning item is 1 and the newest saved item is the collection count, regardless of display order.
 - [ ] Empty, loading, and recoverable error states remain understandable and provide an appropriate lesson or retry action.
 - [ ] Saved contains no practice, delete, clear, import, export, or backup action.
 - [ ] Popup keyboard navigation, visible focus, 44-pixel targets, and narrow Chrome/Firefox scrolling remain usable.

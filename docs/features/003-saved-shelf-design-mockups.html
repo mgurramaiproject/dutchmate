@@ -53,15 +53,16 @@
       .sort button.active { background:var(--black); color:var(--white); text-decoration:none; }
       .sort button:hover:not(.active),.sort button:focus-visible:not(.active) { text-decoration-color:var(--orange); }
       .shelf { display:grid; }
-      .quiet-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:9px; width:100%; min-height:70px; padding:10px 0; border:0; border-bottom:1px solid var(--line); background:var(--white); text-align:left; }
+      .quiet-row { display:grid; grid-template-columns:30px minmax(0,1fr) auto; gap:9px; width:100%; min-height:70px; padding:10px 0; border:0; border-bottom:1px solid var(--line); background:var(--white); text-align:left; }
       .quiet-row:hover,.quiet-row:focus-visible { background:rgba(255,111,0,.08); box-shadow:inset 4px 0 var(--orange); }
+      .shelf-number { align-self:start; color:var(--muted); font-family:var(--serif); font-size:1.08rem; font-weight:650; line-height:1; }
       .quiet-word { display:grid; gap:3px; min-width:0; }
       .quiet-word strong { font-family:var(--serif); font-size:1.14rem; font-weight:650; line-height:1; }
       .helpers { display:flex; flex-wrap:wrap; gap:5px 9px; color:var(--muted); font-size:.65rem; line-height:1.25; }
       .helpers b { color:var(--black); font-size:.56rem; letter-spacing:.04em; }
       .mastery { align-self:start; padding:4px 6px; border:1px solid var(--line); border-radius:5px; color:var(--muted); font-size:.57rem; font-weight:850; }
       .quiet-row.expanded { grid-template-columns:1fr; padding:12px; border:1px solid var(--black); border-left:5px solid var(--orange); border-radius:8px; background:var(--white); }
-      .quiet-row.expanded .row-top { display:flex; align-items:start; justify-content:space-between; gap:9px; }
+      .quiet-row.expanded .row-top { display:grid; grid-template-columns:30px minmax(0,1fr) auto; align-items:start; gap:9px; }
       .detail { display:grid; gap:8px; margin-top:3px; padding-top:9px; border-top:1px solid var(--line); }
       .source { font-size:.62rem; font-weight:850; }
       .context { margin:0; color:var(--muted); font-family:var(--serif); font-size:.78rem; font-style:italic; line-height:1.4; }
@@ -115,7 +116,7 @@
         </div>
         <ul class="rules">
           <li><strong>Shared:</strong> black, white, and orange only; serif Dutch; sans utility controls; 44px-or-larger interactive rows.</li>
-          <li><strong>Information:</strong> Newest and A–Z are a compact sort choice, not a search field. Mastery stays neutral; orange signals interaction.</li>
+          <li><strong>Information:</strong> Newest and A–Z are a compact sort choice, not a search field. Shelf numbers preserve creation order: first saved is 1; newest is the collection count.</li>
           <li><strong>Privacy:</strong> expansion shows a short saved context and source label—not a URL, page title, or browsing history.</li>
         </ul>
       </section>
@@ -128,11 +129,11 @@
     </main>
     <script>
       const items = [
-        { dutch: "gefeliciteerd", en: "congratulations", te: "అభినందనలు", mastery: "Familiar", source: "Saved from webpage", context: "Gefeliciteerd met je nieuwe baan!", mark: "01" },
-        { dutch: "alstublieft", en: "please / here you are", te: "దయచేసి", mastery: "Strong", source: "Saved from lesson", context: "Alstublieft, hier is uw koffie.", mark: "02" },
-        { dutch: "geen probleem", en: "no problem", te: "సమస్య లేదు", mastery: "Learning", source: "Saved from webpage", context: "Geen probleem, ik wacht nog even.", mark: "03" },
-        { dutch: "ik begrijp het niet", en: "I do not understand it", te: "నాకు అర్థం కావడం లేదు", mastery: "New", source: "Saved from lesson", context: "Sorry, ik begrijp het niet helemaal.", mark: "04" },
-        { dutch: "kunt u dat herhalen", en: "could you repeat that", te: "మీరు దాన్ని మళ్లీ చెబుతారా", mastery: "Learning", source: "Saved from lesson", context: "Kunt u dat herhalen, alstublieft?", mark: "05" }
+        { dutch: "gefeliciteerd", en: "congratulations", te: "అభినందనలు", mastery: "Familiar", source: "Saved from webpage", context: "Gefeliciteerd met je nieuwe baan!", shelfNumber: 36, mark: "36" },
+        { dutch: "alstublieft", en: "please / here you are", te: "దయచేసి", mastery: "Strong", source: "Saved from lesson", context: "Alstublieft, hier is uw koffie.", shelfNumber: 35, mark: "35" },
+        { dutch: "geen probleem", en: "no problem", te: "సమస్య లేదు", mastery: "Learning", source: "Saved from webpage", context: "Geen probleem, ik wacht nog even.", shelfNumber: 34, mark: "34" },
+        { dutch: "ik begrijp het niet", en: "I do not understand it", te: "నాకు అర్థం కావడం లేదు", mastery: "New", source: "Saved from lesson", context: "Sorry, ik begrijp het niet helemaal.", shelfNumber: 33, mark: "33" },
+        { dutch: "kunt u dat herhalen", en: "could you repeat that", te: "మీరు దాన్ని మళ్లీ చెబుతారా", mastery: "Learning", source: "Saved from lesson", context: "Kunt u dat herhalen, alstublieft?", shelfNumber: 32, mark: "32" }
       ];
       let direction = "a";
       let state = "full";
@@ -142,7 +143,7 @@
       const ordered = () => order === "az" ? [...items].sort((a,b) => a.dutch.localeCompare(b.dutch,"nl")) : items;
       const header = () => `<header class="popup-header"><span class="brand"><span class="brand-mark">D</span>DutchMate</span><button class="header-link" type="button">Settings</button></header><nav class="tabs" aria-label="Learning areas"><button class="tab" type="button">Today</button><button class="tab" type="button">Lessons</button><button class="tab active" type="button">Saved</button></nav>`;
       const screenHead = () => `<div class="screen-head"><div><p class="eyebrow">Your learning items</p><h2>Saved</h2></div><span class="count">36 items</span></div><div class="sort"><span class="sort-label">Order</span><button data-order="recent" class="${order === "recent" ? "active" : ""}" type="button">Recent</button><button data-order="az" class="${order === "az" ? "active" : ""}" type="button">A–Z</button></div>`;
-      const quiet = () => `<div class="shelf">${ordered().map((item,index) => index === 0 ? `<article class="quiet-row expanded"><div class="row-top"><div class="quiet-word"><strong>${item.dutch}</strong><div class="helpers"><span><b>EN</b> ${item.en}</span><span><b>TE</b> ${item.te}</span></div></div><span class="mastery">${item.mastery}</span></div><div class="detail"><span class="source">${item.source}</span><p class="context">“${item.context}”</p><button class="options-link" type="button">Open Options</button></div></article>` : `<button class="quiet-row" type="button"><span class="quiet-word"><strong>${item.dutch}</strong><span class="helpers"><span><b>EN</b> ${item.en}</span><span><b>TE</b> ${item.te}</span></span></span><span class="mastery">${item.mastery}</span></button>`).join("")}</div>`;
+      const quiet = () => `<div class="shelf">${ordered().map((item,index) => index === 0 ? `<article class="quiet-row expanded"><div class="row-top"><span class="shelf-number">${item.shelfNumber}</span><div class="quiet-word"><strong>${item.dutch}</strong><div class="helpers"><span><b>EN</b> ${item.en}</span><span><b>TE</b> ${item.te}</span></div></div><span class="mastery">${item.mastery}</span></div><div class="detail"><span class="source">${item.source}</span><p class="context">“${item.context}”</p><button class="options-link" type="button">Open Options</button></div></article>` : `<button class="quiet-row" type="button"><span class="shelf-number">${item.shelfNumber}</span><span class="quiet-word"><strong>${item.dutch}</strong><span class="helpers"><span><b>EN</b> ${item.en}</span><span><b>TE</b> ${item.te}</span></span></span><span class="mastery">${item.mastery}</span></button>`).join("")}</div>`;
       const ledger = () => `<div class="ledger"><div class="ledger-head"><span>Dutch</span><span>English · Telugu</span><span>State</span></div>${ordered().map(item => `<button class="ledger-row" type="button"><strong>${item.dutch}</strong><span>${item.en}<br>${item.te}</span><em>${item.mastery}</em></button>`).join("")}</div>`;
       const receipt = () => `<div class="receipt">${ordered().map((item,index) => `<article class="receipt-item ${index === 0 ? "open" : ""}"><span class="receipt-mark">${item.mark}</span><div class="receipt-copy"><strong>${item.dutch}</strong><p><b>EN</b> ${item.en} · <b>TE</b> ${item.te}</p>${index === 0 ? `<small>${item.source}</small><p>“${item.context}”</p><button class="options-link" type="button">Open Options</button>` : `<small>${item.mastery}</small>`}</div></article>`).join("")}</div>`;
       const empty = () => `<section class="empty"><span class="empty-icon">+</span><p class="eyebrow">Your personal shelf</p><h3>Nothing saved yet.</h3><p>Words and meaningful chunks you choose to keep while reading will appear here. Start with a short practical lesson when you are ready.</p><button type="button">Choose a lesson</button></section>`;

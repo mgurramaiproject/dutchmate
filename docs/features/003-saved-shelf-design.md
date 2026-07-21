@@ -29,16 +29,18 @@ The tab is a browse-and-revisit surface, not an ad-hoc practice mode.
 - Use a scrollable list within the existing content area; the popup shell itself must not gain a horizontal scrollbar or a fixed mobile-page height.
 - Sort newest-first by default, matching the Options-page expectation.
 - Provide a compact `A–Z` sort toggle for deliberate lookup. Do not add search in this slice.
+- Give every Learning item a stable shelf number from its creation order: the first saved item is `1` and the most recently saved item is the current collection count. The number does not change when the display order changes.
 - Refresh the list when the underlying local learning record changes, while preserving the selected sort where possible.
 
 ### Compact learning-item card
 
 Each closed card is a full-width, keyboard-operable control with a clear visible-focus state and at least a 44 px target.
 
-1. Dutch learning item is the visual anchor.
-2. English and Telugu helper meanings appear as two short, explicitly labelled lines (`EN` and `TE`). Missing meanings use a quiet unavailable treatment rather than fabricated copy.
-3. A neutral mastery chip shows exactly one of `New`, `Learning`, `Familiar`, or `Strong`.
-4. Do not show source metadata in the closed state. Orange remains reserved for active and focus treatment, not for a competing set of status colours.
+1. A quiet shelf number appears before the Dutch learning item. It communicates the item’s stable place in the learner’s collection, not its current sort position.
+2. Dutch learning item is the visual anchor.
+3. English and Telugu helper meanings appear as two short, explicitly labelled lines (`EN` and `TE`). Missing meanings use a quiet unavailable treatment rather than fabricated copy.
+4. A neutral mastery chip shows exactly one of `New`, `Learning`, `Familiar`, or `Strong`.
+5. Do not show source metadata in the closed state. Orange remains reserved for active and focus treatment, not for a competing set of status colours.
 
 ### Expanded item
 
@@ -70,6 +72,7 @@ Only one card needs to be expanded at once. Collapsing or moving to another tab 
 - [ ] The popup presents `Today`, `Lessons`, and `Saved` as accessible top-level tabs, with Today selected on open.
 - [ ] Saved displays every canonical learning item in a vertically scrollable, narrow-popup-safe list.
 - [ ] Newest-first and A–Z ordering work without changing stored learning items.
+- [ ] Every compact card shows its stable chronological shelf number: first saved is 1 and newest saved is the collection count, regardless of display order.
 - [ ] Each card presents Dutch, English, Telugu, and the current overall mastery state without a table layout.
 - [ ] A card expands in place to show safe provenance and available context, without creating practice or mastery activity.
 - [ ] The popup contains no delete, clear, import, or export controls for saved vocabulary.

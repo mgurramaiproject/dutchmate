@@ -14,7 +14,7 @@ The popup must make every saved Learning item available in one click without bec
 
 ## Solution
 
-Add a third top-level popup area, **Saved**, alongside Today and Lessons. Saved is a browse-and-revisit view of the canonical Saved vocabulary collection: a learner can scroll every Learning item, change between newest-first and A–Z order, and expand one item to revisit safe provenance and its saved Page context.
+Add a third top-level popup area, **Saved**, alongside Today and Lessons. Saved is a browse-and-revisit view of the canonical Saved vocabulary collection: a learner can scroll every Learning item, see its stable chronological shelf number, change between newest-first and A–Z order, and expand one item to revisit safe provenance and its saved Page context.
 
 The popup keeps Today as the default and sole practice entry point. Options remains the only place to delete, clear, import, export, or otherwise manage Saved vocabulary.
 
@@ -42,6 +42,7 @@ The popup keeps Today as the default and sole practice entry point. Options rema
 20. As a learner, I do not want a Practise now action in Saved, so that Daily Five remains the calm and coherent route into review.
 21. As a learner, I want the Saved list to reflect saved-vocabulary changes while the popup is open, so that it stays trustworthy after I save or remove an item elsewhere in DutchMate.
 22. As a learner, I want the existing Options-page Saved vocabulary table to keep working unchanged, so that detailed management stays familiar and safe.
+23. As a learner, I want each item to retain its collection number, so that I can understand when I saved it even when I change the display order.
 
 ## Implementation Decisions
 
@@ -50,6 +51,7 @@ The popup keeps Today as the default and sole practice entry point. Options rema
 - Read Saved vocabulary exclusively through the existing typed background learning contract and canonical Local learning record. Do not add a new storage format, mutation message, or parallel Saved-vocabulary store.
 - Add a presentation-only Saved Shelf state with the selected sort and, at most, one expanded Learning-item identifier. Neither state is durable learning data.
 - The default order is newest-first. A compact A–Z control changes only presentation order. Search, filtering, and grouped browsing are not part of this feature.
+- Derive a stable shelf number from the Learning item’s creation order: the first saved Learning item is `1`, and the newest is the current collection count. The number is metadata for the collection, not a sort-position label, so it remains unchanged in newest-first and A–Z views.
 - The compact item representation always shows Dutch, labelled English and Telugu meanings when available, and one overall Mastery state. It uses neutral status treatment; orange remains for active and focus treatment.
 - Selecting a compact item expands it in place. Expanded content may show only the latest available Learning-item source category and an existing capped Page context. It must not show URLs, page titles, raw page content, or a browsing-history surface.
 - The expanded state offers an Open Options route. Delete, clear, import, export, backup, and other management actions remain exclusively in Options.
@@ -61,7 +63,7 @@ The popup keeps Today as the default and sole practice entry point. Options rema
 ## Testing Decisions
 
 - The primary seam is a pure Saved Shelf view model that accepts canonical Learning items plus presentation state and returns ordered, compact, expanded, empty, loading, or error view data. This is the highest stable seam: it proves learner-visible behaviour without coupling tests to DOM structure or browser storage.
-- Test external behaviour: newest-first and A–Z ordering, missing helper meanings, overall Mastery labels, one-at-a-time expansion, safe provenance/context display, empty/loading/error recovery, and deletion of an expanded item after refresh.
+- Test external behaviour: stable shelf numbers across newest-first and A–Z ordering, missing helper meanings, overall Mastery labels, one-at-a-time expansion, safe provenance/context display, empty/loading/error recovery, and deletion of an expanded item after refresh.
 - Extend existing popup navigation and rendered-view tests to prove Saved is a third accessible top-level tab, Today remains default, focused flows still hide navigation, keyboard order works, focus is visible, and no horizontal scrolling is introduced.
 - Extend the existing typed learning-client integration tests only as needed to prove the Saved view consumes the existing list contract and responds to canonical-record refreshes. Do not add tests that duplicate Learning-record persistence coverage.
 - Use existing Options vocabulary-item rendering and popup narrow-layout tests as prior art for meaning display, Learning-item source rendering, and popup sizing.
