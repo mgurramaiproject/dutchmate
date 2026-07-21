@@ -4,6 +4,8 @@
 
 **Design reference:** [003 Saved Shelf popup design](./003-saved-shelf-design.md)
 
+**GitHub issue:** [#52 — 003 Saved Shelf: browse saved vocabulary from the popup](https://github.com/mgurramaiproject/dutchmate/issues/52)
+
 ## Problem Statement
 
 As a DutchMate learner, I can save useful Dutch words and meaningful chunks while reading, but I cannot view the complete Saved vocabulary collection from the popup. The Options-page table contains the collection and its management controls, but it requires a separate navigation step and is not suited to quick, calm revisiting while learning.
@@ -78,5 +80,4 @@ The popup keeps Today as the default and sole practice entry point. Options rema
 
 - This feature follows the accepted Daily Edition popup direction while extending its information architecture with one browse-only tab. It is a reversible presentation change, so no ADR is required.
 - Keep all feature-specific artefacts under the `003-saved-shelf-` prefix and work on `feature/003-saved-shelf`.
-- The intended GitHub issue title is `003 Saved Shelf: browse saved vocabulary from the popup` and it must receive the `ready-for-agent` label.
-- Publication is pending because `gh auth status` reports an invalid token for the active GitHub account. Once re-authenticated, create the issue from this specification and apply the required label.
+- GitHub issue [#52](https://github.com/mgurramaiproject/dutchmate/issues/52) is the published specification and has the `ready-for-agent` label.
