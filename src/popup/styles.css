@@ -2,6 +2,7 @@
   --black: #000000;
   --white: #ffffff;
   --orange: #ff6f00;
+  --orange-soft: rgba(255, 111, 0, 0.1);
   --muted: rgba(0, 0, 0, 0.62);
   --line: rgba(0, 0, 0, 0.18);
   --soft-line: rgba(0, 0, 0, 0.1);
@@ -27,42 +28,73 @@ body {
   font-family: var(--sans);
   overflow: hidden;
 }
-button { font: inherit; cursor: pointer; }
+button { font: inherit; cursor: pointer; transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease; }
 
-.popup-shell { display: flex; flex-direction: column; width: 390px; min-width: 390px; max-width: 390px; height: 600px; margin: 0 auto; overflow: hidden; background: var(--white); }
-.popup-header { display: flex; align-items: center; justify-content: space-between; min-height: 60px; padding: 12px 18px; border-bottom: 1px solid var(--black); }
+.popup-shell { display: flex; flex-direction: column; width: 390px; min-width: 390px; max-width: 390px; height: 600px; margin: 0 auto; overflow: hidden; border-radius: 8px; background: var(--white); }
+.popup-header { display: flex; align-items: center; justify-content: space-between; min-height: 58px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 9px; font-weight: 850; }
 .brand img { display: block; width: 29px; height: 29px; border-radius: 6px; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
-.header-button, .exit-button { min-height: 36px; border: 0; background: transparent; color: var(--black); font-size: 0.68rem; font-weight: 850; text-decoration: underline; }
+.header-button, .header-link, .exit-button { min-height: 36px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: 0.68rem; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; }
+.header-link { display: inline-flex; align-items: center; padding: 0 4px; text-decoration-color: transparent; }
+.header-button:hover, .header-button:focus-visible, .header-link:hover, .header-link:focus-visible, .exit-button:hover, .exit-button:focus-visible { color: var(--black); text-decoration-color: var(--orange); }
 .due-badge { display: inline-grid; min-width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--orange); font-size: 0.75rem; font-weight: 900; }
 .tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--black); }
 .tab { min-height: 44px; border: 0; border-right: 1px solid var(--black); background: var(--white); color: var(--black); font-size: 0.7rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
 .tab:last-child { border-right: 0; }
 .tab.is-active { background: var(--black); color: var(--white); }
-.popup-content { display: grid; flex: 1 1 auto; min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; padding: 16px 18px 18px; }
-.today-content { display: grid; gap: 14px; }
-.daily-five { display: grid; gap: 4px; padding: 13px 0; border-top: 1px solid var(--black); border-bottom: 1px solid var(--black); }
-.learning-rhythm { display: grid; gap: 8px; padding-top: 4px; border-top: 1px solid var(--soft-line); }
-.rhythm-header, .period-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.period-tabs { display: flex; gap: 2px; }
-.period-tab, .period-control, .quiet-action { min-height: 44px; border: 0; background: transparent; color: var(--black); font-size: 0.68rem; font-weight: 850; text-decoration: underline; text-transform: capitalize; }
-.period-tab { min-height: 28px; padding: 2px 5px; color: var(--muted); text-decoration: none; }
-.period-tab.is-active { border-bottom: 2px solid var(--orange); color: var(--black); }
-.period-control { width: 44px; padding: 0; font-size: 0; text-decoration: none; }
-.period-control:first-child::before { content: "←"; font-size: 1rem; }
-.period-control:last-child::before { content: "→"; font-size: 1rem; }
-.period-label { margin: 0; font-size: 0.68rem; font-weight: 750; text-align: center; }
-.rhythm-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.rhythm-day { min-height: 44px; border: 1px solid var(--black); background: var(--white); }
-.rhythm-day.active { background: var(--orange); }
-.rhythm-day.grace { border-style: dashed; background: rgba(255, 111, 0, 0.2); }
-.milestone-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-.milestone { margin: 0; padding: 5px 7px; border: 1px solid var(--line); background: rgba(255, 111, 0, 0.08); color: var(--black); font-size: 0.67rem; font-weight: 750; line-height: 1.2; }
+.tab:not(.is-active):hover { background: rgba(255, 111, 0, 0.08); }
+.popup-content { display: grid; flex: 1 1 auto; min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; padding: 16px; }
+.today-content, .brief-today { display: grid; align-content: start; gap: 14px; }
+.next-action { display: grid; gap: 9px; padding: 15px; border: 1px solid var(--black); border-left: 6px solid var(--orange); border-radius: 8px; background: var(--white); }
+.next-action .heading { font-size: 1.55rem; line-height: 1; }
+.next-action .button { width: 100%; background: var(--orange); }
+.action-meta { display: flex; justify-content: space-between; gap: 8px; margin: 0; color: var(--muted); font-size: .67rem; font-weight: 750; }
+.learning-rhythm, .calendar-card { display: grid; gap: 9px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.section-head strong { font-family: var(--serif); font-size: 1.05rem; }
+.period-tabs { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; }
+.period-tab { min-height: 28px; padding: 2px 5px; border: 0; border-radius: 6px; background: transparent; color: var(--black); font-size: .66rem; font-weight: 800; text-decoration: underline; text-underline-offset: 2px; text-transform: capitalize; }
+.period-tab.is-active, .this-week-tab[aria-pressed="true"] { color: var(--black); text-decoration-color: var(--orange); text-decoration-thickness: 2px; }
+.period-tab:hover { background: rgba(255, 111, 0, 0.08); }
+.period-controls { display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: center; gap: 4px; }
+.period-control { width: 36px; min-height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--white); color: var(--black); font-size: 0; }
+.period-control:first-child::before { content: "←"; font-size: .9rem; }
+.period-control:last-child::before { content: "→"; font-size: .9rem; }
+.period-control:hover, .period-control:focus-visible { border-color: var(--orange); background: rgba(255, 111, 0, 0.08); }
+.period-label { margin: 0; font-size: .68rem; font-weight: 750; text-align: center; }
+.rhythm-days { display: grid; }
+.week-grid { grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.rhythm-day { min-height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: .58rem; font-weight: 850; }
+.week-grid .rhythm-day { display: grid; place-items: center; gap: 3px; min-height: 47px; }
+.week-grid .rhythm-day b { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 6px; background: rgba(0, 0, 0, 0.08); color: var(--black); font-size: .65rem; }
+.week-grid .rhythm-day.grace b { background: rgba(255, 111, 0, 0.25); }
+.week-grid .rhythm-day.active b { background: var(--orange); }
+.week-grid .rhythm-day.high b { background: var(--black); color: var(--white); }
+.week-grid .rhythm-day:hover b, .week-grid .rhythm-day:focus-visible b { outline: 2px solid var(--orange); outline-offset: 2px; }
+.heatmap { grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.year-month-labels { display: grid; grid-template-columns: repeat(53, minmax(0, 1fr)); gap: 2px; height: 14px; overflow: visible; color: var(--muted); font-size: .54rem; font-weight: 800; line-height: 1; }
+.year-month-labels span { min-width: 22px; }
+.heatmap-year { grid-auto-flow: column; grid-template-columns: repeat(53, minmax(0, 1fr)); grid-template-rows: repeat(7, 6px); gap: 2px; }
+.heatmap .rhythm-day { min-height: 0; aspect-ratio: 1; border-radius: 5px; background: rgba(0, 0, 0, 0.08); font-size: 0; }
+.heatmap .rhythm-day.grace { background: rgba(255, 111, 0, 0.25); }
+.heatmap .rhythm-day.active { background: var(--orange); }
+.heatmap .rhythm-day.high { background: var(--black); }
+.heatmap .rhythm-day:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--orange); outline-offset: 1px; }
+.heatmap-legend { display: flex; align-items: center; justify-content: flex-end; gap: 3px; color: var(--muted); }
+.legend-label { margin: 0 3px; font-size: .61rem; }
+.heatmap-swatch { width: 11px; height: 11px; border-radius: 4px; background: rgba(0, 0, 0, 0.08); }
+.heatmap-swatch.grace { background: rgba(255, 111, 0, 0.25); }.heatmap-swatch.active { background: var(--orange); }.heatmap-swatch.high { background: var(--black); }
+.insights { display: flex; flex-wrap: wrap; gap: 6px; }
+.insight { margin: 0; padding: 6px 8px; border-radius: 8px; background: rgba(0, 0, 0, 0.08); color: var(--black); font-size: .64rem; font-weight: 750; line-height: 1.2; }
+.secondary-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.secondary-actions:has(:only-child) { grid-template-columns: 1fr; }
+.secondary-actions .button { min-height: 40px; font-size: .68rem; }
+.secondary-button { background: var(--white) !important; }
 .quiet-action { justify-self: start; min-height: 44px; padding: 0; text-align: left; }
 .primary-button { width: 100%; background: var(--orange); }
 .mastery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.mastery > div { display: grid; gap: 4px; padding: 8px; border-top: 3px solid var(--orange); background: rgba(0, 0, 0, 0.04); }
+.mastery > div { display: grid; gap: 4px; padding: 8px; border-top: 3px solid var(--orange); border-radius: 8px; background: rgba(0, 0, 0, 0.04); }
 .focused-content { gap: 12px; }
 .learn-content, .settings-content, .lessons-content, .lesson-content { display: grid; align-content: start; gap: 12px; }
 .summary-intro, .settings-content { gap: 8px; }
@@ -85,12 +117,14 @@ button { font: inherit; cursor: pointer; }
 .recent-table td:first-child { font-family: var(--serif); font-size: 0.9rem; }
 .empty-state { padding: 14px; border-left: 3px solid var(--orange); background: rgba(0, 0, 0, 0.04); }
 .actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 0; }
-.button { min-height: 48px; padding: 8px 6px; border: 1px solid var(--black); background: var(--white); color: var(--black); font-size: 0.65rem; font-weight: 850; text-align: center; }
-.button:first-child { background: var(--orange); }
+.button { min-height: 48px; padding: 8px 6px; border: 1px solid var(--black); border-radius: 8px; background: var(--white); color: var(--black); font-size: 0.65rem; font-weight: 850; text-align: center; }
+.button.primary, .button.primary-button { background: var(--orange); }
+.button:hover:not(:disabled), .button:focus-visible { background: var(--orange); color: var(--black); }
+.button.primary:hover:not(:disabled), .button.primary:focus-visible, .button.primary-button:hover:not(:disabled), .button.primary-button:focus-visible { background: var(--black); color: var(--white); }
 .button:disabled { cursor: not-allowed; opacity: 0.42; }
 .practice-content { display: grid; align-content: start; gap: 16px; }
 .practice-progress { margin: 0; color: var(--muted); font-size: 0.7rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
-.practice-card { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--black); border-top: 5px solid var(--orange); }
+.practice-card { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--black); border-top: 5px solid var(--orange); border-radius: 8px; }
 .meaning-row { display: grid; gap: 4px; padding-top: 10px; border-top: 1px solid var(--soft-line); }
 .meaning-row strong { font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase; }
 .meaning-row span { font-size: 0.88rem; line-height: 1.4; }
@@ -116,17 +150,22 @@ button { font: inherit; cursor: pointer; }
 .options-button { width: 100%; min-height: 44px; }
 .options-button:first-child { background: var(--orange); }
 .vocabulary-link { border: 0; background: transparent; color: var(--black); font-size: 0.68rem; min-height: 36px; padding: 4px 0; text-align: left; text-decoration: underline; }
-.settings-notice { padding: 10px 12px; border-left: 3px solid var(--orange); background: rgba(255, 111, 0, 0.08); }
+.settings-notice { padding: 10px 12px; border-left: 3px solid var(--orange); border-radius: 8px; background: rgba(255, 111, 0, 0.08); }
 .settings-notice.error { border-left-color: var(--black); }
 .error-state { display: grid; align-content: start; gap: 12px; }
+.lesson-library { display: grid; gap: 0; }
 .lesson-group { display: grid; gap: 0; border-top: 3px solid var(--black); }
 .pathway-heading { margin: 0; padding: 8px 0 5px; color: var(--muted); font-size: 0.64rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
-.lesson-card, .lesson-story { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--black); border-top: 5px solid var(--orange); }
-.lesson-row { grid-template-columns: 30px minmax(0, 1fr) auto; gap: 3px 8px; align-items: center; min-height: 62px; padding: 8px 0; border: 0; border-top: 1px solid var(--soft-line); }
-.lesson-row .heading { grid-column: 2; font-family: var(--sans); font-size: 0.8rem; line-height: 1.25; }
-.lesson-number { grid-row: span 2; margin: 0; color: var(--orange); font-family: var(--serif); font-size: 1rem; font-weight: 700; }
-.lesson-meta { grid-column: 2; margin: 0; color: var(--muted); font-size: 0.63rem; line-height: 1.25; overflow-wrap: anywhere; }
-.lesson-action { grid-column: 3; grid-row: span 2; min-width: 54px; min-height: 44px; border: 0; background: transparent; color: var(--black); font-size: 0.65rem; font-weight: 850; text-decoration: underline; }
+.lesson-story { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--black); border-top: 5px solid var(--orange); border-radius: 8px; }
+.lesson-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 9px; width: 100%; min-height: 54px; padding: 0; border: 0; border-top: 1px solid var(--line); border-radius: 8px; background: var(--white); color: var(--black); text-align: left; }
+.lesson-row.resume-row { background: var(--orange-soft); }
+.lesson-row:hover, .lesson-row:focus-visible { background: rgba(255, 111, 0, 0.08); box-shadow: inset 0 0 0 1px var(--orange); }
+.lesson-number { margin: 0; color: var(--black); font-family: var(--serif); font-size: 1.1rem; }
+.lesson-copy { display: grid; gap: 2px; min-width: 0; }
+.lesson-copy strong { overflow: hidden; font-family: var(--serif); font-size: .88rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.lesson-copy small { color: var(--muted); font-size: .6rem; }
+.level { margin: 0; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); font-size: .57rem; font-weight: 850; }
+.resume-row .lesson-copy strong::after { margin-left: 5px; color: var(--orange); content: "Continue"; font-family: var(--sans); font-size: .54rem; letter-spacing: .05em; text-transform: uppercase; }
 .lesson-rail { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
 .lesson-stage { margin: 0; padding: 6px 2px; border: 1px solid var(--black); font-size: 0.58rem; font-weight: 850; text-align: center; text-transform: uppercase; }
 .lesson-stage.active { background: var(--black); color: var(--white); }

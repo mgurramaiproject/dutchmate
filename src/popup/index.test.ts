@@ -43,19 +43,19 @@ describe("lesson popup", () => {
     });
     document.body.innerHTML = `
       <main class="popup-shell">
-        <header class="popup-header"><div class="header-actions"><span id="due-badge"></span><button id="settings-button" type="button">Settings</button></div></header>
+        <header class="popup-header"><div class="header-actions"><span id="due-badge"></span><a class="feedback-link" href="https://forms.gle/9KSsqfE1NNZcPEaaA">Feedback</a><button id="settings-button" type="button">Settings</button></div></header>
         <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button></nav>
         <div id="popup-content" tabindex="0"></div>
       </main>`;
     await import("./index");
-    await vi.waitFor(() => expect(content().textContent).toContain("Your next five."));
+    await vi.waitFor(() => expect(content().textContent).toContain("Start your Daily Five."));
   });
 
   it("renders the appointment lesson through read, notice, practise, replay, selection, keep, and exit", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
 
-    lessonCard("A1 · Een afspraak maken").querySelector<HTMLButtonElement>("button")!.click();
+    lessonCard("A1 · Een afspraak maken").click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
     expect(document.activeElement).toBe(content());
     expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(true);
@@ -82,10 +82,10 @@ describe("lesson popup", () => {
     firstCandidate.click();
     expect(button("Keep 3 for review")).toBeTruthy();
     button("Keep 3 for review").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Completed · appointments and healthcare · (A1)"));
+    await vi.waitFor(() => expect(content().textContent).toContain("appointments and healthcare · Completed(A1)"));
 
-    const replay = lessonCard("A1 · Een afspraak maken").querySelector<HTMLButtonElement>("button")!;
-    expect(replay.textContent).toBe("Replay");
+    const replay = lessonCard("A1 · Een afspraak maken");
+    expect(replay.textContent).toContain("Completed");
     replay.click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
     button("Exit lesson").click();
@@ -93,7 +93,7 @@ describe("lesson popup", () => {
     expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(false);
   });
 
-  it("keeps the weekly rhythm compact and exposes milestone copy to keyboard users", async () => {
+  it("keeps the mockup history controls and uses heatmaps for month and year", async () => {
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day")).toHaveLength(7));
     expect(content().textContent).toContain("First useful phrase saved");
     expect(content().textContent).toContain("Recognition and recall practised");
@@ -102,13 +102,30 @@ describe("lesson popup", () => {
     expect(content().querySelector<HTMLButtonElement>(".period-tab.is-active")?.textContent).toBe("week");
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("3 reviews, 1 saved item");
     expect(content().querySelector<HTMLElement>(".rhythm-day.idle")?.getAttribute("aria-label")).toContain("0 reviews, 0 saved items");
-    button("month").click();
+    expect(button("This Week").getAttribute("aria-pressed")).toBe("true");
+    content().querySelector<HTMLButtonElement>(".period-tabs button:nth-of-type(3)")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day").length).toBeGreaterThanOrEqual(28));
+    expect(content().querySelector(".heatmap-month")).toBeTruthy();
+    expect(content().querySelector(".heatmap-legend")).toBeTruthy();
     const monthLabel = content().querySelector<HTMLElement>(".period-label")?.textContent;
     button("Previous period").click();
     await vi.waitFor(() => expect(content().querySelector<HTMLElement>(".period-label")?.textContent).not.toBe(monthLabel));
-    button("year").click();
+    content().querySelector<HTMLButtonElement>(".period-tabs button:nth-of-type(4)")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day")).toHaveLength(365));
+    expect(content().querySelector(".heatmap-year")).toBeTruthy();
+    expect(content().querySelectorAll(".year-month-labels span")).toHaveLength(12);
+  });
+
+  it("offers the external feedback form from the popup header", () => {
+    expect(document.querySelector<HTMLAnchorElement>(".feedback-link")?.href).toBe("https://forms.gle/9KSsqfE1NNZcPEaaA");
+  });
+
+  it("renders Lessons as the compact numbered library from the approved mockup", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("12 small practical stories"));
+    expect(content().textContent).toContain("Choose a situation. Each lesson is 3–5 minutes.");
+    expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(12);
+    expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
   });
 
   it("keeps Start Daily Five as the only primary action before the daily goal completes", async () => {
@@ -129,7 +146,7 @@ describe("lesson popup", () => {
     keepFails = true;
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
-    lessonCard("A1 · Een afspraak maken").querySelector<HTMLButtonElement>("button")!.click();
+    lessonCard("A1 · Een afspraak maken").click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
 
     button("Notice the pattern").click();
@@ -152,7 +169,7 @@ describe("lesson popup", () => {
   it("lists the twelve bundled lessons in order and opens the published lessons with help and trilingual practice", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Ik heb last van…"));
-    expect([...content().querySelectorAll<HTMLElement>(".lesson-card h1")].map((heading) => heading.textContent)).toEqual([
+    expect([...content().querySelectorAll<HTMLElement>(".lesson-card .lesson-copy strong")].map((heading) => heading.textContent)).toEqual([
       "Hallo, ik ben…",
       "Kunt u dat herhalen?",
       "Ik wil graag bestellen",
@@ -177,7 +194,7 @@ describe("lesson popup", () => {
       { title: "A1 · Wat moet ik meenemen?", candidate: "wat moet ik meenemen" },
       { title: "A2 · Wat staat er in deze brief?", candidate: "wat staat er in deze brief" },
     ]) {
-      lessonCard(title).querySelector<HTMLButtonElement>("button")!.click();
+      lessonCard(title).click();
       await vi.waitFor(() => expect(button("Show line help")).toBeTruthy());
       button("Show line help").click();
       await vi.waitFor(() => expect(content().textContent).toContain("English:"));
@@ -210,8 +227,8 @@ function button(label: string): HTMLButtonElement {
   return [...document.querySelectorAll<HTMLButtonElement>("button")].find((element) => element.textContent === label)!;
 }
 
-function lessonCard(title: string): HTMLElement {
-  return [...content().querySelectorAll<HTMLElement>(".lesson-card")].find((card) => card.textContent?.includes(title.replace(/^[A-Z0-9]+ · /, "")))!;
+function lessonCard(title: string): HTMLButtonElement {
+  return [...content().querySelectorAll<HTMLButtonElement>("button.lesson-card")].find((card) => card.textContent?.includes(title.replace(/^[A-Z0-9]+ · /, "")))!;
 }
 
 function rhythmFixture() { const today = new Date(); const day = (offset: number) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + offset).getTime(); return { week: Array.from({ length: 7 }, (_, index) => ({ dayStartAt: day(index - 6), status: index === 5 ? "grace" as const : index === 6 ? "active" as const : "idle" as const })), activity: [{ dayStartAt: day(0), reviews: 3, saved: 1 }], resetCopy: "A fresh week starts whenever you return.", milestones: [{ id: "first-saved-chunk", label: "First useful phrase saved" }, { id: "balanced-practice", label: "Recognition and recall practised" }] }; }
