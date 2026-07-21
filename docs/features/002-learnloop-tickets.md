@@ -30,7 +30,7 @@ T01
 │   └──────────────┐           │
 └── T04 ── T05 ── T06 ──┬── T07 ──┐
                          ├── T08 ──┤
-T02 + T04 + T06 ── T10 ──┤         ├── T12
+T02 + T04 + T06 ── T10 ──┤         ├── T13 ── T12
 T02 + T03 + T04 + T06 + T10 ─ T11 ┤
                          └── T09 ──┘
 ```
@@ -495,7 +495,7 @@ Deleting support for real legacy upgrades, changing language roles, unrelated ar
 
 **GitHub:** [#43](https://github.com/mgurramaiproject/dutchmate/issues/43)
 
-**Blocked by:** [T07 / #38](https://github.com/mgurramaiproject/dutchmate/issues/38), [T08 / #39](https://github.com/mgurramaiproject/dutchmate/issues/39), [T09 / #40](https://github.com/mgurramaiproject/dutchmate/issues/40), [T11 / #42](https://github.com/mgurramaiproject/dutchmate/issues/42)
+**Blocked by:** [T07 / #38](https://github.com/mgurramaiproject/dutchmate/issues/38), [T08 / #39](https://github.com/mgurramaiproject/dutchmate/issues/39), [T09 / #40](https://github.com/mgurramaiproject/dutchmate/issues/40), [T11 / #42](https://github.com/mgurramaiproject/dutchmate/issues/42), T13
 
 **Outcome:** The complete `002-learnloop` initiative has reproducible automated and manual evidence for migration, learning behavior, content, accessibility, and Chrome/Firefox delivery, plus a concrete post-release learner-validation protocol.
 
@@ -535,3 +535,44 @@ Deleting support for real legacy upgrades, changing language roles, unrelated ar
 ### Not in this ticket
 
 Publishing a browser-store release, executing a long-running research study, collecting background telemetry, or expanding the accepted feature/content scope.
+
+## T13 — Clarify Today and compact the lesson library
+
+**GitHub:** To be created
+
+**Blocked by:** [T07 / #38](https://github.com/mgurramaiproject/dutchmate/issues/38), [T08 / #39](https://github.com/mgurramaiproject/dutchmate/issues/39), [T09 / #40](https://github.com/mgurramaiproject/dutchmate/issues/40), [T10 / #41](https://github.com/mgurramaiproject/dutchmate/issues/41), [T11 / #42](https://github.com/mgurramaiproject/dutchmate/issues/42)
+
+**Design:** [Daily Brief + compact library](./002-learnloop-popup-improvement-mockups.html), direction A.
+
+**Outcome:** Today makes Daily Five the unmistakable next action, local learning history stays explorable without becoming a dashboard, and all twelve lessons scan as a compact practical-life library.
+
+### Scope
+
+- Record local per-day review and saved-item counts alongside existing learning rhythm, retaining compatibility with existing rhythm and backup data.
+- Let Today show keyboard-accessible local activity history by week, month, and year, with previous/next periods and an exact per-day count on hover or focus.
+- Replace the current milestone sentence stack with concise earned-insight chips.
+- Keep `Start Daily Five` as Today’s single primary action. Show `Review more` only after Daily Five is complete; retain a quiet Continue lesson entry when one is in progress.
+- Replace tall lesson cards with numbered compact rows: lesson title, practical-life pathway/status, and CEFR in parentheses at the end. Group rows by pathway without hiding any shipped lesson behind a separate navigation step.
+
+### Acceptance criteria
+
+- [ ] The learning record stores local per-day review and saved-item counts without credentials, cache entries, raw browsing content, or telemetry.
+- [ ] Existing rhythm and backup documents migrate safely; old activity still appears as an active day even when no historical count is available.
+- [ ] Today opens with one visually dominant `Start Daily Five` action whenever a Daily Five is available.
+- [ ] `Review more` cannot compete with an incomplete Daily Five and becomes available only after the daily goal completes.
+- [ ] Week, month, and year activity views support previous/next periods; each day exposes its local review/save count by hover and keyboard focus.
+- [ ] Milestones appear as concise, evidence-based chips rather than a vertical sentence stack.
+- [ ] Lessons show all twelve items in compact numbered rows, with title, pathway/status, and CEFR in parentheses; the completed/in-progress state remains clear.
+- [ ] The popup keeps visible focus, 44px minimum interactive targets, no horizontal scrolling, reduced-motion support, and a usable 390px Firefox popup.
+- [ ] No remote analytics, accounts, synchronization, or change to focused review/lesson behavior is introduced.
+
+### Verification
+
+- [ ] Learning-record and rhythm tests cover old/new activity data, merge/import, counts, and period navigation.
+- [ ] Popup tests cover Daily Five hierarchy, post-completion `Review more`, history controls/labels, and compact lesson ordering/status.
+- [ ] Rendered checks cover keyboard focus, hover/focus activity labels, narrow popup geometry, and no horizontal overflow.
+- [ ] `corepack pnpm test`, `corepack pnpm typecheck`, `corepack pnpm build:chrome`, `corepack pnpm build:firefox`, and `git diff --check` pass.
+
+### Not in this ticket
+
+Changing Daily Five scheduling, creating an activity leaderboard or streak economy, inferring learning from activity, remote reporting, filtering/searching the lesson library, or redesigning focused review and lesson flows.
