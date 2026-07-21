@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>003 Saved Shelf design mockups</title>
+    <style>
+      :root { --black:#000; --white:#fff; --orange:#ff6f00; --muted:rgba(0,0,0,.62); --line:rgba(0,0,0,.18); --soft:rgba(0,0,0,.06); --serif:Iowan Old Style, Palatino Linotype, Book Antiqua, Georgia, serif; --sans:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      * { box-sizing:border-box; }
+      body { margin:0; background:var(--white); color:var(--black); font-family:var(--sans); }
+      button { color:inherit; font:inherit; cursor:pointer; }
+      button:focus-visible { outline:3px solid var(--orange); outline-offset:2px; }
+      h1,h2,h3,p { margin:0; }
+      .page { display:grid; grid-template-columns:minmax(280px,470px) 390px; align-items:start; gap:64px; width:min(1120px,calc(100% - 48px)); margin:0 auto; padding:56px 0 84px; }
+      .brief { display:grid; align-content:start; gap:20px; }
+      .eyebrow { color:var(--orange); font-size:.7rem; font-weight:850; letter-spacing:.06em; text-transform:uppercase; }
+      h1 { max-width:9ch; font-family:var(--serif); font-size:clamp(3rem,6vw,5.3rem); font-weight:700; line-height:.9; }
+      .intro { max-width:42ch; color:var(--muted); font-family:var(--serif); font-size:1.08rem; line-height:1.5; }
+      .recommendation { display:grid; gap:7px; max-width:430px; padding:16px 0; border-top:4px solid var(--orange); border-bottom:1px solid var(--black); }
+      .recommendation h2 { font-family:var(--serif); font-size:1.45rem; line-height:1.05; }
+      .recommendation p { color:var(--muted); font-size:.82rem; line-height:1.45; }
+      .directions { display:grid; gap:8px; }
+      .direction { display:grid; grid-template-columns:32px 1fr; gap:11px; align-items:center; width:100%; min-height:72px; padding:11px; border:1px solid var(--line); border-radius:8px; background:var(--white); text-align:left; }
+      .direction[aria-pressed="true"] { border-color:var(--black); background:var(--soft); box-shadow:inset 5px 0 var(--orange); }
+      .direction b { display:grid; width:28px; height:28px; place-items:center; border:1px solid var(--black); border-radius:50%; font-family:var(--serif); font-size:1rem; }
+      .direction span { display:grid; gap:3px; }
+      .direction strong { font-size:.8rem; }
+      .direction small { color:var(--muted); font-size:.66rem; line-height:1.35; }
+      .rules { display:grid; gap:8px; margin:0; padding:0; list-style:none; }
+      .rules li { padding-bottom:8px; border-bottom:1px solid var(--line); color:var(--muted); font-size:.76rem; line-height:1.4; }
+      .rules strong { color:var(--black); }
+      .stage { display:grid; justify-items:center; gap:12px; }
+      .stage-label { width:390px; font-size:.68rem; font-weight:850; letter-spacing:.06em; text-transform:uppercase; }
+      .popup { display:grid; grid-template-rows:auto auto minmax(0,1fr); width:390px; height:600px; overflow:hidden; border:1px solid var(--black); border-radius:8px; background:var(--white); box-shadow:12px 14px 0 rgba(0,0,0,.12); }
+      .popup-header { display:flex; align-items:center; justify-content:space-between; min-height:58px; padding:12px 16px; border-bottom:1px solid var(--line); }
+      .brand { display:flex; align-items:center; gap:8px; font-weight:850; }
+      .brand-mark { display:grid; width:28px; height:28px; place-items:center; border-radius:6px; background:var(--orange); color:var(--black); font-family:var(--serif); font-size:1.1rem; }
+      .header-link { min-height:36px; padding:0 4px; border:0; border-radius:6px; background:transparent; color:var(--muted); font-size:.68rem; font-weight:850; text-decoration:underline; text-decoration-color:transparent; text-underline-offset:3px; }
+      .header-link:hover,.header-link:focus-visible { color:var(--black); text-decoration-color:var(--orange); }
+      .tabs { display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid var(--black); }
+      .tab { min-height:44px; border:0; border-right:1px solid var(--black); background:var(--white); font-size:.66rem; font-weight:850; letter-spacing:.04em; text-transform:uppercase; }
+      .tab:last-child { border-right:0; }
+      .tab.active { background:var(--black); color:var(--white); }
+      .screen { min-height:0; overflow:auto; padding:16px; }
+      .screen::-webkit-scrollbar { width:9px; }
+      .screen::-webkit-scrollbar-thumb { border:3px solid var(--white); border-radius:9px; background:var(--black); }
+      .screen-head { display:flex; align-items:end; justify-content:space-between; gap:12px; padding-bottom:12px; }
+      .screen-head h2 { font-family:var(--serif); font-size:1.62rem; line-height:1; }
+      .count { color:var(--muted); font-size:.67rem; font-weight:750; white-space:nowrap; }
+      .sort { display:flex; align-items:center; gap:3px; min-height:36px; margin-bottom:10px; border-bottom:1px solid var(--line); }
+      .sort-label { margin-right:auto; color:var(--muted); font-size:.61rem; font-weight:850; letter-spacing:.04em; text-transform:uppercase; }
+      .sort button { min-height:30px; padding:0 7px; border:0; border-radius:5px; background:transparent; font-size:.62rem; font-weight:800; text-decoration:underline; text-decoration-color:transparent; text-underline-offset:3px; }
+      .sort button.active { background:var(--black); color:var(--white); text-decoration:none; }
+      .sort button:hover:not(.active),.sort button:focus-visible:not(.active) { text-decoration-color:var(--orange); }
+      .shelf { display:grid; }
+      .quiet-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:9px; width:100%; min-height:70px; padding:10px 0; border:0; border-bottom:1px solid var(--line); background:var(--white); text-align:left; }
+      .quiet-row:hover,.quiet-row:focus-visible { background:rgba(255,111,0,.08); box-shadow:inset 4px 0 var(--orange); }
+      .quiet-word { display:grid; gap:3px; min-width:0; }
+      .quiet-word strong { font-family:var(--serif); font-size:1.14rem; font-weight:650; line-height:1; }
+      .helpers { display:flex; flex-wrap:wrap; gap:5px 9px; color:var(--muted); font-size:.65rem; line-height:1.25; }
+      .helpers b { color:var(--black); font-size:.56rem; letter-spacing:.04em; }
+      .mastery { align-self:start; padding:4px 6px; border:1px solid var(--line); border-radius:5px; color:var(--muted); font-size:.57rem; font-weight:850; }
+      .quiet-row.expanded { grid-template-columns:1fr; padding:12px; border:1px solid var(--black); border-left:5px solid var(--orange); border-radius:8px; background:var(--white); }
+      .quiet-row.expanded .row-top { display:flex; align-items:start; justify-content:space-between; gap:9px; }
+      .detail { display:grid; gap:8px; margin-top:3px; padding-top:9px; border-top:1px solid var(--line); }
+      .source { font-size:.62rem; font-weight:850; }
+      .context { margin:0; color:var(--muted); font-family:var(--serif); font-size:.78rem; font-style:italic; line-height:1.4; }
+      .options-link { justify-self:start; min-height:30px; padding:0; border:0; background:transparent; font-size:.65rem; font-weight:850; text-decoration:underline; text-decoration-color:var(--orange); text-underline-offset:3px; }
+      .ledger { display:grid; gap:8px; }
+      .ledger-head,.ledger-row { display:grid; grid-template-columns:minmax(0,1.08fr) minmax(0,1fr) auto; gap:8px; align-items:center; }
+      .ledger-head { padding:0 6px 5px; color:var(--muted); font-size:.55rem; font-weight:850; letter-spacing:.04em; text-transform:uppercase; }
+      .ledger-row { width:100%; min-height:62px; padding:8px 6px; border:1px solid var(--line); border-radius:7px; background:var(--white); text-align:left; }
+      .ledger-row:hover,.ledger-row:focus-visible { border-color:var(--black); box-shadow:inset 0 -3px var(--orange); }
+      .ledger-row strong { font-family:var(--serif); font-size:.95rem; line-height:1.05; }
+      .ledger-row span { color:var(--muted); font-size:.64rem; line-height:1.25; overflow-wrap:anywhere; }
+      .ledger-row em { justify-self:end; color:var(--muted); font-size:.56rem; font-style:normal; font-weight:850; }
+      .receipt { display:grid; gap:0; border-top:4px solid var(--black); }
+      .receipt-item { display:grid; grid-template-columns:34px minmax(0,1fr); gap:9px; min-height:78px; padding:11px 0; border-bottom:1px dashed rgba(0,0,0,.35); }
+      .receipt-mark { display:grid; width:28px; height:28px; place-items:center; border:1px solid var(--black); border-radius:50%; font-family:var(--serif); font-size:.86rem; }
+      .receipt-copy { display:grid; gap:4px; }
+      .receipt-copy strong { font-family:var(--serif); font-size:1.13rem; font-weight:650; line-height:1; }
+      .receipt-copy p { color:var(--muted); font-size:.67rem; line-height:1.3; }
+      .receipt-copy small { color:var(--black); font-size:.57rem; font-weight:850; letter-spacing:.04em; text-transform:uppercase; }
+      .receipt-item.open { padding:12px; border:1px solid var(--black); border-top:0; border-left:5px solid var(--orange); border-radius:0 0 8px 8px; background:var(--white); }
+      .receipt-item.open .receipt-mark { background:var(--orange); }
+      .empty { display:grid; align-content:start; gap:12px; padding:18px 0; }
+      .empty-icon { display:grid; width:46px; height:46px; place-items:center; border:1px solid var(--black); border-radius:50%; font-family:var(--serif); font-size:1.5rem; }
+      .empty h3 { font-family:var(--serif); font-size:1.4rem; line-height:1; }
+      .empty p { max-width:30ch; color:var(--muted); font-size:.78rem; line-height:1.45; }
+      .empty button { width:100%; min-height:44px; border:1px solid var(--black); border-radius:8px; background:var(--orange); font-size:.7rem; font-weight:850; }
+      .states { display:flex; justify-content:center; gap:6px; width:390px; }
+      .states button { min-height:32px; padding:0 8px; border:1px solid var(--line); border-radius:6px; background:var(--white); font-size:.62rem; font-weight:800; }
+      .states button.active { border-color:var(--black); background:var(--black); color:var(--white); }
+      .note { width:390px; color:var(--muted); font-size:.68rem; line-height:1.45; }
+      @media (max-width:900px) { .page { grid-template-columns:1fr; justify-items:center; gap:36px; } .brief { width:min(620px,100%); } }
+      @media (max-width:430px) { .page { width:100%; padding-top:28px; } .brief { padding-inline:18px; } .popup { border-radius:0; box-shadow:none; } .stage-label,.states,.note { width:100%; padding-inline:12px; } }
+      @media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; transition:none !important; } }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="brief" aria-labelledby="title">
+        <p class="eyebrow">003 Saved Shelf · popup directions</p>
+        <h1 id="title">A shelf, not a second settings page.</h1>
+        <p class="intro">All three directions keep the Dutch item first, preserve the calm Today → Lessons → Saved rhythm, and leave deletion and backups in Options.</p>
+        <section class="recommendation">
+          <p class="eyebrow">Recommendation</p>
+          <h2>A · Quiet Index</h2>
+          <p>The cleanest reading experience for a growing personal collection: the word is easy to scan, both helper languages stay available, and context opens only when wanted.</p>
+        </section>
+        <div class="directions" aria-label="Saved Shelf directions">
+          <button class="direction" data-direction="a" type="button" aria-pressed="true"><b>A</b><span><strong>Quiet Index</strong><small>Editorial rows, calm separators, the most room for Dutch and two helper languages.</small></span></button>
+          <button class="direction" data-direction="b" type="button" aria-pressed="false"><b>B</b><span><strong>Translation Ledger</strong><small>A compact bilingual grid for fast lookup; denser and more reference-like.</small></span></button>
+          <button class="direction" data-direction="c" type="button" aria-pressed="false"><b>C</b><span><strong>Memory Receipt</strong><small>A chronological reading trail with a visible saved-source cue; most distinctive, least dense.</small></span></button>
+        </div>
+        <ul class="rules">
+          <li><strong>Shared:</strong> black, white, and orange only; serif Dutch; sans utility controls; 44px-or-larger interactive rows.</li>
+          <li><strong>Information:</strong> Newest and A–Z are a compact sort choice, not a search field. Mastery stays neutral; orange signals interaction.</li>
+          <li><strong>Privacy:</strong> expansion shows a short saved context and source label—not a URL, page title, or browsing history.</li>
+        </ul>
+      </section>
+      <section class="stage" aria-label="Interactive Saved Shelf popup mockup">
+        <p id="stage-label" class="stage-label">A · Quiet Index · Saved</p>
+        <div id="popup" class="popup"></div>
+        <div class="states" aria-label="Mockup state"><button class="active" data-state="full" type="button">Saved items</button><button data-state="empty" type="button">Empty state</button></div>
+        <p class="note">Click a direction to compare it. The open item demonstrates T02 context; T01 implements the browseable collection first.</p>
+      </section>
+    </main>
+    <script>
+      const items = [
+        { dutch: "gefeliciteerd", en: "congratulations", te: "అభినందనలు", mastery: "Familiar", source: "Saved from webpage", context: "Gefeliciteerd met je nieuwe baan!", mark: "01" },
+        { dutch: "alstublieft", en: "please / here you are", te: "దయచేసి", mastery: "Strong", source: "Saved from lesson", context: "Alstublieft, hier is uw koffie.", mark: "02" },
+        { dutch: "geen probleem", en: "no problem", te: "సమస్య లేదు", mastery: "Learning", source: "Saved from webpage", context: "Geen probleem, ik wacht nog even.", mark: "03" },
+        { dutch: "ik begrijp het niet", en: "I do not understand it", te: "నాకు అర్థం కావడం లేదు", mastery: "New", source: "Saved from lesson", context: "Sorry, ik begrijp het niet helemaal.", mark: "04" },
+        { dutch: "kunt u dat herhalen", en: "could you repeat that", te: "మీరు దాన్ని మళ్లీ చెబుతారా", mastery: "Learning", source: "Saved from lesson", context: "Kunt u dat herhalen, alstublieft?", mark: "05" }
+      ];
+      let direction = "a";
+      let state = "full";
+      let order = "recent";
+      const popup = document.getElementById("popup");
+      const stageLabel = document.getElementById("stage-label");
+      const ordered = () => order === "az" ? [...items].sort((a,b) => a.dutch.localeCompare(b.dutch,"nl")) : items;
+      const header = () => `<header class="popup-header"><span class="brand"><span class="brand-mark">D</span>DutchMate</span><button class="header-link" type="button">Settings</button></header><nav class="tabs" aria-label="Learning areas"><button class="tab" type="button">Today</button><button class="tab" type="button">Lessons</button><button class="tab active" type="button">Saved</button></nav>`;
+      const screenHead = () => `<div class="screen-head"><div><p class="eyebrow">Your learning items</p><h2>Saved</h2></div><span class="count">36 items</span></div><div class="sort"><span class="sort-label">Order</span><button data-order="recent" class="${order === "recent" ? "active" : ""}" type="button">Recent</button><button data-order="az" class="${order === "az" ? "active" : ""}" type="button">A–Z</button></div>`;
+      const quiet = () => `<div class="shelf">${ordered().map((item,index) => index === 0 ? `<article class="quiet-row expanded"><div class="row-top"><div class="quiet-word"><strong>${item.dutch}</strong><div class="helpers"><span><b>EN</b> ${item.en}</span><span><b>TE</b> ${item.te}</span></div></div><span class="mastery">${item.mastery}</span></div><div class="detail"><span class="source">${item.source}</span><p class="context">“${item.context}”</p><button class="options-link" type="button">Open Options</button></div></article>` : `<button class="quiet-row" type="button"><span class="quiet-word"><strong>${item.dutch}</strong><span class="helpers"><span><b>EN</b> ${item.en}</span><span><b>TE</b> ${item.te}</span></span></span><span class="mastery">${item.mastery}</span></button>`).join("")}</div>`;
+      const ledger = () => `<div class="ledger"><div class="ledger-head"><span>Dutch</span><span>English · Telugu</span><span>State</span></div>${ordered().map(item => `<button class="ledger-row" type="button"><strong>${item.dutch}</strong><span>${item.en}<br>${item.te}</span><em>${item.mastery}</em></button>`).join("")}</div>`;
+      const receipt = () => `<div class="receipt">${ordered().map((item,index) => `<article class="receipt-item ${index === 0 ? "open" : ""}"><span class="receipt-mark">${item.mark}</span><div class="receipt-copy"><strong>${item.dutch}</strong><p><b>EN</b> ${item.en} · <b>TE</b> ${item.te}</p>${index === 0 ? `<small>${item.source}</small><p>“${item.context}”</p><button class="options-link" type="button">Open Options</button>` : `<small>${item.mastery}</small>`}</div></article>`).join("")}</div>`;
+      const empty = () => `<section class="empty"><span class="empty-icon">+</span><p class="eyebrow">Your personal shelf</p><h3>Nothing saved yet.</h3><p>Words and meaningful chunks you choose to keep while reading will appear here. Start with a short practical lesson when you are ready.</p><button type="button">Choose a lesson</button></section>`;
+      const content = () => state === "empty" ? `<main class="screen">${empty()}</main>` : `<main class="screen">${screenHead()}${direction === "a" ? quiet() : direction === "b" ? ledger() : receipt()}</main>`;
+      const names = { a:"A · Quiet Index", b:"B · Translation Ledger", c:"C · Memory Receipt" };
+      function render() {
+        popup.innerHTML = header() + content();
+        stageLabel.textContent = `${names[direction]} · Saved`;
+        document.querySelectorAll("[data-direction]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.direction === direction)));
+        document.querySelectorAll("[data-state]").forEach(button => button.classList.toggle("active", button.dataset.state === state));
+        popup.querySelectorAll("[data-order]").forEach(button => button.addEventListener("click", () => { order = button.dataset.order; render(); }));
+      }
+      document.querySelectorAll("[data-direction]").forEach(button => button.addEventListener("click", () => { direction = button.dataset.direction; state = "full"; render(); }));
+      document.querySelectorAll("[data-state]").forEach(button => button.addEventListener("click", () => { state = button.dataset.state; render(); }));
+      render();
+    </script>
+  </body>
+</html>

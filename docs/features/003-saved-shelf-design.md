@@ -2,6 +2,8 @@
 
 **Feature code:** `003-saved-shelf`
 
+**Mockup exploration:** [003 Saved Shelf design mockups](./003-saved-shelf-design-mockups.html)
+
 ## Artefact convention
 
 Use the `003-saved-shelf-` prefix for every feature-specific artefact created for this work. For example: `003-saved-shelf-spec.md`, `003-saved-shelf-tickets.md`, `003-saved-shelf-design.html`, and `003-saved-shelf-release-notes.md`. Keep unrelated LearnLoop artefacts under their existing names.
