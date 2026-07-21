@@ -2,13 +2,9 @@ import { requestContentTranslation } from "./content-translation-request";
 import { requestDirectTranslation } from "./direct-translation-request";
 import { requestRuntimeTranslation, type RuntimeTranslationExtensionApi } from "./runtime-translation-client";
 import {
-  requestRuntimeSavedVocabularyList,
-  requestRuntimeSaveVocabularyBatch,
   requestRuntimeCreateLearningItem,
   requestRuntimeLearningItems,
   requestRuntimeRecordLearningEncounter,
-  type RuntimeSaveVocabularyBatchResponse,
-  type RuntimeSaveVocabularyRequest,
   type RuntimeVocabularyExtensionApi,
 } from "./runtime-vocabulary-client";
 import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
@@ -51,10 +47,7 @@ export function createRuntimeLookupAdapter(
     sourceLanguage: SourceLanguageCode;
     targetLanguage: MvpLanguageCode;
   }): Promise<TranslateMessageResponse>;
-  listSavedVocabularyIds(): Promise<Set<string> | undefined>;
-  saveVocabularyBatch(
-    requests: RuntimeSaveVocabularyRequest[],
-  ): Promise<RuntimeSaveVocabularyBatchResponse>;
+  listLearningItemIds(): Promise<Set<string> | undefined>;
   saveLearningItem(input: CreateOrMergeLearningItemInput): ReturnType<typeof requestRuntimeCreateLearningItem>;
   listLearningItems(): ReturnType<typeof requestRuntimeLearningItems>;
   recordLearningEncounter(input: { id: string; context: string }): ReturnType<typeof requestRuntimeRecordLearningEncounter>;
@@ -94,17 +87,13 @@ export function createRuntimeLookupAdapter(
       });
     },
 
-    async listSavedVocabularyIds() {
-      const response = await requestRuntimeSavedVocabularyList(dependencies.extensionApi);
+    async listLearningItemIds() {
+      const response = await requestRuntimeLearningItems(dependencies.extensionApi);
       if (!response.ok) {
         return undefined;
       }
 
-      return new Set(response.result.entries.map((entry) => entry.id));
-    },
-
-    saveVocabularyBatch(requests) {
-      return requestRuntimeSaveVocabularyBatch(dependencies.extensionApi, requests);
+      return new Set(response.result.items.map((item) => item.id));
     },
     saveLearningItem(input) {
       return requestRuntimeCreateLearningItem(dependencies.extensionApi, input);

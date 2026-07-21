@@ -7,7 +7,6 @@ import {
   type HoverTranslationMode,
 } from "../shared/settings";
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
-import type { CardDirection } from "../shared/settings";
 
 type StorageChange = {
   newValue?: unknown;
@@ -78,14 +77,9 @@ function settingChangesToPartialSettings(
     autoSaveSelectedWords: getOptionalBooleanSetting(changes.autoSaveSelectedWords?.newValue),
     showExampleSentence: getOptionalBooleanSetting(changes.showExampleSentence?.newValue),
     dailyReviewBadge: getOptionalBooleanSetting(changes.dailyReviewBadge?.newValue),
-    cardDirection: getOptionalCardDirectionSetting(changes.cardDirection?.newValue),
     providerEndpoint: getOptionalStringSetting(changes.providerEndpoint?.newValue),
     providerApiKey: getOptionalStringSetting(changes.providerApiKey?.newValue),
   };
-}
-
-function getOptionalCardDirectionSetting(value: unknown): CardDirection | undefined {
-  return value === "dutch-to-helpers" || value === "helpers-to-dutch" ? value : undefined;
 }
 
 function getOptionalHoverTranslationModeSetting(value: unknown): HoverTranslationMode | undefined {

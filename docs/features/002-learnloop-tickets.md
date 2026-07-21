@@ -30,7 +30,7 @@ T01
 │   └──────────────┐           │
 └── T04 ── T05 ── T06 ──┬── T07 ──┐
                          ├── T08 ──┤
-T02 + T04 + T06 ── T10 ──┤         ├── T12
+T02 + T04 + T06 ── T10 ──┤         ├── T13 ── T12
 T02 + T03 + T04 + T06 + T10 ─ T11 ┤
                          └── T09 ──┘
 ```
@@ -429,22 +429,22 @@ Lessons beyond the accepted starter library, legal/administrative advice, audio,
 
 ### Acceptance criteria
 
-- [ ] A day becomes active after Daily Five completion or lesson completion, not after opening the extension or translating arbitrary text.
-- [ ] Repeated qualifying activity on one local calendar day remains one active day.
-- [ ] The seven-day view uses the learner's local date consistently across restarts and deterministic tests.
-- [ ] One missed day can be shown as grace; longer gaps reset gently without loss language, countdown pressure, or fabricated rewards.
-- [ ] Milestones represent meaningful evidence such as first saved chunk, balanced recognition/recall, or completion of a practical pathway.
-- [ ] Milestones do not unlock unrelated decoration, create currency, or imply mastery from activity alone.
-- [ ] Today remains compact and the Daily Five action is still visually primary.
-- [ ] Rhythm and milestone mutations happen through the background contract and survive export/import.
-- [ ] Clearing learning data removes rhythm/milestones only after explicit confirmation.
-- [ ] No telemetry or account is introduced.
+- [x] A day becomes active after Daily Five completion or lesson completion, not after opening the extension or translating arbitrary text.
+- [x] Repeated qualifying activity on one local calendar day remains one active day.
+- [x] The seven-day view uses the learner's local date consistently across restarts and deterministic tests.
+- [x] One missed day can be shown as grace; longer gaps reset gently without loss language, countdown pressure, or fabricated rewards.
+- [x] Milestones represent meaningful evidence such as first saved chunk, balanced recognition/recall, or completion of a practical pathway.
+- [x] Milestones do not unlock unrelated decoration, create currency, or imply mastery from activity alone.
+- [x] Today remains compact and the Daily Five action is still visually primary.
+- [x] Rhythm and milestone mutations happen through the background contract and survive export/import.
+- [x] Clearing learning data removes rhythm/milestones only after explicit confirmation.
+- [x] No telemetry or account is introduced.
 
 ### Verification
 
-- [ ] Deterministic-clock tests cover local-day boundaries, repeated same-day activity, grace behavior, reset behavior, import conflicts, and clear.
-- [ ] Popup tests cover compact weekly presentation, milestone copy, keyboard access, narrow sizing, empty history, and reduced-motion behavior.
-- [ ] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
+- [x] Deterministic-clock tests cover local-day boundaries, repeated same-day activity, grace behavior, reset behavior, import conflicts, and clear.
+- [x] Popup tests cover compact weekly presentation, milestone copy, keyboard access, narrow sizing, empty history, and reduced-motion behavior.
+- [x] `corepack pnpm test`, `corepack pnpm typecheck`, and both browser builds pass.
 
 ### Not in this ticket
 
@@ -467,25 +467,25 @@ Endless streak pressure, XP, levels, coins, collectibles, avatars, leaderboards,
 
 ### Acceptance criteria
 
-- [ ] Popup Today/Lessons, Options vocabulary management, content capture/encounters, badge, backup/import, delete, and clear use the canonical learning contract.
-- [ ] No normal runtime mutation writes the legacy saved-vocabulary or review-card format.
-- [ ] Upgrade migration from a real representative legacy snapshot remains idempotent and tested.
-- [ ] Version-one backup import remains supported and maps to canonical learning records.
-- [ ] Existing meanings, contexts, sources, mastery, lesson progress, and rhythm remain intact after contraction.
-- [ ] Removing obsolete review choices does not remove unrelated translation, cache, provider, badge, or context settings.
-- [ ] Persistent-page import still avoids native file-picker popup dismissal and reports an understandable result.
-- [ ] Delete and clear behavior is consistent across Today, Lessons, Options, badge, progress, and backup.
-- [ ] Dead compatibility code and tests are removed only after equivalent public-contract coverage exists.
-- [ ] No parked scope is introduced during cleanup.
+- [x] Popup Today/Lessons, Options vocabulary management, content capture/encounters, badge, backup/import, delete, and clear use the canonical learning contract.
+- [x] No normal runtime mutation writes the legacy saved-vocabulary or review-card format.
+- [x] Upgrade migration from a real representative legacy snapshot remains idempotent and tested.
+- [x] Version-one backup import remains supported and maps to canonical learning records.
+- [x] Existing meanings, contexts, sources, mastery, lesson progress, and rhythm remain intact after contraction.
+- [x] Removing obsolete review choices does not remove unrelated translation, cache, provider, badge, or context settings.
+- [x] Persistent-page import still avoids native file-picker popup dismissal and reports an understandable result.
+- [x] Delete and clear behavior is consistent across Today, Lessons, Options, badge, progress, and backup.
+- [x] Dead compatibility code and tests are removed only after equivalent public-contract coverage exists.
+- [x] No parked scope is introduced during cleanup.
 
 ### Verification
 
-- [ ] Migration, import, popup, Options, content, background, badge, and clear regression tests exercise public seams after legacy writes are removed.
-- [ ] A repository search confirms no unintended normal-runtime legacy storage writes remain.
-- [ ] `corepack pnpm test` passes.
-- [ ] `corepack pnpm typecheck` passes.
-- [ ] `corepack pnpm build:chrome` and `corepack pnpm build:firefox` pass.
-- [ ] `corepack pnpm verify:release` passes if packaged output contracts changed.
+- [x] Migration, import, popup, Options, content, background, badge, and clear regression tests exercise public seams after legacy writes are removed.
+- [x] A repository search confirms no unintended normal-runtime legacy storage writes remain.
+- [x] `corepack pnpm test` passes.
+- [x] `corepack pnpm typecheck` passes.
+- [x] `corepack pnpm build:chrome` and `corepack pnpm build:firefox` pass.
+- [x] `corepack pnpm verify:release` passes if packaged output contracts changed.
 
 ### Not in this ticket
 
@@ -495,7 +495,7 @@ Deleting support for real legacy upgrades, changing language roles, unrelated ar
 
 **GitHub:** [#43](https://github.com/mgurramaiproject/dutchmate/issues/43)
 
-**Blocked by:** [T07 / #38](https://github.com/mgurramaiproject/dutchmate/issues/38), [T08 / #39](https://github.com/mgurramaiproject/dutchmate/issues/39), [T09 / #40](https://github.com/mgurramaiproject/dutchmate/issues/40), [T11 / #42](https://github.com/mgurramaiproject/dutchmate/issues/42)
+**Blocked by:** [T07 / #38](https://github.com/mgurramaiproject/dutchmate/issues/38), [T08 / #39](https://github.com/mgurramaiproject/dutchmate/issues/39), [T09 / #40](https://github.com/mgurramaiproject/dutchmate/issues/40), [T11 / #42](https://github.com/mgurramaiproject/dutchmate/issues/42), T13
 
 **Outcome:** The complete `002-learnloop` initiative has reproducible automated and manual evidence for migration, learning behavior, content, accessibility, and Chrome/Firefox delivery, plus a concrete post-release learner-validation protocol.
 
@@ -509,29 +509,70 @@ Deleting support for real legacy upgrades, changing language roles, unrelated ar
 
 ### Acceptance criteria
 
-- [ ] Focused learning tests, the complete regression suite, and typecheck pass from a clean checkout.
-- [ ] Chrome and Firefox builds contain background, content, popup, Options, icons, bundled catalog, correct browser-specific declarations, and correct popup entry points.
-- [ ] Packaged-output verification passes for both browsers and generated manifests are inspected.
+- [x] Focused learning tests, the complete regression suite, and typecheck pass from a clean checkout.
+- [x] Chrome and Firefox builds contain background, content, popup, Options, icons, bundled catalog, correct browser-specific declarations, and correct popup entry points.
+- [x] Packaged-output verification passes for both browsers and generated manifests are inspected.
 - [ ] Manual Chrome and Firefox checks cover narrow popup dimensions, Today, Daily Five, Settings access, Lessons, focused-flow exit, import, and representative webpage capture/encounter behavior.
 - [ ] Keyboard order, visible focus, roles/labels, pending/disabled states, reduced motion, and absence of horizontal scrolling are checked and recorded.
-- [ ] A representative pre-`002-learnloop` storage snapshot migrates without lost meanings or review history.
-- [ ] New-version export/import round-trips the complete learning record and version-one import remains successful.
-- [ ] All twelve lessons pass structural validation and have recorded Dutch, English, Telugu, CEFR, cultural, and practical-use acceptance.
-- [ ] Privacy and store-facing documentation accurately describe local learning items, capped contexts, lesson progress, rhythm, and excluded credentials/cache data.
-- [ ] Manual testing documentation records environments, commit, results, and any consciously deferred browser-only checks.
-- [ ] The post-release learner protocol checks delayed Familiar/Strong retention and reduced-support story comprehension with a small voluntary Telugu-speaking Dutch-learner cohort.
-- [ ] The protocol does not treat review count, lesson completion, time in product, or background analytics as proof of learning.
-- [ ] Any defect found is fixed in the owning ticket's seam or recorded as a separate blocked issue before this ticket completes.
+- [x] A representative pre-`002-learnloop` storage snapshot migrates without lost meanings or review history.
+- [x] New-version export/import round-trips the complete learning record and version-one import remains successful.
+- [x] All twelve lessons pass structural validation and have recorded Dutch, English, Telugu, CEFR, cultural, and practical-use acceptance.
+- [x] Privacy and store-facing documentation accurately describe local learning items, capped contexts, lesson progress, rhythm, and excluded credentials/cache data.
+- [x] Manual testing documentation records environments, commit, results, and any consciously deferred browser-only checks.
+- [x] The post-release learner protocol checks delayed Familiar/Strong retention and reduced-support story comprehension with a small voluntary Telugu-speaking Dutch-learner cohort.
+- [x] The protocol does not treat review count, lesson completion, time in product, or background analytics as proof of learning.
+- [x] Any defect found is fixed in the owning ticket's seam or recorded as a separate blocked issue before this ticket completes.
 
 ### Verification commands
 
-- [ ] `corepack pnpm test`
-- [ ] `corepack pnpm typecheck`
-- [ ] `corepack pnpm build:chrome`
-- [ ] `corepack pnpm build:firefox`
-- [ ] `corepack pnpm verify:release`
-- [ ] `git diff --check`
+- [x] `corepack pnpm test`
+- [x] `corepack pnpm typecheck`
+- [x] `corepack pnpm build:chrome`
+- [x] `corepack pnpm build:firefox`
+- [x] `corepack pnpm verify:release`
+- [x] `git diff --check`
 
 ### Not in this ticket
 
 Publishing a browser-store release, executing a long-running research study, collecting background telemetry, or expanding the accepted feature/content scope.
+
+## T13 — Clarify Today and compact the lesson library
+
+**GitHub:** [#50](https://github.com/mgurramaiproject/dutchmate/issues/50)
+
+**Blocked by:** [T07 / #38](https://github.com/mgurramaiproject/dutchmate/issues/38), [T08 / #39](https://github.com/mgurramaiproject/dutchmate/issues/39), [T09 / #40](https://github.com/mgurramaiproject/dutchmate/issues/40), [T10 / #41](https://github.com/mgurramaiproject/dutchmate/issues/41), [T11 / #42](https://github.com/mgurramaiproject/dutchmate/issues/42)
+
+**Design:** [Daily Brief + compact library](./002-learnloop-popup-improvement-mockups.html), direction A.
+
+**Outcome:** Today makes Daily Five the unmistakable next action, local learning history stays explorable without becoming a dashboard, and all twelve lessons scan as a compact practical-life library.
+
+### Scope
+
+- Record local per-day review and saved-item counts alongside existing learning rhythm, retaining compatibility with existing rhythm and backup data.
+- Let Today show keyboard-accessible local activity history by week, month, and year, with previous/next periods and an exact per-day count on hover or focus.
+- Replace the current milestone sentence stack with concise earned-insight chips.
+- Keep `Start Daily Five` as Today’s single primary action. Show `Review more` only after Daily Five is complete; retain a quiet Continue lesson entry when one is in progress.
+- Replace tall lesson cards with numbered compact rows: lesson title, practical-life pathway/status, and CEFR in parentheses at the end. Group rows by pathway without hiding any shipped lesson behind a separate navigation step.
+
+### Acceptance criteria
+
+- [x] The learning record stores local per-day review and saved-item counts without credentials, cache entries, raw browsing content, or telemetry.
+- [x] Existing rhythm and backup documents migrate safely; old activity still appears as an active day even when no historical count is available.
+- [x] Today opens with one visually dominant `Start Daily Five` action whenever a Daily Five is available.
+- [x] `Review more` cannot compete with an incomplete Daily Five and becomes available only after the daily goal completes.
+- [x] Week, month, and year activity views support previous/next periods; each day exposes its local review/save count by hover and keyboard focus.
+- [x] Milestones appear as concise, evidence-based chips rather than a vertical sentence stack.
+- [x] Lessons show all twelve items in compact numbered rows, with title, pathway/status, and CEFR in parentheses; the completed/in-progress state remains clear.
+- [x] The popup keeps visible focus, 44px minimum interactive targets, no horizontal scrolling, reduced-motion support, and a usable 390px Firefox popup. *(Manually confirmed by the user after the T13 popup-feedback refinement on 2026-07-21.)*
+- [x] No remote analytics, accounts, synchronization, or change to focused review/lesson behavior is introduced.
+
+### Verification
+
+- [x] Learning-record and rhythm tests cover old/new activity data, merge/import, counts, and period navigation.
+- [x] Popup tests cover Daily Five hierarchy, post-completion `Review more`, history controls/labels, and compact lesson ordering/status.
+- [x] Rendered checks cover keyboard focus, hover/focus activity labels, narrow popup geometry, and no horizontal overflow.
+- [x] `corepack pnpm test`, `corepack pnpm typecheck`, `corepack pnpm build:chrome`, `corepack pnpm build:firefox`, and `git diff --check` pass.
+
+### Not in this ticket
+
+Changing Daily Five scheduling, creating an activity leaderboard or streak economy, inferring learning from activity, remote reporting, filtering/searching the lesson library, or redesigning focused review and lesson flows.

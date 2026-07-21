@@ -19,7 +19,6 @@ const defaultSettings = {
   autoSaveSelectedWords: false,
   showExampleSentence: true,
   dailyReviewBadge: true,
-  cardDirection: "dutch-to-helpers",
   providerEndpoint: "https://example.test/translate",
   providerApiKey: "",
 } as const;
@@ -35,29 +34,8 @@ function createTransport(
         providerName: "custom-endpoint",
       },
     }),
-    listSavedVocabularyIds: async () => new Set<string>(),
-    saveVocabularyBatch: async () => ({
-      ok: true,
-      result: {
-        results: [
-          {
-            status: "saved",
-            entry: {
-              id: "nl\u001fhuis\u001fen",
-              text: "huis",
-              normalizedText: "huis",
-              sourceLanguage: "auto",
-              detectedSourceLanguage: "nl",
-              targetLanguage: "en",
-              translatedText: "house",
-              providerName: "custom-endpoint",
-              createdAt: 1,
-              updatedAt: 1,
-            },
-          },
-        ],
-      },
-    }),
+    listLearningItemIds: async () => new Set<string>(),
+    saveLearningItem: async () => ({ ok: true }),
     ...overrides,
   };
 }
@@ -303,34 +281,12 @@ describe("WebpageLookupModule", () => {
     expect(events).toContainEqual({ type: "save-state-changed", saveAction: { status: "retry", label: "Try again", disabled: false, title: "Storage unavailable" } });
   });
 
-  it("keeps English-source candidates in the manual save flow", async () => {
-    const savedRequests: Array<{ targetLanguage: string; detectedSourceLanguage?: string }> = [];
+  it("saves English-source selections through one canonical learning mutation", async () => {
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
     const module = new WebpageLookupModule({
       getSettings: () => defaultSettings,
       transport: createTransport({
-        saveVocabularyBatch: async (requests) => {
-          savedRequests.push(...requests);
-          return {
-            ok: true,
-            result: {
-              results: requests.map((request) => ({
-                status: "saved" as const,
-                entry: {
-                  id: `${request.detectedSourceLanguage}\u001f${request.text}\u001f${request.targetLanguage}`,
-                  text: request.text,
-                  normalizedText: request.text,
-                  sourceLanguage: request.sourceLanguage,
-                  detectedSourceLanguage: request.detectedSourceLanguage,
-                  targetLanguage: request.targetLanguage,
-                  translatedText: request.translatedText,
-                  providerName: request.providerName,
-                  createdAt: 1,
-                  updatedAt: 1,
-                },
-              })),
-            },
-          };
-        },
+        saveLearningItem,
       }),
       runWithTimeout: (promise) => promise,
       tooltipTimeoutMs: 9000,
@@ -346,37 +302,23 @@ describe("WebpageLookupModule", () => {
     });
     await module.handleSaveAction();
 
-    expect(savedRequests).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        targetLanguage: "nl",
+    expect(saveLearningItem).toHaveBeenCalledWith(expect.objectContaining({
+      dutch: "house-nl",
+      english: "house",
+      source: "webpage",
+      sourceMetadata: expect.objectContaining({
+        sourceLanguage: "auto",
         detectedSourceLanguage: "en",
       }),
-    ]));
+    }));
   });
 
   it("auto-saves eligible selected words with reliable page context when enabled", async () => {
-    const savedRequests: unknown[] = [];
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
     const module = new WebpageLookupModule({
       getSettings: () => ({ ...defaultSettings, autoSaveSelectedWords: true }),
       transport: createTransport({
-        saveVocabularyBatch: async (requests) => {
-          savedRequests.push(...requests);
-          return {
-            ok: true,
-            result: { results: [{ status: "saved", entry: {
-              id: "nl\u001fhuis\u001fen",
-              text: "huis",
-              normalizedText: "huis",
-              sourceLanguage: "auto",
-              detectedSourceLanguage: "nl",
-              targetLanguage: "en",
-              translatedText: "house",
-              providerName: "custom-endpoint",
-              createdAt: 1,
-              updatedAt: 1,
-            } }] },
-          };
-        },
+        saveLearningItem,
       }),
       runWithTimeout: (promise) => promise,
       tooltipTimeoutMs: 9000,
@@ -393,22 +335,19 @@ describe("WebpageLookupModule", () => {
     });
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(savedRequests).toContainEqual(
+    expect(saveLearningItem).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: "huis",
-        pageContext: "Een huis staat daar.",
+        dutch: "huis",
+        context: "Een huis staat daar.",
       }),
     );
   });
 
   it("keeps the manual save action when automatic saving is disabled", async () => {
-    const saveVocabularyBatch = vi.fn(async () => ({
-      ok: true as const,
-      result: { results: [] },
-    }));
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
     const module = new WebpageLookupModule({
       getSettings: () => defaultSettings,
-      transport: createTransport({ saveVocabularyBatch }),
+      transport: createTransport({ saveLearningItem }),
       runWithTimeout: (promise) => promise,
       tooltipTimeoutMs: 9000,
     });
@@ -423,6 +362,6 @@ describe("WebpageLookupModule", () => {
     });
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(saveVocabularyBatch).not.toHaveBeenCalled();
+    expect(saveLearningItem).not.toHaveBeenCalled();
   });
 });

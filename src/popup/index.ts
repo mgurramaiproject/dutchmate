@@ -4,6 +4,7 @@ import { createSettingsClient } from "./settings-client";
 import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { LearningItem, LessonProgress } from "../vocabulary/learning-record";
+import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
 import { lessonCatalog, type Lesson } from "../lessons/catalog";
@@ -20,6 +21,7 @@ const learningClient = createLearningClient(browser);
 const settingsClient = createSettingsClient(browser);
 let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
+let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
 let screen: "today" | "lessons" | "lesson" | "review" | "settings" = "today";
 let lessonSession: LessonSession | null = null;
@@ -27,6 +29,8 @@ let lessonProgressById: Record<string, LessonProgress | null> = {};
 let lessonsError: string | null = null;
 let revealed = false;
 let pending = false;
+let activityPeriod: "week" | "month" | "year" = "week";
+let activityOffset = 0;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
@@ -35,7 +39,7 @@ void load();
 
 async function load(continueAfterCompletion = false): Promise<void> {
   try {
-    [items, snapshot, settings] = await Promise.all([learningClient.list(), learningClient.getDailyFive(continueAfterCompletion), settingsClient.getSettings()]);
+    [items, snapshot, rhythm, settings] = await Promise.all([learningClient.list(), learningClient.getDailyFive(continueAfterCompletion), learningClient.getRhythm(), settingsClient.getSettings()]);
     try {
       lessonProgressById = Object.fromEntries(await Promise.all(lessonCatalog.lessons.map(async (lesson) => [lesson.id, await learningClient.getLessonProgress(lesson.id)] as const)));
       lessonsError = null;
@@ -51,55 +55,195 @@ function render(): void {
   const focused = screen === "review" || screen === "lesson";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.toggleAttribute("hidden", focused);
-  todayTab?.classList.toggle("is-active", screen === "today"); todayTab?.setAttribute("aria-selected", String(screen === "today"));
-  lessonsTab?.classList.toggle("is-active", screen === "lessons"); lessonsTab?.setAttribute("aria-selected", String(screen === "lessons"));
+  todayTab?.classList.toggle("is-active", screen === "today"); todayTab?.setAttribute("aria-selected", String(screen === "today")); todayTab?.setAttribute("tabindex", screen === "today" ? "0" : "-1");
+  lessonsTab?.classList.toggle("is-active", screen === "lessons"); lessonsTab?.setAttribute("aria-selected", String(screen === "lessons")); lessonsTab?.setAttribute("tabindex", screen === "lessons" ? "0" : "-1");
+  content?.setAttribute("aria-labelledby", screen === "lessons" ? "lessons-tab" : "today-tab");
   updateBadge();
   content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : renderSettings());
 }
 
 function renderToday(): HTMLElement {
-  const wrapper = section("today-content");
+  const wrapper = section("today-content brief-today");
   if (!snapshot) { wrapper.append(eyebrow("Today"), heading("Loading your Daily Five…")); return wrapper; }
   const view = getDailyFiveView(snapshot);
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
-  wrapper.append(eyebrow("Today"), heading(completed ? "Five small wins." : "One calm practice action."), text(completed ? "Your Daily Five is complete. Keep going only if you want to." : total === 0 ? "No review is waiting. A short lesson is a good next step." : "Reveal each answer, then choose Again or Got it."));
-  const progress = document.createElement("section");
-  progress.className = "daily-five";
-  progress.append(text("Daily Five", "section-title"), text(total === 0 ? "Try a lesson when it arrives." : `${done} of ${total} complete`, "body-copy"));
-  wrapper.append(progress);
+  const nextAction = section("next-action");
+  nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), text(completed ? "Your Daily Five is complete. Keep going only if you want to." : total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words and chunks. Nothing else needs deciding."));
   if (total === 0) {
-    wrapper.append(text("Lessons will appear here next. DutchMate will never start one automatically.", "empty-state"));
+    const lessons = button("Choose a lesson", "button primary-button");
+    lessons.addEventListener("click", () => { screen = "lessons"; render(); });
+    nextAction.append(lessons);
   } else {
-    const action = button(view.actionLabel ?? "Start Daily Five", "button primary-button");
+    const action = button(completed ? "Review more" : view.actionLabel ?? "Start Daily Five", "button primary-button");
     action.disabled = pending;
     action.addEventListener("click", () => {
       if (completed) void startContinuation();
       else { screen = "review"; revealed = false; render(); content?.focus(); }
     });
-    wrapper.append(action);
+    nextAction.append(action);
   }
-  wrapper.append(createMasterySummary(), localNote());
+  nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today · Recognition first`, "action-meta"));
+  wrapper.append(nextAction);
+  const inProgress = lessonCatalog.lessons.find((lesson) => {
+    const progress = lessonProgressById[lesson.id];
+    return progress && progress.completedAt === null;
+  });
+  if (rhythm) wrapper.append(renderRhythm(rhythm));
+  if (rhythm?.milestones.length) {
+    const insights = document.createElement("div");
+    insights.className = "insights";
+    for (const milestone of rhythm.milestones) insights.append(text(milestone.label, "insight"));
+    wrapper.append(insights);
+  }
+  const secondaryActions = document.createElement("div");
+  secondaryActions.className = "secondary-actions";
+  if (inProgress) {
+    const continueLesson = button("Continue lesson", "button secondary-button");
+    continueLesson.addEventListener("click", () => void startLesson(inProgress));
+    secondaryActions.append(continueLesson);
+  }
+  if (completed) {
+    const reviewMore = button("Review more", "button secondary-button");
+    reviewMore.addEventListener("click", () => void startContinuation());
+    secondaryActions.append(reviewMore);
+  }
+  if (secondaryActions.childElementCount) wrapper.append(secondaryActions);
   return wrapper;
+}
+
+function renderRhythm(current: LearningRhythm): HTMLElement {
+  const section = document.createElement("section");
+  section.className = "learning-rhythm calendar-card";
+  const header = document.createElement("div");
+  header.className = "section-head";
+  const title = document.createElement("strong");
+  title.textContent = activityPeriod === "week" ? "This week" : activityPeriod === "month" ? "This month" : "This year";
+  header.append(title);
+  const periodTabs = document.createElement("div");
+  periodTabs.className = "period-tabs history-controls";
+  const thisWeek = button("This Week", "period-tab this-week-tab");
+  thisWeek.setAttribute("aria-pressed", String(activityPeriod === "week" && activityOffset === 0));
+  thisWeek.addEventListener("click", () => { activityPeriod = "week"; activityOffset = 0; render(); });
+  periodTabs.append(thisWeek);
+  for (const period of ["week", "month", "year"] as const) {
+    const tab = button(period, `period-tab${activityPeriod === period ? " is-active" : ""}`);
+    tab.setAttribute("aria-pressed", String(activityPeriod === period));
+    tab.addEventListener("click", () => { activityPeriod = period; activityOffset = 0; render(); });
+    periodTabs.append(tab);
+  }
+  header.append(periodTabs);
+  section.append(header);
+  const controls = document.createElement("div");
+  controls.className = "period-controls";
+  const previous = button("Previous period", "period-control");
+  previous.setAttribute("aria-label", `Previous ${activityPeriod}`);
+  previous.addEventListener("click", () => { activityOffset -= 1; render(); });
+  const next = button("Next period", "period-control");
+  next.setAttribute("aria-label", `Next ${activityPeriod}`);
+  next.addEventListener("click", () => { activityOffset += 1; render(); });
+  controls.append(previous, text(activityLabel(activityPeriod, activityOffset), "period-label"), next);
+  section.append(controls);
+  const days = document.createElement("div");
+  days.className = "rhythm-days";
+  if (activityPeriod === "week") days.classList.add("week-grid");
+  else if (activityPeriod === "month") days.classList.add("heatmap", "heatmap-month");
+  else days.classList.add("heatmap", "heatmap-year");
+  if (activityPeriod === "year") section.append(createYearMonthLabels(new Date().getFullYear() + activityOffset));
+  const activityByDay = new Map(current.activity.map((day) => [day.dayStartAt, day]));
+  for (const dayStartAt of activityDays(activityPeriod, activityOffset)) {
+    const activity = activityByDay.get(dayStartAt);
+    const day = current.week.find((candidate) => candidate.dayStartAt === dayStartAt);
+    const status = day?.status ?? (activity ? "active" : "idle");
+    const intensity = activity && (activity.reviews ?? 0) + (activity.saved ?? 0) >= 4 ? " high" : "";
+    const dot = button("", `rhythm-day ${status}${intensity}`);
+    const label = new Date(dayStartAt).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+    const counts = activity && activity.reviews !== null && activity.saved !== null ? `${activity.reviews} review${activity.reviews === 1 ? "" : "s"}, ${activity.saved} saved item${activity.saved === 1 ? "" : "s"}` : activity ? "activity recorded before counts were available" : `0 reviews, 0 saved items${status === "grace" ? " · grace day" : ""}`;
+    dot.setAttribute("aria-label", `${label}: ${counts}`);
+    dot.title = `${label}: ${counts}`;
+    if (activityPeriod === "week") {
+      const count = document.createElement("b");
+      count.textContent = activity ? String((activity.reviews ?? 0) + (activity.saved ?? 0)) : "·";
+      const weekday = document.createElement("span");
+      weekday.textContent = new Date(dayStartAt).toLocaleDateString(undefined, { weekday: "narrow" });
+      dot.append(count, weekday);
+    }
+    days.append(dot);
+  }
+  section.append(days);
+  if (activityPeriod !== "week") section.append(createHeatmapLegend());
+  if (activityPeriod === "week") section.append(text("Hover or focus a day to see what you practised.", "body-copy"));
+  return section;
 }
 
 function renderLessons(): HTMLElement {
   const wrapper = section("lessons-content");
-  wrapper.append(eyebrow("Lessons"), heading("Practical Dutch, one small story at a time."), text("Bundled and human-reviewed for Dutch, English, and Telugu learners."));
+  wrapper.append(eyebrow("12 small practical stories"), heading("Lessons"), text("Choose a situation. Each lesson is 3–5 minutes."));
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
+  let lessonNumber = 0;
+  const library = section("lesson-library");
   for (const lessonDefinition of lessonCatalog.lessons) {
-    const lesson = section("lesson-card");
+    lessonNumber += 1;
+    const lesson = button("", "lesson-card lesson-row");
     const lessonProgress = lessonProgressById[lessonDefinition.id] ?? null;
-    lesson.append(text(lessonDefinition.pathway.replaceAll("-", " "), "practice-progress"), heading(lessonDefinition.title), text(`${lessonDefinition.durationMinutes} minutes · ${lessonDefinition.pattern}`));
+    const [level, ...title] = lessonDefinition.title.split(" · ");
     const completedLesson = lessonProgress?.completedAt !== null && lessonProgress !== null;
-    if (completedLesson) lesson.append(text("Completed · replay any time without changing saved progress.", "practice-progress"));
-    const start = button(completedLesson ? "Replay lesson" : lessonProgress ? "Resume lesson" : "Start lesson", "button primary-button"); start.addEventListener("click", () => void startLesson(lessonDefinition)); lesson.append(start);
-    wrapper.append(lesson);
+    const status = completedLesson ? "Completed" : lessonProgress ? "In progress" : "Ready";
+    lesson.classList.toggle("resume-row", status === "In progress");
+    const copy = document.createElement("span");
+    copy.className = "lesson-copy";
+    const titleNode = document.createElement("strong");
+    titleNode.textContent = title.join(" · ");
+    const meta = document.createElement("small");
+    meta.textContent = `${lessonDefinition.pathway.replaceAll("-", " ")} · ${status === "In progress" ? "Notice · 3 min left" : status}`;
+    copy.append(titleNode, meta);
+    lesson.append(text(String(lessonNumber).padStart(2, "0"), "lesson-number"), copy, text(`(${level})`, "level"));
+    lesson.addEventListener("click", () => void startLesson(lessonDefinition));
+    library.append(lesson);
   }
+  wrapper.append(library);
   wrapper.append(localNote()); return wrapper;
 }
+
+function createHeatmapLegend(): HTMLElement {
+  const legend = document.createElement("div");
+  legend.className = "heatmap-legend";
+  legend.append(text("Less", "legend-label"));
+  for (const level of ["idle", "grace", "active", "high"] as const) {
+    const swatch = document.createElement("span");
+    swatch.className = `heatmap-swatch ${level}`;
+    swatch.setAttribute("aria-hidden", "true");
+    legend.append(swatch);
+  }
+  legend.append(text("More", "legend-label"));
+  return legend;
+}
+
+function createYearMonthLabels(year: number): HTMLElement {
+  const labels = document.createElement("div");
+  labels.className = "year-month-labels";
+  const firstDay = new Date(year, 0, 1);
+  for (let month = 0; month < 12; month += 1) {
+    const label = document.createElement("span");
+    label.textContent = new Date(year, month, 1).toLocaleDateString(undefined, { month: "short" });
+    const dayOffset = Math.round((new Date(year, month, 1).getTime() - firstDay.getTime()) / 86_400_000);
+    label.style.gridColumnStart = String(Math.floor((firstDay.getDay() + dayOffset) / 7) + 1);
+    labels.append(label);
+  }
+  return labels;
+}
+
+function activityDays(period: "week" | "month" | "year", offset: number): number[] {
+  const anchor = new Date();
+  if (period === "week") return Array.from({ length: 7 }, (_, index) => localDay(new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + (offset * 7) + index - 6)));
+  if (period === "month") { const date = new Date(anchor.getFullYear(), anchor.getMonth() + offset, 1); return Array.from({ length: new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate() }, (_, index) => localDay(new Date(date.getFullYear(), date.getMonth(), index + 1))); }
+  const year = anchor.getFullYear() + offset;
+  return Array.from({ length: Math.round((new Date(year + 1, 0, 1).getTime() - new Date(year, 0, 1).getTime()) / 86_400_000) }, (_, index) => localDay(new Date(year, 0, index + 1)));
+}
+function activityLabel(period: "week" | "month" | "year", offset: number): string { const anchor = new Date(); if (period === "week") return offset === 0 ? "Last 7 days" : `${offset > 0 ? "+" : ""}${offset} week${Math.abs(offset) === 1 ? "" : "s"}`; if (period === "month") return new Date(anchor.getFullYear(), anchor.getMonth() + offset, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" }); return String(anchor.getFullYear() + offset); }
+function localDay(date: Date): number { return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime(); }
 
 function renderLesson(): HTMLElement {
   const session = lessonSession;
@@ -128,7 +272,7 @@ function renderLessonKeep(session: LessonSession): HTMLElement { const panel = s
 async function startLesson(lesson: Lesson): Promise<void> { try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; screen = "lessons"; render(); } }
 async function advanceLesson(session: LessonSession): Promise<void> { const next = advanceLessonStage(session); pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function saveLessonPractice(session: LessonSession, result: "again" | "got-it"): Promise<void> { const next = advanceLessonPracticeState(session, result); if (next.stage !== "replay") { lessonSession = next; render(); return; } pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
-async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; const lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonProgressById = { ...lessonProgressById, [session.lesson.id]: lessonProgress }; lessonSession = null; screen = "lessons"; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
+async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; rhythm = await learningClient.getRhythm(); const lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonProgressById = { ...lessonProgressById, [session.lesson.id]: lessonProgress }; lessonSession = null; screen = "lessons"; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
 
 function renderReview(): HTMLElement {
   const wrapper = section("practice-content focused-content");
@@ -167,7 +311,7 @@ async function saveResult(item: LearningItem, dimension: "recognition" | "recall
   try {
     const response = await learningClient.recordDailyFiveResult(item.id, dimension, result);
     items = items.map((candidate) => candidate.id === item.id ? response.item : candidate);
-    snapshot = response.snapshot; revealed = false;
+    snapshot = response.snapshot; rhythm = await learningClient.getRhythm(); revealed = false;
     if (snapshot.goalCompleted) screen = "today";
     render();
   } catch (error) { renderError(error instanceof Error ? error.message : "Your result could not be saved."); }

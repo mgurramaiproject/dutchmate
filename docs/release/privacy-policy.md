@@ -1,6 +1,6 @@
 # DutchMate Privacy Policy
 
-Last updated: 2026-06-24
+Last updated: 2026-07-20
 
 DutchMate is a browser extension that helps people learn Dutch online by translating hovered words and selected text between Dutch, English, and a supported mother tongue such as Telugu.
 
@@ -38,6 +38,8 @@ DutchMate also stores a local translation cache for successful selected single-w
 
 DutchMate can also store saved vocabulary locally when you choose to save a successful selected single-word translation. Saved vocabulary includes the saved word, translation, source and target language direction, translation provider name, and saved/updated timestamps. DutchMate does not store the page URL or page title with saved vocabulary in the current release.
 
+DutchMate also stores its LearnLoop learning record locally. It can include learning items, optional English and Telugu meanings, the source of an item, up to three capped page contexts per item, recognition and recall mastery, lesson progress, and local learning-rhythm progress. This record is used only inside your browser to provide Daily Five, lessons, and backup/export features.
+
 If a provider API key is configured in a development or custom setup, DutchMate stores it in browser local/sync storage and uses it only for the selected translation provider. Store-ready builds use the DutchMate backend and do not require users to enter a provider API key.
 
 DutchMate does not persistently cache:
@@ -47,6 +49,8 @@ DutchMate does not persistently cache:
 - failed translations.
 
 Users can clear the local translation cache from the Options page. Users can also delete individual saved vocabulary entries or clear all saved vocabulary from the Options page.
+
+LearnLoop export includes the local learning record needed to restore learning items and progress. It excludes provider credentials, translation cache entries, unrelated extension settings, and raw page content beyond the capped contexts attached to a learning item.
 
 ## Backend Logging
 
@@ -78,6 +82,8 @@ DutchMate does not sell user data. DutchMate does not use translated text for ad
 
 Saved vocabulary remains in local browser storage. DutchMate does not send saved vocabulary to an account, sync it across devices, or use it for ads or tracking.
 
+Learning items, contexts, mastery, lesson progress, and learning rhythm remain in local browser storage. DutchMate does not send them to an account, use them for background analytics, or use them for ads or tracking.
+
 ## User Control
 
 Users can:
@@ -88,6 +94,7 @@ Users can:
 - clear the local selected-word translation cache;
 - delete individual saved vocabulary entries;
 - clear all saved vocabulary;
+- export or import the local LearnLoop learning record;
 - change source and target language settings.
 
 If you do not want text from a page sent for translation, do not hover or select text with DutchMate enabled on that page. You can also disable the extension from Options.

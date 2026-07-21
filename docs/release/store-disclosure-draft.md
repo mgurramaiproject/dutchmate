@@ -1,6 +1,6 @@
 # DutchMate Store Disclosure Draft
 
-Last updated: 2026-06-24
+Last updated: 2026-07-20
 
 Use this as working copy for Chrome Web Store and Firefox Add-ons submission fields. Recheck the store forms during submission, because field names and policy wording can change.
 
@@ -19,7 +19,7 @@ For the current soft launch, keep every public support path pointed at that same
 ## Product Summary
 
 ```text
-DutchMate helps people learn Dutch online by translating hovered words and selected text between Dutch, English, and a supported mother tongue such as Telugu. Users can save selected single-word translations locally as a vocabulary list.
+DutchMate helps people learn Dutch online by translating hovered words and selected text between Dutch, English, and a supported mother tongue such as Telugu. Users can keep local learning items, practise Daily Five, use bundled lessons, and save selected single-word translations locally.
 ```
 
 ## Short Description
@@ -35,7 +35,7 @@ DutchMate is a focused browser extension for learning Dutch while reading online
 
 It lets you hover over words or select short text on a webpage to see translations between Dutch, English, and a supported mother tongue such as Telugu.
 
-DutchMate is intended for language support while learning Dutch from real webpages. It can also keep a local saved-vocabulary list from words the user chooses to save. It does not require an account, subscription, or payment.
+DutchMate is intended for language support while learning Dutch from real webpages. It can keep local learning items with capped contexts, recognition and recall progress, lesson progress, and a local learning rhythm. It can also keep a local saved-vocabulary list from words the user chooses to save. It does not require an account, subscription, or payment.
 ```
 
 ## Single Purpose
@@ -78,7 +78,7 @@ Likely data types:
 
 - **Website content**: hovered words, nearby sentence context, selected words, selected phrases, or selected short sentences from webpages.
 - **User activity / interaction data**: translation context such as `hover` or `selection`.
-- **User settings and local learning data**: source language, target language, hover/selection settings, cache/privacy preferences, and saved vocabulary entries stored locally when the user saves them.
+- **User settings and local learning data**: source language, target language, hover/selection settings, cache/privacy preferences, and learning items, capped contexts, mastery, lesson progress, rhythm, and saved vocabulary entries stored locally in the browser.
 
 Do not claim DutchMate collects personally identifiable information, financial information, health information, authentication information, or payment information unless the product behavior changes.
 
@@ -93,7 +93,7 @@ DutchMate uses the text and language settings only to provide the user-facing tr
 ```text
 DutchMate sends hovered or selected website text to https://dutchmate-backend.onrender.com/translate only for translation. The backend sends the text needed for translation to Google Cloud Translation.
 
-Single selected words may be cached locally in the browser. Saved vocabulary entries chosen by the user are stored locally in browser storage and are not sent to an account or synced across devices. API keys, if any, are stored in browser local/sync storage and used only for the selected provider.
+Single selected words may be cached locally in the browser. Learning items, up to three capped contexts per item, mastery, lesson progress, rhythm, and saved vocabulary entries chosen by the user are stored locally in browser storage and are not sent to an account or synced across devices. LearnLoop backups exclude provider credentials, translation cache entries, and unrelated extension settings. API keys, if any, are stored in browser local/sync storage and used only for the selected provider.
 
 DutchMate does not sell user data. DutchMate does not use translated text for advertising or tracking. DutchMate does not share translated text with third parties except as needed to provide translations through the configured translation provider, comply with law, or protect the service from abuse.
 ```
@@ -133,7 +133,7 @@ DutchMate transmits user-requested translation text from the browser to the Dutc
 ```text
 DutchMate sends hovered or selected website text to https://dutchmate-backend.onrender.com/translate only for translation. The backend uses Google Cloud Translation to return translations. This may include hovered words, nearby sentence context, selected words, selected phrases, or selected short sentences, depending on your settings and actions.
 
-DutchMate stores settings, selected single-word translation cache, and saved vocabulary locally in your browser. Single selected words may be cached locally in the browser by default. If you enable hover-word caching in Options, hovered single-word translations may also be cached locally. Selected single-word translations can be saved as vocabulary only when you choose to save them. Selected phrases, selected sentences, and failed translations are not persistently cached locally. Saved vocabulary does not include page URLs or page titles in the current release.
+DutchMate stores settings, selected single-word translation cache, learning items, capped contexts, mastery, lesson progress, rhythm, and saved vocabulary locally in your browser. Single selected words may be cached locally in the browser by default. If you enable hover-word caching in Options, hovered single-word translations may also be cached locally. Selected single-word translations can be saved as vocabulary only when you choose to save them. Selected phrases, selected sentences, and failed translations are not persistently cached locally. Saved vocabulary does not include page URLs or page titles in the current release. LearnLoop backups exclude provider credentials, translation cache entries, and unrelated extension settings.
 
 API keys, if any, are stored in browser local/sync storage and used only for the selected provider.
 

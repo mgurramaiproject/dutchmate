@@ -20,9 +20,8 @@ import { getCachedWordCount } from "./cache-summary";
 import { PERSISTENT_TRANSLATION_CACHE_KEY, shouldRefreshCacheCount } from "./cache-refresh";
 import { createLearningClient } from "../popup/learning-client";
 import { createSettingsClient } from "../popup/settings-client";
-import { serializeVocabularyBackup } from "../vocabulary/vocabulary-backup";
 import { shouldRefreshSavedVocabulary, type StorageChange } from "./saved-vocabulary-refresh";
-import type { LearningItem } from "../vocabulary/learning-record";
+import { serializeLearningBackup, type LearningItem } from "../vocabulary/learning-record";
 import { getVocabularyItemView } from "./vocabulary-item-view";
 import "./styles.css";
 
@@ -35,7 +34,6 @@ const translateOnSelection = document.querySelector<HTMLInputElement>("#translat
 const autoSaveSelectedWords = document.querySelector<HTMLInputElement>("#auto-save-selected-words");
 const showExampleSentence = document.querySelector<HTMLInputElement>("#show-example-sentence");
 const dailyReviewBadge = document.querySelector<HTMLInputElement>("#daily-review-badge");
-const cardDirectionInputs = document.querySelectorAll<HTMLInputElement>('input[name="cardDirection"]');
 const cacheHoveredWords = document.querySelector<HTMLInputElement>("#cache-hovered-words");
 const cacheSelectedWords = document.querySelector<HTMLInputElement>("#cache-selected-words");
 const hoverTranslationModes = document.querySelectorAll<HTMLInputElement>(
@@ -163,9 +161,6 @@ async function restoreSettings(): Promise<void> {
     dailyReviewBadge.checked = settings.dailyReviewBadge;
   }
 
-  cardDirectionInputs.forEach((input) => {
-    input.checked = input.value === settings.cardDirection;
-  });
 
   setHoverTranslationMode(settings.hoverTranslationMode);
 
@@ -242,7 +237,6 @@ async function saveSettings(): Promise<void> {
     autoSaveSelectedWords: autoSaveSelectedWords?.checked ?? currentSettings.autoSaveSelectedWords,
     showExampleSentence: showExampleSentence?.checked ?? currentSettings.showExampleSentence,
     dailyReviewBadge: dailyReviewBadge?.checked ?? currentSettings.dailyReviewBadge,
-    cardDirection: getCardDirectionSelection(currentSettings.cardDirection),
     providerEndpoint: endpoint,
     providerApiKey: providerApiKey ? providerApiKey.value.trim() : currentSettings.providerApiKey,
   };
@@ -475,7 +469,7 @@ async function clearSavedVocabulary(): Promise<void> {
   setClearVocabularyButtonBusy(true);
 
   try {
-    await settingsClient.clearVocabulary();
+    await learningClient.clear();
     await refreshSavedVocabulary();
     showStatus("Saved vocabulary cleared", "success");
   } catch (error) {
@@ -493,8 +487,8 @@ async function exportVocabularyBackup(): Promise<void> {
   setVocabularyActionsBusy(true);
 
   try {
-    const backup = await settingsClient.exportVocabulary();
-    const blob = new Blob([serializeVocabularyBackup(backup.cards, backup.exportedAt)], {
+    const backup = await learningClient.exportBackup();
+    const blob = new Blob([serializeLearningBackup(backup)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
@@ -503,7 +497,7 @@ async function exportVocabularyBackup(): Promise<void> {
     link.download = `dutchmate-vocabulary-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 0);
-    showStatus(`Exported ${backup.cards.length} saved words`, "success");
+    showStatus(`Exported ${backup.learningItems.length} saved items`, "success");
   } catch (error) {
     showStatus(
       `Could not export vocabulary: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -519,10 +513,10 @@ async function importVocabularyBackup(file: File): Promise<void> {
   setVocabularyActionsBusy(true);
 
   try {
-    const result = await settingsClient.importVocabulary(await file.text());
+    const result = await learningClient.importBackup(await file.text());
     await refreshSavedVocabulary();
     showStatus(
-      `Imported ${result.importedCount} cards. You now have ${result.totalCount} saved words.`,
+      `Imported ${result.importedCount} items. You now have ${result.totalCount} saved items.`,
       "success",
       5000,
     );
@@ -692,10 +686,6 @@ function renderLanguageOptions(): void {
   }
 }
 
-function getCardDirectionSelection(fallback: ExtensionSettings["cardDirection"]): ExtensionSettings["cardDirection"] {
-  const value = Array.from(cardDirectionInputs).find((input) => input.checked)?.value;
-  return value === "helpers-to-dutch" || value === "dutch-to-helpers" ? value : fallback;
-}
 
 function getLanguageLabel(code: "en" | "nl" | "te"): string {
   return MVP_LANGUAGES.find((language) => language.code === code)?.label ?? code;

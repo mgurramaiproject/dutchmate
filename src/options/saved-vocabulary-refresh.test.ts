@@ -3,20 +3,6 @@ import { describe, expect, it } from "vitest";
 import { shouldRefreshSavedVocabulary } from "./saved-vocabulary-refresh";
 
 describe("shouldRefreshSavedVocabulary", () => {
-  it("refreshes when saved vocabulary changes in local storage", () => {
-    expect(
-      shouldRefreshSavedVocabulary(
-        {
-          "dutchmate.savedVocabulary.v1": {
-            oldValue: { entries: {} },
-            newValue: { entries: { test: {} } },
-          },
-        },
-        "local",
-      ),
-    ).toBe(true);
-  });
-
   it("ignores unrelated local storage changes", () => {
     expect(
       shouldRefreshSavedVocabulary(
@@ -29,20 +15,6 @@ describe("shouldRefreshSavedVocabulary", () => {
         "local",
       ),
     ).toBe(false);
-  });
-
-  it("refreshes when canonical review cards change in local storage", () => {
-    expect(
-      shouldRefreshSavedVocabulary(
-        {
-          "dutchmate.reviewCards.v1": {
-            oldValue: { cards: [] },
-            newValue: { cards: [{ id: "nl\u001fhuis" }] },
-          },
-        },
-        "local",
-      ),
-    ).toBe(true);
   });
 
   it("refreshes when canonical learning items change", () => {

@@ -4,6 +4,8 @@ import type { ReviewCard, ReviewRating } from "./review-cards";
 import { parseVocabularyBackup, type VocabularyBackup } from "./vocabulary-backup";
 import { normalizeSavedVocabularyText } from "./saved-vocabulary";
 import { applyDailyFiveResult, createDailyFiveSnapshot, getLocalDayStart, type DailyFiveDimension, type DailyFiveResult, type DailyFiveSnapshot } from "./daily-five";
+import { getLearningRhythm, type LearningRhythm } from "./learning-rhythm";
+import { lessonCatalog } from "../lessons/catalog";
 
 export const LEARNING_RECORD_STORAGE_KEY = "dutchmate.learningRecord.v2";
 export const LEARNING_BACKUP_FORMAT = "dutchmate-learning-backup";
@@ -87,10 +89,17 @@ export class LearningRecordStore {
     };
   }
 
+  async getRhythm(): Promise<LearningRhythm> {
+    const record = await this.readMigrated();
+    return getLearningRhythm(Object.values(record.items), record.lessonProgress, record.rhythm, this.now(), lessonCatalog.lessons);
+  }
+
   async createOrMerge(input: CreateOrMergeLearningItemInput): Promise<LearningItem> {
     const record = await this.readMigrated();
-    const item = mergeLearningItem(record.items[getLearningItemId(input.dutch)], input, this.now());
+    const existing = record.items[getLearningItemId(input.dutch)];
+    const item = mergeLearningItem(existing, input, this.now());
     record.items[item.id] = item;
+    if (!existing) record.rhythm = { ...record.rhythm, ...withActivity(record.rhythm, this.now(), { saved: 1 }) };
     await this.write(record);
     return item;
   }
@@ -125,6 +134,8 @@ export class LearningRecordStore {
       return practised;
     });
     next.lessonProgress = { ...next.lessonProgress, [key]: { lessonId, contentVersion, stage: "keep", completedAt: timestamp, keptCandidateIds: candidates.map((candidate) => candidate.id), updatedAt: timestamp } };
+    const newlySaved = items.filter((item) => record.items[item.id] === undefined).length;
+    next.rhythm = { ...next.rhythm, ...withActiveDay(next.rhythm, timestamp, "lessonCompletions"), ...(newlySaved ? withActivity(next.rhythm, timestamp, { saved: newlySaved }) : {}) };
     await this.write(next);
     return items;
   }
@@ -155,12 +166,13 @@ export class LearningRecordStore {
 
   async recordDailyFiveResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult): Promise<{ item: LearningItem; snapshot: DailyFiveSnapshot }> {
     const record = await this.readMigrated();
+    const timestamp = this.now();
     const snapshot = parseDailyFiveSnapshot(record.rhythm.dailyFive);
     const task = snapshot?.tasks.find((candidate) => candidate.itemId === itemId && candidate.dimension === dimension);
     const existing = record.items[itemId];
     if (!snapshot || !task || !existing) throw new Error("This Daily Five task is unavailable.");
     if (snapshot.completedTaskIds.includes(taskId(task))) return { item: existing, snapshot };
-    const updated = applyDailyFiveResult(existing, dimension, result, this.now()).item;
+    const updated = applyDailyFiveResult(existing, dimension, result, timestamp).item;
     const completedTaskIds = [...snapshot.completedTaskIds, taskId(task)];
     const nextSnapshot = { ...snapshot, completedTaskIds, goalCompleted: completedTaskIds.length === snapshot.tasks.length };
     record.items[itemId] = updated;
@@ -168,7 +180,8 @@ export class LearningRecordStore {
       ...record.rhythm,
       dailyFive: nextSnapshot,
       lastDailyFiveDirection: dimension,
-      ...(nextSnapshot.goalCompleted ? { dailyFiveCompletions: { ...(isRecord(record.rhythm.dailyFiveCompletions) ? record.rhythm.dailyFiveCompletions : {}), [snapshot.dayStartAt]: { snapshotCreatedAt: snapshot.createdAt, completedAt: this.now() } } } : {}),
+      ...withActivity(record.rhythm, timestamp, { reviews: 1 }),
+      ...(nextSnapshot.goalCompleted ? withActiveDay(record.rhythm, timestamp, "dailyFiveCompletions", { snapshotCreatedAt: snapshot.createdAt }) : {}),
     };
     await this.write(record);
     return { item: updated, snapshot: nextSnapshot };
@@ -178,21 +191,10 @@ export class LearningRecordStore {
     const record = await this.readMigrated();
     delete record.items[id];
     await this.write(record);
-    const legacyCards = parseLegacyCards(await this.storage.get("dutchmate.reviewCards.v1"));
-    delete legacyCards.cards[id];
-    await this.storage.set("dutchmate.reviewCards.v1", legacyCards);
-    const dutch = id.startsWith(`${LEARNING_LANGUAGE}\u001f`) ? id.slice(3) : "";
-    const legacyVocabulary = parseLegacyVocabulary(await this.storage.get("dutchmate.savedVocabulary.v1"));
-    for (const [key, entry] of Object.entries(legacyVocabulary.entries)) {
-      if (normalizeSavedVocabularyText(entry.text) === dutch || normalizeSavedVocabularyText(entry.translatedText) === dutch) delete legacyVocabulary.entries[key];
-    }
-    await this.storage.set("dutchmate.savedVocabulary.v1", legacyVocabulary);
   }
 
   async clear(): Promise<void> {
     await this.write({ version: 2, items: {}, lessonProgress: {}, rhythm: {} });
-    await this.storage.set("dutchmate.reviewCards.v1", { cards: {} });
-    await this.storage.set("dutchmate.savedVocabulary.v1", { entries: {} });
   }
 
   async exportBackup(): Promise<LearningBackup> {
@@ -207,7 +209,7 @@ export class LearningRecordStore {
       record.items[id] = mergeImportedLearningItem(record.items[id], imported);
     }
     record.lessonProgress = mergeLessonProgress(record.lessonProgress, backup.lessonProgress);
-    record.rhythm = { ...record.rhythm, ...backup.rhythm };
+    record.rhythm = mergeRhythm(record.rhythm, backup.rhythm);
     await this.write(record);
     const items = Object.values(record.items).sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
     return { items, importedCount: backup.learningItems.length, totalCount: items.length };
@@ -221,7 +223,9 @@ export class LearningRecordStore {
   }
 
   private async readMigrated(): Promise<LearningRecord> {
-    const stored = parseRecord(await this.storage.get(LEARNING_RECORD_STORAGE_KEY));
+    const raw = await this.storage.get(LEARNING_RECORD_STORAGE_KEY);
+    if (isRecord(raw) && raw.version === 2) return parseRecord(raw);
+    const stored = parseRecord(raw);
     const legacyVocabulary = parseLegacyVocabulary(await this.storage.get("dutchmate.savedVocabulary.v1"));
     const legacyCards = parseLegacyCards(await this.storage.get("dutchmate.reviewCards.v1"));
     const migrated = migrateLegacyLearningRecord(stored, Object.values(legacyVocabulary.entries), Object.values(legacyCards.cards), this.now());
@@ -278,6 +282,26 @@ function mergeImportedLearningItem(existing: LearningItem | undefined, imported:
   return { ...existing, english: existing.english ?? imported.english, telugu: existing.telugu ?? imported.telugu, sources: deduplicateSources([...existing.sources, ...imported.sources]), contexts: mergeContexts(existing.contexts, ...imported.contexts.map((context) => normalizeContext(context.text, existing.dutch, context.addedAt))), recognition: importedIsNewer ? imported.recognition : existing.recognition, recall: importedIsNewer ? imported.recall : existing.recall, createdAt: Math.min(existing.createdAt, imported.createdAt), updatedAt: Math.max(existing.updatedAt, imported.updatedAt) };
 }
 function mergeSource(sources: LearningItemSource[], source: "webpage" | "lesson" | undefined, addedAt: number, metadata?: Omit<LearningItemSource, "type" | "addedAt">): LearningItemSource[] { return source ? deduplicateSources([...sources, { type: source, addedAt, ...metadata }]) : sources; }
+function withActiveDay(rhythm: Record<string, unknown>, timestamp: number, source: "dailyFiveCompletions" | "lessonCompletions", extra: Record<string, unknown> = {}): Record<string, unknown> { const day = getLocalDayStart(timestamp); const entry = { completedAt: timestamp, ...extra }; return { activeDays: { ...(isRecord(rhythm.activeDays) ? rhythm.activeDays : {}), [day]: entry }, [source]: { ...(isRecord(rhythm[source]) ? rhythm[source] : {}), [day]: entry } }; }
+function withActivity(rhythm: Record<string, unknown>, timestamp: number, changes: { reviews?: number; saved?: number }): Record<string, unknown> {
+  const day = getLocalDayStart(timestamp);
+  const activityDays = isRecord(rhythm.activityDays) ? rhythm.activityDays : {};
+  const previous = isRecord(activityDays[day]) ? activityDays[day] : {};
+  const count = (value: unknown) => typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
+  return { activityDays: { ...activityDays, [day]: { reviews: count(previous.reviews) + (changes.reviews ?? 0), saved: count(previous.saved) + (changes.saved ?? 0), updatedAt: timestamp } } };
+}
+function mergeRhythm(existing: Record<string, unknown>, imported: Record<string, unknown>): Record<string, unknown> { return { ...existing, ...imported, ...Object.fromEntries(["activeDays", "dailyFiveCompletions", "lessonCompletions"].map((key) => [key, { ...(isRecord(existing[key]) ? existing[key] : {}), ...(isRecord(imported[key]) ? imported[key] : {}) }])), activityDays: mergeActivityDays(existing.activityDays, imported.activityDays) }; }
+function mergeActivityDays(local: unknown, incoming: unknown): Record<string, unknown> {
+  const result = { ...(isRecord(local) ? local : {}) };
+  if (!isRecord(incoming)) return result;
+  for (const [day, value] of Object.entries(incoming)) {
+    if (!isRecord(value)) continue;
+    const current = isRecord(result[day]) ? result[day] : {};
+    const count = (entry: Record<string, unknown>, key: "reviews" | "saved") => typeof entry[key] === "number" && Number.isFinite(entry[key]) && entry[key] >= 0 ? entry[key] : 0;
+    result[day] = { reviews: Math.max(count(current, "reviews"), count(value, "reviews")), saved: Math.max(count(current, "saved"), count(value, "saved")), updatedAt: Math.max(typeof current.updatedAt === "number" ? current.updatedAt : 0, typeof value.updatedAt === "number" ? value.updatedAt : 0) };
+  }
+  return result;
+}
 function deduplicateSources(sources: LearningItemSource[]): LearningItemSource[] { return sources.filter((item, index, all) => all.findIndex((candidate) => JSON.stringify(candidate) === JSON.stringify(item)) === index); }
 function mergeContexts(contexts: LearningContext[], ...incoming: Array<LearningContext | null>): LearningContext[] { const result = [...contexts]; for (const context of incoming) { if (!context) continue; const index = result.findIndex((candidate) => normalizeSavedVocabularyText(candidate.text) === normalizeSavedVocabularyText(context.text)); if (index >= 0) continue; result.push(context); } return result.slice(-3); }
 function normalizeContext(value: string | null | undefined, dutch: string, addedAt: number): LearningContext | null { if (!value) return null; const text = value.trim().replace(/\s+/g, " ").slice(0, 240); return text && text.toLocaleLowerCase().includes(dutch.toLocaleLowerCase()) ? { text, addedAt } : null; }

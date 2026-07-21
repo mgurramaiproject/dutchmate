@@ -41,7 +41,7 @@ describe("validateExtensionBuild", () => {
     });
     await writeFile(
       join(distDir, "assets", "popup.css"),
-      "width:390px;height:600px;height:496px;overflow-y:auto;button:focus-visible{outline:3px solid orange}",
+      "width:390px;height:600px;display:grid;flex:1 1 auto;min-height:0;overflow-y:auto;button:focus-visible{outline:3px solid orange}",
     );
 
     await expect(validateExtensionBuild(distDir, "chrome")).resolves.toContain(
@@ -123,7 +123,7 @@ async function createExtensionFixture(
     await writeFile(
       join(distDir, file),
       file === "assets/popup.css"
-        ? "width:390px;min-width:390px;max-width:390px;height:600px;height:496px;overflow-y:auto;button:focus-visible{outline:3px solid orange}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}"
+        ? "width:390px;min-width:390px;max-width:390px;height:600px;display:grid;flex:1 1 auto;min-height:0;overflow-y:auto;button:focus-visible{outline:3px solid orange}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}"
         : "fixture",
     );
   }
@@ -135,7 +135,7 @@ async function createExtensionFixture(
   await mkdir(join(distDir, "src", "popup"), { recursive: true });
   await writeFile(
     join(distDir, "src", "popup", "index.html"),
-    '<nav role="tablist"><button role="tab" aria-selected="true">Learn</button><button role="tab" aria-selected="false" tabindex="-1">Settings</button></nav><div role="tabpanel" aria-labelledby="learn-tab"></div><link rel="stylesheet" href="/assets/popup.css"><script type="module" src="/assets/popup.js"></script>',
+    '<nav role="tablist"><button id="today-tab" role="tab" aria-selected="true" tabindex="0">Today</button><button id="lessons-tab" role="tab" aria-selected="false" tabindex="-1">Lessons</button></nav><div role="tabpanel" aria-labelledby="today-tab"></div><link rel="stylesheet" href="/assets/popup.css"><script type="module" src="/assets/popup.js"></script>',
   );
 
   return distDir;

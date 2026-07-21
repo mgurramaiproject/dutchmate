@@ -10,9 +10,6 @@ vi.mock("webextension-polyfill", () => ({
   },
 }));
 import {
-  REVIEW_CLEAR_MESSAGE,
-  REVIEW_IMPORT_MESSAGE,
-  REVIEW_RATE_MESSAGE,
   REVIEW_SETTINGS_UPDATE_MESSAGE,
   LEARNING_CREATE_OR_MERGE_MESSAGE,
   LEARNING_EXPORT_MESSAGE,
@@ -22,7 +19,6 @@ import {
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
   LEARNING_LESSON_PROGRESS_MESSAGE,
-  SAVE_VOCABULARY_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
 import { createBackgroundMessageHandler } from "./message-handler";
@@ -35,82 +31,6 @@ import { getLocalDayStart } from "../vocabulary/daily-five";
 import { lessonCatalog } from "../lessons/catalog";
 
 describe("createBackgroundMessageHandler", () => {
-  it("refreshes the badge after vocabulary saves and ratings", async () => {
-    const storage = new MemoryStorage();
-    const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
-    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => 1_000);
-    const refreshBadge = vi.fn(async () => undefined);
-    const handleMessage = createBackgroundMessageHandler({
-      savedVocabulary,
-      reviewCards,
-      reviewSettings: {
-        read: async () => defaultSettings,
-        update: async (changes) => ({ ...defaultSettings, ...changes }),
-      },
-      refreshBadge,
-    });
-
-    await send(handleMessage, {
-      type: SAVE_VOCABULARY_MESSAGE,
-      payload: {
-        text: "huis",
-        sourceLanguage: "auto",
-        detectedSourceLanguage: "nl",
-        targetLanguage: "en",
-        translatedText: "house",
-        providerName: "test",
-      },
-    });
-    await send(handleMessage, {
-      type: REVIEW_RATE_MESSAGE,
-      payload: { id: "nl\u001fhuis", rating: "good" },
-    });
-    await expect(
-      send(handleMessage, {
-        type: REVIEW_SETTINGS_UPDATE_MESSAGE,
-        payload: { dailyReviewBadge: false },
-      }),
-    ).resolves.toMatchObject({ ok: true, result: { settings: { dailyReviewBadge: false } } });
-
-    expect(refreshBadge).toHaveBeenCalledTimes(3);
-  });
-
-  it("refreshes the badge after import and clear", async () => {
-    const storage = new MemoryStorage();
-    const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
-    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => 1_000);
-    const refreshBadge = vi.fn(async () => undefined);
-    const handleMessage = createBackgroundMessageHandler({
-      savedVocabulary,
-      reviewCards,
-      refreshBadge,
-    });
-    const backup = createVocabularyBackup([
-      {
-        id: "nl\u001fhuis",
-        dutch: "huis",
-        english: "house",
-        telugu: null,
-        pageContext: null,
-        createdAt: 1_000,
-        updatedAt: 1_000,
-        dueAt: null,
-        lastReviewedAt: null,
-        lastRating: null,
-        reviewCount: 0,
-      },
-    ], 1_000);
-
-    await send(handleMessage, {
-      type: REVIEW_IMPORT_MESSAGE,
-      payload: { document: JSON.stringify(backup) },
-    });
-    await send(handleMessage, { type: REVIEW_CLEAR_MESSAGE });
-
-    await expect(reviewCards.list()).resolves.toEqual([]);
-    expect(refreshBadge).toHaveBeenCalledTimes(2);
-  });
-
   it("handles learning records through the typed background contract with an injected clock", async () => {
     const storage = new MemoryStorage();
     const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });

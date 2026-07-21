@@ -9,20 +9,12 @@ const singleWordOutcome: TranslationOutcome = {
       providerName: "custom-endpoint",
     },
   },
-  saveCandidates: [
-    {
-      text: "huis",
-      sourceLanguage: "auto",
-      detectedSourceLanguage: "nl",
-      targetLanguage: "en",
-      translatedText: "house",
-      providerName: "custom-endpoint",
-    },
-  ],
+  sourceLanguage: "nl",
+  responses: [{ targetLanguage: "en", response: { ok: true, result: { translatedText: "house", providerName: "custom-endpoint" } } }],
 };
 
 describe("WebpageLookupSession", () => {
-  it("keeps save candidates only for the current selected single-word lookup", () => {
+  it("keeps typed translation evidence only for the current lookup", () => {
     const session = new WebpageLookupSession();
     const requestId = session.begin("selection");
 
@@ -30,11 +22,12 @@ describe("WebpageLookupSession", () => {
       status: "current",
       context: "selection",
       response: singleWordOutcome.response,
-      saveCandidates: singleWordOutcome.saveCandidates,
+      sourceLanguage: singleWordOutcome.sourceLanguage,
+      responses: singleWordOutcome.responses,
     });
   });
 
-  it("drops save candidates for the current hover lookup", () => {
+  it("keeps typed translation evidence for the current hover lookup", () => {
     const session = new WebpageLookupSession();
     const requestId = session.begin("hover");
 
@@ -42,7 +35,8 @@ describe("WebpageLookupSession", () => {
       status: "current",
       context: "hover",
       response: singleWordOutcome.response,
-      saveCandidates: [],
+      sourceLanguage: singleWordOutcome.sourceLanguage,
+      responses: singleWordOutcome.responses,
     });
   });
 
@@ -82,7 +76,8 @@ describe("WebpageLookupSession", () => {
       status: "current",
       context: "hover",
       response: singleWordOutcome.response,
-      saveCandidates: [],
+      sourceLanguage: singleWordOutcome.sourceLanguage,
+      responses: singleWordOutcome.responses,
     });
   });
 
