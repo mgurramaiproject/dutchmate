@@ -538,7 +538,7 @@ Publishing a browser-store release, executing a long-running research study, col
 
 ## T13 — Clarify Today and compact the lesson library
 
-**GitHub:** To be created
+**GitHub:** [#50](https://github.com/mgurramaiproject/dutchmate/issues/50)
 
 **Blocked by:** [T07 / #38](https://github.com/mgurramaiproject/dutchmate/issues/38), [T08 / #39](https://github.com/mgurramaiproject/dutchmate/issues/39), [T09 / #40](https://github.com/mgurramaiproject/dutchmate/issues/40), [T10 / #41](https://github.com/mgurramaiproject/dutchmate/issues/41), [T11 / #42](https://github.com/mgurramaiproject/dutchmate/issues/42)
 
