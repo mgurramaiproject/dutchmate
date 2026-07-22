@@ -47,6 +47,7 @@ The popup keeps Today as the default and sole practice entry point. Options rema
 ## Implementation Decisions
 
 - Use `Saved` as the visible tab label. Do not use `Library`, because Lesson library is an established and different domain term.
+- Implement the approved **A — Quiet Index** presentation from the Saved Shelf mockup exploration: editorial numbered rows with Dutch as the anchor, compact helper meanings, neutral Mastery labels, and in-place expansion.
 - Extend the current top-level popup navigation to `Today | Lessons | Saved`. Focused review and lesson flows continue to hide that navigation and provide their explicit exit behaviour.
 - Read Saved vocabulary exclusively through the existing typed background learning contract and canonical Local learning record. Do not add a new storage format, mutation message, or parallel Saved-vocabulary store.
 - Add a presentation-only Saved Shelf state with the selected sort and, at most, one expanded Learning-item identifier. Neither state is durable learning data.
