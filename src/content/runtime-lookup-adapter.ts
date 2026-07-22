@@ -5,6 +5,7 @@ import {
   requestRuntimeCreateLearningItem,
   requestRuntimeLearningItems,
   requestRuntimeRecordLearningEncounter,
+  requestRuntimeRecordMissionResult,
   type RuntimeVocabularyExtensionApi,
 } from "./runtime-vocabulary-client";
 import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
@@ -51,6 +52,7 @@ export function createRuntimeLookupAdapter(
   saveLearningItem(input: CreateOrMergeLearningItemInput): ReturnType<typeof requestRuntimeCreateLearningItem>;
   listLearningItems(): ReturnType<typeof requestRuntimeLearningItems>;
   recordLearningEncounter(input: { id: string; context: string }): ReturnType<typeof requestRuntimeRecordLearningEncounter>;
+  recordMissionResult(input: { itemId: string; dimension: "recognition"; result: "again" | "got-it"; expectedAttemptCount: number }): ReturnType<typeof requestRuntimeRecordMissionResult>;
 } {
   let directTranslationCache: PersistentTranslationCache | undefined;
 
@@ -103,6 +105,9 @@ export function createRuntimeLookupAdapter(
     },
     recordLearningEncounter(input) {
       return requestRuntimeRecordLearningEncounter(dependencies.extensionApi, input);
+    },
+    recordMissionResult(input) {
+      return requestRuntimeRecordMissionResult(dependencies.extensionApi, input);
     },
   };
 }

@@ -16,6 +16,7 @@ export const LEARNING_CLEAR_MESSAGE = "dutchmate.learning.clear";
 export const LEARNING_EXPORT_MESSAGE = "dutchmate.learning.export";
 export const LEARNING_IMPORT_MESSAGE = "dutchmate.learning.import";
 export const LEARNING_RECORD_ENCOUNTER_MESSAGE = "dutchmate.learning.recordEncounter";
+export const LEARNING_RECORD_MISSION_RESULT_MESSAGE = "dutchmate.learning.recordMissionResult";
 export const LEARNING_DAILY_FIVE_MESSAGE = "dutchmate.learning.dailyFive";
 export const LEARNING_DAILY_FIVE_RESULT_MESSAGE = "dutchmate.learning.dailyFive.result";
 export const LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE = "dutchmate.learning.keepLessonCandidates";
@@ -35,6 +36,7 @@ export type LearningMessage =
   | { type: typeof LEARNING_EXPORT_MESSAGE }
   | { type: typeof LEARNING_IMPORT_MESSAGE; payload: { document: string } }
   | { type: typeof LEARNING_RECORD_ENCOUNTER_MESSAGE; payload: { id: string; context: string } }
+  | { type: typeof LEARNING_RECORD_MISSION_RESULT_MESSAGE; payload: { itemId: string; dimension: DailyFiveDimension; result: DailyFiveResult; expectedAttemptCount: number } }
   | { type: typeof LEARNING_DAILY_FIVE_MESSAGE; payload?: { continueAfterCompletion?: boolean } }
   | { type: typeof LEARNING_DAILY_FIVE_RESULT_MESSAGE; payload: { itemId: string; dimension: DailyFiveDimension; result: DailyFiveResult } }
   | { type: typeof LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE; payload: { lessonId: string; candidateIds: string[]; evidence: Array<{ candidateId: string; dimension: DailyFiveDimension; result: DailyFiveResult }> } }
@@ -60,6 +62,7 @@ export function isLearningMessage(message: unknown): message is LearningMessage 
   if (message.type === LEARNING_LESSON_PROGRESS_MESSAGE) return typeof payload.lessonId === "string";
   if (message.type === LEARNING_SAVE_LESSON_PROGRESS_MESSAGE) return typeof payload.lessonId === "string" && (payload.stage === "read" || payload.stage === "notice" || payload.stage === "practise" || payload.stage === "replay" || payload.stage === "keep");
   if (message.type === LEARNING_RECORD_ENCOUNTER_MESSAGE) return typeof payload.id === "string" && typeof payload.context === "string";
+  if (message.type === LEARNING_RECORD_MISSION_RESULT_MESSAGE) return typeof payload.itemId === "string" && (payload.dimension === "recognition" || payload.dimension === "recall") && (payload.result === "again" || payload.result === "got-it") && typeof payload.expectedAttemptCount === "number" && Number.isInteger(payload.expectedAttemptCount) && payload.expectedAttemptCount >= 0;
   if (message.type === LEARNING_DAILY_FIVE_RESULT_MESSAGE) return typeof payload.itemId === "string" && (payload.dimension === "recognition" || payload.dimension === "recall") && (payload.result === "again" || payload.result === "got-it");
   if (message.type === LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE) return typeof payload.lessonId === "string" && Array.isArray(payload.candidateIds) && payload.candidateIds.every((id) => typeof id === "string") && Array.isArray(payload.evidence) && payload.evidence.every((entry) => typeof entry === "object" && entry !== null && "candidateId" in entry && typeof entry.candidateId === "string" && "dimension" in entry && (entry.dimension === "recognition" || entry.dimension === "recall") && "result" in entry && (entry.result === "again" || entry.result === "got-it"));
   if (message.type === LEARNING_IMPORT_MESSAGE) return typeof payload.document === "string";

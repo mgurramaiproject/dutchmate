@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { WebpageLookupModule, type TranslationTransport } from "./webpage-lookup-module";
+import type { LearningItem } from "../vocabulary/learning-record";
 
 const defaultSettings = {
   isEnabled: true,
@@ -40,25 +41,71 @@ function createTransport(
   };
 }
 
+function savedItem(overrides: Partial<LearningItem> = {}): LearningItem {
+  return {
+    id: "nl\u001fgoede morgen", learningLanguage: "nl", normalizedDutch: "goede morgen", dutch: "goede morgen", kind: "chunk", english: "good morning", telugu: "శుభోదయం", sources: [], contexts: [{ text: "Goede morgen, buur.", addedAt: 1 }], encounters: { count: 0, lastEncounterAt: null }, recognition: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, recall: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, createdAt: 1, updatedAt: 1, ...overrides,
+  };
+}
+
 describe("WebpageLookupModule", () => {
-  it("records a deliberate saved-item encounter and renders its Seen before cue", async () => {
-    const recordLearningEncounter = vi.fn(async () => ({ ok: true }));
+  it("offers a saved selection locally before contacting the translation provider", async () => {
+    const translate = vi.fn(createTransport().translate);
     const events: unknown[] = [];
     const module = new WebpageLookupModule({
       getSettings: () => defaultSettings,
       transport: createTransport({
-        listLearningItems: async () => ({ ok: true, result: { items: [{ id: "nl\u001fgoede morgen", normalizedDutch: "goede morgen" }] } }),
-        recordLearningEncounter,
+        listLearningItems: async () => ({ ok: true, result: { items: [savedItem()] } }),
+        translate,
       }),
       runWithTimeout: (promise) => promise,
       tooltipTimeoutMs: 9000,
     });
     module.subscribe((event) => events.push(event));
 
-    await module.beginLookup({ text: "Goede   morgen", context: "selection", x: 1, y: 1, pageContext: "Goede morgen, buur." });
+    await module.beginLookup({ text: "Goede   morgen", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Goede morgen, buur." });
 
-    expect(recordLearningEncounter).toHaveBeenCalledWith({ id: "nl\u001fgoede morgen", context: "Goede morgen, buur." });
-    await vi.waitFor(() => expect(events).toContainEqual({ type: "show-seen-before" }));
+    expect(events).toContainEqual({ type: "render-recall-offer", selectedDutch: "goede morgen", x: 1, y: 1 });
+    expect(translate).not.toHaveBeenCalled();
+    module.translateNow();
+    await vi.waitFor(() => expect(translate).toHaveBeenCalled());
+  });
+
+  it("reveals stored helpers and records recognition once after recall", async () => {
+    const recordMissionResult = vi.fn(async () => ({ ok: true }));
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport({ listLearningItems: async () => ({ ok: true, result: { items: [savedItem()] } }), recordMissionResult }), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+    module.subscribe((event) => events.push(event));
+    await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Goede morgen, buur." });
+    module.startRecallMission();
+    expect(events.at(-1)).toEqual(expect.objectContaining({ type: "render-recall-mission", mission: expect.objectContaining({ revealed: false, english: "good morning", telugu: "శుభోదయం" }) }));
+    await module.recordRecallResult("got-it");
+    expect(recordMissionResult).not.toHaveBeenCalled();
+    module.revealRecallMeaning();
+    await module.recordRecallResult("got-it");
+    await module.recordRecallResult("again");
+    expect(recordMissionResult).toHaveBeenCalledTimes(1);
+    expect(recordMissionResult).toHaveBeenCalledWith({ itemId: "nl\u001fgoede morgen", dimension: "recognition", result: "got-it", expectedAttemptCount: 0 });
+  });
+
+  it("falls back to normal translation when saved recall data is incomplete", async () => {
+    const translate = vi.fn(createTransport().translate);
+    const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport({ translate, listLearningItems: async () => ({ ok: true, result: { items: [savedItem({ english: null, telugu: null })] } }) }), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+    await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Goede morgen, buur." });
+    expect(translate).toHaveBeenCalled();
+  });
+
+  it("keeps a failed recognition save recoverable without showing false success", async () => {
+    let failed = false;
+    const recordMissionResult = vi.fn(async () => failed ? { ok: true } : (failed = true, { ok: false, error: "Storage unavailable" }));
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport({ listLearningItems: async () => ({ ok: true, result: { items: [savedItem()] } }), recordMissionResult }), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+    module.subscribe((event) => events.push(event));
+    await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Goede morgen, buur." });
+    module.startRecallMission(); module.revealRecallMeaning();
+    await module.recordRecallResult("got-it");
+    expect(events.at(-1)).toEqual(expect.objectContaining({ type: "render-recall-mission", mission: expect.objectContaining({ error: "Storage unavailable", evidenceRecorded: false }) }));
+    await module.recordRecallResult("got-it");
+    expect(events.at(-1)).toEqual(expect.objectContaining({ type: "render-recall-mission", mission: expect.objectContaining({ result: "got-it", evidenceRecorded: true }) }));
   });
 
   it("does not record encounters for passive or unsaved text", async () => {
@@ -81,7 +128,7 @@ describe("WebpageLookupModule", () => {
       getSettings: () => defaultSettings,
       transport: createTransport({
         translate: async () => ({ ok: false, error: "Translation failed." }),
-        listLearningItems: async () => ({ ok: true, result: { items: [{ id: "nl\u001fhuis", normalizedDutch: "huis" }] } }),
+        listLearningItems: async () => ({ ok: true, result: { items: [savedItem({ id: "nl\u001fhuis", normalizedDutch: "huis", dutch: "huis" })] } }),
         recordLearningEncounter,
       }),
       runWithTimeout: (promise) => promise,
@@ -94,7 +141,7 @@ describe("WebpageLookupModule", () => {
 
   it("records a saved word but ignores an interaction cleared before lookup completes", async () => {
     const recordLearningEncounter = vi.fn(async () => ({ ok: true }));
-    let resolveItems: ((value: { ok: true; result: { items: Array<{ id: string; normalizedDutch: string }> } }) => void) | undefined;
+    let resolveItems: ((value: { ok: true; result: { items: LearningItem[] } }) => void) | undefined;
     const module = new WebpageLookupModule({
       getSettings: () => defaultSettings,
       transport: createTransport({
@@ -107,7 +154,7 @@ describe("WebpageLookupModule", () => {
 
     await module.beginLookup({ text: "huis", context: "hover", x: 1, y: 1, pageContext: "Een huis staat daar." });
     module.clear();
-    resolveItems?.({ ok: true, result: { items: [{ id: "nl\u001fhuis", normalizedDutch: "huis" }] } });
+    resolveItems?.({ ok: true, result: { items: [savedItem({ id: "nl\u001fhuis", normalizedDutch: "huis", dutch: "huis" })] } });
 
     await Promise.resolve();
     expect(recordLearningEncounter).not.toHaveBeenCalled();

@@ -68,6 +68,11 @@ const lookupModule = new WebpageLookupModule({
 const tooltipView = createTooltipViewAdapter({
   onSaveClick: () => { void lookupModule.handleSaveAction(); },
   onPractice: () => lookupModule.startPractice(),
+  onTryFromMemory: () => lookupModule.startRecallMission(),
+  onTranslateNow: () => lookupModule.translateNow(),
+  onShowMeaning: () => lookupModule.revealRecallMeaning(),
+  onRecallResult: (result) => { void lookupModule.recordRecallResult(result); },
+  onReplayRecall: () => lookupModule.replayRecallMission(),
   onAddFragment: (index) => lookupModule.addMissionFragment(index),
   onRemoveFragment: (index) => lookupModule.removeMissionFragment(index),
   onReset: () => lookupModule.resetMission(),
@@ -118,8 +123,18 @@ function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
     return;
   }
 
+  if (event.type === "render-recall-offer") {
+    tooltipView.showRecallOffer(event.selectedDutch, event.x, event.y);
+    return;
+  }
+
   if (event.type === "render-mission") {
     tooltipView.showMission(event.mission);
+    return;
+  }
+
+  if (event.type === "render-recall-mission") {
+    tooltipView.showRecallMission(event.mission);
     return;
   }
 

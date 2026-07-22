@@ -153,6 +153,19 @@ export class LearningRecordStore {
     return item;
   }
 
+  async recordMissionResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult, expectedAttemptCount: number): Promise<{ item: LearningItem; recorded: boolean }> {
+    const record = await this.readMigrated();
+    const existing = record.items[itemId];
+    if (!existing) throw new Error("This learning item is unavailable.");
+    if (existing[dimension].attemptCount !== expectedAttemptCount) return { item: existing, recorded: false };
+    const timestamp = this.now();
+    const updated = applyDailyFiveResult(existing, dimension, result, timestamp).item;
+    record.items[itemId] = updated;
+    record.rhythm = { ...record.rhythm, ...withActivity(record.rhythm, timestamp, { reviews: 1 }) };
+    await this.write(record);
+    return { item: updated, recorded: true };
+  }
+
   async getDailyFive(continueAfterCompletion = false): Promise<DailyFiveSnapshot> {
     const record = await this.readMigrated();
     const saved = parseDailyFiveSnapshot(record.rhythm.dailyFive);

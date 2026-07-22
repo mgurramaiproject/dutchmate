@@ -1,5 +1,5 @@
 import type { TranslateMessageResponse } from "./runtime-translation-client";
-import type { ChunkConfirmation, ContextMission, SaveActionState } from "./webpage-lookup-module";
+import type { ChunkConfirmation, ContextMission, RecallMission, SaveActionState } from "./webpage-lookup-module";
 
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
 
@@ -16,6 +16,8 @@ export type TooltipViewAdapter = {
     practiceAvailable?: true,
   ): void;
   showMission(mission: ContextMission): void;
+  showRecallOffer(selectedDutch: string, x: number, y: number): void;
+  showRecallMission(mission: RecallMission): void;
   showSeenBefore(): void;
   updateSaveButton(saveAction: SaveActionState): void;
   hide(): void;
@@ -24,6 +26,11 @@ export type TooltipViewAdapter = {
 export function createTooltipViewAdapter(callbacks: {
   onSaveClick(): void;
   onPractice(): void;
+  onTryFromMemory(): void;
+  onTranslateNow(): void;
+  onShowMeaning(): void;
+  onRecallResult(result: "again" | "got-it"): void;
+  onReplayRecall(): void;
   onAddFragment(index: number): void;
   onRemoveFragment(index: number): void;
   onReset(): void;
@@ -187,6 +194,26 @@ export function createTooltipViewAdapter(callbacks: {
       tooltip.querySelector<HTMLButtonElement>(".context-slip-close")?.focus();
     },
 
+    showRecallOffer(selectedDutch, x, y) {
+      currentSaveButton = null;
+      tooltip.dataset.state = "recall-offer";
+      tooltip.textContent = "";
+      const tether = document.createElement("section"); tether.className = "context-slip-tether";
+      const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Seen before";
+      const title = document.createElement("h3"); title.className = "context-slip-title"; title.lang = "nl"; title.textContent = selectedDutch;
+      const actions = document.createElement("div"); actions.className = "context-slip-actions";
+      actions.append(actionButton("Try from memory", callbacks.onTryFromMemory, true), actionButton("Translate now", callbacks.onTranslateNow));
+      tether.append(kicker, title, actions); tooltip.append(tether); positionTooltip(tooltip, x, y); tooltip.hidden = false;
+    },
+
+    showRecallMission(mission) {
+      currentSaveButton = null;
+      tooltip.dataset.state = "recall-mission";
+      renderRecallMission(tooltip, mission, callbacks);
+      tooltip.hidden = false;
+      tooltip.querySelector<HTMLButtonElement>(".context-slip-close")?.focus();
+    },
+
     hide() {
       currentSaveButton = null;
       tooltip.hidden = true;
@@ -195,6 +222,37 @@ export function createTooltipViewAdapter(callbacks: {
       returnFocus = null;
     },
   };
+}
+
+function renderRecallMission(tooltip: HTMLDivElement, mission: RecallMission, callbacks: Parameters<typeof createTooltipViewAdapter>[0]): void {
+  tooltip.textContent = "";
+  const tether = document.createElement("section"); tether.className = "context-slip-tether";
+  const close = actionButton("×", callbacks.onClose); close.className = "context-slip-close"; close.setAttribute("aria-label", "Close Context Mission");
+  const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Recall meaning";
+  const title = document.createElement("h3"); title.className = "context-slip-title"; title.textContent = "What does this mean here?";
+  const context = document.createElement("p"); context.className = "context-slip-context"; context.lang = "nl"; context.textContent = mission.pageContext;
+  tether.append(close, kicker, title, context);
+  if (!mission.revealed) {
+    tether.append(actionButton("Show meaning", callbacks.onShowMeaning, true));
+  } else {
+    const meaning = document.createElement("p"); meaning.className = "context-slip-status"; meaning.setAttribute("role", "status");
+    meaning.textContent = [mission.english && `English: ${mission.english}`, mission.telugu && `Telugu: ${mission.telugu}`].filter(Boolean).join("\n");
+    tether.append(meaning);
+    if (mission.result) {
+      const result = document.createElement("p"); result.className = "context-slip-status"; result.textContent = mission.result === "got-it" ? "Got it" : "Again";
+      tether.append(result, actionButton("Replay", callbacks.onReplayRecall), actionButton("Back to page", callbacks.onClose, true));
+    } else if (mission.evidenceRecorded) {
+      tether.append(actionButton("Back to page", callbacks.onClose, true));
+    } else {
+      const actions = document.createElement("div"); actions.className = "context-slip-actions";
+      const again = actionButton("Again", () => callbacks.onRecallResult("again"));
+      const gotIt = actionButton("Got it", () => callbacks.onRecallResult("got-it"), true);
+      again.disabled = Boolean(mission.submitting); gotIt.disabled = Boolean(mission.submitting);
+      actions.append(again, gotIt); tether.append(actions);
+    }
+  }
+  if (mission.error) { const error = document.createElement("p"); error.className = "context-slip-status"; error.setAttribute("role", "alert"); error.textContent = mission.error; tether.append(error, actionButton("Back to page", callbacks.onClose)); }
+  tooltip.append(tether);
 }
 
 function renderPracticeAction(tooltip: HTMLDivElement, onPractice: () => void, registerFocus: (button: HTMLButtonElement) => void): void {

@@ -63,18 +63,18 @@ GitHub: [#58](https://github.com/mgurramaiproject/dutchmate/issues/58)
 
 **Blocked by:** [T01 — #57](https://github.com/mgurramaiproject/dutchmate/issues/57).
 
-- [ ] A deliberate selection matching a saved word or meaningful chunk can resolve the canonical item, helpers, context, and mastery locally before provider reveal.
-- [ ] When the local data is sufficient, Context Slip shows `Seen before`, `Try from memory`, and `Translate now` before a new translation is requested.
-- [ ] `Translate now` follows the existing configured translation flow without creating Mission evidence.
-- [ ] Missing or stale identity, missing required local helper data, or unusable context falls back to normal translation instead of showing a broken recall task.
-- [ ] `Try from memory` opens `Recall meaning`, shows the Dutch in context, hides helpers, and uses `What does this mean here?`.
-- [ ] `Show meaning` reveals exactly the stored English and Telugu helpers when both exist, or the one available configured helper, without requesting missing data.
-- [ ] `Again` and `Got it` are unavailable before reveal and update recognition only after reveal.
-- [ ] The Mission evidence operation uses the canonical mastery and scheduling policy without completing, reordering, or fabricating a Daily Five task.
-- [ ] One mission session can apply at most one recognition update despite replay, double activation, retry, or duplicated messages.
-- [ ] Storage failure never shows false success and leaves a clear retry or Back to page path.
-- [ ] `Try from memory`, reveal, result, replay, and completion add zero translation-provider requests.
-- [ ] Primary-seam, learning-contract, and rendered-card tests prove the local pre-reveal and one-result boundaries.
+- [x] A deliberate selection matching a saved word or meaningful chunk can resolve the canonical item, helpers, context, and mastery locally before provider reveal.
+- [x] When the local data is sufficient, Context Slip shows `Seen before`, `Try from memory`, and `Translate now` before a new translation is requested.
+- [x] `Translate now` follows the existing configured translation flow without creating Mission evidence.
+- [x] Missing or stale identity, missing required local helper data, or unusable context falls back to normal translation instead of showing a broken recall task.
+- [x] `Try from memory` opens `Recall meaning`, shows the Dutch in context, hides helpers, and uses `What does this mean here?`.
+- [x] `Show meaning` reveals exactly the stored English and Telugu helpers when both exist, or the one available configured helper, without requesting missing data.
+- [x] `Again` and `Got it` are unavailable before reveal and update recognition only after reveal.
+- [x] The Mission evidence operation uses the canonical mastery and scheduling policy without completing, reordering, or fabricating a Daily Five task.
+- [x] One mission session can apply at most one recognition update despite replay, double activation, retry, or duplicated messages.
+- [x] Storage failure never shows false success and leaves a clear retry or Back to page path.
+- [x] `Try from memory`, reveal, result, replay, and completion add zero translation-provider requests.
+- [x] Primary-seam, learning-contract, and rendered-card tests prove the local pre-reveal and one-result boundaries.
 
 ## T04 — Rebuild a saved repeat for recall evidence
 

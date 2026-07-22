@@ -7,7 +7,7 @@ import type { ExtensionSettings } from "../shared/settings";
 import { getLearningItemId } from "../vocabulary/learning-record";
 import { normalizeSavedVocabularyText } from "../vocabulary/saved-vocabulary";
 import { getChunkCandidate } from "./chunk-candidate";
-import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
+import type { CreateOrMergeLearningItemInput, LearningItem } from "../vocabulary/learning-record";
 
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
 const mvpLanguages = [
@@ -114,6 +114,20 @@ export type ContextMission = {
     chunkConfirmation?: ChunkConfirmation;
   };
 };
+export type RecallMission = {
+  itemId: string;
+  selectedDutch: string;
+  pageContext: string;
+  english: string | null;
+  telugu: string | null;
+  revealed: boolean;
+  result?: "got-it" | "again";
+  submitting?: boolean;
+  error?: string;
+  evidenceRecorded: boolean;
+  expectedRecognitionAttemptCount: number;
+  token: number;
+};
 
 export type WebpageLookupModuleEvent =
   | {
@@ -148,10 +162,12 @@ export type WebpageLookupModuleEvent =
   | {
       type: "show-seen-before";
     }
+  | { type: "render-recall-offer"; selectedDutch: string; x: number; y: number }
   | {
       type: "render-mission";
       mission: ContextMission;
     }
+  | { type: "render-recall-mission"; mission: RecallMission }
   | {
       type: "hide-tooltip";
     };
@@ -167,8 +183,9 @@ export type TranslationTransport = {
   ): Promise<TranslateMessageResponse>;
   listLearningItemIds(): Promise<Set<string> | undefined>;
   saveLearningItem(input: CreateOrMergeLearningItemInput): Promise<{ ok: boolean; error?: string }>;
-  listLearningItems?(): Promise<{ ok: boolean; result?: { items: Array<{ id: string; normalizedDutch: string }> } }>;
+  listLearningItems?(): Promise<{ ok: boolean; result?: { items: LearningItem[] } }>;
   recordLearningEncounter?(input: { id: string; context: string }): Promise<{ ok: boolean }>;
+  recordMissionResult?(input: { itemId: string; dimension: "recognition"; result: "again" | "got-it"; expectedAttemptCount: number }): Promise<{ ok: boolean; error?: string }>;
 };
 
 type StorageChange = {
@@ -194,6 +211,9 @@ export class WebpageLookupModule {
   #currentChunk: CreateOrMergeLearningItemInput | null = null;
   #practiceSelection: { dutch: string; pageContext: string | null } | null = null;
   #mission: ContextMission | null = null;
+  #recallMission: RecallMission | null = null;
+  #pendingRecallLookup: WebpageLookupInput | null = null;
+  #nextRecallMissionToken = 0;
 
   constructor(dependencies: WebpageLookupModuleDependencies) {
     this.#deps = dependencies;
@@ -257,15 +277,39 @@ export class WebpageLookupModule {
     this.#currentChunk = null;
     this.#practiceSelection = null;
     this.#mission = null;
+    this.#recallMission = null;
+    this.#pendingRecallLookup = null;
     this.#emit({ type: "hide-tooltip" });
   }
 
-  async beginLookup(input: WebpageLookupInput): Promise<void> {
+  async beginLookup(input: WebpageLookupInput, skipLocalRecall = false): Promise<void> {
     const requestId = this.#session.begin(input.context);
     this.#currentSaveItem = null;
     this.#currentSaveItemId = null;
     this.#practiceSelection = null;
     this.#mission = null;
+    this.#recallMission = null;
+    this.#pendingRecallLookup = null;
+
+    if (!skipLocalRecall && input.context === "selection") {
+      const item = await this.#findRecallItem(input);
+      if (item && this.#session.isCurrent(requestId)) {
+        this.#pendingRecallLookup = input;
+        this.#recallMission = {
+          itemId: item.id,
+          selectedDutch: item.dutch,
+          pageContext: input.pageContext!.trim().replace(/\s+/g, " ").slice(0, 240),
+          english: item.english,
+          telugu: item.telugu,
+          revealed: false,
+          evidenceRecorded: false,
+          expectedRecognitionAttemptCount: item.recognition.attemptCount,
+          token: ++this.#nextRecallMissionToken,
+        };
+        this.#emit({ type: "render-recall-offer", selectedDutch: item.dutch, x: input.x, y: input.y });
+        return;
+      }
+    }
 
     this.#emit({
       type: "render-loading",
@@ -359,6 +403,45 @@ export class WebpageLookupModule {
     }
   }
 
+  translateNow(): void {
+    const input = this.#pendingRecallLookup;
+    if (input) void this.beginLookup(input, true);
+  }
+
+  startRecallMission(): void {
+    if (this.#recallMission) this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
+  }
+
+  revealRecallMeaning(): void {
+    if (!this.#recallMission) return;
+    this.#recallMission = { ...this.#recallMission, revealed: true, error: undefined };
+    this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
+  }
+
+  replayRecallMission(): void {
+    if (!this.#recallMission) return;
+    this.#recallMission = { ...this.#recallMission, revealed: false, result: undefined, submitting: false, error: undefined };
+    this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
+  }
+
+  async recordRecallResult(result: "again" | "got-it"): Promise<void> {
+    const mission = this.#recallMission;
+    if (!mission || !mission.revealed || mission.evidenceRecorded || mission.submitting) return;
+    this.#recallMission = { ...mission, submitting: true, error: undefined };
+    this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
+    try {
+      const response = await this.#deps.transport.recordMissionResult?.({ itemId: mission.itemId, dimension: "recognition", result, expectedAttemptCount: mission.expectedRecognitionAttemptCount });
+      if (!response?.ok || this.#recallMission?.token !== mission.token) {
+        throw new Error(response?.error ?? "Recognition could not be saved.");
+      }
+      this.#recallMission = { ...mission, result, evidenceRecorded: true, submitting: false };
+    } catch (error) {
+      if (this.#recallMission?.itemId !== mission.itemId) return;
+      this.#recallMission = { ...mission, submitting: false, error: error instanceof Error ? error.message : "Recognition could not be saved." };
+    }
+    this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
+  }
+
   async #recordEncounter(requestId: number, text: string, context: string | null | undefined): Promise<boolean> {
     if (!context || !this.#deps.transport.listLearningItems || !this.#deps.transport.recordLearningEncounter) return false;
     try {
@@ -367,6 +450,22 @@ export class WebpageLookupModule {
       return item && this.#session.isCurrent(requestId) ? (await this.#deps.transport.recordLearningEncounter({ id: item.id, context })).ok : false;
     } catch {
       return false;
+    }
+  }
+
+  async #findRecallItem(input: WebpageLookupInput): Promise<LearningItem | undefined> {
+    if (!input.pageContext || !this.#deps.transport.listLearningItems) return undefined;
+    const sourceLanguage = this.#getActiveSourceLanguage(this.#deps.getSettings(), input.languageSample ?? input.text, input.sourceLanguageHint);
+    if (sourceLanguage !== "nl") return undefined;
+    try {
+      const response = await this.#deps.transport.listLearningItems();
+      const normalized = normalizeSavedVocabularyText(input.text);
+      const item = response.ok ? response.result?.items.find((candidate) => candidate.normalizedDutch === normalized) : undefined;
+      if (!item || (!item.english && !item.telugu) || item.contexts.length === 0) return undefined;
+      const pageContext = input.pageContext.trim().replace(/\s+/g, " ");
+      return pageContext.toLocaleLowerCase().includes(item.normalizedDutch) ? item : undefined;
+    } catch {
+      return undefined;
     }
   }
 
