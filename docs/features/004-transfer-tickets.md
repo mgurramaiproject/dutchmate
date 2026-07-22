@@ -84,16 +84,16 @@ GitHub: [#60](https://github.com/mgurramaiproject/dutchmate/issues/60)
 
 **Blocked by:** [T03 — #58](https://github.com/mgurramaiproject/dutchmate/issues/58).
 
-- [ ] Saved-repeat exercise selection chooses the weaker mastery dimension first and the earlier-due dimension second, using the canonical stable tie rule.
-- [ ] Recognition continues to select Recall meaning; recall selects Rebuild in context.
-- [ ] The recall reconstruction uses the selected saved Dutch and real page context locally, with the same deterministic fragment and normalized scoring contract as first-encounter reconstruction.
-- [ ] Only the first checked order determines `Got it` or `Again` and submits recall Mission evidence.
-- [ ] A recall mission changes recall only; recognition remains unchanged.
-- [ ] Replay, Reset after feedback, double Check, retry, or duplicated messages cannot revise or add another mastery result.
-- [ ] The Mission evidence operation uses canonical scheduling without completing or changing a Daily Five snapshot.
-- [ ] Today and due counts reflect only the updated canonical learning item; no mission card, queue, badge, or progress model is added to the popup.
-- [ ] Missing or stale local item data falls back safely without provider calls disguised as memory practice.
-- [ ] Primary-seam, learning-contract, and rendered-card tests cover both dimension choices, due-time ordering, stable ties, first-check evidence, and idempotency.
+- [x] Saved-repeat exercise selection chooses the weaker mastery dimension first and the earlier-due dimension second, using the canonical stable tie rule.
+- [x] Recognition continues to select Recall meaning; recall selects Rebuild in context.
+- [x] The recall reconstruction uses the selected saved Dutch and real page context locally, with the same deterministic fragment and normalized scoring contract as first-encounter reconstruction.
+- [x] Only the first checked order determines `Got it` or `Again` and submits recall Mission evidence.
+- [x] A recall mission changes recall only; recognition remains unchanged.
+- [x] Replay, Reset after feedback, double Check, retry, or duplicated messages cannot revise or add another mastery result.
+- [x] The Mission evidence operation uses canonical scheduling without completing or changing a Daily Five snapshot.
+- [x] Today and due counts reflect only the updated canonical learning item; no mission card, queue, badge, or progress model is added to the popup.
+- [x] Missing or stale local item data falls back safely without provider calls disguised as memory practice.
+- [x] Primary-seam, learning-contract, and rendered-card tests cover both dimension choices, due-time ordering, stable ties, first-check evidence, and idempotency.
 
 ## T05 — Harden the Context Slip mission lifecycle
 

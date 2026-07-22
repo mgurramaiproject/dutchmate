@@ -1,10 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { applyDailyFiveResult, createDailyFiveSnapshot, getOverallMastery } from "./daily-five";
+import { applyDailyFiveResult, createDailyFiveSnapshot, getOverallMastery, getWeakerMasteryDimension } from "./daily-five";
 import { createNewMastery, type LearningItem } from "./learning-record";
 
 const day = 24 * 60 * 60 * 1_000;
 
 describe("Daily Five scheduling", () => {
+  it("chooses the weaker mastery dimension, then the earlier due dimension with a stable tie", () => {
+    const current = item("huis", 1);
+    current.recognition = { ...createNewMastery(), state: "learning", attemptCount: 1, dueAt: 20 };
+    current.recall = { ...createNewMastery(), state: "learning", attemptCount: 1, dueAt: 10 };
+    expect(getWeakerMasteryDimension(current)).toBe("recall");
+    current.recall = { ...current.recall, dueAt: 20 };
+    expect(getWeakerMasteryDimension(current)).toBe("recognition");
+  });
+
   it("starts a new item with recognition and keeps its five-task snapshot stable", () => {
     const first = item("huis", 1);
     const second = item("boom", 2);

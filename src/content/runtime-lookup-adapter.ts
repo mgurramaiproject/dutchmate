@@ -11,6 +11,7 @@ import {
 import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import type { ExtensionSettings } from "../shared/settings";
+import type { DailyFiveDimension } from "../vocabulary/daily-five";
 import {
   PersistentTranslationCache,
   type PersistentTranslationCacheStorage,
@@ -52,7 +53,7 @@ export function createRuntimeLookupAdapter(
   saveLearningItem(input: CreateOrMergeLearningItemInput): ReturnType<typeof requestRuntimeCreateLearningItem>;
   listLearningItems(): ReturnType<typeof requestRuntimeLearningItems>;
   recordLearningEncounter(input: { id: string; context: string }): ReturnType<typeof requestRuntimeRecordLearningEncounter>;
-  recordMissionResult(input: { itemId: string; dimension: "recognition"; result: "again" | "got-it"; expectedAttemptCount: number }): ReturnType<typeof requestRuntimeRecordMissionResult>;
+  recordMissionResult(input: { itemId: string; dimension: DailyFiveDimension; result: "again" | "got-it"; expectedAttemptCount: number }): ReturnType<typeof requestRuntimeRecordMissionResult>;
 } {
   let directTranslationCache: PersistentTranslationCache | undefined;
 

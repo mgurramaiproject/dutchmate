@@ -87,6 +87,39 @@ describe("WebpageLookupModule", () => {
     expect(recordMissionResult).toHaveBeenCalledWith({ itemId: "nl\u001fgoede morgen", dimension: "recognition", result: "got-it", expectedAttemptCount: 0 });
   });
 
+  it("rebuilds a saved repeat for recall and records only its first result", async () => {
+    const translate = vi.fn(createTransport().translate);
+    const recordMissionResult = vi.fn(async () => ({ ok: true }));
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({
+        translate,
+        listLearningItems: async () => ({ ok: true, result: { items: [savedItem({ recognition: { state: "familiar", dueAt: 20, intervalDays: 3, attemptCount: 2, successfulStreak: 2, lastPractisedAt: 1 }, recall: { state: "learning", dueAt: 10, intervalDays: 1, attemptCount: 1, successfulStreak: 1, lastPractisedAt: 1 } })] } }),
+        recordMissionResult,
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Goede morgen, buur." });
+    module.startRecallMission();
+    expect(events.at(-1)).toEqual(expect.objectContaining({ type: "render-mission", mission: expect.objectContaining({ selectedDutch: "goede morgen", evidence: expect.objectContaining({ dimension: "recall", expectedAttemptCount: 1 }) }) }));
+    expect(translate).not.toHaveBeenCalled();
+    module.addMissionFragment(1);
+    module.addMissionFragment(0);
+    module.checkMission();
+    module.checkMission();
+    await vi.waitFor(() => expect(recordMissionResult).toHaveBeenCalledTimes(1));
+    expect(recordMissionResult).toHaveBeenCalledWith({ itemId: "nl\u001fgoede morgen", dimension: "recall", result: "got-it", expectedAttemptCount: 1 });
+    module.replayMission();
+    module.addMissionFragment(1);
+    module.addMissionFragment(0);
+    module.checkMission();
+    expect(recordMissionResult).toHaveBeenCalledTimes(1);
+  });
+
   it("falls back to normal translation when saved recall data is incomplete", async () => {
     const translate = vi.fn(createTransport().translate);
     const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport({ translate, listLearningItems: async () => ({ ok: true, result: { items: [savedItem({ english: null, telugu: null })] } }) }), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });

@@ -293,14 +293,18 @@ function renderMission(
       renderMissionCapture(tether, mission.capture, callbacks.onSaveClick, registerSaveButton);
     }
   } else {
-    const placed = fragmentBank(mission.placed, "Your answer", callbacks.onRemoveFragment);
-    const available = fragmentBank(mission.available, "Available words", callbacks.onAddFragment);
+    const placed = fragmentBank(mission.placed, "Your answer", callbacks.onRemoveFragment, Boolean(mission.evidence?.submitting));
+    const available = fragmentBank(mission.available, "Available words", callbacks.onAddFragment, Boolean(mission.evidence?.submitting));
     const actions = document.createElement("div"); actions.className = "context-slip-actions";
-    const reset = actionButton("Reset", callbacks.onReset);
-    const check = actionButton("Check", callbacks.onCheck, true); check.disabled = mission.placed.length !== mission.available.length + mission.placed.length;
+    const reset = actionButton("Reset", callbacks.onReset); reset.disabled = Boolean(mission.evidence?.submitting);
+    const check = actionButton("Check", callbacks.onCheck, true); check.disabled = mission.placed.length !== mission.available.length + mission.placed.length || Boolean(mission.evidence?.submitting);
     actions.append(reset, check);
     const status = document.createElement("span"); status.className = "context-slip-status"; status.setAttribute("aria-live", "polite"); status.textContent = `${mission.placed.length} of ${mission.placed.length + mission.available.length} words placed`;
     tether.append(placed, available, actions, status);
+    if (mission.evidence?.error) {
+      const error = document.createElement("p"); error.className = "context-slip-status"; error.setAttribute("role", "alert"); error.textContent = mission.evidence.error;
+      tether.append(error);
+    }
   }
   tooltip.append(tether);
 }
@@ -320,9 +324,9 @@ function renderMissionCapture(
   renderSaveAction(container, capture.saveAction, onSaveClick, registerSaveButton);
 }
 
-function fragmentBank(values: string[], label: string, onClick: (index: number) => void): HTMLDivElement {
+function fragmentBank(values: string[], label: string, onClick: (index: number) => void, disabled = false): HTMLDivElement {
   const bank = document.createElement("div"); bank.className = "context-slip-fragments"; bank.setAttribute("aria-label", label);
-  values.forEach((value, index) => { const button = actionButton(value, () => onClick(index)); button.className = "context-slip-fragment"; bank.append(button); });
+  values.forEach((value, index) => { const button = actionButton(value, () => onClick(index)); button.className = "context-slip-fragment"; button.disabled = disabled; bank.append(button); });
   return bank;
 }
 

@@ -53,6 +53,12 @@ describe("TooltipViewAdapter", () => {
     expect(onSaveClick).toHaveBeenCalledOnce();
   });
 
+  it("disables reconstruction mutations while recall evidence is saving", () => {
+    const view = createTooltipViewAdapter({ onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn() });
+    view.showMission({ selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", available: ["morgen"], placed: ["goede"], evidence: { itemId: "nl\u001fgoede morgen", dimension: "recall", expectedAttemptCount: 0, token: 1, result: "got-it", submitting: true } });
+    expect(Array.from(document.querySelectorAll<HTMLButtonElement>("button")).filter((button) => button.textContent !== "×").every((button) => button.disabled)).toBe(true);
+  });
+
   it("keeps saved recall helpers hidden until the learner asks to reveal them", () => {
     const onTryFromMemory = vi.fn(); const onTranslateNow = vi.fn(); const onShowMeaning = vi.fn(); const onRecallResult = vi.fn();
     const view = createTooltipViewAdapter({ onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory, onTranslateNow, onShowMeaning, onRecallResult, onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn() });
@@ -62,11 +68,11 @@ describe("TooltipViewAdapter", () => {
     Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Translate now")?.click();
     expect(onTranslateNow).toHaveBeenCalledOnce();
 
-    view.showRecallMission({ itemId: "nl\u001fgoede morgen", selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", english: "good morning", telugu: "శుభోదయం", revealed: false, evidenceRecorded: false, expectedRecognitionAttemptCount: 0, token: 1 });
+    view.showRecallMission({ itemId: "nl\u001fgoede morgen", selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", english: "good morning", telugu: "శుభోదయం", revealed: false, evidenceRecorded: false, dimension: "recognition", expectedAttemptCount: 0, token: 1 });
     expect(document.querySelector("#hover-translate-tooltip")?.textContent).not.toContain("good morning");
     Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Show meaning")?.click();
     expect(onShowMeaning).toHaveBeenCalledOnce();
-    view.showRecallMission({ itemId: "nl\u001fgoede morgen", selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", english: "good morning", telugu: "శుభోదయం", revealed: true, evidenceRecorded: false, expectedRecognitionAttemptCount: 0, token: 1 });
+    view.showRecallMission({ itemId: "nl\u001fgoede morgen", selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", english: "good morning", telugu: "శుభోదయం", revealed: true, evidenceRecorded: false, dimension: "recognition", expectedAttemptCount: 0, token: 1 });
     expect(document.querySelector("#hover-translate-tooltip")?.textContent).toContain("English: good morning");
     Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Got it")?.click();
     expect(onRecallResult).toHaveBeenCalledWith("got-it");

@@ -31,6 +31,14 @@ export function getOverallMastery(item: LearningItem): MasteryState {
   return stateRank[item.recognition.state] <= stateRank[item.recall.state] ? item.recognition.state : item.recall.state;
 }
 
+export function getWeakerMasteryDimension(item: LearningItem): DailyFiveDimension {
+  return (["recognition", "recall"] as DailyFiveDimension[]).sort((first, second) =>
+    stateRank[item[first].state] - stateRank[item[second].state]
+      || (item[first].dueAt ?? Number.MAX_SAFE_INTEGER) - (item[second].dueAt ?? Number.MAX_SAFE_INTEGER)
+      || (first === "recognition" ? -1 : 1),
+  )[0];
+}
+
 function getDueDimension(item: LearningItem, now: number, lastDirection?: DailyFiveDimension): DailyFiveDimension | null {
   const eligible = (["recognition", "recall"] as const).filter((dimension) => item[dimension].attemptCount > 0 && item[dimension].dueAt !== null && item[dimension].dueAt <= now);
   if (eligible.length === 0) return null;

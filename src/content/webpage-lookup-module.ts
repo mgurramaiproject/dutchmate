@@ -8,6 +8,7 @@ import { getLearningItemId } from "../vocabulary/learning-record";
 import { normalizeSavedVocabularyText } from "../vocabulary/saved-vocabulary";
 import { getChunkCandidate } from "./chunk-candidate";
 import type { CreateOrMergeLearningItemInput, LearningItem } from "../vocabulary/learning-record";
+import { getWeakerMasteryDimension, type DailyFiveDimension } from "../vocabulary/daily-five";
 
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
 const mvpLanguages = [
@@ -109,6 +110,16 @@ export type ContextMission = {
   available: string[];
   placed: string[];
   result?: "got-it" | "again";
+  evidence?: {
+    itemId: string;
+    dimension: "recall";
+    expectedAttemptCount: number;
+    token: number;
+    result?: "got-it" | "again";
+    submitting?: boolean;
+    recorded?: boolean;
+    error?: string;
+  };
   capture?: {
     saveAction: SaveActionState;
     chunkConfirmation?: ChunkConfirmation;
@@ -125,7 +136,8 @@ export type RecallMission = {
   submitting?: boolean;
   error?: string;
   evidenceRecorded: boolean;
-  expectedRecognitionAttemptCount: number;
+  dimension: DailyFiveDimension;
+  expectedAttemptCount: number;
   token: number;
 };
 
@@ -185,7 +197,7 @@ export type TranslationTransport = {
   saveLearningItem(input: CreateOrMergeLearningItemInput): Promise<{ ok: boolean; error?: string }>;
   listLearningItems?(): Promise<{ ok: boolean; result?: { items: LearningItem[] } }>;
   recordLearningEncounter?(input: { id: string; context: string }): Promise<{ ok: boolean }>;
-  recordMissionResult?(input: { itemId: string; dimension: "recognition"; result: "again" | "got-it"; expectedAttemptCount: number }): Promise<{ ok: boolean; error?: string }>;
+  recordMissionResult?(input: { itemId: string; dimension: DailyFiveDimension; result: "again" | "got-it"; expectedAttemptCount: number }): Promise<{ ok: boolean; error?: string }>;
 };
 
 type StorageChange = {
@@ -294,6 +306,7 @@ export class WebpageLookupModule {
     if (!skipLocalRecall && input.context === "selection") {
       const item = await this.#findRecallItem(input);
       if (item && this.#session.isCurrent(requestId)) {
+        const dimension = getWeakerMasteryDimension(item);
         this.#pendingRecallLookup = input;
         this.#recallMission = {
           itemId: item.id,
@@ -303,7 +316,8 @@ export class WebpageLookupModule {
           telugu: item.telugu,
           revealed: false,
           evidenceRecorded: false,
-          expectedRecognitionAttemptCount: item.recognition.attemptCount,
+          dimension,
+          expectedAttemptCount: item[dimension].attemptCount,
           token: ++this.#nextRecallMissionToken,
         };
         this.#emit({ type: "render-recall-offer", selectedDutch: item.dutch, x: input.x, y: input.y });
@@ -409,7 +423,25 @@ export class WebpageLookupModule {
   }
 
   startRecallMission(): void {
-    if (this.#recallMission) this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
+    const recallMission = this.#recallMission;
+    if (!recallMission) return;
+    if (recallMission.dimension === "recognition") {
+      this.#emit({ type: "render-recall-mission", mission: recallMission });
+      return;
+    }
+    this.#mission = {
+      selectedDutch: recallMission.selectedDutch,
+      pageContext: recallMission.pageContext,
+      available: deterministicRotation(recallMission.selectedDutch.split(/\s+/u)),
+      placed: [],
+      evidence: {
+        itemId: recallMission.itemId,
+        dimension: "recall",
+        expectedAttemptCount: recallMission.expectedAttemptCount,
+        token: recallMission.token,
+      },
+    };
+    this.#emitMission();
   }
 
   revealRecallMeaning(): void {
@@ -430,7 +462,7 @@ export class WebpageLookupModule {
     this.#recallMission = { ...mission, submitting: true, error: undefined };
     this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
     try {
-      const response = await this.#deps.transport.recordMissionResult?.({ itemId: mission.itemId, dimension: "recognition", result, expectedAttemptCount: mission.expectedRecognitionAttemptCount });
+      const response = await this.#deps.transport.recordMissionResult?.({ itemId: mission.itemId, dimension: "recognition", result, expectedAttemptCount: mission.expectedAttemptCount });
       if (!response?.ok || this.#recallMission?.token !== mission.token) {
         throw new Error(response?.error ?? "Recognition could not be saved.");
       }
@@ -535,7 +567,7 @@ export class WebpageLookupModule {
   }
 
   addMissionFragment(index: number): void {
-    if (!this.#mission || index < 0 || index >= this.#mission.available.length) return;
+    if (!this.#mission || this.#mission.evidence?.submitting || index < 0 || index >= this.#mission.available.length) return;
     const available = [...this.#mission.available];
     const [fragment] = available.splice(index, 1);
     this.#mission = { ...this.#mission, available, placed: [...this.#mission.placed, fragment] };
@@ -543,7 +575,7 @@ export class WebpageLookupModule {
   }
 
   removeMissionFragment(index: number): void {
-    if (!this.#mission || index < 0 || index >= this.#mission.placed.length) return;
+    if (!this.#mission || this.#mission.evidence?.submitting || index < 0 || index >= this.#mission.placed.length) return;
     const placed = [...this.#mission.placed];
     const [fragment] = placed.splice(index, 1);
     this.#mission = { ...this.#mission, placed, available: [...this.#mission.available, fragment] };
@@ -551,20 +583,50 @@ export class WebpageLookupModule {
   }
 
   resetMission(): void {
-    if (!this.#mission) return;
+    if (!this.#mission || this.#mission.evidence?.submitting) return;
     this.#mission = { ...this.#mission, available: deterministicRotation(this.#mission.selectedDutch.split(/\s+/u)), placed: [], result: undefined };
     this.#emitMission();
   }
 
   checkMission(): void {
-    if (!this.#mission || this.#mission.placed.length !== this.#mission.selectedDutch.split(/\s+/u).length || this.#mission.result) return;
-    const result = normalizeMissionAnswer(this.#mission.placed.join(" ")) === normalizeMissionAnswer(this.#mission.selectedDutch) ? "got-it" : "again";
-    this.#mission = { ...this.#mission, result };
+    const mission = this.#mission;
+    if (!mission || mission.placed.length !== mission.selectedDutch.split(/\s+/u).length || mission.result || mission.evidence?.submitting || mission.evidence?.recorded) return;
+    if (mission.evidence?.result) {
+      void this.#recordRecallMissionEvidence(mission);
+      return;
+    }
+    const result = normalizeMissionAnswer(mission.placed.join(" ")) === normalizeMissionAnswer(mission.selectedDutch) ? "got-it" : "again";
+    if (mission.evidence) {
+      this.#mission = { ...mission, evidence: { ...mission.evidence, result, submitting: true, error: undefined } };
+      this.#emitMission();
+      void this.#recordRecallMissionEvidence(this.#mission);
+      return;
+    }
+    this.#mission = { ...mission, result };
     this.#emitMission();
   }
 
   replayMission(): void {
     this.resetMission();
+  }
+
+  async #recordRecallMissionEvidence(mission: ContextMission): Promise<void> {
+    const evidence = mission.evidence;
+    if (!evidence?.result) return;
+    try {
+      const response = await this.#deps.transport.recordMissionResult?.({
+        itemId: evidence.itemId,
+        dimension: evidence.dimension,
+        result: evidence.result,
+        expectedAttemptCount: evidence.expectedAttemptCount,
+      });
+      if (!response?.ok || this.#mission?.evidence?.token !== evidence.token) throw new Error(response?.error ?? "Recall could not be saved.");
+      this.#mission = { ...this.#mission, result: evidence.result, evidence: { ...evidence, submitting: false, recorded: true, error: undefined } };
+    } catch (error) {
+      if (this.#mission?.evidence?.token !== evidence.token) return;
+      this.#mission = { ...this.#mission, evidence: { ...evidence, submitting: false, error: error instanceof Error ? error.message : "Recall could not be saved." } };
+    }
+    this.#emitMission();
   }
 
   #emitMission(): void {

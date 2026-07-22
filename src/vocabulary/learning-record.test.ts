@@ -83,6 +83,20 @@ describe("LearningRecordStore", () => {
     await expect(records.recordMissionResult(item.id, "recognition", "got-it", 0)).resolves.toMatchObject({ recorded: false, item: updated.item });
   });
 
+  it("records Context Mission recall without changing recognition or a Daily Five snapshot", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const item = await records.createOrMerge({ dutch: "huis", english: "house" });
+    const snapshot = await records.getDailyFive();
+
+    const updated = await records.recordMissionResult(item.id, "recall", "again", 0);
+
+    expect(updated.item.recall).toMatchObject({ state: "learning", attemptCount: 1, successfulStreak: 0 });
+    expect(updated.item.recognition).toEqual(item.recognition);
+    expect((await records.getDailyFive()).completedTaskIds).toEqual(snapshot.completedTaskIds);
+    await expect(records.recordMissionResult(item.id, "recall", "again", 0)).resolves.toMatchObject({ recorded: false, item: updated.item });
+  });
+
   it("rejects malformed or unsupported imports before changing storage", async () => {
     const storage = new MemoryStorage();
     const records = new LearningRecordStore(storage, () => 1_000);
