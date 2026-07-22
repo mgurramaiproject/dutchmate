@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>004-transfer Context Missions design mockups</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --black: #000000;
+        --white: #ffffff;
+        --orange: #ff6f00;
+        --muted: rgba(0, 0, 0, 0.64);
+        --line: rgba(0, 0, 0, 0.2);
+        --soft: rgba(0, 0, 0, 0.055);
+        --orange-soft: rgba(255, 111, 0, 0.11);
+        --serif: Iowan Old Style, "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
+        --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background: var(--white); color: var(--black); font-family: var(--sans); }
+      button { color: inherit; font: inherit; cursor: pointer; }
+      button:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+      h1, h2, h3, p { margin: 0; }
+
+      .prototype-page {
+        display: grid;
+        grid-template-columns: minmax(270px, 390px) minmax(620px, 1fr);
+        gap: 54px;
+        width: min(1240px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 48px 0 96px;
+      }
+
+      .brief { display: grid; align-content: start; gap: 20px; }
+      .eyebrow, .stage-label, .browser-url, .mission-kicker, .helper-label, .micro-label {
+        font-size: 0.68rem;
+        font-weight: 850;
+        letter-spacing: 0.055em;
+        text-transform: uppercase;
+      }
+      .eyebrow { color: var(--orange); }
+      .brief h1 {
+        max-width: 8ch;
+        font-family: var(--serif);
+        font-size: clamp(3.2rem, 6.4vw, 5.8rem);
+        font-weight: 720;
+        line-height: 0.9;
+      }
+      .intro { max-width: 40ch; color: var(--muted); font-family: var(--serif); font-size: 1.08rem; line-height: 1.5; }
+      .recommendation { display: grid; gap: 7px; padding: 16px 0; border-top: 4px solid var(--orange); border-bottom: 1px solid var(--black); }
+      .recommendation h2 { font-family: var(--serif); font-size: 1.55rem; line-height: 1.05; }
+      .recommendation p:last-child { color: var(--muted); font-size: 0.8rem; line-height: 1.45; }
+
+      .direction-list { display: grid; gap: 8px; }
+      .direction-button {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        align-items: center;
+        gap: 11px;
+        width: 100%;
+        min-height: 70px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--white);
+        text-align: left;
+      }
+      .direction-button[aria-pressed="true"] { padding-left: 6px; border-color: var(--black); border-left: 5px solid var(--orange); background: var(--soft); }
+      .direction-letter { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid var(--black); border-radius: 50%; font-family: var(--serif); font-size: 1rem; }
+      .direction-button[aria-pressed="true"] .direction-letter { background: var(--orange); }
+      .direction-copy { display: grid; gap: 3px; }
+      .direction-copy strong { font-size: 0.78rem; }
+      .direction-copy small { color: var(--muted); font-size: 0.65rem; line-height: 1.35; }
+
+      .design-rules { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+      .design-rules li { padding-bottom: 8px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 0.74rem; line-height: 1.45; }
+      .design-rules strong { color: var(--black); }
+
+      .stage { display: grid; align-content: start; gap: 10px; min-width: 0; }
+      .stage-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .stage-label { color: var(--muted); }
+      .cost-note { display: inline-flex; align-items: center; gap: 6px; font-size: 0.66rem; font-weight: 800; }
+      .cost-note::before { content: ""; width: 8px; height: 8px; border: 2px solid var(--black); border-radius: 50%; background: var(--orange); }
+
+      .browser {
+        position: relative;
+        min-height: 660px;
+        overflow: hidden;
+        border: 2px solid var(--black);
+        border-radius: 8px;
+        background: var(--white);
+      }
+      .browser-chrome { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; border-bottom: 1px solid var(--black); background: var(--white); }
+      .window-dots { display: flex; gap: 5px; }
+      .window-dots span { width: 9px; height: 9px; border: 1px solid var(--black); border-radius: 50%; }
+      .window-dots span:first-child { background: var(--orange); }
+      .browser-url { min-width: 0; overflow: hidden; color: var(--muted); text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+      .browser-menu { font-size: 1rem; font-weight: 900; letter-spacing: 0.08em; }
+
+      .article-page { position: relative; min-height: 610px; padding: 52px 44% 72px 8%; background: var(--white); }
+      .article-page::after { content: ""; position: absolute; top: 46px; right: 38%; bottom: 48px; width: 1px; background: var(--line); }
+      .article-meta { display: flex; gap: 12px; margin-bottom: 16px; color: var(--muted); font-size: 0.66rem; font-weight: 750; }
+      .article-page h2 { max-width: 11ch; margin-bottom: 20px; font-family: var(--serif); font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 700; line-height: 0.98; }
+      .article-page > p { max-width: 36ch; margin-bottom: 16px; font-family: var(--serif); font-size: 1rem; line-height: 1.62; }
+      .selected-phrase { position: relative; background: var(--orange); box-decoration-break: clone; -webkit-box-decoration-break: clone; color: var(--black); outline: 2px solid var(--orange); outline-offset: 1px; }
+      .selected-phrase::after { content: ""; position: absolute; left: calc(100% + 5px); top: 50%; width: clamp(36px, 5vw, 72px); height: 3px; background: var(--orange); }
+      .page-aside { position: absolute; right: 5%; bottom: 42px; width: 29%; padding-top: 10px; border-top: 3px solid var(--black); color: var(--muted); font-size: 0.7rem; line-height: 1.45; }
+      .page-aside strong { display: block; margin-bottom: 4px; color: var(--black); }
+
+      .mission-anchor { position: absolute; z-index: 3; top: 106px; right: 3.5%; width: min(350px, 38%); }
+      .mission-anchor::before { content: ""; position: absolute; z-index: -1; left: -46px; top: 98px; width: 46px; height: 3px; background: var(--orange); }
+      .mission-card { min-height: 390px; border: 2px solid var(--black); border-radius: 8px; background: var(--white); animation: card-in 150ms ease-out both; }
+      .mission-card button { min-height: 44px; }
+      .mission-header { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 8px 10px 8px 14px; border-bottom: 1px solid var(--black); }
+      .mission-brand { display: inline-flex; align-items: center; gap: 7px; font-size: 0.74rem; font-weight: 850; }
+      .mission-brand img { width: 24px; height: 24px; border-radius: 5px; }
+      .close-button { display: grid; width: 44px; min-height: 44px; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; font-size: 1.35rem; line-height: 1; }
+      .close-button:hover { background: var(--orange); }
+      .mission-body { display: grid; align-content: start; gap: 14px; padding: 18px; }
+      .mission-kicker { color: var(--muted); }
+      .mission-kicker.accent { color: var(--orange); }
+      .mission-title { font-family: var(--serif); font-size: 1.72rem; font-weight: 700; line-height: 1.04; }
+      .mission-copy { color: var(--muted); font-size: 0.76rem; line-height: 1.45; }
+      .source-line { padding-left: 11px; border-left: 4px solid var(--orange); font-family: var(--serif); font-size: 0.84rem; line-height: 1.45; }
+      .source-line mark { background: var(--orange); color: var(--black); }
+      .meaning-list { display: grid; border-top: 1px solid var(--line); }
+      .meaning-row { display: grid; grid-template-columns: 46px 1fr; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 0.76rem; line-height: 1.35; }
+      .helper-label { color: var(--muted); }
+      .meaning-value { font-family: var(--serif); font-size: 0.88rem; }
+      .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .action-row.single { grid-template-columns: 1fr; }
+      .dm-button { min-height: 46px; padding: 8px 12px; border: 1px solid var(--black); border-radius: 7px; background: var(--white); font-size: 0.73rem; font-weight: 850; }
+      .dm-button:hover { background: var(--orange); }
+      .dm-button.primary { background: var(--orange); }
+      .dm-button.primary:hover { background: var(--black); color: var(--white); }
+      .dm-button.dark { background: var(--black); color: var(--white); }
+      .dm-button.dark:hover { background: var(--orange); color: var(--black); }
+      .dm-button.text { justify-self: start; min-height: 34px; padding: 0; border: 0; background: transparent; text-decoration: underline; text-decoration-color: var(--orange); text-underline-offset: 3px; }
+      .dm-button:disabled { cursor: not-allowed; opacity: 0.42; }
+      .mission-foot { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding-top: 3px; color: var(--muted); font-size: 0.62rem; line-height: 1.35; }
+      .local-note { display: inline-flex; align-items: center; gap: 5px; }
+      .local-note::before { content: ""; width: 7px; height: 7px; border: 1px solid var(--black); background: var(--orange); }
+
+      .answer-zone { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 7px; min-height: 56px; padding: 9px; border: 2px solid var(--black); border-radius: 7px; background: var(--soft); }
+      .answer-zone:empty::before { content: "Choose the words in order"; align-self: center; color: var(--muted); font-size: 0.68rem; }
+      .fragment-bank { display: flex; flex-wrap: wrap; gap: 7px; }
+      .fragment { min-height: 40px !important; padding: 7px 10px; border: 1px solid var(--black); border-radius: 6px; background: var(--white); font-family: var(--serif); font-size: 0.84rem; font-weight: 700; }
+      .fragment:hover { background: var(--orange); }
+      .answer-zone .fragment { background: var(--orange); }
+      .answer-zone .fragment:hover { background: var(--black); color: var(--white); }
+      .result-band { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--black); border-left-width: 6px; border-left-color: var(--orange); border-radius: 7px; }
+      .result-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; background: var(--black); color: var(--white); font-weight: 900; }
+      .result-band strong { display: block; font-family: var(--serif); font-size: 0.94rem; }
+      .result-band span:last-child { color: var(--muted); font-size: 0.64rem; }
+      .hidden-answer { display: grid; place-items: center; min-height: 70px; border: 1px solid var(--black); border-radius: 7px; background: var(--soft); color: var(--muted); font-family: var(--serif); font-style: italic; }
+
+      .direction-b .mission-card { border-color: var(--black); background: var(--black); color: var(--white); }
+      .direction-b .mission-header { border-bottom-color: var(--white); }
+      .direction-b .close-button { color: var(--white); }
+      .direction-b .mission-kicker, .direction-b .mission-copy, .direction-b .mission-foot, .direction-b .helper-label { color: rgba(255, 255, 255, 0.7); }
+      .direction-b .mission-kicker.accent { color: var(--orange); }
+      .direction-b .source-line { border-left-color: var(--orange); }
+      .direction-b .meaning-list, .direction-b .meaning-row { border-color: rgba(255, 255, 255, 0.36); }
+      .direction-b .dm-button { border-color: var(--white); }
+      .direction-b .dm-button:not(.primary):not(.dark) { background: var(--black); color: var(--white); }
+      .direction-b .dm-button:not(.primary):not(.dark):hover { background: var(--white); color: var(--black); }
+      .direction-b .dm-button.dark { border-color: var(--white); background: var(--white); color: var(--black); }
+      .direction-b .hidden-answer, .direction-b .answer-zone { border-color: var(--white); background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.72); }
+      .direction-b .fragment { border-color: var(--white); background: var(--black); color: var(--white); }
+      .direction-b .fragment:hover, .direction-b .answer-zone .fragment { border-color: var(--orange); background: var(--orange); color: var(--black); }
+      .direction-b .result-band { border-color: var(--white); border-left-color: var(--orange); }
+      .direction-b .result-mark { background: var(--orange); color: var(--black); }
+      .direction-b .result-band span:last-child { color: rgba(255, 255, 255, 0.7); }
+      .direction-b .local-note::before { border-color: var(--white); }
+
+      .direction-c .mission-anchor { top: auto; right: 4%; bottom: 24px; width: 56%; }
+      .direction-c .mission-anchor::before { left: 14%; top: -58px; width: 3px; height: 58px; }
+      .direction-c .mission-card { min-height: 300px; }
+      .direction-c .mission-body { grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); gap: 16px 20px; }
+      .direction-c .mission-heading { display: grid; align-content: start; gap: 10px; padding-right: 16px; border-right: 1px solid var(--black); }
+      .direction-c .mission-work { display: grid; align-content: start; gap: 11px; }
+      .direction-c .mission-foot { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 10px; }
+      .direction-c .action-row { grid-template-columns: repeat(2, 1fr); }
+
+      .closed-card { display: grid; min-height: 390px; place-items: center; padding: 24px; border: 2px dashed var(--black); border-radius: 8px; background: var(--white); text-align: center; }
+      .closed-card div { display: grid; justify-items: center; gap: 10px; }
+      .closed-card strong { font-family: var(--serif); font-size: 1.3rem; }
+      .closed-card p { max-width: 26ch; color: var(--muted); font-size: 0.72rem; line-height: 1.45; }
+
+      .state-rail { display: flex; flex-wrap: wrap; gap: 6px; }
+      .state-button { min-height: 38px; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); font-size: 0.65rem; font-weight: 800; }
+      .state-button[aria-pressed="true"] { border-color: var(--black); background: var(--black); color: var(--white); }
+      .state-note { color: var(--muted); font-size: 0.68rem; line-height: 1.45; }
+
+      @keyframes card-in { from { transform: translateY(5px); } to { transform: translateY(0); } }
+
+      @media (max-width: 1020px) {
+        .prototype-page { grid-template-columns: 1fr; }
+        .brief { width: min(720px, 100%); }
+      }
+      @media (max-width: 720px) {
+        .prototype-page { width: 100%; padding-top: 28px; }
+        .brief, .stage-head, .state-rail, .state-note { padding-inline: 18px; }
+        .browser { min-height: 760px; border-inline: 0; border-radius: 0; }
+        .article-page { min-height: 710px; padding: 36px 24px 430px; }
+        .article-page::after { display: none; }
+        .article-page h2 { font-size: 2.4rem; }
+        .selected-phrase::after { left: 50%; top: calc(100% + 4px); width: 3px; height: 46px; }
+        .page-aside { display: none; }
+        .mission-anchor, .direction-c .mission-anchor { top: auto; right: 18px; bottom: 18px; left: 18px; width: auto; }
+        .mission-anchor::before, .direction-c .mission-anchor::before { left: 23%; top: -42px; width: 3px; height: 42px; }
+        .direction-c .mission-body { grid-template-columns: 1fr; }
+        .direction-c .mission-heading { padding-right: 0; padding-bottom: 12px; border-right: 0; border-bottom: 1px solid var(--black); }
+        .direction-c .mission-foot { grid-column: auto; }
+      }
+      @media (max-width: 420px) {
+        .browser { min-height: 820px; }
+        .article-page { padding-inline: 18px; }
+        .mission-anchor, .direction-c .mission-anchor { right: 10px; left: 10px; }
+        .mission-body { padding: 15px; }
+        .action-row, .direction-c .action-row { grid-template-columns: 1fr; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="prototype-page">
+      <section class="brief" aria-labelledby="page-title">
+        <p class="eyebrow">004-transfer · webpage practice</p>
+        <h1 id="page-title">Keep the sentence in sight.</h1>
+        <p class="intro">Context Missions turn one deliberate Dutch selection into one short exercise. The reading page remains the place—not a new popup tab.</p>
+
+        <section class="recommendation" aria-labelledby="recommendation-title">
+          <p class="eyebrow">Recommendation</p>
+          <h2 id="recommendation-title">A · Context Slip</h2>
+          <p>The white card feels like a precise reading annotation rather than another app. Its orange tether makes the authentic sentence—not the exercise chrome—the visual anchor.</p>
+        </section>
+
+        <div class="direction-list" aria-label="Mission card directions">
+          <button class="direction-button" data-direction="a" type="button" aria-pressed="true">
+            <span class="direction-letter">A</span>
+            <span class="direction-copy"><strong>Context Slip</strong><small>Recommended. Light, calm, and closest to an annotation placed beside real Dutch.</small></span>
+          </button>
+          <button class="direction-button" data-direction="b" type="button" aria-pressed="false">
+            <span class="direction-letter">B</span>
+            <span class="direction-copy"><strong>Black Study Note</strong><small>Highest contrast and closest to the current tooltip, but visually heavier while reading.</small></span>
+          </button>
+          <button class="direction-button" data-direction="c" type="button" aria-pressed="false">
+            <span class="direction-letter">C</span>
+            <span class="direction-copy"><strong>Sentence Workbench</strong><small>A wider split layout with more room for fragments, but a larger webpage footprint.</small></span>
+          </button>
+        </div>
+
+        <ul class="design-rules">
+          <li><strong>Signature:</strong> the orange context tether connects selected Dutch to every practice state.</li>
+          <li><strong>Hierarchy:</strong> serif Dutch and context; sans-serif controls; one orange action at a time.</li>
+          <li><strong>Boundary:</strong> no popup navigation, modal overlay, score, hidden request, or automatic save.</li>
+          <li><strong>Access:</strong> 44px actions, visible focus, Escape close, live results, and reduced-motion support.</li>
+        </ul>
+      </section>
+
+      <section class="stage" aria-label="Interactive Context Mission mockup">
+        <div class="stage-head">
+          <p id="stage-label" class="stage-label">A · Context Slip · translated selection</p>
+          <p class="cost-note">0 extra translation requests</p>
+        </div>
+
+        <div id="browser" class="browser direction-a">
+          <header class="browser-chrome" aria-label="Example browser chrome">
+            <span class="window-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span class="browser-url">gemeente.example.nl / wonen / afval</span>
+            <span class="browser-menu" aria-hidden="true">•••</span>
+          </header>
+          <article class="article-page" lang="nl" aria-labelledby="article-title">
+            <div class="article-meta"><span>Gemeentebericht</span><span>18 juli 2026</span></div>
+            <h2 id="article-title">Afval ophalen tijdens de zomer</h2>
+            <p>In juli en augustus kan de ophaaldag veranderen. Zet uw container daarom niet te vroeg buiten.</p>
+            <p>Bekijk de afvalkalender en <mark class="selected-phrase">houd rekening met</mark> een andere ophaaltijd in uw straat.</p>
+            <p>U krijgt geen aparte brief als alleen het tijdstip verandert.</p>
+            <aside class="page-aside"><strong>Reading stays available</strong>The page can still scroll while the non-modal mission card is open.</aside>
+          </article>
+          <div id="mission-anchor" class="mission-anchor"></div>
+        </div>
+
+        <div class="state-rail" aria-label="Mission states">
+          <button class="state-button" data-state="translated" type="button" aria-pressed="true">Translated</button>
+          <button class="state-button" data-state="repeat" type="button" aria-pressed="false">Seen before</button>
+          <button class="state-button" data-state="recall" type="button" aria-pressed="false">Recall meaning</button>
+          <button class="state-button" data-state="rebuild" type="button" aria-pressed="false">Rebuild</button>
+          <button class="state-button" data-state="correct" type="button" aria-pressed="false">Got it</button>
+          <button class="state-button" data-state="again" type="button" aria-pressed="false">Again</button>
+          <button class="state-button" data-state="failure" type="button" aria-pressed="false">Safe failure</button>
+        </div>
+        <p id="state-note" class="state-note">First encounter: the existing translation appears before the optional mission. `Practise this` reuses this result locally.</p>
+      </section>
+    </main>
+
+    <script>
+      const missionAnchor = document.getElementById("mission-anchor");
+      const browser = document.getElementById("browser");
+      const stageLabel = document.getElementById("stage-label");
+      const stateNote = document.getElementById("state-note");
+      const directionNames = { a: "Context Slip", b: "Black Study Note", c: "Sentence Workbench" };
+      const stateNames = { translated: "translated selection", repeat: "seen before", recall: "recall meaning", rebuild: "rebuild in context", correct: "got it", again: "again", failure: "safe failure" };
+      const notes = {
+        translated: "First encounter: the existing translation appears before the optional mission. `Practise this` reuses this result locally.",
+        repeat: "Saved repeat: local identity creates the pre-reveal choice. `Try from memory` makes no provider request; `Translate now` keeps the normal path.",
+        recall: "Recognition practice: helper meanings stay hidden until `Show meaning`, then the learner chooses Again or Got it.",
+        rebuild: "Recall practice: activate fragments with pointer, Enter, or Space. Reset and Check require no typing or drag-and-drop.",
+        correct: "Only the first checked order counts. A correct saved-repeat reconstruction can update recall once; replay cannot add evidence.",
+        again: "Incorrect order receives one calm correction. The right Dutch is shown without points, lives, or failure animation.",
+        failure: "Storage failure never fabricates success. The learner can retry or return to the webpage, which remains available."
+      };
+      const initialFragments = ["met", "rekening", "houd"];
+      let direction = "a";
+      let state = "translated";
+      let placed = [];
+      let available = [...initialFragments];
+      let recallRevealed = false;
+      let closed = false;
+
+      const brand = () => `<header class="mission-header"><span class="mission-brand"><img src="../../public/icons/icon-32.png" alt="">DutchMate</span><button class="close-button" data-action="close" type="button" aria-label="Close Context Mission">×</button></header>`;
+      const foot = (label = "Local mission") => `<footer class="mission-foot"><span class="local-note">${label}</span><span>Esc to close</span></footer>`;
+      const wrap = (heading, work, footLabel) => `<section class="mission-card" role="region" aria-label="Context Mission">${brand()}<div class="mission-body"><div class="mission-heading">${heading}</div><div class="mission-work">${work}</div>${foot(footLabel)}</div></section>`;
+      const source = (blank = false) => `<p class="source-line" lang="nl">Bekijk de afvalkalender en ${blank ? "<mark>__________</mark>" : "<mark>houd rekening met</mark>"} een andere ophaaltijd.</p>`;
+
+      function translated() {
+        const heading = `<p class="mission-kicker">Dutch selection</p><h3 class="mission-title" lang="nl">houd rekening met</h3>${source()}`;
+        const work = `<div class="meaning-list"><div class="meaning-row"><span class="helper-label">EN</span><span class="meaning-value">take into account</span></div><div class="meaning-row"><span class="helper-label">TE</span><span class="meaning-value" lang="te">పరిగణనలోకి తీసుకోండి</span></div></div><div class="action-row"><button class="dm-button" type="button">Review &amp; save</button><button class="dm-button primary" data-action="practise" type="button">Practise this</button></div>`;
+        return wrap(heading, work, "Uses this translation");
+      }
+
+      function repeat() {
+        const heading = `<p class="mission-kicker accent">Seen before</p><h3 class="mission-title" lang="nl">houd rekening met</h3>${source()}`;
+        const work = `<p class="mission-copy">Try the meaning before DutchMate reveals it, or continue with the usual translation.</p><div class="action-row"><button class="dm-button primary" data-action="try-memory" type="button">Try from memory</button><button class="dm-button" data-action="translate-now" type="button">Translate now</button></div>`;
+        return wrap(heading, work, "Saved item found locally");
+      }
+
+      function recall() {
+        const heading = `<p class="mission-kicker">Recall meaning</p><h3 class="mission-title">What does this mean here?</h3>${source()}`;
+        const answer = recallRevealed
+          ? `<div class="meaning-list" aria-live="polite"><div class="meaning-row"><span class="helper-label">EN</span><span class="meaning-value">take into account</span></div><div class="meaning-row"><span class="helper-label">TE</span><span class="meaning-value" lang="te">పరిగణనలోకి తీసుకోండి</span></div></div><div class="action-row"><button class="dm-button" data-action="again" type="button">Again</button><button class="dm-button primary" data-action="got-it" type="button">Got it</button></div>`
+          : `<div class="hidden-answer">Meaning hidden while you think</div><div class="action-row single"><button class="dm-button primary" data-action="show-meaning" type="button">Show meaning</button></div>`;
+        return wrap(heading, answer, "No translation request");
+      }
+
+      function rebuild() {
+        const heading = `<p class="mission-kicker">Rebuild in context</p><h3 class="mission-title">Put the Dutch back</h3>${source(true)}`;
+        const placedButtons = placed.map((word, index) => `<button class="fragment" data-remove="${index}" type="button">${word}</button>`).join("");
+        const availableButtons = available.map((word, index) => `<button class="fragment" data-add="${index}" type="button">${word}</button>`).join("");
+        const work = `<div id="answer-zone" class="answer-zone" aria-label="Your answer">${placedButtons}</div><div class="fragment-bank" aria-label="Available words">${availableButtons}</div><div class="action-row"><button class="dm-button" data-action="reset" type="button">Reset</button><button class="dm-button primary" data-action="check" type="button" ${placed.length === 3 ? "" : "disabled"}>Check</button></div><span class="micro-label" aria-live="polite">${placed.length} of 3 words placed</span>`;
+        return wrap(heading, work, "First check counts");
+      }
+
+      function result(gotIt) {
+        const heading = `<p class="mission-kicker">Rebuild in context</p><h3 class="mission-title">${gotIt ? "Got it" : "Again"}</h3>${source()}`;
+        const work = `<div class="result-band" role="status"><span class="result-mark">${gotIt ? "✓" : "↺"}</span><span><strong>${gotIt ? "The Dutch fits." : "Here is the right order."}</strong><span>${gotIt ? "One recall result, recorded once." : "houd rekening met"}</span></span></div><div class="action-row"><button class="dm-button" data-action="replay" type="button">Replay</button><button class="dm-button primary" data-action="back" type="button">Back to page</button></div>`;
+        return wrap(heading, work, gotIt ? "Mission evidence saved" : "Correction shown");
+      }
+
+      function failure() {
+        const heading = `<p class="mission-kicker">Result not saved</p><h3 class="mission-title">Your page is still here.</h3>${source()}`;
+        const work = `<p class="mission-copy" role="alert">DutchMate could not update this saved item. No result was recorded.</p><div class="action-row"><button class="dm-button" data-action="retry" type="button">Try again</button><button class="dm-button primary" data-action="back" type="button">Back to page</button></div>`;
+        return wrap(heading, work, "No false success");
+      }
+
+      function render() {
+        browser.className = `browser direction-${direction}`;
+        document.querySelectorAll("[data-direction]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.direction === direction)));
+        document.querySelectorAll("[data-state]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.state === state)));
+        stageLabel.textContent = `${direction.toUpperCase()} · ${directionNames[direction]} · ${stateNames[state]}`;
+        stateNote.textContent = notes[state];
+
+        if (closed) {
+          missionAnchor.innerHTML = `<section class="closed-card"><div><strong>Back on the page</strong><p>The unfinished mission was discarded. Nothing was queued or saved.</p><button class="dm-button primary" data-action="reopen" type="button">Show selected text</button></div></section>`;
+        } else {
+          missionAnchor.innerHTML = state === "translated" ? translated() : state === "repeat" ? repeat() : state === "recall" ? recall() : state === "rebuild" ? rebuild() : state === "correct" ? result(true) : state === "again" ? result(false) : failure();
+        }
+        bindCardActions();
+      }
+
+      function setState(next) {
+        state = next;
+        closed = false;
+        if (next !== "recall") recallRevealed = false;
+        if (next === "rebuild") { placed = []; available = [...initialFragments]; }
+        render();
+      }
+
+      function bindCardActions() {
+        missionAnchor.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => {
+          const action = button.dataset.action;
+          if (action === "close" || action === "back") { closed = true; render(); return; }
+          if (action === "reopen" || action === "translate-now") { setState("translated"); return; }
+          if (action === "practise" || action === "replay") { setState("rebuild"); return; }
+          if (action === "try-memory") { setState("recall"); return; }
+          if (action === "show-meaning") { recallRevealed = true; render(); return; }
+          if (action === "got-it") { setState("correct"); return; }
+          if (action === "again") { setState("again"); return; }
+          if (action === "retry") { setState("repeat"); return; }
+          if (action === "reset") { placed = []; available = [...initialFragments]; render(); return; }
+          if (action === "check") { setState(placed.join(" ") === "houd rekening met" ? "correct" : "again"); }
+        }));
+        missionAnchor.querySelectorAll("[data-add]").forEach((button) => button.addEventListener("click", () => {
+          const index = Number(button.dataset.add);
+          placed.push(available[index]);
+          available.splice(index, 1);
+          render();
+        }));
+        missionAnchor.querySelectorAll("[data-remove]").forEach((button) => button.addEventListener("click", () => {
+          const index = Number(button.dataset.remove);
+          available.push(placed[index]);
+          placed.splice(index, 1);
+          render();
+        }));
+      }
+
+      document.querySelectorAll("[data-direction]").forEach((button) => button.addEventListener("click", () => { direction = button.dataset.direction; render(); }));
+      document.querySelectorAll("[data-state]").forEach((button) => button.addEventListener("click", () => setState(button.dataset.state)));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !closed) { closed = true; render(); }
+      });
+      render();
+    </script>
+  </body>
+</html>
