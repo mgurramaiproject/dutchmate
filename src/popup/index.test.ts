@@ -12,16 +12,20 @@ vi.mock("webextension-polyfill", () => ({
 describe("lesson popup", () => {
   let progressByLesson: Record<string, Record<string, unknown> | null>;
   let keepFails: boolean;
+  let listFails: boolean;
+  let learningItems: Array<Record<string, unknown>>;
   let rhythmResponse: { week: Array<{ dayStartAt: number; status: "active" | "grace" | "idle" }>; activity: Array<{ dayStartAt: number; reviews: number | null; saved: number | null }>; resetCopy: string | null; milestones: Array<{ id: string; label: string }> };
 
   beforeEach(async () => {
     vi.resetModules();
     progressByLesson = {};
     keepFails = false;
+    listFails = false;
     rhythmResponse = rhythmFixture();
     const dailyItem = { id: "daily-item", learningLanguage: "nl", normalizedDutch: "huis", dutch: "huis", kind: "word", english: "house", telugu: null, sources: [], contexts: [], encounters: { count: 0, lastEncounterAt: null }, recognition: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, recall: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, createdAt: 1, updatedAt: 1 };
+    learningItems = [dailyItem, { ...dailyItem, id: "saved-item", normalizedDutch: "zebra", dutch: "zebra", english: null, telugu: "జీబ్రా", createdAt: 2, updatedAt: 2, recognition: { ...dailyItem.recognition, state: "strong", attemptCount: 3 }, recall: { ...dailyItem.recall, state: "familiar", attemptCount: 2 } }];
     runtime.sendMessage.mockImplementation(async (message: { type: string; payload?: Record<string, unknown> }) => {
-      if (message.type === "dutchmate.learning.list") return { ok: true, result: { items: [dailyItem] } };
+      if (message.type === "dutchmate.learning.list") return listFails ? { ok: false, error: "Local read failed" } : { ok: true, result: { items: learningItems } };
       if (message.type === "dutchmate.learning.rhythm") return { ok: true, result: { rhythm: rhythmResponse } };
       if (message.type === "dutchmate.learning.dailyFive") return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [], goalCompleted: false } } };
       if (message.type === "dutchmate.learning.dailyFive.result") return { ok: true, result: { item: dailyItem, snapshot: { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [`${dailyItem.id}\u001frecognition`], goalCompleted: true } } };
@@ -44,7 +48,7 @@ describe("lesson popup", () => {
     document.body.innerHTML = `
       <main class="popup-shell">
         <header class="popup-header"><div class="header-actions"><span id="due-badge"></span><a class="feedback-link" href="https://forms.gle/9KSsqfE1NNZcPEaaA">Feedback</a><button id="settings-button" type="button">Settings</button></div></header>
-        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button></nav>
+        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Saved</button></nav>
         <div id="popup-content" tabindex="0"></div>
       </main>`;
     await import("./index");
@@ -118,6 +122,36 @@ describe("lesson popup", () => {
 
   it("offers the external feedback form from the popup header", () => {
     expect(document.querySelector<HTMLAnchorElement>(".feedback-link")?.href).toBe("https://forms.gle/9KSsqfE1NNZcPEaaA");
+  });
+
+  it("keeps Today selected on open and renders Saved as a browse-only shelf with stable numbering", async () => {
+    expect(document.querySelector<HTMLButtonElement>("#today-tab")?.getAttribute("aria-selected")).toBe("true");
+    expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.getAttribute("aria-selected")).toBe("false");
+    button("Saved").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
+    expect([...content().querySelectorAll<HTMLElement>(".saved-row")].map((row) => row.textContent)).toEqual([
+      expect.stringContaining("2zebra"),
+      expect.stringContaining("1huis"),
+    ]);
+    expect(content().textContent).toMatch(/EN\s*unavailable/);
+    expect(content().textContent).toMatch(/TE\s*జీబ్రా/);
+    expect(content().textContent).toContain("Familiar");
+    expect(content().textContent).not.toContain("Practise now");
+    expect(content().querySelectorAll("button").length).toBe(2);
+
+    button("A–Z").click();
+    await vi.waitFor(() => expect([...content().querySelectorAll<HTMLElement>(".saved-row")][0]?.textContent).toContain("1huis"));
+    expect([...content().querySelectorAll<HTMLElement>(".saved-row")][1]?.textContent).toContain("2zebra");
+  });
+
+  it("moves the three top-level tabs with arrow keys", async () => {
+    const navigation = document.querySelector<HTMLElement>("#primary-navigation")!;
+    navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    await vi.waitFor(() => expect(content().textContent).toContain("12 small practical stories"));
+    expect(document.activeElement).toBe(document.querySelector("#lessons-tab"));
+    navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
+    await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
+    expect(document.activeElement).toBe(document.querySelector("#saved-tab"));
   });
 
   it("renders Lessons as the compact numbered library from the approved mockup", async () => {

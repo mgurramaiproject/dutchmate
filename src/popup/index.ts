@@ -2,6 +2,8 @@ import browser from "webextension-polyfill";
 import { createLearningClient } from "./learning-client";
 import { createSettingsClient } from "./settings-client";
 import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
+import { getSavedShelfView, type SavedShelfSort } from "./saved-shelf-view";
+import { getPopupTabForKey } from "./tab-navigation";
 import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { LearningItem, LessonProgress } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
@@ -17,13 +19,14 @@ const settingsButton = document.querySelector<HTMLButtonElement>("#settings-butt
 const primaryNavigation = document.querySelector<HTMLElement>("#primary-navigation");
 const todayTab = document.querySelector<HTMLButtonElement>("#today-tab");
 const lessonsTab = document.querySelector<HTMLButtonElement>("#lessons-tab");
+const savedTab = document.querySelector<HTMLButtonElement>("#saved-tab");
 const learningClient = createLearningClient(browser);
 const settingsClient = createSettingsClient(browser);
 let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "lessons" | "lesson" | "review" | "settings" = "today";
+let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "settings" = "today";
 let lessonSession: LessonSession | null = null;
 let lessonProgressById: Record<string, LessonProgress | null> = {};
 let lessonsError: string | null = null;
@@ -31,15 +34,29 @@ let revealed = false;
 let pending = false;
 let activityPeriod: "week" | "month" | "year" = "week";
 let activityOffset = 0;
+let savedSort: SavedShelfSort = "newest";
+let savedLoading = true;
+let savedError: string | null = null;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
 lessonsTab?.addEventListener("click", () => { screen = "lessons"; render(); });
+savedTab?.addEventListener("click", () => { screen = "saved"; render(); });
+primaryNavigation?.addEventListener("keydown", (event) => {
+  if (screen !== "today" && screen !== "lessons" && screen !== "saved") return;
+  const target = getPopupTabForKey(screen, event.key);
+  if (!target) return;
+  event.preventDefault();
+  screen = target;
+  render();
+  ({ today: todayTab, lessons: lessonsTab, saved: savedTab }[target])?.focus();
+});
+void loadSaved();
 void load();
 
 async function load(continueAfterCompletion = false): Promise<void> {
   try {
-    [items, snapshot, rhythm, settings] = await Promise.all([learningClient.list(), learningClient.getDailyFive(continueAfterCompletion), learningClient.getRhythm(), settingsClient.getSettings()]);
+    [snapshot, rhythm, settings] = await Promise.all([learningClient.getDailyFive(continueAfterCompletion), learningClient.getRhythm(), settingsClient.getSettings()]);
     try {
       lessonProgressById = Object.fromEntries(await Promise.all(lessonCatalog.lessons.map(async (lesson) => [lesson.id, await learningClient.getLessonProgress(lesson.id)] as const)));
       lessonsError = null;
@@ -50,6 +67,20 @@ async function load(continueAfterCompletion = false): Promise<void> {
   }
 }
 
+async function loadSaved(): Promise<void> {
+  savedLoading = true;
+  savedError = null;
+  render();
+  try {
+    items = await learningClient.list();
+  } catch (error) {
+    savedError = error instanceof Error ? error.message : "Saved items could not be loaded.";
+  } finally {
+    savedLoading = false;
+    render();
+  }
+}
+
 function render(): void {
   if (!content) return;
   const focused = screen === "review" || screen === "lesson";
@@ -57,14 +88,70 @@ function render(): void {
   primaryNavigation?.toggleAttribute("hidden", focused);
   todayTab?.classList.toggle("is-active", screen === "today"); todayTab?.setAttribute("aria-selected", String(screen === "today")); todayTab?.setAttribute("tabindex", screen === "today" ? "0" : "-1");
   lessonsTab?.classList.toggle("is-active", screen === "lessons"); lessonsTab?.setAttribute("aria-selected", String(screen === "lessons")); lessonsTab?.setAttribute("tabindex", screen === "lessons" ? "0" : "-1");
-  content?.setAttribute("aria-labelledby", screen === "lessons" ? "lessons-tab" : "today-tab");
+  savedTab?.classList.toggle("is-active", screen === "saved"); savedTab?.setAttribute("aria-selected", String(screen === "saved")); savedTab?.setAttribute("tabindex", screen === "saved" ? "0" : "-1");
+  content?.setAttribute("aria-labelledby", screen === "lessons" ? "lessons-tab" : screen === "saved" ? "saved-tab" : "today-tab");
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : renderSettings());
+  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : renderSettings());
+}
+
+function renderSaved(): HTMLElement {
+  const wrapper = section("saved-content");
+  const view = getSavedShelfView(items, { sort: savedSort, loading: savedLoading, error: savedError });
+  const header = document.createElement("div");
+  header.className = "saved-head";
+  header.append(eyebrow("Your collection"), heading("Saved"));
+  wrapper.append(header);
+  if (view.status === "loading") { wrapper.append(text("Loading your saved vocabulary…")); return wrapper; }
+  if (view.status === "error") {
+    const retry = button("Try again", "button primary-button");
+    retry.addEventListener("click", () => void loadSaved());
+    wrapper.append(heading("Saved items are unavailable."), text(view.message), retry);
+    return wrapper;
+  }
+  if (view.status === "empty") {
+    const lessons = button("Choose a lesson", "button primary-button");
+    lessons.addEventListener("click", () => { screen = "lessons"; render(); });
+    wrapper.append(heading("Nothing saved yet."), text("Words and meaningful chunks you intentionally keep will appear here."), lessons);
+    return wrapper;
+  }
+  const controls = document.createElement("div");
+  controls.className = "saved-sort";
+  controls.append(text(`${view.count} saved item${view.count === 1 ? "" : "s"}`, "sort-label"));
+  for (const [sort, label] of [["newest", "Newest"], ["alphabetical", "A–Z"]] as const) {
+    const control = button(label, `sort-button${view.sort === sort ? " is-active" : ""}`);
+    control.setAttribute("aria-pressed", String(view.sort === sort));
+    control.addEventListener("click", () => { savedSort = sort; render(); });
+    controls.append(control);
+  }
+  wrapper.append(controls);
+  const shelf = document.createElement("div");
+  shelf.className = "saved-shelf";
+  for (const item of view.items) {
+    const card = document.createElement("article");
+    card.className = "saved-row";
+    const number = document.createElement("span"); number.className = "shelf-number"; number.textContent = String(item.shelfNumber);
+    const copy = document.createElement("div"); copy.className = "saved-word";
+    const dutch = document.createElement("h2"); dutch.textContent = item.dutch;
+    const helpers = document.createElement("div"); helpers.className = "saved-helpers";
+    helpers.append(helperMeaning("EN", item.english), helperMeaning("TE", item.telugu));
+    copy.append(dutch, helpers);
+    const mastery = document.createElement("span"); mastery.className = "saved-mastery"; mastery.textContent = item.mastery;
+    card.append(number, copy, mastery);
+    shelf.append(card);
+  }
+  wrapper.append(shelf);
+  return wrapper;
 }
 
 function renderToday(): HTMLElement {
   const wrapper = section("today-content brief-today");
   if (!snapshot) { wrapper.append(eyebrow("Today"), heading("Loading your Daily Five…")); return wrapper; }
+  if (savedError && items.length === 0) {
+    const retry = button("Try again", "button primary-button");
+    retry.addEventListener("click", () => void loadSaved());
+    wrapper.append(eyebrow("Today unavailable"), heading("Your learning record could not load."), text(savedError), retry);
+    return wrapper;
+  }
   const view = getDailyFiveView(snapshot);
   const completed = view.status === "complete";
   const total = view.total;
@@ -334,6 +421,7 @@ function button(label: string, className: string): HTMLButtonElement { const ele
 function eyebrow(value: string): HTMLElement { return text(value, "eyebrow"); }
 function heading(value: string): HTMLElement { const element = document.createElement("h1"); element.className = "heading"; element.textContent = value; return element; }
 function text(value: string, className = "body-copy"): HTMLElement { const element = document.createElement("p"); element.className = className; element.textContent = value; return element; }
+function helperMeaning(label: string, value: string): HTMLElement { const helper = document.createElement("span"); const name = document.createElement("b"); name.textContent = label; const meaning = document.createElement("span"); meaning.textContent = value; if (value === "unavailable") meaning.className = "meaning-unavailable"; helper.append(name, meaning); return helper; }
 function meaning(label: string, value: string | null): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; row.append(name, content); return row; }
 function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }
 function toggle(labelText: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement { const label = document.createElement("label"); label.className = "setting-control"; const textNode = document.createElement("strong"); textNode.textContent = labelText; const input = document.createElement("input"); input.type = "checkbox"; input.checked = checked; input.addEventListener("change", () => onChange(input.checked)); label.append(textNode, input); return label; }

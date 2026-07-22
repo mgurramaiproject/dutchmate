@@ -21,16 +21,16 @@ T01 — #53 Browse the collection
 
 ### Acceptance criteria
 
-- [ ] Today, Lessons, and Saved are accessible top-level popup tabs; Today remains selected on popup open.
-- [ ] Saved reads the canonical Local learning record through the existing typed learning contract and displays every Learning item in a vertically scrollable list.
-- [ ] Each compact card makes Dutch visually primary and shows labelled English and Telugu meanings when available plus a neutral New, Learning, Familiar, or Strong label.
-- [ ] Newest-first is the default and an A–Z control changes presentation order without mutating the Local learning record.
-- [ ] Each compact card shows a stable chronological shelf number: the first saved Learning item is 1 and the newest saved item is the collection count, regardless of display order.
-- [ ] Empty, loading, and recoverable error states remain understandable and provide an appropriate lesson or retry action.
-- [ ] Saved contains no practice, delete, clear, import, export, or backup action.
-- [ ] Popup keyboard navigation, visible focus, 44-pixel targets, and narrow Chrome/Firefox scrolling remain usable.
-- [ ] Focused review and lesson flows continue to hide top-level navigation.
-- [ ] Focused view-model, popup-render, typecheck, Chrome build, Firefox build, and release verification evidence pass.
+- [x] Today, Lessons, and Saved are accessible top-level popup tabs; Today remains selected on popup open.
+- [x] Saved reads the canonical Local learning record through the existing typed learning contract and displays every Learning item in a vertically scrollable list.
+- [x] Each compact card makes Dutch visually primary and shows labelled English and Telugu meanings when available plus a neutral New, Learning, Familiar, or Strong label.
+- [x] Newest-first is the default and an A–Z control changes presentation order without mutating the Local learning record.
+- [x] Each compact card shows a stable chronological shelf number: the first saved Learning item is 1 and the newest saved item is the collection count, regardless of display order.
+- [x] Empty, loading, and recoverable error states remain understandable and provide an appropriate lesson or retry action.
+- [x] Saved contains no practice, delete, clear, import, export, or backup action.
+- [x] Popup keyboard navigation, visible focus, 44-pixel targets, and narrow Chrome/Firefox scrolling remain usable.
+- [x] Focused review and lesson flows continue to hide top-level navigation.
+- [x] Focused view-model, popup-render, typecheck, Chrome build, Firefox build, and release verification evidence pass.
 
 ## T02 — Revisit an item safely
 
