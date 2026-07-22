@@ -6,6 +6,8 @@ Branch: `feature/004-transfer`
 
 Related deferred ideas: [004-transfer-parking-lot.md](./004-transfer-parking-lot.md)
 
+Research and decision rationale: [004-transfer-research.md](./004-transfer-research.md)
+
 ## Decision
 
 Add **Context Missions** as DutchMate's next feature exploration. A Context Mission is one short, learner-triggered practice exercise anchored in Dutch deliberately selected on a real webpage. The feature optimizes for **real-world transfer**: becoming better able to understand or use Dutch outside DutchMate.
@@ -213,6 +215,7 @@ All feature-specific artifacts use the shared `004-transfer` prefix.
 
 Expected follow-on names are:
 
+- `004-transfer-research.md`;
 - `004-transfer-spec.md`;
 - `004-transfer-tickets.md`;
 - `004-transfer-design-mockups.html`;
