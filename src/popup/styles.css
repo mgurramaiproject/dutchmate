@@ -45,12 +45,13 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .tab.is-active { background: var(--black); color: var(--white); }
 .tab:not(.is-active):hover { background: rgba(255, 111, 0, 0.08); }
 .popup-content { display: grid; flex: 1 1 auto; min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; padding: 16px; }
-.today-content, .brief-today { display: grid; align-content: start; gap: 14px; }
-.next-action { display: grid; gap: 9px; padding: 15px; border: 1px solid var(--black); border-left: 6px solid var(--orange); border-radius: 8px; background: var(--white); }
-.next-action .heading { font-size: 1.55rem; line-height: 1; }
+.popup-content.today-panel { overflow-y: hidden; padding: 12px; }
+.today-content, .brief-today { display: grid; align-content: start; gap: 8px; }
+.next-action { display: grid; gap: 7px; padding: 12px; border: 1px solid var(--black); border-left: 6px solid var(--orange); border-radius: 8px; background: var(--white); }
+.next-action .heading { font-size: 1.4rem; line-height: 1; }
 .next-action .button { width: 100%; background: var(--orange); }
 .action-meta { display: flex; justify-content: space-between; gap: 8px; margin: 0; color: var(--muted); font-size: .67rem; font-weight: 750; }
-.learning-rhythm, .calendar-card { display: grid; gap: 9px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.learning-rhythm, .calendar-card { display: grid; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .section-head strong { font-family: var(--serif); font-size: 1.05rem; }
 .period-tabs { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; }
@@ -64,14 +65,13 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .period-control:hover, .period-control:focus-visible { border-color: var(--orange); background: rgba(255, 111, 0, 0.08); }
 .period-label { margin: 0; font-size: .68rem; font-weight: 750; text-align: center; }
 .rhythm-days { display: grid; }
-.week-grid { grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.week-grid { grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .rhythm-day { min-height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: .58rem; font-weight: 850; }
-.week-grid .rhythm-day { display: grid; place-items: center; gap: 3px; min-height: 47px; }
-.week-grid .rhythm-day b { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 6px; background: rgba(255, 111, 0, 0.08); color: var(--black); font-size: .65rem; }
-.week-grid .rhythm-day.grace b { background: rgba(255, 111, 0, 0.25); }
-.week-grid .rhythm-day.active b { background: rgba(255, 111, 0, 0.58); }
-.week-grid .rhythm-day.high b { background: var(--orange); }
-.week-grid .rhythm-day:hover b, .week-grid .rhythm-day:focus-visible b { outline: 2px solid var(--orange); outline-offset: 2px; }
+.week-grid .rhythm-day { position: relative; display: grid; min-height: 46px; place-items: center; padding: 4px; background: rgba(255, 111, 0, 0.08); color: var(--black); }
+.week-grid .rhythm-day.grace { background: rgba(255, 111, 0, 0.25); }
+.week-grid .rhythm-day.active { background: rgba(255, 111, 0, 0.58); }
+.week-grid .rhythm-day.high { background: var(--orange); }
+.week-grid .rhythm-day:hover, .week-grid .rhythm-day:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
 .heatmap { grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .month-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; color: var(--muted); font-size: .56rem; font-weight: 850; text-align: center; }
 .month-weekdays span { min-width: 0; }
@@ -82,15 +82,16 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .heatmap .rhythm-day.grace { background: rgba(255, 111, 0, 0.25); }
 .heatmap .rhythm-day.active { background: rgba(255, 111, 0, 0.58); }
 .heatmap .rhythm-day.high { background: var(--orange); }
-.heatmap-month .rhythm-day { display: grid; place-items: start; padding: 4px; color: var(--black); font-size: .59rem; font-weight: 850; line-height: 1; }
-.heatmap-day-number { opacity: .74; }
+.heatmap-month .rhythm-day { position: relative; display: grid; place-items: center; padding: 4px; color: var(--black); }
+.heatmap-date { position: absolute; top: 4px; left: 4px; color: var(--black); font-size: .56rem; font-weight: 850; line-height: 1; opacity: .74; }
+.activity-total { font-family: var(--serif); color: var(--black); font-size: .9rem; font-weight: 700; line-height: 1; }
 .heatmap .rhythm-day:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--orange); outline-offset: 1px; }
 .heatmap-legend { display: flex; align-items: center; justify-content: flex-end; gap: 3px; color: var(--muted); }
 .legend-label { margin: 0 3px; font-size: .61rem; }
 .heatmap-swatch { width: 11px; height: 11px; border-radius: 4px; background: rgba(255, 111, 0, 0.08); }
 .heatmap-swatch.grace { background: rgba(255, 111, 0, 0.25); }.heatmap-swatch.active { background: rgba(255, 111, 0, 0.58); }.heatmap-swatch.high { background: var(--orange); }
-.insights { display: flex; flex-wrap: wrap; gap: 6px; }
-.insight { margin: 0; padding: 6px 8px; border-radius: 8px; background: rgba(0, 0, 0, 0.08); color: var(--black); font-size: .64rem; font-weight: 750; line-height: 1.2; }
+.insights { display: flex; flex-wrap: wrap; gap: 4px; }
+.insight { margin: 0; padding: 4px 6px; border-radius: 8px; background: rgba(0, 0, 0, 0.08); color: var(--black); font-size: .62rem; font-weight: 750; line-height: 1.2; }
 .secondary-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .secondary-actions:has(:only-child) { grid-template-columns: 1fr; }
 .secondary-actions .button { min-height: 44px; font-size: .68rem; }

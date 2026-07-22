@@ -106,13 +106,15 @@ describe("lesson popup", () => {
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.tabIndex).toBe(0);
     expect(content().querySelector<HTMLButtonElement>(".period-tab.is-active")?.textContent).toBe("week");
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("3 reviews, 1 saved item");
+    expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("4");
     expect(content().querySelector<HTMLElement>(".rhythm-day.idle")?.getAttribute("aria-label")).toContain("0 reviews, 0 saved items");
     expect(button("This Week").getAttribute("aria-pressed")).toBe("true");
     content().querySelector<HTMLButtonElement>(".period-tabs button:nth-of-type(3)")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day").length).toBeGreaterThanOrEqual(28));
     expect(content().querySelector(".heatmap-month")).toBeTruthy();
     expect(content().querySelectorAll(".month-weekdays span")).toHaveLength(7);
-    expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .rhythm-day")].some((day) => day.textContent === "1")).toBe(true);
+    expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .heatmap-date")].some((date) => date.textContent === "1")).toBe(true);
+    expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .activity-total")].some((total) => total.textContent === "4")).toBe(true);
     expect(content().querySelector(".heatmap-legend")).toBeTruthy();
     const monthLabel = content().querySelector<HTMLElement>(".period-label")?.textContent;
     button("Previous period").click();

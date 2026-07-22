@@ -93,6 +93,7 @@ function render(): void {
   const focused = screen === "review" || screen === "lesson";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.toggleAttribute("hidden", focused);
+  content.classList.toggle("today-panel", screen === "today");
   todayTab?.classList.toggle("is-active", screen === "today"); todayTab?.setAttribute("aria-selected", String(screen === "today")); todayTab?.setAttribute("tabindex", screen === "today" ? "0" : "-1");
   lessonsTab?.classList.toggle("is-active", screen === "lessons"); lessonsTab?.setAttribute("aria-selected", String(screen === "lessons")); lessonsTab?.setAttribute("tabindex", screen === "lessons" ? "0" : "-1");
   savedTab?.classList.toggle("is-active", screen === "saved"); savedTab?.setAttribute("aria-selected", String(screen === "saved")); savedTab?.setAttribute("tabindex", screen === "saved" ? "0" : "-1");
@@ -273,25 +274,31 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
     dot.setAttribute("aria-label", `${label}: ${counts}`);
     dot.title = `${label}: ${counts}`;
     if (activityPeriod === "week") {
-      const count = document.createElement("b");
-      count.textContent = activity ? String((activity.reviews ?? 0) + (activity.saved ?? 0)) : "·";
-      const weekday = document.createElement("span");
-      weekday.textContent = new Date(dayStartAt).toLocaleDateString(undefined, { weekday: "narrow" });
-      dot.append(count, weekday);
+      dot.append(heatmapDate(dayStartAt), activityTotal(activity));
     }
     if (activityPeriod === "month") {
       if (new Date(dayStartAt).getDate() === 1) dot.style.gridColumnStart = String(((new Date(dayStartAt).getDay() + 6) % 7) + 1);
-      const dayNumber = document.createElement("span");
-      dayNumber.className = "heatmap-day-number";
-      dayNumber.textContent = String(new Date(dayStartAt).getDate());
-      dot.append(dayNumber);
+      dot.append(heatmapDate(dayStartAt), activityTotal(activity));
     }
     days.append(dot);
   }
   section.append(days);
   if (activityPeriod !== "week") section.append(createHeatmapLegend());
-  if (activityPeriod === "week") section.append(text("Hover or focus a day to see what you practised.", "body-copy"));
   return section;
+}
+
+function heatmapDate(dayStartAt: number): HTMLElement {
+  const date = document.createElement("span");
+  date.className = "heatmap-date";
+  date.textContent = String(new Date(dayStartAt).getDate());
+  return date;
+}
+
+function activityTotal(activity: LearningRhythm["activity"][number] | undefined): HTMLElement {
+  const total = document.createElement("span");
+  total.className = "activity-total";
+  total.textContent = activity && activity.reviews !== null && activity.saved !== null ? String(activity.reviews + activity.saved) : activity ? "–" : "0";
+  return total;
 }
 
 function renderLessons(): HTMLElement {
