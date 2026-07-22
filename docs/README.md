@@ -16,6 +16,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [Feature parking lot](features/002-learnloop-feature-parking-lot.md): promising `002-learnloop` feature directions that are intentionally deferred until their revisit signals are met.
 - [004-transfer Context Missions plan](features/004-transfer-plan.md): approved webpage-first practice direction, research basis, product boundaries, learning evidence, and validation standard.
 - [004-transfer research and rationale](features/004-transfer-research.md): consolidated pedagogical evidence, primary sources, repo-fit analysis, limitations, and decision rationale for Context Missions.
+- [004-transfer Context Missions specification](features/004-transfer-spec.md): approved learner behavior, implementation decisions, test seams, cost boundary, and scope contract.
 - [004-transfer parking lot](features/004-transfer-parking-lot.md): ranked alternatives and feature expansions deferred from Context Missions V1 with explicit revisit signals.
 
 ## Architecture
