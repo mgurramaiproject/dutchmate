@@ -180,34 +180,31 @@ function renderToday(): HTMLElement {
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
-  const nextAction = section("next-action");
-  nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), text(completed ? "Your Daily Five is complete. Keep going only if you want to." : total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words and chunks. Nothing else needs deciding."));
-  if (total === 0) {
-    const lessons = button("Choose a lesson", "button primary-button");
-    lessons.addEventListener("click", () => { screen = "lessons"; render(); });
-    nextAction.append(lessons);
-  } else {
-    const action = button(completed ? "Review more" : view.actionLabel ?? "Start Daily Five", "button primary-button");
-    action.disabled = pending;
-    action.addEventListener("click", () => {
-      if (completed) void startContinuation();
-      else { screen = "review"; revealed = false; render(); content?.focus(); }
-    });
-    nextAction.append(action);
+  const calendarFocused = activityPeriod !== "week";
+  if (!calendarFocused) {
+    const nextAction = section("next-action");
+    nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), text(completed ? "Your Daily Five is complete. Keep going only if you want to." : total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now."));
+    if (total === 0) {
+      const lessons = button("Choose a lesson", "button primary-button");
+      lessons.addEventListener("click", () => { screen = "lessons"; render(); });
+      nextAction.append(lessons);
+    } else {
+      const action = button(completed ? "Review more" : view.actionLabel ?? "Start Daily Five", "button primary-button");
+      action.disabled = pending;
+      action.addEventListener("click", () => {
+        if (completed) void startContinuation();
+        else { screen = "review"; revealed = false; render(); content?.focus(); }
+      });
+      nextAction.append(action);
+    }
+    nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today · Recognition first`, "action-meta"));
+    wrapper.append(nextAction);
   }
-  nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today · Recognition first`, "action-meta"));
-  wrapper.append(nextAction);
   const inProgress = lessonCatalog.lessons.find((lesson) => {
     const progress = lessonProgressById[lesson.id];
     return progress && progress.completedAt === null;
   });
   if (rhythm) wrapper.append(renderRhythm(rhythm));
-  if (rhythm?.milestones.length) {
-    const insights = document.createElement("div");
-    insights.className = "insights";
-    for (const milestone of rhythm.milestones) insights.append(text(milestone.label, "insight"));
-    wrapper.append(insights);
-  }
   const secondaryActions = document.createElement("div");
   secondaryActions.className = "secondary-actions";
   if (inProgress) {
@@ -220,7 +217,7 @@ function renderToday(): HTMLElement {
     reviewMore.addEventListener("click", () => void startContinuation());
     secondaryActions.append(reviewMore);
   }
-  if (secondaryActions.childElementCount) wrapper.append(secondaryActions);
+  if (!calendarFocused && secondaryActions.childElementCount) wrapper.append(secondaryActions);
   return wrapper;
 }
 
@@ -360,7 +357,7 @@ function createYearMonthLabels(year: number): HTMLElement {
   const labels = document.createElement("div");
   labels.className = "year-month-labels";
   const firstDay = new Date(year, 0, 1);
-  for (let month = 0; month < 12; month += 1) {
+  for (const month of [0, 3, 6, 9]) {
     const label = document.createElement("span");
     label.textContent = new Date(year, month, 1).toLocaleDateString(undefined, { month: "short" });
     const dayOffset = Math.round((new Date(year, month, 1).getTime() - firstDay.getTime()) / 86_400_000);

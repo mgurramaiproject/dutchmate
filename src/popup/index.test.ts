@@ -100,8 +100,8 @@ describe("lesson popup", () => {
 
   it("keeps the mockup history controls and uses heatmaps for month and year", async () => {
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day")).toHaveLength(7));
-    expect(content().textContent).toContain("First useful phrase saved");
-    expect(content().textContent).toContain("Recognition and recall practised");
+    expect(content().querySelector(".insights")).toBeNull();
+    expect(content().textContent).toContain("Practise five useful words. Start now.");
     expect(content().querySelector<HTMLElement>(".rhythm-day.grace")?.getAttribute("aria-label")).toContain("grace day");
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.tabIndex).toBe(0);
     expect(content().querySelector<HTMLButtonElement>(".period-tab.is-active")?.textContent).toBe("week");
@@ -112,6 +112,7 @@ describe("lesson popup", () => {
     content().querySelector<HTMLButtonElement>(".period-tabs button:nth-of-type(3)")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day").length).toBeGreaterThanOrEqual(28));
     expect(content().querySelector(".heatmap-month")).toBeTruthy();
+    expect(content().querySelector(".next-action")).toBeNull();
     expect(content().querySelectorAll(".month-weekdays span")).toHaveLength(7);
     expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .heatmap-date")].some((date) => date.textContent === "1")).toBe(true);
     expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .activity-total")].some((total) => total.textContent === "4")).toBe(true);
@@ -122,7 +123,7 @@ describe("lesson popup", () => {
     content().querySelector<HTMLButtonElement>(".period-tabs button:nth-of-type(4)")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day")).toHaveLength(365));
     expect(content().querySelector(".heatmap-year")).toBeTruthy();
-    expect(content().querySelectorAll(".year-month-labels span")).toHaveLength(12);
+    expect(content().querySelectorAll(".year-month-labels span")).toHaveLength(4);
   });
 
   it("offers the external feedback form from the popup header", () => {

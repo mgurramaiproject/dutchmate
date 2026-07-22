@@ -17,9 +17,11 @@ describe("popup layout", () => {
     expect(styles).toContain("transform: translateX(2px)");
     expect(styles).toContain("transition-duration: 0.01ms !important");
     expect(styles).toContain(".month-weekdays { display: grid; grid-template-columns: repeat(7, 1fr);");
-    expect(styles).toContain(".heatmap-month .rhythm-day { position: relative; display: grid; place-items: center;");
+    expect(styles).toContain(".heatmap-month .rhythm-day { position: relative; display: grid; min-height: 36px; aspect-ratio: auto; place-items: center;");
     expect(styles).not.toContain(".heatmap .rhythm-day.high { background: var(--black); }");
     expect(styles).toContain(".activity-total { font-family: var(--serif);");
     expect(styles).toContain(".popup-content.today-panel { overflow-y: hidden; padding: 12px; }");
+    expect(styles).toContain(".heatmap-month { grid-auto-rows: 36px; }");
+    expect(styles).toContain(".year-month-labels span { min-width: 0; white-space: nowrap; }");
   });
 });
