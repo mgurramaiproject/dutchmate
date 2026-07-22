@@ -187,12 +187,11 @@ function renderToday(): HTMLElement {
     const lessons = button("Choose a lesson", "button primary-button");
     lessons.addEventListener("click", () => { screen = "lessons"; render(); });
     nextAction.append(lessons);
-  } else {
-    const action = button(completed ? "Review more" : view.actionLabel ?? "Start Daily Five", "button primary-button");
+  } else if (!completed) {
+    const action = button(view.actionLabel ?? "Start Daily Five", "button primary-button");
     action.disabled = pending;
     action.addEventListener("click", () => {
-      if (completed) void startContinuation();
-      else { screen = "review"; revealed = false; render(); content?.focus(); }
+      screen = "review"; revealed = false; render(); content?.focus();
     });
     nextAction.append(action);
   }

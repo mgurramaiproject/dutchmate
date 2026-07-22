@@ -253,7 +253,10 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
     button("Got it").click();
     await vi.waitFor(() => expect(button("Review more")).toBeTruthy());
+    expect(content().querySelector(".next-action .button")).toBeNull();
     expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Continue lesson", "Review more"]);
+    button("Review more").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
   });
 
   it("keeps the learner in an understandable error state when keeping candidates fails", async () => {
