@@ -63,13 +63,18 @@ describe("TooltipViewAdapter", () => {
   it("keeps saved recall helpers hidden until the learner asks to reveal them", () => {
     const onTryFromMemory = vi.fn(); const onTranslateNow = vi.fn(); const onShowMeaning = vi.fn(); const onRecallResult = vi.fn();
     const view = createTooltipViewAdapter({ onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory, onTranslateNow, onShowMeaning, onRecallResult, onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn() });
-    view.showRecallOffer("goede morgen", 10, 10);
+    view.showRecallOffer("goede morgen", "Goede morgen, buur.", 10, 10);
+    expect(document.querySelector(".context-slip-context")?.textContent).toBe("Goede morgen, buur.");
+    expect(document.querySelector(".context-slip-copy")?.textContent).toContain("Try its meaning");
     Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Try from memory")?.click();
     expect(onTryFromMemory).toHaveBeenCalledOnce();
     Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Translate now")?.click();
     expect(onTranslateNow).toHaveBeenCalledOnce();
 
     view.showRecallMission({ itemId: "nl\u001fgoede morgen", selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", english: "good morning", telugu: "శుభోదయం", revealed: false, evidenceRecorded: false, dimension: "recognition", expectedAttemptCount: 0, token: 1 });
+    expect(document.querySelector(".context-slip-title")?.textContent).toBe("goede morgen");
+    expect(document.querySelector(".context-slip-prompt")?.textContent).toBe("What does this mean here?");
+    expect(document.querySelector(".context-slip-hidden-answer")?.textContent).toContain("before you reveal it");
     expect(document.querySelector("#hover-translate-tooltip")?.textContent).not.toContain("good morning");
     Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Show meaning")?.click();
     expect(onShowMeaning).toHaveBeenCalledOnce();
@@ -85,7 +90,7 @@ describe("TooltipViewAdapter", () => {
     const pageControl = document.createElement("button"); pageControl.textContent = "Read more"; document.body.append(pageControl); pageControl.focus();
     let view: ReturnType<typeof createTooltipViewAdapter>;
     view = createTooltipViewAdapter({ onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: () => view.showRecallMission({ itemId: "nl\u001fgoede morgen", selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", english: "good morning", telugu: "శుభోదయం", revealed: false, evidenceRecorded: false, dimension: "recognition", expectedAttemptCount: 0, token: 1 }), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn() });
-    view.showRecallOffer("goede morgen", 10, 10);
+    view.showRecallOffer("goede morgen", "Goede morgen, buur.", 10, 10);
     const tryFromMemory = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Try from memory")!;
     tryFromMemory.click();
     view.hide();
@@ -108,5 +113,23 @@ describe("TooltipViewAdapter", () => {
     document.querySelector<HTMLButtonElement>("[aria-label='Available words'] button")!.focus();
     view.showMission({ selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", available: ["morgen"], placed: ["goede"] });
     expect(document.activeElement).toBe(document.querySelector("[aria-label='Your answer'] button"));
+  });
+
+  it("keeps a Reset click inside the Context Slip when it rerenders", () => {
+    let pageClickCount = 0;
+    let view: ReturnType<typeof createTooltipViewAdapter>;
+    const mission = { selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", available: ["morgen"], placed: ["goede"] };
+    view = createTooltipViewAdapter({
+      onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: () => view.showMission({ ...mission, available: ["goede", "morgen"], placed: [] }), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn(),
+    });
+    document.addEventListener("click", (event) => {
+      if (!view.isTooltipEvent(event)) pageClickCount += 1;
+    }, { once: true });
+
+    view.showMission(mission);
+    Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Reset")?.click();
+
+    expect(pageClickCount).toBe(0);
+    expect(document.querySelector(".context-slip-status")?.textContent).toBe("0 of 2 words placed");
   });
 });

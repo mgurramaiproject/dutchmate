@@ -125,7 +125,7 @@ function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
   }
 
   if (event.type === "render-recall-offer") {
-    tooltipView.showRecallOffer(event.selectedDutch, event.x, event.y);
+    tooltipView.showRecallOffer(event.selectedDutch, event.pageContext, event.x, event.y);
     return;
   }
 

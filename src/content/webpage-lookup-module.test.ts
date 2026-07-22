@@ -65,10 +65,27 @@ describe("WebpageLookupModule", () => {
 
     await module.beginLookup({ text: "Goede   morgen", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Goede morgen, buur." });
 
-    expect(events).toContainEqual({ type: "render-recall-offer", selectedDutch: "goede morgen", x: 1, y: 1 });
+    expect(events).toContainEqual({ type: "render-recall-offer", selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", x: 1, y: 1 });
     expect(translate).not.toHaveBeenCalled();
     module.translateNow();
     await vi.waitFor(() => expect(translate).toHaveBeenCalled());
+  });
+
+  it("offers a saved repeat using the current page context when an older item has none stored", async () => {
+    const translate = vi.fn(createTransport().translate);
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({ listLearningItems: async () => ({ ok: true, result: { items: [savedItem({ contexts: [] })] } }), translate }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Goede morgen, buur." });
+
+    expect(events).toContainEqual(expect.objectContaining({ type: "render-recall-offer", pageContext: "Goede morgen, buur." }));
+    expect(translate).not.toHaveBeenCalled();
   });
 
   it("reveals stored helpers and records recognition once after recall", async () => {
@@ -343,6 +360,25 @@ describe("WebpageLookupModule", () => {
     expect(mission).toEqual(expect.objectContaining({ type: "render-mission", mission: expect.objectContaining({ result: "got-it" }) }));
     expect(translate).toHaveBeenCalledTimes(callsAfterTranslation);
     expect(saveLearningItem).not.toHaveBeenCalled();
+  });
+
+  it("offers practice for a headline selection when layout whitespace splits a hyphenated Dutch word", async () => {
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport(), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({
+      text: "Gasprijs stijgt na oplaaiende geweld in Midden-\nOosten",
+      context: "selection",
+      x: 1,
+      y: 1,
+      sourceLanguageHint: "nl",
+      pageContext: "Gasprijs stijgt na oplaaiende geweld in Midden-Oosten",
+    });
+
+    expect(events).toContainEqual(expect.objectContaining({ type: "render-result", practiceAvailable: true }));
+    module.startPractice();
+    expect(events.at(-1)).toEqual(expect.objectContaining({ type: "render-mission", mission: expect.objectContaining({ selectedDutch: "Gasprijs stijgt na oplaaiende geweld in Midden-Oosten" }) }));
   });
 
   it.each([

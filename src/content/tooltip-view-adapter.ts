@@ -16,7 +16,7 @@ export type TooltipViewAdapter = {
     practiceAvailable?: true,
   ): void;
   showMission(mission: ContextMission): void;
-  showRecallOffer(selectedDutch: string, x: number, y: number): void;
+  showRecallOffer(selectedDutch: string, pageContext: string, x: number, y: number): void;
   showRecallMission(mission: RecallMission): void;
   showSeenBefore(): void;
   updateSaveButton(saveAction: SaveActionState): void;
@@ -83,11 +83,14 @@ export function createTooltipViewAdapter(callbacks: {
       padding: 4px 8px;
     }
 
-    #hover-translate-tooltip .context-slip-tether { border-left: 4px solid #ff6f00; padding-left: 10px; }
-    #hover-translate-tooltip .context-slip-kicker { font-size: 11px; font-weight: 800; margin: 0 0 4px; }
+    #hover-translate-tooltip .context-slip-tether { display: grid; gap: 10px; border-left: 4px solid #ff6f00; padding-left: 10px; }
+    #hover-translate-tooltip .context-slip-kicker { color: #8a3b00; font-size: 11px; font-weight: 800; letter-spacing: .05em; margin: 0; text-transform: uppercase; }
     #hover-translate-tooltip .context-slip-title, #hover-translate-tooltip .context-slip-context { font-family: Georgia, serif; }
-    #hover-translate-tooltip .context-slip-title { font-size: 18px; margin: 0 28px 6px 0; }
-    #hover-translate-tooltip .context-slip-context { margin: 0 0 10px; }
+    #hover-translate-tooltip .context-slip-title { font-size: 19px; line-height: 1.1; margin: 0 40px 0 0; overflow-wrap: anywhere; }
+    #hover-translate-tooltip .context-slip-context { margin: 0; padding: 8px 10px; border-left: 2px solid rgba(255, 111, 0, .42); background: rgba(255, 111, 0, .08); font-size: 14px; line-height: 1.4; }
+    #hover-translate-tooltip .context-slip-copy, #hover-translate-tooltip .context-slip-prompt { margin: 0; color: #343434; font-size: 13px; line-height: 1.45; }
+    #hover-translate-tooltip .context-slip-prompt { color: #000; font-weight: 750; }
+    #hover-translate-tooltip .context-slip-hidden-answer { margin: 0; padding: 9px 10px; border: 1px dashed rgba(0, 0, 0, .34); background: rgba(0, 0, 0, .035); font-size: 13px; }
     #hover-translate-tooltip .context-slip-close { position: absolute; top: 7px; right: 7px; min-width: 44px; min-height: 44px; border: 1px solid #000; background: #fff; color: #000; font-size: 20px; }
     #hover-translate-tooltip .context-slip-fragments { display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px; margin: 8px 0; }
     #hover-translate-tooltip .context-slip-fragment, #hover-translate-tooltip .context-slip-button { min-height: 44px; border: 1px solid #000; border-radius: 6px; background: #fff; color: #000; font: inherit; font-weight: 700; padding: 6px 10px; }
@@ -214,7 +217,7 @@ export function createTooltipViewAdapter(callbacks: {
       else restoreTooltipFocus(tooltip, focus);
     },
 
-    showRecallOffer(selectedDutch, x, y) {
+    showRecallOffer(selectedDutch, pageContext, x, y) {
       currentSaveButton = null;
       lastPosition = { x, y };
       rememberExternalFocus(tooltip, (element) => { returnFocus = element; });
@@ -222,12 +225,15 @@ export function createTooltipViewAdapter(callbacks: {
       tooltip.dataset.state = "recall-offer";
       tooltip.textContent = "";
       const tether = document.createElement("section"); tether.className = "context-slip-tether";
+      const close = actionButton("×", callbacks.onClose); close.className = "context-slip-close"; close.setAttribute("aria-label", "Close Context Mission");
       const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Seen before";
       const title = document.createElement("h3"); title.className = "context-slip-title"; title.lang = "nl"; title.textContent = selectedDutch;
+      const context = document.createElement("p"); context.className = "context-slip-context"; context.lang = "nl"; context.textContent = pageContext;
+      const copy = document.createElement("p"); copy.className = "context-slip-copy"; copy.textContent = "You saved this. Try its meaning before DutchMate reveals it, or translate it as usual.";
       const actions = document.createElement("div"); actions.className = "context-slip-actions";
       const tryFromMemory = actionButton("Try from memory", callbacks.onTryFromMemory, true);
       actions.append(tryFromMemory, actionButton("Translate now", callbacks.onTranslateNow));
-      tether.append(kicker, title, actions); tooltip.append(tether); positionTooltip(tooltip, x, y); tooltip.hidden = false;
+      tether.append(close, kicker, title, context, copy, actions); tooltip.append(tether); positionTooltip(tooltip, x, y); tooltip.hidden = false;
     },
 
     showRecallMission(mission) {
@@ -258,11 +264,14 @@ function renderRecallMission(tooltip: HTMLDivElement, mission: RecallMission, ca
   const tether = document.createElement("section"); tether.className = "context-slip-tether";
   const close = actionButton("×", callbacks.onClose); close.className = "context-slip-close"; close.setAttribute("aria-label", "Close Context Mission");
   const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Recall meaning";
-  const title = document.createElement("h3"); title.className = "context-slip-title"; title.textContent = "What does this mean here?";
+  const title = document.createElement("h3"); title.className = "context-slip-title"; title.lang = "nl"; title.textContent = mission.selectedDutch;
+  const prompt = document.createElement("p"); prompt.className = "context-slip-prompt"; prompt.textContent = "What does this mean here?";
   const context = document.createElement("p"); context.className = "context-slip-context"; context.lang = "nl"; context.textContent = mission.pageContext;
-  tether.append(close, kicker, title, context);
+  tether.append(close, kicker, title, prompt, context);
   if (!mission.revealed) {
-    tether.append(actionButton("Show meaning", callbacks.onShowMeaning, true));
+    const hiddenAnswer = document.createElement("p"); hiddenAnswer.className = "context-slip-hidden-answer"; hiddenAnswer.textContent = "Think of the English or Telugu meaning before you reveal it.";
+    const actions = document.createElement("div"); actions.className = "context-slip-actions"; actions.append(actionButton("Show meaning", callbacks.onShowMeaning, true));
+    tether.append(hiddenAnswer, actions);
   } else {
     const meaning = document.createElement("p"); meaning.className = "context-slip-status"; meaning.setAttribute("role", "status");
     meaning.textContent = [mission.english && `English: ${mission.english}`, mission.telugu && `Telugu: ${mission.telugu}`].filter(Boolean).join("\n");
@@ -306,7 +315,7 @@ function renderMission(
   tether.className = "context-slip-tether";
   const close = document.createElement("button");
   close.type = "button"; close.className = "context-slip-close"; close.setAttribute("aria-label", "Close Context Mission"); close.textContent = "×";
-  close.addEventListener("click", callbacks.onClose);
+  close.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); callbacks.onClose(); });
   const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Rebuild in context";
   const title = document.createElement("h3"); title.className = "context-slip-title"; title.textContent = mission.result === "got-it" ? "Got it" : mission.result === "again" ? "Again" : "Put the Dutch back";
   const context = document.createElement("p"); context.className = "context-slip-context"; context.lang = "nl";
@@ -359,7 +368,7 @@ function fragmentBank(values: string[], label: string, onClick: (index: number) 
 }
 
 function actionButton(label: string, onClick: () => void, primary = false): HTMLButtonElement {
-  const button = document.createElement("button"); button.type = "button"; button.className = `context-slip-button${primary ? " primary" : ""}`; button.dataset.contextSlipFocus = `action:${label}`; button.textContent = label; button.addEventListener("click", onClick); return button;
+  const button = document.createElement("button"); button.type = "button"; button.className = `context-slip-button${primary ? " primary" : ""}`; button.dataset.contextSlipFocus = `action:${label}`; button.textContent = label; button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); onClick(); }); return button;
 }
 
 type TooltipFocus = { key: string; fragment?: string };

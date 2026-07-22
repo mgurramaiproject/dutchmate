@@ -9,6 +9,7 @@ import { normalizeSavedVocabularyText } from "../vocabulary/saved-vocabulary";
 import { getChunkCandidate } from "./chunk-candidate";
 import type { CreateOrMergeLearningItemInput, LearningItem } from "../vocabulary/learning-record";
 import { getWeakerMasteryDimension, type DailyFiveDimension } from "../vocabulary/daily-five";
+import { normalizeMissionText } from "./mission-text";
 
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
 const mvpLanguages = [
@@ -174,7 +175,7 @@ export type WebpageLookupModuleEvent =
   | {
       type: "show-seen-before";
     }
-  | { type: "render-recall-offer"; selectedDutch: string; x: number; y: number }
+  | { type: "render-recall-offer"; selectedDutch: string; pageContext: string; x: number; y: number }
   | {
       type: "render-mission";
       mission: ContextMission;
@@ -320,7 +321,7 @@ export class WebpageLookupModule {
           expectedAttemptCount: item[dimension].attemptCount,
           token: ++this.#nextRecallMissionToken,
         };
-        this.#emit({ type: "render-recall-offer", selectedDutch: item.dutch, x: input.x, y: input.y });
+        this.#emit({ type: "render-recall-offer", selectedDutch: item.dutch, pageContext: this.#recallMission.pageContext, x: input.x, y: input.y });
         return;
       }
     }
@@ -368,9 +369,10 @@ export class WebpageLookupModule {
       return;
     }
 
-    const practiceAvailable = completedLookup.context === "selection" && completedLookup.response.ok && completedLookup.sourceLanguage === "nl" && Boolean(input.pageContext?.includes(input.text)) && isMissionSelection(input.text);
+    const missionSelection = normalizeMissionText(input.text);
+    const practiceAvailable = completedLookup.context === "selection" && completedLookup.response.ok && completedLookup.sourceLanguage === "nl" && Boolean(input.pageContext && normalizeMissionText(input.pageContext).includes(missionSelection)) && isMissionSelection(missionSelection);
     this.#practiceSelection = practiceAvailable
-      ? { dutch: input.text, pageContext: input.pageContext ?? null }
+      ? { dutch: missionSelection, pageContext: input.pageContext ?? null }
       : null;
 
     this.#currentSaveItem = completedLookup.context === "selection"
@@ -493,7 +495,7 @@ export class WebpageLookupModule {
       const response = await this.#deps.transport.listLearningItems();
       const normalized = normalizeSavedVocabularyText(input.text);
       const item = response.ok ? response.result?.items.find((candidate) => candidate.normalizedDutch === normalized) : undefined;
-      if (!item || (!item.english && !item.telugu) || item.contexts.length === 0) return undefined;
+      if (!item || (!item.english && !item.telugu)) return undefined;
       const pageContext = input.pageContext.trim().replace(/\s+/g, " ");
       return pageContext.toLocaleLowerCase().includes(item.normalizedDutch) ? item : undefined;
     } catch {

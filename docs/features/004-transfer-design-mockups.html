@@ -343,10 +343,10 @@
       }
 
       function recall() {
-        const heading = `<p class="mission-kicker">Recall meaning</p><h3 class="mission-title">What does this mean here?</h3>${source()}`;
+        const heading = `<p class="mission-kicker">Recall meaning</p><h3 class="mission-title" lang="nl">houd rekening met</h3><p class="mission-copy"><strong>What does this mean here?</strong></p>${source()}`;
         const answer = recallRevealed
           ? `<div class="meaning-list" aria-live="polite"><div class="meaning-row"><span class="helper-label">EN</span><span class="meaning-value">take into account</span></div><div class="meaning-row"><span class="helper-label">TE</span><span class="meaning-value" lang="te">పరిగణనలోకి తీసుకోండి</span></div></div><div class="action-row"><button class="dm-button" data-action="again" type="button">Again</button><button class="dm-button primary" data-action="got-it" type="button">Got it</button></div>`
-          : `<div class="hidden-answer">Meaning hidden while you think</div><div class="action-row single"><button class="dm-button primary" data-action="show-meaning" type="button">Show meaning</button></div>`;
+          : `<div class="hidden-answer">Think of the English or Telugu meaning before you reveal it.</div><div class="action-row single"><button class="dm-button primary" data-action="show-meaning" type="button">Show meaning</button></div>`;
         return wrap(heading, answer, "No translation request");
       }
 
