@@ -1,14 +1,16 @@
-export type PopupTab = "learn" | "settings";
+export type PopupTab = "today" | "lessons" | "saved";
 
 export function getPopupTabForKey(current: PopupTab, key: string): PopupTab | null {
   if (key === "Home") {
-    return "learn";
+    return "today";
   }
   if (key === "End") {
-    return "settings";
+    return "saved";
   }
   if (key === "ArrowRight" || key === "ArrowLeft") {
-    return current === "learn" ? "settings" : "learn";
+    const tabs: PopupTab[] = ["today", "lessons", "saved"];
+    const direction = key === "ArrowRight" ? 1 : -1;
+    return tabs[(tabs.indexOf(current) + direction + tabs.length) % tabs.length];
   }
   return null;
 }

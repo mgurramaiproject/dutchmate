@@ -2,8 +2,10 @@ import browser from "webextension-polyfill";
 import { createLearningClient } from "./learning-client";
 import { createSettingsClient } from "./settings-client";
 import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
+import { getSavedShelfView, type SavedShelfSort } from "./saved-shelf-view";
+import { getPopupTabForKey } from "./tab-navigation";
 import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
-import type { LearningItem, LessonProgress } from "../vocabulary/learning-record";
+import { LEARNING_RECORD_STORAGE_KEY, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
@@ -17,13 +19,14 @@ const settingsButton = document.querySelector<HTMLButtonElement>("#settings-butt
 const primaryNavigation = document.querySelector<HTMLElement>("#primary-navigation");
 const todayTab = document.querySelector<HTMLButtonElement>("#today-tab");
 const lessonsTab = document.querySelector<HTMLButtonElement>("#lessons-tab");
+const savedTab = document.querySelector<HTMLButtonElement>("#saved-tab");
 const learningClient = createLearningClient(browser);
 const settingsClient = createSettingsClient(browser);
 let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "lessons" | "lesson" | "review" | "settings" = "today";
+let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "settings" = "today";
 let lessonSession: LessonSession | null = null;
 let lessonProgressById: Record<string, LessonProgress | null> = {};
 let lessonsError: string | null = null;
@@ -31,15 +34,33 @@ let revealed = false;
 let pending = false;
 let activityPeriod: "week" | "month" | "year" = "week";
 let activityOffset = 0;
+let savedSort: SavedShelfSort = "newest";
+let savedLoading = true;
+let savedError: string | null = null;
+let expandedSavedItemId: string | null = null;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
 lessonsTab?.addEventListener("click", () => { screen = "lessons"; render(); });
+savedTab?.addEventListener("click", () => { screen = "saved"; render(); });
+primaryNavigation?.addEventListener("keydown", (event) => {
+  if (screen !== "today" && screen !== "lessons" && screen !== "saved") return;
+  const target = getPopupTabForKey(screen, event.key);
+  if (!target) return;
+  event.preventDefault();
+  screen = target;
+  render();
+  ({ today: todayTab, lessons: lessonsTab, saved: savedTab }[target])?.focus();
+});
+browser.storage.onChanged?.addListener((changes, areaName) => {
+  if (areaName === "local" && LEARNING_RECORD_STORAGE_KEY in changes) void loadSaved();
+});
+void loadSaved();
 void load();
 
 async function load(continueAfterCompletion = false): Promise<void> {
   try {
-    [items, snapshot, rhythm, settings] = await Promise.all([learningClient.list(), learningClient.getDailyFive(continueAfterCompletion), learningClient.getRhythm(), settingsClient.getSettings()]);
+    [snapshot, rhythm, settings] = await Promise.all([learningClient.getDailyFive(continueAfterCompletion), learningClient.getRhythm(), settingsClient.getSettings()]);
     try {
       lessonProgressById = Object.fromEntries(await Promise.all(lessonCatalog.lessons.map(async (lesson) => [lesson.id, await learningClient.getLessonProgress(lesson.id)] as const)));
       lessonsError = null;
@@ -50,33 +71,124 @@ async function load(continueAfterCompletion = false): Promise<void> {
   }
 }
 
+async function loadSaved(): Promise<void> {
+  savedLoading = true;
+  savedError = null;
+  render();
+  try {
+    const nextItems = await learningClient.list();
+    items = nextItems;
+    if (expandedSavedItemId && !nextItems.some((item) => item.id === expandedSavedItemId)) expandedSavedItemId = null;
+  } catch (error) {
+    savedError = error instanceof Error ? error.message : "Saved items could not be loaded.";
+  } finally {
+    savedLoading = false;
+    render();
+  }
+}
+
 function render(): void {
   if (!content) return;
+  if (screen !== "saved") expandedSavedItemId = null;
   const focused = screen === "review" || screen === "lesson";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.toggleAttribute("hidden", focused);
+  content.classList.toggle("today-panel", screen === "today");
   todayTab?.classList.toggle("is-active", screen === "today"); todayTab?.setAttribute("aria-selected", String(screen === "today")); todayTab?.setAttribute("tabindex", screen === "today" ? "0" : "-1");
   lessonsTab?.classList.toggle("is-active", screen === "lessons"); lessonsTab?.setAttribute("aria-selected", String(screen === "lessons")); lessonsTab?.setAttribute("tabindex", screen === "lessons" ? "0" : "-1");
-  content?.setAttribute("aria-labelledby", screen === "lessons" ? "lessons-tab" : "today-tab");
+  savedTab?.classList.toggle("is-active", screen === "saved"); savedTab?.setAttribute("aria-selected", String(screen === "saved")); savedTab?.setAttribute("tabindex", screen === "saved" ? "0" : "-1");
+  content?.setAttribute("aria-labelledby", screen === "lessons" ? "lessons-tab" : screen === "saved" ? "saved-tab" : "today-tab");
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : renderSettings());
+  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : renderSettings());
+}
+
+function renderSaved(): HTMLElement {
+  const wrapper = section("saved-content");
+  const view = getSavedShelfView(items, { sort: savedSort, expandedItemId: expandedSavedItemId, loading: savedLoading, error: savedError });
+  const header = document.createElement("div");
+  header.className = "saved-head";
+  header.append(eyebrow("Your collection"), heading("Saved"));
+  wrapper.append(header);
+  if (view.status === "loading") { wrapper.append(text("Loading your saved vocabulary…")); return wrapper; }
+  if (view.status === "error") {
+    const retry = button("Try again", "button primary-button");
+    retry.addEventListener("click", () => void loadSaved());
+    wrapper.append(heading("Saved items are unavailable."), text(view.message), retry);
+    return wrapper;
+  }
+  if (view.status === "empty") {
+    const lessons = button("Choose a lesson", "button primary-button");
+    lessons.addEventListener("click", () => { screen = "lessons"; render(); });
+    wrapper.append(heading("Nothing saved yet."), text("Words and meaningful chunks you intentionally keep will appear here."), lessons);
+    return wrapper;
+  }
+  const controls = document.createElement("div");
+  controls.className = "saved-sort";
+  controls.append(text(`${view.count} saved item${view.count === 1 ? "" : "s"}`, "sort-label"));
+  for (const [sort, label] of [["newest", "Newest"], ["alphabetical", "A–Z"]] as const) {
+    const control = button(label, `sort-button${view.sort === sort ? " is-active" : ""}`);
+    control.setAttribute("aria-pressed", String(view.sort === sort));
+    control.addEventListener("click", () => { savedSort = sort; render(); });
+    controls.append(control);
+  }
+  wrapper.append(controls);
+  const shelf = document.createElement("div");
+  shelf.className = "saved-shelf";
+  for (const item of view.items) {
+    const card = document.createElement("article");
+    card.className = `saved-item${item.expanded ? " is-expanded" : ""}`;
+    const row = button("", "saved-row");
+    row.setAttribute("aria-expanded", String(item.expanded));
+    if (item.expanded) row.setAttribute("aria-controls", `saved-detail-${item.shelfNumber}`);
+    row.addEventListener("click", () => { expandedSavedItemId = item.expanded ? null : item.id; render(); });
+    const number = document.createElement("span"); number.className = "shelf-number"; number.textContent = String(item.shelfNumber);
+    const copy = document.createElement("div"); copy.className = "saved-word";
+    const dutch = document.createElement("h2"); dutch.textContent = item.dutch;
+    const helpers = document.createElement("div"); helpers.className = "saved-helpers";
+    helpers.append(helperMeaning("EN", item.english), helperMeaning("TE", item.telugu));
+    copy.append(dutch, helpers);
+    const mastery = document.createElement("span"); mastery.className = "saved-mastery"; mastery.textContent = item.mastery;
+    row.append(number, copy, mastery);
+    card.append(row);
+    if (item.expanded && item.details) {
+      const detail = document.createElement("div");
+      detail.id = `saved-detail-${item.shelfNumber}`;
+      detail.className = "saved-detail";
+      if (item.details.source) detail.append(text(item.details.source, "saved-source"));
+      if (item.details.context) detail.append(text(item.details.context, "saved-context"));
+      const options = button("Open Options", "saved-options-link");
+      options.addEventListener("click", () => void browser.runtime.openOptionsPage());
+      detail.append(options);
+      card.append(detail);
+    }
+    shelf.append(card);
+  }
+  wrapper.append(shelf);
+  return wrapper;
 }
 
 function renderToday(): HTMLElement {
-  const wrapper = section("today-content brief-today");
+  const wrapper = section(`today-content brief-today ${activityPeriod === "week" ? "today-week" : "calendar-focus"}`);
   if (!snapshot) { wrapper.append(eyebrow("Today"), heading("Loading your Daily Five…")); return wrapper; }
+  if (savedError && items.length === 0) {
+    const retry = button("Try again", "button primary-button");
+    retry.addEventListener("click", () => void loadSaved());
+    wrapper.append(eyebrow("Today unavailable"), heading("Your learning record could not load."), text(savedError), retry);
+    return wrapper;
+  }
   const view = getDailyFiveView(snapshot);
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
   const nextAction = section("next-action");
-  nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), text(completed ? "Your Daily Five is complete. Keep going only if you want to." : total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words and chunks. Nothing else needs deciding."));
+  const actionCopy = completed ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy") : text(total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now.");
+  nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
   if (total === 0) {
     const lessons = button("Choose a lesson", "button primary-button");
     lessons.addEventListener("click", () => { screen = "lessons"; render(); });
     nextAction.append(lessons);
   } else {
-    const action = button(completed ? "Review more" : view.actionLabel ?? "Start Daily Five", "button primary-button");
+    const action = button(completed ? "Review 5 more" : view.actionLabel ?? "Start Daily Five", "button primary-button");
     action.disabled = pending;
     action.addEventListener("click", () => {
       if (completed) void startContinuation();
@@ -84,19 +196,13 @@ function renderToday(): HTMLElement {
     });
     nextAction.append(action);
   }
-  nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today · Recognition first`, "action-meta"));
+  nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
   wrapper.append(nextAction);
   const inProgress = lessonCatalog.lessons.find((lesson) => {
     const progress = lessonProgressById[lesson.id];
     return progress && progress.completedAt === null;
   });
   if (rhythm) wrapper.append(renderRhythm(rhythm));
-  if (rhythm?.milestones.length) {
-    const insights = document.createElement("div");
-    insights.className = "insights";
-    for (const milestone of rhythm.milestones) insights.append(text(milestone.label, "insight"));
-    wrapper.append(insights);
-  }
   const secondaryActions = document.createElement("div");
   secondaryActions.className = "secondary-actions";
   if (inProgress) {
@@ -148,7 +254,7 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
   const days = document.createElement("div");
   days.className = "rhythm-days";
   if (activityPeriod === "week") days.classList.add("week-grid");
-  else if (activityPeriod === "month") days.classList.add("heatmap", "heatmap-month");
+  else if (activityPeriod === "month") { days.classList.add("heatmap", "heatmap-month"); section.append(createMonthWeekdays()); }
   else days.classList.add("heatmap", "heatmap-year");
   if (activityPeriod === "year") section.append(createYearMonthLabels(new Date().getFullYear() + activityOffset));
   const activityByDay = new Map(current.activity.map((day) => [day.dayStartAt, day]));
@@ -157,24 +263,48 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
     const day = current.week.find((candidate) => candidate.dayStartAt === dayStartAt);
     const status = day?.status ?? (activity ? "active" : "idle");
     const intensity = activity && (activity.reviews ?? 0) + (activity.saved ?? 0) >= 4 ? " high" : "";
-    const dot = button("", `rhythm-day ${status}${intensity}`);
+    const isToday = isLocalToday(dayStartAt);
+    const dot = button("", `rhythm-day ${status}${intensity}${isToday ? " is-today" : ""}`);
     const label = new Date(dayStartAt).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
     const counts = activity && activity.reviews !== null && activity.saved !== null ? `${activity.reviews} review${activity.reviews === 1 ? "" : "s"}, ${activity.saved} saved item${activity.saved === 1 ? "" : "s"}` : activity ? "activity recorded before counts were available" : `0 reviews, 0 saved items${status === "grace" ? " · grace day" : ""}`;
-    dot.setAttribute("aria-label", `${label}: ${counts}`);
-    dot.title = `${label}: ${counts}`;
+    const description = `${label}: ${counts}${isToday ? " · Today" : ""}`;
+    dot.setAttribute("aria-label", description);
+    dot.title = description;
+    dot.dataset.dayStart = String(dayStartAt);
     if (activityPeriod === "week") {
-      const count = document.createElement("b");
-      count.textContent = activity ? String((activity.reviews ?? 0) + (activity.saved ?? 0)) : "·";
-      const weekday = document.createElement("span");
-      weekday.textContent = new Date(dayStartAt).toLocaleDateString(undefined, { weekday: "narrow" });
-      dot.append(count, weekday);
+      dot.append(heatmapDate(dayStartAt), activityTotal(activity));
+    }
+    if (activityPeriod === "month") {
+      if (new Date(dayStartAt).getDate() === 1) dot.style.gridColumnStart = String(((new Date(dayStartAt).getDay() + 6) % 7) + 1);
+      dot.append(heatmapDate(dayStartAt), activityTotal(activity));
     }
     days.append(dot);
   }
   section.append(days);
-  if (activityPeriod !== "week") section.append(createHeatmapLegend());
-  if (activityPeriod === "week") section.append(text("Hover or focus a day to see what you practised.", "body-copy"));
+  section.append(createHeatmapLegend());
   return section;
+}
+
+function heatmapDate(dayStartAt: number): HTMLElement {
+  const date = document.createElement("span");
+  date.className = "heatmap-date";
+  date.textContent = String(new Date(dayStartAt).getDate());
+  return date;
+}
+
+function isLocalToday(dayStartAt: number): boolean {
+  const date = new Date(dayStartAt);
+  const today = new Date();
+  return date.getFullYear() === today.getFullYear()
+    && date.getMonth() === today.getMonth()
+    && date.getDate() === today.getDate();
+}
+
+function activityTotal(activity: LearningRhythm["activity"][number] | undefined): HTMLElement {
+  const total = document.createElement("span");
+  total.className = "activity-total";
+  total.textContent = activity && activity.reviews !== null && activity.saved !== null ? String(activity.reviews + activity.saved) : activity ? "–" : "0";
+  return total;
 }
 
 function renderLessons(): HTMLElement {
@@ -207,6 +337,17 @@ function renderLessons(): HTMLElement {
   wrapper.append(localNote()); return wrapper;
 }
 
+function createMonthWeekdays(): HTMLElement {
+  const weekdays = document.createElement("div");
+  weekdays.className = "month-weekdays";
+  for (const label of ["M", "T", "W", "T", "F", "S", "S"]) {
+    const weekday = document.createElement("span");
+    weekday.textContent = label;
+    weekdays.append(weekday);
+  }
+  return weekdays;
+}
+
 function createHeatmapLegend(): HTMLElement {
   const legend = document.createElement("div");
   legend.className = "heatmap-legend";
@@ -225,7 +366,7 @@ function createYearMonthLabels(year: number): HTMLElement {
   const labels = document.createElement("div");
   labels.className = "year-month-labels";
   const firstDay = new Date(year, 0, 1);
-  for (let month = 0; month < 12; month += 1) {
+  for (const month of [0, 3, 6, 9]) {
     const label = document.createElement("span");
     label.textContent = new Date(year, month, 1).toLocaleDateString(undefined, { month: "short" });
     const dayOffset = Math.round((new Date(year, month, 1).getTime() - firstDay.getTime()) / 86_400_000);
@@ -237,7 +378,10 @@ function createYearMonthLabels(year: number): HTMLElement {
 
 function activityDays(period: "week" | "month" | "year", offset: number): number[] {
   const anchor = new Date();
-  if (period === "week") return Array.from({ length: 7 }, (_, index) => localDay(new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + (offset * 7) + index - 6)));
+  if (period === "week") {
+    const monday = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() - ((anchor.getDay() + 6) % 7) + (offset * 7));
+    return Array.from({ length: 7 }, (_, index) => localDay(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + index)));
+  }
   if (period === "month") { const date = new Date(anchor.getFullYear(), anchor.getMonth() + offset, 1); return Array.from({ length: new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate() }, (_, index) => localDay(new Date(date.getFullYear(), date.getMonth(), index + 1))); }
   const year = anchor.getFullYear() + offset;
   return Array.from({ length: Math.round((new Date(year + 1, 0, 1).getTime() - new Date(year, 0, 1).getTime()) / 86_400_000) }, (_, index) => localDay(new Date(year, 0, index + 1)));
@@ -311,11 +455,12 @@ async function saveResult(item: LearningItem, dimension: "recognition" | "recall
   try {
     const response = await learningClient.recordDailyFiveResult(item.id, dimension, result);
     items = items.map((candidate) => candidate.id === item.id ? response.item : candidate);
+    updateBadge();
     snapshot = response.snapshot; rhythm = await learningClient.getRhythm(); revealed = false;
     if (snapshot.goalCompleted) screen = "today";
+    pending = false;
     render();
-  } catch (error) { renderError(error instanceof Error ? error.message : "Your result could not be saved."); }
-  finally { pending = false; }
+  } catch (error) { pending = false; renderError(error instanceof Error ? error.message : "Your result could not be saved."); }
 }
 
 async function startContinuation(): Promise<void> { pending = true; render(); await load(true); pending = false; if (snapshot?.tasks.length) { screen = "review"; revealed = false; render(); content?.focus(); } }
@@ -327,13 +472,14 @@ function createMasterySummary(): HTMLElement {
   for (const label of ["Recognition", "Recall"] as const) { const key = label.toLowerCase() as "recognition" | "recall"; const count = items.filter((item) => item[key].state !== "new").length; const state = [...states].reverse().find((candidate) => items.some((item) => item[key].state === candidate)) ?? "new"; const block = document.createElement("div"); block.append(text(`${label} · ${state}`, "section-title"), text(`${count} item${count === 1 ? "" : "s"} practised`, "body-copy")); summary.append(block); }
   return summary;
 }
-function updateBadge(): void { if (!dueBadge) return; const due = settings.dailyReviewBadge ? items.filter((item) => [item.recognition, item.recall].some((mastery) => mastery.attemptCount > 0 && mastery.dueAt !== null && mastery.dueAt <= Date.now())).length : 0; dueBadge.hidden = due === 0; dueBadge.textContent = String(due); dueBadge.setAttribute("aria-label", `${due} items due for review`); }
+function updateBadge(): void { if (!dueBadge) return; const due = settings.dailyReviewBadge ? items.filter((item) => [item.recognition, item.recall].some((mastery) => mastery.attemptCount > 0 && mastery.dueAt !== null && mastery.dueAt <= Date.now())).length : 0; const label = `${due} saved item${due === 1 ? "" : "s"} still ha${due === 1 ? "s" : "ve"} one or more due recognition or recall reviews. Today shows up to five at a time.`; dueBadge.hidden = due === 0; dueBadge.textContent = String(due); dueBadge.setAttribute("aria-label", label); dueBadge.title = label; }
 function renderError(message: string): void { if (!content) return; content.replaceChildren(eyebrow("Today unavailable"), heading("Your practice could not load."), text(message)); }
 function section(className: string): HTMLElement { const element = document.createElement("section"); element.className = className; return element; }
 function button(label: string, className: string): HTMLButtonElement { const element = document.createElement("button"); element.type = "button"; element.className = className; element.textContent = label; return element; }
 function eyebrow(value: string): HTMLElement { return text(value, "eyebrow"); }
 function heading(value: string): HTMLElement { const element = document.createElement("h1"); element.className = "heading"; element.textContent = value; return element; }
 function text(value: string, className = "body-copy"): HTMLElement { const element = document.createElement("p"); element.className = className; element.textContent = value; return element; }
+function helperMeaning(label: string, value: string): HTMLElement { const helper = document.createElement("span"); const name = document.createElement("b"); name.textContent = label; const meaning = document.createElement("span"); meaning.textContent = value; if (value === "unavailable") meaning.className = "meaning-unavailable"; helper.append(name, meaning); return helper; }
 function meaning(label: string, value: string | null): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; row.append(name, content); return row; }
 function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }
 function toggle(labelText: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement { const label = document.createElement("label"); label.className = "setting-control"; const textNode = document.createElement("strong"); textNode.textContent = labelText; const input = document.createElement("input"); input.type = "checkbox"; input.checked = checked; input.addEventListener("change", () => onChange(input.checked)); label.append(textNode, input); return label; }
