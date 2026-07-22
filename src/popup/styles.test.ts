@@ -21,6 +21,8 @@ describe("popup layout", () => {
     expect(styles).not.toContain(".heatmap .rhythm-day.high { background: var(--black); }");
     expect(styles).toContain(".activity-total { font-family: var(--serif);");
     expect(styles).toContain(".popup-content.today-panel { overflow-y: hidden; padding: 12px; }");
+    expect(styles).toContain(".brief-today.today-week { min-height: 100%; grid-template-rows: auto minmax(0, 1fr); }");
+    expect(styles).toContain(".completion-copy { white-space: nowrap; font-size: .64rem; letter-spacing: -.01em; }");
     expect(styles).toContain(".heatmap-month { grid-auto-rows: 36px; }");
     expect(styles).toContain(".year-month-labels span { min-width: 0; white-space: nowrap; }");
   });

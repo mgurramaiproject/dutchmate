@@ -47,9 +47,12 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .popup-content { display: grid; flex: 1 1 auto; min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; padding: 16px; }
 .popup-content.today-panel { overflow-y: hidden; padding: 12px; }
 .today-content, .brief-today { display: grid; align-content: start; gap: 8px; }
+.brief-today.today-week { min-height: 100%; grid-template-rows: auto minmax(0, 1fr); }
+.today-week .learning-rhythm { align-content: space-between; }
 .next-action { display: grid; gap: 7px; padding: 12px; border: 1px solid var(--black); border-left: 6px solid var(--orange); border-radius: 8px; background: var(--white); }
 .next-action .heading { font-size: 1.4rem; line-height: 1; }
 .next-action .button { width: 100%; background: var(--orange); }
+.completion-copy { white-space: nowrap; font-size: .64rem; letter-spacing: -.01em; }
 .action-meta { display: flex; justify-content: space-between; gap: 8px; margin: 0; color: var(--muted); font-size: .67rem; font-weight: 750; }
 .learning-rhythm, .calendar-card { display: grid; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }

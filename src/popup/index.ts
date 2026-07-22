@@ -168,7 +168,8 @@ function renderSaved(): HTMLElement {
 }
 
 function renderToday(): HTMLElement {
-  const wrapper = section("today-content brief-today");
+  const calendarFocused = activityPeriod !== "week";
+  const wrapper = section(`today-content brief-today${calendarFocused ? " calendar-focus" : " today-week"}`);
   if (!snapshot) { wrapper.append(eyebrow("Today"), heading("Loading your Daily Five…")); return wrapper; }
   if (savedError && items.length === 0) {
     const retry = button("Try again", "button primary-button");
@@ -180,10 +181,10 @@ function renderToday(): HTMLElement {
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
-  const calendarFocused = activityPeriod !== "week";
   if (!calendarFocused) {
     const nextAction = section("next-action");
-    nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), text(completed ? "Your Daily Five is complete. Keep going only if you want to." : total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now."));
+    const actionCopy = completed ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy") : text(total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now.");
+    nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
     if (total === 0) {
       const lessons = button("Choose a lesson", "button primary-button");
       lessons.addEventListener("click", () => { screen = "lessons"; render(); });

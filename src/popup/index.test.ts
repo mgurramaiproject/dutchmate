@@ -102,6 +102,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day")).toHaveLength(7));
     expect(content().querySelector(".insights")).toBeNull();
     expect(content().textContent).toContain("Practise five useful words. Start now.");
+    expect(content().querySelector(".today-week")).toBeTruthy();
     expect(content().querySelector<HTMLElement>(".rhythm-day.grace")?.getAttribute("aria-label")).toContain("grace day");
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.tabIndex).toBe(0);
     expect(content().querySelector<HTMLButtonElement>(".period-tab.is-active")?.textContent).toBe("week");
