@@ -6,6 +6,8 @@ Source plan: [004-transfer-plan.md](./004-transfer-plan.md)
 
 Research and rationale: [004-transfer-research.md](./004-transfer-research.md)
 
+Approved design: [Direction A · Context Slip](./004-transfer-design-mockups.html)
+
 Deferred ideas: [004-transfer-parking-lot.md](./004-transfer-parking-lot.md)
 
 ## Problem Statement
@@ -206,6 +208,10 @@ The compact mission card remains non-modal, keeps the original page scrollable, 
 - A full experiment platform or automatic cohort assignment. The initial learning study remains small, voluntary, and separately operated.
 
 ## Further Notes
+
+### Approved design
+
+Direction A, **Context Slip**, in the interactive design mockups is the implementation source of truth. Implementation must preserve its webpage-first structure, orange context tether, white non-modal card, visual hierarchy, learner-facing copy, controls, responsive behavior, and accessible interaction states. Directions B and C remain exploration history and must not be substituted during implementation without a new explicit design decision.
 
 ### Approved test seams
 

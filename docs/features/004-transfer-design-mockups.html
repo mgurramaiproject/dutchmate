@@ -236,27 +236,28 @@
         <p class="intro">Context Missions turn one deliberate Dutch selection into one short exercise. The reading page remains the place—not a new popup tab.</p>
 
         <section class="recommendation" aria-labelledby="recommendation-title">
-          <p class="eyebrow">Recommendation</p>
+          <p class="eyebrow">Approved direction</p>
           <h2 id="recommendation-title">A · Context Slip</h2>
-          <p>The white card feels like a precise reading annotation rather than another app. Its orange tether makes the authentic sentence—not the exercise chrome—the visual anchor.</p>
+          <p>The white card feels like a precise reading annotation rather than another app. Its orange tether makes the authentic sentence—not the exercise chrome—the visual anchor. This is the implementation source of truth.</p>
         </section>
 
         <div class="direction-list" aria-label="Mission card directions">
           <button class="direction-button" data-direction="a" type="button" aria-pressed="true">
             <span class="direction-letter">A</span>
-            <span class="direction-copy"><strong>Context Slip</strong><small>Recommended. Light, calm, and closest to an annotation placed beside real Dutch.</small></span>
+            <span class="direction-copy"><strong>Context Slip</strong><small>Approved. Light, calm, and closest to an annotation placed beside real Dutch.</small></span>
           </button>
           <button class="direction-button" data-direction="b" type="button" aria-pressed="false">
             <span class="direction-letter">B</span>
-            <span class="direction-copy"><strong>Black Study Note</strong><small>Highest contrast and closest to the current tooltip, but visually heavier while reading.</small></span>
+            <span class="direction-copy"><strong>Black Study Note</strong><small>Exploration archive. High contrast, but visually heavier while reading.</small></span>
           </button>
           <button class="direction-button" data-direction="c" type="button" aria-pressed="false">
             <span class="direction-letter">C</span>
-            <span class="direction-copy"><strong>Sentence Workbench</strong><small>A wider split layout with more room for fragments, but a larger webpage footprint.</small></span>
+            <span class="direction-copy"><strong>Sentence Workbench</strong><small>Exploration archive. More fragment room, but a larger webpage footprint.</small></span>
           </button>
         </div>
 
         <ul class="design-rules">
+          <li><strong>Implementation:</strong> reproduce Direction A's structure, hierarchy, copy, controls, and responsive behavior. Directions B and C are not alternatives during implementation.</li>
           <li><strong>Signature:</strong> the orange context tether connects selected Dutch to every practice state.</li>
           <li><strong>Hierarchy:</strong> serif Dutch and context; sans-serif controls; one orange action at a time.</li>
           <li><strong>Boundary:</strong> no popup navigation, modal overlay, score, hidden request, or automatic save.</li>
