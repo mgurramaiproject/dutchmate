@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS,
   requestRuntimeTranslation,
   type RuntimeTranslationExtensionApi,
 } from "./runtime-translation-client";
@@ -41,6 +42,30 @@ describe("requestRuntimeTranslation", () => {
         providerName: "custom-endpoint",
       },
     });
+  });
+
+  it("keeps the first Firefox request alive through a bounded cold start", async () => {
+    vi.useFakeTimers();
+    const extensionApi: RuntimeTranslationExtensionApi = {
+      runtime: {
+        sendMessage: (_message, callback) => {
+          globalThis.setTimeout(() => callback({
+            ok: true,
+            result: { translatedText: "house", providerName: "custom-endpoint" },
+          }), 10000);
+        },
+      },
+    };
+
+    const response = requestRuntimeTranslation(extensionApi, request);
+    await vi.advanceTimersByTimeAsync(10000);
+
+    await expect(response).resolves.toEqual({
+      ok: true,
+      result: { translatedText: "house", providerName: "custom-endpoint" },
+    });
+    expect(DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS).toBe(20000);
+    vi.useRealTimers();
   });
 
   it("returns the runtime error when Chrome reports one", async () => {

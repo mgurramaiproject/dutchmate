@@ -18,9 +18,12 @@ import {
 } from "../shared/settings";
 import { createWebpageLifecycleController } from "./webpage-lifecycle-controller";
 
-const TOOLTIP_TRANSLATION_TIMEOUT_MS = 9000;
+// A freshly restarted hosted backend can need several seconds to wake before
+// its first translation. Keep the UI guard slightly longer than the request
+// timeout so that cold starts can complete while failed requests stay bounded.
+const TOOLTIP_TRANSLATION_TIMEOUT_MS = 25000;
 const CHROME_DIRECT_TRANSLATION_FALLBACK_MS = 1200;
-const DIRECT_TRANSLATION_TIMEOUT_MS = 15000;
+const DIRECT_TRANSLATION_TIMEOUT_MS = 20000;
 
 type StorageChange = {
   newValue?: unknown;

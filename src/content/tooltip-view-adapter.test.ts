@@ -7,6 +7,22 @@ afterEach(() => {
 });
 
 describe("TooltipViewAdapter", () => {
+  it("makes the initial translating state explicit and readable", () => {
+    const view = createTooltipViewAdapter({
+      onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn(),
+    });
+
+    view.showLoading("Translating...", 10, 10);
+
+    const tooltip = document.querySelector<HTMLDivElement>("#hover-translate-tooltip");
+    const styles = document.querySelector("style")?.textContent;
+    expect(tooltip?.hidden).toBe(false);
+    expect(tooltip?.dataset.state).toBe("loading");
+    expect(tooltip?.textContent).toBe("Translating...");
+    expect(styles).toContain('background: #172554');
+    expect(styles).toContain('color: #f8fafc');
+  });
+
   it("renders an accessible Context Slip and routes keyboard-operable controls without changing the page", () => {
     const onPractice = vi.fn();
     const onAddFragment = vi.fn();

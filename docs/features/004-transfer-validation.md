@@ -20,7 +20,7 @@ Run from `feature/004-transfer` at `881822a` on 2026-07-22:
 | Check | Result | Evidence |
 | --- | --- | --- |
 | Focused Context Slip and canonical-learning seams | Pass | `corepack pnpm exec vitest run src/content/webpage-lookup-module.test.ts src/content/tooltip-view-adapter.test.ts src/content/webpage-lifecycle-controller.test.ts src/background/message-handler.test.ts src/vocabulary/learning-record.test.ts src/vocabulary/daily-five.test.ts src/release/release-docs-consistency.test.ts` — 63 tests passed. |
-| Complete relevant suite | Pass | `corepack pnpm test` — 505 tests in 90 files passed. |
+| Complete relevant suite | Pass | `corepack pnpm test` — 508 tests in 90 files passed. |
 | Type checking | Pass | `corepack pnpm typecheck`. |
 | Chrome and Firefox build/package gate | Pass | `corepack pnpm verify:release` built and packaged both targets and verified each generated manifest and ZIP. |
 | Whitespace | Pass | `git diff --check`. |

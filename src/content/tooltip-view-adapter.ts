@@ -116,7 +116,15 @@ export function createTooltipViewAdapter(callbacks: {
     }
 
     #hover-translate-tooltip[data-state="loading"] {
-      color: #dbeafe;
+      min-width: 132px;
+      padding: 11px 14px;
+      border-color: #1d4ed8;
+      background: #172554;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, .28);
+      color: #f8fafc;
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: .01em;
     }
 
     #hover-translate-tooltip[data-state="error"] {
