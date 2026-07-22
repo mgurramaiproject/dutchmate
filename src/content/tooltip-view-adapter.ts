@@ -50,6 +50,9 @@ export function createTooltipViewAdapter(callbacks: {
       position: fixed;
       z-index: 2147483647;
       max-width: min(360px, calc(100vw - 24px));
+      max-height: calc(100vh - 24px);
+      box-sizing: border-box;
+      overflow-y: auto;
       padding: 8px 10px;
       border: 1px solid #000;
       border-radius: 8px;
@@ -120,7 +123,12 @@ export function createTooltipViewAdapter(callbacks: {
   document.documentElement.append(style, tooltip);
 
   let currentSaveButton: HTMLButtonElement | null = null;
-  let returnFocus: HTMLButtonElement | null = null;
+  let returnFocus: HTMLElement | null = null;
+  let lastPosition = { x: 12, y: 12 };
+
+  window.addEventListener("resize", () => {
+    if (!tooltip.hidden) positionTooltip(tooltip, lastPosition.x, lastPosition.y);
+  });
 
   return {
     isTooltipEvent(event) {
@@ -129,6 +137,8 @@ export function createTooltipViewAdapter(callbacks: {
 
     showLoading(message, x, y) {
       currentSaveButton = null;
+      lastPosition = { x, y };
+      tooltip.setAttribute("role", "status");
       tooltip.dataset.state = "loading";
       tooltip.textContent = message;
       positionTooltip(tooltip, x, y);
@@ -137,6 +147,8 @@ export function createTooltipViewAdapter(callbacks: {
 
     showError(message, x, y) {
       currentSaveButton = null;
+      lastPosition = { x, y };
+      tooltip.setAttribute("role", "status");
       tooltip.dataset.state = "error";
       tooltip.textContent = message;
       positionTooltip(tooltip, x, y);
@@ -145,6 +157,9 @@ export function createTooltipViewAdapter(callbacks: {
 
     showResult(response, x, y, saveAction, chunkConfirmation, practiceAvailable) {
       currentSaveButton = null;
+      lastPosition = { x, y };
+      rememberExternalFocus(tooltip, (element) => { returnFocus = element; });
+      tooltip.setAttribute("role", "status");
       tooltip.dataset.state = response.ok ? "success" : "error";
 
       if (chunkConfirmation) {
@@ -167,7 +182,7 @@ export function createTooltipViewAdapter(callbacks: {
       );
       positionTooltip(tooltip, x, y);
       tooltip.hidden = false;
-      if (practiceAvailable) renderPracticeAction(tooltip, callbacks.onPractice, (button) => { returnFocus = button; });
+      if (practiceAvailable) renderPracticeAction(tooltip, callbacks.onPractice);
     },
 
     updateSaveButton(saveAction) {
@@ -186,32 +201,46 @@ export function createTooltipViewAdapter(callbacks: {
 
     showMission(mission) {
       currentSaveButton = null;
+      tooltip.removeAttribute("role");
+      const focus = tooltip.dataset.state === "mission" ? describeTooltipFocus(tooltip) : undefined;
+      const isOpening = tooltip.dataset.state !== "mission";
       tooltip.dataset.state = "mission";
       renderMission(tooltip, mission, callbacks, (button) => {
         currentSaveButton = button;
       });
+      positionTooltip(tooltip, lastPosition.x, lastPosition.y);
       tooltip.hidden = false;
-      tooltip.querySelector<HTMLButtonElement>(".context-slip-close")?.focus();
+      if (isOpening) tooltip.querySelector<HTMLButtonElement>(".context-slip-close")?.focus();
+      else restoreTooltipFocus(tooltip, focus);
     },
 
     showRecallOffer(selectedDutch, x, y) {
       currentSaveButton = null;
+      lastPosition = { x, y };
+      rememberExternalFocus(tooltip, (element) => { returnFocus = element; });
+      tooltip.removeAttribute("role");
       tooltip.dataset.state = "recall-offer";
       tooltip.textContent = "";
       const tether = document.createElement("section"); tether.className = "context-slip-tether";
       const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Seen before";
       const title = document.createElement("h3"); title.className = "context-slip-title"; title.lang = "nl"; title.textContent = selectedDutch;
       const actions = document.createElement("div"); actions.className = "context-slip-actions";
-      actions.append(actionButton("Try from memory", callbacks.onTryFromMemory, true), actionButton("Translate now", callbacks.onTranslateNow));
+      const tryFromMemory = actionButton("Try from memory", callbacks.onTryFromMemory, true);
+      actions.append(tryFromMemory, actionButton("Translate now", callbacks.onTranslateNow));
       tether.append(kicker, title, actions); tooltip.append(tether); positionTooltip(tooltip, x, y); tooltip.hidden = false;
     },
 
     showRecallMission(mission) {
       currentSaveButton = null;
+      tooltip.removeAttribute("role");
+      const focus = tooltip.dataset.state === "recall-mission" ? describeTooltipFocus(tooltip) : undefined;
+      const isOpening = tooltip.dataset.state !== "recall-mission";
       tooltip.dataset.state = "recall-mission";
       renderRecallMission(tooltip, mission, callbacks);
       tooltip.hidden = false;
-      tooltip.querySelector<HTMLButtonElement>(".context-slip-close")?.focus();
+      positionTooltip(tooltip, lastPosition.x, lastPosition.y);
+      if (isOpening) tooltip.querySelector<HTMLButtonElement>(".context-slip-close")?.focus();
+      else restoreTooltipFocus(tooltip, focus);
     },
 
     hide() {
@@ -239,7 +268,7 @@ function renderRecallMission(tooltip: HTMLDivElement, mission: RecallMission, ca
     meaning.textContent = [mission.english && `English: ${mission.english}`, mission.telugu && `Telugu: ${mission.telugu}`].filter(Boolean).join("\n");
     tether.append(meaning);
     if (mission.result) {
-      const result = document.createElement("p"); result.className = "context-slip-status"; result.textContent = mission.result === "got-it" ? "Got it" : "Again";
+      const result = document.createElement("p"); result.className = "context-slip-status"; result.setAttribute("role", "status"); result.textContent = mission.result === "got-it" ? "Got it" : "Again";
       tether.append(result, actionButton("Replay", callbacks.onReplayRecall), actionButton("Back to page", callbacks.onClose, true));
     } else if (mission.evidenceRecorded) {
       tether.append(actionButton("Back to page", callbacks.onClose, true));
@@ -255,14 +284,13 @@ function renderRecallMission(tooltip: HTMLDivElement, mission: RecallMission, ca
   tooltip.append(tether);
 }
 
-function renderPracticeAction(tooltip: HTMLDivElement, onPractice: () => void, registerFocus: (button: HTMLButtonElement) => void): void {
+function renderPracticeAction(tooltip: HTMLDivElement, onPractice: () => void): void {
   const actions = tooltip.querySelector(".hover-translate-actions") ?? tooltip.appendChild(document.createElement("div"));
   actions.classList.add("hover-translate-actions");
   const button = document.createElement("button");
   button.type = "button";
   button.className = "context-slip-button primary";
   button.textContent = "Practise this";
-  registerFocus(button);
   button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); onPractice(); });
   actions.append(button);
 }
@@ -326,12 +354,33 @@ function renderMissionCapture(
 
 function fragmentBank(values: string[], label: string, onClick: (index: number) => void, disabled = false): HTMLDivElement {
   const bank = document.createElement("div"); bank.className = "context-slip-fragments"; bank.setAttribute("aria-label", label);
-  values.forEach((value, index) => { const button = actionButton(value, () => onClick(index)); button.className = "context-slip-fragment"; button.disabled = disabled; bank.append(button); });
+  values.forEach((value, index) => { const button = actionButton(value, () => onClick(index)); button.className = "context-slip-fragment"; button.dataset.contextSlipFocus = `fragment:${label}:${index}`; button.dataset.contextSlipFragment = value; button.disabled = disabled; bank.append(button); });
   return bank;
 }
 
 function actionButton(label: string, onClick: () => void, primary = false): HTMLButtonElement {
-  const button = document.createElement("button"); button.type = "button"; button.className = `context-slip-button${primary ? " primary" : ""}`; button.textContent = label; button.addEventListener("click", onClick); return button;
+  const button = document.createElement("button"); button.type = "button"; button.className = `context-slip-button${primary ? " primary" : ""}`; button.dataset.contextSlipFocus = `action:${label}`; button.textContent = label; button.addEventListener("click", onClick); return button;
+}
+
+type TooltipFocus = { key: string; fragment?: string };
+
+function describeTooltipFocus(tooltip: HTMLDivElement): TooltipFocus | undefined {
+  const active = document.activeElement;
+  if (!(active instanceof HTMLButtonElement) || !tooltip.contains(active)) return undefined;
+  return active.dataset.contextSlipFocus ? { key: active.dataset.contextSlipFocus, fragment: active.dataset.contextSlipFragment } : undefined;
+}
+
+function restoreTooltipFocus(tooltip: HTMLDivElement, focus: TooltipFocus | undefined): void {
+  if (!focus) return;
+  const buttons = Array.from(tooltip.querySelectorAll<HTMLButtonElement>("button"));
+  const candidate = (focus.fragment ? buttons.find((button) => button.dataset.contextSlipFragment === focus.fragment && !button.disabled) : undefined)
+    ?? buttons.find((button) => button.dataset.contextSlipFocus === focus.key && !button.disabled);
+  candidate?.focus();
+}
+
+function rememberExternalFocus(tooltip: HTMLDivElement, remember: (element: HTMLElement) => void): void {
+  const active = document.activeElement;
+  if (active instanceof HTMLElement && active !== document.body && !tooltip.contains(active)) remember(active);
 }
 
 function renderSeenBefore(tooltip: HTMLDivElement): void {

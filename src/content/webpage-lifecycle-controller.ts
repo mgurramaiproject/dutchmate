@@ -26,6 +26,7 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
   handlePageClick(event: MouseEvent): void;
   handleMouseLeave(): void;
   handleKeyDown(event: KeyboardEvent): void;
+  handlePageHide(): void;
   clearSelectionAndHideTooltip(): void;
   hideTooltip(): void;
 } {
@@ -195,6 +196,11 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
         activeSelectionText = "";
         dependencies.lookupModule.clear();
       }
+    },
+
+    handlePageHide(): void {
+      activeSelectionText = "";
+      dependencies.lookupModule.clear();
     },
 
     clearSelectionAndHideTooltip,

@@ -21,6 +21,7 @@ describe("TooltipViewAdapter", () => {
     expect(onPractice).toHaveBeenCalledOnce();
 
     view.showMission({ selectedDutch: "houd rekening met", pageContext: "Bekijk en houd rekening met de tijd.", available: ["rekening", "met", "houd"], placed: [] });
+    expect(document.querySelector("#hover-translate-tooltip")?.getAttribute("role")).toBeNull();
     expect(document.querySelector(".context-slip-context")?.textContent).toContain("__________");
     expect(document.querySelector<HTMLButtonElement>(".context-slip-close")?.getAttribute("aria-label")).toBe("Close Context Mission");
     document.querySelector<HTMLButtonElement>("[aria-label='Available words'] button")?.click();
@@ -76,5 +77,36 @@ describe("TooltipViewAdapter", () => {
     expect(document.querySelector("#hover-translate-tooltip")?.textContent).toContain("English: good morning");
     Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Got it")?.click();
     expect(onRecallResult).toHaveBeenCalledWith("got-it");
+    view.showRecallMission({ itemId: "nl\u001fgoede morgen", selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", english: "good morning", telugu: "శుభోదయం", revealed: true, result: "got-it", evidenceRecorded: true, dimension: "recognition", expectedAttemptCount: 0, token: 1 });
+    expect(Array.from(document.querySelectorAll("[role='status']")).some((element) => element.textContent === "Got it")).toBe(true);
+  });
+
+  it("returns focus to the initiating repeat action when a mission closes", () => {
+    const pageControl = document.createElement("button"); pageControl.textContent = "Read more"; document.body.append(pageControl); pageControl.focus();
+    let view: ReturnType<typeof createTooltipViewAdapter>;
+    view = createTooltipViewAdapter({ onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: () => view.showRecallMission({ itemId: "nl\u001fgoede morgen", selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", english: "good morning", telugu: "శుభోదయం", revealed: false, evidenceRecorded: false, dimension: "recognition", expectedAttemptCount: 0, token: 1 }), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn() });
+    view.showRecallOffer("goede morgen", 10, 10);
+    const tryFromMemory = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Try from memory")!;
+    tryFromMemory.click();
+    view.hide();
+    expect(document.activeElement).toBe(pageControl);
+  });
+
+  it("keeps focus inside the card when mission feedback rerenders", () => {
+    const view = createTooltipViewAdapter({ onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn() });
+    const mission = { selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", available: ["morgen"], placed: ["goede"] };
+    view.showMission(mission);
+    const reset = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Reset")!;
+    reset.focus();
+    view.showMission(mission);
+    expect(document.activeElement).toHaveProperty("textContent", "Reset");
+  });
+
+  it("keeps focus on the moved fragment after reconstruction rerenders", () => {
+    const view = createTooltipViewAdapter({ onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn() });
+    view.showMission({ selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", available: ["goede", "morgen"], placed: [] });
+    document.querySelector<HTMLButtonElement>("[aria-label='Available words'] button")!.focus();
+    view.showMission({ selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", available: ["morgen"], placed: ["goede"] });
+    expect(document.activeElement).toBe(document.querySelector("[aria-label='Your answer'] button"));
   });
 });

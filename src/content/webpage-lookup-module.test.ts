@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { WebpageLookupModule, type TranslationTransport } from "./webpage-lookup-module";
 import type { LearningItem } from "../vocabulary/learning-record";
+import type { ExtensionSettings } from "../shared/settings";
 
 const defaultSettings = {
   isEnabled: true,
@@ -118,6 +119,38 @@ describe("WebpageLookupModule", () => {
     module.addMissionFragment(0);
     module.checkMission();
     expect(recordMissionResult).toHaveBeenCalledTimes(1);
+  });
+
+  it("invalidates an in-flight recall result when the mission closes or selection translation is disabled", async () => {
+    let settings: ExtensionSettings = defaultSettings;
+    let resolveResult: ((value: { ok: boolean }) => void) | undefined;
+    const recordMissionResult = vi.fn(() => new Promise<{ ok: boolean }>((resolve) => { resolveResult = resolve; }));
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => settings,
+      transport: createTransport({
+        listLearningItems: async () => ({ ok: true, result: { items: [savedItem({ recognition: { state: "familiar", dueAt: 20, intervalDays: 3, attemptCount: 2, successfulStreak: 2, lastPractisedAt: 1 }, recall: { state: "learning", dueAt: 10, intervalDays: 1, attemptCount: 1, successfulStreak: 1, lastPractisedAt: 1 } })] } }),
+        recordMissionResult,
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Goede morgen, buur." });
+    module.startRecallMission();
+    module.addMissionFragment(1);
+    module.addMissionFragment(0);
+    module.checkMission();
+    expect(recordMissionResult).toHaveBeenCalledOnce();
+    module.clear();
+    resolveResult?.({ ok: true });
+    await Promise.resolve();
+    expect(events.at(-1)).toEqual({ type: "hide-tooltip" });
+
+    settings = { ...defaultSettings, translateOnSelection: false };
+    module.applySettings();
+    expect(events.at(-1)).toEqual({ type: "hide-tooltip" });
   });
 
   it("falls back to normal translation when saved recall data is incomplete", async () => {

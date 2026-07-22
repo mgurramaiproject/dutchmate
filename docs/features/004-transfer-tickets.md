@@ -103,16 +103,16 @@ GitHub: [#61](https://github.com/mgurramaiproject/dutchmate/issues/61)
 
 **Blocked by:** [T02 — #59](https://github.com/mgurramaiproject/dutchmate/issues/59) and [T04 — #60](https://github.com/mgurramaiproject/dutchmate/issues/60).
 
-- [ ] Starting another lookup, replacing the selection, closing the card, disabling the extension, disabling selection translation, or navigating away invalidates the current mission and ignores late results.
-- [ ] Visible close, Escape, completion, and safe failure return focus predictably to the initiating control when it remains available and otherwise fail safely.
-- [ ] Every action and fragment is keyboard-operable with logical order, visible focus, Enter or Space activation, and useful accessible names.
-- [ ] Fragment movement, reveal, check result, correction, failure, and completion use accessible live announcements without making the whole interactive card a noisy status region.
-- [ ] The non-modal card keeps the page scrollable and remains usable near every viewport edge, at zoom, narrow widths, and touch sizes consistent with approved Direction A.
-- [ ] Translation failure, learning-record failure, missing helpers, missing identity, stale cache, and unsupported selections provide the specified fallback or actionable failure without false success.
-- [ ] Mission state, fragments, answers, URLs, raw page history, completion history, and resume state remain ephemeral; only existing explicit capture, capped context, encounter metadata, and one eligible Mission evidence update may persist.
-- [ ] Ordinary hover, existing single- and multi-target translation calls, Save and Review & save, Today, Lessons, Saved, Options, and badges remain unchanged except for canonical mastery consequences.
-- [ ] Automated tests at the approved behavioral and rendered-UI seams cover lifecycle invalidation, failures, focus, keyboard, announcements, responsive positioning, and zero incremental provider requests.
-- [ ] Manual accessibility inspection confirms that Direction A's structure, hierarchy, copy, controls, orange tether, and responsive behavior match the approved mockup rather than Directions B or C.
+- [x] Starting another lookup, replacing the selection, closing the card, disabling the extension, disabling selection translation, or navigating away invalidates the current mission and ignores late results.
+- [x] Visible close, Escape, completion, and safe failure return focus predictably to the initiating control when it remains available and otherwise fail safely.
+- [x] Every action and fragment is keyboard-operable with logical order, visible focus, Enter or Space activation, and useful accessible names.
+- [x] Fragment movement, reveal, check result, correction, failure, and completion use accessible live announcements without making the whole interactive card a noisy status region.
+- [x] The non-modal card keeps the page scrollable and remains usable near every viewport edge, at zoom, narrow widths, and touch sizes consistent with approved Direction A.
+- [x] Translation failure, learning-record failure, missing helpers, missing identity, stale cache, and unsupported selections provide the specified fallback or actionable failure without false success.
+- [x] Mission state, fragments, answers, URLs, raw page history, completion history, and resume state remain ephemeral; only existing explicit capture, capped context, encounter metadata, and one eligible Mission evidence update may persist.
+- [x] Ordinary hover, existing single- and multi-target translation calls, Save and Review & save, Today, Lessons, Saved, Options, and badges remain unchanged except for canonical mastery consequences.
+- [x] Automated tests at the approved behavioral and rendered-UI seams cover lifecycle invalidation, failures, focus, keyboard, announcements, responsive positioning, and zero incremental provider requests.
+- [x] Manual accessibility inspection confirms that Direction A's structure, hierarchy, copy, controls, orange tether, and responsive behavior match the approved mockup rather than Directions B or C.
 
 ## T06 — Verify and document release readiness
 

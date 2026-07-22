@@ -92,6 +92,7 @@ document.addEventListener("mouseup", lifecycleController.handleSelection, { pass
 document.addEventListener("scroll", lifecycleController.clearSelectionAndHideTooltip, { passive: true });
 document.addEventListener("click", lifecycleController.handlePageClick, { passive: true });
 document.addEventListener("keydown", lifecycleController.handleKeyDown);
+window.addEventListener("pagehide", lifecycleController.handlePageHide);
 extensionApi?.storage.onChanged.addListener(handleStorageChanged);
 lookupModule.subscribe(handleLookupModuleEvent);
 
