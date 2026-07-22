@@ -21,9 +21,9 @@ describe("popup layout", () => {
     expect(styles).not.toContain(".heatmap .rhythm-day.high { background: var(--black); }");
     expect(styles).toContain(".activity-total { font-family: var(--serif);");
     expect(styles).toContain(".popup-content.today-panel { display: flex; align-items: stretch; overflow-y: auto; padding: 12px; }");
-    expect(styles).toContain(".brief-today.today-week { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 100%; }");
-    expect(styles).toContain(".calendar-focus { flex: 0 0 100%; width: 100%; }");
-    expect(styles).toContain(".today-week .learning-rhythm { min-width: 0; margin-top: auto; }");
+    expect(styles).toContain(".brief-today.today-week { display: flex; flex: 1 1 auto; flex-direction: column; justify-content: space-between; min-height: 100%; }");
+    expect(styles).toContain(".calendar-focus { display: flex; flex: 0 0 100%; flex-direction: column; justify-content: space-between; width: 100%; min-height: 100%; }");
+    expect(styles).toContain(".today-week .learning-rhythm { min-width: 0; }");
     expect(styles).toContain(".completion-copy { white-space: normal; font-size: .64rem; letter-spacing: -.01em; }");
     expect(styles).toContain(".rhythm-day.is-today { box-shadow: inset 0 0 0 2px var(--black); }");
     expect(styles).toContain(".secondary-actions .secondary-button:hover:not(:disabled), .secondary-actions .secondary-button:focus-visible { border-color: var(--orange);");

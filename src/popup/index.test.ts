@@ -29,7 +29,11 @@ describe("lesson popup", () => {
       if (message.type === "dutchmate.learning.list") return listFails ? { ok: false, error: "Local read failed" } : { ok: true, result: { items: learningItems } };
       if (message.type === "dutchmate.learning.rhythm") return { ok: true, result: { rhythm: rhythmResponse } };
       if (message.type === "dutchmate.learning.dailyFive") return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [], goalCompleted: false } } };
-      if (message.type === "dutchmate.learning.dailyFive.result") return { ok: true, result: { item: dailyItem, snapshot: { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [`${dailyItem.id}\u001frecognition`], goalCompleted: true } } };
+      if (message.type === "dutchmate.learning.dailyFive.result") {
+        const item = learningItems.find((candidate) => candidate.id === message.payload?.itemId)!;
+        const dimension = message.payload?.dimension as "recognition" | "recall";
+        return { ok: true, result: { item: { ...item, [dimension]: { ...(item[dimension] as Record<string, unknown>), dueAt: Date.now() + 86_400_000 } }, snapshot: { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [`${dailyItem.id}\u001frecognition`], goalCompleted: true } } };
+      }
       if (message.type === "dutchmate.review.settings") return { ok: true, result: { settings: defaultSettings } };
       if (message.type === "dutchmate.learning.lessonProgress") return { ok: true, result: { progress: progressByLesson[String(message.payload?.lessonId)] ?? null } };
       if (message.type === "dutchmate.learning.lessonProgress.save") {
@@ -109,6 +113,8 @@ describe("lesson popup", () => {
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("3 reviews, 1 saved item");
     expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("4");
     expect(content().querySelector<HTMLElement>(".rhythm-day.idle")?.getAttribute("aria-label")).toContain("0 reviews, 0 saved items");
+    const firstWeekDay = content().querySelector<HTMLElement>(".week-grid .rhythm-day")?.dataset.dayStart;
+    expect(new Date(Number(firstWeekDay)).getDay()).toBe(1);
     const today = content().querySelector<HTMLElement>(".rhythm-day.is-today");
     expect(today).toBeTruthy();
     expect(today?.getAttribute("aria-label")).toContain("Today");
@@ -146,7 +152,25 @@ describe("lesson popup", () => {
     });
     for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
     await vi.waitFor(() => expect(document.querySelector<HTMLElement>("#due-badge")?.hidden).toBe(false));
-    expect(document.querySelector<HTMLElement>("#due-badge")?.title).toBe("1 saved item has a due recognition or recall review. Today shows up to five at a time.");
+    expect(document.querySelector<HTMLElement>("#due-badge")?.title).toBe("1 saved item still has one or more due recognition or recall reviews. Today shows up to five at a time.");
+  });
+
+  it("updates the due-review counter as soon as a review is saved", async () => {
+    learningItems = learningItems.map((item, index) => {
+      return { ...item, recognition: { ...(item.recognition as Record<string, unknown>), state: "learning", attemptCount: 1, dueAt: 0 } };
+    });
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+    await vi.waitFor(() => expect(document.querySelector<HTMLElement>("#due-badge")?.hidden).toBe(false));
+    expect(document.querySelector<HTMLElement>("#due-badge")?.textContent).toBe("2");
+
+    button("Start Daily Five").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    button("Show answer").click();
+    await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
+    button("Got it").click();
+
+    await vi.waitFor(() => expect(document.querySelector<HTMLElement>("#due-badge")?.textContent).toBe("1"));
+    expect(document.querySelector<HTMLElement>("#due-badge")?.hidden).toBe(false);
   });
 
   it("keeps Today selected on open and renders Saved as a browse-only shelf with stable numbering", async () => {
