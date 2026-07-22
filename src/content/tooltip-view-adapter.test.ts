@@ -28,4 +28,28 @@ describe("TooltipViewAdapter", () => {
     document.querySelector<HTMLButtonElement>(".context-slip-close")?.click();
     expect(onClose).toHaveBeenCalledOnce();
   });
+
+  it("keeps post-mission chunk capture explicit and confirmed", () => {
+    const onSaveClick = vi.fn();
+    const view = createTooltipViewAdapter({
+      onSaveClick, onPractice: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn(),
+    });
+
+    view.showMission({
+      selectedDutch: "goede morgen",
+      pageContext: "goede morgen, buur.",
+      available: [],
+      placed: ["goede", "morgen"],
+      result: "got-it",
+      capture: {
+        saveAction: { status: "ready", label: "Review & save", disabled: false },
+        chunkConfirmation: { dutch: "goede morgen", english: "good morning", telugu: "శుభోదయం", context: "goede morgen, buur." },
+      },
+    });
+
+    expect(document.querySelector(".context-slip-capture")?.textContent).toContain("Save: goede morgen");
+    const save = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Review & save");
+    save?.click();
+    expect(onSaveClick).toHaveBeenCalledOnce();
+  });
 });

@@ -30,7 +30,15 @@ describe("LearningRecordStore", () => {
     const backup = await records.exportBackup();
 
     expect(backup.version).toBe(2);
-    expect(backup.learningItems[0]).toMatchObject({ id: "nl\u001fgoede morgen", kind: "chunk", english: "good morning", telugu: "శుభోదయం", contexts: [{ text: "Goede morgen, buur!" }] });
+    expect(backup.learningItems[0]).toMatchObject({
+      id: "nl\u001fgoede morgen",
+      kind: "chunk",
+      english: "good morning",
+      telugu: "శుభోదయం",
+      contexts: [{ text: "Goede morgen, buur!" }],
+      recognition: { state: "new", attemptCount: 0, dueAt: null },
+      recall: { state: "new", attemptCount: 0, dueAt: null },
+    });
     expect(JSON.stringify(backup)).not.toContain("secret");
   });
 

@@ -109,6 +109,10 @@ export type ContextMission = {
   available: string[];
   placed: string[];
   result?: "got-it" | "again";
+  capture?: {
+    saveAction: SaveActionState;
+    chunkConfirmation?: ChunkConfirmation;
+  };
 };
 
 export type WebpageLookupModuleEvent =
@@ -426,6 +430,7 @@ export class WebpageLookupModule {
       pageContext: this.#practiceSelection.pageContext,
       available: deterministicRotation(selectedDutch.split(/\s+/u)),
       placed: [],
+      ...this.#getMissionCapture(),
     };
     this.#emitMission();
   }
@@ -465,6 +470,25 @@ export class WebpageLookupModule {
 
   #emitMission(): void {
     if (this.#mission) this.#emit({ type: "render-mission", mission: this.#mission });
+  }
+
+  #getMissionCapture(): Pick<ContextMission, "capture"> {
+    if (this.#currentChunk) {
+      return {
+        capture: {
+          saveAction: { status: "ready", label: "Review & save", disabled: false },
+          chunkConfirmation: {
+            dutch: this.#currentChunk.dutch,
+            english: this.#currentChunk.english ?? null,
+            telugu: this.#currentChunk.telugu ?? null,
+            context: this.#currentChunk.context?.slice(0, 240) ?? null,
+          },
+        },
+      };
+    }
+
+    const saveAction = this.#getSaveActionState();
+    return saveAction.status === "hidden" ? {} : { capture: { saveAction } };
   }
 
   async #refreshCurrentSaveState(): Promise<void> {

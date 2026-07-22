@@ -180,7 +180,9 @@ export function createTooltipViewAdapter(callbacks: {
     showMission(mission) {
       currentSaveButton = null;
       tooltip.dataset.state = "mission";
-      renderMission(tooltip, mission, callbacks);
+      renderMission(tooltip, mission, callbacks, (button) => {
+        currentSaveButton = button;
+      });
       tooltip.hidden = false;
       tooltip.querySelector<HTMLButtonElement>(".context-slip-close")?.focus();
     },
@@ -207,7 +209,12 @@ function renderPracticeAction(tooltip: HTMLDivElement, onPractice: () => void, r
   actions.append(button);
 }
 
-function renderMission(tooltip: HTMLDivElement, mission: ContextMission, callbacks: Parameters<typeof createTooltipViewAdapter>[0]): void {
+function renderMission(
+  tooltip: HTMLDivElement,
+  mission: ContextMission,
+  callbacks: Parameters<typeof createTooltipViewAdapter>[0],
+  registerSaveButton: (button: HTMLButtonElement | null) => void,
+): void {
   tooltip.textContent = "";
   const tether = document.createElement("section");
   tether.className = "context-slip-tether";
@@ -224,6 +231,9 @@ function renderMission(tooltip: HTMLDivElement, mission: ContextMission, callbac
     const actions = document.createElement("div"); actions.className = "context-slip-actions";
     actions.append(actionButton("Replay", callbacks.onReplay), actionButton("Back to page", callbacks.onClose, true));
     tether.append(status, actions);
+    if (mission.capture) {
+      renderMissionCapture(tether, mission.capture, callbacks.onSaveClick, registerSaveButton);
+    }
   } else {
     const placed = fragmentBank(mission.placed, "Your answer", callbacks.onRemoveFragment);
     const available = fragmentBank(mission.available, "Available words", callbacks.onAddFragment);
@@ -235,6 +245,21 @@ function renderMission(tooltip: HTMLDivElement, mission: ContextMission, callbac
     tether.append(placed, available, actions, status);
   }
   tooltip.append(tether);
+}
+
+function renderMissionCapture(
+  container: HTMLElement,
+  capture: NonNullable<ContextMission["capture"]>,
+  onSaveClick: () => void,
+  registerSaveButton: (button: HTMLButtonElement | null) => void,
+): void {
+  if (capture.chunkConfirmation) {
+    const confirmation = document.createElement("p");
+    confirmation.className = "context-slip-capture";
+    confirmation.textContent = `Save: ${capture.chunkConfirmation.dutch}\nEnglish: ${capture.chunkConfirmation.english ?? "unavailable"}\nTelugu: ${capture.chunkConfirmation.telugu ?? "unavailable"}\nContext: ${capture.chunkConfirmation.context ?? "unavailable"}`;
+    container.append(confirmation);
+  }
+  renderSaveAction(container, capture.saveAction, onSaveClick, registerSaveButton);
 }
 
 function fragmentBank(values: string[], label: string, onClick: (index: number) => void): HTMLDivElement {
@@ -255,7 +280,7 @@ function renderSeenBefore(tooltip: HTMLDivElement): void {
 }
 
 function renderSaveAction(
-  tooltip: HTMLDivElement,
+  tooltip: HTMLElement,
   saveAction: SaveActionState,
   onSaveClick: () => void,
   registerButton: (button: HTMLButtonElement | null) => void,

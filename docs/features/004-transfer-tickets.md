@@ -44,16 +44,16 @@ GitHub: [#59](https://github.com/mgurramaiproject/dutchmate/issues/59)
 
 **Blocked by:** [T01 — #57](https://github.com/mgurramaiproject/dutchmate/issues/57).
 
-- [ ] Context Slip preserves the existing `Save` or `Review & save` path only for selections already eligible under the canonical word or meaningful-chunk rules.
-- [ ] Practice never saves a selection automatically, including when the legacy single-word auto-save setting exists.
-- [ ] A complete sentence can be practised when otherwise eligible but cannot become a learning item through Context Missions.
-- [ ] `Review & save` still requires item-level confirmation of the normalized Dutch, available helpers, and capped page context.
-- [ ] Cancelling capture changes no learning record and leaves the mission safely usable or dismissible.
-- [ ] Saving after a mission creates or merges the normal canonical learning item; a newly created item begins New with no retroactive recognition or recall credit.
-- [ ] Saving cannot turn a first-encounter result into Mission evidence, alter a Daily Five snapshot, or create a mission-specific record.
-- [ ] Unfinished fragment order, checked answers, replay state, and mission completion are never written to storage.
-- [ ] Existing single-word, meaningful-chunk, hover, and duplicate-save behavior remains compatible.
-- [ ] Focused content, learning-record, and rendered-card tests prove the learner-controlled capture boundary.
+- [x] Context Slip preserves the existing `Save` or `Review & save` path only for selections already eligible under the canonical word or meaningful-chunk rules.
+- [x] Practice never saves a selection automatically, including when the legacy single-word auto-save setting exists.
+- [x] A complete sentence can be practised when otherwise eligible but cannot become a learning item through Context Missions.
+- [x] `Review & save` still requires item-level confirmation of the normalized Dutch, available helpers, and capped page context.
+- [x] Cancelling capture changes no learning record and leaves the mission safely usable or dismissible.
+- [x] Saving after a mission creates or merges the normal canonical learning item; a newly created item begins New with no retroactive recognition or recall credit.
+- [x] Saving cannot turn a first-encounter result into Mission evidence, alter a Daily Five snapshot, or create a mission-specific record.
+- [x] Unfinished fragment order, checked answers, replay state, and mission completion are never written to storage.
+- [x] Existing single-word, meaningful-chunk, hover, and duplicate-save behavior remains compatible.
+- [x] Focused content, learning-record, and rendered-card tests prove the learner-controlled capture boundary.
 
 ## T03 — Recall a saved meaning before translation
 

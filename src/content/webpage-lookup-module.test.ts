@@ -306,6 +306,34 @@ describe("WebpageLookupModule", () => {
     expect(saveLearningItem).not.toHaveBeenCalled();
   });
 
+  it("keeps an eligible chunk learner-controlled after its first-encounter mission", async () => {
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport({ saveLearningItem }), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "goede morgen", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "goede morgen, buur." });
+    module.startPractice();
+    module.addMissionFragment(1);
+    module.addMissionFragment(0);
+    module.checkMission();
+
+    expect(events.at(-1)).toEqual(expect.objectContaining({
+      type: "render-mission",
+      mission: expect.objectContaining({
+        result: "got-it",
+        capture: {
+          saveAction: { status: "ready", label: "Review & save", disabled: false },
+          chunkConfirmation: { dutch: "goede morgen", english: "goede morgen-en", telugu: "goede morgen-te", context: "goede morgen, buur." },
+        },
+      }),
+    }));
+    expect(saveLearningItem).not.toHaveBeenCalled();
+
+    await module.handleSaveAction();
+    expect(saveLearningItem).toHaveBeenCalledWith(expect.objectContaining({ dutch: "goede morgen", kind: "chunk", source: "webpage" }));
+  });
+
   it.each(["een zin.", "een\ntwee", `een ${"x".repeat(78)}`])("keeps %j translatable but hides chunk saving", async (text) => {
     const events: unknown[] = [];
     const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport(), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
