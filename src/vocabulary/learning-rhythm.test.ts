@@ -37,13 +37,15 @@ describe("learning rhythm", () => {
     const rhythm = getLearningRhythm([], {}, {
       activeDays: { [8 * day]: { completedAt: 8 * day } },
       activityDays: {
-        [today]: { reviews: 3, saved: 2, updatedAt: today },
+        [today]: { reviews: 3, saved: 2, lessons: 1, updatedAt: today },
+        [9 * day]: { reviews: 1, saved: 2, updatedAt: 9 * day },
       },
     }, today, []);
 
     expect(rhythm.activity).toEqual(expect.arrayContaining([
-      { dayStartAt: today, reviews: 3, saved: 2 },
-      { dayStartAt: 8 * day, reviews: null, saved: null },
+      { dayStartAt: today, reviews: 3, saved: 2, lessons: 1 },
+      { dayStartAt: 9 * day, reviews: 1, saved: 2, lessons: null },
+      { dayStartAt: 8 * day, reviews: null, saved: null, lessons: null },
     ]));
   });
 });

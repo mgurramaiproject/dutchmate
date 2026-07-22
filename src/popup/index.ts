@@ -262,11 +262,12 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
     const activity = activityByDay.get(dayStartAt);
     const day = current.week.find((candidate) => candidate.dayStartAt === dayStartAt);
     const status = day?.status ?? (activity ? "active" : "idle");
-    const intensity = activity && (activity.reviews ?? 0) + (activity.saved ?? 0) >= 4 ? " high" : "";
+    const total = activityTotalValue(activity);
+    const intensity = total !== null && total >= 4 ? " high" : "";
     const isToday = isLocalToday(dayStartAt);
     const dot = button("", `rhythm-day ${status}${intensity}${isToday ? " is-today" : ""}`);
     const label = new Date(dayStartAt).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-    const counts = activity && activity.reviews !== null && activity.saved !== null ? `${activity.reviews} review${activity.reviews === 1 ? "" : "s"}, ${activity.saved} saved item${activity.saved === 1 ? "" : "s"}` : activity ? "activity recorded before counts were available" : `0 reviews, 0 saved items${status === "grace" ? " · grace day" : ""}`;
+    const counts = activity ? activityDescription(activity) : `0 reviews, 0 saved items, 0 lessons${status === "grace" ? " · grace day" : ""}`;
     const description = `${label}: ${counts}${isToday ? " · Today" : ""}`;
     dot.setAttribute("aria-label", description);
     dot.title = description;
@@ -303,8 +304,27 @@ function isLocalToday(dayStartAt: number): boolean {
 function activityTotal(activity: LearningRhythm["activity"][number] | undefined): HTMLElement {
   const total = document.createElement("span");
   total.className = "activity-total";
-  total.textContent = activity && activity.reviews !== null && activity.saved !== null ? String(activity.reviews + activity.saved) : activity ? "–" : "0";
+  const value = activityTotalValue(activity);
+  total.textContent = value === null ? "–" : `${value}${activity && hasUnknownActivityCount(activity) ? "+" : ""}`;
   return total;
+}
+
+function activityDescription(activity: LearningRhythm["activity"][number]): string {
+  return [
+    activity.reviews === null ? "review count unavailable" : `${activity.reviews} review${activity.reviews === 1 ? "" : "s"}`,
+    activity.saved === null ? "saved-item count unavailable" : `${activity.saved} saved item${activity.saved === 1 ? "" : "s"}`,
+    activity.lessons === null ? activity.lessonAdditions ? `${activity.lessonAdditions} new lesson${activity.lessonAdditions === 1 ? "" : "s"}; historical lesson count unavailable` : "lesson count unavailable" : `${activity.lessons} lesson${activity.lessons === 1 ? "" : "s"}`,
+  ].join(", ");
+}
+
+function activityTotalValue(activity: LearningRhythm["activity"][number] | undefined): number | null {
+  if (!activity) return 0;
+  const counts = [activity.reviews, activity.saved, activity.lessons, activity.lessons === null ? activity.lessonAdditions ?? 0 : null].filter((count): count is number => count !== null);
+  return counts.length > 0 ? counts.reduce((total, count) => total + count, 0) : null;
+}
+
+function hasUnknownActivityCount(activity: LearningRhythm["activity"][number]): boolean {
+  return activity.reviews === null || activity.saved === null || activity.lessons === null;
 }
 
 function renderLessons(): HTMLElement {

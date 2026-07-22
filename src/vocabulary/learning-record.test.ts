@@ -184,13 +184,95 @@ describe("LearningRecordStore", () => {
     await records.recordDailyFiveResult(item.id, "recognition", "got-it");
 
     const day = new Date(now).setHours(0, 0, 0, 0);
-    await expect(records.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 1 }]) });
+    await expect(records.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 1, lessons: 0 }]) });
 
     const backup = await records.exportBackup();
     now += 86_400_000;
     const restored = new LearningRecordStore(new MemoryStorage(), () => now);
     await restored.importBackup(backup);
-    await expect(restored.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 1 }]) });
+    await expect(restored.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 1, lessons: 0 }]) });
+  });
+
+  it("restores saved, reviewed, and completed-lesson history from local storage after a restart", async () => {
+    const storage = new MemoryStorage();
+    const now = 1_000;
+    const records = new LearningRecordStore(storage, () => now);
+    const item = await records.createOrMerge({ dutch: "huis", english: "house" });
+    await records.getDailyFive();
+    await records.recordDailyFiveResult(item.id, "recognition", "got-it");
+    await records.keepLessonCandidates(
+      "a1-een-afspraak-maken",
+      1,
+      [{ id: "afspraak-maken", dutch: "een afspraak maken", kind: "chunk", english: "make an appointment", telugu: "అపాయింట్‌మెంట్ తీసుకోవడం" }],
+      [{ dutch: "een afspraak maken", dimension: "recall", result: "got-it" }],
+    );
+
+    const restarted = new LearningRecordStore(storage, () => now + 10_000);
+    const day = new Date(now).setHours(0, 0, 0, 0);
+
+    await expect(restarted.getRhythm()).resolves.toMatchObject({
+      activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 2, lessons: 1 }]),
+    });
+    await expect(restarted.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toMatchObject({ completedAt: now });
+    await expect(restarted.list()).resolves.toHaveLength(2);
+  });
+
+  it("preserves partial legacy activity counts through import and a restart", async () => {
+    const storage = new MemoryStorage();
+    const now = 1_000;
+    const day = new Date(now).setHours(0, 0, 0, 0);
+    const records = new LearningRecordStore(storage, () => now);
+    await records.importBackup({
+      format: "dutchmate-learning-backup",
+      version: 2,
+      exportedAt: now,
+      learningItems: [],
+      lessonProgress: {},
+      rhythm: { activityDays: { [day]: { reviews: 3, saved: 1, updatedAt: now } } },
+    });
+
+    const restarted = new LearningRecordStore(storage, () => now + 10_000);
+    await expect(restarted.getRhythm()).resolves.toMatchObject({
+      activity: expect.arrayContaining([{ dayStartAt: day, reviews: 3, saved: 1, lessons: null }]),
+    });
+
+    await restarted.keepLessonCandidates(
+      "a1-een-afspraak-maken",
+      1,
+      [{ id: "afspraak-maken", dutch: "een afspraak maken", kind: "chunk", english: "make an appointment", telugu: "అపాయింట్‌మెంట్ తీసుకోవడం" }],
+      [],
+    );
+    const restartedAgain = new LearningRecordStore(storage, () => now + 20_000);
+    await expect(restartedAgain.getRhythm()).resolves.toMatchObject({
+      activity: expect.arrayContaining([{ dayStartAt: day, reviews: 3, saved: 2, lessons: null, lessonAdditions: 1 }]),
+    });
+  });
+
+  it("keeps known activity categories when merging a legacy backup in either direction", async () => {
+    const now = 1_000;
+    const day = new Date(now).setHours(0, 0, 0, 0);
+    const legacyBackup = {
+      format: "dutchmate-learning-backup" as const,
+      version: 2 as const,
+      exportedAt: now,
+      learningItems: [],
+      lessonProgress: {},
+      rhythm: { activityDays: { [day]: { reviews: 3, saved: 1, updatedAt: now } } },
+    };
+    const completeBackup = {
+      ...legacyBackup,
+      rhythm: { activityDays: { [day]: { reviews: 1, saved: 1, lessons: 1, updatedAt: now } } },
+    };
+
+    const localComplete = new LearningRecordStore(new MemoryStorage(), () => now);
+    await localComplete.importBackup(completeBackup);
+    await localComplete.importBackup(legacyBackup);
+    await expect(localComplete.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 3, saved: 1, lessons: 1 }]) });
+
+    const localLegacy = new LearningRecordStore(new MemoryStorage(), () => now);
+    await localLegacy.importBackup(legacyBackup);
+    await localLegacy.importBackup(completeBackup);
+    await expect(localLegacy.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 3, saved: 1, lessons: 1 }]) });
   });
 });
 

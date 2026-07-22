@@ -548,7 +548,7 @@ Publishing a browser-store release, executing a long-running research study, col
 
 ### Scope
 
-- Record local per-day review and saved-item counts alongside existing learning rhythm, retaining compatibility with existing rhythm and backup data.
+- Record local per-day review, lesson-completion, and saved-item counts alongside existing learning rhythm, retaining compatibility with existing rhythm and backup data.
 - Let Today show keyboard-accessible local activity history by week, month, and year, with previous/next periods and an exact per-day count on hover or focus.
 - Replace the current milestone sentence stack with concise earned-insight chips.
 - Keep `Start Daily Five` as Today’s single primary action. Show `Review more` only after Daily Five is complete; retain a quiet Continue lesson entry when one is in progress.
@@ -556,11 +556,11 @@ Publishing a browser-store release, executing a long-running research study, col
 
 ### Acceptance criteria
 
-- [x] The learning record stores local per-day review and saved-item counts without credentials, cache entries, raw browsing content, or telemetry.
+- [x] The learning record stores local per-day review, lesson-completion, and saved-item counts without credentials, cache entries, raw browsing content, or telemetry.
 - [x] Existing rhythm and backup documents migrate safely; old activity still appears as an active day even when no historical count is available.
 - [x] Today opens with one visually dominant `Start Daily Five` action whenever a Daily Five is available.
 - [x] `Review more` cannot compete with an incomplete Daily Five and becomes available only after the daily goal completes.
-- [x] Week, month, and year activity views support previous/next periods; each day exposes its local review/save count by hover and keyboard focus.
+- [x] Week, month, and year activity views support previous/next periods; each day exposes its local review, lesson, and save count by hover and keyboard focus.
 - [x] Milestones appear as concise, evidence-based chips rather than a vertical sentence stack.
 - [x] Lessons show all twelve items in compact numbered rows, with title, pathway/status, and CEFR in parentheses; the completed/in-progress state remains clear.
 - [x] The popup keeps visible focus, 44px minimum interactive targets, no horizontal scrolling, reduced-motion support, and a usable 390px Firefox popup. *(Manually confirmed by the user after the T13 popup-feedback refinement on 2026-07-21.)*
