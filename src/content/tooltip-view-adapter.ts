@@ -1,5 +1,5 @@
 import type { TranslateMessageResponse } from "./runtime-translation-client";
-import type { ChunkConfirmation, SaveActionState } from "./webpage-lookup-module";
+import type { ChunkConfirmation, ContextMission, SaveActionState } from "./webpage-lookup-module";
 
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
 
@@ -13,13 +13,24 @@ export type TooltipViewAdapter = {
     y: number,
     saveAction: SaveActionState,
     chunkConfirmation?: ChunkConfirmation,
+    practiceAvailable?: true,
   ): void;
+  showMission(mission: ContextMission): void;
   showSeenBefore(): void;
   updateSaveButton(saveAction: SaveActionState): void;
   hide(): void;
 };
 
-export function createTooltipViewAdapter(onSaveClick: () => void): TooltipViewAdapter {
+export function createTooltipViewAdapter(callbacks: {
+  onSaveClick(): void;
+  onPractice(): void;
+  onAddFragment(index: number): void;
+  onRemoveFragment(index: number): void;
+  onReset(): void;
+  onCheck(): void;
+  onReplay(): void;
+  onClose(): void;
+}): TooltipViewAdapter {
   const tooltip = document.createElement("div");
   tooltip.id = "hover-translate-tooltip";
   tooltip.setAttribute("role", "status");
@@ -33,11 +44,10 @@ export function createTooltipViewAdapter(onSaveClick: () => void): TooltipViewAd
       z-index: 2147483647;
       max-width: min(360px, calc(100vw - 24px));
       padding: 8px 10px;
-      border: 1px solid rgba(15, 23, 42, 0.18);
-      border-radius: 6px;
-      background: #111827;
-      color: #f9fafb;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
+      border: 1px solid #000;
+      border-radius: 8px;
+      background: #fff;
+      color: #000;
       font: 13px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       pointer-events: auto;
       white-space: pre-line;
@@ -62,6 +72,19 @@ export function createTooltipViewAdapter(onSaveClick: () => void): TooltipViewAd
       line-height: 1.2;
       padding: 4px 8px;
     }
+
+    #hover-translate-tooltip .context-slip-tether { border-left: 4px solid #ff6f00; padding-left: 10px; }
+    #hover-translate-tooltip .context-slip-kicker { font-size: 11px; font-weight: 800; margin: 0 0 4px; }
+    #hover-translate-tooltip .context-slip-title, #hover-translate-tooltip .context-slip-context { font-family: Georgia, serif; }
+    #hover-translate-tooltip .context-slip-title { font-size: 18px; margin: 0 28px 6px 0; }
+    #hover-translate-tooltip .context-slip-context { margin: 0 0 10px; }
+    #hover-translate-tooltip .context-slip-close { position: absolute; top: 7px; right: 7px; min-width: 44px; min-height: 44px; border: 1px solid #000; background: #fff; color: #000; font-size: 20px; }
+    #hover-translate-tooltip .context-slip-fragments { display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px; margin: 8px 0; }
+    #hover-translate-tooltip .context-slip-fragment, #hover-translate-tooltip .context-slip-button { min-height: 44px; border: 1px solid #000; border-radius: 6px; background: #fff; color: #000; font: inherit; font-weight: 700; padding: 6px 10px; }
+    #hover-translate-tooltip .context-slip-button.primary { background: #ff6f00; }
+    #hover-translate-tooltip button:focus-visible { outline: 3px solid #ff6f00; outline-offset: 2px; }
+    #hover-translate-tooltip .context-slip-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    #hover-translate-tooltip .context-slip-status { display: block; min-height: 20px; font-weight: 700; }
 
     #hover-translate-tooltip .hover-translate-save:disabled {
       cursor: default;
@@ -90,6 +113,7 @@ export function createTooltipViewAdapter(onSaveClick: () => void): TooltipViewAd
   document.documentElement.append(style, tooltip);
 
   let currentSaveButton: HTMLButtonElement | null = null;
+  let returnFocus: HTMLButtonElement | null = null;
 
   return {
     isTooltipEvent(event) {
@@ -112,7 +136,7 @@ export function createTooltipViewAdapter(onSaveClick: () => void): TooltipViewAd
       tooltip.hidden = false;
     },
 
-    showResult(response, x, y, saveAction, chunkConfirmation) {
+    showResult(response, x, y, saveAction, chunkConfirmation, practiceAvailable) {
       currentSaveButton = null;
       tooltip.dataset.state = response.ok ? "success" : "error";
 
@@ -129,13 +153,14 @@ export function createTooltipViewAdapter(onSaveClick: () => void): TooltipViewAd
       renderSaveAction(
         tooltip,
         saveAction,
-        onSaveClick,
+        callbacks.onSaveClick,
         (button) => {
           currentSaveButton = button;
         },
       );
       positionTooltip(tooltip, x, y);
       tooltip.hidden = false;
+      if (practiceAvailable) renderPracticeAction(tooltip, callbacks.onPractice, (button) => { returnFocus = button; });
     },
 
     updateSaveButton(saveAction) {
@@ -152,12 +177,74 @@ export function createTooltipViewAdapter(onSaveClick: () => void): TooltipViewAd
       if (!tooltip.hidden && !tooltip.querySelector(".hover-translate-seen-before")) renderSeenBefore(tooltip);
     },
 
+    showMission(mission) {
+      currentSaveButton = null;
+      tooltip.dataset.state = "mission";
+      renderMission(tooltip, mission, callbacks);
+      tooltip.hidden = false;
+      tooltip.querySelector<HTMLButtonElement>(".context-slip-close")?.focus();
+    },
+
     hide() {
       currentSaveButton = null;
       tooltip.hidden = true;
       delete tooltip.dataset.state;
+      if (returnFocus?.isConnected) returnFocus.focus();
+      returnFocus = null;
     },
   };
+}
+
+function renderPracticeAction(tooltip: HTMLDivElement, onPractice: () => void, registerFocus: (button: HTMLButtonElement) => void): void {
+  const actions = tooltip.querySelector(".hover-translate-actions") ?? tooltip.appendChild(document.createElement("div"));
+  actions.classList.add("hover-translate-actions");
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "context-slip-button primary";
+  button.textContent = "Practise this";
+  registerFocus(button);
+  button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); onPractice(); });
+  actions.append(button);
+}
+
+function renderMission(tooltip: HTMLDivElement, mission: ContextMission, callbacks: Parameters<typeof createTooltipViewAdapter>[0]): void {
+  tooltip.textContent = "";
+  const tether = document.createElement("section");
+  tether.className = "context-slip-tether";
+  const close = document.createElement("button");
+  close.type = "button"; close.className = "context-slip-close"; close.setAttribute("aria-label", "Close Context Mission"); close.textContent = "×";
+  close.addEventListener("click", callbacks.onClose);
+  const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Rebuild in context";
+  const title = document.createElement("h3"); title.className = "context-slip-title"; title.textContent = mission.result === "got-it" ? "Got it" : mission.result === "again" ? "Again" : "Put the Dutch back";
+  const context = document.createElement("p"); context.className = "context-slip-context"; context.lang = "nl";
+  context.textContent = (mission.pageContext ?? mission.selectedDutch).replace(mission.selectedDutch, "__________");
+  tether.append(close, kicker, title, context);
+  if (mission.result) {
+    const status = document.createElement("span"); status.className = "context-slip-status"; status.setAttribute("role", "status"); status.textContent = mission.result === "got-it" ? "The Dutch fits." : `Here is the right order: ${mission.selectedDutch}`;
+    const actions = document.createElement("div"); actions.className = "context-slip-actions";
+    actions.append(actionButton("Replay", callbacks.onReplay), actionButton("Back to page", callbacks.onClose, true));
+    tether.append(status, actions);
+  } else {
+    const placed = fragmentBank(mission.placed, "Your answer", callbacks.onRemoveFragment);
+    const available = fragmentBank(mission.available, "Available words", callbacks.onAddFragment);
+    const actions = document.createElement("div"); actions.className = "context-slip-actions";
+    const reset = actionButton("Reset", callbacks.onReset);
+    const check = actionButton("Check", callbacks.onCheck, true); check.disabled = mission.placed.length !== mission.available.length + mission.placed.length;
+    actions.append(reset, check);
+    const status = document.createElement("span"); status.className = "context-slip-status"; status.setAttribute("aria-live", "polite"); status.textContent = `${mission.placed.length} of ${mission.placed.length + mission.available.length} words placed`;
+    tether.append(placed, available, actions, status);
+  }
+  tooltip.append(tether);
+}
+
+function fragmentBank(values: string[], label: string, onClick: (index: number) => void): HTMLDivElement {
+  const bank = document.createElement("div"); bank.className = "context-slip-fragments"; bank.setAttribute("aria-label", label);
+  values.forEach((value, index) => { const button = actionButton(value, () => onClick(index)); button.className = "context-slip-fragment"; bank.append(button); });
+  return bank;
+}
+
+function actionButton(label: string, onClick: () => void, primary = false): HTMLButtonElement {
+  const button = document.createElement("button"); button.type = "button"; button.className = `context-slip-button${primary ? " primary" : ""}`; button.textContent = label; button.addEventListener("click", onClick); return button;
 }
 
 function renderSeenBefore(tooltip: HTMLDivElement): void {

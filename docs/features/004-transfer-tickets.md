@@ -24,17 +24,17 @@ GitHub: [#57](https://github.com/mgurramaiproject/dutchmate/issues/57)
 
 **Blocked by:** None — can start immediately.
 
-- [ ] A successful deliberate Dutch selection containing 2–12 words offers `Practise this` after the existing translation result.
-- [ ] The action remains absent for hover, failed or non-Dutch translation, unsupported selection length, a disabled extension, or disabled selection translation.
-- [ ] `Practise this` opens approved Direction A, Context Slip: a white non-modal card with the orange context tether, original sentence in view, approved copy, and no popup navigation.
-- [ ] `Rebuild in context` blanks the selected Dutch and presents deterministic shuffled words or short fragments that can be placed and returned without typing or drag-and-drop.
-- [ ] Reset restores the original shuffled task; Check becomes available only when the answer can be evaluated.
-- [ ] The first checked order ignores capitalization, surrounding whitespace, and terminal punctuation; an exact order produces `Got it`, while an incorrect order produces `Again` and reveals the correct Dutch.
-- [ ] Replay is available for learning but cannot create, revise, or persist Mission evidence.
-- [ ] A first-encounter mission never updates recognition, recall, scheduling, or saved learning items.
-- [ ] Starting, checking, replaying, and completing the mission add zero translation-provider requests and call no generative service.
-- [ ] Visible close, Escape, keyboard-operable fragments, visible focus, accessible result announcements, page scrolling, and `Back to page` work at the two approved test seams.
-- [ ] Existing hover translation, selection translation, saving, settings, and popup behavior remain green.
+- [x] A successful deliberate Dutch selection containing 2–12 words offers `Practise this` after the existing translation result.
+- [x] The action remains absent for hover, failed or non-Dutch translation, unsupported selection length, a disabled extension, or disabled selection translation.
+- [x] `Practise this` opens approved Direction A, Context Slip: a white non-modal card with the orange context tether, original sentence in view, approved copy, and no popup navigation.
+- [x] `Rebuild in context` blanks the selected Dutch and presents deterministic shuffled words or short fragments that can be placed and returned without typing or drag-and-drop.
+- [x] Reset restores the original shuffled task; Check becomes available only when the answer can be evaluated.
+- [x] The first checked order ignores capitalization, surrounding whitespace, and terminal punctuation; an exact order produces `Got it`, while an incorrect order produces `Again` and reveals the correct Dutch.
+- [x] Replay is available for learning but cannot create, revise, or persist Mission evidence.
+- [x] A first-encounter mission never updates recognition, recall, scheduling, or saved learning items.
+- [x] Starting, checking, replaying, and completing the mission add zero translation-provider requests and call no generative service.
+- [x] Visible close, Escape, keyboard-operable fragments, visible focus, accessible result announcements, page scrolling, and `Back to page` work at the two approved test seams.
+- [x] Existing hover translation, selection translation, saving, settings, and popup behavior remain green.
 
 ## T02 — Keep first-encounter capture learner-controlled
 

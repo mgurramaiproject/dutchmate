@@ -202,6 +202,48 @@ describe("WebpageLookupModule", () => {
     });
   });
 
+  it("reuses a successful Dutch selection for one ephemeral reconstruction without more translation or learning calls", async () => {
+    const translate = vi.fn(createTransport().translate);
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({ translate, saveLearningItem }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "houd rekening met", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Bekijk en houd rekening met de tijd." });
+    const callsAfterTranslation = translate.mock.calls.length;
+    expect(events).toContainEqual(expect.objectContaining({ type: "render-result", practiceAvailable: true }));
+
+    module.startPractice();
+    let mission = events.at(-1);
+    expect(mission).toEqual(expect.objectContaining({ type: "render-mission", mission: expect.objectContaining({ selectedDutch: "houd rekening met", placed: [] }) }));
+    module.addMissionFragment(2);
+    module.addMissionFragment(0);
+    module.addMissionFragment(0);
+    module.checkMission();
+
+    mission = events.at(-1);
+    expect(mission).toEqual(expect.objectContaining({ type: "render-mission", mission: expect.objectContaining({ result: "got-it" }) }));
+    expect(translate).toHaveBeenCalledTimes(callsAfterTranslation);
+    expect(saveLearningItem).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["hover", "houd rekening met", "nl"],
+    ["selection", "een", "nl"],
+    ["selection", "one two", "en"],
+  ] as const)("does not offer practice for %s %s", async (context, text, sourceLanguageHint) => {
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport(), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+    module.subscribe((event) => events.push(event));
+    await module.beginLookup({ text, context, x: 1, y: 1, sourceLanguageHint });
+    expect(events.some((event) => "practiceAvailable" in (event as object))).toBe(false);
+  });
+
   it("updates save state after a successful save", async () => {
     const events: unknown[] = [];
     const module = new WebpageLookupModule({

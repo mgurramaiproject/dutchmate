@@ -103,6 +103,13 @@ export type SaveActionState =
   | { status: "full"; label: "Vocabulary full"; disabled: true }
   | { status: "retry"; label: "Try again"; disabled: false; title: string };
 export type ChunkConfirmation = { dutch: string; english: string | null; telugu: string | null; context: string | null };
+export type ContextMission = {
+  selectedDutch: string;
+  pageContext: string | null;
+  available: string[];
+  placed: string[];
+  result?: "got-it" | "again";
+};
 
 export type WebpageLookupModuleEvent =
   | {
@@ -121,6 +128,7 @@ export type WebpageLookupModuleEvent =
       saveAction: SaveActionState;
       chunkConfirmation?: ChunkConfirmation;
       seenBefore?: true;
+      practiceAvailable?: true;
     }
   | {
       type: "render-error";
@@ -135,6 +143,10 @@ export type WebpageLookupModuleEvent =
     }
   | {
       type: "show-seen-before";
+    }
+  | {
+      type: "render-mission";
+      mission: ContextMission;
     }
   | {
       type: "hide-tooltip";
@@ -176,6 +188,8 @@ export class WebpageLookupModule {
   #currentSaveItem: CreateOrMergeLearningItemInput | null = null;
   #currentSaveItemId: string | null = null;
   #currentChunk: CreateOrMergeLearningItemInput | null = null;
+  #practiceSelection: { dutch: string; pageContext: string | null } | null = null;
+  #mission: ContextMission | null = null;
 
   constructor(dependencies: WebpageLookupModuleDependencies) {
     this.#deps = dependencies;
@@ -196,8 +210,13 @@ export class WebpageLookupModule {
     return this.#session.hasActiveSelectionControl();
   }
 
+  hasActiveMission(): boolean {
+    return this.#mission !== null;
+  }
+
   applySettings(): void {
-    if (!this.#deps.getSettings().isEnabled) {
+    const settings = this.#deps.getSettings();
+    if (!settings.isEnabled || !settings.translateOnSelection) {
       this.clear();
     }
   }
@@ -232,6 +251,8 @@ export class WebpageLookupModule {
     this.#currentSaveItem = null;
     this.#currentSaveItemId = null;
     this.#currentChunk = null;
+    this.#practiceSelection = null;
+    this.#mission = null;
     this.#emit({ type: "hide-tooltip" });
   }
 
@@ -239,6 +260,8 @@ export class WebpageLookupModule {
     const requestId = this.#session.begin(input.context);
     this.#currentSaveItem = null;
     this.#currentSaveItemId = null;
+    this.#practiceSelection = null;
+    this.#mission = null;
 
     this.#emit({
       type: "render-loading",
@@ -283,6 +306,11 @@ export class WebpageLookupModule {
       return;
     }
 
+    const practiceAvailable = completedLookup.context === "selection" && completedLookup.response.ok && completedLookup.sourceLanguage === "nl" && Boolean(input.pageContext?.includes(input.text)) && isMissionSelection(input.text);
+    this.#practiceSelection = practiceAvailable
+      ? { dutch: input.text, pageContext: input.pageContext ?? null }
+      : null;
+
     this.#currentSaveItem = completedLookup.context === "selection"
       ? this.#getLearningItemFromResponses(
         input.text,
@@ -309,6 +337,7 @@ export class WebpageLookupModule {
       response: completedLookup.response,
       saveAction,
       ...(chunkConfirmation ? { chunkConfirmation } : {}),
+      ...(practiceAvailable ? { practiceAvailable: true } : {}),
     });
 
     if (completedLookup.response.ok) {
@@ -387,6 +416,55 @@ export class WebpageLookupModule {
         disabled: true,
       },
     });
+  }
+
+  startPractice(): void {
+    if (!this.#practiceSelection) return;
+    const selectedDutch = this.#practiceSelection.dutch;
+    this.#mission = {
+      selectedDutch,
+      pageContext: this.#practiceSelection.pageContext,
+      available: deterministicRotation(selectedDutch.split(/\s+/u)),
+      placed: [],
+    };
+    this.#emitMission();
+  }
+
+  addMissionFragment(index: number): void {
+    if (!this.#mission || index < 0 || index >= this.#mission.available.length) return;
+    const available = [...this.#mission.available];
+    const [fragment] = available.splice(index, 1);
+    this.#mission = { ...this.#mission, available, placed: [...this.#mission.placed, fragment] };
+    this.#emitMission();
+  }
+
+  removeMissionFragment(index: number): void {
+    if (!this.#mission || index < 0 || index >= this.#mission.placed.length) return;
+    const placed = [...this.#mission.placed];
+    const [fragment] = placed.splice(index, 1);
+    this.#mission = { ...this.#mission, placed, available: [...this.#mission.available, fragment] };
+    this.#emitMission();
+  }
+
+  resetMission(): void {
+    if (!this.#mission) return;
+    this.#mission = { ...this.#mission, available: deterministicRotation(this.#mission.selectedDutch.split(/\s+/u)), placed: [], result: undefined };
+    this.#emitMission();
+  }
+
+  checkMission(): void {
+    if (!this.#mission || this.#mission.placed.length !== this.#mission.selectedDutch.split(/\s+/u).length || this.#mission.result) return;
+    const result = normalizeMissionAnswer(this.#mission.placed.join(" ")) === normalizeMissionAnswer(this.#mission.selectedDutch) ? "got-it" : "again";
+    this.#mission = { ...this.#mission, result };
+    this.#emitMission();
+  }
+
+  replayMission(): void {
+    this.resetMission();
+  }
+
+  #emitMission(): void {
+    if (this.#mission) this.#emit({ type: "render-mission", mission: this.#mission });
   }
 
   async #refreshCurrentSaveState(): Promise<void> {
@@ -661,4 +739,17 @@ export class WebpageLookupModule {
 function getChunkHelpers(translatedText: string): Pick<CreateOrMergeLearningItemInput, "english" | "telugu"> {
   const lines = new Map(translatedText.split("\n").map((line) => { const [label, ...value] = line.split(":"); return [label.trim(), value.join(":").trim()]; }));
   return { english: lines.get("English") || null, telugu: lines.get("Telugu") || null };
+}
+
+function isMissionSelection(text: string): boolean {
+  const words = text.trim().match(/[\p{Letter}\p{Number}][\p{Letter}\p{Number}'’-]*/gu) ?? [];
+  return words.length >= 2 && words.length <= 12;
+}
+
+function deterministicRotation(words: string[]): string[] {
+  return words.length < 2 ? words : [...words.slice(1), words[0]];
+}
+
+function normalizeMissionAnswer(value: string): string {
+  return value.trim().replace(/[.!?]+$/u, "").trim().toLocaleLowerCase();
 }

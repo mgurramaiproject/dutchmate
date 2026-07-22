@@ -15,7 +15,7 @@ type ControllerDependencies = {
   getSettings(): ExtensionSettings;
   lookupModule: Pick<
     WebpageLookupModule,
-    "beginLookup" | "clear" | "hasActiveSelectionControl" | "shouldKeepVisibleOnMouseLeave"
+    "beginLookup" | "clear" | "hasActiveMission" | "hasActiveSelectionControl" | "shouldKeepVisibleOnMouseLeave"
   >;
   tooltipView: Pick<TooltipViewAdapter, "isTooltipEvent" | "showError" | "hide">;
 };
@@ -39,6 +39,9 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
   }
 
   function clearSelectionAndHideTooltip(): void {
+    if (dependencies.lookupModule.hasActiveMission()) {
+      return;
+    }
     activeSelectionText = "";
     dependencies.lookupModule.clear();
   }
@@ -189,7 +192,8 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
 
     handleKeyDown(event: KeyboardEvent): void {
       if (event.key === "Escape") {
-        clearSelectionAndHideTooltip();
+        activeSelectionText = "";
+        dependencies.lookupModule.clear();
       }
     },
 

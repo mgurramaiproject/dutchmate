@@ -65,8 +65,15 @@ const lookupModule = new WebpageLookupModule({
   runWithTimeout: withTooltipTranslationTimeout,
   tooltipTimeoutMs: TOOLTIP_TRANSLATION_TIMEOUT_MS,
 });
-const tooltipView = createTooltipViewAdapter(() => {
-  void lookupModule.handleSaveAction();
+const tooltipView = createTooltipViewAdapter({
+  onSaveClick: () => { void lookupModule.handleSaveAction(); },
+  onPractice: () => lookupModule.startPractice(),
+  onAddFragment: (index) => lookupModule.addMissionFragment(index),
+  onRemoveFragment: (index) => lookupModule.removeMissionFragment(index),
+  onReset: () => lookupModule.resetMission(),
+  onCheck: () => lookupModule.checkMission(),
+  onReplay: () => lookupModule.replayMission(),
+  onClose: () => lookupModule.clear(),
 });
 const lifecycleController = createWebpageLifecycleController({
   getSettings: () => currentSettings,
@@ -97,7 +104,7 @@ function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
   }
 
   if (event.type === "render-result") {
-    tooltipView.showResult(event.response, event.x, event.y, event.saveAction, event.chunkConfirmation);
+    tooltipView.showResult(event.response, event.x, event.y, event.saveAction, event.chunkConfirmation, event.practiceAvailable);
     return;
   }
 
@@ -108,6 +115,11 @@ function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
 
   if (event.type === "show-seen-before") {
     tooltipView.showSeenBefore();
+    return;
+  }
+
+  if (event.type === "render-mission") {
+    tooltipView.showMission(event.mission);
     return;
   }
 
