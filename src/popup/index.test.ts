@@ -113,6 +113,9 @@ describe("lesson popup", () => {
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("3 reviews, 1 saved item");
     expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("4");
     expect(content().querySelector<HTMLElement>(".rhythm-day.idle")?.getAttribute("aria-label")).toContain("0 reviews, 0 saved items");
+    expect(content().querySelector(".heatmap-legend")?.textContent).toContain("Less");
+    expect(content().querySelector(".heatmap-legend")?.textContent).toContain("More");
+    expect(content().querySelectorAll(".heatmap-legend .heatmap-swatch")).toHaveLength(4);
     const firstWeekDay = content().querySelector<HTMLElement>(".week-grid .rhythm-day")?.dataset.dayStart;
     expect(new Date(Number(firstWeekDay)).getDay()).toBe(1);
     const today = content().querySelector<HTMLElement>(".rhythm-day.is-today");
@@ -253,10 +256,12 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
     button("Got it").click();
     await vi.waitFor(() => expect(button("Review more")).toBeTruthy());
-    expect(content().querySelector(".next-action .button")).toBeNull();
+    const reviewFiveMore = content().querySelector<HTMLButtonElement>(".next-action .button")!;
+    expect(reviewFiveMore.textContent).toBe("Review 5 more");
+    expect(content().textContent).not.toContain("Recognition first");
     expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Continue lesson", "Review more"]);
-    button("Review more").click();
-    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    reviewFiveMore.click();
+    await vi.waitFor(() => expect(runtime.sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.dailyFive", payload: { continueAfterCompletion: true } }));
   });
 
   it("keeps the learner in an understandable error state when keeping candidates fails", async () => {

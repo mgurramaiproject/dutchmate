@@ -187,15 +187,16 @@ function renderToday(): HTMLElement {
     const lessons = button("Choose a lesson", "button primary-button");
     lessons.addEventListener("click", () => { screen = "lessons"; render(); });
     nextAction.append(lessons);
-  } else if (!completed) {
-    const action = button(view.actionLabel ?? "Start Daily Five", "button primary-button");
+  } else {
+    const action = button(completed ? "Review 5 more" : view.actionLabel ?? "Start Daily Five", "button primary-button");
     action.disabled = pending;
     action.addEventListener("click", () => {
-      screen = "review"; revealed = false; render(); content?.focus();
+      if (completed) void startContinuation();
+      else { screen = "review"; revealed = false; render(); content?.focus(); }
     });
     nextAction.append(action);
   }
-  nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today · Recognition first`, "action-meta"));
+  nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
   wrapper.append(nextAction);
   const inProgress = lessonCatalog.lessons.find((lesson) => {
     const progress = lessonProgressById[lesson.id];
@@ -280,7 +281,7 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
     days.append(dot);
   }
   section.append(days);
-  if (activityPeriod !== "week") section.append(createHeatmapLegend());
+  section.append(createHeatmapLegend());
   return section;
 }
 
@@ -457,9 +458,9 @@ async function saveResult(item: LearningItem, dimension: "recognition" | "recall
     updateBadge();
     snapshot = response.snapshot; rhythm = await learningClient.getRhythm(); revealed = false;
     if (snapshot.goalCompleted) screen = "today";
+    pending = false;
     render();
-  } catch (error) { renderError(error instanceof Error ? error.message : "Your result could not be saved."); }
-  finally { pending = false; }
+  } catch (error) { pending = false; renderError(error instanceof Error ? error.message : "Your result could not be saved."); }
 }
 
 async function startContinuation(): Promise<void> { pending = true; render(); await load(true); pending = false; if (snapshot?.tasks.length) { screen = "review"; revealed = false; render(); content?.focus(); } }
