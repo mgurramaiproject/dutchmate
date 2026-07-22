@@ -20,13 +20,15 @@ describe("popup layout", () => {
     expect(styles).toContain(".heatmap-month .rhythm-day { position: relative; display: grid; min-height: 36px; aspect-ratio: auto; place-items: center;");
     expect(styles).not.toContain(".heatmap .rhythm-day.high { background: var(--black); }");
     expect(styles).toContain(".activity-total { font-family: var(--serif);");
-    expect(styles).toContain(".popup-content.today-panel { display: flex; overflow-y: hidden; padding: 12px; }");
+    expect(styles).toContain(".popup-content.today-panel { display: flex; align-items: stretch; overflow-y: auto; padding: 12px; }");
     expect(styles).toContain(".brief-today.today-week { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 100%; }");
+    expect(styles).toContain(".calendar-focus { flex: 0 0 100%; width: 100%; }");
     expect(styles).toContain(".today-week .learning-rhythm { min-width: 0; margin-top: auto; }");
     expect(styles).toContain(".completion-copy { white-space: normal; font-size: .64rem; letter-spacing: -.01em; }");
     expect(styles).toContain(".rhythm-day.is-today { box-shadow: inset 0 0 0 2px var(--black); }");
     expect(styles).toContain(".secondary-actions .secondary-button:hover:not(:disabled), .secondary-actions .secondary-button:focus-visible { border-color: var(--orange);");
-    expect(styles).toContain(".heatmap-month { grid-auto-rows: 36px; }");
+    expect(styles).toContain(".heatmap-month { width: 100%; grid-auto-rows: 36px; }");
+    expect(styles).toContain(".secondary-actions { display: grid; width: 100%; grid-template-columns: 1fr; gap: 8px; }");
     expect(styles).toContain(".year-month-labels span { min-width: 0; white-space: nowrap; }");
   });
 });

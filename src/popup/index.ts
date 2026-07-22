@@ -168,8 +168,7 @@ function renderSaved(): HTMLElement {
 }
 
 function renderToday(): HTMLElement {
-  const calendarFocused = activityPeriod !== "week";
-  const wrapper = section(`today-content brief-today${calendarFocused ? " calendar-focus" : " today-week"}`);
+  const wrapper = section(`today-content brief-today ${activityPeriod === "week" ? "today-week" : "calendar-focus"}`);
   if (!snapshot) { wrapper.append(eyebrow("Today"), heading("Loading your Daily Five…")); return wrapper; }
   if (savedError && items.length === 0) {
     const retry = button("Try again", "button primary-button");
@@ -181,26 +180,24 @@ function renderToday(): HTMLElement {
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
-  if (!calendarFocused) {
-    const nextAction = section("next-action");
-    const actionCopy = completed ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy") : text(total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now.");
-    nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
-    if (total === 0) {
-      const lessons = button("Choose a lesson", "button primary-button");
-      lessons.addEventListener("click", () => { screen = "lessons"; render(); });
-      nextAction.append(lessons);
-    } else {
-      const action = button(completed ? "Review more" : view.actionLabel ?? "Start Daily Five", "button primary-button");
-      action.disabled = pending;
-      action.addEventListener("click", () => {
-        if (completed) void startContinuation();
-        else { screen = "review"; revealed = false; render(); content?.focus(); }
-      });
-      nextAction.append(action);
-    }
-    nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today · Recognition first`, "action-meta"));
-    wrapper.append(nextAction);
+  const nextAction = section("next-action");
+  const actionCopy = completed ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy") : text(total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now.");
+  nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
+  if (total === 0) {
+    const lessons = button("Choose a lesson", "button primary-button");
+    lessons.addEventListener("click", () => { screen = "lessons"; render(); });
+    nextAction.append(lessons);
+  } else {
+    const action = button(completed ? "Review more" : view.actionLabel ?? "Start Daily Five", "button primary-button");
+    action.disabled = pending;
+    action.addEventListener("click", () => {
+      if (completed) void startContinuation();
+      else { screen = "review"; revealed = false; render(); content?.focus(); }
+    });
+    nextAction.append(action);
   }
+  nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today · Recognition first`, "action-meta"));
+  wrapper.append(nextAction);
   const inProgress = lessonCatalog.lessons.find((lesson) => {
     const progress = lessonProgressById[lesson.id];
     return progress && progress.completedAt === null;
@@ -218,7 +215,7 @@ function renderToday(): HTMLElement {
     reviewMore.addEventListener("click", () => void startContinuation());
     secondaryActions.append(reviewMore);
   }
-  if (!calendarFocused && secondaryActions.childElementCount) wrapper.append(secondaryActions);
+  if (secondaryActions.childElementCount) wrapper.append(secondaryActions);
   return wrapper;
 }
 
@@ -470,7 +467,7 @@ function createMasterySummary(): HTMLElement {
   for (const label of ["Recognition", "Recall"] as const) { const key = label.toLowerCase() as "recognition" | "recall"; const count = items.filter((item) => item[key].state !== "new").length; const state = [...states].reverse().find((candidate) => items.some((item) => item[key].state === candidate)) ?? "new"; const block = document.createElement("div"); block.append(text(`${label} · ${state}`, "section-title"), text(`${count} item${count === 1 ? "" : "s"} practised`, "body-copy")); summary.append(block); }
   return summary;
 }
-function updateBadge(): void { if (!dueBadge) return; const due = settings.dailyReviewBadge ? items.filter((item) => [item.recognition, item.recall].some((mastery) => mastery.attemptCount > 0 && mastery.dueAt !== null && mastery.dueAt <= Date.now())).length : 0; const label = `${due} item${due === 1 ? "" : "s"} due for review`; dueBadge.hidden = due === 0; dueBadge.textContent = String(due); dueBadge.setAttribute("aria-label", label); dueBadge.title = label; }
+function updateBadge(): void { if (!dueBadge) return; const due = settings.dailyReviewBadge ? items.filter((item) => [item.recognition, item.recall].some((mastery) => mastery.attemptCount > 0 && mastery.dueAt !== null && mastery.dueAt <= Date.now())).length : 0; const label = `${due} saved item${due === 1 ? "" : "s"} ha${due === 1 ? "s" : "ve"} a due recognition or recall review. Today shows up to five at a time.`; dueBadge.hidden = due === 0; dueBadge.textContent = String(due); dueBadge.setAttribute("aria-label", label); dueBadge.title = label; }
 function renderError(message: string): void { if (!content) return; content.replaceChildren(eyebrow("Today unavailable"), heading("Your practice could not load."), text(message)); }
 function section(className: string): HTMLElement { const element = document.createElement("section"); element.className = className; return element; }
 function button(label: string, className: string): HTMLButtonElement { const element = document.createElement("button"); element.type = "button"; element.className = className; element.textContent = label; return element; }

@@ -118,7 +118,8 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day").length).toBeGreaterThanOrEqual(28));
     expect(content().querySelector(".heatmap-month")).toBeTruthy();
     expect(content().querySelector(".heatmap-month .rhythm-day.is-today")).toBeTruthy();
-    expect(content().querySelector(".next-action")).toBeNull();
+    expect(content().querySelector(".next-action")).toBeTruthy();
+    expect(content().textContent).toContain("Practise five useful words. Start now.");
     expect(content().querySelectorAll(".month-weekdays span")).toHaveLength(7);
     expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .heatmap-date")].some((date) => date.textContent === "1")).toBe(true);
     expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .activity-total")].some((total) => total.textContent === "4")).toBe(true);
@@ -130,6 +131,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day")).toHaveLength(365));
     expect(content().querySelector(".heatmap-year")).toBeTruthy();
     expect(content().querySelector(".heatmap-year .rhythm-day.is-today")).toBeTruthy();
+    expect(content().querySelector(".next-action")).toBeTruthy();
     expect(content().querySelectorAll(".year-month-labels span")).toHaveLength(4);
   });
 
@@ -144,7 +146,7 @@ describe("lesson popup", () => {
     });
     for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
     await vi.waitFor(() => expect(document.querySelector<HTMLElement>("#due-badge")?.hidden).toBe(false));
-    expect(document.querySelector<HTMLElement>("#due-badge")?.title).toBe("1 item due for review");
+    expect(document.querySelector<HTMLElement>("#due-badge")?.title).toBe("1 saved item has a due recognition or recall review. Today shows up to five at a time.");
   });
 
   it("keeps Today selected on open and renders Saved as a browse-only shelf with stable numbering", async () => {
@@ -213,13 +215,21 @@ describe("lesson popup", () => {
     expect(button("Review more")).toBeFalsy();
   });
 
-  it("offers Review more only after Daily Five completes", async () => {
+  it("stacks Continue lesson and Review more after Daily Five completes", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
+    lessonCard("A1 · Een afspraak maken").click();
+    await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
+    button("Exit lesson").click();
+    button("Today").click();
+    await vi.waitFor(() => expect(button("Start Daily Five")).toBeTruthy());
     button("Start Daily Five").click();
     await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
     button("Show answer").click();
     await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
     button("Got it").click();
     await vi.waitFor(() => expect(button("Review more")).toBeTruthy());
+    expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Continue lesson", "Review more"]);
   });
 
   it("keeps the learner in an understandable error state when keeping candidates fails", async () => {
