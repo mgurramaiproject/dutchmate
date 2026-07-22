@@ -5,7 +5,7 @@ import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import { getSavedShelfView, type SavedShelfSort } from "./saved-shelf-view";
 import { getPopupTabForKey } from "./tab-navigation";
 import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
-import type { LearningItem, LessonProgress } from "../vocabulary/learning-record";
+import { LEARNING_RECORD_STORAGE_KEY, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
@@ -37,6 +37,7 @@ let activityOffset = 0;
 let savedSort: SavedShelfSort = "newest";
 let savedLoading = true;
 let savedError: string | null = null;
+let expandedSavedItemId: string | null = null;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
@@ -50,6 +51,9 @@ primaryNavigation?.addEventListener("keydown", (event) => {
   screen = target;
   render();
   ({ today: todayTab, lessons: lessonsTab, saved: savedTab }[target])?.focus();
+});
+browser.storage.onChanged?.addListener((changes, areaName) => {
+  if (areaName === "local" && LEARNING_RECORD_STORAGE_KEY in changes) void loadSaved();
 });
 void loadSaved();
 void load();
@@ -72,7 +76,9 @@ async function loadSaved(): Promise<void> {
   savedError = null;
   render();
   try {
-    items = await learningClient.list();
+    const nextItems = await learningClient.list();
+    items = nextItems;
+    if (expandedSavedItemId && !nextItems.some((item) => item.id === expandedSavedItemId)) expandedSavedItemId = null;
   } catch (error) {
     savedError = error instanceof Error ? error.message : "Saved items could not be loaded.";
   } finally {
@@ -83,6 +89,7 @@ async function loadSaved(): Promise<void> {
 
 function render(): void {
   if (!content) return;
+  if (screen !== "saved") expandedSavedItemId = null;
   const focused = screen === "review" || screen === "lesson";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.toggleAttribute("hidden", focused);
@@ -96,7 +103,7 @@ function render(): void {
 
 function renderSaved(): HTMLElement {
   const wrapper = section("saved-content");
-  const view = getSavedShelfView(items, { sort: savedSort, loading: savedLoading, error: savedError });
+  const view = getSavedShelfView(items, { sort: savedSort, expandedItemId: expandedSavedItemId, loading: savedLoading, error: savedError });
   const header = document.createElement("div");
   header.className = "saved-head";
   header.append(eyebrow("Your collection"), heading("Saved"));
@@ -128,7 +135,11 @@ function renderSaved(): HTMLElement {
   shelf.className = "saved-shelf";
   for (const item of view.items) {
     const card = document.createElement("article");
-    card.className = "saved-row";
+    card.className = `saved-item${item.expanded ? " is-expanded" : ""}`;
+    const row = button("", "saved-row");
+    row.setAttribute("aria-expanded", String(item.expanded));
+    if (item.expanded) row.setAttribute("aria-controls", `saved-detail-${item.shelfNumber}`);
+    row.addEventListener("click", () => { expandedSavedItemId = item.expanded ? null : item.id; render(); });
     const number = document.createElement("span"); number.className = "shelf-number"; number.textContent = String(item.shelfNumber);
     const copy = document.createElement("div"); copy.className = "saved-word";
     const dutch = document.createElement("h2"); dutch.textContent = item.dutch;
@@ -136,7 +147,19 @@ function renderSaved(): HTMLElement {
     helpers.append(helperMeaning("EN", item.english), helperMeaning("TE", item.telugu));
     copy.append(dutch, helpers);
     const mastery = document.createElement("span"); mastery.className = "saved-mastery"; mastery.textContent = item.mastery;
-    card.append(number, copy, mastery);
+    row.append(number, copy, mastery);
+    card.append(row);
+    if (item.expanded && item.details) {
+      const detail = document.createElement("div");
+      detail.id = `saved-detail-${item.shelfNumber}`;
+      detail.className = "saved-detail";
+      if (item.details.source) detail.append(text(item.details.source, "saved-source"));
+      if (item.details.context) detail.append(text(item.details.context, "saved-context"));
+      const options = button("Open Options", "saved-options-link");
+      options.addEventListener("click", () => void browser.runtime.openOptionsPage());
+      detail.append(options);
+      card.append(detail);
+    }
     shelf.append(card);
   }
   wrapper.append(shelf);

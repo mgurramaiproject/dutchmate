@@ -42,10 +42,10 @@ T01 — #53 Browse the collection
 
 ### Acceptance criteria
 
-- [ ] Selecting one compact Learning item expands it in place; selecting another item or leaving Saved collapses the prior expansion without mutating learning data.
-- [ ] Expanded content shows only safe provenance (webpage or lesson) and an available capped Page context; it never shows URLs, page titles, raw page content, or browsing history.
-- [ ] The expanded state offers Open Options for management; the popup still contains no destructive or backup controls.
-- [ ] Saved refreshes after canonical Local learning-record changes while retaining the selected ordering and discarding an expansion whose item no longer exists.
-- [ ] Opening, sorting, expanding, or reading context records no Learning encounter, Practice result, or Mastery change; Today remains the sole practice route.
+- [x] Selecting one compact Learning item expands it in place; selecting another item or leaving Saved collapses the prior expansion without mutating learning data.
+- [x] Expanded content shows only safe provenance (webpage or lesson) and an available capped Page context; it never shows URLs, page titles, raw page content, or browsing history.
+- [x] The expanded state offers Open Options for management; the popup still contains no destructive or backup controls.
+- [x] Saved refreshes after canonical Local learning-record changes while retaining the selected ordering and discarding an expansion whose item no longer exists.
+- [x] Opening, sorting, expanding, or reading context records no Learning encounter, Practice result, or Mastery change; Today remains the sole practice route.
 - [ ] Screen-reader semantics, keyboard operation, visible focus, and real narrow Firefox popup behaviour are verified for expanded content and scrolling.
 - [ ] Focused view-model, popup-render, typecheck, Chrome build, Firefox build, release verification, and manual Firefox evidence pass.
