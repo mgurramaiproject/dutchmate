@@ -109,10 +109,15 @@ describe("lesson popup", () => {
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("3 reviews, 1 saved item");
     expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("4");
     expect(content().querySelector<HTMLElement>(".rhythm-day.idle")?.getAttribute("aria-label")).toContain("0 reviews, 0 saved items");
+    const today = content().querySelector<HTMLElement>(".rhythm-day.is-today");
+    expect(today).toBeTruthy();
+    expect(today?.getAttribute("aria-label")).toContain("Today");
+    expect(today?.title).toContain("Today");
     expect(button("This Week").getAttribute("aria-pressed")).toBe("true");
     content().querySelector<HTMLButtonElement>(".period-tabs button:nth-of-type(3)")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day").length).toBeGreaterThanOrEqual(28));
     expect(content().querySelector(".heatmap-month")).toBeTruthy();
+    expect(content().querySelector(".heatmap-month .rhythm-day.is-today")).toBeTruthy();
     expect(content().querySelector(".next-action")).toBeNull();
     expect(content().querySelectorAll(".month-weekdays span")).toHaveLength(7);
     expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .heatmap-date")].some((date) => date.textContent === "1")).toBe(true);
@@ -124,11 +129,22 @@ describe("lesson popup", () => {
     content().querySelector<HTMLButtonElement>(".period-tabs button:nth-of-type(4)")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day")).toHaveLength(365));
     expect(content().querySelector(".heatmap-year")).toBeTruthy();
+    expect(content().querySelector(".heatmap-year .rhythm-day.is-today")).toBeTruthy();
     expect(content().querySelectorAll(".year-month-labels span")).toHaveLength(4);
   });
 
   it("offers the external feedback form from the popup header", () => {
     expect(document.querySelector<HTMLAnchorElement>(".feedback-link")?.href).toBe("https://forms.gle/9KSsqfE1NNZcPEaaA");
+  });
+
+  it("explains the due-review counter on hover", async () => {
+    learningItems = learningItems.map((item, index) => {
+      if (index !== 1) return item;
+      return { ...item, recognition: { ...(item.recognition as Record<string, unknown>), dueAt: 0 } };
+    });
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+    await vi.waitFor(() => expect(document.querySelector<HTMLElement>("#due-badge")?.hidden).toBe(false));
+    expect(document.querySelector<HTMLElement>("#due-badge")?.title).toBe("1 item due for review");
   });
 
   it("keeps Today selected on open and renders Saved as a browse-only shelf with stable numbering", async () => {

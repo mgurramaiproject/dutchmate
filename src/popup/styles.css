@@ -45,14 +45,14 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .tab.is-active { background: var(--black); color: var(--white); }
 .tab:not(.is-active):hover { background: rgba(255, 111, 0, 0.08); }
 .popup-content { display: grid; flex: 1 1 auto; min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; padding: 16px; }
-.popup-content.today-panel { overflow-y: hidden; padding: 12px; }
+.popup-content.today-panel { display: flex; overflow-y: hidden; padding: 12px; }
 .today-content, .brief-today { display: grid; min-width: 0; align-content: start; gap: 8px; }
-.brief-today.today-week { display: flex; flex-direction: column; min-height: 100%; }
+.brief-today.today-week { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 100%; }
 .today-week .learning-rhythm { min-width: 0; margin-top: auto; }
 .next-action { display: grid; min-width: 0; gap: 7px; padding: 12px; border: 1px solid var(--black); border-left: 6px solid var(--orange); border-radius: 8px; background: var(--white); }
 .next-action .heading { font-size: 1.4rem; line-height: 1; }
 .next-action .button { width: 100%; background: var(--orange); }
-.completion-copy { white-space: nowrap; font-size: .64rem; letter-spacing: -.01em; }
+.completion-copy { white-space: normal; font-size: .64rem; letter-spacing: -.01em; }
 .action-meta { display: flex; justify-content: space-between; gap: 8px; margin: 0; color: var(--muted); font-size: .67rem; font-weight: 750; }
 .learning-rhythm, .calendar-card { display: grid; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
@@ -74,6 +74,7 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .week-grid .rhythm-day.grace { background: rgba(255, 111, 0, 0.25); }
 .week-grid .rhythm-day.active { background: rgba(255, 111, 0, 0.58); }
 .week-grid .rhythm-day.high { background: var(--orange); }
+.rhythm-day.is-today { box-shadow: inset 0 0 0 2px var(--black); }
 .week-grid .rhythm-day:hover, .week-grid .rhythm-day:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
 .heatmap { grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .month-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; color: var(--muted); font-size: .56rem; font-weight: 850; text-align: center; }

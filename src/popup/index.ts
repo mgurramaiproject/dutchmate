@@ -266,11 +266,13 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
     const day = current.week.find((candidate) => candidate.dayStartAt === dayStartAt);
     const status = day?.status ?? (activity ? "active" : "idle");
     const intensity = activity && (activity.reviews ?? 0) + (activity.saved ?? 0) >= 4 ? " high" : "";
-    const dot = button("", `rhythm-day ${status}${intensity}`);
+    const isToday = isLocalToday(dayStartAt);
+    const dot = button("", `rhythm-day ${status}${intensity}${isToday ? " is-today" : ""}`);
     const label = new Date(dayStartAt).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
     const counts = activity && activity.reviews !== null && activity.saved !== null ? `${activity.reviews} review${activity.reviews === 1 ? "" : "s"}, ${activity.saved} saved item${activity.saved === 1 ? "" : "s"}` : activity ? "activity recorded before counts were available" : `0 reviews, 0 saved items${status === "grace" ? " · grace day" : ""}`;
-    dot.setAttribute("aria-label", `${label}: ${counts}`);
-    dot.title = `${label}: ${counts}`;
+    const description = `${label}: ${counts}${isToday ? " · Today" : ""}`;
+    dot.setAttribute("aria-label", description);
+    dot.title = description;
     if (activityPeriod === "week") {
       dot.append(heatmapDate(dayStartAt), activityTotal(activity));
     }
@@ -290,6 +292,14 @@ function heatmapDate(dayStartAt: number): HTMLElement {
   date.className = "heatmap-date";
   date.textContent = String(new Date(dayStartAt).getDate());
   return date;
+}
+
+function isLocalToday(dayStartAt: number): boolean {
+  const date = new Date(dayStartAt);
+  const today = new Date();
+  return date.getFullYear() === today.getFullYear()
+    && date.getMonth() === today.getMonth()
+    && date.getDate() === today.getDate();
 }
 
 function activityTotal(activity: LearningRhythm["activity"][number] | undefined): HTMLElement {
@@ -460,7 +470,7 @@ function createMasterySummary(): HTMLElement {
   for (const label of ["Recognition", "Recall"] as const) { const key = label.toLowerCase() as "recognition" | "recall"; const count = items.filter((item) => item[key].state !== "new").length; const state = [...states].reverse().find((candidate) => items.some((item) => item[key].state === candidate)) ?? "new"; const block = document.createElement("div"); block.append(text(`${label} · ${state}`, "section-title"), text(`${count} item${count === 1 ? "" : "s"} practised`, "body-copy")); summary.append(block); }
   return summary;
 }
-function updateBadge(): void { if (!dueBadge) return; const due = settings.dailyReviewBadge ? items.filter((item) => [item.recognition, item.recall].some((mastery) => mastery.attemptCount > 0 && mastery.dueAt !== null && mastery.dueAt <= Date.now())).length : 0; dueBadge.hidden = due === 0; dueBadge.textContent = String(due); dueBadge.setAttribute("aria-label", `${due} items due for review`); }
+function updateBadge(): void { if (!dueBadge) return; const due = settings.dailyReviewBadge ? items.filter((item) => [item.recognition, item.recall].some((mastery) => mastery.attemptCount > 0 && mastery.dueAt !== null && mastery.dueAt <= Date.now())).length : 0; const label = `${due} item${due === 1 ? "" : "s"} due for review`; dueBadge.hidden = due === 0; dueBadge.textContent = String(due); dueBadge.setAttribute("aria-label", label); dueBadge.title = label; }
 function renderError(message: string): void { if (!content) return; content.replaceChildren(eyebrow("Today unavailable"), heading("Your practice could not load."), text(message)); }
 function section(className: string): HTMLElement { const element = document.createElement("section"); element.className = className; return element; }
 function button(label: string, className: string): HTMLButtonElement { const element = document.createElement("button"); element.type = "button"; element.className = className; element.textContent = label; return element; }
