@@ -11,6 +11,7 @@ Changes:
 - Added versioned vocabulary backup import/export and safe clear behavior.
 - Added independent hover and selected-word cache controls while keeping translation cache separate from saved vocabulary backups.
 - Completed cross-browser popup, saved-vocabulary, Telugu-meaning, and settings UX hardening.
+- Added optional Context Missions for deliberate webpage selections: local first-encounter reconstruction and saved-item recognition or recall practice without a popup tab.
 
 Verification:
 
@@ -23,6 +24,8 @@ Notes:
 - No new browser permissions.
 - No account, cloud sync, or backend provider change.
 - Saved vocabulary and review data remain local-only browser data.
+- Context Mission state and history are ephemeral; an eligible saved item can receive at most one canonical local mastery update. Missions add no translation-provider or generative-service request and no background learning telemetry.
+- Context Missions are experimental learning support, not a claim of proven learning effect.
 
 ## 0.2.0
 

@@ -51,7 +51,7 @@ It helps you use Dutch, English, and your mother tongue together while reading n
 
 Hover over a word or select a short phrase or sentence to see translations in context. You can choose your learning language, use English as a bridge language, and keep your mother tongue close for meaning.
 
-Selected single-word lookups can be stored locally in your browser to make repeat learning faster. You can also save selected single-word translations locally as vocabulary and manage them from Options. LearnLoop keeps local learning items, up to three capped contexts per item, recognition and recall mastery, lesson progress, and learning rhythm for Daily Five and bundled lessons. Hovered single-word lookups are stored locally only if you enable hover-word caching in Options. Selected phrases, selected sentences, and failed translations are not stored in the local translation cache.
+Selected single-word lookups can be stored locally in your browser to make repeat learning faster. You can also save selected single-word translations locally as vocabulary and manage them from Options. LearnLoop keeps local learning items, up to three capped contexts per item, recognition and recall mastery, lesson progress, and learning rhythm for Daily Five and bundled lessons. Optional Context Missions reuse a deliberate selection for a short local exercise; they are experimental learning support, not a claim of proven learning effect. Mission state, fragments, answers, raw page history, completion history, and resume state are not stored. Hovered single-word lookups are stored locally only if you enable hover-word caching in Options. Selected phrases, selected sentences, and failed translations are not stored in the local translation cache.
 
 The product direction is local word collection and spaced-repetition flashcards, using words you choose while browsing.
 
@@ -99,7 +99,7 @@ DutchMate uses the text and language settings only to provide the user-facing tr
 ```text
 DutchMate sends translation requests to the DutchMate backend at https://dutchmate-backend.onrender.com. The backend sends the text needed for translation to Google Cloud Translation.
 
-Selected single-word translations can be saved locally as vocabulary when the user chooses. Learning items, capped contexts, mastery, lesson progress, rhythm, and saved vocabulary are not sent to an account or synced across devices. LearnLoop backups exclude provider credentials, translation cache entries, and unrelated extension settings.
+Selected single-word translations can be saved locally as vocabulary when the user chooses. Learning items, capped contexts, mastery, lesson progress, rhythm, and saved vocabulary are not sent to an account or synced across devices. Context Missions are local and ephemeral: they add no translation-provider or generative-service request, persist no mission history, and send no background learning telemetry; an eligible saved item can receive at most one normal local mastery update. LearnLoop backups exclude provider credentials, translation cache entries, and unrelated extension settings.
 
 DutchMate does not sell user data. DutchMate does not use translated text for advertising. DutchMate does not share translated text with third parties except as needed to provide translations through the configured translation provider, comply with law, or protect the service from abuse.
 ```

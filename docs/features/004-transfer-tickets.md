@@ -122,15 +122,17 @@ GitHub: [#62](https://github.com/mgurramaiproject/dutchmate/issues/62)
 
 **Blocked by:** [T05 — #61](https://github.com/mgurramaiproject/dutchmate/issues/61).
 
-- [ ] Focused feature tests, canonical learning regressions, the complete relevant suite, type checking, Chrome and Firefox builds, and release packaging all pass.
-- [ ] Automated evidence proves that Practise this and Try from memory add zero translation-provider requests and that existing configured translation calls remain unchanged.
+- [x] Focused feature tests, canonical learning regressions, the complete relevant suite, type checking, Chrome and Firefox builds, and release packaging all pass.
+- [x] Automated evidence proves that Practise this and Try from memory add zero translation-provider requests and that existing configured translation calls remain unchanged.
 - [ ] Real Chrome and Firefox checks cover deliberate selection, first encounter, both saved-repeat exercises, page scrolling, viewport edges, Escape, focus return, keyboard-only completion, touch-sized controls, and safe failures.
-- [ ] Generated manifests and packaged outputs contain the expected background, content, popup, Options, icons, and browser-specific declarations without adding a new permission, remote service, or popup tab.
-- [ ] Privacy, manual-testing, release, and store-facing documentation accurately describe ephemeral mission state, canonical mastery updates, provider behavior, and the absence of background learning telemetry.
-- [ ] The shared `004-transfer` validation artifact records automated evidence, manual-browser evidence, unresolved limitations, and release readiness without conflating them.
-- [ ] The validation artifact includes a voluntary delayed-transfer pilot protocol comparing translation-only and translation-plus-mission items after 2–7 days in a different sentence while observing reading disruption.
-- [ ] The pilot protocol requires consent, no default background telemetry, and no activity-only success claim; Context Missions remain described as experimental until delayed evidence supports transfer.
+- [x] Generated manifests and packaged outputs contain the expected background, content, popup, Options, icons, and browser-specific declarations without adding a new permission, remote service, or popup tab.
+- [x] Privacy, manual-testing, release, and store-facing documentation accurately describe ephemeral mission state, canonical mastery updates, provider behavior, and the absence of background learning telemetry.
+- [x] The shared `004-transfer` validation artifact records automated evidence, manual-browser evidence, unresolved limitations, and release readiness without conflating them.
+- [x] The validation artifact includes a voluntary delayed-transfer pilot protocol comparing translation-only and translation-plus-mission items after 2–7 days in a different sentence while observing reading disruption.
+- [x] The pilot protocol requires consent, no default background telemetry, and no activity-only success claim; Context Missions remain described as experimental until delayed evidence supports transfer.
 - [ ] Any defect found by validation is fixed and reverified within the approved scope, or the ticket is marked Blocked with the exact remaining evidence and next action.
+
+**Current T06 state:** Blocked pending the real Chrome and Firefox Context Missions checklist recorded in [004-transfer-validation.md](./004-transfer-validation.md). Automated validation found no defect; after the browser pass, record the result, re-run the focused verification if a defect is fixed, then synchronize issue #62 and its Delivery Status. GitHub synchronization is also pending because the local `gh` token is invalid.
 
 ## Frontier and delivery discipline
 
