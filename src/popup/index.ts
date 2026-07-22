@@ -258,7 +258,7 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
   const days = document.createElement("div");
   days.className = "rhythm-days";
   if (activityPeriod === "week") days.classList.add("week-grid");
-  else if (activityPeriod === "month") days.classList.add("heatmap", "heatmap-month");
+  else if (activityPeriod === "month") { days.classList.add("heatmap", "heatmap-month"); section.append(createMonthWeekdays()); }
   else days.classList.add("heatmap", "heatmap-year");
   if (activityPeriod === "year") section.append(createYearMonthLabels(new Date().getFullYear() + activityOffset));
   const activityByDay = new Map(current.activity.map((day) => [day.dayStartAt, day]));
@@ -278,6 +278,13 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
       const weekday = document.createElement("span");
       weekday.textContent = new Date(dayStartAt).toLocaleDateString(undefined, { weekday: "narrow" });
       dot.append(count, weekday);
+    }
+    if (activityPeriod === "month") {
+      if (new Date(dayStartAt).getDate() === 1) dot.style.gridColumnStart = String(((new Date(dayStartAt).getDay() + 6) % 7) + 1);
+      const dayNumber = document.createElement("span");
+      dayNumber.className = "heatmap-day-number";
+      dayNumber.textContent = String(new Date(dayStartAt).getDate());
+      dot.append(dayNumber);
     }
     days.append(dot);
   }
@@ -315,6 +322,17 @@ function renderLessons(): HTMLElement {
   }
   wrapper.append(library);
   wrapper.append(localNote()); return wrapper;
+}
+
+function createMonthWeekdays(): HTMLElement {
+  const weekdays = document.createElement("div");
+  weekdays.className = "month-weekdays";
+  for (const label of ["M", "T", "W", "T", "F", "S", "S"]) {
+    const weekday = document.createElement("span");
+    weekday.textContent = label;
+    weekdays.append(weekday);
+  }
+  return weekdays;
 }
 
 function createHeatmapLegend(): HTMLElement {

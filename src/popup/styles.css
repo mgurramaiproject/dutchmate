@@ -67,24 +67,28 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .week-grid { grid-template-columns: repeat(7, 1fr); gap: 5px; }
 .rhythm-day { min-height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: .58rem; font-weight: 850; }
 .week-grid .rhythm-day { display: grid; place-items: center; gap: 3px; min-height: 47px; }
-.week-grid .rhythm-day b { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 6px; background: rgba(0, 0, 0, 0.08); color: var(--black); font-size: .65rem; }
+.week-grid .rhythm-day b { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 6px; background: rgba(255, 111, 0, 0.08); color: var(--black); font-size: .65rem; }
 .week-grid .rhythm-day.grace b { background: rgba(255, 111, 0, 0.25); }
-.week-grid .rhythm-day.active b { background: var(--orange); }
-.week-grid .rhythm-day.high b { background: var(--black); color: var(--white); }
+.week-grid .rhythm-day.active b { background: rgba(255, 111, 0, 0.58); }
+.week-grid .rhythm-day.high b { background: var(--orange); }
 .week-grid .rhythm-day:hover b, .week-grid .rhythm-day:focus-visible b { outline: 2px solid var(--orange); outline-offset: 2px; }
 .heatmap { grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.month-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; color: var(--muted); font-size: .56rem; font-weight: 850; text-align: center; }
+.month-weekdays span { min-width: 0; }
 .year-month-labels { display: grid; grid-template-columns: repeat(53, minmax(0, 1fr)); gap: 2px; height: 14px; overflow: visible; color: var(--muted); font-size: .54rem; font-weight: 800; line-height: 1; }
 .year-month-labels span { min-width: 22px; }
 .heatmap-year { grid-auto-flow: column; grid-template-columns: repeat(53, minmax(0, 1fr)); grid-template-rows: repeat(7, 6px); gap: 2px; }
-.heatmap .rhythm-day { min-height: 0; aspect-ratio: 1; border-radius: 5px; background: rgba(0, 0, 0, 0.08); font-size: 0; }
+.heatmap .rhythm-day { min-height: 0; aspect-ratio: 1; border-radius: 5px; background: rgba(255, 111, 0, 0.08); font-size: 0; }
 .heatmap .rhythm-day.grace { background: rgba(255, 111, 0, 0.25); }
-.heatmap .rhythm-day.active { background: var(--orange); }
-.heatmap .rhythm-day.high { background: var(--black); }
+.heatmap .rhythm-day.active { background: rgba(255, 111, 0, 0.58); }
+.heatmap .rhythm-day.high { background: var(--orange); }
+.heatmap-month .rhythm-day { display: grid; place-items: start; padding: 4px; color: var(--black); font-size: .59rem; font-weight: 850; line-height: 1; }
+.heatmap-day-number { opacity: .74; }
 .heatmap .rhythm-day:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--orange); outline-offset: 1px; }
 .heatmap-legend { display: flex; align-items: center; justify-content: flex-end; gap: 3px; color: var(--muted); }
 .legend-label { margin: 0 3px; font-size: .61rem; }
-.heatmap-swatch { width: 11px; height: 11px; border-radius: 4px; background: rgba(0, 0, 0, 0.08); }
-.heatmap-swatch.grace { background: rgba(255, 111, 0, 0.25); }.heatmap-swatch.active { background: var(--orange); }.heatmap-swatch.high { background: var(--black); }
+.heatmap-swatch { width: 11px; height: 11px; border-radius: 4px; background: rgba(255, 111, 0, 0.08); }
+.heatmap-swatch.grace { background: rgba(255, 111, 0, 0.25); }.heatmap-swatch.active { background: rgba(255, 111, 0, 0.58); }.heatmap-swatch.high { background: var(--orange); }
 .insights { display: flex; flex-wrap: wrap; gap: 6px; }
 .insight { margin: 0; padding: 6px 8px; border-radius: 8px; background: rgba(0, 0, 0, 0.08); color: var(--black); font-size: .64rem; font-weight: 750; line-height: 1.2; }
 .secondary-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }

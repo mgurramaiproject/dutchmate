@@ -111,6 +111,8 @@ describe("lesson popup", () => {
     content().querySelector<HTMLButtonElement>(".period-tabs button:nth-of-type(3)")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day").length).toBeGreaterThanOrEqual(28));
     expect(content().querySelector(".heatmap-month")).toBeTruthy();
+    expect(content().querySelectorAll(".month-weekdays span")).toHaveLength(7);
+    expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .rhythm-day")].some((day) => day.textContent === "1")).toBe(true);
     expect(content().querySelector(".heatmap-legend")).toBeTruthy();
     const monthLabel = content().querySelector<HTMLElement>(".period-label")?.textContent;
     button("Previous period").click();

@@ -16,5 +16,8 @@ describe("popup layout", () => {
     expect(styles).toContain(".saved-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 9px; width: 100%; min-width: 0; min-height: 70px; padding: 10px 8px;");
     expect(styles).toContain("transform: translateX(2px)");
     expect(styles).toContain("transition-duration: 0.01ms !important");
+    expect(styles).toContain(".month-weekdays { display: grid; grid-template-columns: repeat(7, 1fr);");
+    expect(styles).toContain(".heatmap-month .rhythm-day { display: grid; place-items: start;");
+    expect(styles).not.toContain(".heatmap .rhythm-day.high { background: var(--black); }");
   });
 });
