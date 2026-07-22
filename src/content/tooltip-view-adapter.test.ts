@@ -48,10 +48,31 @@ describe("TooltipViewAdapter", () => {
       },
     });
 
-    expect(document.querySelector(".context-slip-capture")?.textContent).toContain("Save: goede morgen");
+    expect(document.querySelector(".context-slip-capture")?.textContent).toContain("Keep this phrase");
+    expect(document.querySelector(".context-slip-detail[data-label='English']")?.textContent).toContain("good morning");
+    expect(document.querySelector(".context-slip-detail[data-label='Telugu']")?.textContent).toContain("శుభోదయం");
     const save = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Review & save");
     save?.click();
     expect(onSaveClick).toHaveBeenCalledOnce();
+  });
+
+  it("uses the structured phrase capture in the initial translation tooltip", () => {
+    const view = createTooltipViewAdapter({
+      onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn(),
+    });
+
+    view.showResult(
+      { ok: true, result: { translatedText: "good morning", providerName: "custom-endpoint" } },
+      10,
+      10,
+      { status: "hidden" },
+      { dutch: "goede morgen", english: "good morning", telugu: "శుభోదయం", context: "Goede morgen, buur." },
+    );
+
+    expect(document.querySelector(".context-slip-capture")?.textContent).toContain("Keep this phrase");
+    expect(document.querySelector(".context-slip-detail[data-label='Dutch']")?.textContent).toContain("goede morgen");
+    expect(document.querySelector(".context-slip-detail[data-label='Context']")?.textContent).toContain("Goede morgen, buur.");
+    expect(document.querySelector("#hover-translate-tooltip")?.textContent).not.toContain("Save:");
   });
 
   it("disables reconstruction mutations while recall evidence is saving", () => {
@@ -131,5 +152,19 @@ describe("TooltipViewAdapter", () => {
 
     expect(pageClickCount).toBe(0);
     expect(document.querySelector(".context-slip-status")?.textContent).toBe("0 of 2 words placed");
+  });
+
+  it("states why a completed reconstruction is correct", () => {
+    const view = createTooltipViewAdapter({ onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn() });
+
+    view.showMission({ selectedDutch: "houd rekening met", pageContext: "Houd rekening met de tijd.", available: [], placed: ["houd", "rekening", "met"], result: "got-it" });
+
+    expect(document.querySelector(".context-slip-title")?.textContent).toBe("Correct");
+    expect(document.querySelector(".context-slip-result-title")?.textContent).toBe("Correct");
+    expect(document.querySelector(".context-slip-result-copy")?.textContent).toBe("Your word order matches the original sentence.");
+
+    view.showMission({ selectedDutch: "houd rekening met", pageContext: "Houd rekening met de tijd.", available: [], placed: ["rekening", "houd", "met"], result: "again" });
+    expect(document.querySelector(".context-slip-title")?.textContent).toBe("Try again");
+    expect(document.querySelector(".context-slip-result-copy")?.textContent).toBe("The right order is: houd rekening met");
   });
 });

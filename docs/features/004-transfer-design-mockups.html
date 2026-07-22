@@ -293,8 +293,8 @@
           <button class="state-button" data-state="repeat" type="button" aria-pressed="false">Seen before</button>
           <button class="state-button" data-state="recall" type="button" aria-pressed="false">Recall meaning</button>
           <button class="state-button" data-state="rebuild" type="button" aria-pressed="false">Rebuild</button>
-          <button class="state-button" data-state="correct" type="button" aria-pressed="false">Got it</button>
-          <button class="state-button" data-state="again" type="button" aria-pressed="false">Again</button>
+          <button class="state-button" data-state="correct" type="button" aria-pressed="false">Correct</button>
+          <button class="state-button" data-state="again" type="button" aria-pressed="false">Try again</button>
           <button class="state-button" data-state="failure" type="button" aria-pressed="false">Safe failure</button>
         </div>
         <p id="state-note" class="state-note">First encounter: the existing translation appears before the optional mission. `Practise this` reuses this result locally.</p>
@@ -307,13 +307,13 @@
       const stageLabel = document.getElementById("stage-label");
       const stateNote = document.getElementById("state-note");
       const directionNames = { a: "Context Slip", b: "Black Study Note", c: "Sentence Workbench" };
-      const stateNames = { translated: "translated selection", repeat: "seen before", recall: "recall meaning", rebuild: "rebuild in context", correct: "got it", again: "again", failure: "safe failure" };
+      const stateNames = { translated: "translated selection", repeat: "seen before", recall: "recall meaning", rebuild: "rebuild in context", correct: "correct", again: "try again", failure: "safe failure" };
       const notes = {
         translated: "First encounter: the existing translation appears before the optional mission. `Practise this` reuses this result locally.",
         repeat: "Saved repeat: local identity creates the pre-reveal choice. `Try from memory` makes no provider request; `Translate now` keeps the normal path.",
         recall: "Recognition practice: helper meanings stay hidden until `Show meaning`, then the learner chooses Again or Got it.",
         rebuild: "Recall practice: activate fragments with pointer, Enter, or Space. Reset and Check require no typing or drag-and-drop.",
-        correct: "Only the first checked order counts. A correct saved-repeat reconstruction can update recall once; replay cannot add evidence.",
+        correct: "Only the first checked order counts. A correct saved-repeat reconstruction clearly confirms that its word order matches the original sentence; replay cannot add evidence.",
         again: "Incorrect order receives one calm correction. The right Dutch is shown without points, lives, or failure animation.",
         failure: "Storage failure never fabricates success. The learner can retry or return to the webpage, which remains available."
       };
@@ -359,8 +359,8 @@
       }
 
       function result(gotIt) {
-        const heading = `<p class="mission-kicker">Rebuild in context</p><h3 class="mission-title">${gotIt ? "Got it" : "Again"}</h3>${source()}`;
-        const work = `<div class="result-band" role="status"><span class="result-mark">${gotIt ? "✓" : "↺"}</span><span><strong>${gotIt ? "The Dutch fits." : "Here is the right order."}</strong><span>${gotIt ? "One recall result, recorded once." : "houd rekening met"}</span></span></div><div class="action-row"><button class="dm-button" data-action="replay" type="button">Replay</button><button class="dm-button primary" data-action="back" type="button">Back to page</button></div>`;
+        const heading = `<p class="mission-kicker">Rebuild in context</p><h3 class="mission-title">${gotIt ? "Correct" : "Try again"}</h3>${source()}`;
+        const work = `<div class="result-band" role="status"><span class="result-mark">${gotIt ? "✓" : "↺"}</span><span><strong>${gotIt ? "Correct" : "Try again"}</strong><span>${gotIt ? "Your word order matches the original sentence." : "The right order is: houd rekening met"}</span></span></div><div class="action-row"><button class="dm-button" data-action="replay" type="button">Replay</button><button class="dm-button primary" data-action="back" type="button">Back to page</button></div>`;
         return wrap(heading, work, gotIt ? "Mission evidence saved" : "Correction shown");
       }
 

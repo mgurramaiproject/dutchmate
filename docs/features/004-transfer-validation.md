@@ -20,7 +20,7 @@ Run from `feature/004-transfer` at `881822a` on 2026-07-22:
 | Check | Result | Evidence |
 | --- | --- | --- |
 | Focused Context Slip and canonical-learning seams | Pass | `corepack pnpm exec vitest run src/content/webpage-lookup-module.test.ts src/content/tooltip-view-adapter.test.ts src/content/webpage-lifecycle-controller.test.ts src/background/message-handler.test.ts src/vocabulary/learning-record.test.ts src/vocabulary/daily-five.test.ts src/release/release-docs-consistency.test.ts` — 63 tests passed. |
-| Complete relevant suite | Pass | `corepack pnpm test` — 501 tests in 90 files passed. |
+| Complete relevant suite | Pass | `corepack pnpm test` — 505 tests in 90 files passed. |
 | Type checking | Pass | `corepack pnpm typecheck`. |
 | Chrome and Firefox build/package gate | Pass | `corepack pnpm verify:release` built and packaged both targets and verified each generated manifest and ZIP. |
 | Whitespace | Pass | `git diff --check`. |
@@ -43,6 +43,8 @@ The required interactive pass is the Context Missions checklist in [manual testi
 On 2026-07-22, a Firefox user observed four Context Slip defects: a headline selection did not expose `Practise this`; Reset did not reliably remain in the card; the saved-repeat cue was cramped; and the recall card did not clearly identify the Dutch being recalled. The correction normalizes layout-only whitespace around hyphenated selections, preserves phrase/headline context, lets older saved items without stored context use the current deliberate selection safely, stops card actions from bubbling into the page after a rerender, and restores Direction A's saved-repeat hierarchy: saved Dutch, context, plain-language prompt, and one clear primary action. The approved mockup records this recall-card clarification as the updated Direction A source of truth.
 
 Focused rendered and behavioral tests cover the wrapped headline, Context Slip Reset, saved-repeat copy/context, and recall hierarchy; the full suite and package gate passed afterwards. Reload the Firefox temporary add-on and re-run these four observations as part of the remaining interactive browser pass.
+
+The completion card now says `Correct` and explains that the word order matches the original sentence. Capture details use labelled Dutch, English, Telugu, and Context rows; an outside click dismisses the card after the selection's initiating click; and positioning prefers below the selection, flips above near the viewport bottom, and moves left when the card would run off the right edge.
 
 ## Privacy and persistence boundary
 

@@ -72,15 +72,16 @@ export function createTooltipViewAdapter(callbacks: {
 
     #hover-translate-tooltip .hover-translate-save {
       appearance: none;
-      border: 1px solid rgba(249, 250, 251, 0.42);
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.1);
-      color: inherit;
+      min-height: 44px;
+      border: 1px solid #000;
+      border-radius: 6px;
+      background: #fff;
+      color: #000;
       cursor: pointer;
       font: inherit;
       font-weight: 700;
       line-height: 1.2;
-      padding: 4px 8px;
+      padding: 6px 10px;
     }
 
     #hover-translate-tooltip .context-slip-tether { display: grid; gap: 10px; border-left: 4px solid #ff6f00; padding-left: 10px; }
@@ -91,6 +92,16 @@ export function createTooltipViewAdapter(callbacks: {
     #hover-translate-tooltip .context-slip-copy, #hover-translate-tooltip .context-slip-prompt { margin: 0; color: #343434; font-size: 13px; line-height: 1.45; }
     #hover-translate-tooltip .context-slip-prompt { color: #000; font-weight: 750; }
     #hover-translate-tooltip .context-slip-hidden-answer { margin: 0; padding: 9px 10px; border: 1px dashed rgba(0, 0, 0, .34); background: rgba(0, 0, 0, .035); font-size: 13px; }
+    #hover-translate-tooltip .context-slip-result { display: grid; grid-template-columns: 32px 1fr; gap: 10px; align-items: center; padding: 11px; border: 1px solid #000; border-left: 6px solid #ff6f00; border-radius: 7px; background: #fffaf4; }
+    #hover-translate-tooltip .context-slip-result-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; background: #000; color: #fff; font-weight: 900; }
+    #hover-translate-tooltip .context-slip-result-title { display: block; font-family: Georgia, serif; font-size: 17px; line-height: 1.05; }
+    #hover-translate-tooltip .context-slip-result-copy { display: block; margin-top: 3px; color: #343434; font-size: 13px; line-height: 1.35; }
+    #hover-translate-tooltip .context-slip-capture { display: grid; gap: 0; border: 1px solid rgba(0, 0, 0, .28); border-radius: 7px; overflow: hidden; }
+    #hover-translate-tooltip .context-slip-capture-heading { margin: 0; padding: 8px 10px; background: #fff4e8; color: #663000; font-size: 11px; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+    #hover-translate-tooltip .context-slip-details { display: grid; margin: 0; }
+    #hover-translate-tooltip .context-slip-detail { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px; padding: 8px 10px; border-top: 1px solid rgba(0, 0, 0, .15); }
+    #hover-translate-tooltip .context-slip-detail dt { color: #6a6a6a; font-size: 10px; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+    #hover-translate-tooltip .context-slip-detail dd { margin: 0; overflow-wrap: anywhere; font-size: 13px; line-height: 1.35; }
     #hover-translate-tooltip .context-slip-close { position: absolute; top: 7px; right: 7px; min-width: 44px; min-height: 44px; border: 1px solid #000; background: #fff; color: #000; font-size: 20px; }
     #hover-translate-tooltip .context-slip-fragments { display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px; margin: 8px 0; }
     #hover-translate-tooltip .context-slip-fragment, #hover-translate-tooltip .context-slip-button { min-height: 44px; border: 1px solid #000; border-radius: 6px; background: #fff; color: #000; font: inherit; font-weight: 700; padding: 6px 10px; }
@@ -166,7 +177,8 @@ export function createTooltipViewAdapter(callbacks: {
       tooltip.dataset.state = response.ok ? "success" : "error";
 
       if (chunkConfirmation) {
-        tooltip.textContent = `Save: ${chunkConfirmation.dutch}\nEnglish: ${chunkConfirmation.english ?? "unavailable"}\nTelugu: ${chunkConfirmation.telugu ?? "unavailable"}\nContext: ${chunkConfirmation.context ?? "unavailable"}`;
+        tooltip.textContent = "";
+        renderChunkConfirmation(tooltip, chunkConfirmation);
       } else if (response.ok && response.result.providerName === "multi-target") {
         renderMultiTargetTooltip(tooltip, truncateTooltipText(response.result.translatedText));
       } else {
@@ -317,12 +329,12 @@ function renderMission(
   close.type = "button"; close.className = "context-slip-close"; close.setAttribute("aria-label", "Close Context Mission"); close.textContent = "×";
   close.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); callbacks.onClose(); });
   const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Rebuild in context";
-  const title = document.createElement("h3"); title.className = "context-slip-title"; title.textContent = mission.result === "got-it" ? "Got it" : mission.result === "again" ? "Again" : "Put the Dutch back";
+  const title = document.createElement("h3"); title.className = "context-slip-title"; title.textContent = mission.result === "got-it" ? "Correct" : mission.result === "again" ? "Try again" : "Put the Dutch back";
   const context = document.createElement("p"); context.className = "context-slip-context"; context.lang = "nl";
   context.textContent = (mission.pageContext ?? mission.selectedDutch).replace(mission.selectedDutch, "__________");
   tether.append(close, kicker, title, context);
   if (mission.result) {
-    const status = document.createElement("span"); status.className = "context-slip-status"; status.setAttribute("role", "status"); status.textContent = mission.result === "got-it" ? "The Dutch fits." : `Here is the right order: ${mission.selectedDutch}`;
+    const status = renderMissionResult(mission);
     const actions = document.createElement("div"); actions.className = "context-slip-actions";
     actions.append(actionButton("Replay", callbacks.onReplay), actionButton("Back to page", callbacks.onClose, true));
     tether.append(status, actions);
@@ -353,12 +365,29 @@ function renderMissionCapture(
   registerSaveButton: (button: HTMLButtonElement | null) => void,
 ): void {
   if (capture.chunkConfirmation) {
-    const confirmation = document.createElement("p");
-    confirmation.className = "context-slip-capture";
-    confirmation.textContent = `Save: ${capture.chunkConfirmation.dutch}\nEnglish: ${capture.chunkConfirmation.english ?? "unavailable"}\nTelugu: ${capture.chunkConfirmation.telugu ?? "unavailable"}\nContext: ${capture.chunkConfirmation.context ?? "unavailable"}`;
-    container.append(confirmation);
+    renderChunkConfirmation(container, capture.chunkConfirmation);
   }
   renderSaveAction(container, capture.saveAction, onSaveClick, registerSaveButton);
+}
+
+function renderChunkConfirmation(container: HTMLElement, confirmationData: ChunkConfirmation): void {
+  const confirmation = document.createElement("section");
+  confirmation.className = "context-slip-capture";
+  const heading = document.createElement("p"); heading.className = "context-slip-capture-heading"; heading.textContent = "Keep this phrase";
+  const details = document.createElement("dl"); details.className = "context-slip-details";
+  for (const [label, value] of [
+    ["Dutch", confirmationData.dutch],
+    ["English", confirmationData.english ?? "Unavailable"],
+    ["Telugu", confirmationData.telugu ?? "Unavailable"],
+    ["Context", confirmationData.context ?? "Unavailable"],
+  ]) {
+    const row = document.createElement("div"); row.className = "context-slip-detail"; row.dataset.label = label;
+    const term = document.createElement("dt"); term.textContent = label;
+    const description = document.createElement("dd"); description.textContent = value;
+    row.append(term, description); details.append(row);
+  }
+  confirmation.append(heading, details);
+  container.append(confirmation);
 }
 
 function fragmentBank(values: string[], label: string, onClick: (index: number) => void, disabled = false): HTMLDivElement {
@@ -369,6 +398,16 @@ function fragmentBank(values: string[], label: string, onClick: (index: number) 
 
 function actionButton(label: string, onClick: () => void, primary = false): HTMLButtonElement {
   const button = document.createElement("button"); button.type = "button"; button.className = `context-slip-button${primary ? " primary" : ""}`; button.dataset.contextSlipFocus = `action:${label}`; button.textContent = label; button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); onClick(); }); return button;
+}
+
+function renderMissionResult(mission: ContextMission): HTMLElement {
+  const result = document.createElement("section"); result.className = "context-slip-result"; result.setAttribute("role", "status");
+  const mark = document.createElement("span"); mark.className = "context-slip-result-mark"; mark.textContent = mission.result === "got-it" ? "✓" : "↺";
+  const copy = document.createElement("span");
+  const title = document.createElement("strong"); title.className = "context-slip-result-title"; title.textContent = mission.result === "got-it" ? "Correct" : "Try again";
+  const detail = document.createElement("span"); detail.className = "context-slip-result-copy"; detail.textContent = mission.result === "got-it" ? "Your word order matches the original sentence." : `The right order is: ${mission.selectedDutch}`;
+  copy.append(title, detail); result.append(mark, copy);
+  return result;
 }
 
 type TooltipFocus = { key: string; fragment?: string };
@@ -467,13 +506,13 @@ function truncateTooltipText(text: string): string {
 function positionTooltip(tooltip: HTMLDivElement, x: number, y: number): void {
   const padding = 12;
   const offset = 14;
-
-  tooltip.style.left = `${Math.min(x + offset, window.innerWidth - padding)}px`;
-  tooltip.style.top = `${Math.min(y + offset, window.innerHeight - padding)}px`;
-
   const rect = tooltip.getBoundingClientRect();
-  const left = Math.max(padding, Math.min(rect.left, window.innerWidth - rect.width - padding));
-  const top = Math.max(padding, Math.min(rect.top, window.innerHeight - rect.height - padding));
+  const roomOnRight = window.innerWidth - (x + offset) >= rect.width + padding;
+  const preferredLeft = roomOnRight ? x + offset : x - rect.width - offset;
+  const roomBelow = window.innerHeight - (y + offset) >= rect.height + padding;
+  const preferredTop = roomBelow ? y + offset : y - rect.height - offset;
+  const left = Math.max(padding, Math.min(preferredLeft, window.innerWidth - rect.width - padding));
+  const top = Math.max(padding, Math.min(preferredTop, window.innerHeight - rect.height - padding));
 
   tooltip.style.left = `${left}px`;
   tooltip.style.top = `${top}px`;

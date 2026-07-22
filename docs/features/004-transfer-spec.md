@@ -58,8 +58,8 @@ The compact mission card remains non-modal, keeps the original page scrollable, 
 21. As a Dutch learner, I want a `Check` action, so that I decide when my first answer is ready to score.
 22. As a Dutch learner, I want the first checked order to determine the result, so that the evidence is consistent rather than improved through retries.
 23. As a Dutch learner, I want capitalization, surrounding whitespace, and terminal punctuation ignored during comparison, so that formatting noise does not create a false error.
-24. As a Dutch learner, I want an exact normalized order acknowledged as `Got it`, so that the result is simple and familiar.
-25. As a Dutch learner, I want an incorrect order marked `Again` and followed by the correct Dutch, so that the attempt produces immediate corrective feedback.
+24. As a Dutch learner, I want an exact normalized order acknowledged as `Correct` with a plain explanation, so that I know my word order matches the original sentence.
+25. As a Dutch learner, I want an incorrect order marked `Try again` and followed by the correct Dutch, so that the attempt produces immediate corrective feedback.
 26. As a Dutch learner, I want optional replay after feedback, so that I can reinforce the correct order.
 27. As a Dutch learner, I want replay prevented from changing the recorded result, so that one encounter cannot generate duplicate or upgraded evidence.
 28. As a Dutch learner, I want first-encounter practice treated as exposure only, so that seeing and rebuilding new language is not mislabeled as durable mastery.
@@ -156,7 +156,7 @@ The compact mission card remains non-modal, keeps the original page scrollable, 
 - Fragment generation and shuffling are deterministic for a mission session so rendering or focus changes cannot silently change the task. The implementation may seed the ordering locally but must not persist the seed or task.
 - Available fragments and placed fragments are button-like controls. Activating an available fragment appends it; activating a placed fragment returns it. `Reset` restores the original shuffled set, and `Check` evaluates the current order.
 - Reconstruction comparison normalizes capitalization, surrounding whitespace, and terminal punctuation only. It does not accept reordered words, synonym substitutions, or approximate generative scoring.
-- Only the first `Check` determines mission evidence. Exact normalized order produces `Got it`; any other order produces `Again` and reveals the correct Dutch. Replay may change in-memory exercise state but cannot change or add evidence.
+- Only the first `Check` determines mission evidence. Exact normalized order produces `Correct` with a plain confirmation that the word order matches the original sentence; any other order produces `Try again` and reveals the correct Dutch. Replay may change in-memory exercise state but cannot change or add evidence.
 - A first-encounter mission is exposure only. It records no Mission evidence and never alters recognition, recall, or review scheduling.
 - Saving remains a separate explicit action. Eligible words retain `Save`; candidate meaningful chunks retain `Review & save`; arbitrary phrases and complete sentences cannot be saved as learning items through Context Missions.
 - Saving after a mission creates or merges a normal learning item under existing rules. It begins New when newly created and receives no retroactive mastery credit.
@@ -166,7 +166,7 @@ The compact mission card remains non-modal, keeps the original page scrollable, 
 - The tooltip becomes a compact non-modal mission card when practice starts. It never blocks page scrolling, traps focus as a modal, highlights the page automatically, or opens a side panel.
 - Opening a mission moves focus to a predictable first heading or action. Closing through the visible action, Escape, completion, or safe failure returns focus to the initiating control when it still exists; otherwise focus falls back without throwing.
 - Exercise controls support keyboard navigation and Enter or Space activation, maintain visible focus, and expose state changes and results through appropriate labels and live status. Drag-and-drop is not required or used.
-- The approved learner-facing copy is `Practise this`, `Seen before`, `Try from memory`, `Translate now`, `What does this mean here?`, `Show meaning`, `Put the Dutch back`, `Reset`, `Check`, `Again`, `Got it`, and `Back to page`.
+- The approved learner-facing copy is `Practise this`, `Seen before`, `Try from memory`, `Translate now`, `What does this mean here?`, `Show meaning`, `Put the Dutch back`, `Reset`, `Check`, `Correct`, `Try again`, `Again`, `Got it`, and `Back to page`.
 - Starting or completing `Practise this` must not call the translation provider again. `Try from memory` must not call it at all. Existing translation calls already made by the configured single- or multi-target lookup remain unchanged and are not mission-specific costs.
 - Mission construction calls no LLM, generative model, text-to-speech service, or other new remote service.
 - Mission selection, fragment construction, answer state, replay state, and unfinished work remain in memory. Context Missions persist no URL, browsing history, raw answer, mission history, completion queue, or resume state.
