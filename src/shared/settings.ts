@@ -54,7 +54,7 @@ export const defaultSettings: ExtensionSettings = {
   cacheSelectedWords: true,
   hoverTranslationMode: "word",
   hoverDelayMs: 450,
-  maxSelectionLength: 150,
+  maxSelectionLength: 100,
   sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
   targetLanguage: DEFAULT_TARGET_LANGUAGE,
   translateToOtherMvpLanguages: true,

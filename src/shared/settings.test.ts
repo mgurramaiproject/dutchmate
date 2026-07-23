@@ -45,6 +45,11 @@ describe("settings", () => {
     });
   });
 
+  it("defaults selected-text translation to a concise token-conscious limit", () => {
+    expect(defaultSettings.maxSelectionLength).toBe(100);
+    expect(normalizeSettings({}).maxSelectionLength).toBe(100);
+  });
+
   it("repairs duplicate stored learner language roles", async () => {
     storageSyncGet.mockResolvedValue({
       ...defaultSettings,

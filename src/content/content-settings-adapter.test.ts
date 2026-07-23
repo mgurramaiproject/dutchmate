@@ -22,7 +22,7 @@ const defaultSettings = {
   cacheSelectedWords: true,
   hoverTranslationMode: "word",
   hoverDelayMs: 450,
-  maxSelectionLength: 150,
+  maxSelectionLength: 100,
   sourceLanguage: "auto",
   targetLanguage: "en",
   translateToOtherMvpLanguages: true,
