@@ -26,14 +26,16 @@ describe("settings", () => {
     storageSyncGet.mockReset();
   });
 
-  it("clamps previously stored selection limits to the current maximum", async () => {
+  it("ignores previously stored tuning values while the limits are fixed", async () => {
     storageSyncGet.mockResolvedValue({
       ...defaultSettings,
       maxSelectionLength: 600,
+      hoverDelayMs: 999,
     });
 
     await expect(readSettings()).resolves.toMatchObject({
-      maxSelectionLength: 150,
+      maxSelectionLength: 100,
+      hoverDelayMs: 450,
     });
   });
 
@@ -43,6 +45,11 @@ describe("settings", () => {
     await expect(readSettings()).resolves.toMatchObject({
       providerEndpoint: DEFAULT_PROVIDER_ENDPOINT,
     });
+  });
+
+  it("defaults selected-text translation to a concise token-conscious limit", () => {
+    expect(defaultSettings.maxSelectionLength).toBe(100);
+    expect(normalizeSettings({}).maxSelectionLength).toBe(100);
   });
 
   it("repairs duplicate stored learner language roles", async () => {
@@ -70,7 +77,8 @@ describe("settings", () => {
         bridgeLanguage: "en",
       }),
     ).toMatchObject({
-      maxSelectionLength: 150,
+      maxSelectionLength: 100,
+      hoverDelayMs: 450,
       learningLanguage: "nl",
       nativeLanguage: "te",
       bridgeLanguage: "en",
@@ -85,9 +93,11 @@ describe("settings", () => {
         nativeLanguage: "nl",
         bridgeLanguage: "en",
         maxSelectionLength: 600,
+        hoverDelayMs: 999,
       }),
     ).toMatchObject({
-      maxSelectionLength: 150,
+      maxSelectionLength: 100,
+      hoverDelayMs: 450,
       learningLanguage: "nl",
       nativeLanguage: "te",
       bridgeLanguage: "en",

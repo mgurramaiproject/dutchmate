@@ -38,7 +38,9 @@ DutchMate also stores a local translation cache for successful selected single-w
 
 DutchMate can also store saved vocabulary locally when you choose to save a successful selected single-word translation. Saved vocabulary includes the saved word, translation, source and target language direction, translation provider name, and saved/updated timestamps. DutchMate does not store the page URL or page title with saved vocabulary in the current release.
 
-DutchMate also stores its LearnLoop learning record locally. It can include learning items, optional English and Telugu meanings, the source of an item, up to three capped page contexts per item, recognition and recall mastery, lesson progress, and local learning-rhythm progress. This record is used only inside your browser to provide Daily Five, lessons, and backup/export features.
+DutchMate also stores its LearnLoop learning record locally. It can include learning items, optional English and Telugu meanings, the source of an item, up to three capped page contexts per item, recognition and recall mastery, lesson progress, and local learning-rhythm progress. This record is used only inside your browser to provide Daily Five, lessons, backup/export features, and optional Context Missions practice.
+
+Context Missions are optional short exercises started from a deliberate webpage selection. Mission fragments, answers, raw page URLs/history, completion history, and resume state are ephemeral and are not stored. A saved learning item can receive at most one normal local recognition or recall update from an eligible completed mission; Context Missions do not make an extra translation-provider or generative-service request.
 
 If a provider API key is configured in a development or custom setup, DutchMate stores it in browser local/sync storage and uses it only for the selected translation provider. Store-ready builds use the DutchMate backend and do not require users to enter a provider API key.
 
@@ -47,6 +49,7 @@ DutchMate does not persistently cache:
 - selected phrases;
 - selected sentences;
 - failed translations.
+- Context Mission fragments, answers, raw page history, completion history, or resume state.
 
 Users can clear the local translation cache from the Options page. Users can also delete individual saved vocabulary entries or clear all saved vocabulary from the Options page.
 
@@ -82,7 +85,7 @@ DutchMate does not sell user data. DutchMate does not use translated text for ad
 
 Saved vocabulary remains in local browser storage. DutchMate does not send saved vocabulary to an account, sync it across devices, or use it for ads or tracking.
 
-Learning items, contexts, mastery, lesson progress, and learning rhythm remain in local browser storage. DutchMate does not send them to an account, use them for background analytics, or use them for ads or tracking.
+Learning items, contexts, mastery, lesson progress, learning rhythm, and any eligible Context Mission result remain in local browser storage. DutchMate does not send them to an account, use them for background analytics or learning telemetry, or use them for ads or tracking.
 
 ## User Control
 

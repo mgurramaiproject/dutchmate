@@ -62,6 +62,28 @@ For each browser, load the store-ready artifact and record the result in the Ver
 
 Use a normal readable Dutch webpage and the local mock endpoint when a deterministic translation response is needed. Do not use a private page for this check.
 
+## Context Missions Release Checks
+
+Run the complete automated gate from a clean checkout before the browser pass:
+
+```bash
+corepack pnpm test
+corepack pnpm typecheck
+corepack pnpm verify:release
+git diff --check
+```
+
+For both Chrome and Firefox, load the generated store-ready build on a normal readable Dutch webpage. Use the local mock endpoint when a deterministic successful translation is needed. Record the browser version, tester, commit, and result in the Verification Log.
+
+- Make a deliberate 2–12-word Dutch selection and complete `Practise this` as a first encounter. Confirm the card is non-modal, the page remains scrollable, and no learning item or mastery result is created.
+- Save an eligible word or meaningful chunk, then make the same deliberate selection. Complete `Try from memory` / `Recall meaning`, reveal the stored helper, and record one recognition result. Set recall weaker and complete `Rebuild in context`; confirm it records one recall result without changing recognition.
+- Complete each exercise with keyboard only. Check visible focus, logical tab order, Enter/Space fragment controls, useful announcements, Escape, `Back to page`, and focus return.
+- Check a narrow viewport, zoom, every viewport edge, and touch-sized controls. Confirm the orange tether and Direction A hierarchy remain usable without horizontal page lock or a popup tab.
+- Trigger safe failures for unavailable translation, unavailable learning storage, stale/missing saved helpers, and unsupported selection. Confirm an actionable fallback, no false success, and a safe route back to the page.
+- Confirm ordinary hover, configured translation, Save/Review & save, Today, Lessons, Saved, Options, and badges remain unchanged. Confirm starting a new lookup, replacing the selection, closing the card, disabling the extension/selection translation, or navigating away invalidates the mission.
+
+See [the Context Missions validation record](../features/004-transfer-validation.md) for the automated evidence, browser log status, privacy boundary, and voluntary delayed-transfer protocol.
+
 ## Voluntary Learner Validation Protocol
 
 This is a small post-release learning check, not product telemetry or a research claim. Invite a small voluntary cohort of Telugu-speaking adult Dutch learners. Obtain informed agreement, let participants stop without explanation, and collect only the notes they choose to share outside the extension.

@@ -2,7 +2,7 @@ import { getLocalDayStart } from "./daily-five";
 import type { LearningItem, LessonProgress } from "./learning-record";
 
 export type LearningRhythmDay = { dayStartAt: number; status: "active" | "grace" | "idle" };
-export type LearningActivityDay = { dayStartAt: number; reviews: number | null; saved: number | null };
+export type LearningActivityDay = { dayStartAt: number; reviews: number | null; saved: number | null; lessons: number | null; lessonAdditions?: number };
 export type LearningMilestone = { id: string; label: string };
 export type LearningRhythm = { week: LearningRhythmDay[]; activity: LearningActivityDay[]; resetCopy: string | null; milestones: LearningMilestone[] };
 
@@ -42,9 +42,14 @@ function getActivityDays(rhythm: Record<string, unknown>, activeDays: Set<number
   const counts = isRecord(rhythm.activityDays) ? rhythm.activityDays : {};
   return [...activeDays].sort((a, b) => a - b).map((dayStartAt) => {
     const value = counts[String(dayStartAt)];
-    return isRecord(value) && finiteCount(value.reviews) && finiteCount(value.saved)
-      ? { dayStartAt, reviews: value.reviews, saved: value.saved }
-      : { dayStartAt, reviews: null, saved: null };
+    const lessonAdditions = isRecord(value) && finiteCount(value.lessonAdditions) ? value.lessonAdditions : 0;
+    return {
+      dayStartAt,
+      reviews: isRecord(value) && finiteCount(value.reviews) ? value.reviews : null,
+      saved: isRecord(value) && finiteCount(value.saved) ? value.saved : null,
+      lessons: isRecord(value) && finiteCount(value.lessons) ? value.lessons : null,
+      ...(lessonAdditions > 0 ? { lessonAdditions } : {}),
+    };
   });
 }
 

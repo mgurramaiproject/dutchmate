@@ -22,6 +22,8 @@ export const SELECTION_LENGTH_LIMITS = {
   min: 50,
   max: 150,
 };
+const FIXED_HOVER_DELAY_MS = 450;
+const FIXED_MAX_SELECTION_LENGTH = 100;
 
 export type HoverTranslationMode = "word" | "sentence";
 export type ExtensionSettings = {
@@ -53,8 +55,8 @@ export const defaultSettings: ExtensionSettings = {
   cacheHoveredWords: true,
   cacheSelectedWords: true,
   hoverTranslationMode: "word",
-  hoverDelayMs: 450,
-  maxSelectionLength: 150,
+  hoverDelayMs: FIXED_HOVER_DELAY_MS,
+  maxSelectionLength: FIXED_MAX_SELECTION_LENGTH,
   sourceLanguage: DEFAULT_SOURCE_LANGUAGE,
   targetLanguage: DEFAULT_TARGET_LANGUAGE,
   translateToOtherMvpLanguages: true,
@@ -94,13 +96,8 @@ export function normalizeSettings(
       stored?.hoverTranslationMode,
       fallback.hoverTranslationMode,
     ),
-    hoverDelayMs: getNumberSetting(stored?.hoverDelayMs, fallback.hoverDelayMs),
-    maxSelectionLength: getNumberSettingInRange(
-      stored?.maxSelectionLength,
-      fallback.maxSelectionLength,
-      SELECTION_LENGTH_LIMITS.min,
-      SELECTION_LENGTH_LIMITS.max,
-    ),
+    hoverDelayMs: FIXED_HOVER_DELAY_MS,
+    maxSelectionLength: FIXED_MAX_SELECTION_LENGTH,
     sourceLanguage: getSourceLanguageCode(stored?.sourceLanguage, fallback.sourceLanguage),
     targetLanguage: getMvpLanguageCode(stored?.targetLanguage, fallback.targetLanguage),
     translateToOtherMvpLanguages: getBooleanSetting(
@@ -148,20 +145,6 @@ function getStringSetting(value: unknown, fallback: string): string {
 
 function getBooleanSetting(value: unknown, fallback: boolean): boolean {
   return typeof value === "boolean" ? value : fallback;
-}
-
-function getNumberSetting(value: unknown, fallback: number): number {
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
-}
-
-function getNumberSettingInRange(
-  value: unknown,
-  fallback: number,
-  min: number,
-  max: number,
-): number {
-  const numberValue = getNumberSetting(value, fallback);
-  return Math.min(Math.max(numberValue, min), max);
 }
 
 export function validateHoverDelayMs(value: number): string | null {

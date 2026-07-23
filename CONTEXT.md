@@ -68,6 +68,14 @@ _Avoid_: Duplicate card, separate lesson vocabulary, translation history
 A deliberate DutchMate interaction with a saved learning item while it appears on a webpage, recorded locally with a small capped set of recent contexts. It is evidence of exposure, not successful recognition or recall.
 _Avoid_: Page scan, passive page view, mastery proof, complete browsing history
 
+**Context mission**:
+A short guided practice exercise anchored in Dutch that the learner deliberately selects on a real webpage. A first encounter rebuilds the Dutch in context, while an eligible saved repeat can test meaning before reveal or rebuild the Dutch for recall.
+_Avoid_: Mini-lesson, generic quiz, news feed, passive translation
+
+**Mission evidence**:
+A completed repeat Context Mission result that may update one recognition or recall dimension once for an existing learning item. A first-encounter mission remains exposure and cannot award mastery before the learner chooses to save the item.
+_Avoid_: Mission progress, experience points, retroactive mastery, duplicate practice result
+
 **Local learning record**:
 The on-device record of saved vocabulary, mastery, lesson progress, learning rhythm, and capped encounter contexts that can move through DutchMate's versioned export and import. It requires no account and is not a cloud learner profile.
 _Avoid_: Account, cloud progress, browser history
@@ -79,6 +87,10 @@ _Avoid_: Translation direction, helper language, multilingual learning mode
 **Learning validation**:
 The evidence used to judge whether DutchMate improves durable recognition, recall, and reduced-support story comprehension, gathered through learner-visible local progress and small voluntary learner studies. It excludes background learning telemetry and activity-only success measures.
 _Avoid_: Engagement analytics, review count, silent telemetry
+
+**Real-world transfer**:
+The primary product outcome in which DutchMate practice makes a learner better able to understand, explain, or act on Dutch encountered outside DutchMate. Enjoyment and playful feedback support this outcome but are not substitutes for it.
+_Avoid_: Time in app, content consumption, engagement alone
 
 **Explicit capture**:
 The learner-controlled path in which DutchMate presents a selected word or candidate meaningful chunk with its normalized learning form, meanings, and page context, and saves it only after confirmation.

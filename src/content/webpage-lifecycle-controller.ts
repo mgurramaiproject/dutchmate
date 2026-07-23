@@ -15,7 +15,7 @@ type ControllerDependencies = {
   getSettings(): ExtensionSettings;
   lookupModule: Pick<
     WebpageLookupModule,
-    "beginLookup" | "clear" | "hasActiveSelectionControl" | "shouldKeepVisibleOnMouseLeave"
+    "beginLookup" | "clear" | "hasActiveMission" | "hasActiveSelectionControl" | "shouldKeepVisibleOnMouseLeave"
   >;
   tooltipView: Pick<TooltipViewAdapter, "isTooltipEvent" | "showError" | "hide">;
 };
@@ -26,12 +26,14 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
   handlePageClick(event: MouseEvent): void;
   handleMouseLeave(): void;
   handleKeyDown(event: KeyboardEvent): void;
+  handlePageHide(): void;
   clearSelectionAndHideTooltip(): void;
   hideTooltip(): void;
 } {
   let hoverTimer: number | undefined;
   let lastHoverKey = "";
   let activeSelectionText = "";
+  let selectionClickPending = false;
 
   function hideTooltip(): void {
     dependencies.tooltipView.hide();
@@ -39,7 +41,11 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
   }
 
   function clearSelectionAndHideTooltip(): void {
+    if (dependencies.lookupModule.hasActiveMission()) {
+      return;
+    }
     activeSelectionText = "";
+    selectionClickPending = false;
     dependencies.lookupModule.clear();
   }
 
@@ -156,6 +162,7 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
       }
 
       activeSelectionText = selection.text;
+      selectionClickPending = true;
       void showTranslation(
         selection.text,
         "selection",
@@ -172,11 +179,13 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
         return;
       }
 
-      if (hasActiveSelection()) {
+      if (selectionClickPending) {
+        selectionClickPending = false;
         return;
       }
 
-      clearSelectionAndHideTooltip();
+      activeSelectionText = "";
+      dependencies.lookupModule.clear();
     },
 
     handleMouseLeave(): void {
@@ -189,8 +198,16 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
 
     handleKeyDown(event: KeyboardEvent): void {
       if (event.key === "Escape") {
-        clearSelectionAndHideTooltip();
+        activeSelectionText = "";
+        selectionClickPending = false;
+        dependencies.lookupModule.clear();
       }
+    },
+
+    handlePageHide(): void {
+      activeSelectionText = "";
+      selectionClickPending = false;
+      dependencies.lookupModule.clear();
     },
 
     clearSelectionAndHideTooltip,

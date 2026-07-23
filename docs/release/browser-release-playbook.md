@@ -4,6 +4,8 @@ Last updated: 2026-07-19
 
 This is the canonical, browser-neutral release path for DutchMate.
 
+For a release containing Context Missions, complete and retain the separate [Context Missions validation record](../features/004-transfer-validation.md). It distinguishes automated package evidence from the required Chrome and Firefox interactive pass, and keeps the feature described as experimental until delayed-transfer evidence exists.
+
 GitHub Releases should be created through the manual workflow documented in `docs/release/github-release-pipeline.md` before store submission, so the repo has a tagged release record and attached browser artifacts.
 Use it for both new browser listings and updates to existing store listings.
 

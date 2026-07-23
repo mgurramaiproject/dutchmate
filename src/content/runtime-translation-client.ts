@@ -1,7 +1,9 @@
 import type { TooltipContext } from "./tooltip-request-state";
 
 const TRANSLATE_MESSAGE = "hoverTranslate.translate";
-const DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS = 7000;
+// The background worker can be waiting for a hosted provider to cold-start.
+// Keep this aligned with the provider's bounded cold-start request window.
+export const DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS = 20000;
 
 export type TranslateMessageResponse =
   | {

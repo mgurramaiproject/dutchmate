@@ -13,8 +13,9 @@ describe("lesson popup", () => {
   let progressByLesson: Record<string, Record<string, unknown> | null>;
   let keepFails: boolean;
   let listFails: boolean;
+  let forceEmptyDailyFive: boolean;
   let learningItems: Array<Record<string, unknown>>;
-  let rhythmResponse: { week: Array<{ dayStartAt: number; status: "active" | "grace" | "idle" }>; activity: Array<{ dayStartAt: number; reviews: number | null; saved: number | null }>; resetCopy: string | null; milestones: Array<{ id: string; label: string }> };
+  let rhythmResponse: { week: Array<{ dayStartAt: number; status: "active" | "grace" | "idle" }>; activity: Array<{ dayStartAt: number; reviews: number | null; saved: number | null; lessons: number | null; lessonAdditions?: number }>; resetCopy: string | null; milestones: Array<{ id: string; label: string }> };
 
   beforeEach(async () => {
     vi.resetModules();
@@ -22,13 +23,17 @@ describe("lesson popup", () => {
     progressByLesson = {};
     keepFails = false;
     listFails = false;
+    forceEmptyDailyFive = false;
     rhythmResponse = rhythmFixture();
     const dailyItem = { id: "daily-item", learningLanguage: "nl", normalizedDutch: "huis", dutch: "huis", kind: "word", english: "house", telugu: null, sources: [], contexts: [], encounters: { count: 0, lastEncounterAt: null }, recognition: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, recall: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, createdAt: 1, updatedAt: 1 };
     learningItems = [dailyItem, { ...dailyItem, id: "saved-item", normalizedDutch: "zebra", dutch: "zebra", english: null, telugu: "జీబ్రా", sources: [{ type: "webpage", addedAt: 2 }], contexts: [{ text: "De zebra staat bij de ingang.", addedAt: 2 }], createdAt: 2, updatedAt: 2, recognition: { ...dailyItem.recognition, state: "strong", attemptCount: 3 }, recall: { ...dailyItem.recall, state: "familiar", attemptCount: 2 } }];
     runtime.sendMessage.mockImplementation(async (message: { type: string; payload?: Record<string, unknown> }) => {
       if (message.type === "dutchmate.learning.list") return listFails ? { ok: false, error: "Local read failed" } : { ok: true, result: { items: learningItems } };
       if (message.type === "dutchmate.learning.rhythm") return { ok: true, result: { rhythm: rhythmResponse } };
-      if (message.type === "dutchmate.learning.dailyFive") return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [], goalCompleted: false } } };
+      if (message.type === "dutchmate.learning.dailyFive") {
+        const emptyContinuation = message.payload?.continueAfterCompletion === true && (learningItems.length === 0 || forceEmptyDailyFive);
+        return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: emptyContinuation ? [] : [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [], goalCompleted: false } } };
+      }
       if (message.type === "dutchmate.learning.dailyFive.result") {
         const item = learningItems.find((candidate) => candidate.id === message.payload?.itemId)!;
         const dimension = message.payload?.dimension as "recognition" | "recall";
@@ -53,7 +58,7 @@ describe("lesson popup", () => {
     document.body.innerHTML = `
       <main class="popup-shell">
         <header class="popup-header"><div class="header-actions"><span id="due-badge"></span><a class="feedback-link" href="https://forms.gle/9KSsqfE1NNZcPEaaA">Feedback</a><button id="settings-button" type="button">Settings</button></div></header>
-        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Saved</button></nav>
+        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Library</button></nav>
         <div id="popup-content" tabindex="0"></div>
       </main>`;
     await import("./index");
@@ -110,9 +115,9 @@ describe("lesson popup", () => {
     expect(content().querySelector<HTMLElement>(".rhythm-day.grace")?.getAttribute("aria-label")).toContain("grace day");
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.tabIndex).toBe(0);
     expect(content().querySelector<HTMLButtonElement>(".period-tab.is-active")?.textContent).toBe("week");
-    expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("3 reviews, 1 saved item");
-    expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("4");
-    expect(content().querySelector<HTMLElement>(".rhythm-day.idle")?.getAttribute("aria-label")).toContain("0 reviews, 0 saved items");
+    expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("3 reviews, 1 saved item, 1 lesson");
+    expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("5");
+    expect(content().querySelector<HTMLElement>(".rhythm-day.idle")?.getAttribute("aria-label")).toContain("0 reviews, 0 saved items, 0 lessons");
     expect(content().querySelector(".heatmap-legend")?.textContent).toContain("Less");
     expect(content().querySelector(".heatmap-legend")?.textContent).toContain("More");
     expect(content().querySelectorAll(".heatmap-legend .heatmap-swatch")).toHaveLength(4);
@@ -131,7 +136,7 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("Practise five useful words. Start now.");
     expect(content().querySelectorAll(".month-weekdays span")).toHaveLength(7);
     expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .heatmap-date")].some((date) => date.textContent === "1")).toBe(true);
-    expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .activity-total")].some((total) => total.textContent === "4")).toBe(true);
+    expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .activity-total")].some((total) => total.textContent === "5")).toBe(true);
     expect(content().querySelector(".heatmap-legend")).toBeTruthy();
     const monthLabel = content().querySelector<HTMLElement>(".period-label")?.textContent;
     button("Previous period").click();
@@ -142,6 +147,22 @@ describe("lesson popup", () => {
     expect(content().querySelector(".heatmap-year .rhythm-day.is-today")).toBeTruthy();
     expect(content().querySelector(".next-action")).toBeTruthy();
     expect(content().querySelectorAll(".year-month-labels span")).toHaveLength(4);
+  });
+
+  it("keeps known legacy activity counts visible when lesson history was not recorded", async () => {
+    rhythmResponse.activity[0] = { ...rhythmResponse.activity[0], lessons: null };
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+
+    await vi.waitFor(() => expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("3 reviews, 1 saved item, lesson count unavailable"));
+    expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("4+");
+  });
+
+  it("shows a new lesson completed on a legacy activity day as a lower-bound count", async () => {
+    rhythmResponse.activity[0] = { ...rhythmResponse.activity[0], lessons: null, lessonAdditions: 1 };
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+
+    await vi.waitFor(() => expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("1 new lesson; historical lesson count unavailable"));
+    expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("5+");
   });
 
   it("offers the external feedback form from the popup header", () => {
@@ -176,10 +197,10 @@ describe("lesson popup", () => {
     expect(document.querySelector<HTMLElement>("#due-badge")?.hidden).toBe(false);
   });
 
-  it("keeps Today selected on open and renders Saved as a browse-only shelf with stable numbering", async () => {
+  it("keeps Today selected on open and renders Library as a browse-only shelf with stable numbering", async () => {
     expect(document.querySelector<HTMLButtonElement>("#today-tab")?.getAttribute("aria-selected")).toBe("true");
     expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.getAttribute("aria-selected")).toBe("false");
-    button("Saved").click();
+    button("Library").click();
     await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
     expect([...content().querySelectorAll<HTMLElement>(".saved-row")].map((row) => row.textContent)).toEqual([
       expect.stringContaining("2zebra"),
@@ -196,8 +217,8 @@ describe("lesson popup", () => {
     expect([...content().querySelectorAll<HTMLElement>(".saved-row")][1]?.textContent).toContain("2zebra");
   });
 
-  it("expands one Saved card at a time, exposes only safe detail, and refreshes the canonical record", async () => {
-    button("Saved").click();
+  it("expands one Library card at a time, exposes only safe detail, and refreshes the canonical record", async () => {
+    button("Library").click();
     await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2));
     const [zebra, huis] = [...content().querySelectorAll<HTMLButtonElement>(".saved-row")];
     expect(zebra.hasAttribute("aria-controls")).toBe(false);
@@ -262,6 +283,50 @@ describe("lesson popup", () => {
     expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Continue lesson", "Review more"]);
     reviewFiveMore.click();
     await vi.waitFor(() => expect(runtime.sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.dailyFive", payload: { continueAfterCompletion: true } }));
+  });
+
+  it("renders the empty-vocabulary actions on a fresh Today load", async () => {
+    learningItems = [];
+    const existingHandler = runtime.sendMessage.getMockImplementation()!;
+    runtime.sendMessage.mockImplementation(async (message: { type: string; payload?: Record<string, unknown> }) => {
+      if (message.type === "dutchmate.learning.dailyFive") return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: [], completedTaskIds: [], goalCompleted: false } } };
+      return existingHandler(message);
+    });
+    vi.resetModules();
+    storageChangeListeners.clear();
+    document.body.innerHTML = `
+      <main class="popup-shell">
+        <header class="popup-header"><div class="header-actions"><span id="due-badge"></span><a class="feedback-link" href="https://forms.gle/9KSsqfE1NNZcPEaaA">Feedback</a><button id="settings-button" type="button">Settings</button></div></header>
+        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Library</button></nav>
+        <div id="popup-content" tabindex="0"></div>
+      </main>`;
+    await import("./index");
+
+    await vi.waitFor(() => expect(button("Start a lesson")).toBeTruthy());
+    expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Start a lesson", "Review"]);
+    const reviewHint = content().querySelector<HTMLElement>(".empty-review-hint");
+    expect(reviewHint?.hidden).toBe(true);
+    expect(reviewHint?.getAttribute("role")).toBe("status");
+    expect(button("Review").getAttribute("aria-controls")).toBe("empty-review-hint");
+
+    button("Review").click();
+    expect(content().querySelector<HTMLElement>(".empty-review-hint")?.hidden).toBe(false);
+    button("Start a lesson").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("12 small practical stories"));
+  });
+
+  it("does not tell learners with saved vocabulary to save more when no review is available", async () => {
+    button("Start Daily Five").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    button("Show answer").click();
+    await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
+    button("Got it").click();
+    await vi.waitFor(() => expect(button("Review 5 more")).toBeTruthy());
+
+    forceEmptyDailyFive = true;
+    button("Review 5 more").click();
+    await vi.waitFor(() => expect(button("Choose a lesson")).toBeTruthy());
+    expect(button("Review")).toBeFalsy();
   });
 
   it("keeps the learner in an understandable error state when keeping candidates fails", async () => {
@@ -353,4 +418,4 @@ function lessonCard(title: string): HTMLButtonElement {
   return [...content().querySelectorAll<HTMLButtonElement>("button.lesson-card")].find((card) => card.textContent?.includes(title.replace(/^[A-Z0-9]+ · /, "")))!;
 }
 
-function rhythmFixture() { const today = new Date(); const day = (offset: number) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + offset).getTime(); return { week: Array.from({ length: 7 }, (_, index) => ({ dayStartAt: day(index - 6), status: index === 5 ? "grace" as const : index === 6 ? "active" as const : "idle" as const })), activity: [{ dayStartAt: day(0), reviews: 3, saved: 1 }], resetCopy: "A fresh week starts whenever you return.", milestones: [{ id: "first-saved-chunk", label: "First useful phrase saved" }, { id: "balanced-practice", label: "Recognition and recall practised" }] }; }
+function rhythmFixture() { const today = new Date(); const day = (offset: number) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + offset).getTime(); return { week: Array.from({ length: 7 }, (_, index) => ({ dayStartAt: day(index - 6), status: index === 5 ? "grace" as const : index === 6 ? "active" as const : "idle" as const })), activity: [{ dayStartAt: day(0), reviews: 3, saved: 1, lessons: 1 }], resetCopy: "A fresh week starts whenever you return.", milestones: [{ id: "first-saved-chunk", label: "First useful phrase saved" }, { id: "balanced-practice", label: "Recognition and recall practised" }] }; }

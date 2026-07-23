@@ -7,7 +7,9 @@ import type { ExtensionSettings } from "../shared/settings";
 import { getLearningItemId } from "../vocabulary/learning-record";
 import { normalizeSavedVocabularyText } from "../vocabulary/saved-vocabulary";
 import { getChunkCandidate } from "./chunk-candidate";
-import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
+import type { CreateOrMergeLearningItemInput, LearningItem } from "../vocabulary/learning-record";
+import { getWeakerMasteryDimension, type DailyFiveDimension } from "../vocabulary/daily-five";
+import { normalizeMissionText } from "./mission-text";
 
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
 const mvpLanguages = [
@@ -103,6 +105,42 @@ export type SaveActionState =
   | { status: "full"; label: "Vocabulary full"; disabled: true }
   | { status: "retry"; label: "Try again"; disabled: false; title: string };
 export type ChunkConfirmation = { dutch: string; english: string | null; telugu: string | null; context: string | null };
+export type ContextMission = {
+  selectedDutch: string;
+  pageContext: string | null;
+  available: string[];
+  placed: string[];
+  result?: "got-it" | "again";
+  evidence?: {
+    itemId: string;
+    dimension: "recall";
+    expectedAttemptCount: number;
+    token: number;
+    result?: "got-it" | "again";
+    submitting?: boolean;
+    recorded?: boolean;
+    error?: string;
+  };
+  capture?: {
+    saveAction: SaveActionState;
+    chunkConfirmation?: ChunkConfirmation;
+  };
+};
+export type RecallMission = {
+  itemId: string;
+  selectedDutch: string;
+  pageContext: string;
+  english: string | null;
+  telugu: string | null;
+  revealed: boolean;
+  result?: "got-it" | "again";
+  submitting?: boolean;
+  error?: string;
+  evidenceRecorded: boolean;
+  dimension: DailyFiveDimension;
+  expectedAttemptCount: number;
+  token: number;
+};
 
 export type WebpageLookupModuleEvent =
   | {
@@ -121,6 +159,7 @@ export type WebpageLookupModuleEvent =
       saveAction: SaveActionState;
       chunkConfirmation?: ChunkConfirmation;
       seenBefore?: true;
+      practiceAvailable?: true;
     }
   | {
       type: "render-error";
@@ -136,6 +175,12 @@ export type WebpageLookupModuleEvent =
   | {
       type: "show-seen-before";
     }
+  | { type: "render-recall-offer"; selectedDutch: string; pageContext: string; x: number; y: number }
+  | {
+      type: "render-mission";
+      mission: ContextMission;
+    }
+  | { type: "render-recall-mission"; mission: RecallMission }
   | {
       type: "hide-tooltip";
     };
@@ -151,8 +196,9 @@ export type TranslationTransport = {
   ): Promise<TranslateMessageResponse>;
   listLearningItemIds(): Promise<Set<string> | undefined>;
   saveLearningItem(input: CreateOrMergeLearningItemInput): Promise<{ ok: boolean; error?: string }>;
-  listLearningItems?(): Promise<{ ok: boolean; result?: { items: Array<{ id: string; normalizedDutch: string }> } }>;
+  listLearningItems?(): Promise<{ ok: boolean; result?: { items: LearningItem[] } }>;
   recordLearningEncounter?(input: { id: string; context: string }): Promise<{ ok: boolean }>;
+  recordMissionResult?(input: { itemId: string; dimension: DailyFiveDimension; result: "again" | "got-it"; expectedAttemptCount: number }): Promise<{ ok: boolean; error?: string }>;
 };
 
 type StorageChange = {
@@ -176,6 +222,11 @@ export class WebpageLookupModule {
   #currentSaveItem: CreateOrMergeLearningItemInput | null = null;
   #currentSaveItemId: string | null = null;
   #currentChunk: CreateOrMergeLearningItemInput | null = null;
+  #practiceSelection: { dutch: string; pageContext: string | null } | null = null;
+  #mission: ContextMission | null = null;
+  #recallMission: RecallMission | null = null;
+  #pendingRecallLookup: WebpageLookupInput | null = null;
+  #nextRecallMissionToken = 0;
 
   constructor(dependencies: WebpageLookupModuleDependencies) {
     this.#deps = dependencies;
@@ -196,8 +247,13 @@ export class WebpageLookupModule {
     return this.#session.hasActiveSelectionControl();
   }
 
+  hasActiveMission(): boolean {
+    return this.#mission !== null;
+  }
+
   applySettings(): void {
-    if (!this.#deps.getSettings().isEnabled) {
+    const settings = this.#deps.getSettings();
+    if (!settings.isEnabled || !settings.translateOnSelection) {
       this.clear();
     }
   }
@@ -232,13 +288,43 @@ export class WebpageLookupModule {
     this.#currentSaveItem = null;
     this.#currentSaveItemId = null;
     this.#currentChunk = null;
+    this.#practiceSelection = null;
+    this.#mission = null;
+    this.#recallMission = null;
+    this.#pendingRecallLookup = null;
     this.#emit({ type: "hide-tooltip" });
   }
 
-  async beginLookup(input: WebpageLookupInput): Promise<void> {
+  async beginLookup(input: WebpageLookupInput, skipLocalRecall = false): Promise<void> {
     const requestId = this.#session.begin(input.context);
     this.#currentSaveItem = null;
     this.#currentSaveItemId = null;
+    this.#practiceSelection = null;
+    this.#mission = null;
+    this.#recallMission = null;
+    this.#pendingRecallLookup = null;
+
+    if (!skipLocalRecall && input.context === "selection") {
+      const item = await this.#findRecallItem(input);
+      if (item && this.#session.isCurrent(requestId)) {
+        const dimension = getWeakerMasteryDimension(item);
+        this.#pendingRecallLookup = input;
+        this.#recallMission = {
+          itemId: item.id,
+          selectedDutch: item.dutch,
+          pageContext: input.pageContext!.trim().replace(/\s+/g, " ").slice(0, 240),
+          english: item.english,
+          telugu: item.telugu,
+          revealed: false,
+          evidenceRecorded: false,
+          dimension,
+          expectedAttemptCount: item[dimension].attemptCount,
+          token: ++this.#nextRecallMissionToken,
+        };
+        this.#emit({ type: "render-recall-offer", selectedDutch: item.dutch, pageContext: this.#recallMission.pageContext, x: input.x, y: input.y });
+        return;
+      }
+    }
 
     this.#emit({
       type: "render-loading",
@@ -283,6 +369,12 @@ export class WebpageLookupModule {
       return;
     }
 
+    const missionSelection = normalizeMissionText(input.text);
+    const practiceAvailable = completedLookup.context === "selection" && completedLookup.response.ok && completedLookup.sourceLanguage === "nl" && Boolean(input.pageContext && normalizeMissionText(input.pageContext).includes(missionSelection)) && isMissionSelection(missionSelection);
+    this.#practiceSelection = practiceAvailable
+      ? { dutch: missionSelection, pageContext: input.pageContext ?? null }
+      : null;
+
     this.#currentSaveItem = completedLookup.context === "selection"
       ? this.#getLearningItemFromResponses(
         input.text,
@@ -309,6 +401,7 @@ export class WebpageLookupModule {
       response: completedLookup.response,
       saveAction,
       ...(chunkConfirmation ? { chunkConfirmation } : {}),
+      ...(practiceAvailable ? { practiceAvailable: true } : {}),
     });
 
     if (completedLookup.response.ok) {
@@ -326,6 +419,63 @@ export class WebpageLookupModule {
     }
   }
 
+  translateNow(): void {
+    const input = this.#pendingRecallLookup;
+    if (input) void this.beginLookup(input, true);
+  }
+
+  startRecallMission(): void {
+    const recallMission = this.#recallMission;
+    if (!recallMission) return;
+    if (recallMission.dimension === "recognition") {
+      this.#emit({ type: "render-recall-mission", mission: recallMission });
+      return;
+    }
+    this.#mission = {
+      selectedDutch: recallMission.selectedDutch,
+      pageContext: recallMission.pageContext,
+      available: deterministicRotation(recallMission.selectedDutch.split(/\s+/u)),
+      placed: [],
+      evidence: {
+        itemId: recallMission.itemId,
+        dimension: "recall",
+        expectedAttemptCount: recallMission.expectedAttemptCount,
+        token: recallMission.token,
+      },
+    };
+    this.#emitMission();
+  }
+
+  revealRecallMeaning(): void {
+    if (!this.#recallMission) return;
+    this.#recallMission = { ...this.#recallMission, revealed: true, error: undefined };
+    this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
+  }
+
+  replayRecallMission(): void {
+    if (!this.#recallMission) return;
+    this.#recallMission = { ...this.#recallMission, revealed: false, result: undefined, submitting: false, error: undefined };
+    this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
+  }
+
+  async recordRecallResult(result: "again" | "got-it"): Promise<void> {
+    const mission = this.#recallMission;
+    if (!mission || !mission.revealed || mission.evidenceRecorded || mission.submitting) return;
+    this.#recallMission = { ...mission, submitting: true, error: undefined };
+    this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
+    try {
+      const response = await this.#deps.transport.recordMissionResult?.({ itemId: mission.itemId, dimension: "recognition", result, expectedAttemptCount: mission.expectedAttemptCount });
+      if (!response?.ok || this.#recallMission?.token !== mission.token) {
+        throw new Error(response?.error ?? "Recognition could not be saved.");
+      }
+      this.#recallMission = { ...mission, result, evidenceRecorded: true, submitting: false };
+    } catch (error) {
+      if (this.#recallMission?.itemId !== mission.itemId) return;
+      this.#recallMission = { ...mission, submitting: false, error: error instanceof Error ? error.message : "Recognition could not be saved." };
+    }
+    this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
+  }
+
   async #recordEncounter(requestId: number, text: string, context: string | null | undefined): Promise<boolean> {
     if (!context || !this.#deps.transport.listLearningItems || !this.#deps.transport.recordLearningEncounter) return false;
     try {
@@ -334,6 +484,22 @@ export class WebpageLookupModule {
       return item && this.#session.isCurrent(requestId) ? (await this.#deps.transport.recordLearningEncounter({ id: item.id, context })).ok : false;
     } catch {
       return false;
+    }
+  }
+
+  async #findRecallItem(input: WebpageLookupInput): Promise<LearningItem | undefined> {
+    if (!input.pageContext || !this.#deps.transport.listLearningItems) return undefined;
+    const sourceLanguage = this.#getActiveSourceLanguage(this.#deps.getSettings(), input.languageSample ?? input.text, input.sourceLanguageHint);
+    if (sourceLanguage !== "nl") return undefined;
+    try {
+      const response = await this.#deps.transport.listLearningItems();
+      const normalized = normalizeSavedVocabularyText(input.text);
+      const item = response.ok ? response.result?.items.find((candidate) => candidate.normalizedDutch === normalized) : undefined;
+      if (!item || (!item.english && !item.telugu)) return undefined;
+      const pageContext = input.pageContext.trim().replace(/\s+/g, " ");
+      return pageContext.toLocaleLowerCase().includes(item.normalizedDutch) ? item : undefined;
+    } catch {
+      return undefined;
     }
   }
 
@@ -387,6 +553,105 @@ export class WebpageLookupModule {
         disabled: true,
       },
     });
+  }
+
+  startPractice(): void {
+    if (!this.#practiceSelection) return;
+    const selectedDutch = this.#practiceSelection.dutch;
+    this.#mission = {
+      selectedDutch,
+      pageContext: this.#practiceSelection.pageContext,
+      available: deterministicRotation(selectedDutch.split(/\s+/u)),
+      placed: [],
+      ...this.#getMissionCapture(),
+    };
+    this.#emitMission();
+  }
+
+  addMissionFragment(index: number): void {
+    if (!this.#mission || this.#mission.evidence?.submitting || index < 0 || index >= this.#mission.available.length) return;
+    const available = [...this.#mission.available];
+    const [fragment] = available.splice(index, 1);
+    this.#mission = { ...this.#mission, available, placed: [...this.#mission.placed, fragment] };
+    this.#emitMission();
+  }
+
+  removeMissionFragment(index: number): void {
+    if (!this.#mission || this.#mission.evidence?.submitting || index < 0 || index >= this.#mission.placed.length) return;
+    const placed = [...this.#mission.placed];
+    const [fragment] = placed.splice(index, 1);
+    this.#mission = { ...this.#mission, placed, available: [...this.#mission.available, fragment] };
+    this.#emitMission();
+  }
+
+  resetMission(): void {
+    if (!this.#mission || this.#mission.evidence?.submitting) return;
+    this.#mission = { ...this.#mission, available: deterministicRotation(this.#mission.selectedDutch.split(/\s+/u)), placed: [], result: undefined };
+    this.#emitMission();
+  }
+
+  checkMission(): void {
+    const mission = this.#mission;
+    if (!mission || mission.placed.length !== mission.selectedDutch.split(/\s+/u).length || mission.result || mission.evidence?.submitting || mission.evidence?.recorded) return;
+    if (mission.evidence?.result) {
+      void this.#recordRecallMissionEvidence(mission);
+      return;
+    }
+    const result = normalizeMissionAnswer(mission.placed.join(" ")) === normalizeMissionAnswer(mission.selectedDutch) ? "got-it" : "again";
+    if (mission.evidence) {
+      this.#mission = { ...mission, evidence: { ...mission.evidence, result, submitting: true, error: undefined } };
+      this.#emitMission();
+      void this.#recordRecallMissionEvidence(this.#mission);
+      return;
+    }
+    this.#mission = { ...mission, result };
+    this.#emitMission();
+  }
+
+  replayMission(): void {
+    this.resetMission();
+  }
+
+  async #recordRecallMissionEvidence(mission: ContextMission): Promise<void> {
+    const evidence = mission.evidence;
+    if (!evidence?.result) return;
+    try {
+      const response = await this.#deps.transport.recordMissionResult?.({
+        itemId: evidence.itemId,
+        dimension: evidence.dimension,
+        result: evidence.result,
+        expectedAttemptCount: evidence.expectedAttemptCount,
+      });
+      if (!response?.ok || this.#mission?.evidence?.token !== evidence.token) throw new Error(response?.error ?? "Recall could not be saved.");
+      this.#mission = { ...this.#mission, result: evidence.result, evidence: { ...evidence, submitting: false, recorded: true, error: undefined } };
+    } catch (error) {
+      if (this.#mission?.evidence?.token !== evidence.token) return;
+      this.#mission = { ...this.#mission, evidence: { ...evidence, submitting: false, error: error instanceof Error ? error.message : "Recall could not be saved." } };
+    }
+    this.#emitMission();
+  }
+
+  #emitMission(): void {
+    if (this.#mission) this.#emit({ type: "render-mission", mission: this.#mission });
+  }
+
+  #getMissionCapture(): Pick<ContextMission, "capture"> {
+    if (this.#currentChunk) {
+      return {
+        capture: {
+          saveAction: { status: "ready", label: "Review & save", disabled: false },
+          chunkConfirmation: {
+            dutch: this.#currentChunk.dutch,
+            english: this.#currentChunk.english ?? null,
+            telugu: this.#currentChunk.telugu ?? null,
+            context: this.#currentChunk.context?.slice(0, 240) ?? null,
+          },
+        },
+      };
+    }
+
+    const saveAction = this.#getSaveActionState();
+    return saveAction.status === "hidden" ? {} : { capture: { saveAction } };
   }
 
   async #refreshCurrentSaveState(): Promise<void> {
@@ -661,4 +926,17 @@ export class WebpageLookupModule {
 function getChunkHelpers(translatedText: string): Pick<CreateOrMergeLearningItemInput, "english" | "telugu"> {
   const lines = new Map(translatedText.split("\n").map((line) => { const [label, ...value] = line.split(":"); return [label.trim(), value.join(":").trim()]; }));
   return { english: lines.get("English") || null, telugu: lines.get("Telugu") || null };
+}
+
+function isMissionSelection(text: string): boolean {
+  const words = text.trim().match(/[\p{Letter}\p{Number}][\p{Letter}\p{Number}'’-]*/gu) ?? [];
+  return words.length >= 2 && words.length <= 12;
+}
+
+function deterministicRotation(words: string[]): string[] {
+  return words.length < 2 ? words : [...words.slice(1), words[0]];
+}
+
+function normalizeMissionAnswer(value: string): string {
+  return value.trim().replace(/[.!?]+$/u, "").trim().toLocaleLowerCase();
 }

@@ -107,7 +107,7 @@ function renderSaved(): HTMLElement {
   const view = getSavedShelfView(items, { sort: savedSort, expandedItemId: expandedSavedItemId, loading: savedLoading, error: savedError });
   const header = document.createElement("div");
   header.className = "saved-head";
-  header.append(eyebrow("Your collection"), heading("Saved"));
+  header.append(eyebrow("Your collection"), heading("Library"));
   wrapper.append(header);
   if (view.status === "loading") { wrapper.append(text("Loading your saved vocabulary…")); return wrapper; }
   if (view.status === "error") {
@@ -180,6 +180,7 @@ function renderToday(): HTMLElement {
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
+  const hasNoVocabulary = total === 0 && items.length === 0;
   const nextAction = section("next-action");
   const actionCopy = completed ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy") : text(total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now.");
   nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
@@ -209,6 +210,19 @@ function renderToday(): HTMLElement {
     const continueLesson = button("Continue lesson", "button secondary-button");
     continueLesson.addEventListener("click", () => void startLesson(inProgress));
     secondaryActions.append(continueLesson);
+  }
+  if (hasNoVocabulary && !inProgress) {
+    const startLesson = button("Start a lesson", "button secondary-button");
+    startLesson.addEventListener("click", () => { screen = "lessons"; render(); });
+    const review = button("Review", "button secondary-button");
+    const reviewHint = text("Save vocabulary before you can review.", "empty-review-hint");
+    reviewHint.id = "empty-review-hint";
+    reviewHint.hidden = true;
+    reviewHint.setAttribute("role", "status");
+    review.setAttribute("aria-controls", reviewHint.id);
+    review.setAttribute("aria-expanded", "false");
+    review.addEventListener("click", () => { reviewHint.hidden = false; review.setAttribute("aria-expanded", "true"); });
+    secondaryActions.append(startLesson, review, reviewHint);
   }
   if (completed) {
     const reviewMore = button("Review more", "button secondary-button");
@@ -262,11 +276,12 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
     const activity = activityByDay.get(dayStartAt);
     const day = current.week.find((candidate) => candidate.dayStartAt === dayStartAt);
     const status = day?.status ?? (activity ? "active" : "idle");
-    const intensity = activity && (activity.reviews ?? 0) + (activity.saved ?? 0) >= 4 ? " high" : "";
+    const total = activityTotalValue(activity);
+    const intensity = total !== null && total >= 4 ? " high" : "";
     const isToday = isLocalToday(dayStartAt);
     const dot = button("", `rhythm-day ${status}${intensity}${isToday ? " is-today" : ""}`);
     const label = new Date(dayStartAt).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-    const counts = activity && activity.reviews !== null && activity.saved !== null ? `${activity.reviews} review${activity.reviews === 1 ? "" : "s"}, ${activity.saved} saved item${activity.saved === 1 ? "" : "s"}` : activity ? "activity recorded before counts were available" : `0 reviews, 0 saved items${status === "grace" ? " · grace day" : ""}`;
+    const counts = activity ? activityDescription(activity) : `0 reviews, 0 saved items, 0 lessons${status === "grace" ? " · grace day" : ""}`;
     const description = `${label}: ${counts}${isToday ? " · Today" : ""}`;
     dot.setAttribute("aria-label", description);
     dot.title = description;
@@ -303,8 +318,27 @@ function isLocalToday(dayStartAt: number): boolean {
 function activityTotal(activity: LearningRhythm["activity"][number] | undefined): HTMLElement {
   const total = document.createElement("span");
   total.className = "activity-total";
-  total.textContent = activity && activity.reviews !== null && activity.saved !== null ? String(activity.reviews + activity.saved) : activity ? "–" : "0";
+  const value = activityTotalValue(activity);
+  total.textContent = value === null ? "–" : `${value}${activity && hasUnknownActivityCount(activity) ? "+" : ""}`;
   return total;
+}
+
+function activityDescription(activity: LearningRhythm["activity"][number]): string {
+  return [
+    activity.reviews === null ? "review count unavailable" : `${activity.reviews} review${activity.reviews === 1 ? "" : "s"}`,
+    activity.saved === null ? "saved-item count unavailable" : `${activity.saved} saved item${activity.saved === 1 ? "" : "s"}`,
+    activity.lessons === null ? activity.lessonAdditions ? `${activity.lessonAdditions} new lesson${activity.lessonAdditions === 1 ? "" : "s"}; historical lesson count unavailable` : "lesson count unavailable" : `${activity.lessons} lesson${activity.lessons === 1 ? "" : "s"}`,
+  ].join(", ");
+}
+
+function activityTotalValue(activity: LearningRhythm["activity"][number] | undefined): number | null {
+  if (!activity) return 0;
+  const counts = [activity.reviews, activity.saved, activity.lessons, activity.lessons === null ? activity.lessonAdditions ?? 0 : null].filter((count): count is number => count !== null);
+  return counts.length > 0 ? counts.reduce((total, count) => total + count, 0) : null;
+}
+
+function hasUnknownActivityCount(activity: LearningRhythm["activity"][number]): boolean {
+  return activity.reviews === null || activity.saved === null || activity.lessons === null;
 }
 
 function renderLessons(): HTMLElement {

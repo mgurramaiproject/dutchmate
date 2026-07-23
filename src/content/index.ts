@@ -18,9 +18,12 @@ import {
 } from "../shared/settings";
 import { createWebpageLifecycleController } from "./webpage-lifecycle-controller";
 
-const TOOLTIP_TRANSLATION_TIMEOUT_MS = 9000;
+// A freshly restarted hosted backend can need several seconds to wake before
+// its first translation. Keep the UI guard slightly longer than the request
+// timeout so that cold starts can complete while failed requests stay bounded.
+const TOOLTIP_TRANSLATION_TIMEOUT_MS = 25000;
 const CHROME_DIRECT_TRANSLATION_FALLBACK_MS = 1200;
-const DIRECT_TRANSLATION_TIMEOUT_MS = 15000;
+const DIRECT_TRANSLATION_TIMEOUT_MS = 20000;
 
 type StorageChange = {
   newValue?: unknown;
@@ -65,8 +68,20 @@ const lookupModule = new WebpageLookupModule({
   runWithTimeout: withTooltipTranslationTimeout,
   tooltipTimeoutMs: TOOLTIP_TRANSLATION_TIMEOUT_MS,
 });
-const tooltipView = createTooltipViewAdapter(() => {
-  void lookupModule.handleSaveAction();
+const tooltipView = createTooltipViewAdapter({
+  onSaveClick: () => { void lookupModule.handleSaveAction(); },
+  onPractice: () => lookupModule.startPractice(),
+  onTryFromMemory: () => lookupModule.startRecallMission(),
+  onTranslateNow: () => lookupModule.translateNow(),
+  onShowMeaning: () => lookupModule.revealRecallMeaning(),
+  onRecallResult: (result) => { void lookupModule.recordRecallResult(result); },
+  onReplayRecall: () => lookupModule.replayRecallMission(),
+  onAddFragment: (index) => lookupModule.addMissionFragment(index),
+  onRemoveFragment: (index) => lookupModule.removeMissionFragment(index),
+  onReset: () => lookupModule.resetMission(),
+  onCheck: () => lookupModule.checkMission(),
+  onReplay: () => lookupModule.replayMission(),
+  onClose: () => lookupModule.clear(),
 });
 const lifecycleController = createWebpageLifecycleController({
   getSettings: () => currentSettings,
@@ -80,6 +95,7 @@ document.addEventListener("mouseup", lifecycleController.handleSelection, { pass
 document.addEventListener("scroll", lifecycleController.clearSelectionAndHideTooltip, { passive: true });
 document.addEventListener("click", lifecycleController.handlePageClick, { passive: true });
 document.addEventListener("keydown", lifecycleController.handleKeyDown);
+window.addEventListener("pagehide", lifecycleController.handlePageHide);
 extensionApi?.storage.onChanged.addListener(handleStorageChanged);
 lookupModule.subscribe(handleLookupModuleEvent);
 
@@ -97,7 +113,7 @@ function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
   }
 
   if (event.type === "render-result") {
-    tooltipView.showResult(event.response, event.x, event.y, event.saveAction, event.chunkConfirmation);
+    tooltipView.showResult(event.response, event.x, event.y, event.saveAction, event.chunkConfirmation, event.practiceAvailable);
     return;
   }
 
@@ -108,6 +124,21 @@ function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
 
   if (event.type === "show-seen-before") {
     tooltipView.showSeenBefore();
+    return;
+  }
+
+  if (event.type === "render-recall-offer") {
+    tooltipView.showRecallOffer(event.selectedDutch, event.pageContext, event.x, event.y);
+    return;
+  }
+
+  if (event.type === "render-mission") {
+    tooltipView.showMission(event.mission);
+    return;
+  }
+
+  if (event.type === "render-recall-mission") {
+    tooltipView.showRecallMission(event.mission);
     return;
   }
 

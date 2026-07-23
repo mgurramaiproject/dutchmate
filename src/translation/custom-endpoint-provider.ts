@@ -12,7 +12,9 @@ export type CustomEndpointProviderSettings = {
   timeoutMs?: number;
 };
 
-export const DEFAULT_PROVIDER_TIMEOUT_MS = 5000;
+// Hosted providers can cold-start after the browser or extension has been idle.
+// This remains bounded, but leaves enough time for the first request to wake them.
+export const DEFAULT_PROVIDER_TIMEOUT_MS = 20000;
 
 export class CustomEndpointTranslationProvider implements TranslationProvider {
   constructor(

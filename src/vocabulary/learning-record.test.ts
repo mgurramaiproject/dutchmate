@@ -30,7 +30,15 @@ describe("LearningRecordStore", () => {
     const backup = await records.exportBackup();
 
     expect(backup.version).toBe(2);
-    expect(backup.learningItems[0]).toMatchObject({ id: "nl\u001fgoede morgen", kind: "chunk", english: "good morning", telugu: "శుభోదయం", contexts: [{ text: "Goede morgen, buur!" }] });
+    expect(backup.learningItems[0]).toMatchObject({
+      id: "nl\u001fgoede morgen",
+      kind: "chunk",
+      english: "good morning",
+      telugu: "శుభోదయం",
+      contexts: [{ text: "Goede morgen, buur!" }],
+      recognition: { state: "new", attemptCount: 0, dueAt: null },
+      recall: { state: "new", attemptCount: 0, dueAt: null },
+    });
     expect(JSON.stringify(backup)).not.toContain("secret");
   });
 
@@ -59,6 +67,34 @@ describe("LearningRecordStore", () => {
     expect(updated.encounters).toEqual({ count: 5, lastEncounterAt: 5_000 });
     expect(updated.recognition).toEqual(item.recognition);
     expect(updated.recall).toEqual(item.recall);
+  });
+
+  it("records Context Mission recognition without completing or changing a Daily Five snapshot", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const item = await records.createOrMerge({ dutch: "huis", english: "house" });
+    const snapshot = await records.getDailyFive();
+
+    const updated = await records.recordMissionResult(item.id, "recognition", "got-it", 0);
+
+    expect(updated.item.recognition).toMatchObject({ state: "learning", attemptCount: 1, successfulStreak: 1 });
+    expect(updated.item.recall).toEqual(item.recall);
+    expect((await records.getDailyFive()).completedTaskIds).toEqual(snapshot.completedTaskIds);
+    await expect(records.recordMissionResult(item.id, "recognition", "got-it", 0)).resolves.toMatchObject({ recorded: false, item: updated.item });
+  });
+
+  it("records Context Mission recall without changing recognition or a Daily Five snapshot", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const item = await records.createOrMerge({ dutch: "huis", english: "house" });
+    const snapshot = await records.getDailyFive();
+
+    const updated = await records.recordMissionResult(item.id, "recall", "again", 0);
+
+    expect(updated.item.recall).toMatchObject({ state: "learning", attemptCount: 1, successfulStreak: 0 });
+    expect(updated.item.recognition).toEqual(item.recognition);
+    expect((await records.getDailyFive()).completedTaskIds).toEqual(snapshot.completedTaskIds);
+    await expect(records.recordMissionResult(item.id, "recall", "again", 0)).resolves.toMatchObject({ recorded: false, item: updated.item });
   });
 
   it("rejects malformed or unsupported imports before changing storage", async () => {
@@ -148,13 +184,95 @@ describe("LearningRecordStore", () => {
     await records.recordDailyFiveResult(item.id, "recognition", "got-it");
 
     const day = new Date(now).setHours(0, 0, 0, 0);
-    await expect(records.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 1 }]) });
+    await expect(records.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 1, lessons: 0 }]) });
 
     const backup = await records.exportBackup();
     now += 86_400_000;
     const restored = new LearningRecordStore(new MemoryStorage(), () => now);
     await restored.importBackup(backup);
-    await expect(restored.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 1 }]) });
+    await expect(restored.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 1, lessons: 0 }]) });
+  });
+
+  it("restores saved, reviewed, and completed-lesson history from local storage after a restart", async () => {
+    const storage = new MemoryStorage();
+    const now = 1_000;
+    const records = new LearningRecordStore(storage, () => now);
+    const item = await records.createOrMerge({ dutch: "huis", english: "house" });
+    await records.getDailyFive();
+    await records.recordDailyFiveResult(item.id, "recognition", "got-it");
+    await records.keepLessonCandidates(
+      "a1-een-afspraak-maken",
+      1,
+      [{ id: "afspraak-maken", dutch: "een afspraak maken", kind: "chunk", english: "make an appointment", telugu: "అపాయింట్‌మెంట్ తీసుకోవడం" }],
+      [{ dutch: "een afspraak maken", dimension: "recall", result: "got-it" }],
+    );
+
+    const restarted = new LearningRecordStore(storage, () => now + 10_000);
+    const day = new Date(now).setHours(0, 0, 0, 0);
+
+    await expect(restarted.getRhythm()).resolves.toMatchObject({
+      activity: expect.arrayContaining([{ dayStartAt: day, reviews: 1, saved: 2, lessons: 1 }]),
+    });
+    await expect(restarted.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toMatchObject({ completedAt: now });
+    await expect(restarted.list()).resolves.toHaveLength(2);
+  });
+
+  it("preserves partial legacy activity counts through import and a restart", async () => {
+    const storage = new MemoryStorage();
+    const now = 1_000;
+    const day = new Date(now).setHours(0, 0, 0, 0);
+    const records = new LearningRecordStore(storage, () => now);
+    await records.importBackup({
+      format: "dutchmate-learning-backup",
+      version: 2,
+      exportedAt: now,
+      learningItems: [],
+      lessonProgress: {},
+      rhythm: { activityDays: { [day]: { reviews: 3, saved: 1, updatedAt: now } } },
+    });
+
+    const restarted = new LearningRecordStore(storage, () => now + 10_000);
+    await expect(restarted.getRhythm()).resolves.toMatchObject({
+      activity: expect.arrayContaining([{ dayStartAt: day, reviews: 3, saved: 1, lessons: null }]),
+    });
+
+    await restarted.keepLessonCandidates(
+      "a1-een-afspraak-maken",
+      1,
+      [{ id: "afspraak-maken", dutch: "een afspraak maken", kind: "chunk", english: "make an appointment", telugu: "అపాయింట్‌మెంట్ తీసుకోవడం" }],
+      [],
+    );
+    const restartedAgain = new LearningRecordStore(storage, () => now + 20_000);
+    await expect(restartedAgain.getRhythm()).resolves.toMatchObject({
+      activity: expect.arrayContaining([{ dayStartAt: day, reviews: 3, saved: 2, lessons: null, lessonAdditions: 1 }]),
+    });
+  });
+
+  it("keeps known activity categories when merging a legacy backup in either direction", async () => {
+    const now = 1_000;
+    const day = new Date(now).setHours(0, 0, 0, 0);
+    const legacyBackup = {
+      format: "dutchmate-learning-backup" as const,
+      version: 2 as const,
+      exportedAt: now,
+      learningItems: [],
+      lessonProgress: {},
+      rhythm: { activityDays: { [day]: { reviews: 3, saved: 1, updatedAt: now } } },
+    };
+    const completeBackup = {
+      ...legacyBackup,
+      rhythm: { activityDays: { [day]: { reviews: 1, saved: 1, lessons: 1, updatedAt: now } } },
+    };
+
+    const localComplete = new LearningRecordStore(new MemoryStorage(), () => now);
+    await localComplete.importBackup(completeBackup);
+    await localComplete.importBackup(legacyBackup);
+    await expect(localComplete.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 3, saved: 1, lessons: 1 }]) });
+
+    const localLegacy = new LearningRecordStore(new MemoryStorage(), () => now);
+    await localLegacy.importBackup(legacyBackup);
+    await localLegacy.importBackup(completeBackup);
+    await expect(localLegacy.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 3, saved: 1, lessons: 1 }]) });
   });
 });
 

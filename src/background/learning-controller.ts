@@ -9,6 +9,7 @@ import {
   LEARNING_IMPORT_MESSAGE,
   LEARNING_LIST_MESSAGE,
   LEARNING_RECORD_ENCOUNTER_MESSAGE,
+  LEARNING_RECORD_MISSION_RESULT_MESSAGE,
   LEARNING_RHYTHM_MESSAGE,
   LEARNING_SUMMARY_MESSAGE,
   LEARNING_DAILY_FIVE_MESSAGE,
@@ -39,6 +40,7 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
       const item = await store.recordEncounter(message.payload.id, message.payload.context);
       return item ? { ok: true, result: { recorded: true } } : { ok: false, error: "Learning item was not found." };
     }
+    if (message.type === LEARNING_RECORD_MISSION_RESULT_MESSAGE) { const result = await store.recordMissionResult(message.payload.itemId, message.payload.dimension, message.payload.result, message.payload.expectedAttemptCount); return result.recorded ? { ok: true, result: { item: result.item } } : { ok: false, error: "This mission result was already recorded." }; }
     if (message.type === LEARNING_DAILY_FIVE_MESSAGE) return { ok: true, result: { snapshot: await store.getDailyFive(message.payload?.continueAfterCompletion) } };
     if (message.type === LEARNING_DAILY_FIVE_RESULT_MESSAGE) return { ok: true, result: await store.recordDailyFiveResult(message.payload.itemId, message.payload.dimension, message.payload.result) };
     if (message.type === LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE) {

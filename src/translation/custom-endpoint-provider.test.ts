@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { TranslationRequest } from "./provider";
-import { CustomEndpointTranslationProvider } from "./custom-endpoint-provider";
+import { CustomEndpointTranslationProvider, DEFAULT_PROVIDER_TIMEOUT_MS } from "./custom-endpoint-provider";
 import { PersistentTranslationCache } from "./persistent-translation-cache";
 import { shouldPersistTranslation } from "./persistent-cache-policy";
 import { TranslationCache } from "./translation-cache";
@@ -16,6 +16,10 @@ describe("CustomEndpointTranslationProvider", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
+  });
+
+  it("allows a bounded cold-start window for the default provider timeout", () => {
+    expect(DEFAULT_PROVIDER_TIMEOUT_MS).toBe(20000);
   });
 
   it("posts the translation request and bearer token to the configured endpoint", async () => {

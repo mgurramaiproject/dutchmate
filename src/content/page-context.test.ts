@@ -1,5 +1,6 @@
+// @vitest-environment happy-dom
 import { describe, expect, it } from "vitest";
-import { getReliablePageContext, MAX_PAGE_CONTEXT_LENGTH } from "./page-context";
+import { getReliablePageContext, getSelectionPageContext, MAX_PAGE_CONTEXT_LENGTH } from "./page-context";
 
 describe("page context", () => {
   it("keeps the sentence containing the selected word", () => {
@@ -24,5 +25,15 @@ describe("page context", () => {
   it("omits context when a reliable sentence cannot be found", () => {
     expect(getReliablePageContext("een huis zonder einde", "huis")).toBeNull();
     expect(getReliablePageContext("Een oud huis staat daar.", "het huis")).toBeNull();
+  });
+
+  it("keeps a selected headline as context when a line break splits a hyphenated word", () => {
+    const heading = document.createElement("h1");
+    heading.textContent = "Gasprijs stijgt na oplaaiende geweld in Midden-Oosten";
+    document.body.append(heading);
+
+    expect(getSelectionPageContext({ anchorNode: heading.firstChild }, "Gasprijs stijgt na oplaaiende geweld in Midden-\nOosten")).toBe(
+      "Gasprijs stijgt na oplaaiende geweld in Midden-Oosten",
+    );
   });
 });

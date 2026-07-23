@@ -135,7 +135,7 @@ export class LearningRecordStore {
     });
     next.lessonProgress = { ...next.lessonProgress, [key]: { lessonId, contentVersion, stage: "keep", completedAt: timestamp, keptCandidateIds: candidates.map((candidate) => candidate.id), updatedAt: timestamp } };
     const newlySaved = items.filter((item) => record.items[item.id] === undefined).length;
-    next.rhythm = { ...next.rhythm, ...withActiveDay(next.rhythm, timestamp, "lessonCompletions"), ...(newlySaved ? withActivity(next.rhythm, timestamp, { saved: newlySaved }) : {}) };
+    next.rhythm = { ...next.rhythm, ...withActiveDay(next.rhythm, timestamp, "lessonCompletions"), ...withActivity(next.rhythm, timestamp, { lessons: 1, saved: newlySaved }) };
     await this.write(next);
     return items;
   }
@@ -151,6 +151,19 @@ export class LearningRecordStore {
     record.items[id] = item;
     await this.write(record);
     return item;
+  }
+
+  async recordMissionResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult, expectedAttemptCount: number): Promise<{ item: LearningItem; recorded: boolean }> {
+    const record = await this.readMigrated();
+    const existing = record.items[itemId];
+    if (!existing) throw new Error("This learning item is unavailable.");
+    if (existing[dimension].attemptCount !== expectedAttemptCount) return { item: existing, recorded: false };
+    const timestamp = this.now();
+    const updated = applyDailyFiveResult(existing, dimension, result, timestamp).item;
+    record.items[itemId] = updated;
+    record.rhythm = { ...record.rhythm, ...withActivity(record.rhythm, timestamp, { reviews: 1 }) };
+    await this.write(record);
+    return { item: updated, recorded: true };
   }
 
   async getDailyFive(continueAfterCompletion = false): Promise<DailyFiveSnapshot> {
@@ -283,12 +296,22 @@ function mergeImportedLearningItem(existing: LearningItem | undefined, imported:
 }
 function mergeSource(sources: LearningItemSource[], source: "webpage" | "lesson" | undefined, addedAt: number, metadata?: Omit<LearningItemSource, "type" | "addedAt">): LearningItemSource[] { return source ? deduplicateSources([...sources, { type: source, addedAt, ...metadata }]) : sources; }
 function withActiveDay(rhythm: Record<string, unknown>, timestamp: number, source: "dailyFiveCompletions" | "lessonCompletions", extra: Record<string, unknown> = {}): Record<string, unknown> { const day = getLocalDayStart(timestamp); const entry = { completedAt: timestamp, ...extra }; return { activeDays: { ...(isRecord(rhythm.activeDays) ? rhythm.activeDays : {}), [day]: entry }, [source]: { ...(isRecord(rhythm[source]) ? rhythm[source] : {}), [day]: entry } }; }
-function withActivity(rhythm: Record<string, unknown>, timestamp: number, changes: { reviews?: number; saved?: number }): Record<string, unknown> {
+function withActivity(rhythm: Record<string, unknown>, timestamp: number, changes: { reviews?: number; saved?: number; lessons?: number }): Record<string, unknown> {
   const day = getLocalDayStart(timestamp);
   const activityDays = isRecord(rhythm.activityDays) ? rhythm.activityDays : {};
-  const previous = isRecord(activityDays[day]) ? activityDays[day] : {};
+  const hasPrevious = isRecord(activityDays[day]);
+  const previous: Record<string, unknown> = isRecord(activityDays[day]) ? activityDays[day] : {};
   const count = (value: unknown) => typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
-  return { activityDays: { ...activityDays, [day]: { reviews: count(previous.reviews) + (changes.reviews ?? 0), saved: count(previous.saved) + (changes.saved ?? 0), updatedAt: timestamp } } };
+  const next = (key: "reviews" | "saved" | "lessons") => {
+    const previousCount = typeof previous[key] === "number" && Number.isFinite(previous[key]) && previous[key] >= 0 ? previous[key] : undefined;
+    if (previousCount !== undefined) return previousCount + (changes[key] ?? 0);
+    return hasPrevious ? undefined : count(changes[key]);
+  };
+  const reviews = next("reviews"); const saved = next("saved"); const lessons = next("lessons");
+  const lessonAdditions = lessons === undefined && hasPrevious
+    ? count(previous.lessonAdditions) + (changes.lessons ?? 0)
+    : count(previous.lessonAdditions);
+  return { activityDays: { ...activityDays, [day]: { ...(reviews === undefined ? {} : { reviews }), ...(saved === undefined ? {} : { saved }), ...(lessons === undefined ? {} : { lessons }), ...(lessonAdditions > 0 ? { lessonAdditions } : {}), updatedAt: timestamp } } };
 }
 function mergeRhythm(existing: Record<string, unknown>, imported: Record<string, unknown>): Record<string, unknown> { return { ...existing, ...imported, ...Object.fromEntries(["activeDays", "dailyFiveCompletions", "lessonCompletions"].map((key) => [key, { ...(isRecord(existing[key]) ? existing[key] : {}), ...(isRecord(imported[key]) ? imported[key] : {}) }])), activityDays: mergeActivityDays(existing.activityDays, imported.activityDays) }; }
 function mergeActivityDays(local: unknown, incoming: unknown): Record<string, unknown> {
@@ -296,9 +319,19 @@ function mergeActivityDays(local: unknown, incoming: unknown): Record<string, un
   if (!isRecord(incoming)) return result;
   for (const [day, value] of Object.entries(incoming)) {
     if (!isRecord(value)) continue;
-    const current = isRecord(result[day]) ? result[day] : {};
-    const count = (entry: Record<string, unknown>, key: "reviews" | "saved") => typeof entry[key] === "number" && Number.isFinite(entry[key]) && entry[key] >= 0 ? entry[key] : 0;
-    result[day] = { reviews: Math.max(count(current, "reviews"), count(value, "reviews")), saved: Math.max(count(current, "saved"), count(value, "saved")), updatedAt: Math.max(typeof current.updatedAt === "number" ? current.updatedAt : 0, typeof value.updatedAt === "number" ? value.updatedAt : 0) };
+    const hasCurrent = isRecord(result[day]);
+    const current: Record<string, unknown> = isRecord(result[day]) ? result[day] : {};
+    const count = (entry: Record<string, unknown>, key: "reviews" | "saved" | "lessons" | "lessonAdditions") => typeof entry[key] === "number" && Number.isFinite(entry[key]) && entry[key] >= 0 ? entry[key] : undefined;
+    const mergedCount = (key: "reviews" | "saved" | "lessons") => {
+      const currentCount = count(current, key); const incomingCount = count(value, key);
+      if (!hasCurrent) return incomingCount;
+      if (currentCount === undefined) return incomingCount;
+      if (incomingCount === undefined) return currentCount;
+      return Math.max(currentCount, incomingCount);
+    };
+    const reviews = mergedCount("reviews"); const saved = mergedCount("saved"); const lessons = mergedCount("lessons");
+    const lessonAdditions = Math.max(count(current, "lessonAdditions") ?? 0, count(value, "lessonAdditions") ?? 0);
+    result[day] = { ...(reviews === undefined ? {} : { reviews }), ...(saved === undefined ? {} : { saved }), ...(lessons === undefined ? {} : { lessons }), ...(lessonAdditions > 0 ? { lessonAdditions } : {}), updatedAt: Math.max(typeof current.updatedAt === "number" ? current.updatedAt : 0, typeof value.updatedAt === "number" ? value.updatedAt : 0) };
   }
   return result;
 }
