@@ -180,6 +180,7 @@ function renderToday(): HTMLElement {
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
+  const hasNoVocabulary = total === 0 && items.length === 0;
   const nextAction = section("next-action");
   const actionCopy = completed ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy") : text(total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now.");
   nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
@@ -209,6 +210,19 @@ function renderToday(): HTMLElement {
     const continueLesson = button("Continue lesson", "button secondary-button");
     continueLesson.addEventListener("click", () => void startLesson(inProgress));
     secondaryActions.append(continueLesson);
+  }
+  if (hasNoVocabulary && !inProgress) {
+    const startLesson = button("Start a lesson", "button secondary-button");
+    startLesson.addEventListener("click", () => { screen = "lessons"; render(); });
+    const review = button("Review", "button secondary-button");
+    const reviewHint = text("Save vocabulary before you can review.", "empty-review-hint");
+    reviewHint.id = "empty-review-hint";
+    reviewHint.hidden = true;
+    reviewHint.setAttribute("role", "status");
+    review.setAttribute("aria-controls", reviewHint.id);
+    review.setAttribute("aria-expanded", "false");
+    review.addEventListener("click", () => { reviewHint.hidden = false; review.setAttribute("aria-expanded", "true"); });
+    secondaryActions.append(startLesson, review, reviewHint);
   }
   if (completed) {
     const reviewMore = button("Review more", "button secondary-button");
