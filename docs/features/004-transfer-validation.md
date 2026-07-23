@@ -62,4 +62,4 @@ This optional product-learning check is not telemetry, a default product flow, o
 
 ## Unresolved limitations and readiness
 
-Automated engineering and packaging evidence is complete. Release readiness remains **blocked** until a tester records the Chrome and Firefox interactive pass above. No implementation defect was found in the automated scope. The next action is to load the generated Chrome and Firefox builds, run the Context Missions browser checklist, then update this record, the T06 checklist, issue #62, and the Delivery Status.
+Automated engineering and packaging evidence is complete, and PR [#63](https://github.com/mgurramaiproject/dutchmate/pull/63) has merged the implementation into `main`. Release readiness remains **blocked** until a tester records the Chrome and Firefox interactive pass above. No implementation defect was found in the automated scope. The next action is to load the generated Chrome and Firefox builds, run the Context Missions browser checklist, then update this record, the T06 checklist, close issue #62, and move its Delivery Status to Done.
