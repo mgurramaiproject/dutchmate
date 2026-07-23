@@ -52,7 +52,7 @@ describe("content-settings-adapter", () => {
       runtime: {},
     });
 
-    expect(settings.hoverDelayMs).toBe(999);
+    expect(settings.hoverDelayMs).toBe(450);
     expect(settings.hoverTranslationMode).toBe("sentence");
   });
 
@@ -81,12 +81,14 @@ describe("content-settings-adapter", () => {
       hoverTranslationMode: { newValue: "sentence" },
       cacheSelectedWords: { newValue: false },
       maxSelectionLength: { newValue: 9999 },
+      hoverDelayMs: { newValue: 999 },
       providerEndpoint: { newValue: "https://example.test/translate" },
     });
 
     expect(next.hoverTranslationMode).toBe("sentence");
     expect(next.cacheSelectedWords).toBe(false);
-    expect(next.maxSelectionLength).toBe(150);
+    expect(next.maxSelectionLength).toBe(100);
+    expect(next.hoverDelayMs).toBe(450);
     expect(next.providerEndpoint).toBe("https://example.test/translate");
   });
 });
