@@ -91,6 +91,22 @@ describe("TooltipViewAdapter", () => {
     expect(document.querySelector("#hover-translate-tooltip")?.textContent).not.toContain("Save:");
   });
 
+  it("does not offer Save when the translation response failed", () => {
+    const view = createTooltipViewAdapter({
+      onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn(),
+    });
+
+    view.showResult(
+      { ok: false, error: "Translation request timed out before the extension backend worker responded." },
+      10,
+      10,
+      { status: "ready", label: "Save", disabled: false },
+    );
+
+    expect(document.querySelector("#hover-translate-tooltip")?.textContent).toContain("Translation request timed out");
+    expect(document.querySelector(".hover-translate-save")).toBeNull();
+  });
+
   it("disables reconstruction mutations while recall evidence is saving", () => {
     const view = createTooltipViewAdapter({ onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn() });
     view.showMission({ selectedDutch: "goede morgen", pageContext: "Goede morgen, buur.", available: ["morgen"], placed: ["goede"], evidence: { itemId: "nl\u001fgoede morgen", dimension: "recall", expectedAttemptCount: 0, token: 1, result: "got-it", submitting: true } });

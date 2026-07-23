@@ -195,14 +195,16 @@ export function createTooltipViewAdapter(callbacks: {
         );
       }
 
-      renderSaveAction(
-        tooltip,
-        saveAction,
-        callbacks.onSaveClick,
-        (button) => {
-          currentSaveButton = button;
-        },
-      );
+      if (response.ok) {
+        renderSaveAction(
+          tooltip,
+          saveAction,
+          callbacks.onSaveClick,
+          (button) => {
+            currentSaveButton = button;
+          },
+        );
+      }
       positionTooltip(tooltip, x, y);
       tooltip.hidden = false;
       if (practiceAvailable) renderPracticeAction(tooltip, callbacks.onPractice);

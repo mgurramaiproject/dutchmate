@@ -58,7 +58,7 @@ describe("lesson popup", () => {
     document.body.innerHTML = `
       <main class="popup-shell">
         <header class="popup-header"><div class="header-actions"><span id="due-badge"></span><a class="feedback-link" href="https://forms.gle/9KSsqfE1NNZcPEaaA">Feedback</a><button id="settings-button" type="button">Settings</button></div></header>
-        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Saved</button></nav>
+        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Library</button></nav>
         <div id="popup-content" tabindex="0"></div>
       </main>`;
     await import("./index");
@@ -197,10 +197,10 @@ describe("lesson popup", () => {
     expect(document.querySelector<HTMLElement>("#due-badge")?.hidden).toBe(false);
   });
 
-  it("keeps Today selected on open and renders Saved as a browse-only shelf with stable numbering", async () => {
+  it("keeps Today selected on open and renders Library as a browse-only shelf with stable numbering", async () => {
     expect(document.querySelector<HTMLButtonElement>("#today-tab")?.getAttribute("aria-selected")).toBe("true");
     expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.getAttribute("aria-selected")).toBe("false");
-    button("Saved").click();
+    button("Library").click();
     await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
     expect([...content().querySelectorAll<HTMLElement>(".saved-row")].map((row) => row.textContent)).toEqual([
       expect.stringContaining("2zebra"),
@@ -217,8 +217,8 @@ describe("lesson popup", () => {
     expect([...content().querySelectorAll<HTMLElement>(".saved-row")][1]?.textContent).toContain("2zebra");
   });
 
-  it("expands one Saved card at a time, exposes only safe detail, and refreshes the canonical record", async () => {
-    button("Saved").click();
+  it("expands one Library card at a time, exposes only safe detail, and refreshes the canonical record", async () => {
+    button("Library").click();
     await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2));
     const [zebra, huis] = [...content().querySelectorAll<HTMLButtonElement>(".saved-row")];
     expect(zebra.hasAttribute("aria-controls")).toBe(false);
@@ -297,7 +297,7 @@ describe("lesson popup", () => {
     document.body.innerHTML = `
       <main class="popup-shell">
         <header class="popup-header"><div class="header-actions"><span id="due-badge"></span><a class="feedback-link" href="https://forms.gle/9KSsqfE1NNZcPEaaA">Feedback</a><button id="settings-button" type="button">Settings</button></div></header>
-        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Saved</button></nav>
+        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Library</button></nav>
         <div id="popup-content" tabindex="0"></div>
       </main>`;
     await import("./index");

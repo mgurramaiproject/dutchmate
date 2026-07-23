@@ -107,7 +107,7 @@ function renderSaved(): HTMLElement {
   const view = getSavedShelfView(items, { sort: savedSort, expandedItemId: expandedSavedItemId, loading: savedLoading, error: savedError });
   const header = document.createElement("div");
   header.className = "saved-head";
-  header.append(eyebrow("Your collection"), heading("Saved"));
+  header.append(eyebrow("Your collection"), heading("Library"));
   wrapper.append(header);
   if (view.status === "loading") { wrapper.append(text("Loading your saved vocabulary…")); return wrapper; }
   if (view.status === "error") {
