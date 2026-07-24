@@ -447,6 +447,19 @@ describe("WebpageLookupModule", () => {
     expect(saveLearningItem).toHaveBeenCalledWith(expect.objectContaining({ dutch: "goede morgen", kind: "chunk", source: "webpage" }));
   });
 
+  it("requests and saves English and Telugu translations for a Dutch webpage context", async () => {
+    const translate = vi.fn(createTransport().translate);
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
+    const module = new WebpageLookupModule({ getSettings: () => defaultSettings, transport: createTransport({ translate, saveLearningItem }), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });
+
+    await module.beginLookup({ text: "huis", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Een huis staat daar." });
+    await module.handleSaveAction();
+
+    expect(translate).toHaveBeenCalledWith(expect.objectContaining({ text: "Een huis staat daar.", sourceLanguage: "nl", targetLanguage: "en" }));
+    expect(translate).toHaveBeenCalledWith(expect.objectContaining({ text: "Een huis staat daar.", sourceLanguage: "nl", targetLanguage: "te" }));
+    expect(saveLearningItem).toHaveBeenCalledWith(expect.objectContaining({ context: "Een huis staat daar.", contextTranslations: { english: "Een huis staat daar.-en", telugu: "Een huis staat daar.-te" } }));
+  });
+
   it("never auto-saves a selected meaningful chunk", async () => {
     const saveLearningItem = vi.fn(async () => ({ ok: true }));
     const module = new WebpageLookupModule({ getSettings: () => ({ ...defaultSettings, autoSaveSelectedWords: true }), transport: createTransport({ saveLearningItem }), runWithTimeout: (promise) => promise, tooltipTimeoutMs: 9000 });

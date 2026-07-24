@@ -100,6 +100,10 @@ function collectManifestFiles(manifest) {
 
 function validateManifest(manifest, target) {
   const errors = [];
+  const permissions = new Set(manifest.permissions ?? []);
+  for (const permission of ["storage", "downloads"]) {
+    if (!permissions.has(permission)) errors.push(`Manifest must request the ${permission} permission.`);
+  }
   if (target === "firefox") {
     if (JSON.stringify(manifest.background) !== JSON.stringify({ scripts: ["assets/background.js"] })) {
       errors.push("Firefox manifest must declare background.scripts as assets/background.js.");

@@ -35,6 +35,20 @@ describe("validateExtensionBuild", () => {
     ]);
   });
 
+  it("requires the permissions used by the learning record and Saved export", async () => {
+    const distDir = await createExtensionFixture("chrome", {
+      service_worker: "assets/background.js",
+    });
+    const manifestPath = join(distDir, "manifest.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.permissions = ["storage"];
+    await writeFile(manifestPath, JSON.stringify(manifest));
+
+    await expect(validateExtensionBuild(distDir, "chrome")).resolves.toContain(
+      "Manifest must request the downloads permission.",
+    );
+  });
+
   it("requires reduced-motion styling in the rendered popup artifact", async () => {
     const distDir = await createExtensionFixture("chrome", {
       service_worker: "assets/background.js",
@@ -94,6 +108,7 @@ async function createExtensionFixture(
     join(distDir, "manifest.json"),
     JSON.stringify({
       manifest_version: 3,
+      permissions: ["storage", "downloads"],
       icons: {
         16: "icons/icon-16.png",
         32: "icons/icon-32.png",

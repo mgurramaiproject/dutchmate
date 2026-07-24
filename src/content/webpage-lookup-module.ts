@@ -508,7 +508,7 @@ export class WebpageLookupModule {
       let response: { ok: boolean; error?: string };
       try {
         response = this.#deps.transport.saveLearningItem
-          ? await this.#deps.transport.saveLearningItem(this.#currentChunk)
+          ? await this.#deps.transport.saveLearningItem(await this.#withContextTranslations(this.#currentChunk))
           : { ok: false, error: "Learning save is unavailable." };
       } catch (error) {
         response = { ok: false, error: error instanceof Error ? error.message : "Learning item could not be saved." };
@@ -529,7 +529,12 @@ export class WebpageLookupModule {
       },
     });
 
-    const response = await this.#deps.transport.saveLearningItem(this.#currentSaveItem);
+    let response: { ok: boolean; error?: string };
+    try {
+      response = await this.#deps.transport.saveLearningItem(await this.#withContextTranslations(this.#currentSaveItem));
+    } catch (error) {
+      response = { ok: false, error: error instanceof Error ? error.message : "Learning item could not be saved." };
+    }
     if (!response.ok) {
       this.#emit({
         type: "save-state-changed",
@@ -716,6 +721,16 @@ export class WebpageLookupModule {
       label: "Save",
       disabled: false,
     };
+  }
+
+  async #withContextTranslations(input: CreateOrMergeLearningItemInput): Promise<CreateOrMergeLearningItemInput> {
+    if (!input.context || input.source !== "webpage") return input;
+    const [english, telugu] = await Promise.all((["en", "te"] as const).map(async (targetLanguage) => {
+      const response = await this.#deps.transport.translate({ text: input.context!, context: "selection", sourceLanguage: "nl", targetLanguage });
+      if (!response.ok) throw new Error(response.error);
+      return response.result.translatedText;
+    }));
+    return { ...input, contextTranslations: { english, telugu } };
   }
 
   async #requestTranslationForCurrentSettings(

@@ -19,8 +19,11 @@ describe("TooltipViewAdapter", () => {
     expect(tooltip?.hidden).toBe(false);
     expect(tooltip?.dataset.state).toBe("loading");
     expect(tooltip?.textContent).toBe("Translating...");
-    expect(styles).toContain('background: #172554');
-    expect(styles).toContain('color: #f8fafc');
+    expect(styles).toContain('border-left: 4px solid #ff6f00');
+    expect(styles).toContain('background: #fff');
+    expect(styles).toContain('color: #000');
+    expect(styles).not.toContain('#172554');
+    expect(styles).not.toContain('#7f1d1d');
   });
 
   it("renders an accessible Context Slip and routes keyboard-operable controls without changing the page", () => {
@@ -89,6 +92,24 @@ describe("TooltipViewAdapter", () => {
     expect(document.querySelector(".context-slip-detail[data-label='Dutch']")?.textContent).toContain("goede morgen");
     expect(document.querySelector(".context-slip-detail[data-label='Context']")?.textContent).toContain("Goede morgen, buur.");
     expect(document.querySelector("#hover-translate-tooltip")?.textContent).not.toContain("Save:");
+  });
+
+  it("gives multi-target translations a clear hierarchy and Telugu phonetic helper", () => {
+    const view = createTooltipViewAdapter({
+      onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn(),
+    });
+
+    view.showResult(
+      { ok: true, result: { translatedText: "English: amended\nTelugu: సవరించబడింది", providerName: "multi-target" } },
+      10,
+      10,
+      { status: "ready", label: "Save", disabled: false },
+    );
+
+    expect(document.querySelectorAll(".hover-translate-row")).toHaveLength(2);
+    expect(document.querySelector(".hover-translate-label")?.textContent).toBe("English:");
+    expect(document.querySelector(".hover-translate-phonetics")?.textContent).toContain("Say it:");
+    expect(document.querySelector<HTMLButtonElement>(".hover-translate-save")?.textContent).toBe("Save");
   });
 
   it("does not offer Save when the translation response failed", () => {

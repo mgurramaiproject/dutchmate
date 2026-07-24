@@ -8,6 +8,14 @@ DutchMate is a browser-based Dutch learning product for people who read the web 
 The core language set DutchMate is designed around: Dutch, English, and Telugu. It describes the intended learner flow rather than a generic "multi-language" product.
 _Avoid_: Language pack, universal translation
 
+**Telugu phonetic helper**:
+An English-letter pronunciation guide for Telugu helper text, offered to support Dutch learners who cannot yet read Telugu script. It does not make Telugu a learning language or introduce a reverse Dutch-to-Telugu course.
+_Avoid_: Telugu learning mode, pronunciation course, speech feedback
+
+**Simple Telugu phonetics**:
+The local Telugu phonetic-helper style: plain English letters with syllable breaks and no scholarly diacritics, such as `na-mas-kaa-ram`. It is an accessible reading aid, not a linguistic transcription standard.
+_Avoid_: IAST, IPA, academic transliteration
+
 **First audience**:
 The initial public user group DutchMate is intentionally optimized for: Telugu-speaking people in the Netherlands who already use English and are learning Dutch through everyday web reading.
 _Avoid_: Everyone, general translation users
@@ -28,6 +36,10 @@ _Avoid_: Anchor sentence, long-form story, example list, grammar explanation
 The reviewed collection of curated mini-lessons bundled and versioned with DutchMate, organized by practical life pathway with each lesson title prefixed by its CEFR level. It is available without a separate content download and grows through normal product releases.
 _Avoid_: Lesson marketplace, remote content feed, generated catalog
 
+**Lesson filter**:
+A compact, functional control that narrows the lesson library by learner status or CEFR level. An in-progress row carries its own current stage rather than making a lesson stage a global filter.
+_Avoid_: Decorative chip, stage filter, lesson category badge
+
 **Starter lesson library**:
 The first twelve curated mini-lessons, spanning all seven practical life pathways and introducing roughly forty to sixty lesson candidates. It is the initial useful teaching set, not a sample catalog or comprehensive course.
 _Avoid_: Lesson preview, full curriculum, content demo
@@ -43,6 +55,10 @@ _Avoid_: Gamification system, rewards economy, entertainment mode
 **Learning rhythm**:
 The calm engagement pattern built from a small daily review goal, weekly consistency, a grace day, mastery celebrations, and practical learning milestones. It encourages returning without punishing a missed day or rewarding activity that lacks learning value.
 _Avoid_: Endless streak, experience points, daily obligation
+
+**Activity ledger**:
+The durable local calendar record behind the learning-rhythm heatmaps. It counts completed reviews, newly saved learning items, and completed lessons by local day; opening or abandoning a lesson creates no activity.
+_Avoid_: Session log, passive activity, telemetry
 
 **Daily Five**:
 The default daily goal of practising five learning items, taking due items first and then new saved items when capacity remains. Completing five is enough; continuing is optional, and an undersized queue may prompt a mini-lesson without starting one automatically.
@@ -101,12 +117,16 @@ The learner-controlled collection of Dutch learning items they intentionally kee
 _Avoid_: Translation history, synced word bank
 
 **Review card**:
-The learner-facing practice representation of one learning item, assembled from its available Dutch, English, and Telugu meanings and supporting context. It is not an individual saved translation pair.
+The learner-facing practice representation of one learning item, assembled from its available Dutch, English, and Telugu meanings and supporting context. Its answer may show a Telugu phonetic helper and translations of the saved context sentence; it is not an individual saved translation pair.
 _Avoid_: Saved translation, flashcard entry, word pair
 
 **Page context**:
 The short sentence or text snippet the learner encountered when saving a learning item. It is optional supporting context for a review card and stays local with the learner's saved vocabulary.
 _Avoid_: Generated example, translation history, webpage archive
+
+**Context translations**:
+The English and Telugu renderings of a saved page context shown with its Dutch original after a review-card reveal. They are supporting comprehension, not generated replacement examples.
+_Avoid_: Generated sentence, sentence coaching, translation history
 
 **New learning item**:
 A saved review card that has not yet received a rating. It belongs to the separate first-practice queue rather than the scheduled due-review queue.
@@ -132,6 +152,10 @@ _Avoid_: Active mastery, typing score, self-rated knowledge
 The tap-to-reveal practice model in which DutchMate adapts card direction and supporting context to strengthen recognition or recall without requiring typed input. The interaction stays consistent even as scheduling and challenge change behind the scenes.
 _Avoid_: Typing exercise, exercise ladder, quiz form
 
+**Focused practice flow**:
+A lesson, Daily Five, or Saved Quiz in progress. It retains the originating selected popup tab as an orientation marker, locks tab navigation, and provides an explicit Exit action.
+_Avoid_: Hidden navigation, free tab switching, modal dialog
+
 **Practice result**:
 The learner's binary response after revealing a review card: Again or Got it. DutchMate interprets the result together with card direction and prior spaced practice, rather than asking the learner to choose a schedule.
 _Avoid_: Difficulty rating, interval choice, quiz score
@@ -139,6 +163,10 @@ _Avoid_: Difficulty rating, interval choice, quiz score
 **Unified review queue**:
 The single daily flashcard queue for due learning items, regardless of whether they came from a confirmed webpage capture or a chosen lesson candidate. Learning sources may remain visible as context, but they do not create separate schedules or practice systems.
 _Avoid_: Lesson review queue, browsing review queue, duplicated progress
+
+**Saved Quiz**:
+A learner-started, shuffled practice pass through every saved learning item. Its results are real mastery and activity evidence, but it neither completes nor replaces the Daily Five goal.
+_Avoid_: Daily Five, mock quiz, separate vocabulary system
 
 **Early learning companion**:
 The product posture for the first public release. DutchMate helps learners notice and keep useful words while reading, without yet claiming a full flashcard or spaced-repetition practice loop.

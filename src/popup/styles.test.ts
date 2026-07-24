@@ -31,6 +31,15 @@ describe("popup layout", () => {
     expect(styles).toContain(".secondary-actions { display: grid; width: 100%; grid-template-columns: 1fr; gap: 8px; }");
     expect(styles).toContain(".secondary-actions .button { min-height: 48px; font-size: .875rem; }");
     expect(styles).toContain(".button { min-height: 48px; padding: 8px 10px; border: 1px solid var(--black); border-radius: 8px; background: var(--white); color: var(--black); font-size: .875rem;");
+    expect(styles).toContain(".lesson-filters { display: grid; gap: 5px;");
+    expect(styles).toContain(".lesson-filter { min-height: 44px;");
+    expect(styles).toContain(".tabs.is-locked");
+    expect(styles).toContain(".tab:not(.is-active):not(:disabled):hover");
+    expect(styles).toContain(".saved-quiz-entry");
+    expect(styles).toContain(".saved-quiz-error");
+    expect(styles).toContain(".practice-card { display: grid; gap: 12px; min-width: 0;");
+    expect(styles).toContain(".practice-card .heading { min-width: 0; overflow-wrap: anywhere;");
+    expect(styles).toContain(".meaning-row span { min-width: 0; overflow-wrap: anywhere;");
     expect(styles).toContain(".year-month-labels span { min-width: 0; white-space: nowrap; }");
   });
 });

@@ -5,12 +5,14 @@ import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import { getSavedShelfView, type SavedShelfSort } from "./saved-shelf-view";
 import { getPopupTabForKey } from "./tab-navigation";
 import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
-import { LEARNING_RECORD_STORAGE_KEY, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
+import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
 import { lessonCatalog, type Lesson } from "../lessons/catalog";
-import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonSession } from "./lesson-session";
+import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
+import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
+import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSavedQuiz, type SavedQuizSession } from "./saved-quiz";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
@@ -26,7 +28,7 @@ let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "settings" = "today";
+let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "settings" = "today";
 let lessonSession: LessonSession | null = null;
 let lessonProgressById: Record<string, LessonProgress | null> = {};
 let lessonsError: string | null = null;
@@ -38,6 +40,14 @@ let savedSort: SavedShelfSort = "newest";
 let savedLoading = true;
 let savedError: string | null = null;
 let expandedSavedItemId: string | null = null;
+let savedActionBusy = false;
+let savedFeedback: { tone: "success" | "error"; message: string } | null = null;
+let savedQuizSession: SavedQuizSession | null = null;
+let savedQuizError: string | null = null;
+let savedQuizRetry: "again" | "got-it" | null = null;
+let lessonStatusFilter: LessonFilterStatus = "all";
+let lessonLevelFilter: LessonFilterLevel = "all";
+let focusedOrigin: "today" | "lessons" | "saved" | null = null;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
@@ -90,16 +100,24 @@ async function loadSaved(): Promise<void> {
 function render(): void {
   if (!content) return;
   if (screen !== "saved") expandedSavedItemId = null;
-  const focused = screen === "review" || screen === "lesson";
+  const focused = screen === "review" || screen === "lesson" || screen === "savedQuiz";
+  const activeTab = focused
+    ? focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" ? "saved" : "today")
+    : screen === "lesson" || screen === "lessons" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
   settingsButton?.toggleAttribute("hidden", focused);
-  primaryNavigation?.toggleAttribute("hidden", focused);
+  primaryNavigation?.classList.toggle("is-locked", focused);
   content.classList.toggle("today-panel", screen === "today");
-  todayTab?.classList.toggle("is-active", screen === "today"); todayTab?.setAttribute("aria-selected", String(screen === "today")); todayTab?.setAttribute("tabindex", screen === "today" ? "0" : "-1");
-  lessonsTab?.classList.toggle("is-active", screen === "lessons"); lessonsTab?.setAttribute("aria-selected", String(screen === "lessons")); lessonsTab?.setAttribute("tabindex", screen === "lessons" ? "0" : "-1");
-  savedTab?.classList.toggle("is-active", screen === "saved"); savedTab?.setAttribute("aria-selected", String(screen === "saved")); savedTab?.setAttribute("tabindex", screen === "saved" ? "0" : "-1");
-  content?.setAttribute("aria-labelledby", screen === "lessons" ? "lessons-tab" : screen === "saved" ? "saved-tab" : "today-tab");
+  for (const [tab, key] of [[todayTab, "today"], [lessonsTab, "lessons"], [savedTab, "saved"]] as const) {
+    const selected = activeTab === key;
+    tab?.classList.toggle("is-active", selected);
+    tab?.setAttribute("aria-selected", String(selected));
+    tab?.setAttribute("tabindex", selected && !focused ? "0" : "-1");
+    if (tab) tab.disabled = focused;
+    tab?.setAttribute("aria-disabled", String(focused));
+  }
+  content?.setAttribute("aria-labelledby", `${activeTab}-tab`);
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : renderSettings());
+  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : renderSettings());
 }
 
 function renderSaved(): HTMLElement {
@@ -107,8 +125,21 @@ function renderSaved(): HTMLElement {
   const view = getSavedShelfView(items, { sort: savedSort, expandedItemId: expandedSavedItemId, loading: savedLoading, error: savedError });
   const header = document.createElement("div");
   header.className = "saved-head";
-  header.append(eyebrow("Your collection"), heading("Library"));
-  wrapper.append(header);
+  header.append(eyebrow("Your collection"), heading("Saved"));
+  const guidelines = document.createElement("ul");
+  guidelines.className = "saved-guidelines";
+  for (const copy of ["Select a word on a website to save it here.", "Local learning only. No account required."]) {
+    const item = document.createElement("li");
+    item.textContent = copy;
+    guidelines.append(item);
+  }
+  wrapper.append(header, guidelines, renderSavedBackupControls());
+  if (savedFeedback) {
+    const feedback = text(savedFeedback.message, "saved-feedback");
+    feedback.setAttribute("role", "status");
+    feedback.dataset.tone = savedFeedback.tone;
+    wrapper.append(feedback);
+  }
   if (view.status === "loading") { wrapper.append(text("Loading your saved vocabulary…")); return wrapper; }
   if (view.status === "error") {
     const retry = button("Try again", "button primary-button");
@@ -122,6 +153,9 @@ function renderSaved(): HTMLElement {
     wrapper.append(heading("Nothing saved yet."), text("Words and meaningful chunks you intentionally keep will appear here."), lessons);
     return wrapper;
   }
+  const quiz = button("Quiz Saved", "button primary-button saved-quiz-entry");
+  quiz.addEventListener("click", startSavedQuiz);
+  wrapper.append(quiz);
   const controls = document.createElement("div");
   controls.className = "saved-sort";
   controls.append(text(`${view.count} saved item${view.count === 1 ? "" : "s"}`, "sort-label"));
@@ -145,7 +179,7 @@ function renderSaved(): HTMLElement {
     const copy = document.createElement("div"); copy.className = "saved-word";
     const dutch = document.createElement("h2"); dutch.textContent = item.dutch;
     const helpers = document.createElement("div"); helpers.className = "saved-helpers";
-    helpers.append(helperMeaning("EN", item.english), helperMeaning("TE", item.telugu));
+    helpers.append(helperMeaning("EN", item.english), helperMeaningWithPhonetics("TE", item.telugu, getSimpleTeluguPhonetics(item.telugu)));
     copy.append(dutch, helpers);
     const mastery = document.createElement("span"); mastery.className = "saved-mastery"; mastery.textContent = item.mastery;
     row.append(number, copy, mastery);
@@ -155,7 +189,7 @@ function renderSaved(): HTMLElement {
       detail.id = `saved-detail-${item.shelfNumber}`;
       detail.className = "saved-detail";
       if (item.details.source) detail.append(text(item.details.source, "saved-source"));
-      if (item.details.context) detail.append(text(item.details.context, "saved-context"));
+      if (item.details.context) detail.append(highlightedSavedContext(item.details.context, item.dutch));
       const options = button("Open Options", "saved-options-link");
       options.addEventListener("click", () => void browser.runtime.openOptionsPage());
       detail.append(options);
@@ -167,20 +201,80 @@ function renderSaved(): HTMLElement {
   return wrapper;
 }
 
+function renderSavedBackupControls(): HTMLElement {
+  const controls = document.createElement("div");
+  controls.className = "saved-backup-actions";
+  const exportButton = button("Export", "button secondary-button");
+  exportButton.disabled = savedActionBusy;
+  exportButton.addEventListener("click", () => void exportSavedBackup());
+  const importButton = button("Import", "button secondary-button");
+  importButton.disabled = savedActionBusy;
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "application/json,.json";
+  fileInput.hidden = true;
+  importButton.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files?.[0];
+    fileInput.value = "";
+    if (file) void importSavedBackup(file);
+  });
+  controls.append(exportButton, importButton, fileInput);
+  return controls;
+}
+
+async function exportSavedBackup(): Promise<void> {
+  savedActionBusy = true;
+  savedFeedback = null;
+  render();
+  try {
+    const backup = await learningClient.exportBackup();
+    const blob = new Blob([serializeLearningBackup(backup)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    await browser.downloads.download({
+      url,
+      filename: `dutchmate-learning-${new Date().toISOString().slice(0, 10)}.json`,
+      saveAs: true,
+    });
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    savedFeedback = { tone: "success", message: `Exported ${backup.learningItems.length} saved item${backup.learningItems.length === 1 ? "" : "s"}.` };
+  } catch (error) {
+    savedFeedback = { tone: "error", message: `Could not export saved learning: ${error instanceof Error ? error.message : "Unknown error"}` };
+  } finally {
+    savedActionBusy = false;
+    render();
+  }
+}
+
+async function importSavedBackup(file: File): Promise<void> {
+  savedActionBusy = true;
+  savedFeedback = null;
+  render();
+  try {
+    const result = await learningClient.importBackup(await file.text());
+    await loadSaved();
+    savedFeedback = { tone: "success", message: `Imported ${result.importedCount} item${result.importedCount === 1 ? "" : "s"}. You now have ${result.totalCount} saved items.` };
+  } catch (error) {
+    savedFeedback = { tone: "error", message: error instanceof Error ? error.message : "Saved learning import failed." };
+  } finally {
+    savedActionBusy = false;
+    render();
+  }
+}
+
 function renderToday(): HTMLElement {
   const wrapper = section(`today-content brief-today ${activityPeriod === "week" ? "today-week" : "calendar-focus"}`);
-  if (!snapshot) { wrapper.append(eyebrow("Today"), heading("Loading your Daily Five…")); return wrapper; }
+  if (!snapshot) { wrapper.append(eyebrow("Today"), heading("Loading your Daily Five…"), localNote()); return wrapper; }
   if (savedError && items.length === 0) {
     const retry = button("Try again", "button primary-button");
     retry.addEventListener("click", () => void loadSaved());
-    wrapper.append(eyebrow("Today unavailable"), heading("Your learning record could not load."), text(savedError), retry);
+    wrapper.append(eyebrow("Today unavailable"), heading("Your learning record could not load."), text(savedError), retry, localNote());
     return wrapper;
   }
   const view = getDailyFiveView(snapshot);
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
-  const hasNoVocabulary = total === 0 && items.length === 0;
   const nextAction = section("next-action");
   const actionCopy = completed ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy") : text(total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now.");
   nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
@@ -193,7 +287,7 @@ function renderToday(): HTMLElement {
     action.disabled = pending;
     action.addEventListener("click", () => {
       if (completed) void startContinuation();
-      else { screen = "review"; revealed = false; render(); content?.focus(); }
+      else { focusedOrigin = "today"; screen = "review"; revealed = false; render(); content?.focus(); }
     });
     nextAction.append(action);
   }
@@ -206,30 +300,21 @@ function renderToday(): HTMLElement {
   if (rhythm) wrapper.append(renderRhythm(rhythm));
   const secondaryActions = document.createElement("div");
   secondaryActions.className = "secondary-actions";
-  if (inProgress) {
-    const continueLesson = button("Continue lesson", "button secondary-button");
-    continueLesson.addEventListener("click", () => void startLesson(inProgress));
-    secondaryActions.append(continueLesson);
-  }
-  if (hasNoVocabulary && !inProgress) {
-    const startLesson = button("Start a lesson", "button secondary-button");
-    startLesson.addEventListener("click", () => { screen = "lessons"; render(); });
-    const review = button("Review", "button secondary-button");
-    const reviewHint = text("Save vocabulary before you can review.", "empty-review-hint");
-    reviewHint.id = "empty-review-hint";
-    reviewHint.hidden = true;
-    reviewHint.setAttribute("role", "status");
-    review.setAttribute("aria-controls", reviewHint.id);
-    review.setAttribute("aria-expanded", "false");
-    review.addEventListener("click", () => { reviewHint.hidden = false; review.setAttribute("aria-expanded", "true"); });
-    secondaryActions.append(startLesson, review, reviewHint);
-  }
+  const lessonEntry = button(inProgress ? "Continue lesson" : "Learn a lesson", "button secondary-button");
+  lessonEntry.addEventListener("click", () => {
+    if (inProgress) void startLesson(inProgress);
+    else { screen = "lessons"; render(); }
+  });
+  const savedEntry = button("Review Saved items", "button secondary-button");
+  savedEntry.addEventListener("click", () => { screen = "saved"; render(); });
+  secondaryActions.append(lessonEntry, savedEntry);
   if (completed) {
     const reviewMore = button("Review more", "button secondary-button");
     reviewMore.addEventListener("click", () => void startContinuation());
     secondaryActions.append(reviewMore);
   }
   if (secondaryActions.childElementCount) wrapper.append(secondaryActions);
+  wrapper.append(localNote());
   return wrapper;
 }
 
@@ -297,6 +382,7 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
   }
   section.append(days);
   section.append(createHeatmapLegend());
+  section.append(text("Totals use recorded activity; older lesson history may be unavailable.", "heatmap-note"));
   return section;
 }
 
@@ -319,7 +405,7 @@ function activityTotal(activity: LearningRhythm["activity"][number] | undefined)
   const total = document.createElement("span");
   total.className = "activity-total";
   const value = activityTotalValue(activity);
-  total.textContent = value === null ? "–" : `${value}${activity && hasUnknownActivityCount(activity) ? "+" : ""}`;
+  total.textContent = value === null ? "–" : String(value);
   return total;
 }
 
@@ -337,39 +423,66 @@ function activityTotalValue(activity: LearningRhythm["activity"][number] | undef
   return counts.length > 0 ? counts.reduce((total, count) => total + count, 0) : null;
 }
 
-function hasUnknownActivityCount(activity: LearningRhythm["activity"][number]): boolean {
-  return activity.reviews === null || activity.saved === null || activity.lessons === null;
-}
-
 function renderLessons(): HTMLElement {
   const wrapper = section("lessons-content");
-  wrapper.append(eyebrow("12 small practical stories"), heading("Lessons"), text("Choose a situation. Each lesson is 3–5 minutes."));
+  wrapper.append(eyebrow("Lesson library · 12 small practical stories"), heading("Lesson library"), text("Choose a situation. Each lesson is 3–5 minutes."));
+  wrapper.append(renderLessonFilters());
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
   let lessonNumber = 0;
   const library = section("lesson-library");
-  for (const lessonDefinition of lessonCatalog.lessons) {
+  const visibleLessons = filterLessons(lessonCatalog.lessons, lessonProgressById, lessonStatusFilter, lessonLevelFilter);
+  for (const lessonDefinition of visibleLessons) {
     lessonNumber += 1;
     const lesson = button("", "lesson-card lesson-row");
     const lessonProgress = lessonProgressById[lessonDefinition.id] ?? null;
     const [level, ...title] = lessonDefinition.title.split(" · ");
-    const completedLesson = lessonProgress?.completedAt !== null && lessonProgress !== null;
-    const status = completedLesson ? "Completed" : lessonProgress ? "In progress" : "Ready";
-    lesson.classList.toggle("resume-row", status === "In progress");
+    const availabilityStatus = getLessonAvailability(lessonProgress);
+    const status = availabilityStatus === "completed" ? "Completed" : availabilityStatus === "continue" ? "In progress" : "Ready";
+    lesson.classList.toggle("resume-row", availabilityStatus === "continue");
     const copy = document.createElement("span");
     copy.className = "lesson-copy";
     const titleNode = document.createElement("strong");
     titleNode.textContent = title.join(" · ");
     const meta = document.createElement("small");
-    meta.textContent = `${lessonDefinition.pathway.replaceAll("-", " ")} · ${status === "In progress" ? "Notice · 3 min left" : status}`;
+    meta.textContent = `${lessonDefinition.pathway.replaceAll("-", " ")} · ${availabilityStatus === "continue" ? `Continue · ${lessonStageLabel(lessonProgress!.stage)} · 3 min left` : status}`;
     copy.append(titleNode, meta);
     lesson.append(text(String(lessonNumber).padStart(2, "0"), "lesson-number"), copy, text(`(${level})`, "level"));
     lesson.addEventListener("click", () => void startLesson(lessonDefinition));
     library.append(lesson);
   }
   wrapper.append(library);
+  if (visibleLessons.length === 0) wrapper.append(text("No lessons match these filters.", "empty-state"));
   wrapper.append(localNote()); return wrapper;
 }
+
+function renderLessonFilters(): HTMLElement {
+  const filters = section("lesson-filters");
+  filters.append(text("Filter lessons", "section-title"));
+  const statusGroup = document.createElement("div");
+  statusGroup.className = "lesson-filter-group";
+  statusGroup.setAttribute("aria-label", "Lesson readiness");
+  for (const [value, label] of [["all", "All"], ["ready", "Ready"], ["continue", "Continue"], ["completed", "Completed"]] as const) {
+    const control = button(label, `lesson-filter${lessonStatusFilter === value ? " is-active" : ""}`);
+    control.setAttribute("aria-pressed", String(lessonStatusFilter === value));
+    control.addEventListener("click", () => { lessonStatusFilter = value; render(); });
+    statusGroup.append(control);
+  }
+  filters.append(statusGroup);
+  const levelGroup = document.createElement("div");
+  levelGroup.className = "lesson-filter-group level-filters";
+  levelGroup.setAttribute("aria-label", "Lesson level");
+  const levels: LessonFilterLevel[] = ["all", ...new Set(lessonCatalog.lessons.map((lesson) => lesson.cefr))];
+  for (const level of levels) {
+    const control = button(level === "all" ? "All levels" : level, `lesson-filter${lessonLevelFilter === level ? " is-active" : ""}`);
+    control.setAttribute("aria-pressed", String(lessonLevelFilter === level));
+    control.addEventListener("click", () => { lessonLevelFilter = level; render(); });
+    levelGroup.append(control);
+  }
+  filters.append(levelGroup);
+  return filters;
+}
+function lessonStageLabel(stage: LessonProgress["stage"]): string { return stage.charAt(0).toUpperCase() + stage.slice(1); }
 
 function createMonthWeekdays(): HTMLElement {
   const weekdays = document.createElement("div");
@@ -427,7 +540,7 @@ function renderLesson(): HTMLElement {
   const session = lessonSession;
   if (!session) { screen = "lessons"; return renderLessons(); }
   const wrapper = section("lesson-content focused-content");
-  const exit = button("Exit lesson", "exit-button"); exit.addEventListener("click", () => { lessonSession = null; screen = "lessons"; render(); });
+  const exit = button("Exit lesson", "exit-button"); exit.addEventListener("click", () => { lessonSession = null; screen = focusedOrigin ?? "lessons"; focusedOrigin = null; render(); });
   const rail = document.createElement("div"); rail.className = "lesson-rail";
   for (const stage of ["read", "notice", "practise", "keep"] as const) rail.append(text(stage, `lesson-stage${session.stage === stage || (stage === "keep" && session.stage === "replay") ? " active" : ""}`));
   wrapper.append(exit, rail);
@@ -445,33 +558,68 @@ function renderLessonStory(session: LessonSession, allowHelp: boolean): HTMLElem
 }
 
 function renderLessonNotice(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Notice"), heading(session.lesson.pattern), text(session.lesson.patternExplanation)); for (const line of session.lesson.lines) { const row = document.createElement("p"); row.className = "story-dutch"; const start = line.dutch.indexOf(session.lesson.patternText); if (start < 0) row.textContent = line.dutch; else { row.append(line.dutch.slice(0, start), highlightedPattern(session.lesson.patternText), line.dutch.slice(start + session.lesson.patternText.length)); } panel.append(row); } const next = button("Practise", "button primary-button"); next.addEventListener("click", () => void advanceLesson(session)); panel.append(next); return panel; }
-function renderLessonPractice(session: LessonSession): HTMLElement { const prompt = session.lesson.practice[session.practiceIndex]; const candidate = session.lesson.candidates.find((item) => item.id === prompt.candidateId)!; const panel = section("practice-card"); panel.append(eyebrow(session.practiceRevealed ? "Answer" : prompt.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.practiceRevealed ? candidate.dutch : prompt.dimension === "recognition" ? candidate.dutch : candidate.english)); if (!session.practiceRevealed) { const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { lessonSession = revealLessonPractice(session); render(); }); panel.append(reveal); } else { panel.append(meaning("Dutch", candidate.dutch), meaning("English", candidate.english), meaning("Telugu", candidate.telugu)); const actions = document.createElement("div"); actions.className = "rating-actions"; for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.addEventListener("click", () => void saveLessonPractice(session, result)); actions.append(action); } panel.append(actions); } return panel; }
+function renderLessonPractice(session: LessonSession): HTMLElement { const prompt = session.lesson.practice[session.practiceIndex]; const candidate = session.lesson.candidates.find((item) => item.id === prompt.candidateId)!; const panel = section("practice-card"); panel.append(eyebrow(session.practiceRevealed ? "Answer" : prompt.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.practiceRevealed ? candidate.dutch : prompt.dimension === "recognition" ? candidate.dutch : candidate.english)); if (!session.practiceRevealed) { const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { lessonSession = revealLessonPractice(session); render(); }); panel.append(reveal, phoneticHint()); } else { panel.append(meaning("Dutch", candidate.dutch), meaning("English", candidate.english), teluguMeaning(candidate.telugu)); const actions = document.createElement("div"); actions.className = "rating-actions"; for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.addEventListener("click", () => void saveLessonPractice(session, result)); actions.append(action); } panel.append(actions); } return panel; }
 function renderLessonKeep(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Keep"), heading("Choose what to keep for review.")); for (const candidate of getLessonCandidateChoices(session, items)) { const label = document.createElement("label"); label.className = "candidate-choice"; const checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = candidate.checked; checkbox.addEventListener("change", () => { lessonSession = toggleLessonCandidate(session, candidate.id); render(); }); label.append(checkbox, text(candidate.dutch)); if (candidate.alreadySaved) label.append(text("Already saved", "already-saved")); panel.append(label); } const keep = button(`Keep ${session.selectedCandidateIds.length} for review`, "button primary-button"); keep.disabled = pending; keep.addEventListener("click", () => void keepLessonCandidates(session)); panel.append(keep); return panel; }
-async function startLesson(lesson: Lesson): Promise<void> { try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; screen = "lessons"; render(); } }
+async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : "lessons"; render(); } }
 async function advanceLesson(session: LessonSession): Promise<void> { const next = advanceLessonStage(session); pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function saveLessonPractice(session: LessonSession, result: "again" | "got-it"): Promise<void> { const next = advanceLessonPracticeState(session, result); if (next.stage !== "replay") { lessonSession = next; render(); return; } pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
-async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; rhythm = await learningClient.getRhythm(); const lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonProgressById = { ...lessonProgressById, [session.lesson.id]: lessonProgress }; lessonSession = null; screen = "lessons"; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
+async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; rhythm = await learningClient.getRhythm(); const lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonProgressById = { ...lessonProgressById, [session.lesson.id]: lessonProgress }; lessonSession = null; screen = focusedOrigin ?? "lessons"; focusedOrigin = null; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
 
 function renderReview(): HTMLElement {
   const wrapper = section("practice-content focused-content");
   const reviewView = snapshot ? getDailyFiveReviewView(snapshot, revealed) : null;
   const task = reviewView?.task;
   const item = task ? items.find((candidate) => candidate.id === task.itemId) : undefined;
-  if (!snapshot || !task || !item) { screen = "today"; return renderToday(); }
+  if (!snapshot || !task || !item) { screen = focusedOrigin ?? "today"; focusedOrigin = null; return screen === "today" ? renderToday() : renderLessons(); }
   const exit = button("Exit review", "exit-button");
-  exit.addEventListener("click", () => { screen = "today"; revealed = false; render(); });
+  exit.addEventListener("click", () => { screen = focusedOrigin ?? "today"; focusedOrigin = null; revealed = false; render(); });
   const progress = text(`${task.dimension === "recognition" ? "Recognition" : "Recall"} · ${snapshot.completedTaskIds.length + 1} of ${snapshot.tasks.length}`, "practice-progress");
   const card = section("practice-card");
   const prompt = task.dimension === "recognition" ? item.dutch : item.english ?? item.contexts.at(-1)?.text ?? "Use the context cue";
   card.append(eyebrow(revealed ? "Answer" : task.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(revealed ? item.dutch : prompt));
   if (reviewView?.canSubmitResult) {
-    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), meaning("Telugu", item.telugu));
-    if (item.contexts.at(-1)) card.append(meaning("Context", item.contexts.at(-1)?.text ?? null));
+    const context = [...item.contexts].sort((first, second) => second.addedAt - first.addedAt)[0];
+    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), teluguMeaning(item.telugu), contextMeaning(context));
     const actions = document.createElement("div"); actions.className = "rating-actions";
     for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.disabled = pending; action.addEventListener("click", () => void saveResult(item, task.dimension, result)); actions.append(action); }
     card.append(actions);
   } else {
-    const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { revealed = true; render(); }); card.append(reveal);
+    const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { revealed = true; render(); content?.querySelector<HTMLButtonElement>(".rating-actions .button")?.focus(); }); card.append(reveal, phoneticHint());
+  }
+  wrapper.append(exit, progress, card, localNote());
+  return wrapper;
+}
+
+function renderSavedQuiz(): HTMLElement {
+  const wrapper = section("practice-content focused-content saved-quiz-content");
+  const session = savedQuizSession;
+  const task = session ? getSavedQuizTask(session) : null;
+  const item = task ? items.find((candidate) => candidate.id === task.itemId) : undefined;
+  if (!session || !task || !item) { screen = "saved"; savedQuizSession = null; focusedOrigin = null; return renderSaved(); }
+  const exit = button("Exit Quiz Saved", "exit-button");
+  exit.addEventListener("click", exitSavedQuiz);
+  const progress = text(`Saved quiz · ${session.taskIndex + 1} of ${session.tasks.length}`, "practice-progress");
+  const card = section("practice-card");
+  const prompt = task.dimension === "recognition" ? item.dutch : item.english ?? item.contexts.at(-1)?.text ?? "Use the context cue";
+  card.append(eyebrow(session.revealed ? "Answer" : task.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.revealed ? item.dutch : prompt));
+  if (savedQuizError) {
+    const error = text(savedQuizError, "saved-quiz-error");
+    error.setAttribute("role", "alert");
+    const retry = button("Try again", "button primary-button");
+    retry.disabled = pending;
+    retry.addEventListener("click", () => void saveSavedQuizResult(item, task, savedQuizRetry ?? "got-it"));
+    card.append(error, retry);
+  } else if (session.revealed) {
+    const context = [...item.contexts].sort((first, second) => second.addedAt - first.addedAt)[0];
+    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), teluguMeaning(item.telugu), contextMeaning(context));
+    const actions = document.createElement("div");
+    actions.className = "rating-actions";
+    for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.disabled = pending; action.addEventListener("click", () => void saveSavedQuizResult(item, task, result)); actions.append(action); }
+    card.append(actions);
+  } else {
+    const reveal = button("Show answer", "button answer-button");
+    reveal.addEventListener("click", () => { savedQuizSession = revealSavedQuiz(session); render(); content?.querySelector<HTMLButtonElement>(".rating-actions .button")?.focus(); });
+    card.append(reveal, phoneticHint());
   }
   wrapper.append(exit, progress, card, localNote());
   return wrapper;
@@ -497,7 +645,29 @@ async function saveResult(item: LearningItem, dimension: "recognition" | "recall
   } catch (error) { pending = false; renderError(error instanceof Error ? error.message : "Your result could not be saved."); }
 }
 
-async function startContinuation(): Promise<void> { pending = true; render(); await load(true); pending = false; if (snapshot?.tasks.length) { screen = "review"; revealed = false; render(); content?.focus(); } }
+function startSavedQuiz(): void { if (items.length === 0) return; savedQuizError = null; savedQuizRetry = null; savedQuizSession = createSavedQuizSession(items); focusedOrigin = "saved"; screen = "savedQuiz"; render(); content?.focus(); }
+function exitSavedQuiz(): void { savedQuizSession = null; savedQuizError = null; savedQuizRetry = null; focusedOrigin = null; screen = "saved"; render(); }
+async function saveSavedQuizResult(item: LearningItem, task: NonNullable<ReturnType<typeof getSavedQuizTask>>, result: "again" | "got-it"): Promise<void> {
+  if (pending || !savedQuizSession) return;
+  savedQuizError = null;
+  savedQuizRetry = result;
+  pending = true;
+  render();
+  try {
+    const updated = await learningClient.recordMissionResult(item.id, task.dimension, result, task.expectedAttemptCount);
+    items = items.map((candidate) => candidate.id === updated.id ? updated : candidate);
+    try { rhythm = await learningClient.getRhythm(); } catch { /* The canonical result is already recorded; keep the current rhythm view. */ }
+    const next = advanceSavedQuiz(savedQuizSession);
+    savedQuizSession = next.taskIndex >= next.tasks.length ? null : next;
+    savedQuizError = null;
+    savedQuizRetry = null;
+    if (!savedQuizSession) { savedFeedback = { tone: "success", message: "Quiz Saved complete. Your review activity was recorded." }; focusedOrigin = null; screen = "saved"; }
+  } catch (error) {
+    savedQuizError = error instanceof Error ? error.message : "Your Quiz Saved result could not be saved.";
+  } finally { pending = false; render(); }
+}
+
+async function startContinuation(): Promise<void> { pending = true; render(); await load(true); pending = false; if (snapshot?.tasks.length) { focusedOrigin = "today"; screen = "review"; revealed = false; render(); content?.focus(); } }
 async function saveSettings(changes: Partial<ReviewSettingsChanges>): Promise<void> { settings = await settingsClient.updateSettings(changes); render(); }
 
 function createMasterySummary(): HTMLElement {
@@ -507,14 +677,29 @@ function createMasterySummary(): HTMLElement {
   return summary;
 }
 function updateBadge(): void { if (!dueBadge) return; const due = settings.dailyReviewBadge ? items.filter((item) => [item.recognition, item.recall].some((mastery) => mastery.attemptCount > 0 && mastery.dueAt !== null && mastery.dueAt <= Date.now())).length : 0; const label = `${due} saved item${due === 1 ? "" : "s"} still ha${due === 1 ? "s" : "ve"} one or more due recognition or recall reviews. Today shows up to five at a time.`; dueBadge.hidden = due === 0; dueBadge.textContent = String(due); dueBadge.setAttribute("aria-label", label); dueBadge.title = label; }
-function renderError(message: string): void { if (!content) return; content.replaceChildren(eyebrow("Today unavailable"), heading("Your practice could not load."), text(message)); }
+function renderError(message: string): void { if (!content) return; content.replaceChildren(eyebrow("Today unavailable"), heading("Your practice could not load."), text(message), localNote()); }
 function section(className: string): HTMLElement { const element = document.createElement("section"); element.className = className; return element; }
 function button(label: string, className: string): HTMLButtonElement { const element = document.createElement("button"); element.type = "button"; element.className = className; element.textContent = label; return element; }
 function eyebrow(value: string): HTMLElement { return text(value, "eyebrow"); }
 function heading(value: string): HTMLElement { const element = document.createElement("h1"); element.className = "heading"; element.textContent = value; return element; }
 function text(value: string, className = "body-copy"): HTMLElement { const element = document.createElement("p"); element.className = className; element.textContent = value; return element; }
 function helperMeaning(label: string, value: string): HTMLElement { const helper = document.createElement("span"); const name = document.createElement("b"); name.textContent = label; const meaning = document.createElement("span"); meaning.textContent = value; if (value === "unavailable") meaning.className = "meaning-unavailable"; helper.append(name, meaning); return helper; }
-function meaning(label: string, value: string | null): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; row.append(name, content); return row; }
+
+function helperMeaningWithPhonetics(label: string, value: string, phonetics: string | null): HTMLElement {
+  const helper = helperMeaning(label, value);
+  if (phonetics) {
+    const guide = document.createElement("small");
+    guide.className = "saved-phonetics";
+    guide.textContent = `Say it: ${phonetics}`;
+    helper.append(guide);
+  }
+  return helper;
+}
+function meaning(label: string, value: string | null | undefined): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; if (value == null) content.className = "meaning-unavailable"; row.append(name, content); return row; }
+function teluguMeaning(value: string | null): HTMLElement { const row = meaning("Telugu", value); if (value) { const phonetics = getSimpleTeluguPhonetics(value); const helper = document.createElement("small"); helper.className = phonetics ? "telugu-phonetics" : "telugu-phonetics meaning-unavailable"; helper.textContent = phonetics ? `Say it: ${phonetics}` : "Phonetics unavailable"; row.append(helper); } return row; }
+function phoneticHint(): HTMLElement { return text("Telugu phonetic guide appears after reveal when helper text is available.", "phonetic-hint"); }
+function contextMeaning(context: LearningItem["contexts"][number] | undefined): HTMLElement { const row = section("meaning-row context-answer"); const name = document.createElement("strong"); name.textContent = "Context"; const dutch = document.createElement("span"); dutch.textContent = context?.text ?? "unavailable"; if (!context?.text) dutch.className = "meaning-unavailable"; row.append(name, dutch); for (const [label, value] of [["English", context?.english], ["Telugu", context?.telugu]] as const) { const translation = document.createElement("small"); translation.textContent = `${label}: ${value ?? "unavailable"}`; if (!value) translation.className = "meaning-unavailable"; row.append(translation); } return row; }
+function highlightedSavedContext(context: string, savedDutch: string): HTMLElement { const paragraph = document.createElement("p"); paragraph.className = "saved-context"; const contextLower = context.toLocaleLowerCase(); const savedLower = savedDutch.toLocaleLowerCase(); const start = contextLower.indexOf(savedLower); if (start < 0 || savedLower.length === 0) { paragraph.textContent = context; return paragraph; } paragraph.append(document.createTextNode(context.slice(0, start))); const mark = document.createElement("mark"); mark.className = "saved-context-highlight"; mark.textContent = context.slice(start, start + savedDutch.length); paragraph.append(mark, document.createTextNode(context.slice(start + savedDutch.length))); return paragraph; }
 function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }
 function toggle(labelText: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement { const label = document.createElement("label"); label.className = "setting-control"; const textNode = document.createElement("strong"); textNode.textContent = labelText; const input = document.createElement("input"); input.type = "checkbox"; input.checked = checked; input.addEventListener("change", () => onChange(input.checked)); label.append(textNode, input); return label; }
 function localNote(): HTMLElement { return text("Local learning only. No account required.", "local-note"); }

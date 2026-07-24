@@ -4,6 +4,7 @@ import {
   LEARNING_EXPORT_MESSAGE,
   LEARNING_IMPORT_MESSAGE,
   LEARNING_LIST_MESSAGE,
+  LEARNING_RECORD_MISSION_RESULT_MESSAGE,
   LEARNING_RHYTHM_MESSAGE,
   LEARNING_DAILY_FIVE_MESSAGE,
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
@@ -28,6 +29,7 @@ export type LearningClient = {
   importBackup(document: string): Promise<{ importedCount: number; totalCount: number }>;
   getDailyFive(continueAfterCompletion?: boolean): Promise<DailyFiveSnapshot>;
   recordDailyFiveResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult): Promise<{ item: LearningItem; snapshot: DailyFiveSnapshot }>;
+  recordMissionResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult, expectedAttemptCount: number): Promise<LearningItem>;
   keepLessonCandidates(lessonId: string, candidateIds: string[], evidence: LessonPracticeEvidence[]): Promise<LearningItem[]>;
   getLessonProgress(lessonId: string): Promise<LessonProgress | null>;
   saveLessonProgress(lessonId: string, stage: LessonProgressStage): Promise<LessonProgress>;
@@ -60,6 +62,11 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
     async recordDailyFiveResult(itemId, dimension, result) {
       const response = await extensionApi.runtime.sendMessage({ type: LEARNING_DAILY_FIVE_RESULT_MESSAGE, payload: { itemId, dimension, result } });
       if (response.ok && "item" in response.result && "snapshot" in response.result) return response.result;
+      throw new Error(response.ok ? "Your result could not be saved." : response.error);
+    },
+    async recordMissionResult(itemId, dimension, result, expectedAttemptCount) {
+      const response = await extensionApi.runtime.sendMessage({ type: LEARNING_RECORD_MISSION_RESULT_MESSAGE, payload: { itemId, dimension, result, expectedAttemptCount } });
+      if (response.ok && "item" in response.result) return response.result.item;
       throw new Error(response.ok ? "Your result could not be saved." : response.error);
     },
     async keepLessonCandidates(lessonId, candidateIds, evidence) {
