@@ -110,6 +110,8 @@ Notes:
 
 Recent entries:
 
+- 2026-07-24 | `b5cbf94` | Chrome and Firefox | MGurram | Pass | User confirmed the current 005-refinement build looks good in both browsers, completing the T06 lifecycle, accessibility, and popup-geometry gate.
+
 - 2026-07-24 | `84ea6d1` | Firefox | MGurram | Pass (Firefox only) | User confirmed the current 005-refinement build looks good in Firefox. The matching Chrome lifecycle, accessibility, and popup-geometry pass remains outstanding for T06.
 
 - 2026-07-24 | `ba80866` | Chrome 149.0.7827.114 and Firefox 152.0.6 on Linux | Codex | Automated pass; interactive extension pass blocked | `corepack pnpm test` (92 files / 532 tests), typecheck, Chrome and Firefox builds, release packaging, and whitespace verification passed. A disposable Chrome 149 Xvfb run registered the unpacked service worker, but opening `chrome-extension://…/src/popup/index.html` returned `ERR_FILE_NOT_FOUND` and Chrome logged content-verifier failures for the popup. Firefox interactive loading was not executable because no automation driver is installed. No browser result is claimed; a manual tester must load both generated builds and complete the T06 checklist.
