@@ -124,7 +124,7 @@ GitHub: [#62](https://github.com/mgurramaiproject/dutchmate/issues/62)
 
 - [x] Focused feature tests, canonical learning regressions, the complete relevant suite, type checking, Chrome and Firefox builds, and release packaging all pass.
 - [x] Automated evidence proves that Practise this and Try from memory add zero translation-provider requests and that existing configured translation calls remain unchanged.
-- [ ] Real Chrome and Firefox checks cover deliberate selection, first encounter, both saved-repeat exercises, page scrolling, viewport edges, Escape, focus return, keyboard-only completion, touch-sized controls, and safe failures.
+- [x] Real Chrome and Firefox checks cover deliberate selection, first encounter, both saved-repeat exercises, page scrolling, viewport edges, Escape, focus return, keyboard-only completion, touch-sized controls, and safe failures. *(Manually confirmed by MGurram on 2026-07-24 against `805f067`.)*
 - [x] Generated manifests and packaged outputs contain the expected background, content, popup, Options, icons, and browser-specific declarations without adding a new permission, remote service, or popup tab.
 - [x] Privacy, manual-testing, release, and store-facing documentation accurately describe ephemeral mission state, canonical mastery updates, provider behavior, and the absence of background learning telemetry.
 - [x] The shared `004-transfer` validation artifact records automated evidence, manual-browser evidence, unresolved limitations, and release readiness without conflating them.
@@ -132,7 +132,7 @@ GitHub: [#62](https://github.com/mgurramaiproject/dutchmate/issues/62)
 - [x] The pilot protocol requires consent, no default background telemetry, and no activity-only success claim; Context Missions remain described as experimental until delayed evidence supports transfer.
 - [x] Any defect found by validation is fixed and reverified within the approved scope, or the ticket is marked Blocked with the exact remaining evidence and next action.
 
-**Current T06 state:** Blocked pending the real Chrome and Firefox Context Missions checklist recorded in [004-transfer-validation.md](./004-transfer-validation.md). Automated validation found no defect, and PR [#63](https://github.com/mgurramaiproject/dutchmate/pull/63) has merged the implementation into `main`. After the browser pass, record the result, re-run the focused verification if a defect is fixed, then close issue #62 and move its Delivery Status to Done.
+**Current T06 state:** Complete. Automated validation found no defect, PR [#63](https://github.com/mgurramaiproject/dutchmate/pull/63) merged the implementation into `main`, and MGurram manually confirmed the Chrome and Firefox Context Missions checklist on 2026-07-24 against `805f067`. Close issue #62 and move its Delivery Status to Done.
 
 ## Frontier and delivery discipline
 

@@ -110,6 +110,8 @@ Notes:
 
 Recent entries:
 
+- 2026-07-24 | `805f067` | Chrome 149.0.7827.114 and Firefox 152.0.6 on Linux | MGurram | Pass | User confirmed the complete Context Missions checklist: first encounter, both saved-repeat exercises, scrolling and viewport edges, Escape/focus return, keyboard-only completion, touch-sized controls, and safe failures.
+
 - 2026-07-21 | `0c3b47b` | Chrome and Firefox | MGurram | Pass | User confirmed the complete T12 LearnLoop manual release checklist: narrow popup, Today/Daily Five, Settings, Lessons, focused-flow exit, import, webpage capture/encounter behavior, keyboard/focus states, reduced motion, and no horizontal scrolling. Browser versions and OS were not recorded.
 - 2026-07-20 | `9e4886f` | Firefox 152.0.6 on Linux | MGurram | Pass | Reloaded the LearnLoop popup after the focused-layout fix. The lesson-stage actions, including `Notice the pattern` and `Practise`, are visible and reachable; no bottom clipping remains. Broader cross-browser interaction and accessibility checks remain pending.
 - 2026-07-20 | `4d6359e` + T12 release-documentation worktree | Chrome 149.0.7827.114 and Firefox 152.0.6 on Linux | Codex | Automated pass; interactive browser pass deferred | 460 tests, typecheck, Chrome/Firefox builds, package verification, manifest inspection, ZIP inspection, and whitespace check passed. The remaining interactive popup, keyboard/focus, import/export, and webpage-capture checks need a human browser tester and are listed in LearnLoop Release Checks.
