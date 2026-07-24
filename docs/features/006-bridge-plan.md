@@ -4,7 +4,7 @@
 
 **Branch:** `feature-006-bridge`
 
-**Status:** Grill review complete; decisions recorded; implementation not started.
+**Status:** Specification drafted and published as GitHub issue [#72](https://github.com/mgurramaiproject/dutchmate/issues/72); awaiting spec review; implementation not started.
 
 ## Outcome
 
@@ -86,4 +86,4 @@ All feature artifacts created from this work use the shared `006-bridge` prefix,
 
 ## Next step
 
-Stop here for explicit approval. After approval, create the `006-bridge` spec with `to-spec`, then create implementation tickets with `to-tickets`; do not implement until those artifacts are reviewed and approved. Keep the branch scoped to this feature and commit every intentional repository change.
+Review and approve GitHub issue [#72](https://github.com/mgurramaiproject/dutchmate/issues/72) and [006-bridge-spec.md](./006-bridge-spec.md). After approval, create implementation tickets with `to-tickets`; do not implement until those tickets are reviewed and approved. Keep the branch scoped to this feature and commit every intentional repository change.
