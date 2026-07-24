@@ -126,7 +126,7 @@ function renderSaved(): HTMLElement {
   const header = document.createElement("div");
   header.className = "saved-head";
   header.append(eyebrow("Your collection"), heading("Saved"));
-  wrapper.append(header, renderSavedBackupControls());
+  wrapper.append(header, localNote(), renderSavedBackupControls());
   if (savedFeedback) {
     const feedback = text(savedFeedback.message, "saved-feedback");
     feedback.setAttribute("role", "status");
@@ -182,7 +182,7 @@ function renderSaved(): HTMLElement {
       detail.id = `saved-detail-${item.shelfNumber}`;
       detail.className = "saved-detail";
       if (item.details.source) detail.append(text(item.details.source, "saved-source"));
-      if (item.details.context) detail.append(text(item.details.context, "saved-context"));
+      if (item.details.context) detail.append(highlightedSavedContext(item.details.context, item.dutch));
       const options = button("Open Options", "saved-options-link");
       options.addEventListener("click", () => void browser.runtime.openOptionsPage());
       detail.append(options);
@@ -257,11 +257,11 @@ async function importSavedBackup(file: File): Promise<void> {
 
 function renderToday(): HTMLElement {
   const wrapper = section(`today-content brief-today ${activityPeriod === "week" ? "today-week" : "calendar-focus"}`);
-  if (!snapshot) { wrapper.append(eyebrow("Today"), heading("Loading your Daily Five…")); return wrapper; }
+  if (!snapshot) { wrapper.append(eyebrow("Today"), heading("Loading your Daily Five…"), localNote()); return wrapper; }
   if (savedError && items.length === 0) {
     const retry = button("Try again", "button primary-button");
     retry.addEventListener("click", () => void loadSaved());
-    wrapper.append(eyebrow("Today unavailable"), heading("Your learning record could not load."), text(savedError), retry);
+    wrapper.append(eyebrow("Today unavailable"), heading("Your learning record could not load."), text(savedError), retry, localNote());
     return wrapper;
   }
   const view = getDailyFiveView(snapshot);
@@ -307,6 +307,7 @@ function renderToday(): HTMLElement {
     secondaryActions.append(reviewMore);
   }
   if (secondaryActions.childElementCount) wrapper.append(secondaryActions);
+  wrapper.append(localNote());
   return wrapper;
 }
 
@@ -374,6 +375,7 @@ function renderRhythm(current: LearningRhythm): HTMLElement {
   }
   section.append(days);
   section.append(createHeatmapLegend());
+  section.append(text("Totals use recorded activity; older lesson history may be unavailable.", "heatmap-note"));
   return section;
 }
 
@@ -396,7 +398,7 @@ function activityTotal(activity: LearningRhythm["activity"][number] | undefined)
   const total = document.createElement("span");
   total.className = "activity-total";
   const value = activityTotalValue(activity);
-  total.textContent = value === null ? "–" : `${value}${activity && hasUnknownActivityCount(activity) ? "+" : ""}`;
+  total.textContent = value === null ? "–" : String(value);
   return total;
 }
 
@@ -412,10 +414,6 @@ function activityTotalValue(activity: LearningRhythm["activity"][number] | undef
   if (!activity) return 0;
   const counts = [activity.reviews, activity.saved, activity.lessons, activity.lessons === null ? activity.lessonAdditions ?? 0 : null].filter((count): count is number => count !== null);
   return counts.length > 0 ? counts.reduce((total, count) => total + count, 0) : null;
-}
-
-function hasUnknownActivityCount(activity: LearningRhythm["activity"][number]): boolean {
-  return activity.reviews === null || activity.saved === null || activity.lessons === null;
 }
 
 function renderLessons(): HTMLElement {
@@ -672,7 +670,7 @@ function createMasterySummary(): HTMLElement {
   return summary;
 }
 function updateBadge(): void { if (!dueBadge) return; const due = settings.dailyReviewBadge ? items.filter((item) => [item.recognition, item.recall].some((mastery) => mastery.attemptCount > 0 && mastery.dueAt !== null && mastery.dueAt <= Date.now())).length : 0; const label = `${due} saved item${due === 1 ? "" : "s"} still ha${due === 1 ? "s" : "ve"} one or more due recognition or recall reviews. Today shows up to five at a time.`; dueBadge.hidden = due === 0; dueBadge.textContent = String(due); dueBadge.setAttribute("aria-label", label); dueBadge.title = label; }
-function renderError(message: string): void { if (!content) return; content.replaceChildren(eyebrow("Today unavailable"), heading("Your practice could not load."), text(message)); }
+function renderError(message: string): void { if (!content) return; content.replaceChildren(eyebrow("Today unavailable"), heading("Your practice could not load."), text(message), localNote()); }
 function section(className: string): HTMLElement { const element = document.createElement("section"); element.className = className; return element; }
 function button(label: string, className: string): HTMLButtonElement { const element = document.createElement("button"); element.type = "button"; element.className = className; element.textContent = label; return element; }
 function eyebrow(value: string): HTMLElement { return text(value, "eyebrow"); }
@@ -682,6 +680,7 @@ function helperMeaning(label: string, value: string): HTMLElement { const helper
 function meaning(label: string, value: string | null | undefined): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; if (value == null) content.className = "meaning-unavailable"; row.append(name, content); return row; }
 function teluguMeaning(value: string | null): HTMLElement { const row = meaning("Telugu", value); if (value) { const phonetics = getSimpleTeluguPhonetics(value); const helper = document.createElement("small"); helper.className = phonetics ? "telugu-phonetics" : "telugu-phonetics meaning-unavailable"; helper.textContent = phonetics ? `Say it: ${phonetics}` : "Phonetics unavailable"; row.append(helper); } return row; }
 function contextMeaning(context: LearningItem["contexts"][number] | undefined): HTMLElement { const row = section("meaning-row context-answer"); const name = document.createElement("strong"); name.textContent = "Context"; const dutch = document.createElement("span"); dutch.textContent = context?.text ?? "unavailable"; if (!context?.text) dutch.className = "meaning-unavailable"; row.append(name, dutch); for (const [label, value] of [["English", context?.english], ["Telugu", context?.telugu]] as const) { const translation = document.createElement("small"); translation.textContent = `${label}: ${value ?? "unavailable"}`; if (!value) translation.className = "meaning-unavailable"; row.append(translation); } return row; }
+function highlightedSavedContext(context: string, savedDutch: string): HTMLElement { const paragraph = document.createElement("p"); paragraph.className = "saved-context"; const contextLower = context.toLocaleLowerCase(); const savedLower = savedDutch.toLocaleLowerCase(); const start = contextLower.indexOf(savedLower); if (start < 0 || savedLower.length === 0) { paragraph.textContent = context; return paragraph; } paragraph.append(document.createTextNode(context.slice(0, start))); const mark = document.createElement("mark"); mark.className = "saved-context-highlight"; mark.textContent = context.slice(start, start + savedDutch.length); paragraph.append(mark, document.createTextNode(context.slice(start + savedDutch.length))); return paragraph; }
 function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }
 function toggle(labelText: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement { const label = document.createElement("label"); label.className = "setting-control"; const textNode = document.createElement("strong"); textNode.textContent = labelText; const input = document.createElement("input"); input.type = "checkbox"; input.checked = checked; input.addEventListener("change", () => onChange(input.checked)); label.append(textNode, input); return label; }
 function localNote(): HTMLElement { return text("Local learning only. No account required.", "local-note"); }

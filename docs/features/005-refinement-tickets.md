@@ -67,3 +67,9 @@ Tracer-bullet delivery plan for [005-refinement-spec.md](./005-refinement-spec.m
 - [x] Full test suite, typecheck, Chrome build, Firefox build, release verification, and whitespace check pass.
 - [ ] Real browser checks confirm update/re-enable preservation, restart heatmap recall, import recovery, narrow-popup containment, keyboard flows, and visible focus. The interactive pass remains blocked: Chrome 149 registered the unpacked service worker but its popup target returned `ERR_FILE_NOT_FOUND` with content-verifier errors; Firefox 152 has no available automation driver in this environment.
 - [x] The feature specification and tickets accurately record automated evidence, manual evidence, and the genuine browser-validation blocker.
+
+### Firefox feedback follow-up (2026-07-24)
+
+- [x] Saved context highlights the saved Dutch word or chunk when it appears in the stored sentence.
+- [x] This Week activity totals use one consistent numeric treatment and explain when older lesson history is unavailable.
+- [x] Today and Saved clearly state that learning is local and no account is required.

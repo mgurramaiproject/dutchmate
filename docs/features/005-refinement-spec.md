@@ -23,6 +23,7 @@ Deliver one cohesive refinement of the local learning loop:
 - add functional Lesson filters for readiness status and CEFR level, with an in-progress row showing its current lesson stage;
 - make the activity ledger durable and correctly rendered after restart and import, counting completed reviews, new saved items, and completed lessons;
 - keep the originating popup tab visible and selected, but locked, during a focused lesson, Daily Five, or Saved Quiz;
+- make the local-only, no-account boundary visible in the primary Today and Saved views;
 - save original page context at the shared webpage-capture boundary and preserve it through canonical merges and backup round-trips.
 
 ## User Stories
@@ -56,6 +57,7 @@ Deliver one cohesive refinement of the local learning loop:
 27. As a learner, I want Quiz Saved reviews included in the activity ledger, so that the heatmap reflects all completed practice.
 28. As a privacy-conscious learner, I want all refinement data to remain in the local learning record and backup, so that the feature adds no account, cloud profile, or background telemetry.
 29. As a Chrome or Firefox user, I want the same Saved, Quiz, Lesson, and activity behavior, so that my learning record is portable across DutchMate's supported browsers.
+30. As a learner, I want to see that my learning stays local and needs no account, so that the privacy boundary is clear before I save vocabulary.
 
 ## Implementation Decisions
 
@@ -65,6 +67,7 @@ Deliver one cohesive refinement of the local learning loop:
 - Simple Telugu phonetics are deterministic, local transliteration of Telugu helper text using plain English letters and syllable breaks. This is an accessibility helper, not IAST, IPA, speech feedback, or a Telugu-learning mode.
 - Webpage capture passes context and explicit save-time English/Telugu context translations through the shared create-or-merge path. Canonical merges preserve existing contexts and add a valid new context subject to the existing cap.
 - The local learning record remains authoritative for saved items, mastery, lesson progress, Daily Five state, and the activity ledger. Normal upgrades and re-enables must not clear or replace it. Browser uninstall semantics are outside extension control, so explicit Export and Import are the recovery contract.
+- The primary Today and Saved views show a concise local-only, no-account note so the privacy boundary is visible without requiring a settings visit.
 - Saved exposes Import and Export as compact secondary controls. Import validates the existing versioned backup formats and uses the established merge behavior; it never replaces the record wholesale.
 - Saved becomes the visible label for the learner-controlled collection. `Lesson library` remains the term for bundled curated lessons.
 - Quiz Saved is a focused practice session over a shuffled snapshot of all saved learning items. It reuses the existing reveal and binary result interaction, submits canonical practice evidence, increments review activity, and never changes Daily Five completion state.
@@ -81,7 +84,7 @@ Deliver one cohesive refinement of the local learning loop:
 - Existing capture-boundary tests cover context extraction and create-or-merge requests. Add regression cases for a valid original sentence reaching the canonical record and surviving a repeated save.
 - Existing learning-rhythm tests cover per-day review, save, and lesson counts. Extend them for Quiz Saved reviews, persisted reload, and import merges without historical loss.
 - Existing backup tests cover current and legacy backup versions, malformed files, contexts, lesson progress, and rhythm. Extend them to prove feature-added fields round-trip and Import remains additive.
-- Rendered popup checks cover roles, labels, tab selection and locked interaction during focused practice, keyboard exit, visible focus, compact control labels, narrow width, and no horizontal scroll.
+- Rendered popup checks cover roles, labels, tab selection and locked interaction during focused practice, keyboard exit, visible focus, compact control labels, saved-context highlighting, local-only copy, narrow width, and no horizontal scroll.
 - Manual Chrome and Firefox checks cover update/re-enable preservation with fixture data, browser restart and heatmap recall, Saved Import/Export interaction, focused tab orientation, review-card density, Lesson filters, and keyboard navigation.
 - Full verification includes focused tests, typecheck, the full suite, Chrome and Firefox builds, release verification, and whitespace checks.
 
@@ -91,7 +94,7 @@ The automated gate passed against implementation commit `ba80866`: 92 test files
 
 ## Firefox feedback follow-up status (2026-07-24)
 
-The popup follow-up adds persistent Today routes for lesson learning and Saved review, replaces pathway chips with readiness plus CEFR-level filters, and opens the native browser Save As chooser for Saved Export. Import continues to use the native JSON file chooser. The focused popup/session checks, full 92-file / 533-test suite, typecheck, Chrome and Firefox builds, release packaging, and whitespace verification pass. Interactive browser lifecycle evidence remains the only outstanding T06 gate.
+The popup follow-up adds persistent Today routes for lesson learning and Saved review, replaces pathway chips with readiness plus CEFR-level filters, opens the native browser Save As chooser for Saved Export, highlights each saved Dutch term in its stored context, makes activity totals visually consistent while explaining incomplete legacy history, and shows the local-only/no-account boundary in primary views. Import continues to use the native JSON file chooser. The focused popup/session checks, full 92-file / 533-test suite, typecheck, Chrome and Firefox builds, release packaging, and whitespace verification pass. Interactive browser lifecycle evidence remains the only outstanding T06 gate.
 
 ## Out of Scope
 

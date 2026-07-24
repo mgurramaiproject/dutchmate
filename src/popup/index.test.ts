@@ -135,6 +135,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().querySelectorAll(".rhythm-day")).toHaveLength(7));
     expect(content().querySelector(".insights")).toBeNull();
     expect(content().textContent).toContain("Practise five useful words. Start now.");
+    expect(content().querySelector(".local-note")?.textContent).toBe("Local learning only. No account required.");
     expect(content().querySelector(".today-week")).toBeTruthy();
     expect(content().querySelector<HTMLElement>(".rhythm-day.grace")?.getAttribute("aria-label")).toContain("grace day");
     expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.tabIndex).toBe(0);
@@ -162,6 +163,7 @@ describe("lesson popup", () => {
     expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .heatmap-date")].some((date) => date.textContent === "1")).toBe(true);
     expect([...content().querySelectorAll<HTMLElement>(".heatmap-month .activity-total")].some((total) => total.textContent === "5")).toBe(true);
     expect(content().querySelector(".heatmap-legend")).toBeTruthy();
+    expect(content().textContent).toContain("Totals use recorded activity; older lesson history may be unavailable.");
     const monthLabel = content().querySelector<HTMLElement>(".period-label")?.textContent;
     button("Previous period").click();
     await vi.waitFor(() => expect(content().querySelector<HTMLElement>(".period-label")?.textContent).not.toBe(monthLabel));
@@ -178,15 +180,15 @@ describe("lesson popup", () => {
     for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
 
     await vi.waitFor(() => expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("3 reviews, 1 saved item, lesson count unavailable"));
-    expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("4+");
+    expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("4");
   });
 
-  it("shows a new lesson completed on a legacy activity day as a lower-bound count", async () => {
+  it("shows a new lesson completed on a legacy activity day while explaining missing history", async () => {
     rhythmResponse.activity[0] = { ...rhythmResponse.activity[0], lessons: null, lessonAdditions: 1 };
     for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
 
     await vi.waitFor(() => expect(content().querySelector<HTMLElement>(".rhythm-day.active")?.getAttribute("aria-label")).toContain("1 new lesson; historical lesson count unavailable"));
-    expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("5+");
+    expect(content().querySelector<HTMLElement>(".rhythm-day.active .activity-total")?.textContent).toBe("5");
   });
 
   it("offers the external feedback form from the popup header", () => {
@@ -262,6 +264,7 @@ describe("lesson popup", () => {
     expect(content().textContent).toMatch(/EN\s*unavailable/);
     expect(content().textContent).toMatch(/TE\s*జీబ్రా/);
     expect(content().textContent).toContain("Familiar");
+    expect(content().querySelector(".local-note")?.textContent).toBe("Local learning only. No account required.");
     expect(content().textContent).not.toContain("Practise now");
     expect(content().querySelectorAll("button").length).toBe(7);
 
@@ -330,6 +333,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).not.toContain("De zebra staat bij de ingang."));
     [...content().querySelectorAll<HTMLButtonElement>(".saved-row")].find((row) => row.textContent?.includes("zebra"))!.click();
     await vi.waitFor(() => expect(content().textContent).toContain("De zebra staat bij de ingang."));
+    expect(content().querySelector(".saved-context-highlight")?.textContent).toBe("zebra");
 
     learningItems = [learningItems[0]];
     for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
