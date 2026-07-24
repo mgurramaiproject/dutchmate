@@ -74,4 +74,4 @@ Tracer-bullet delivery plan for [005-refinement-spec.md](./005-refinement-spec.m
 - [x] This Week activity totals use one consistent numeric treatment and explain when older lesson history is unavailable.
 - [x] Today and Saved clearly state that learning is local and no account is required.
 - [x] Review and lesson practice reveal a discoverable Telugu phonetic-guide hint, and lesson answers render the local phonetic helper when Telugu is available.
-- [x] Saved gives a short website-selection hint, and Lesson filters use compact controls without losing keyboard focus visibility.
+- [x] Saved places the website-selection and local-only guidance together as bullets, shows Telugu phonetics alongside each available Telugu helper, and Lesson filters use compact controls without losing keyboard focus visibility.

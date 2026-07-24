@@ -126,7 +126,14 @@ function renderSaved(): HTMLElement {
   const header = document.createElement("div");
   header.className = "saved-head";
   header.append(eyebrow("Your collection"), heading("Saved"));
-  wrapper.append(header, localNote(), renderSavedBackupControls(), text("Select a word on a website to save it here.", "saved-capture-hint"));
+  const guidelines = document.createElement("ul");
+  guidelines.className = "saved-guidelines";
+  for (const copy of ["Select a word on a website to save it here.", "Local learning only. No account required."]) {
+    const item = document.createElement("li");
+    item.textContent = copy;
+    guidelines.append(item);
+  }
+  wrapper.append(header, guidelines, renderSavedBackupControls());
   if (savedFeedback) {
     const feedback = text(savedFeedback.message, "saved-feedback");
     feedback.setAttribute("role", "status");
@@ -172,7 +179,7 @@ function renderSaved(): HTMLElement {
     const copy = document.createElement("div"); copy.className = "saved-word";
     const dutch = document.createElement("h2"); dutch.textContent = item.dutch;
     const helpers = document.createElement("div"); helpers.className = "saved-helpers";
-    helpers.append(helperMeaning("EN", item.english), helperMeaning("TE", item.telugu));
+    helpers.append(helperMeaning("EN", item.english), helperMeaningWithPhonetics("TE", item.telugu, getSimpleTeluguPhonetics(item.telugu)));
     copy.append(dutch, helpers);
     const mastery = document.createElement("span"); mastery.className = "saved-mastery"; mastery.textContent = item.mastery;
     row.append(number, copy, mastery);
@@ -677,6 +684,17 @@ function eyebrow(value: string): HTMLElement { return text(value, "eyebrow"); }
 function heading(value: string): HTMLElement { const element = document.createElement("h1"); element.className = "heading"; element.textContent = value; return element; }
 function text(value: string, className = "body-copy"): HTMLElement { const element = document.createElement("p"); element.className = className; element.textContent = value; return element; }
 function helperMeaning(label: string, value: string): HTMLElement { const helper = document.createElement("span"); const name = document.createElement("b"); name.textContent = label; const meaning = document.createElement("span"); meaning.textContent = value; if (value === "unavailable") meaning.className = "meaning-unavailable"; helper.append(name, meaning); return helper; }
+
+function helperMeaningWithPhonetics(label: string, value: string, phonetics: string | null): HTMLElement {
+  const helper = helperMeaning(label, value);
+  if (phonetics) {
+    const guide = document.createElement("small");
+    guide.className = "saved-phonetics";
+    guide.textContent = `Say it: ${phonetics}`;
+    helper.append(guide);
+  }
+  return helper;
+}
 function meaning(label: string, value: string | null | undefined): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; if (value == null) content.className = "meaning-unavailable"; row.append(name, content); return row; }
 function teluguMeaning(value: string | null): HTMLElement { const row = meaning("Telugu", value); if (value) { const phonetics = getSimpleTeluguPhonetics(value); const helper = document.createElement("small"); helper.className = phonetics ? "telugu-phonetics" : "telugu-phonetics meaning-unavailable"; helper.textContent = phonetics ? `Say it: ${phonetics}` : "Phonetics unavailable"; row.append(helper); } return row; }
 function phoneticHint(): HTMLElement { return text("Telugu phonetic guide appears after reveal when helper text is available.", "phonetic-hint"); }

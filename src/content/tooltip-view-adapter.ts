@@ -1,5 +1,6 @@
 import type { TranslateMessageResponse } from "./runtime-translation-client";
 import type { ChunkConfirmation, ContextMission, RecallMission, SaveActionState } from "./webpage-lookup-module";
+import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
 
@@ -49,66 +50,77 @@ export function createTooltipViewAdapter(callbacks: {
     #hover-translate-tooltip {
       position: fixed;
       z-index: 2147483647;
+      min-width: min(220px, calc(100vw - 24px));
       max-width: min(360px, calc(100vw - 24px));
       max-height: calc(100vh - 24px);
       box-sizing: border-box;
       overflow-y: auto;
-      padding: 8px 10px;
+      padding: 12px 14px;
       border: 1px solid #000;
       border-radius: 8px;
       background: #fff;
       color: #000;
-      font: 13px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       pointer-events: auto;
-      white-space: pre-line;
+      white-space: normal;
     }
 
     #hover-translate-tooltip .hover-translate-actions {
       display: flex;
       gap: 8px;
-      align-items: center;
-      margin-top: 8px;
+      align-items: stretch;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(0, 0, 0, .16);
     }
 
     #hover-translate-tooltip .hover-translate-save {
       appearance: none;
       min-height: 44px;
       border: 1px solid #000;
-      border-radius: 6px;
-      background: #fff;
-      color: #000;
+      border-radius: 8px;
+      background: #000;
+      color: #fff;
       cursor: pointer;
       font: inherit;
       font-weight: 700;
       line-height: 1.2;
       padding: 6px 10px;
+      width: 100%;
     }
 
     #hover-translate-tooltip .context-slip-tether { display: grid; gap: 10px; border-left: 4px solid #ff6f00; padding-left: 10px; }
-    #hover-translate-tooltip .context-slip-kicker { color: #8a3b00; font-size: 11px; font-weight: 800; letter-spacing: .05em; margin: 0; text-transform: uppercase; }
+    #hover-translate-tooltip .context-slip-kicker { color: #000; font-size: 11px; font-weight: 800; letter-spacing: .05em; margin: 0; text-transform: uppercase; }
     #hover-translate-tooltip .context-slip-title, #hover-translate-tooltip .context-slip-context { font-family: Georgia, serif; }
     #hover-translate-tooltip .context-slip-title { font-size: 19px; line-height: 1.1; margin: 0 40px 0 0; overflow-wrap: anywhere; }
     #hover-translate-tooltip .context-slip-context { margin: 0; padding: 8px 10px; border-left: 2px solid rgba(255, 111, 0, .42); background: rgba(255, 111, 0, .08); font-size: 14px; line-height: 1.4; }
-    #hover-translate-tooltip .context-slip-copy, #hover-translate-tooltip .context-slip-prompt { margin: 0; color: #343434; font-size: 13px; line-height: 1.45; }
+    #hover-translate-tooltip .context-slip-copy, #hover-translate-tooltip .context-slip-prompt { margin: 0; color: rgba(0, 0, 0, .72); font-size: 13px; line-height: 1.45; }
     #hover-translate-tooltip .context-slip-prompt { color: #000; font-weight: 750; }
     #hover-translate-tooltip .context-slip-hidden-answer { margin: 0; padding: 9px 10px; border: 1px dashed rgba(0, 0, 0, .34); background: rgba(0, 0, 0, .035); font-size: 13px; }
-    #hover-translate-tooltip .context-slip-result { display: grid; grid-template-columns: 32px 1fr; gap: 10px; align-items: center; padding: 11px; border: 1px solid #000; border-left: 6px solid #ff6f00; border-radius: 7px; background: #fffaf4; }
+    #hover-translate-tooltip .context-slip-result { display: grid; grid-template-columns: 32px 1fr; gap: 10px; align-items: center; padding: 11px; border: 1px solid #000; border-left: 6px solid #ff6f00; border-radius: 7px; background: #fff; }
     #hover-translate-tooltip .context-slip-result-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; background: #000; color: #fff; font-weight: 900; }
     #hover-translate-tooltip .context-slip-result-title { display: block; font-family: Georgia, serif; font-size: 17px; line-height: 1.05; }
-    #hover-translate-tooltip .context-slip-result-copy { display: block; margin-top: 3px; color: #343434; font-size: 13px; line-height: 1.35; }
+    #hover-translate-tooltip .context-slip-result-copy { display: block; margin-top: 3px; color: rgba(0, 0, 0, .72); font-size: 13px; line-height: 1.35; }
     #hover-translate-tooltip .context-slip-capture { display: grid; gap: 0; border: 1px solid rgba(0, 0, 0, .28); border-radius: 7px; overflow: hidden; }
-    #hover-translate-tooltip .context-slip-capture-heading { margin: 0; padding: 8px 10px; background: #fff4e8; color: #663000; font-size: 11px; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+    #hover-translate-tooltip .context-slip-capture-heading { margin: 0; padding: 8px 10px; background: rgba(255, 111, 0, .12); color: #000; font-size: 11px; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
     #hover-translate-tooltip .context-slip-details { display: grid; margin: 0; }
     #hover-translate-tooltip .context-slip-detail { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px; padding: 8px 10px; border-top: 1px solid rgba(0, 0, 0, .15); }
-    #hover-translate-tooltip .context-slip-detail dt { color: #6a6a6a; font-size: 10px; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+    #hover-translate-tooltip .context-slip-detail dt { color: rgba(0, 0, 0, .62); font-size: 10px; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
     #hover-translate-tooltip .context-slip-detail dd { margin: 0; overflow-wrap: anywhere; font-size: 13px; line-height: 1.35; }
-    #hover-translate-tooltip .context-slip-close { position: absolute; top: 7px; right: 7px; min-width: 44px; min-height: 44px; border: 1px solid #000; background: #fff; color: #000; font-size: 20px; }
+    #hover-translate-tooltip .context-slip-close { position: absolute; top: 7px; right: 7px; min-width: 44px; min-height: 44px; border: 1px solid #000; border-radius: 8px; background: #fff; color: #000; font-size: 20px; }
     #hover-translate-tooltip .context-slip-fragments { display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px; margin: 8px 0; }
     #hover-translate-tooltip .context-slip-fragment, #hover-translate-tooltip .context-slip-button { min-height: 44px; border: 1px solid #000; border-radius: 6px; background: #fff; color: #000; font: inherit; font-weight: 700; padding: 6px 10px; }
     #hover-translate-tooltip .context-slip-button.primary { background: #ff6f00; }
     #hover-translate-tooltip button:focus-visible { outline: 3px solid #ff6f00; outline-offset: 2px; }
     #hover-translate-tooltip .context-slip-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     #hover-translate-tooltip .context-slip-status { display: block; min-height: 20px; font-weight: 700; }
+    #hover-translate-tooltip .hover-translate-result { margin: 0; font-family: Georgia, serif; font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+    #hover-translate-tooltip .hover-translate-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 5px 0; }
+    #hover-translate-tooltip .hover-translate-label { color: #000; font-size: 11px; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
+    #hover-translate-tooltip .hover-translate-value { min-width: 0; overflow-wrap: anywhere; }
+    #hover-translate-tooltip .hover-translate-phonetics { grid-column: 2; color: rgba(0, 0, 0, .68); font-size: 12px; }
+    #hover-translate-tooltip .context-slip-fragment:hover:not(:disabled), #hover-translate-tooltip .context-slip-button:hover:not(:disabled), #hover-translate-tooltip .context-slip-close:hover:not(:disabled), #hover-translate-tooltip .hover-translate-save:hover:not(:disabled) { background: #ff6f00; color: #000; }
+    #hover-translate-tooltip .context-slip-button.primary:hover:not(:disabled) { background: #000; color: #fff; }
 
     #hover-translate-tooltip .hover-translate-save:disabled {
       cursor: default;
@@ -118,28 +130,20 @@ export function createTooltipViewAdapter(callbacks: {
     #hover-translate-tooltip[data-state="loading"] {
       min-width: 132px;
       padding: 11px 14px;
-      border-color: #1d4ed8;
-      background: #172554;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, .28);
-      color: #f8fafc;
+      border-left: 4px solid #ff6f00;
+      background: #fff;
+      color: #000;
       font-size: 14px;
       font-weight: 750;
       letter-spacing: .01em;
     }
 
     #hover-translate-tooltip[data-state="error"] {
-      border-color: rgba(248, 113, 113, 0.65);
-      background: #7f1d1d;
-      color: #fee2e2;
+      border-left: 4px solid #000;
+      background: #fff;
+      color: #000;
     }
 
-    #hover-translate-tooltip .hover-translate-row {
-      display: block;
-    }
-
-    #hover-translate-tooltip .hover-translate-label {
-      font-weight: 700;
-    }
   `;
 
   document.documentElement.append(style, tooltip);
@@ -190,9 +194,10 @@ export function createTooltipViewAdapter(callbacks: {
       } else if (response.ok && response.result.providerName === "multi-target") {
         renderMultiTargetTooltip(tooltip, truncateTooltipText(response.result.translatedText));
       } else {
-        tooltip.textContent = truncateTooltipText(
-          response.ok ? response.result.translatedText : response.error,
-        );
+        const result = document.createElement("p");
+        result.className = "hover-translate-result";
+        result.textContent = truncateTooltipText(response.ok ? response.result.translatedText : response.error);
+        tooltip.replaceChildren(result);
       }
 
       if (response.ok) {
@@ -491,11 +496,26 @@ function renderMultiTargetTooltip(tooltip: HTMLDivElement, text: string): void {
       return row;
     }
 
+    const labelText = line.slice(0, separatorIndex + 1);
+    const valueText = line.slice(separatorIndex + 1).trimStart();
     const label = document.createElement("span");
     label.className = "hover-translate-label";
-    label.textContent = line.slice(0, separatorIndex + 1);
+    label.textContent = labelText;
 
-    row.append(label, " " + line.slice(separatorIndex + 1).trimStart());
+    const value = document.createElement("span");
+    value.className = "hover-translate-value";
+    value.textContent = valueText;
+
+    row.append(label, value);
+    if (labelText.toLocaleLowerCase().startsWith("telugu:")) {
+      const phonetics = getSimpleTeluguPhonetics(valueText);
+      if (phonetics) {
+        const helper = document.createElement("small");
+        helper.className = "hover-translate-phonetics";
+        helper.textContent = `Say it: ${phonetics}`;
+        row.append(helper);
+      }
+    }
     return row;
   });
 

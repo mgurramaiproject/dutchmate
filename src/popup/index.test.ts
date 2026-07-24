@@ -260,15 +260,18 @@ describe("lesson popup", () => {
     expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.getAttribute("aria-selected")).toBe("false");
     button("Saved").click();
     await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
-    expect(content().textContent).toContain("Select a word on a website to save it here.");
+    expect([...content().querySelectorAll<HTMLElement>(".saved-guidelines li")].map((item) => item.textContent)).toEqual([
+      "Select a word on a website to save it here.",
+      "Local learning only. No account required.",
+    ]);
     expect([...content().querySelectorAll<HTMLElement>(".saved-row")].map((row) => row.textContent)).toEqual([
       expect.stringContaining("2zebra"),
       expect.stringContaining("1huis"),
     ]);
     expect(content().textContent).toMatch(/EN\s*unavailable/);
     expect(content().textContent).toMatch(/TE\s*జీబ్రా/);
+    expect(content().querySelector(".saved-phonetics")?.textContent).toBe("Say it: jeeb-raa");
     expect(content().textContent).toContain("Familiar");
-    expect(content().querySelector(".local-note")?.textContent).toBe("Local learning only. No account required.");
     expect(content().textContent).not.toContain("Practise now");
     expect(content().querySelectorAll("button").length).toBe(7);
 
@@ -494,7 +497,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Learn a lesson")).toBeTruthy());
     button("Saved").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Nothing saved yet."));
-    expect(content().textContent).toContain("Select a word on a website to save it here.");
+    expect(content().querySelectorAll(".saved-guidelines li").length).toBe(2);
     expect(button("Quiz Saved")).toBeFalsy();
     button("Today").click();
     expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Learn a lesson", "Review Saved items"]);
