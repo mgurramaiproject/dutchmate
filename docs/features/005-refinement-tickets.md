@@ -42,10 +42,10 @@ Tracer-bullet delivery plan for [005-refinement-spec.md](./005-refinement-spec.m
 
 **Blocked by:** None — can start immediately.
 
-- [ ] Lesson filters provide All, Ready, Continue, and practical-life-pathway narrowing as functional controls.
-- [ ] An in-progress lesson row states its resumable stage, such as Continue · Notice.
-- [ ] Focused Today and Lesson flows retain their selected tab as a non-interactive orientation marker and retain an explicit Exit action.
-- [ ] Keyboard behavior, focus visibility, compact popup containment, and Lessons regressions pass.
+- [x] Lesson filters provide All, Ready, Continue, and practical-life-pathway narrowing as functional controls.
+- [x] An in-progress lesson row states its resumable stage, such as Continue · Notice.
+- [x] Focused Today and Lesson flows retain their selected tab as a non-interactive orientation marker and retain an explicit Exit action.
+- [x] Keyboard behavior, focus visibility, compact popup containment, and Lessons regressions pass.
 
 ## [#69](https://github.com/mgurramaiproject/dutchmate/issues/69) — T05 Add Quiz Saved
 

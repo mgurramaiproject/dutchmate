@@ -82,7 +82,11 @@ describe("lesson popup", () => {
     lessonCard("A1 · Een afspraak maken").click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
     expect(document.activeElement).toBe(content());
-    expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(true);
+    expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(false);
+    expect(document.querySelector<HTMLButtonElement>("#lessons-tab")?.disabled).toBe(true);
+    expect(document.querySelector<HTMLButtonElement>("#lessons-tab")?.getAttribute("aria-selected")).toBe("true");
+    expect(document.querySelector<HTMLButtonElement>("#today-tab")?.disabled).toBe(true);
+    expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.disabled).toBe(true);
     expect(document.querySelector("#settings-button")?.hasAttribute("hidden")).toBe(true);
 
     button("Show line help").click();
@@ -328,6 +332,56 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("Choose a situation. Each lesson is 3–5 minutes.");
     expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(12);
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
+  });
+
+  it("filters Lessons by readiness and practical pathway and labels resumable stages", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(12));
+    expect(content().querySelectorAll(".lesson-filter")).toHaveLength(11);
+
+    lessonCard("A0 · Hallo, ik ben").click();
+    await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
+    button("Exit lesson").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Continue · Read · 3 min left"));
+
+    button("Continue").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(1));
+    expect(content().textContent).toContain("first conversations · Continue · Read · 3 min left");
+
+    button("All").click();
+    button("Transport").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(2));
+    expect([...content().querySelectorAll<HTMLElement>(".lesson-copy small")].every((meta) => meta.textContent?.startsWith("transport ·"))).toBe(true);
+
+    button("Continue").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("No lessons match these filters."));
+  });
+
+  it("keeps Today visible and locked during focused review", async () => {
+    button("Start Daily Five").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(false);
+    expect(document.querySelector<HTMLButtonElement>("#today-tab")?.disabled).toBe(true);
+    expect(document.querySelector<HTMLButtonElement>("#today-tab")?.getAttribute("aria-selected")).toBe("true");
+    expect(button("Exit review")).toBeTruthy();
+    button("Exit review").click();
+    expect(document.querySelector<HTMLButtonElement>("#today-tab")?.disabled).toBe(false);
+  });
+
+  it("retains Today orientation when continuing a lesson from Today", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
+    lessonCard("A0 · Hallo, ik ben").click();
+    await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
+    button("Exit lesson").click();
+    button("Today").click();
+    await vi.waitFor(() => expect(button("Continue lesson")).toBeTruthy());
+    button("Continue lesson").click();
+    await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
+    expect(document.querySelector<HTMLButtonElement>("#today-tab")?.disabled).toBe(true);
+    expect(document.querySelector<HTMLButtonElement>("#today-tab")?.getAttribute("aria-selected")).toBe("true");
+    button("Exit lesson").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Start your Daily Five."));
   });
 
   it("keeps Start Daily Five as the only primary action before the daily goal completes", async () => {

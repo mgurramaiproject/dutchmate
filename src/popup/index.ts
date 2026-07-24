@@ -10,7 +10,7 @@ import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
 import { lessonCatalog, type Lesson } from "../lessons/catalog";
-import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonSession } from "./lesson-session";
+import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 import "./styles.css";
 
@@ -41,6 +41,9 @@ let savedError: string | null = null;
 let expandedSavedItemId: string | null = null;
 let savedActionBusy = false;
 let savedFeedback: { tone: "success" | "error"; message: string } | null = null;
+let lessonStatusFilter: LessonFilterStatus = "all";
+let lessonPathwayFilter = "all";
+let focusedOrigin: "today" | "lessons" | "saved" | null = null;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
@@ -94,13 +97,21 @@ function render(): void {
   if (!content) return;
   if (screen !== "saved") expandedSavedItemId = null;
   const focused = screen === "review" || screen === "lesson";
+  const activeTab = focused
+    ? focusedOrigin ?? (screen === "lesson" ? "lessons" : "today")
+    : screen === "lesson" || screen === "lessons" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
   settingsButton?.toggleAttribute("hidden", focused);
-  primaryNavigation?.toggleAttribute("hidden", focused);
+  primaryNavigation?.classList.toggle("is-locked", focused);
   content.classList.toggle("today-panel", screen === "today");
-  todayTab?.classList.toggle("is-active", screen === "today"); todayTab?.setAttribute("aria-selected", String(screen === "today")); todayTab?.setAttribute("tabindex", screen === "today" ? "0" : "-1");
-  lessonsTab?.classList.toggle("is-active", screen === "lessons"); lessonsTab?.setAttribute("aria-selected", String(screen === "lessons")); lessonsTab?.setAttribute("tabindex", screen === "lessons" ? "0" : "-1");
-  savedTab?.classList.toggle("is-active", screen === "saved"); savedTab?.setAttribute("aria-selected", String(screen === "saved")); savedTab?.setAttribute("tabindex", screen === "saved" ? "0" : "-1");
-  content?.setAttribute("aria-labelledby", screen === "lessons" ? "lessons-tab" : screen === "saved" ? "saved-tab" : "today-tab");
+  for (const [tab, key] of [[todayTab, "today"], [lessonsTab, "lessons"], [savedTab, "saved"]] as const) {
+    const selected = activeTab === key;
+    tab?.classList.toggle("is-active", selected);
+    tab?.setAttribute("aria-selected", String(selected));
+    tab?.setAttribute("tabindex", selected && !focused ? "0" : "-1");
+    if (tab) tab.disabled = focused;
+    tab?.setAttribute("aria-disabled", String(focused));
+  }
+  content?.setAttribute("aria-labelledby", `${activeTab}-tab`);
   updateBadge();
   content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : renderSettings());
 }
@@ -262,7 +273,7 @@ function renderToday(): HTMLElement {
     action.disabled = pending;
     action.addEventListener("click", () => {
       if (completed) void startContinuation();
-      else { screen = "review"; revealed = false; render(); content?.focus(); }
+      else { focusedOrigin = "today"; screen = "review"; revealed = false; render(); content?.focus(); }
     });
     nextAction.append(action);
   }
@@ -413,32 +424,65 @@ function hasUnknownActivityCount(activity: LearningRhythm["activity"][number]): 
 function renderLessons(): HTMLElement {
   const wrapper = section("lessons-content");
   wrapper.append(eyebrow("Lesson library · 12 small practical stories"), heading("Lesson library"), text("Choose a situation. Each lesson is 3–5 minutes."));
+  wrapper.append(renderLessonFilters());
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
   let lessonNumber = 0;
   const library = section("lesson-library");
-  for (const lessonDefinition of lessonCatalog.lessons) {
+  const visibleLessons = filterLessons(lessonCatalog.lessons, lessonProgressById, lessonStatusFilter, lessonPathwayFilter);
+  for (const lessonDefinition of visibleLessons) {
     lessonNumber += 1;
     const lesson = button("", "lesson-card lesson-row");
     const lessonProgress = lessonProgressById[lessonDefinition.id] ?? null;
     const [level, ...title] = lessonDefinition.title.split(" · ");
-    const completedLesson = lessonProgress?.completedAt !== null && lessonProgress !== null;
-    const status = completedLesson ? "Completed" : lessonProgress ? "In progress" : "Ready";
-    lesson.classList.toggle("resume-row", status === "In progress");
+    const availabilityStatus = getLessonAvailability(lessonProgress);
+    const status = availabilityStatus === "completed" ? "Completed" : availabilityStatus === "continue" ? "In progress" : "Ready";
+    lesson.classList.toggle("resume-row", availabilityStatus === "continue");
     const copy = document.createElement("span");
     copy.className = "lesson-copy";
     const titleNode = document.createElement("strong");
     titleNode.textContent = title.join(" · ");
     const meta = document.createElement("small");
-    meta.textContent = `${lessonDefinition.pathway.replaceAll("-", " ")} · ${status === "In progress" ? "Notice · 3 min left" : status}`;
+    meta.textContent = `${lessonDefinition.pathway.replaceAll("-", " ")} · ${availabilityStatus === "continue" ? `Continue · ${lessonStageLabel(lessonProgress!.stage)} · 3 min left` : status}`;
     copy.append(titleNode, meta);
     lesson.append(text(String(lessonNumber).padStart(2, "0"), "lesson-number"), copy, text(`(${level})`, "level"));
     lesson.addEventListener("click", () => void startLesson(lessonDefinition));
     library.append(lesson);
   }
   wrapper.append(library);
+  if (visibleLessons.length === 0) wrapper.append(text("No lessons match these filters.", "empty-state"));
   wrapper.append(localNote()); return wrapper;
 }
+
+function renderLessonFilters(): HTMLElement {
+  const filters = section("lesson-filters");
+  filters.append(text("Filter lessons", "section-title"));
+  const statusGroup = document.createElement("div");
+  statusGroup.className = "lesson-filter-group";
+  statusGroup.setAttribute("aria-label", "Lesson readiness");
+  for (const [value, label] of [["all", "All"], ["ready", "Ready"], ["continue", "Continue"]] as const) {
+    const control = button(label, `lesson-filter${lessonStatusFilter === value ? " is-active" : ""}`);
+    control.setAttribute("aria-pressed", String(lessonStatusFilter === value));
+    control.addEventListener("click", () => { lessonStatusFilter = value; render(); });
+    statusGroup.append(control);
+  }
+  filters.append(statusGroup);
+  const pathwayGroup = document.createElement("div");
+  pathwayGroup.className = "lesson-filter-group pathway-filters";
+  pathwayGroup.setAttribute("aria-label", "Practical life pathway");
+  const pathways = ["all", ...new Set(lessonCatalog.lessons.map((lesson) => lesson.pathway))];
+  for (const pathway of pathways) {
+    const control = button(pathwayLabel(pathway), `lesson-filter${lessonPathwayFilter === pathway ? " is-active" : ""}`);
+    control.setAttribute("aria-pressed", String(lessonPathwayFilter === pathway));
+    control.addEventListener("click", () => { lessonPathwayFilter = pathway; render(); });
+    pathwayGroup.append(control);
+  }
+  filters.append(pathwayGroup);
+  return filters;
+}
+
+function pathwayLabel(pathway: string): string { return pathway === "all" ? "All pathways" : pathway.replaceAll("-", " ").replace(/(^|\s)\S/g, (letter) => letter.toUpperCase()); }
+function lessonStageLabel(stage: LessonProgress["stage"]): string { return stage.charAt(0).toUpperCase() + stage.slice(1); }
 
 function createMonthWeekdays(): HTMLElement {
   const weekdays = document.createElement("div");
@@ -496,7 +540,7 @@ function renderLesson(): HTMLElement {
   const session = lessonSession;
   if (!session) { screen = "lessons"; return renderLessons(); }
   const wrapper = section("lesson-content focused-content");
-  const exit = button("Exit lesson", "exit-button"); exit.addEventListener("click", () => { lessonSession = null; screen = "lessons"; render(); });
+  const exit = button("Exit lesson", "exit-button"); exit.addEventListener("click", () => { lessonSession = null; screen = focusedOrigin ?? "lessons"; focusedOrigin = null; render(); });
   const rail = document.createElement("div"); rail.className = "lesson-rail";
   for (const stage of ["read", "notice", "practise", "keep"] as const) rail.append(text(stage, `lesson-stage${session.stage === stage || (stage === "keep" && session.stage === "replay") ? " active" : ""}`));
   wrapper.append(exit, rail);
@@ -516,19 +560,19 @@ function renderLessonStory(session: LessonSession, allowHelp: boolean): HTMLElem
 function renderLessonNotice(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Notice"), heading(session.lesson.pattern), text(session.lesson.patternExplanation)); for (const line of session.lesson.lines) { const row = document.createElement("p"); row.className = "story-dutch"; const start = line.dutch.indexOf(session.lesson.patternText); if (start < 0) row.textContent = line.dutch; else { row.append(line.dutch.slice(0, start), highlightedPattern(session.lesson.patternText), line.dutch.slice(start + session.lesson.patternText.length)); } panel.append(row); } const next = button("Practise", "button primary-button"); next.addEventListener("click", () => void advanceLesson(session)); panel.append(next); return panel; }
 function renderLessonPractice(session: LessonSession): HTMLElement { const prompt = session.lesson.practice[session.practiceIndex]; const candidate = session.lesson.candidates.find((item) => item.id === prompt.candidateId)!; const panel = section("practice-card"); panel.append(eyebrow(session.practiceRevealed ? "Answer" : prompt.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.practiceRevealed ? candidate.dutch : prompt.dimension === "recognition" ? candidate.dutch : candidate.english)); if (!session.practiceRevealed) { const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { lessonSession = revealLessonPractice(session); render(); }); panel.append(reveal); } else { panel.append(meaning("Dutch", candidate.dutch), meaning("English", candidate.english), meaning("Telugu", candidate.telugu)); const actions = document.createElement("div"); actions.className = "rating-actions"; for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.addEventListener("click", () => void saveLessonPractice(session, result)); actions.append(action); } panel.append(actions); } return panel; }
 function renderLessonKeep(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Keep"), heading("Choose what to keep for review.")); for (const candidate of getLessonCandidateChoices(session, items)) { const label = document.createElement("label"); label.className = "candidate-choice"; const checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = candidate.checked; checkbox.addEventListener("change", () => { lessonSession = toggleLessonCandidate(session, candidate.id); render(); }); label.append(checkbox, text(candidate.dutch)); if (candidate.alreadySaved) label.append(text("Already saved", "already-saved")); panel.append(label); } const keep = button(`Keep ${session.selectedCandidateIds.length} for review`, "button primary-button"); keep.disabled = pending; keep.addEventListener("click", () => void keepLessonCandidates(session)); panel.append(keep); return panel; }
-async function startLesson(lesson: Lesson): Promise<void> { try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; screen = "lessons"; render(); } }
+async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : "lessons"; render(); } }
 async function advanceLesson(session: LessonSession): Promise<void> { const next = advanceLessonStage(session); pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function saveLessonPractice(session: LessonSession, result: "again" | "got-it"): Promise<void> { const next = advanceLessonPracticeState(session, result); if (next.stage !== "replay") { lessonSession = next; render(); return; } pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
-async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; rhythm = await learningClient.getRhythm(); const lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonProgressById = { ...lessonProgressById, [session.lesson.id]: lessonProgress }; lessonSession = null; screen = "lessons"; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
+async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; rhythm = await learningClient.getRhythm(); const lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonProgressById = { ...lessonProgressById, [session.lesson.id]: lessonProgress }; lessonSession = null; screen = focusedOrigin ?? "lessons"; focusedOrigin = null; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
 
 function renderReview(): HTMLElement {
   const wrapper = section("practice-content focused-content");
   const reviewView = snapshot ? getDailyFiveReviewView(snapshot, revealed) : null;
   const task = reviewView?.task;
   const item = task ? items.find((candidate) => candidate.id === task.itemId) : undefined;
-  if (!snapshot || !task || !item) { screen = "today"; return renderToday(); }
+  if (!snapshot || !task || !item) { screen = focusedOrigin ?? "today"; focusedOrigin = null; return screen === "today" ? renderToday() : renderLessons(); }
   const exit = button("Exit review", "exit-button");
-  exit.addEventListener("click", () => { screen = "today"; revealed = false; render(); });
+  exit.addEventListener("click", () => { screen = focusedOrigin ?? "today"; focusedOrigin = null; revealed = false; render(); });
   const progress = text(`${task.dimension === "recognition" ? "Recognition" : "Recall"} · ${snapshot.completedTaskIds.length + 1} of ${snapshot.tasks.length}`, "practice-progress");
   const card = section("practice-card");
   const prompt = task.dimension === "recognition" ? item.dutch : item.english ?? item.contexts.at(-1)?.text ?? "Use the context cue";
@@ -566,7 +610,7 @@ async function saveResult(item: LearningItem, dimension: "recognition" | "recall
   } catch (error) { pending = false; renderError(error instanceof Error ? error.message : "Your result could not be saved."); }
 }
 
-async function startContinuation(): Promise<void> { pending = true; render(); await load(true); pending = false; if (snapshot?.tasks.length) { screen = "review"; revealed = false; render(); content?.focus(); } }
+async function startContinuation(): Promise<void> { pending = true; render(); await load(true); pending = false; if (snapshot?.tasks.length) { focusedOrigin = "today"; screen = "review"; revealed = false; render(); content?.focus(); } }
 async function saveSettings(changes: Partial<ReviewSettingsChanges>): Promise<void> { settings = await settingsClient.updateSettings(changes); render(); }
 
 function createMasterySummary(): HTMLElement {
