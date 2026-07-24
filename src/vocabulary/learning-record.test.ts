@@ -42,6 +42,19 @@ describe("LearningRecordStore", () => {
     expect(JSON.stringify(backup)).not.toContain("secret");
   });
 
+  it("retains context translations through merge, backup, import, and restart without replacing local mastery", async () => {
+    const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await source.createOrMerge({ dutch: "huis", english: "house", context: "Een huis staat daar.", contextTranslations: { english: "A house stands there.", telugu: "అక్కడ ఒక ఇల్లు ఉంది." } });
+    const backup = await source.exportBackup();
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    const local = await restored.createOrMerge({ dutch: "huis", context: "Dit huis is nieuw.", contextTranslations: { english: "This house is new.", telugu: "ఈ ఇల్లు కొత్తది." } });
+    await restored.recordMissionResult(local.id, "recognition", "got-it", 0);
+    await restored.importBackup(backup);
+    await restored.createOrMerge({ dutch: "huis", context: "Een huis staat daar.", contextTranslations: { english: "A different translation", telugu: "వేరే అనువాదం" } });
+
+    await expect(restored.list()).resolves.toEqual([expect.objectContaining({ contexts: expect.arrayContaining([expect.objectContaining({ text: "Een huis staat daar.", english: "A house stands there.", telugu: "అక్కడ ఒక ఇల్లు ఉంది." }), expect.objectContaining({ text: "Dit huis is nieuw.", english: "This house is new.", telugu: "ఈ ఇల్లు కొత్తది." })]), recognition: expect.objectContaining({ attemptCount: 1 }) })]);
+  });
+
   it("records only distinct recent encounter contexts without changing mastery", async () => {
     const storage = new MemoryStorage();
     let now = 1_000;

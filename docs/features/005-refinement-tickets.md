@@ -8,10 +8,10 @@ Tracer-bullet delivery plan for [005-refinement-spec.md](./005-refinement-spec.m
 
 **Blocked by:** None — can start immediately.
 
-- [ ] A new webpage save explicitly captures and stores the original Dutch context and its English/Telugu translations.
-- [ ] Canonical merge, backup export/import, and upgrade migration retain valid contexts and their translations without overwriting newer local learning.
-- [ ] The activity ledger persists completed reviews, new saves, and completed lessons across restart and import; abandoned lessons remain uncounted.
-- [ ] Focused contract, migration, backup, and activity-ledger regression checks pass.
+- [x] A new webpage save explicitly captures and stores the original Dutch context and its English/Telugu translations.
+- [x] Canonical merge, backup export/import, and upgrade migration retain valid contexts and their translations without overwriting newer local learning.
+- [x] The activity ledger persists completed reviews, new saves, and completed lessons across restart and import; abandoned lessons remain uncounted.
+- [x] Focused contract, migration, backup, and activity-ledger regression checks pass.
 
 ## [#66](https://github.com/mgurramaiproject/dutchmate/issues/66) — T02 Reveal contextual answers with Telugu phonetics
 
