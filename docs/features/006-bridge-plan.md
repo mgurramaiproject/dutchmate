@@ -23,6 +23,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Repeated captures merge into one Dutch item. Contexts deduplicate by normalized text plus source language and fill missing translations/provenance.
 - Legacy contexts with unknown provenance are never retroactively relabeled; a later identical context with known provenance remains a separate provenance-aware context.
 - Source-language resolution prefers Telugu script in the selected text, then supported nearest page metadata, then Dutch/English lexical evidence. A unique saved-form match may support `Seen before` but never overrides a confident source or invents one.
+- If source language remains unresolved, translation remains available but Save stays hidden; no guessed provenance or helper assignment is permitted.
 - Telugu hover never requests a Telugu self-translation: multi-target mode shows Dutch plus English, while one-target mode falls back to Dutch if Telugu would be the configured target. Save remains selection-only; hover remains translation/encounter-only.
 - `Seen before` appears for a confident unique Dutch, English, or Telugu saved-item match even without page context and even if the later encounter write fails. Ambiguous helper-form matches show no cue; Dutch-only recall/reconstruction missions remain unchanged.
 - Encounter persistence stores only bounded original context plus provenance; helper context translations are requested only during explicit Save or a later deliberate capture.
@@ -34,6 +35,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 
 - Dutch, English, and Telugu single-word selections can expose Save when a Dutch canonical form is available.
 - Ambiguous or non-canonical Dutch results remain translatable but cannot be saved without a future explicit disambiguation design.
+- Unresolved source language remains translation-only even when a Dutch result is available.
 - Saved context from all three source languages retains source text, provenance, and available fixed English/Telugu renderings.
 - Repeated words in one page retain the sentence for the selected occurrence, or no context when the occurrence is uncertain.
 - Partial provider failure preserves the word and any successful context fields.
