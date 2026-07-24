@@ -11,6 +11,7 @@ import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
 import { lessonCatalog, type Lesson } from "../lessons/catalog";
 import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonSession } from "./lesson-session";
+import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
@@ -465,13 +466,13 @@ function renderReview(): HTMLElement {
   const prompt = task.dimension === "recognition" ? item.dutch : item.english ?? item.contexts.at(-1)?.text ?? "Use the context cue";
   card.append(eyebrow(revealed ? "Answer" : task.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(revealed ? item.dutch : prompt));
   if (reviewView?.canSubmitResult) {
-    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), meaning("Telugu", item.telugu));
-    if (item.contexts.at(-1)) card.append(meaning("Context", item.contexts.at(-1)?.text ?? null));
+    const context = [...item.contexts].sort((first, second) => second.addedAt - first.addedAt)[0];
+    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), teluguMeaning(item.telugu), contextMeaning(context));
     const actions = document.createElement("div"); actions.className = "rating-actions";
     for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.disabled = pending; action.addEventListener("click", () => void saveResult(item, task.dimension, result)); actions.append(action); }
     card.append(actions);
   } else {
-    const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { revealed = true; render(); }); card.append(reveal);
+    const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { revealed = true; render(); content?.querySelector<HTMLButtonElement>(".rating-actions .button")?.focus(); }); card.append(reveal);
   }
   wrapper.append(exit, progress, card, localNote());
   return wrapper;
@@ -514,7 +515,9 @@ function eyebrow(value: string): HTMLElement { return text(value, "eyebrow"); }
 function heading(value: string): HTMLElement { const element = document.createElement("h1"); element.className = "heading"; element.textContent = value; return element; }
 function text(value: string, className = "body-copy"): HTMLElement { const element = document.createElement("p"); element.className = className; element.textContent = value; return element; }
 function helperMeaning(label: string, value: string): HTMLElement { const helper = document.createElement("span"); const name = document.createElement("b"); name.textContent = label; const meaning = document.createElement("span"); meaning.textContent = value; if (value === "unavailable") meaning.className = "meaning-unavailable"; helper.append(name, meaning); return helper; }
-function meaning(label: string, value: string | null): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; row.append(name, content); return row; }
+function meaning(label: string, value: string | null | undefined): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; if (value == null) content.className = "meaning-unavailable"; row.append(name, content); return row; }
+function teluguMeaning(value: string | null): HTMLElement { const row = meaning("Telugu", value); if (value) { const phonetics = getSimpleTeluguPhonetics(value); const helper = document.createElement("small"); helper.className = phonetics ? "telugu-phonetics" : "telugu-phonetics meaning-unavailable"; helper.textContent = phonetics ? `Say it: ${phonetics}` : "Phonetics unavailable"; row.append(helper); } return row; }
+function contextMeaning(context: LearningItem["contexts"][number] | undefined): HTMLElement { const row = section("meaning-row context-answer"); const name = document.createElement("strong"); name.textContent = "Context"; const dutch = document.createElement("span"); dutch.textContent = context?.text ?? "unavailable"; if (!context?.text) dutch.className = "meaning-unavailable"; row.append(name, dutch); for (const [label, value] of [["English", context?.english], ["Telugu", context?.telugu]] as const) { const translation = document.createElement("small"); translation.textContent = `${label}: ${value ?? "unavailable"}`; if (!value) translation.className = "meaning-unavailable"; row.append(translation); } return row; }
 function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }
 function toggle(labelText: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement { const label = document.createElement("label"); label.className = "setting-control"; const textNode = document.createElement("strong"); textNode.textContent = labelText; const input = document.createElement("input"); input.type = "checkbox"; input.checked = checked; input.addEventListener("change", () => onChange(input.checked)); label.append(textNode, input); return label; }
 function localNote(): HTMLElement { return text("Local learning only. No account required.", "local-note"); }

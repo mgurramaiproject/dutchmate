@@ -197,6 +197,35 @@ describe("lesson popup", () => {
     expect(document.querySelector<HTMLElement>("#due-badge")?.hidden).toBe(false);
   });
 
+  it("reveals a compact contextual answer with local Telugu phonetics", async () => {
+    learningItems = [{ ...learningItems[0], telugu: "ఇల్లు", contexts: [{ text: "Een huis staat daar.", english: "A house stands there.", telugu: "అక్కడ ఒక ఇల్లు ఉంది.", addedAt: 3 }] }, learningItems[1]];
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+    await vi.waitFor(() => expect(content().textContent).toContain("Start your Daily Five."));
+    button("Start Daily Five").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    button("Show answer").click();
+
+    expect(content().querySelector(".practice-card")?.textContent).toContain("Dutchhuis");
+    expect(content().textContent).toContain("Englishhouse");
+    expect(content().textContent).toContain("Teluguఇల్లు");
+    expect(content().querySelector<HTMLElement>(".telugu-phonetics")?.textContent).toBe("Say it: il-lu");
+    expect(content().textContent).toContain("ContextEen huis staat daar.");
+    expect(content().textContent).toContain("English: A house stands there.");
+    expect(content().textContent).toContain("Telugu: అక్కడ ఒక ఇల్లు ఉంది.");
+    expect(document.activeElement).toBe(content().querySelector<HTMLButtonElement>(".rating-actions .button"));
+  });
+
+  it("keeps missing legacy helpers and context explicitly unavailable after reveal", async () => {
+    button("Start Daily Five").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    button("Show answer").click();
+
+    expect(content().textContent).toContain("Teluguunavailable");
+    expect(content().textContent).toContain("Contextunavailable");
+    expect(content().textContent).toContain("English: unavailable");
+    expect(content().querySelector(".telugu-phonetics")).toBeNull();
+  });
+
   it("keeps Today selected on open and renders Library as a browse-only shelf with stable numbering", async () => {
     expect(document.querySelector<HTMLButtonElement>("#today-tab")?.getAttribute("aria-selected")).toBe("true");
     expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.getAttribute("aria-selected")).toBe("false");

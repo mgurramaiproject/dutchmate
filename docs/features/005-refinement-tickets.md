@@ -19,11 +19,11 @@ Tracer-bullet delivery plan for [005-refinement-spec.md](./005-refinement-spec.m
 
 **Blocked by:** [#65 — T01 Preserve contextual learning history](https://github.com/mgurramaiproject/dutchmate/issues/65).
 
-- [ ] The answer hierarchy remains compact, readable, keyboard-accessible, and horizontally contained in the popup.
-- [ ] Telugu helper text has local plain-English phonetics with syllable breaks and no extra provider request.
-- [ ] Saved Dutch context and its two stored translations display after reveal when available.
-- [ ] Missing legacy context or helper data has a clear unavailable state and is never fabricated.
-- [ ] Popup view and rendered accessibility regression checks pass.
+- [x] The answer hierarchy remains compact, readable, keyboard-accessible, and horizontally contained in the popup.
+- [x] Telugu helper text has local plain-English phonetics with syllable breaks and no extra provider request.
+- [x] Saved Dutch context and its two stored translations display after reveal when available.
+- [x] Missing legacy context or helper data has a clear unavailable state and is never fabricated.
+- [x] Popup view and rendered accessibility regression checks pass.
 
 ## [#67](https://github.com/mgurramaiproject/dutchmate/issues/67) — T03 Add Saved recovery controls
 
