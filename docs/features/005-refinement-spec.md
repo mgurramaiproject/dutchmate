@@ -85,6 +85,10 @@ Deliver one cohesive refinement of the local learning loop:
 - Manual Chrome and Firefox checks cover update/re-enable preservation with fixture data, browser restart and heatmap recall, Saved Import/Export interaction, focused tab orientation, review-card density, Lesson filters, and keyboard navigation.
 - Full verification includes focused tests, typecheck, the full suite, Chrome and Firefox builds, release verification, and whitespace checks.
 
+## T06 verification status (2026-07-24)
+
+The automated gate passed against implementation commit `ba80866`: 92 test files / 532 tests, typecheck, Chrome and Firefox builds, release packaging, and whitespace verification. The required interactive browser pass remains blocked in this environment: disposable Chrome 149 registered the unpacked service worker but its popup target returned `ERR_FILE_NOT_FOUND` with content-verifier errors, and Firefox 152 has no available automation driver. No browser result is claimed; a manual tester must load both generated builds and complete the lifecycle, accessibility, and popup-geometry checklist in `docs/release/manual-testing.md`.
+
 ## Out of Scope
 
 - A Dutch-to-Telugu learning mode, language switcher, Telugu curriculum, audio, speech recognition, pronunciation scoring, text-to-speech, or IPA/academic transliteration.

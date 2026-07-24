@@ -64,6 +64,6 @@ Tracer-bullet delivery plan for [005-refinement-spec.md](./005-refinement-spec.m
 
 **Blocked by:** [#65 — T01 Preserve contextual learning history](https://github.com/mgurramaiproject/dutchmate/issues/65); [#66 — T02 Reveal contextual answers with Telugu phonetics](https://github.com/mgurramaiproject/dutchmate/issues/66); [#67 — T03 Add Saved recovery controls](https://github.com/mgurramaiproject/dutchmate/issues/67); [#68 — T04 Filter Lessons and preserve focused orientation](https://github.com/mgurramaiproject/dutchmate/issues/68); [#69 — T05 Add Quiz Saved](https://github.com/mgurramaiproject/dutchmate/issues/69).
 
-- [ ] Full test suite, typecheck, Chrome build, Firefox build, release verification, and whitespace check pass.
-- [ ] Real browser checks confirm update/re-enable preservation, restart heatmap recall, import recovery, narrow-popup containment, keyboard flows, and visible focus.
-- [ ] The feature specification and tickets accurately record automated evidence, manual evidence, and any genuine remaining blocker.
+- [x] Full test suite, typecheck, Chrome build, Firefox build, release verification, and whitespace check pass.
+- [ ] Real browser checks confirm update/re-enable preservation, restart heatmap recall, import recovery, narrow-popup containment, keyboard flows, and visible focus. The interactive pass remains blocked: Chrome 149 registered the unpacked service worker but its popup target returned `ERR_FILE_NOT_FOUND` with content-verifier errors; Firefox 152 has no available automation driver in this environment.
+- [x] The feature specification and tickets accurately record automated evidence, manual evidence, and the genuine browser-validation blocker.
