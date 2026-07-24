@@ -165,7 +165,7 @@ The current cross-language capture improvement applies to single words whose Dut
 _Avoid_: Arbitrary translated phrase, automatic chunking, multilingual chunk practice
 
 **Optional page context**:
-A bounded source sentence that enriches a saved word when the webpage exposes one safely. Its absence never invalidates the deliberate word save or the canonical learning item.
+A bounded source sentence from the exact selected occurrence that enriches a saved word when the webpage exposes it safely. If the occurrence is uncertain, context is omitted; its absence never invalidates the deliberate word save or the canonical learning item.
 _Avoid_: Required sentence capture, generated replacement context, browsing history
 
 **New learning item**:

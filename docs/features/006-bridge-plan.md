@@ -15,6 +15,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Dutch remains the only learning-language key. English/Telugu captures do not create a second learning mode.
 - Cross-language capture is limited to single words in this feature. Dutch meaningful chunks keep their current eligibility and practice rules.
 - Every new context retains its original source sentence and optional source-language provenance (`nl`, `en`, `te`); older contexts remain valid with unknown provenance.
+- A captured context must come from the exact selected occurrence; if that occurrence cannot be resolved safely, the word saves without context rather than retaining a misleading sentence.
 - Context translations keep fixed English and Telugu fields. Copy through the source text when it already is English or Telugu; request only missing translations.
 - A successful Dutch canonical translation is enough to expose Save. Missing English/Telugu helpers remain explicitly unavailable rather than hiding Save.
 - A translation result that is ambiguous, multi-word, or otherwise not one safe Dutch word remains visible for understanding but does not expose Save; 006 adds no choice picker.
@@ -31,6 +32,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Dutch, English, and Telugu single-word selections can expose Save when a Dutch canonical form is available.
 - Ambiguous or non-canonical Dutch results remain translatable but cannot be saved without a future explicit disambiguation design.
 - Saved context from all three source languages retains source text, provenance, and available fixed English/Telugu renderings.
+- Repeated words in one page retain the sentence for the selected occurrence, or no context when the occurrence is uncertain.
 - Partial provider failure preserves the word and any successful context fields.
 - Existing records and legacy contexts migrate/read without data loss; unknown context provenance remains honest.
 - Repeated captures merge correctly without duplicate Saved rows or duplicate contexts.
