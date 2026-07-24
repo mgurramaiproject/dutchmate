@@ -21,7 +21,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - A translation result that is ambiguous, multi-word, or otherwise not one safe Dutch word remains visible for understanding but does not expose Save; 006 adds no choice picker.
 - Context translation is best effort. A failed optional context translation must not discard the learner’s deliberate word save.
 - Repeated captures merge into one Dutch item. Contexts deduplicate by normalized text plus source language and fill missing translations/provenance.
-- Source-language resolution prefers supported page metadata, Telugu script, Dutch/English lexical evidence, then one unique saved-form match. Ambiguous matches do not invent identity.
+- Source-language resolution prefers Telugu script in the selected text, then supported nearest page metadata, then Dutch/English lexical evidence. A unique saved-form match may support `Seen before` but never overrides a confident source or invents one.
 - Telugu hover shows Dutch and English results, never a Telugu self-translation. Save remains selection-only; hover remains translation/encounter-only.
 - `Seen before` appears for confident Dutch, English, or Telugu saved-item matches even if the later encounter write fails. Dutch-only recall/reconstruction missions remain unchanged.
 - Context retention remains local-only: normalized source text, at most 240 characters per context, at most three recent contexts per item, and no URLs or page metadata.

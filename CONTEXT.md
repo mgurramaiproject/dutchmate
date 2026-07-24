@@ -117,7 +117,7 @@ A deliberate or hover interaction with a saved learning item through its Dutch, 
 _Avoid_: Reverse-language mastery, passive page scan, multilingual practice mode
 
 **Source-language resolution**:
-The ordered process that identifies a webpage's active language for translation and saved-item matching: supported page metadata, Telugu script, Dutch/English lexical evidence, then one unambiguous saved-form match. An uncertain match must not invent a saved-item identity.
+The ordered process that identifies a webpage's active language for translation and saved-item matching: Telugu script in the selected text, supported nearest page metadata, then Dutch/English lexical evidence. A saved-form match can support a `Seen before` cue but never overrides a confident source or invents a saved-item identity.
 _Avoid_: Browser locale, guessed mastery language, silent language switch
 
 **Learning validation**:
