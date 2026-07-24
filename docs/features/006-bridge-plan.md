@@ -29,6 +29,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - `Seen before` appears for a confident unique Dutch, English, or Telugu saved-item match even without page context and even if the later encounter write fails. Ambiguous helper-form matches show no cue; Dutch-only recall/reconstruction missions remain unchanged.
 - Encounter persistence stores only bounded original context plus provenance; helper context translations are requested only during explicit Save or a later deliberate capture.
 - Multi-target popup lookup renders successful targets independently and marks failed targets `Unavailable`; only an unavailable essential Dutch result blocks the result, and Save remains hidden without a safe Dutch form.
+- Deliberate English/Telugu selections always include Dutch as the required canonical target even when multi-target mode is off; hover target selection remains settings-respecting.
 - The existing opt-in Dutch selection auto-save setting remains unchanged, but English/Telugu cross-language selections require the popup Save action; translation caching is separate and never creates a learning item.
 - Existing item-level `sources[]` history remains unchanged for compatibility; 006 makes context provenance the user-visible source record instead of introducing another source-history policy.
 - Context retention remains local-only: normalized source text, at most 240 characters per context, at most three recent contexts per item, and no URLs or page metadata.
@@ -53,6 +54,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - `Seen before` remains available when no safe sentence exists, while ambiguous helper-form matches remain silent.
 - Hover/encounter paths do not trigger hidden helper-translation requests or vocabulary enrichment.
 - Partial popup target failure leaves successful translations usable instead of converting the whole lookup into an error.
+- A one-target English/Telugu selection can still resolve and expose Save because Dutch is fetched as the canonical learning target.
 - Saved/review UI labels the original context language and distinguishes original text from helper renderings.
 - Context labels use `Original context · Dutch/English/Telugu`, `English translation`, and `Telugu translation`; legacy unknown provenance reads `Original context · Language not detected`, and missing helpers read `Unavailable`.
 - Saved presents up to three recent contexts per item, newest first, rather than collapsing a cross-language item to only its latest source.
