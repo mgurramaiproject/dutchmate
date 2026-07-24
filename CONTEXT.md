@@ -137,7 +137,7 @@ The learner-controlled collection of Dutch learning items they intentionally kee
 _Avoid_: Translation history, synced word bank
 
 **Review card**:
-The learner-facing practice representation of one learning item, assembled from its available Dutch, English, and Telugu meanings and supporting context. Its answer may show a Telugu phonetic helper and translations of the saved context sentence; it is not an individual saved translation pair.
+The learner-facing practice representation of one learning item, assembled from its available Dutch, English, and Telugu meanings and supporting context. Its answer may show a Telugu phonetic helper and translations of the saved context sentence, with the original context language labeled separately from helper translations; it is not an individual saved translation pair.
 _Avoid_: Saved translation, flashcard entry, word pair
 
 **Page context**:
