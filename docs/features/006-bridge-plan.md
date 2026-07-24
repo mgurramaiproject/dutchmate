@@ -17,6 +17,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Every new context retains its original source sentence and optional source-language provenance (`nl`, `en`, `te`); older contexts remain valid with unknown provenance.
 - Context translations keep fixed English and Telugu fields. Copy through the source text when it already is English or Telugu; request only missing translations.
 - A successful Dutch canonical translation is enough to expose Save. Missing English/Telugu helpers remain explicitly unavailable rather than hiding Save.
+- A translation result that is ambiguous, multi-word, or otherwise not one safe Dutch word remains visible for understanding but does not expose Save; 006 adds no choice picker.
 - Context translation is best effort. A failed optional context translation must not discard the learner’s deliberate word save.
 - Repeated captures merge into one Dutch item. Contexts deduplicate by normalized text plus source language and fill missing translations/provenance.
 - Source-language resolution prefers supported page metadata, Telugu script, Dutch/English lexical evidence, then one unique saved-form match. Ambiguous matches do not invent identity.
@@ -28,6 +29,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 ## Acceptance boundary
 
 - Dutch, English, and Telugu single-word selections can expose Save when a Dutch canonical form is available.
+- Ambiguous or non-canonical Dutch results remain translatable but cannot be saved without a future explicit disambiguation design.
 - Saved context from all three source languages retains source text, provenance, and available fixed English/Telugu renderings.
 - Partial provider failure preserves the word and any successful context fields.
 - Existing records and legacy contexts migrate/read without data loss; unknown context provenance remains honest.

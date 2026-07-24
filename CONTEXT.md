@@ -100,6 +100,10 @@ _Avoid_: Account, cloud progress, browser history
 The explicit language identity that scopes every learning item and its mastery inside the local learning record. `002-learnloop` uses Dutch as its only learning-language key, without exposing a language switch or claiming to teach Telugu.
 _Avoid_: Translation direction, helper language, multilingual learning mode
 
+**Canonical Dutch form**:
+The one safe Dutch word that identifies a cross-language capture and can become the learning item's Dutch key. If a result is ambiguous, multi-word, or otherwise not one safe form, DutchMate may explain it but does not save it without an explicit learner choice.
+_Avoid_: First translation returned, guessed Dutch key, provider text
+
 **Cross-language capture**:
 A learner-controlled save that starts from English or Telugu webpage text but resolves to one Dutch learning item, retaining the source language and original page context alongside the Dutch, English, and Telugu helpers.
 _Avoid_: Source-only saved word, multilingual learning mode, automatic language switching
