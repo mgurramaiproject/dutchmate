@@ -38,6 +38,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Repeated captures can fill missing context helpers without replacing an existing translation.
 - Existing records and legacy contexts migrate/read without data loss; unknown context provenance remains honest.
 - Legacy unknown contexts remain distinct from later known-provenance captures even when their normalized text matches.
+- Learning backup format v2 remains compatible: new context fields are optional, old v2 imports become unknown-provenance contexts, and no version bump is needed for this additive change.
 - Repeated captures merge correctly without duplicate Saved rows or duplicate contexts.
 - Telugu hover renders the source-aware popup; configured same-language targets fall back safely and never produce an empty/self-translation result.
 - `Seen before` works for all three source forms and remains truthful when encounter persistence fails.
