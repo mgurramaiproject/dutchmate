@@ -17,7 +17,7 @@ const manifest = {
   version: packageJson.version,
   description:
     "Learn Dutch while reading, with quick English and Telugu translations in context.",
-  permissions: ["storage"],
+  permissions: ["storage", "downloads"],
   icons: {
     16: "icons/icon-16.png",
     32: "icons/icon-32.png",

@@ -52,7 +52,7 @@ describe("createBackgroundMessageHandler", () => {
     const records = new LearningRecordStore(storage, () => 1_000);
     const handleMessage = createBackgroundMessageHandler({ savedVocabulary, reviewCards, learningRecords: records, refreshBadge: async () => undefined });
 
-    await expect(send(handleMessage, { type: LEARNING_CREATE_OR_MERGE_MESSAGE, payload: { dutch: "goede morgen", kind: "chunk", english: "good morning", source: "webpage", context: "Goede morgen, buur." } })).resolves.toMatchObject({ ok: true, result: { item: { id: "nl\u001fgoede morgen", kind: "chunk", contexts: [{ text: "Goede morgen, buur." }] } } });
+    await expect(send(handleMessage, { type: LEARNING_CREATE_OR_MERGE_MESSAGE, payload: { dutch: "goede morgen", kind: "chunk", english: "good morning", source: "webpage", context: "Goede morgen, buur.", contextTranslations: { english: "Good morning, neighbour.", telugu: "శుభోదయం, పొరుగువారూ." } } })).resolves.toMatchObject({ ok: true, result: { item: { id: "nl\u001fgoede morgen", kind: "chunk", contexts: [{ text: "Goede morgen, buur.", english: "Good morning, neighbour.", telugu: "శుభోదయం, పొరుగువారూ." }] } } });
     await expect(records.list()).resolves.toHaveLength(1);
   });
 
