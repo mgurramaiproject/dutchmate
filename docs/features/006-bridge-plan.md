@@ -25,7 +25,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Legacy contexts with unknown provenance are never retroactively relabeled; a later identical context with known provenance remains a separate provenance-aware context.
 - Source-language resolution honors an explicit non-`auto` setting; in automatic mode it prefers Telugu script in the selected text, then supported nearest page metadata, then Dutch/English lexical evidence. A unique saved-form match may support `Seen before` but never overrides a confident source or invents one.
 - If source language remains unresolved, translation remains available but Save stays hidden; no guessed provenance or helper assignment is permitted.
-- Telugu hover never requests a Telugu self-translation: multi-target mode shows Dutch plus English, while one-target mode falls back to Dutch if Telugu would be the configured target. Save remains selection-only; hover remains translation/encounter-only.
+- No source language ever targets itself: multi-target mode excludes the source, while one-target mode falls back to Dutch for English/Telugu and English for Dutch when the configured target equals the source. Save remains selection-only; hover remains translation/encounter-only.
 - `Seen before` appears for a confident unique Dutch, English, or Telugu saved-item match even without page context and even if the later encounter write fails. Ambiguous helper-form matches show no cue; Dutch-only recall/reconstruction missions remain unchanged.
 - Encounter persistence stores only bounded original context plus provenance; helper context translations are requested only during explicit Save or a later deliberate capture.
 - Multi-target popup lookup renders successful targets independently and marks failed targets `Unavailable`; only an unavailable essential Dutch result blocks the result, and Save remains hidden without a safe Dutch form.
@@ -49,7 +49,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Legacy unknown contexts remain distinct from later known-provenance captures even when their normalized text matches.
 - Learning backup format v2 remains compatible: new context fields are optional, old v2 imports become unknown-provenance contexts, and no version bump is needed for this additive change.
 - Repeated captures merge correctly without duplicate Saved rows or duplicate contexts.
-- Telugu hover renders the source-aware popup; configured same-language targets fall back safely and never produce an empty/self-translation result.
+- Dutch, English, and Telugu hover render source-aware popups; configured same-language targets fall back safely and never produce an empty/self-translation result.
 - `Seen before` works for all three source forms and remains truthful when encounter persistence fails.
 - `Seen before` remains available when no safe sentence exists, while ambiguous helper-form matches remain silent.
 - Hover/encounter paths do not trigger hidden helper-translation requests or vocabulary enrichment.
