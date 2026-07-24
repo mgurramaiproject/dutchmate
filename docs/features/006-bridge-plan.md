@@ -45,6 +45,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - `Seen before` remains available when no safe sentence exists, while ambiguous helper-form matches remain silent.
 - Saved/review UI labels the original context language and distinguishes original text from helper renderings.
 - Context labels use `Original context · Dutch/English/Telugu`, `English translation`, and `Telugu translation`; legacy unknown provenance reads `Original context · Language not detected`, and missing helpers read `Unavailable`.
+- Saved presents up to three recent contexts per item, newest first, rather than collapsing a cross-language item to only its latest source.
 - Existing Dutch capture, hover, review, mission, backup, privacy, and no-account behavior remains intact.
 - Focused tests, typecheck, full suite, Chrome/Firefox builds, release verification, whitespace checks, and manual Chrome/Firefox checks pass.
 

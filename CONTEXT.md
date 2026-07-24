@@ -141,7 +141,7 @@ The learner-facing practice representation of one learning item, assembled from 
 _Avoid_: Saved translation, flashcard entry, word pair
 
 **Page context**:
-The short sentence or text snippet the learner encountered when saving a learning item, retained in the source language in which it appeared. It is optional supporting context for a review card and stays local with the learner's saved vocabulary.
+The short sentence or text snippet the learner encountered when saving a learning item, retained in the source language in which it appeared. Up to three recent contexts can support one Dutch learning item; each remains optional supporting context for a review card and stays local with the learner's saved vocabulary.
 _Avoid_: Generated example, translation history, webpage archive
 
 **Context translations**:
