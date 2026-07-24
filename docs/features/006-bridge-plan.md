@@ -25,6 +25,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Source-language resolution prefers Telugu script in the selected text, then supported nearest page metadata, then Dutch/English lexical evidence. A unique saved-form match may support `Seen before` but never overrides a confident source or invents one.
 - Telugu hover never requests a Telugu self-translation: multi-target mode shows Dutch plus English, while one-target mode falls back to Dutch if Telugu would be the configured target. Save remains selection-only; hover remains translation/encounter-only.
 - `Seen before` appears for a confident unique Dutch, English, or Telugu saved-item match even without page context and even if the later encounter write fails. Ambiguous helper-form matches show no cue; Dutch-only recall/reconstruction missions remain unchanged.
+- Encounter persistence stores only bounded original context plus provenance; helper context translations are requested only during explicit Save or a later deliberate capture.
 - Context retention remains local-only: normalized source text, at most 240 characters per context, at most three recent contexts per item, and no URLs or page metadata.
 - A missing safe sentence never blocks the word save.
 
@@ -43,6 +44,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Telugu hover renders the source-aware popup; configured same-language targets fall back safely and never produce an empty/self-translation result.
 - `Seen before` works for all three source forms and remains truthful when encounter persistence fails.
 - `Seen before` remains available when no safe sentence exists, while ambiguous helper-form matches remain silent.
+- Hover/encounter paths do not trigger hidden helper-translation requests or vocabulary enrichment.
 - Saved/review UI labels the original context language and distinguishes original text from helper renderings.
 - Context labels use `Original context · Dutch/English/Telugu`, `English translation`, and `Telugu translation`; legacy unknown provenance reads `Original context · Language not detected`, and missing helpers read `Unavailable`.
 - Saved presents up to three recent contexts per item, newest first, rather than collapsing a cross-language item to only its latest source.

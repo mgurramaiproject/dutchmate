@@ -113,7 +113,7 @@ The language identity of the webpage text that the learner deliberately selected
 _Avoid_: Translation direction, detected language as mastery scope, browsing telemetry
 
 **Cross-language encounter**:
-A deliberate or hover interaction with a saved learning item through its Dutch, English, or Telugu form on a webpage. It can show the learner that the item was seen before and retain source context, while only Dutch encounters qualify for the current contextual recall and reconstruction missions.
+A deliberate or hover interaction with a saved learning item through its Dutch, English, or Telugu form on a webpage. It can show the learner that the item was seen before and retain bounded original context plus provenance, while helper context translations remain a deliberate-save concern and only Dutch encounters qualify for the current contextual recall and reconstruction missions.
 _Avoid_: Reverse-language mastery, passive page scan, multilingual practice mode
 
 **Source-language resolution**:
