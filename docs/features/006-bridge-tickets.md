@@ -43,15 +43,17 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 
 **Blocked by:** [#73 — T01](https://github.com/mgurramaiproject/dutchmate/issues/73).
 
-- [ ] Automatic and explicit source-language behavior matches the approved resolution contract.
-- [ ] No hover target equals the source language; one-target fallbacks use Dutch for English/Telugu and English for Dutch.
-- [ ] Telugu hover renders useful Dutch and English results in multi-target mode.
-- [ ] Successful popup targets remain visible when optional targets fail; failed targets read Unavailable.
-- [ ] Dutch, English, and Telugu forms can produce Seen before when exactly one Saved item matches.
-- [ ] Seen before does not require page context and remains truthful when encounter persistence fails.
-- [ ] Ambiguous helper-form matches do not show Seen before.
-- [ ] Encounter persistence stores only bounded original context plus provenance and does not request helper translations.
-- [ ] Focused hover, target fallback, cross-language matching, ambiguity, partial-result, and encounter-failure tests pass.
+- [x] Automatic and explicit source-language behavior matches the approved resolution contract.
+- [x] No hover target equals the source language; one-target fallbacks use Dutch for English/Telugu and English for Dutch.
+- [x] Telugu hover renders useful Dutch and English results in multi-target mode.
+- [x] Successful popup targets remain visible when optional targets fail; failed targets read Unavailable.
+- [x] Dutch, English, and Telugu forms can produce Seen before when exactly one Saved item matches.
+- [x] Seen before does not require page context and remains truthful when encounter persistence fails.
+- [x] Ambiguous helper-form matches do not show Seen before.
+- [x] Encounter persistence stores only bounded original context plus provenance and does not request helper translations.
+- [x] Focused hover, target fallback, cross-language matching, ambiguity, partial-result, and encounter-failure tests pass.
+
+**Current T03 state:** Complete locally on `feature-006-bridge`. Evidence: focused hover/Seen-before/encounter tests (47 tests), full suite (92 files / 557 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. GitHub issue #75 and its Delivery item will remain open and In Progress while the remaining 006-bridge tickets are implemented; no PR has been created.
 
 ## [#76 — 006-bridge T04: Present provenance-aware contexts in popup and Saved](https://github.com/mgurramaiproject/dutchmate/issues/76)
 

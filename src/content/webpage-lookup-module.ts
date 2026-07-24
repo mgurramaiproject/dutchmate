@@ -197,7 +197,7 @@ export type TranslationTransport = {
   listLearningItemIds(): Promise<Set<string> | undefined>;
   saveLearningItem(input: CreateOrMergeLearningItemInput): Promise<{ ok: boolean; error?: string }>;
   listLearningItems?(): Promise<{ ok: boolean; result?: { items: LearningItem[] } }>;
-  recordLearningEncounter?(input: { id: string; context: string }): Promise<{ ok: boolean }>;
+  recordLearningEncounter?(input: { id: string; context: string; sourceLanguage?: MvpLanguageCode }): Promise<{ ok: boolean }>;
   recordMissionResult?(input: { itemId: string; dimension: DailyFiveDimension; result: "again" | "got-it"; expectedAttemptCount: number }): Promise<{ ok: boolean; error?: string }>;
 };
 
@@ -405,7 +405,7 @@ export class WebpageLookupModule {
     });
 
     if (completedLookup.response.ok) {
-      void this.#recordEncounter(requestId, input.text, input.pageContext).then((seenBefore) => {
+      void this.#recordEncounter(requestId, input.text, input.pageContext, completedLookup.sourceLanguage).then((seenBefore) => {
         if (seenBefore && this.#session.isCurrent(requestId)) this.#emit({ type: "show-seen-before" });
       });
     }
@@ -476,12 +476,23 @@ export class WebpageLookupModule {
     this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
   }
 
-  async #recordEncounter(requestId: number, text: string, context: string | null | undefined): Promise<boolean> {
-    if (!context || !this.#deps.transport.listLearningItems || !this.#deps.transport.recordLearningEncounter) return false;
+  async #recordEncounter(requestId: number, text: string, context: string | null | undefined, sourceLanguage: SourceLanguageCode): Promise<boolean> {
+    if (!this.#deps.transport.listLearningItems || sourceLanguage === "auto") return false;
     try {
       const response = await this.#deps.transport.listLearningItems();
-      const item = response.ok ? response.result?.items.find((candidate) => candidate.normalizedDutch === normalizeSavedVocabularyText(text)) : undefined;
-      return item && this.#session.isCurrent(requestId) ? (await this.#deps.transport.recordLearningEncounter({ id: item.id, context })).ok : false;
+      const normalizedText = normalizeSavedVocabularyText(text);
+      const matches = response.ok
+        ? response.result?.items.filter((candidate) => getSavedForm(candidate, sourceLanguage) === normalizedText) ?? []
+        : [];
+      if (matches.length !== 1 || !this.#session.isCurrent(requestId)) return false;
+      if (context && this.#deps.transport.recordLearningEncounter) {
+        try {
+          await this.#deps.transport.recordLearningEncounter({ id: matches[0].id, context, sourceLanguage });
+        } catch {
+          // Seen-before remains truthful when the best-effort encounter write fails.
+        }
+      }
+      return true;
     } catch {
       return false;
     }
@@ -749,7 +760,7 @@ export class WebpageLookupModule {
   ): Promise<TranslationOutcome> {
     const settings = this.#deps.getSettings();
     const sourceLanguage = this.#getActiveSourceLanguage(settings, languageSample, sourceLanguageHint);
-    const targetLanguages = this.#getActiveTargetLanguages(settings, sourceLanguage, context);
+    const targetLanguages = this.#getActiveTargetLanguages(settings, sourceLanguage);
 
     if (targetLanguages.length <= 1) {
       const response = await this.#deps.transport.translate({
@@ -773,11 +784,10 @@ export class WebpageLookupModule {
         }),
       })),
     );
-    const failedResponse = responses.find(({ response }) => !response.ok);
-
-    if (failedResponse?.response.ok === false) {
+    if (responses.every(({ response }) => !response.ok)) {
+      const failedResponse = responses[0].response;
       return {
-        response: failedResponse.response, sourceLanguage, responses,
+        response: failedResponse, sourceLanguage, responses,
       };
     }
 
@@ -788,7 +798,7 @@ export class WebpageLookupModule {
           translatedText: responses
             .map(({ targetLanguage, response }) => {
               const label = this.#getLanguageLabel(targetLanguage);
-              return `${label}: ${response.ok ? response.result.translatedText : ""}`;
+              return `${label}: ${response.ok ? response.result.translatedText : "Unavailable"}`;
             })
             .join("\n"),
           providerName: "multi-target",
@@ -863,10 +873,10 @@ export class WebpageLookupModule {
   #getActiveTargetLanguages(
     settings: ExtensionSettings,
     sourceLanguage: SourceLanguageCode,
-    context: "hover" | "selection",
   ): MvpLanguageCode[] {
     if (!settings.translateToOtherMvpLanguages) {
-      if (context === "selection" && (sourceLanguage === "en" || sourceLanguage === "te")) return ["nl"];
+      if (sourceLanguage === "nl") return ["en"];
+      if (sourceLanguage === "en" || sourceLanguage === "te") return ["nl"];
       return [settings.targetLanguage];
     }
 
@@ -875,9 +885,10 @@ export class WebpageLookupModule {
         ? [settings.bridgeLanguage, settings.nativeLanguage, settings.learningLanguage]
         : [settings.learningLanguage, settings.bridgeLanguage, settings.nativeLanguage];
 
-    return Array.from(new Set(orderedLanguages)).filter(
+    const targets = Array.from(new Set(orderedLanguages)).filter(
       (languageCode): languageCode is MvpLanguageCode => languageCode !== sourceLanguage,
     );
+    return targets.length > 0 ? targets : [sourceLanguage === "nl" ? "en" : "nl"];
   }
 
   #getActiveSourceLanguage(
@@ -947,6 +958,12 @@ export class WebpageLookupModule {
       listener(event);
     }
   }
+}
+
+function getSavedForm(item: LearningItem, sourceLanguage: Exclude<SourceLanguageCode, "auto">): string | null {
+  if (sourceLanguage === "nl") return item.normalizedDutch;
+  const form = sourceLanguage === "en" ? item.english : item.telugu;
+  return form ? normalizeSavedVocabularyText(form) : null;
 }
 
 function getChunkHelpers(translatedText: string): Pick<CreateOrMergeLearningItemInput, "english" | "telugu"> {
