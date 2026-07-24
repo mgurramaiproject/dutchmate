@@ -24,16 +24,18 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 
 **Blocked by:** [#73 — T01](https://github.com/mgurramaiproject/dutchmate/issues/73).
 
-- [ ] Explicit source settings and automatic source resolution follow the approved precedence.
-- [ ] Automatic source detection remains active when target count is one.
-- [ ] Deliberate English/Telugu selections always obtain Dutch as the required canonical target.
-- [ ] Unsafe, ambiguous, multi-word, or unresolved-source results remain translatable but do not expose Save.
-- [ ] Cross-language Save requires the popup Save action and does not use Dutch selection auto-save.
-- [ ] Exact selected-occurrence context is retained when safe; uncertain context never blocks the word save.
-- [ ] English/Telugu contexts survive without containing Dutch, preserve provenance, and request only missing helper translations.
-- [ ] Partial helper failure preserves the word and successful fields; later captures fill only missing fields.
-- [ ] Repeated captures merge into one Dutch item without duplicate contexts.
-- [ ] Focused selection, source-resolution, target-request, Save, partial-failure, and merge tests pass.
+- [x] Explicit source settings and automatic source resolution follow the approved precedence.
+- [x] Automatic source detection remains active when target count is one.
+- [x] Deliberate English/Telugu selections always obtain Dutch as the required canonical target.
+- [x] Unsafe, ambiguous, multi-word, or unresolved-source results remain translatable but do not expose Save.
+- [x] Cross-language Save requires the popup Save action and does not use Dutch selection auto-save.
+- [x] Exact selected-occurrence context is retained when safe; uncertain context never blocks the word save.
+- [x] English/Telugu contexts survive without containing Dutch, preserve provenance, and request only missing helper translations.
+- [x] Partial helper failure preserves the word and successful fields; later captures fill only missing fields.
+- [x] Repeated captures merge into one Dutch item without duplicate contexts.
+- [x] Focused selection, source-resolution, target-request, Save, partial-failure, and merge tests pass.
+
+**Current T02 state:** Complete locally on `feature-006-bridge`. Evidence: focused selection/source/save/helper tests (50 tests), full suite (92 files / 547 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. GitHub issue #74 and its Delivery item are reconciled as open and In Progress pending the remaining 006-bridge tickets; no PR has been created.
 
 ## [#75 — 006-bridge T03: Recognize Dutch, English, and Telugu forms during hover](https://github.com/mgurramaiproject/dutchmate/issues/75)
 

@@ -185,7 +185,7 @@ export function normalizeSavedVocabularyText(text: string): string {
 }
 
 export function isSingleSavedVocabularyWord(text: string): boolean {
-  return /^[\p{Letter}\p{Number}'-]+$/u.test(text);
+  return /^[\p{Letter}\p{Mark}\p{Number}'-]+$/u.test(text);
 }
 
 function parseSavedVocabularyData(value: unknown): SavedVocabularyData {
