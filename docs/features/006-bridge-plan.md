@@ -4,7 +4,7 @@
 
 **Branch:** `feature-006-bridge`
 
-**Status:** Specification drafted and published as GitHub issue [#72](https://github.com/mgurramaiproject/dutchmate/issues/72); awaiting spec review; implementation not started.
+**Status:** Tickets [#73–#77](./006-bridge-tickets.md) are published from approved issue [#72](https://github.com/mgurramaiproject/dutchmate/issues/72); awaiting ticket review; implementation not started.
 
 ## Outcome
 
@@ -86,4 +86,4 @@ All feature artifacts created from this work use the shared `006-bridge` prefix,
 
 ## Next step
 
-Review and approve GitHub issue [#72](https://github.com/mgurramaiproject/dutchmate/issues/72) and [006-bridge-spec.md](./006-bridge-spec.md). After approval, create implementation tickets with `to-tickets`; do not implement until those tickets are reviewed and approved. Keep the branch scoped to this feature and commit every intentional repository change.
+Review and approve [006-bridge-tickets.md](./006-bridge-tickets.md) and issues [#73–#77](https://github.com/mgurramaiproject/dutchmate/issues/73). After approval, implement the frontier ticket T01 with `implement`; do not start blocked tickets early. Keep the branch scoped to this feature and commit every intentional repository change.
