@@ -16,7 +16,7 @@ The current popup needs a clearer way to revisit Saved vocabulary, practise the 
 
 Deliver one cohesive refinement of the local learning loop:
 
-- enrich review answers with Dutch, English and Telugu meanings, simple Telugu phonetics, and the saved Dutch context with its English and Telugu translations;
+- enrich review answers with Dutch, English and Telugu meanings, simple Telugu phonetics, and the saved Dutch context with its English and Telugu translations captured by an explicit save-time translation request;
 - generate simple Telugu phonetics locally from Telugu helper text, without a Telugu-learning mode or translation-provider call;
 - preserve the local learning record on extension upgrade and re-enable, with visible Saved-tab Export and Import as the recovery path after a true uninstall;
 - add `Quiz Saved`, a shuffled all-items focused practice pass that records mastery and activity evidence without completing or replacing Daily Five;
@@ -61,9 +61,9 @@ Deliver one cohesive refinement of the local learning loop:
 
 - `005-refinement` extends the canonical local learning record rather than adding a parallel vocabulary, quiz, history, or backup store.
 - The typed background learning contract remains the primary persistence boundary. Popup, capture, and Options actions use that contract instead of writing extension storage directly.
-- Review presentation uses a compact answer hierarchy: Dutch anchor; English and Telugu meanings; Telugu simple phonetics; saved Dutch context; then its English and Telugu translations. Missing source data is displayed as unavailable and never generated or backfilled by a provider.
+- Review presentation uses a compact answer hierarchy: Dutch anchor; English and Telugu meanings; Telugu simple phonetics; saved Dutch context; then its English and Telugu translations. New webpage saves explicitly request and retain context translations; older source data is displayed as unavailable and never fabricated or backfilled.
 - Simple Telugu phonetics are deterministic, local transliteration of Telugu helper text using plain English letters and syllable breaks. This is an accessibility helper, not IAST, IPA, speech feedback, or a Telugu-learning mode.
-- Webpage capture passes context through the shared create-or-merge path. Canonical merges preserve existing contexts and add a valid new context subject to the existing cap.
+- Webpage capture passes context and explicit save-time English/Telugu context translations through the shared create-or-merge path. Canonical merges preserve existing contexts and add a valid new context subject to the existing cap.
 - The local learning record remains authoritative for saved items, mastery, lesson progress, Daily Five state, and the activity ledger. Normal upgrades and re-enables must not clear or replace it. Browser uninstall semantics are outside extension control, so explicit Export and Import are the recovery contract.
 - Saved exposes Import and Export as compact secondary controls. Import validates the existing versioned backup formats and uses the established merge behavior; it never replaces the record wholesale.
 - Saved becomes the visible label for the learner-controlled collection. `Lesson library` remains the term for bundled curated lessons.
@@ -89,7 +89,7 @@ Deliver one cohesive refinement of the local learning loop:
 
 - A Dutch-to-Telugu learning mode, language switcher, Telugu curriculum, audio, speech recognition, pronunciation scoring, text-to-speech, or IPA/academic transliteration.
 - Cloud sync, accounts, browser-sync conflict resolution, hidden backups, or recovery after uninstall without a learner-provided export.
-- AI-generated context, translation backfill, example sentences, or extra translation-provider calls for review answers or phonetics.
+- AI-generated context, translation backfill for older items, example sentences, or extra translation-provider calls for phonetics. The explicit save-time context translation request is in scope.
 - Typed answers, spelling tests, quiz scores, points, streaks, achievements, leaderboards, or a second scheduling system.
 - Arbitrary sentence learning items, full browsing history, raw URLs, or background learning telemetry.
 - A lesson search system, global lesson-stage filtering, new lesson content, or changes to the curated starter-library curriculum.
