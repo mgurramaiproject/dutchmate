@@ -107,7 +107,9 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
 
     for (const [index, result] of ["Got it", "Again", "Got it"].entries()) {
+      if (index === 0) expect(content().textContent).toContain("Telugu phonetic guide appears after reveal when helper text is available.");
       button("Show answer").click();
+      if (index === 0) expect(content().querySelector(".telugu-phonetics")?.textContent).toContain("Say it:");
       await vi.waitFor(() => expect(button(result)).toBeTruthy());
       button(result).click();
       await vi.waitFor(() => expect(index === 2 ? button("Choose what to keep") : button("Show answer")).toBeTruthy());
@@ -215,6 +217,7 @@ describe("lesson popup", () => {
 
     button("Start Daily Five").click();
     await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    expect(content().textContent).toContain("Telugu phonetic guide appears after reveal when helper text is available.");
     button("Show answer").click();
     await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
     button("Got it").click();
@@ -257,6 +260,7 @@ describe("lesson popup", () => {
     expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.getAttribute("aria-selected")).toBe("false");
     button("Saved").click();
     await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
+    expect(content().textContent).toContain("Select a word on a website to save it here.");
     expect([...content().querySelectorAll<HTMLElement>(".saved-row")].map((row) => row.textContent)).toEqual([
       expect.stringContaining("2zebra"),
       expect.stringContaining("1huis"),
@@ -490,6 +494,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Learn a lesson")).toBeTruthy());
     button("Saved").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Nothing saved yet."));
+    expect(content().textContent).toContain("Select a word on a website to save it here.");
     expect(button("Quiz Saved")).toBeFalsy();
     button("Today").click();
     expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Learn a lesson", "Review Saved items"]);

@@ -31,7 +31,7 @@ describe("popup layout", () => {
     expect(styles).toContain(".secondary-actions { display: grid; width: 100%; grid-template-columns: 1fr; gap: 8px; }");
     expect(styles).toContain(".secondary-actions .button { min-height: 48px; font-size: .875rem; }");
     expect(styles).toContain(".button { min-height: 48px; padding: 8px 10px; border: 1px solid var(--black); border-radius: 8px; background: var(--white); color: var(--black); font-size: .875rem;");
-    expect(styles).toContain(".lesson-filters { display: grid; gap: 7px;");
+    expect(styles).toContain(".lesson-filters { display: grid; gap: 5px;");
     expect(styles).toContain(".lesson-filter { min-height: 44px;");
     expect(styles).toContain(".tabs.is-locked");
     expect(styles).toContain(".tab:not(.is-active):not(:disabled):hover");

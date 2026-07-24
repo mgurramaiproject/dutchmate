@@ -94,7 +94,7 @@ The automated gate passed against implementation commit `ba80866`: 92 test files
 
 ## Firefox feedback follow-up status (2026-07-24)
 
-The popup follow-up adds persistent Today routes for lesson learning and Saved review, replaces pathway chips with readiness plus CEFR-level filters, opens the native browser Save As chooser for Saved Export, highlights each saved Dutch term in its stored context, makes activity totals visually consistent while explaining incomplete legacy history, and shows the local-only/no-account boundary in primary views. Import continues to use the native JSON file chooser. The focused popup/session checks, full 92-file / 533-test suite, typecheck, Chrome and Firefox builds, release packaging, and whitespace verification pass. Interactive browser lifecycle evidence remains the only outstanding T06 gate.
+The popup follow-up adds persistent Today routes for lesson learning and Saved review, replaces pathway chips with readiness plus CEFR-level filters, opens the native browser Save As chooser for Saved Export, highlights each saved Dutch term in its stored context, makes activity totals visually consistent while explaining incomplete legacy history, shows the local-only/no-account boundary in primary views, and makes Telugu phonetics discoverable during answer reveal. Saved now explains how to add another item, and Lesson filters use compact controls. Import continues to use the native JSON file chooser. The focused popup/session checks, full 92-file / 533-test suite, typecheck, Chrome and Firefox builds, release packaging, and whitespace verification pass. Interactive browser lifecycle evidence remains the only outstanding T06 gate.
 
 ## Out of Scope
 
