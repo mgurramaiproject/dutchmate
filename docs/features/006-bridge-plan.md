@@ -23,7 +23,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Repeated captures merge into one Dutch item. Contexts deduplicate by normalized text plus source language and fill missing translations/provenance.
 - Source-language resolution prefers Telugu script in the selected text, then supported nearest page metadata, then Dutch/English lexical evidence. A unique saved-form match may support `Seen before` but never overrides a confident source or invents one.
 - Telugu hover shows Dutch and English results, never a Telugu self-translation. Save remains selection-only; hover remains translation/encounter-only.
-- `Seen before` appears for confident Dutch, English, or Telugu saved-item matches even if the later encounter write fails. Dutch-only recall/reconstruction missions remain unchanged.
+- `Seen before` appears for a confident unique Dutch, English, or Telugu saved-item match even without page context and even if the later encounter write fails. Ambiguous helper-form matches show no cue; Dutch-only recall/reconstruction missions remain unchanged.
 - Context retention remains local-only: normalized source text, at most 240 characters per context, at most three recent contexts per item, and no URLs or page metadata.
 - A missing safe sentence never blocks the word save.
 
@@ -39,6 +39,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Repeated captures merge correctly without duplicate Saved rows or duplicate contexts.
 - Telugu hover renders the source-aware popup; configured same-language targets never produce an empty/self-translation result.
 - `Seen before` works for all three source forms and remains truthful when encounter persistence fails.
+- `Seen before` remains available when no safe sentence exists, while ambiguous helper-form matches remain silent.
 - Saved/review UI labels the original context language and distinguishes original text from helper renderings.
 - Existing Dutch capture, hover, review, mission, backup, privacy, and no-account behavior remains intact.
 - Focused tests, typecheck, full suite, Chrome/Firefox builds, release verification, whitespace checks, and manual Chrome/Firefox checks pass.

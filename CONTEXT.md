@@ -157,7 +157,7 @@ The canonical merge rule for repeated captures of one learning item: one Dutch i
 _Avoid_: Duplicate vocabulary row, source-specific mastery, overwrite history
 
 **Seen-before cue**:
-The learner-facing signal that a confident local match found an existing saved item in the current webpage text. It is truthful even if recording the new encounter context later fails, and it uses the same wording across Dutch, English, and Telugu surfaces.
+The learner-facing signal that a confident unique local match found an existing saved item in the current webpage text. It does not require a sentence, remains truthful if encounter persistence later fails, and uses the same wording across Dutch, English, and Telugu surfaces; ambiguous helper matches stay silent.
 _Avoid_: Mastery proof, passive page scan, translation confidence
 
 **Cross-language capture scope**:
