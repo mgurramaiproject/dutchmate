@@ -1,0 +1,3 @@
+# Cross-language capture keeps the Dutch learning key
+
+English and Telugu webpage selections use the same canonical Dutch learning item as Dutch selections, retaining source-language provenance, the original page context, and available helper translations. Cross-language capture is limited to single words; contexts preserve their source language, fixed English/Telugu renderings copy through when applicable, and missing translations are best effort. Saved-item encounters can show “Seen before” for Dutch, English, or Telugu forms, but contextual recall and reconstruction remain Dutch-only. This preserves one Dutch mastery model, fixes the missing Telugu save path, and avoids quietly turning DutchMate into a multilingual learning mode.
