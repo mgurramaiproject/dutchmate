@@ -10,7 +10,7 @@ import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
 import { lessonCatalog, type Lesson } from "../lessons/catalog";
-import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonFilterStatus, type LessonSession } from "./lesson-session";
+import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSavedQuiz, type SavedQuizSession } from "./saved-quiz";
 import "./styles.css";
@@ -46,7 +46,7 @@ let savedQuizSession: SavedQuizSession | null = null;
 let savedQuizError: string | null = null;
 let savedQuizRetry: "again" | "got-it" | null = null;
 let lessonStatusFilter: LessonFilterStatus = "all";
-let lessonPathwayFilter = "all";
+let lessonLevelFilter: LessonFilterLevel = "all";
 let focusedOrigin: "today" | "lessons" | "saved" | null = null;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
@@ -224,10 +224,11 @@ async function exportSavedBackup(): Promise<void> {
     const backup = await learningClient.exportBackup();
     const blob = new Blob([serializeLearningBackup(backup)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `dutchmate-learning-${new Date().toISOString().slice(0, 10)}.json`;
-    link.click();
+    await browser.downloads.download({
+      url,
+      filename: `dutchmate-learning-${new Date().toISOString().slice(0, 10)}.json`,
+      saveAs: true,
+    });
     window.setTimeout(() => URL.revokeObjectURL(url), 0);
     savedFeedback = { tone: "success", message: `Exported ${backup.learningItems.length} saved item${backup.learningItems.length === 1 ? "" : "s"}.` };
   } catch (error) {
@@ -267,7 +268,6 @@ function renderToday(): HTMLElement {
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
-  const hasNoVocabulary = total === 0 && items.length === 0;
   const nextAction = section("next-action");
   const actionCopy = completed ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy") : text(total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now.");
   nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
@@ -293,24 +293,14 @@ function renderToday(): HTMLElement {
   if (rhythm) wrapper.append(renderRhythm(rhythm));
   const secondaryActions = document.createElement("div");
   secondaryActions.className = "secondary-actions";
-  if (inProgress) {
-    const continueLesson = button("Continue lesson", "button secondary-button");
-    continueLesson.addEventListener("click", () => void startLesson(inProgress));
-    secondaryActions.append(continueLesson);
-  }
-  if (hasNoVocabulary && !inProgress) {
-    const startLesson = button("Start a lesson", "button secondary-button");
-    startLesson.addEventListener("click", () => { screen = "lessons"; render(); });
-    const review = button("Review", "button secondary-button");
-    const reviewHint = text("Save vocabulary before you can review.", "empty-review-hint");
-    reviewHint.id = "empty-review-hint";
-    reviewHint.hidden = true;
-    reviewHint.setAttribute("role", "status");
-    review.setAttribute("aria-controls", reviewHint.id);
-    review.setAttribute("aria-expanded", "false");
-    review.addEventListener("click", () => { reviewHint.hidden = false; review.setAttribute("aria-expanded", "true"); });
-    secondaryActions.append(startLesson, review, reviewHint);
-  }
+  const lessonEntry = button(inProgress ? "Continue lesson" : "Learn a lesson", "button secondary-button");
+  lessonEntry.addEventListener("click", () => {
+    if (inProgress) void startLesson(inProgress);
+    else { screen = "lessons"; render(); }
+  });
+  const savedEntry = button("Review Saved items", "button secondary-button");
+  savedEntry.addEventListener("click", () => { screen = "saved"; render(); });
+  secondaryActions.append(lessonEntry, savedEntry);
   if (completed) {
     const reviewMore = button("Review more", "button secondary-button");
     reviewMore.addEventListener("click", () => void startContinuation());
@@ -436,7 +426,7 @@ function renderLessons(): HTMLElement {
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
   let lessonNumber = 0;
   const library = section("lesson-library");
-  const visibleLessons = filterLessons(lessonCatalog.lessons, lessonProgressById, lessonStatusFilter, lessonPathwayFilter);
+  const visibleLessons = filterLessons(lessonCatalog.lessons, lessonProgressById, lessonStatusFilter, lessonLevelFilter);
   for (const lessonDefinition of visibleLessons) {
     lessonNumber += 1;
     const lesson = button("", "lesson-card lesson-row");
@@ -467,28 +457,26 @@ function renderLessonFilters(): HTMLElement {
   const statusGroup = document.createElement("div");
   statusGroup.className = "lesson-filter-group";
   statusGroup.setAttribute("aria-label", "Lesson readiness");
-  for (const [value, label] of [["all", "All"], ["ready", "Ready"], ["continue", "Continue"]] as const) {
+  for (const [value, label] of [["all", "All"], ["ready", "Ready"], ["continue", "Continue"], ["completed", "Completed"]] as const) {
     const control = button(label, `lesson-filter${lessonStatusFilter === value ? " is-active" : ""}`);
     control.setAttribute("aria-pressed", String(lessonStatusFilter === value));
     control.addEventListener("click", () => { lessonStatusFilter = value; render(); });
     statusGroup.append(control);
   }
   filters.append(statusGroup);
-  const pathwayGroup = document.createElement("div");
-  pathwayGroup.className = "lesson-filter-group pathway-filters";
-  pathwayGroup.setAttribute("aria-label", "Practical life pathway");
-  const pathways = ["all", ...new Set(lessonCatalog.lessons.map((lesson) => lesson.pathway))];
-  for (const pathway of pathways) {
-    const control = button(pathwayLabel(pathway), `lesson-filter${lessonPathwayFilter === pathway ? " is-active" : ""}`);
-    control.setAttribute("aria-pressed", String(lessonPathwayFilter === pathway));
-    control.addEventListener("click", () => { lessonPathwayFilter = pathway; render(); });
-    pathwayGroup.append(control);
+  const levelGroup = document.createElement("div");
+  levelGroup.className = "lesson-filter-group level-filters";
+  levelGroup.setAttribute("aria-label", "Lesson level");
+  const levels: LessonFilterLevel[] = ["all", ...new Set(lessonCatalog.lessons.map((lesson) => lesson.cefr))];
+  for (const level of levels) {
+    const control = button(level === "all" ? "All levels" : level, `lesson-filter${lessonLevelFilter === level ? " is-active" : ""}`);
+    control.setAttribute("aria-pressed", String(lessonLevelFilter === level));
+    control.addEventListener("click", () => { lessonLevelFilter = level; render(); });
+    levelGroup.append(control);
   }
-  filters.append(pathwayGroup);
+  filters.append(levelGroup);
   return filters;
 }
-
-function pathwayLabel(pathway: string): string { return pathway === "all" ? "All pathways" : pathway.replaceAll("-", " ").replace(/(^|\s)\S/g, (letter) => letter.toUpperCase()); }
 function lessonStageLabel(stage: LessonProgress["stage"]): string { return stage.charAt(0).toUpperCase() + stage.slice(1); }
 
 function createMonthWeekdays(): HTMLElement {

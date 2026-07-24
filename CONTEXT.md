@@ -37,7 +37,7 @@ The reviewed collection of curated mini-lessons bundled and versioned with Dutch
 _Avoid_: Lesson marketplace, remote content feed, generated catalog
 
 **Lesson filter**:
-A compact, functional control that narrows the lesson library by learner status or practical life pathway. An in-progress row carries its own current stage rather than making a lesson stage a global filter.
+A compact, functional control that narrows the lesson library by learner status or CEFR level. An in-progress row carries its own current stage rather than making a lesson stage a global filter.
 _Avoid_: Decorative chip, stage filter, lesson category badge
 
 **Starter lesson library**:

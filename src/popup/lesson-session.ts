@@ -4,7 +4,8 @@ import { getLearningItemId, type LearningItem, type LessonProgress, type LessonP
 export type LessonStage = "read" | "notice" | "practise" | "replay" | "keep";
 export type LessonPracticeEvidence = { candidateId: string; dimension: "recognition" | "recall"; result: "again" | "got-it" };
 export type LessonSession = { lesson: Lesson; stage: LessonStage; revealedLineIndexes: number[]; selectedCandidateIds: string[]; practiceIndex: number; practiceRevealed: boolean; practiceEvidence: LessonPracticeEvidence[] };
-export type LessonFilterStatus = "all" | "ready" | "continue";
+export type LessonFilterStatus = "all" | "ready" | "continue" | "completed";
+export type LessonFilterLevel = Lesson["cefr"] | "all";
 export type LessonAvailability = LessonFilterStatus | "completed";
 const stages: LessonStage[] = ["read", "notice", "practise", "replay", "keep"];
 
@@ -13,7 +14,7 @@ export function resumeLessonSession(lesson: Lesson, progress: LessonProgress | n
 export function getLessonCandidateChoices(session: LessonSession, items: LearningItem[]): Array<{ id: string; dutch: string; checked: boolean; alreadySaved: boolean }> { return session.lesson.candidates.map((candidate) => ({ id: candidate.id, dutch: candidate.dutch, checked: session.selectedCandidateIds.includes(candidate.id), alreadySaved: items.some((item) => item.id === getLearningItemId(candidate.dutch)) })); }
 export function getLessonsAvailabilityView(error: string | null): { unavailable: boolean; message: string | null; retryLabel: string | null } { return error ? { unavailable: true, message: error, retryLabel: "Try lessons again" } : { unavailable: false, message: null, retryLabel: null }; }
 export function getLessonAvailability(progress: LessonProgress | null | undefined): LessonAvailability { return !progress ? "ready" : progress.completedAt === null ? "continue" : "completed"; }
-export function filterLessons(lessons: Lesson[], progressById: Record<string, LessonProgress | null>, status: LessonFilterStatus, pathway: string): Lesson[] { return lessons.filter((lesson) => (pathway === "all" || lesson.pathway === pathway) && (status === "all" || getLessonAvailability(progressById[lesson.id]) === status)); }
+export function filterLessons(lessons: Lesson[], progressById: Record<string, LessonProgress | null>, status: LessonFilterStatus, level: LessonFilterLevel): Lesson[] { return lessons.filter((lesson) => (level === "all" || lesson.cefr === level) && (status === "all" || getLessonAvailability(progressById[lesson.id]) === status)); }
 export function advanceLessonStage(session: LessonSession): LessonSession { const index = stages.indexOf(session.stage); return { ...session, stage: stages[Math.min(index + 1, stages.length - 1)], practiceRevealed: false }; }
 export function revealLessonLine(session: LessonSession, index: number): LessonSession { return session.revealedLineIndexes.includes(index) ? session : { ...session, revealedLineIndexes: [...session.revealedLineIndexes, index] }; }
 export function toggleLessonCandidate(session: LessonSession, id: string): LessonSession { return { ...session, selectedCandidateIds: session.selectedCandidateIds.includes(id) ? session.selectedCandidateIds.filter((candidateId) => candidateId !== id) : [...session.selectedCandidateIds, id] }; }

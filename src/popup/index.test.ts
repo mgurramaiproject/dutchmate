@@ -3,10 +3,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultSettings } from "../shared/settings";
 
-const { runtime, storageChangeListeners } = vi.hoisted(() => ({ runtime: { sendMessage: vi.fn(), openOptionsPage: vi.fn() }, storageChangeListeners: new Set<(changes: Record<string, unknown>, areaName: string) => void>() }));
+const { runtime, downloads, storageChangeListeners } = vi.hoisted(() => ({ runtime: { sendMessage: vi.fn(), openOptionsPage: vi.fn() }, downloads: { download: vi.fn(async () => 1) }, storageChangeListeners: new Set<(changes: Record<string, unknown>, areaName: string) => void>() }));
 
 vi.mock("webextension-polyfill", () => ({
-  default: { runtime, storage: { sync: { get: vi.fn() }, onChanged: { addListener: vi.fn((listener) => storageChangeListeners.add(listener)) } } },
+  default: { runtime, downloads, storage: { sync: { get: vi.fn() }, onChanged: { addListener: vi.fn((listener) => storageChangeListeners.add(listener)) } } },
 }));
 
 describe("lesson popup", () => {
@@ -348,6 +348,7 @@ describe("lesson popup", () => {
     button("Export").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Exported 2 saved items."));
     expect(URL.createObjectURL).toHaveBeenCalledOnce();
+    expect(downloads.download).toHaveBeenCalledWith(expect.objectContaining({ url: "blob:test", saveAs: true, filename: expect.stringMatching(/^dutchmate-learning-\d{4}-\d{2}-\d{2}\.json$/) }));
 
     const input = content().querySelector<HTMLInputElement>('input[type="file"]')!;
     const backupDocument = JSON.stringify({ format: "dutchmate-learning-backup", version: 2, exportedAt: 1, learningItems: [], lessonProgress: {}, rhythm: {} });
@@ -388,10 +389,10 @@ describe("lesson popup", () => {
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
   });
 
-  it("filters Lessons by readiness and practical pathway and labels resumable stages", async () => {
+  it("filters Lessons by readiness and CEFR level and labels resumable stages", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(12));
-    expect(content().querySelectorAll(".lesson-filter")).toHaveLength(11);
+    expect(content().querySelectorAll(".lesson-filter")).toHaveLength(8);
 
     lessonCard("A0 · Hallo, ik ben").click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
@@ -403,11 +404,11 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("first conversations · Continue · Read · 3 min left");
 
     button("All").click();
-    button("Transport").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(2));
-    expect([...content().querySelectorAll<HTMLElement>(".lesson-copy small")].every((meta) => meta.textContent?.startsWith("transport ·"))).toBe(true);
+    button("A0").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(1));
+    expect(content().textContent).toContain("Hallo, ik ben");
 
-    button("Continue").click();
+    button("Completed").click();
     await vi.waitFor(() => expect(content().textContent).toContain("No lessons match these filters."));
   });
 
@@ -460,7 +461,7 @@ describe("lesson popup", () => {
     const reviewFiveMore = content().querySelector<HTMLButtonElement>(".next-action .button")!;
     expect(reviewFiveMore.textContent).toBe("Review 5 more");
     expect(content().textContent).not.toContain("Recognition first");
-    expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Continue lesson", "Review more"]);
+    expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Continue lesson", "Review Saved items", "Review more"]);
     reviewFiveMore.click();
     await vi.waitFor(() => expect(runtime.sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.dailyFive", payload: { continueAfterCompletion: true } }));
   });
@@ -482,20 +483,13 @@ describe("lesson popup", () => {
       </main>`;
     await import("./index");
 
-    await vi.waitFor(() => expect(button("Start a lesson")).toBeTruthy());
+    await vi.waitFor(() => expect(button("Learn a lesson")).toBeTruthy());
     button("Saved").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Nothing saved yet."));
     expect(button("Quiz Saved")).toBeFalsy();
     button("Today").click();
-    expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Start a lesson", "Review"]);
-    const reviewHint = content().querySelector<HTMLElement>(".empty-review-hint");
-    expect(reviewHint?.hidden).toBe(true);
-    expect(reviewHint?.getAttribute("role")).toBe("status");
-    expect(button("Review").getAttribute("aria-controls")).toBe("empty-review-hint");
-
-    button("Review").click();
-    expect(content().querySelector<HTMLElement>(".empty-review-hint")?.hidden).toBe(false);
-    button("Start a lesson").click();
+    expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Learn a lesson", "Review Saved items"]);
+    button("Learn a lesson").click();
     await vi.waitFor(() => expect(content().textContent).toContain("12 small practical stories"));
   });
 

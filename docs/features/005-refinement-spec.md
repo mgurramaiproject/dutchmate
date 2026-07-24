@@ -20,7 +20,7 @@ Deliver one cohesive refinement of the local learning loop:
 - generate simple Telugu phonetics locally from Telugu helper text, without a Telugu-learning mode or translation-provider call;
 - preserve the local learning record on extension upgrade and re-enable, with visible Saved-tab Export and Import as the recovery path after a true uninstall;
 - add `Quiz Saved`, a shuffled all-items focused practice pass that records mastery and activity evidence without completing or replacing Daily Five;
-- add functional Lesson filters for status and practical life pathway, with an in-progress row showing its current lesson stage;
+- add functional Lesson filters for readiness status and CEFR level, with an in-progress row showing its current lesson stage;
 - make the activity ledger durable and correctly rendered after restart and import, counting completed reviews, new saved items, and completed lessons;
 - keep the originating popup tab visible and selected, but locked, during a focused lesson, Daily Five, or Saved Quiz;
 - save original page context at the shared webpage-capture boundary and preserve it through canonical merges and backup round-trips.
@@ -47,8 +47,8 @@ Deliver one cohesive refinement of the local learning loop:
 18. As a learner, I want focused practice to retain the originating active tab as an orientation marker, so that I know where I am in the popup.
 19. As a learner, I want that visible tab marker locked during focused work, so that I do not accidentally abandon a lesson or review through tab navigation.
 20. As a keyboard user, I want focused flows to retain a clear Exit action and logical focus order, so that locked tabs do not block navigation.
-21. As a learner, I want functional Lesson filter chips for `All`, `Ready`, and `Continue`, so that I can quickly find an appropriate lesson.
-22. As a learner, I want pathway filters such as Home and Transport, so that lessons map to the practical situation I need.
+21. As a learner, I want functional Lesson readiness chips for `All`, `Ready`, `Continue`, and `Completed`, so that I can quickly find an appropriate lesson state.
+22. As a learner, I want CEFR level filters such as A0, A1, and A2, so that I can choose a suitable difficulty.
 23. As a learner, I want an in-progress lesson row to state its stage, such as `Continue · Notice`, so that I can resume without global stage filters.
 24. As a learner, I want a durable heatmap of reviews, new saves, and completed lessons, so that I can see real learning activity after reopening the extension.
 25. As a learner, I want each heatmap day to explain its review, save, and lesson counts, so that a colored cell has a clear meaning.
@@ -69,7 +69,7 @@ Deliver one cohesive refinement of the local learning loop:
 - Saved becomes the visible label for the learner-controlled collection. `Lesson library` remains the term for bundled curated lessons.
 - Quiz Saved is a focused practice session over a shuffled snapshot of all saved learning items. It reuses the existing reveal and binary result interaction, submits canonical practice evidence, increments review activity, and never changes Daily Five completion state.
 - The practice-session model records its origin (`today` or `saved`) so focused rendering can keep the appropriate primary tab selected and locked. Exit remains explicit; no hidden resume queue is created for an unfinished quiz.
-- Lesson filters are functional state: one status filter (`All`, `Ready`, or `Continue`) and an optional practical-life-pathway filter. Current lesson stage remains row metadata, not a filter taxonomy.
+- Lesson filters are functional state: one readiness filter (`All`, `Ready`, `Continue`, or `Completed`) and an optional CEFR-level filter. Current lesson stage remains row metadata, not a filter taxonomy.
 - The activity ledger is updated only by completed review evidence, creation of a new learning item, and completion of a lesson. It persists in the canonical record, survives restart, and merges conservatively on import.
 - The popup preserves the DutchMate black, white, and orange system, 44px interactive targets, visible focus, and horizontal containment. Chips are controls, not decorative status clutter.
 - The feature keeps its scope Dutch learning with English and Telugu helper languages. It does not introduce a learning-language switch, Telugu course, cloud sync, or new translation-provider behavior.
@@ -77,7 +77,7 @@ Deliver one cohesive refinement of the local learning loop:
 ## Testing Decisions
 
 - The typed background learning contract is the primary integration seam. Tests verify record migration, non-destructive read/write paths, context capture and merge, import/export round-trips, activity-ledger merge and restart behavior, and Quiz Saved evidence without changing Daily Five completion.
-- Pure popup view and session tests cover compact answer states, missing context, phonetic visibility, source-tab selection and locking, Quiz Saved shuffling/exit behavior, and status/pathway Lesson filters.
+- Pure popup view and session tests cover compact answer states, missing context, phonetic visibility, source-tab selection and locking, Quiz Saved shuffling/exit behavior, and readiness/CEFR-level Lesson filters.
 - Existing capture-boundary tests cover context extraction and create-or-merge requests. Add regression cases for a valid original sentence reaching the canonical record and surviving a repeated save.
 - Existing learning-rhythm tests cover per-day review, save, and lesson counts. Extend them for Quiz Saved reviews, persisted reload, and import merges without historical loss.
 - Existing backup tests cover current and legacy backup versions, malformed files, contexts, lesson progress, and rhythm. Extend them to prove feature-added fields round-trip and Import remains additive.
@@ -88,6 +88,10 @@ Deliver one cohesive refinement of the local learning loop:
 ## T06 verification status (2026-07-24)
 
 The automated gate passed against implementation commit `ba80866`: 92 test files / 532 tests, typecheck, Chrome and Firefox builds, release packaging, and whitespace verification. The required interactive browser pass remains blocked in this environment: disposable Chrome 149 registered the unpacked service worker but its popup target returned `ERR_FILE_NOT_FOUND` with content-verifier errors, and Firefox 152 has no available automation driver. No browser result is claimed; a manual tester must load both generated builds and complete the lifecycle, accessibility, and popup-geometry checklist in `docs/release/manual-testing.md`.
+
+## Firefox feedback follow-up status (2026-07-24)
+
+The popup follow-up adds persistent Today routes for lesson learning and Saved review, replaces pathway chips with readiness plus CEFR-level filters, and opens the native browser Save As chooser for Saved Export. Import continues to use the native JSON file chooser. The focused popup/session checks, full 92-file / 533-test suite, typecheck, Chrome and Firefox builds, release packaging, and whitespace verification pass. Interactive browser lifecycle evidence remains the only outstanding T06 gate.
 
 ## Out of Scope
 

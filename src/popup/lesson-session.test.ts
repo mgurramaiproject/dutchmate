@@ -24,13 +24,14 @@ describe("lesson session", () => {
     expect(getLessonsAvailabilityView("Lessons are unavailable.")).toEqual({ unavailable: true, message: "Lessons are unavailable.", retryLabel: "Try lessons again" });
   });
 
-  it("filters lessons by readiness and pathway without treating completion as Continue", () => {
+  it("filters lessons by readiness and CEFR level without treating completion as Continue", () => {
     const progress = { [appointmentLesson.id]: { lessonId: appointmentLesson.id, contentVersion: 1, stage: "notice" as const, completedAt: null, keptCandidateIds: [], updatedAt: 1 } };
     expect(getLessonAvailability(progress[appointmentLesson.id])).toBe("continue");
     expect(getLessonAvailability({ ...progress[appointmentLesson.id], completedAt: 2 })).toBe("completed");
     expect(getLessonAvailability(null)).toBe("ready");
     expect(filterLessons(lessonCatalog.lessons, progress, "continue", "all")).toEqual([appointmentLesson]);
-    expect(filterLessons(lessonCatalog.lessons, progress, "ready", "transport").every((lesson) => lesson.pathway === "transport")).toBe(true);
+    expect(filterLessons(lessonCatalog.lessons, progress, "ready", "A0").every((lesson) => lesson.cefr === "A0")).toBe(true);
+    expect(filterLessons(lessonCatalog.lessons, { [appointmentLesson.id]: { ...progress[appointmentLesson.id], completedAt: 2 } }, "completed", "A1")).toEqual([appointmentLesson]);
   });
 
   it.each(lessonCatalog.lessons.filter((lesson) => lesson.order <= 4))("opens $title with helper text, candidates, and replay", (lesson) => {

@@ -38,11 +38,11 @@ Tracer-bullet delivery plan for [005-refinement-spec.md](./005-refinement-spec.m
 
 ## [#68](https://github.com/mgurramaiproject/dutchmate/issues/68) — T04 Filter Lessons and preserve focused orientation
 
-**What to build:** A learner can filter the compact Lesson library by readiness and practical life pathway, and stays oriented by a visible locked active tab while completing a Today or Lesson focused flow.
+**What to build:** A learner can filter the compact Lesson library by readiness and CEFR level, and stays oriented by a visible locked active tab while completing a Today or Lesson focused flow.
 
 **Blocked by:** None — can start immediately.
 
-- [x] Lesson filters provide All, Ready, Continue, and practical-life-pathway narrowing as functional controls.
+- [x] Lesson filters provide All, Ready, Continue, Completed, and CEFR-level narrowing as functional controls.
 - [x] An in-progress lesson row states its resumable stage, such as Continue · Notice.
 - [x] Focused Today and Lesson flows retain their selected tab as a non-interactive orientation marker and retain an explicit Exit action.
 - [x] Keyboard behavior, focus visibility, compact popup containment, and Lessons regressions pass.
