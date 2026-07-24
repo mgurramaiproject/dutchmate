@@ -12,6 +12,7 @@ import type { ReviewSettingsChanges } from "../background/messages";
 import { lessonCatalog, type Lesson } from "../lessons/catalog";
 import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
+import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSavedQuiz, type SavedQuizSession } from "./saved-quiz";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
@@ -27,7 +28,7 @@ let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "settings" = "today";
+let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "settings" = "today";
 let lessonSession: LessonSession | null = null;
 let lessonProgressById: Record<string, LessonProgress | null> = {};
 let lessonsError: string | null = null;
@@ -41,6 +42,9 @@ let savedError: string | null = null;
 let expandedSavedItemId: string | null = null;
 let savedActionBusy = false;
 let savedFeedback: { tone: "success" | "error"; message: string } | null = null;
+let savedQuizSession: SavedQuizSession | null = null;
+let savedQuizError: string | null = null;
+let savedQuizRetry: "again" | "got-it" | null = null;
 let lessonStatusFilter: LessonFilterStatus = "all";
 let lessonPathwayFilter = "all";
 let focusedOrigin: "today" | "lessons" | "saved" | null = null;
@@ -96,9 +100,9 @@ async function loadSaved(): Promise<void> {
 function render(): void {
   if (!content) return;
   if (screen !== "saved") expandedSavedItemId = null;
-  const focused = screen === "review" || screen === "lesson";
+  const focused = screen === "review" || screen === "lesson" || screen === "savedQuiz";
   const activeTab = focused
-    ? focusedOrigin ?? (screen === "lesson" ? "lessons" : "today")
+    ? focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" ? "saved" : "today")
     : screen === "lesson" || screen === "lessons" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.classList.toggle("is-locked", focused);
@@ -113,7 +117,7 @@ function render(): void {
   }
   content?.setAttribute("aria-labelledby", `${activeTab}-tab`);
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : renderSettings());
+  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : renderSettings());
 }
 
 function renderSaved(): HTMLElement {
@@ -142,6 +146,9 @@ function renderSaved(): HTMLElement {
     wrapper.append(heading("Nothing saved yet."), text("Words and meaningful chunks you intentionally keep will appear here."), lessons);
     return wrapper;
   }
+  const quiz = button("Quiz Saved", "button primary-button saved-quiz-entry");
+  quiz.addEventListener("click", startSavedQuiz);
+  wrapper.append(quiz);
   const controls = document.createElement("div");
   controls.className = "saved-sort";
   controls.append(text(`${view.count} saved item${view.count === 1 ? "" : "s"}`, "sort-label"));
@@ -590,6 +597,41 @@ function renderReview(): HTMLElement {
   return wrapper;
 }
 
+function renderSavedQuiz(): HTMLElement {
+  const wrapper = section("practice-content focused-content saved-quiz-content");
+  const session = savedQuizSession;
+  const task = session ? getSavedQuizTask(session) : null;
+  const item = task ? items.find((candidate) => candidate.id === task.itemId) : undefined;
+  if (!session || !task || !item) { screen = "saved"; savedQuizSession = null; focusedOrigin = null; return renderSaved(); }
+  const exit = button("Exit Quiz Saved", "exit-button");
+  exit.addEventListener("click", exitSavedQuiz);
+  const progress = text(`Saved quiz · ${session.taskIndex + 1} of ${session.tasks.length}`, "practice-progress");
+  const card = section("practice-card");
+  const prompt = task.dimension === "recognition" ? item.dutch : item.english ?? item.contexts.at(-1)?.text ?? "Use the context cue";
+  card.append(eyebrow(session.revealed ? "Answer" : task.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.revealed ? item.dutch : prompt));
+  if (savedQuizError) {
+    const error = text(savedQuizError, "saved-quiz-error");
+    error.setAttribute("role", "alert");
+    const retry = button("Try again", "button primary-button");
+    retry.disabled = pending;
+    retry.addEventListener("click", () => void saveSavedQuizResult(item, task, savedQuizRetry ?? "got-it"));
+    card.append(error, retry);
+  } else if (session.revealed) {
+    const context = [...item.contexts].sort((first, second) => second.addedAt - first.addedAt)[0];
+    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), teluguMeaning(item.telugu), contextMeaning(context));
+    const actions = document.createElement("div");
+    actions.className = "rating-actions";
+    for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.disabled = pending; action.addEventListener("click", () => void saveSavedQuizResult(item, task, result)); actions.append(action); }
+    card.append(actions);
+  } else {
+    const reveal = button("Show answer", "button answer-button");
+    reveal.addEventListener("click", () => { savedQuizSession = revealSavedQuiz(session); render(); content?.querySelector<HTMLButtonElement>(".rating-actions .button")?.focus(); });
+    card.append(reveal);
+  }
+  wrapper.append(exit, progress, card, localNote());
+  return wrapper;
+}
+
 function renderSettings(): HTMLElement {
   const wrapper = section("settings-content");
   wrapper.append(eyebrow("Settings"), heading("Review preferences"), toggle("Show page context", settings.showExampleSentence, (checked) => void saveSettings({ showExampleSentence: checked })), toggle("Daily review badge", settings.dailyReviewBadge, (checked) => void saveSettings({ dailyReviewBadge: checked })), text("Other extension settings are available in Options.", "local-note"));
@@ -608,6 +650,28 @@ async function saveResult(item: LearningItem, dimension: "recognition" | "recall
     pending = false;
     render();
   } catch (error) { pending = false; renderError(error instanceof Error ? error.message : "Your result could not be saved."); }
+}
+
+function startSavedQuiz(): void { if (items.length === 0) return; savedQuizError = null; savedQuizRetry = null; savedQuizSession = createSavedQuizSession(items); focusedOrigin = "saved"; screen = "savedQuiz"; render(); content?.focus(); }
+function exitSavedQuiz(): void { savedQuizSession = null; savedQuizError = null; savedQuizRetry = null; focusedOrigin = null; screen = "saved"; render(); }
+async function saveSavedQuizResult(item: LearningItem, task: NonNullable<ReturnType<typeof getSavedQuizTask>>, result: "again" | "got-it"): Promise<void> {
+  if (pending || !savedQuizSession) return;
+  savedQuizError = null;
+  savedQuizRetry = result;
+  pending = true;
+  render();
+  try {
+    const updated = await learningClient.recordMissionResult(item.id, task.dimension, result, task.expectedAttemptCount);
+    items = items.map((candidate) => candidate.id === updated.id ? updated : candidate);
+    try { rhythm = await learningClient.getRhythm(); } catch { /* The canonical result is already recorded; keep the current rhythm view. */ }
+    const next = advanceSavedQuiz(savedQuizSession);
+    savedQuizSession = next.taskIndex >= next.tasks.length ? null : next;
+    savedQuizError = null;
+    savedQuizRetry = null;
+    if (!savedQuizSession) { savedFeedback = { tone: "success", message: "Quiz Saved complete. Your review activity was recorded." }; focusedOrigin = null; screen = "saved"; }
+  } catch (error) {
+    savedQuizError = error instanceof Error ? error.message : "Your Quiz Saved result could not be saved.";
+  } finally { pending = false; render(); }
 }
 
 async function startContinuation(): Promise<void> { pending = true; render(); await load(true); pending = false; if (snapshot?.tasks.length) { focusedOrigin = "today"; screen = "review"; revealed = false; render(); content?.focus(); } }

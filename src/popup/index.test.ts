@@ -15,6 +15,7 @@ describe("lesson popup", () => {
   let listFails: boolean;
   let importFails: boolean;
   let exportFails: boolean;
+  let quizFails: boolean;
   let forceEmptyDailyFive: boolean;
   let learningItems: Array<Record<string, unknown>>;
   let rhythmResponse: { week: Array<{ dayStartAt: number; status: "active" | "grace" | "idle" }>; activity: Array<{ dayStartAt: number; reviews: number | null; saved: number | null; lessons: number | null; lessonAdditions?: number }>; resetCopy: string | null; milestones: Array<{ id: string; label: string }> };
@@ -27,6 +28,7 @@ describe("lesson popup", () => {
     listFails = false;
     importFails = false;
     exportFails = false;
+    quizFails = false;
     forceEmptyDailyFive = false;
     rhythmResponse = rhythmFixture();
     const dailyItem = { id: "daily-item", learningLanguage: "nl", normalizedDutch: "huis", dutch: "huis", kind: "word", english: "house", telugu: null, sources: [], contexts: [], encounters: { count: 0, lastEncounterAt: null }, recognition: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, recall: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, createdAt: 1, updatedAt: 1 };
@@ -48,6 +50,14 @@ describe("lesson popup", () => {
         const item = learningItems.find((candidate) => candidate.id === message.payload?.itemId)!;
         const dimension = message.payload?.dimension as "recognition" | "recall";
         return { ok: true, result: { item: { ...item, [dimension]: { ...(item[dimension] as Record<string, unknown>), dueAt: Date.now() + 86_400_000 } }, snapshot: { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [`${dailyItem.id}\u001frecognition`], goalCompleted: true } } };
+      }
+      if (message.type === "dutchmate.learning.recordMissionResult") {
+        if (quizFails) return { ok: false, error: "Quiz result could not be saved." };
+        const item = learningItems.find((candidate) => candidate.id === message.payload?.itemId)!;
+        const dimension = message.payload?.dimension as "recognition" | "recall";
+        const updated = { ...item, [dimension]: { ...(item[dimension] as Record<string, unknown>), attemptCount: Number((item[dimension] as Record<string, unknown>).attemptCount ?? 0) + 1 } };
+        learningItems = learningItems.map((candidate) => candidate.id === updated.id ? updated : candidate);
+        return { ok: true, result: { item: updated } };
       }
       if (message.type === "dutchmate.review.settings") return { ok: true, result: { settings: defaultSettings } };
       if (message.type === "dutchmate.learning.lessonProgress") return { ok: true, result: { progress: progressByLesson[String(message.payload?.lessonId)] ?? null } };
@@ -240,7 +250,7 @@ describe("lesson popup", () => {
     expect(content().querySelector(".telugu-phonetics")).toBeNull();
   });
 
-  it("keeps Today selected on open and renders Saved as a browse-only shelf with stable numbering", async () => {
+  it("keeps Today selected on open and renders Saved with stable numbering", async () => {
     expect(document.querySelector<HTMLButtonElement>("#today-tab")?.getAttribute("aria-selected")).toBe("true");
     expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.getAttribute("aria-selected")).toBe("false");
     button("Saved").click();
@@ -253,11 +263,55 @@ describe("lesson popup", () => {
     expect(content().textContent).toMatch(/TE\s*జీబ్రా/);
     expect(content().textContent).toContain("Familiar");
     expect(content().textContent).not.toContain("Practise now");
-    expect(content().querySelectorAll("button").length).toBe(6);
+    expect(content().querySelectorAll("button").length).toBe(7);
 
     button("A–Z").click();
     await vi.waitFor(() => expect([...content().querySelectorAll<HTMLElement>(".saved-row")][0]?.textContent).toContain("1huis"));
     expect([...content().querySelectorAll<HTMLElement>(".saved-row")][1]?.textContent).toContain("2zebra");
+  });
+
+  it("starts Quiz Saved from Saved, keeps Saved locked, and records canonical mission results", async () => {
+    const dailyFiveResultCallsBefore = runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.dailyFive.result").length;
+    button("Saved").click();
+    await vi.waitFor(() => expect(button("Quiz Saved")).toBeTruthy());
+    button("Quiz Saved").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    expect(content().textContent).toContain("Saved quiz · 1 of 2");
+    expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.disabled).toBe(true);
+    expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.getAttribute("aria-selected")).toBe("true");
+    expect(button("Exit Quiz Saved")).toBeTruthy();
+
+    button("Show answer").click();
+    await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
+    expect(content().textContent).toContain("Context");
+    button("Got it").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Saved quiz · 2 of 2"));
+    button("Show answer").click();
+    button("Again").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Quiz Saved complete."));
+    expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.disabled).toBe(false);
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.recordMissionResult")).toHaveLength(2);
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.dailyFive.result")).toHaveLength(dailyFiveResultCallsBefore);
+  });
+
+  it("exits Quiz Saved without creating a hidden resume flow and recovers from result errors", async () => {
+    button("Saved").click();
+    await vi.waitFor(() => expect(button("Quiz Saved")).toBeTruthy());
+    button("Quiz Saved").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    button("Exit Quiz Saved").click();
+    expect(button("Quiz Saved")).toBeTruthy();
+
+    button("Quiz Saved").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    button("Show answer").click();
+    quizFails = true;
+    button("Got it").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Quiz result could not be saved."));
+    expect(button("Try again")).toBeTruthy();
+    quizFails = false;
+    button("Try again").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Saved quiz · 2 of 2"));
   });
 
   it("expands one Saved card at a time, exposes only safe detail, and refreshes the canonical record", async () => {
@@ -429,6 +483,10 @@ describe("lesson popup", () => {
     await import("./index");
 
     await vi.waitFor(() => expect(button("Start a lesson")).toBeTruthy());
+    button("Saved").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Nothing saved yet."));
+    expect(button("Quiz Saved")).toBeFalsy();
+    button("Today").click();
     expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Start a lesson", "Review"]);
     const reviewHint = content().querySelector<HTMLElement>(".empty-review-hint");
     expect(reviewHint?.hidden).toBe(true);

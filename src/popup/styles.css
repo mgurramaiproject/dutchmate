@@ -153,6 +153,8 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .saved-backup-actions .button { min-height: 44px; }
 .saved-feedback { margin: 0; padding: 9px 10px; border-left: 3px solid var(--orange); background: var(--orange-soft); font-size: .72rem; line-height: 1.35; }
 .saved-feedback[data-tone="error"] { border-left-color: var(--black); background: rgba(0, 0, 0, 0.05); }
+.saved-quiz-entry { width: 100%; }
+.saved-quiz-error { margin: 0; padding: 9px 10px; border-left: 3px solid var(--black); background: rgba(0, 0, 0, 0.05); font-size: .72rem; line-height: 1.35; }
 .saved-sort { display: flex; align-items: center; gap: 4px; min-height: 44px; border-bottom: 1px solid var(--line); }
 .sort-label { margin-right: auto; color: var(--muted); font-size: .62rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
 .sort-button { min-height: 44px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; color: var(--black); font-size: .66rem; font-weight: 850; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; }

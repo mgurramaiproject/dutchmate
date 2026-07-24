@@ -53,10 +53,10 @@ Tracer-bullet delivery plan for [005-refinement-spec.md](./005-refinement-spec.m
 
 **Blocked by:** [#65 — T01 Preserve contextual learning history](https://github.com/mgurramaiproject/dutchmate/issues/65); [#67 — T03 Add Saved recovery controls](https://github.com/mgurramaiproject/dutchmate/issues/67); [#68 — T04 Filter Lessons and preserve focused orientation](https://github.com/mgurramaiproject/dutchmate/issues/68).
 
-- [ ] Saved provides a clear Quiz Saved entry point when learning items exist.
-- [ ] Quiz Saved uses canonical practice evidence and increments review activity without mutating Daily Five completion.
-- [ ] The focused Quiz retains Saved as its visible locked origin and supports explicit Exit.
-- [ ] Empty, shuffled, resumed-popup, and error states have focused contract and popup regression coverage.
+- [x] Saved provides a clear Quiz Saved entry point when learning items exist.
+- [x] Quiz Saved uses canonical practice evidence and increments review activity without mutating Daily Five completion.
+- [x] The focused Quiz retains Saved as its visible locked origin and supports explicit Exit.
+- [x] Empty, shuffled, resumed-popup, and error states have focused contract and popup regression coverage.
 
 ## [#70](https://github.com/mgurramaiproject/dutchmate/issues/70) — T06 Verify 005-refinement across browser lifecycles
 

@@ -35,6 +35,8 @@ describe("popup layout", () => {
     expect(styles).toContain(".lesson-filter { min-height: 44px;");
     expect(styles).toContain(".tabs.is-locked");
     expect(styles).toContain(".tab:not(.is-active):not(:disabled):hover");
+    expect(styles).toContain(".saved-quiz-entry");
+    expect(styles).toContain(".saved-quiz-error");
     expect(styles).toContain(".practice-card { display: grid; gap: 12px; min-width: 0;");
     expect(styles).toContain(".practice-card .heading { min-width: 0; overflow-wrap: anywhere;");
     expect(styles).toContain(".meaning-row span { min-width: 0; overflow-wrap: anywhere;");

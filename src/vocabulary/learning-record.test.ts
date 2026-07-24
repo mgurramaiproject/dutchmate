@@ -93,6 +93,7 @@ describe("LearningRecordStore", () => {
     expect(updated.item.recognition).toMatchObject({ state: "learning", attemptCount: 1, successfulStreak: 1 });
     expect(updated.item.recall).toEqual(item.recall);
     expect((await records.getDailyFive()).completedTaskIds).toEqual(snapshot.completedTaskIds);
+    expect(await records.getRhythm()).toMatchObject({ activity: [expect.objectContaining({ reviews: 1 })] });
     await expect(records.recordMissionResult(item.id, "recognition", "got-it", 0)).resolves.toMatchObject({ recorded: false, item: updated.item });
   });
 
