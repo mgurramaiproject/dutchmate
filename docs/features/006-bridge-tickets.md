@@ -16,7 +16,7 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 - [x] Learning-backup version 2 imports and exports remain compatible with optional new fields.
 - [x] Focused learning-record, migration, merge, encounter, and backup tests pass.
 
-**Current T01 state:** Complete locally on `feature-006-bridge`. Evidence: focused learning-record/background tests (27 tests), full suite (92 files / 538 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. GitHub and Delivery reconciliation remains pending until the expired `gh` authentication is refreshed.
+**Current T01 state:** Complete locally on `feature-006-bridge`. Evidence: focused learning-record/background tests (27 tests), full suite (92 files / 538 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. GitHub issue #73 and its Delivery item remain open and In Progress while the delivery gate is implemented; no PR has been created.
 
 ## [#74 — 006-bridge T02: Save English and Telugu selections into Dutch learning items](https://github.com/mgurramaiproject/dutchmate/issues/74)
 
@@ -78,9 +78,11 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 
 **Blocked by:** [#73 — T01](https://github.com/mgurramaiproject/dutchmate/issues/73), [#74 — T02](https://github.com/mgurramaiproject/dutchmate/issues/74), [#75 — T03](https://github.com/mgurramaiproject/dutchmate/issues/75), and [#76 — T04](https://github.com/mgurramaiproject/dutchmate/issues/76).
 
-- [ ] T01, T02, T03, and T04 acceptance checklists are complete with direct evidence.
-- [ ] Focused tests, typecheck, full test suite, Chrome and Firefox builds, release verification, and whitespace checks pass.
+- [x] T01, T02, T03, and T04 acceptance checklists are complete with direct evidence.
+- [x] Focused tests, typecheck, full test suite, Chrome and Firefox builds, release verification, and whitespace checks pass.
 - [ ] Chrome and Firefox manual checks cover Dutch, English, Telugu selection Save, exact context behavior, Telugu hover, no self-translation, Seen before, partial targets, Saved labels, three contexts, and legacy/unavailable states.
-- [ ] The checked-in 006-bridge ticket checklist records the evidence and completion state.
-- [ ] GitHub issue states, labels, PR linkage, and Delivery fields are reconciled according to the repository workflow.
-- [ ] The feature branch has a clean worktree and a focused delivery commit.
+- [x] The checked-in 006-bridge ticket checklist records the evidence and completion state.
+- [x] GitHub issue states, labels, PR linkage, and Delivery fields are reconciled according to the repository workflow.
+- [x] The feature branch has a clean worktree and a focused delivery commit.
+
+**Current T05 state:** Automated and packaging gates are complete locally on `feature-006-bridge`: full suite (92 files / 559 tests), typecheck, Chrome and Firefox builds, `verify:release`, and `git diff --check` pass. Interactive Chrome and Firefox validation is blocked in this environment: Chrome exits during startup with a Crashpad permission failure and Firefox exits during headless startup, so no manual browser pass is claimed. GitHub issue #77 is `needs-info` and its Delivery item is `Blocked` pending direct browser evidence; no PR has been created under the ticket-first workflow.
