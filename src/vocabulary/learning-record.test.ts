@@ -262,6 +262,43 @@ describe("LearningRecordStore", () => {
     });
   });
 
+  it("keeps source-aware contexts distinct and fills only missing helpers", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await records.createOrMerge({ dutch: "huis", context: "An English house stands here.", contextSourceLanguage: "en", contextSourceText: "house", contextTranslations: { telugu: "ఇక్కడ ఒక ఇల్లు ఉంది." } });
+    await records.createOrMerge({ dutch: "huis", context: "An English house stands here.", contextSourceLanguage: "en", contextSourceText: "house", contextTranslations: { english: "A different English rendering", telugu: "ఇంకొక అనువాదం" } });
+    await records.createOrMerge({ dutch: "huis", context: "An English house stands here.", contextSourceLanguage: "te", contextTranslations: { telugu: "An unrelated Telugu rendering" } });
+
+    await expect(records.list()).resolves.toEqual([expect.objectContaining({ contexts: [
+      { text: "An English house stands here.", addedAt: 1_000, sourceLanguage: "en", telugu: "ఇక్కడ ఒక ఇల్లు ఉంది.", english: "A different English rendering" },
+      { text: "An English house stands here.", addedAt: 1_000, sourceLanguage: "te", telugu: "An unrelated Telugu rendering" },
+    ] })]);
+  });
+
+  it("validates known contexts against the selected source form and preserves legacy validity", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await records.createOrMerge({ dutch: "huis", context: "An English house stands here.", contextSourceLanguage: "en", contextSourceText: "apartment" });
+    await records.createOrMerge({ dutch: "huis", context: "An English house stands here.", contextSourceLanguage: "en", contextSourceText: "house" });
+    await records.createOrMerge({ dutch: "huis", context: "Huis staat hier.", contextSourceLanguage: "nl", contextSourceText: "huis" });
+
+    await expect(records.list()).resolves.toEqual([expect.objectContaining({ contexts: [
+      { text: "An English house stands here.", addedAt: 1_000, sourceLanguage: "en" },
+      { text: "Huis staat hier.", addedAt: 1_000, sourceLanguage: "nl" },
+    ] })]);
+  });
+
+  it("keeps legacy and known-provenance copies separate and records encounter provenance without helpers", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    const item = await records.createOrMerge({ dutch: "huis", context: "Huis staat hier." });
+    await records.createOrMerge({ dutch: "huis", context: "Huis staat hier.", contextSourceLanguage: "nl", contextSourceText: "huis" });
+    await records.recordEncounter(item.id, "An English house stands here.", "en");
+
+    await expect(records.list()).resolves.toEqual([expect.objectContaining({ contexts: [
+      { text: "Huis staat hier.", addedAt: 1_000 },
+      { text: "Huis staat hier.", addedAt: 1_000, sourceLanguage: "nl" },
+      { text: "An English house stands here.", addedAt: 1_000, sourceLanguage: "en" },
+    ], encounters: { count: 1, lastEncounterAt: 1_000 } })]);
+  });
+
   it("keeps known activity categories when merging a legacy backup in either direction", async () => {
     const now = 1_000;
     const day = new Date(now).setHours(0, 0, 0, 0);

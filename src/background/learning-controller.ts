@@ -37,7 +37,7 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
     if (message.type === LEARNING_RHYTHM_MESSAGE) return { ok: true, result: { rhythm: await store.getRhythm() } };
     if (message.type === LEARNING_CREATE_OR_MERGE_MESSAGE) return { ok: true, result: { item: await store.createOrMerge(message.payload) } };
     if (message.type === LEARNING_RECORD_ENCOUNTER_MESSAGE) {
-      const item = await store.recordEncounter(message.payload.id, message.payload.context);
+      const item = await store.recordEncounter(message.payload.id, message.payload.context, message.payload.sourceLanguage);
       return item ? { ok: true, result: { recorded: true } } : { ok: false, error: "Learning item was not found." };
     }
     if (message.type === LEARNING_RECORD_MISSION_RESULT_MESSAGE) { const result = await store.recordMissionResult(message.payload.itemId, message.payload.dimension, message.payload.result, message.payload.expectedAttemptCount); return result.recorded ? { ok: true, result: { item: result.item } } : { ok: false, error: "This mission result was already recorded." }; }

@@ -8,13 +8,15 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 
 **Blocked by:** None — can start immediately.
 
-- [ ] A learning context can retain optional source-language provenance without changing the Dutch learning-language key.
-- [ ] Context validity can follow the selected source form rather than requiring Dutch text.
-- [ ] Contexts merge by normalized text plus source language, retain partial English/Telugu helpers, fill only missing helpers, and retain at most three recent contexts.
-- [ ] Legacy contexts without provenance remain valid and are never retroactively relabeled.
-- [ ] Encounters can persist bounded original context plus provenance without requesting helper translations.
-- [ ] Learning-backup version 2 imports and exports remain compatible with optional new fields.
-- [ ] Focused learning-record, migration, merge, encounter, and backup tests pass.
+- [x] A learning context can retain optional source-language provenance without changing the Dutch learning-language key.
+- [x] Context validity can follow the selected source form rather than requiring Dutch text.
+- [x] Contexts merge by normalized text plus source language, retain partial English/Telugu helpers, fill only missing helpers, and retain at most three recent contexts.
+- [x] Legacy contexts without provenance remain valid and are never retroactively relabeled.
+- [x] Encounters can persist bounded original context plus provenance without requesting helper translations.
+- [x] Learning-backup version 2 imports and exports remain compatible with optional new fields.
+- [x] Focused learning-record, migration, merge, encounter, and backup tests pass.
+
+**Current T01 state:** Complete locally on `feature-006-bridge`. Evidence: focused learning-record/background tests (27 tests), full suite (92 files / 538 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. GitHub and Delivery reconciliation remains pending until the expired `gh` authentication is refreshed.
 
 ## [#74 — 006-bridge T02: Save English and Telugu selections into Dutch learning items](https://github.com/mgurramaiproject/dutchmate/issues/74)
 
