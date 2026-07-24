@@ -132,6 +132,10 @@ _Avoid_: Time in app, content consumption, engagement alone
 The learner-controlled path in which DutchMate presents a selected word or candidate meaningful chunk with its normalized learning form, meanings, and page context, and saves it only after confirmation.
 _Avoid_: Automatic saving, translation history, unconfirmed suggestion
 
+**Selection auto-save**:
+The separate opt-in setting that can save eligible Dutch single-word selections without a Save-button click. It is off by default, does not apply to cross-language English/Telugu capture in `006-bridge`, and is unrelated to the translation cache.
+_Avoid_: Translation caching, background saving of hover text, automatic page scan
+
 **Saved vocabulary**:
 The learner-controlled collection of Dutch learning items they intentionally keep for later study. It may contain words and meaningful chunks, and is not an automatic record of every translation request.
 _Avoid_: Translation history, synced word bank

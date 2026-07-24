@@ -26,6 +26,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Telugu hover never requests a Telugu self-translation: multi-target mode shows Dutch plus English, while one-target mode falls back to Dutch if Telugu would be the configured target. Save remains selection-only; hover remains translation/encounter-only.
 - `Seen before` appears for a confident unique Dutch, English, or Telugu saved-item match even without page context and even if the later encounter write fails. Ambiguous helper-form matches show no cue; Dutch-only recall/reconstruction missions remain unchanged.
 - Encounter persistence stores only bounded original context plus provenance; helper context translations are requested only during explicit Save or a later deliberate capture.
+- The existing opt-in Dutch selection auto-save setting remains unchanged, but English/Telugu cross-language selections require the popup Save action; translation caching is separate and never creates a learning item.
 - Context retention remains local-only: normalized source text, at most 240 characters per context, at most three recent contexts per item, and no URLs or page metadata.
 - A missing safe sentence never blocks the word save.
 
