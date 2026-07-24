@@ -13,6 +13,8 @@ describe("lesson popup", () => {
   let progressByLesson: Record<string, Record<string, unknown> | null>;
   let keepFails: boolean;
   let listFails: boolean;
+  let importFails: boolean;
+  let exportFails: boolean;
   let forceEmptyDailyFive: boolean;
   let learningItems: Array<Record<string, unknown>>;
   let rhythmResponse: { week: Array<{ dayStartAt: number; status: "active" | "grace" | "idle" }>; activity: Array<{ dayStartAt: number; reviews: number | null; saved: number | null; lessons: number | null; lessonAdditions?: number }>; resetCopy: string | null; milestones: Array<{ id: string; label: string }> };
@@ -23,12 +25,20 @@ describe("lesson popup", () => {
     progressByLesson = {};
     keepFails = false;
     listFails = false;
+    importFails = false;
+    exportFails = false;
     forceEmptyDailyFive = false;
     rhythmResponse = rhythmFixture();
     const dailyItem = { id: "daily-item", learningLanguage: "nl", normalizedDutch: "huis", dutch: "huis", kind: "word", english: "house", telugu: null, sources: [], contexts: [], encounters: { count: 0, lastEncounterAt: null }, recognition: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, recall: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, createdAt: 1, updatedAt: 1 };
     learningItems = [dailyItem, { ...dailyItem, id: "saved-item", normalizedDutch: "zebra", dutch: "zebra", english: null, telugu: "జీబ్రా", sources: [{ type: "webpage", addedAt: 2 }], contexts: [{ text: "De zebra staat bij de ingang.", addedAt: 2 }], createdAt: 2, updatedAt: 2, recognition: { ...dailyItem.recognition, state: "strong", attemptCount: 3 }, recall: { ...dailyItem.recall, state: "familiar", attemptCount: 2 } }];
     runtime.sendMessage.mockImplementation(async (message: { type: string; payload?: Record<string, unknown> }) => {
       if (message.type === "dutchmate.learning.list") return listFails ? { ok: false, error: "Local read failed" } : { ok: true, result: { items: learningItems } };
+      if (message.type === "dutchmate.learning.export") return exportFails ? { ok: false, error: "Local export failed." } : { ok: true, result: { backup: { format: "dutchmate-learning-backup", version: 2, exportedAt: 1, learningItems, lessonProgress: {}, rhythm: {} } } };
+      if (message.type === "dutchmate.learning.import") {
+        if (importFails) return { ok: false, error: "This backup is not supported." };
+        learningItems = [...learningItems, { ...learningItems[0], id: "imported-item", normalizedDutch: "fiets", dutch: "fiets", createdAt: 3, updatedAt: 3 }];
+        return { ok: true, result: { importedCount: 1, totalCount: learningItems.length, items: learningItems } };
+      }
       if (message.type === "dutchmate.learning.rhythm") return { ok: true, result: { rhythm: rhythmResponse } };
       if (message.type === "dutchmate.learning.dailyFive") {
         const emptyContinuation = message.payload?.continueAfterCompletion === true && (learningItems.length === 0 || forceEmptyDailyFive);
@@ -58,7 +68,7 @@ describe("lesson popup", () => {
     document.body.innerHTML = `
       <main class="popup-shell">
         <header class="popup-header"><div class="header-actions"><span id="due-badge"></span><a class="feedback-link" href="https://forms.gle/9KSsqfE1NNZcPEaaA">Feedback</a><button id="settings-button" type="button">Settings</button></div></header>
-        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Library</button></nav>
+        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Saved</button></nav>
         <div id="popup-content" tabindex="0"></div>
       </main>`;
     await import("./index");
@@ -226,10 +236,10 @@ describe("lesson popup", () => {
     expect(content().querySelector(".telugu-phonetics")).toBeNull();
   });
 
-  it("keeps Today selected on open and renders Library as a browse-only shelf with stable numbering", async () => {
+  it("keeps Today selected on open and renders Saved as a browse-only shelf with stable numbering", async () => {
     expect(document.querySelector<HTMLButtonElement>("#today-tab")?.getAttribute("aria-selected")).toBe("true");
     expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.getAttribute("aria-selected")).toBe("false");
-    button("Library").click();
+    button("Saved").click();
     await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
     expect([...content().querySelectorAll<HTMLElement>(".saved-row")].map((row) => row.textContent)).toEqual([
       expect.stringContaining("2zebra"),
@@ -239,15 +249,15 @@ describe("lesson popup", () => {
     expect(content().textContent).toMatch(/TE\s*జీబ్రా/);
     expect(content().textContent).toContain("Familiar");
     expect(content().textContent).not.toContain("Practise now");
-    expect(content().querySelectorAll("button").length).toBe(4);
+    expect(content().querySelectorAll("button").length).toBe(6);
 
     button("A–Z").click();
     await vi.waitFor(() => expect([...content().querySelectorAll<HTMLElement>(".saved-row")][0]?.textContent).toContain("1huis"));
     expect([...content().querySelectorAll<HTMLElement>(".saved-row")][1]?.textContent).toContain("2zebra");
   });
 
-  it("expands one Library card at a time, exposes only safe detail, and refreshes the canonical record", async () => {
-    button("Library").click();
+  it("expands one Saved card at a time, exposes only safe detail, and refreshes the canonical record", async () => {
+    button("Saved").click();
     await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2));
     const [zebra, huis] = [...content().querySelectorAll<HTMLButtonElement>(".saved-row")];
     expect(zebra.hasAttribute("aria-controls")).toBe(false);
@@ -269,6 +279,38 @@ describe("lesson popup", () => {
     expect(content().querySelector(".saved-detail")).toBeNull();
   });
 
+  it("exposes Saved backup controls with success and failure feedback", async () => {
+    Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn(() => "blob:test") });
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
+    button("Saved").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
+    expect(content().querySelector(".saved-head .heading")?.textContent).toBe("Saved");
+    expect(content().querySelectorAll(".saved-backup-actions .button")).toHaveLength(2);
+
+    button("Export").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Exported 2 saved items."));
+    expect(URL.createObjectURL).toHaveBeenCalledOnce();
+
+    const input = content().querySelector<HTMLInputElement>('input[type="file"]')!;
+    const backupDocument = JSON.stringify({ format: "dutchmate-learning-backup", version: 2, exportedAt: 1, learningItems: [], lessonProgress: {}, rhythm: {} });
+    const file = new File([backupDocument], "dutchmate.json", { type: "application/json" });
+    Object.defineProperty(input, "files", { configurable: true, value: [file] });
+    input.dispatchEvent(new Event("change"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Imported 1 item. You now have 3 saved items."));
+    expect(runtime.sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.import", payload: { document: backupDocument } });
+
+    importFails = true;
+    button("Import").click();
+    const failedInput = content().querySelector<HTMLInputElement>('input[type="file"]')!;
+    Object.defineProperty(failedInput, "files", { configurable: true, value: [file] });
+    failedInput.dispatchEvent(new Event("change"));
+    await vi.waitFor(() => expect(content().textContent).toContain("This backup is not supported."));
+
+    exportFails = true;
+    button("Export").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Could not export saved learning: Local export failed."));
+  });
+
   it("moves the three top-level tabs with arrow keys", async () => {
     const navigation = document.querySelector<HTMLElement>("#primary-navigation")!;
     navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
@@ -282,6 +324,7 @@ describe("lesson popup", () => {
   it("renders Lessons as the compact numbered library from the approved mockup", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("12 small practical stories"));
+    expect(content().querySelector(".lessons-content .heading")?.textContent).toBe("Lesson library");
     expect(content().textContent).toContain("Choose a situation. Each lesson is 3–5 minutes.");
     expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(12);
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
@@ -326,7 +369,7 @@ describe("lesson popup", () => {
     document.body.innerHTML = `
       <main class="popup-shell">
         <header class="popup-header"><div class="header-actions"><span id="due-badge"></span><a class="feedback-link" href="https://forms.gle/9KSsqfE1NNZcPEaaA">Feedback</a><button id="settings-button" type="button">Settings</button></div></header>
-        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Library</button></nav>
+        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Saved</button></nav>
         <div id="popup-content" tabindex="0"></div>
       </main>`;
     await import("./index");

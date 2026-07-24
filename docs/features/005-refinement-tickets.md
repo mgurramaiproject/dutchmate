@@ -31,10 +31,10 @@ Tracer-bullet delivery plan for [005-refinement-spec.md](./005-refinement-spec.m
 
 **Blocked by:** [#65 — T01 Preserve contextual learning history](https://github.com/mgurramaiproject/dutchmate/issues/65).
 
-- [ ] The learner-controlled collection is visibly named Saved; Lesson library remains distinct.
-- [ ] Saved exposes compact Export and Import controls with clear success and failure feedback.
-- [ ] Import validates supported backups and merges records rather than replacing local learning.
-- [ ] Backup controls, error states, and update/re-enable preservation regression checks pass.
+- [x] The learner-controlled collection is visibly named Saved; Lesson library remains distinct.
+- [x] Saved exposes compact Export and Import controls with clear success and failure feedback.
+- [x] Import validates supported backups and merges records rather than replacing local learning.
+- [x] Backup controls, error states, and update/re-enable preservation regression checks pass.
 
 ## [#68](https://github.com/mgurramaiproject/dutchmate/issues/68) — T04 Filter Lessons and preserve focused orientation
 

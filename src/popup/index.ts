@@ -5,7 +5,7 @@ import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import { getSavedShelfView, type SavedShelfSort } from "./saved-shelf-view";
 import { getPopupTabForKey } from "./tab-navigation";
 import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
-import { LEARNING_RECORD_STORAGE_KEY, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
+import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
@@ -39,6 +39,8 @@ let savedSort: SavedShelfSort = "newest";
 let savedLoading = true;
 let savedError: string | null = null;
 let expandedSavedItemId: string | null = null;
+let savedActionBusy = false;
+let savedFeedback: { tone: "success" | "error"; message: string } | null = null;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
@@ -108,8 +110,14 @@ function renderSaved(): HTMLElement {
   const view = getSavedShelfView(items, { sort: savedSort, expandedItemId: expandedSavedItemId, loading: savedLoading, error: savedError });
   const header = document.createElement("div");
   header.className = "saved-head";
-  header.append(eyebrow("Your collection"), heading("Library"));
-  wrapper.append(header);
+  header.append(eyebrow("Your collection"), heading("Saved"));
+  wrapper.append(header, renderSavedBackupControls());
+  if (savedFeedback) {
+    const feedback = text(savedFeedback.message, "saved-feedback");
+    feedback.setAttribute("role", "status");
+    feedback.dataset.tone = savedFeedback.tone;
+    wrapper.append(feedback);
+  }
   if (view.status === "loading") { wrapper.append(text("Loading your saved vocabulary…")); return wrapper; }
   if (view.status === "error") {
     const retry = button("Try again", "button primary-button");
@@ -166,6 +174,66 @@ function renderSaved(): HTMLElement {
   }
   wrapper.append(shelf);
   return wrapper;
+}
+
+function renderSavedBackupControls(): HTMLElement {
+  const controls = document.createElement("div");
+  controls.className = "saved-backup-actions";
+  const exportButton = button("Export", "button secondary-button");
+  exportButton.disabled = savedActionBusy;
+  exportButton.addEventListener("click", () => void exportSavedBackup());
+  const importButton = button("Import", "button secondary-button");
+  importButton.disabled = savedActionBusy;
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "application/json,.json";
+  fileInput.hidden = true;
+  importButton.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files?.[0];
+    fileInput.value = "";
+    if (file) void importSavedBackup(file);
+  });
+  controls.append(exportButton, importButton, fileInput);
+  return controls;
+}
+
+async function exportSavedBackup(): Promise<void> {
+  savedActionBusy = true;
+  savedFeedback = null;
+  render();
+  try {
+    const backup = await learningClient.exportBackup();
+    const blob = new Blob([serializeLearningBackup(backup)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `dutchmate-learning-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    savedFeedback = { tone: "success", message: `Exported ${backup.learningItems.length} saved item${backup.learningItems.length === 1 ? "" : "s"}.` };
+  } catch (error) {
+    savedFeedback = { tone: "error", message: `Could not export saved learning: ${error instanceof Error ? error.message : "Unknown error"}` };
+  } finally {
+    savedActionBusy = false;
+    render();
+  }
+}
+
+async function importSavedBackup(file: File): Promise<void> {
+  savedActionBusy = true;
+  savedFeedback = null;
+  render();
+  try {
+    const result = await learningClient.importBackup(await file.text());
+    await loadSaved();
+    savedFeedback = { tone: "success", message: `Imported ${result.importedCount} item${result.importedCount === 1 ? "" : "s"}. You now have ${result.totalCount} saved items.` };
+  } catch (error) {
+    savedFeedback = { tone: "error", message: error instanceof Error ? error.message : "Saved learning import failed." };
+  } finally {
+    savedActionBusy = false;
+    render();
+  }
 }
 
 function renderToday(): HTMLElement {
@@ -344,7 +412,7 @@ function hasUnknownActivityCount(activity: LearningRhythm["activity"][number]): 
 
 function renderLessons(): HTMLElement {
   const wrapper = section("lessons-content");
-  wrapper.append(eyebrow("12 small practical stories"), heading("Lessons"), text("Choose a situation. Each lesson is 3–5 minutes."));
+  wrapper.append(eyebrow("Lesson library · 12 small practical stories"), heading("Lesson library"), text("Choose a situation. Each lesson is 3–5 minutes."));
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
   let lessonNumber = 0;

@@ -148,6 +148,10 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .local-note { margin-top: 0; color: var(--muted); font-size: 0.75rem; line-height: 1.4; }
 .saved-content { display: grid; align-content: start; gap: 12px; min-width: 0; }
 .saved-head { display: grid; gap: 4px; }
+.saved-backup-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.saved-backup-actions .button { min-height: 44px; }
+.saved-feedback { margin: 0; padding: 9px 10px; border-left: 3px solid var(--orange); background: var(--orange-soft); font-size: .72rem; line-height: 1.35; }
+.saved-feedback[data-tone="error"] { border-left-color: var(--black); background: rgba(0, 0, 0, 0.05); }
 .saved-sort { display: flex; align-items: center; gap: 4px; min-height: 44px; border-bottom: 1px solid var(--line); }
 .sort-label { margin-right: auto; color: var(--muted); font-size: .62rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
 .sort-button { min-height: 44px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; color: var(--black); font-size: .66rem; font-weight: 850; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; }
