@@ -112,6 +112,23 @@ describe("TooltipViewAdapter", () => {
     expect(document.querySelector<HTMLButtonElement>(".hover-translate-save")?.textContent).toBe("Save");
   });
 
+  it("labels failed optional popup targets Unavailable", () => {
+    const view = createTooltipViewAdapter({
+      onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn(),
+    });
+
+    view.showResult(
+      { ok: true, result: { translatedText: "Dutch: huis\nEnglish: Unavailable\nTelugu: ఇల్లు", providerName: "multi-target" } },
+      10,
+      10,
+      { status: "hidden" },
+    );
+
+    const unavailable = document.querySelector<HTMLElement>(".hover-translate-value.is-unavailable");
+    expect(unavailable?.textContent).toBe("Unavailable");
+    expect(unavailable?.classList.contains("is-unavailable")).toBe(true);
+  });
+
   it("does not offer Save when the translation response failed", () => {
     const view = createTooltipViewAdapter({
       onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn(),

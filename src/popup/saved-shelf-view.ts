@@ -10,7 +10,13 @@ export type SavedShelfItem = {
   mastery: "New" | "Learning" | "Familiar" | "Strong";
   shelfNumber: number;
   expanded: boolean;
-  details?: { source: "Saved from webpage" | "From lesson" | null; context: string | null };
+  details?: { source: "Saved from webpage" | "From lesson" | null; contexts: SavedContextView[] };
+};
+export type SavedContextView = {
+  text: string;
+  originalLabel: string;
+  englishTranslation: string | null;
+  teluguTranslation: string | null;
 };
 export type SavedShelfView =
   | { status: "loading"; sort: SavedShelfSort }
@@ -47,8 +53,8 @@ export function getSavedShelfView(items: LearningItem[], state: { sort?: SavedSh
       return {
         id: item.id,
         dutch: item.dutch,
-        english: item.english ?? "unavailable",
-        telugu: item.telugu ?? "unavailable",
+        english: item.english ?? "Unavailable",
+        telugu: item.telugu ?? "Unavailable",
         mastery: masteryLabel[getOverallMastery(item)],
         shelfNumber: shelfNumberById.get(item.id)!,
         expanded,
@@ -60,6 +66,20 @@ export function getSavedShelfView(items: LearningItem[], state: { sort?: SavedSh
 
 function getSafeDetails(item: LearningItem): NonNullable<SavedShelfItem["details"]> {
   const source = [...item.sources].sort((first, second) => second.addedAt - first.addedAt)[0];
-  const context = [...item.contexts].sort((first, second) => second.addedAt - first.addedAt)[0];
-  return { source: source?.type === "webpage" ? "Saved from webpage" : source?.type === "lesson" ? "From lesson" : null, context: context?.text.slice(0, SAFE_CONTEXT_MAX_LENGTH) ?? null };
+  return { source: source?.type === "webpage" ? "Saved from webpage" : source?.type === "lesson" ? "From lesson" : null, contexts: getSavedContextViews(item.contexts) };
+}
+
+export function getSavedContextViews(contexts: LearningItem["contexts"]): SavedContextView[] {
+  return [...contexts]
+    .sort((first, second) => second.addedAt - first.addedAt)
+    .slice(0, 3)
+    .map((context) => {
+      const language = context.sourceLanguage === "nl" ? "Dutch" : context.sourceLanguage === "en" ? "English" : context.sourceLanguage === "te" ? "Telugu" : "Language not detected";
+      return {
+        text: context.text.slice(0, SAFE_CONTEXT_MAX_LENGTH),
+        originalLabel: `Original context · ${language}`,
+        englishTranslation: context.sourceLanguage === "en" ? null : context.english ?? null,
+        teluguTranslation: context.sourceLanguage === "te" ? null : context.telugu ?? null,
+      };
+    });
 }

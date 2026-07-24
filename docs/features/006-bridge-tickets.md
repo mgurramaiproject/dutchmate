@@ -61,14 +61,16 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 
 **Blocked by:** [#73 — T01](https://github.com/mgurramaiproject/dutchmate/issues/73), [#74 — T02](https://github.com/mgurramaiproject/dutchmate/issues/74), and [#75 — T03](https://github.com/mgurramaiproject/dutchmate/issues/75).
 
-- [ ] Popup target rows render successful translations and label failed optional targets Unavailable.
-- [ ] Popup and Saved surfaces avoid source self-translation and preserve the approved Save/Seen-before states.
-- [ ] Saved/review labels distinguish Original context · Dutch/English/Telugu from English translation and Telugu translation.
-- [ ] Legacy contexts without provenance read Original context · Language not detected.
-- [ ] Missing helper fields read Unavailable.
-- [ ] Saved presents up to three recent contexts newest-first with source-aware helper rendering.
-- [ ] Existing context highlighting, Telugu phonetics, Dutch review, mission, privacy, and no-account UI behavior remains intact.
-- [ ] Focused tooltip, Saved-shelf, review, and regression tests pass.
+- [x] Popup target rows render successful translations and label failed optional targets Unavailable.
+- [x] Popup and Saved surfaces avoid source self-translation and preserve the approved Save/Seen-before states.
+- [x] Saved/review labels distinguish Original context · Dutch/English/Telugu from English translation and Telugu translation.
+- [x] Legacy contexts without provenance read Original context · Language not detected.
+- [x] Missing helper fields read Unavailable.
+- [x] Saved presents up to three recent contexts newest-first with source-aware helper rendering.
+- [x] Existing context highlighting, Telugu phonetics, Dutch review, mission, privacy, and no-account UI behavior remains intact.
+- [x] Focused tooltip, Saved-shelf, review, and regression tests pass.
+
+**Current T04 state:** Complete locally on `feature-006-bridge`. Evidence: focused popup/Saved/tooltip tests (45 tests), full suite (92 files / 559 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. GitHub issue #76 and its Delivery item will remain open and In Progress while the delivery gate is implemented; no PR has been created.
 
 ## [#77 — 006-bridge T05: Verify and reconcile the 006-bridge delivery](https://github.com/mgurramaiproject/dutchmate/issues/77)
 

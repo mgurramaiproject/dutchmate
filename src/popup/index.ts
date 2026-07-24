@@ -2,7 +2,7 @@ import browser from "webextension-polyfill";
 import { createLearningClient } from "./learning-client";
 import { createSettingsClient } from "./settings-client";
 import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
-import { getSavedShelfView, type SavedShelfSort } from "./saved-shelf-view";
+import { getSavedContextViews, getSavedShelfView, type SavedContextView, type SavedShelfSort } from "./saved-shelf-view";
 import { getPopupTabForKey } from "./tab-navigation";
 import type { DailyFiveSnapshot } from "../vocabulary/daily-five";
 import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
@@ -189,7 +189,7 @@ function renderSaved(): HTMLElement {
       detail.id = `saved-detail-${item.shelfNumber}`;
       detail.className = "saved-detail";
       if (item.details.source) detail.append(text(item.details.source, "saved-source"));
-      if (item.details.context) detail.append(highlightedSavedContext(item.details.context, item.dutch));
+      for (const context of item.details.contexts) detail.append(renderSavedContext(context, item.dutch));
       const options = button("Open Options", "saved-options-link");
       options.addEventListener("click", () => void browser.runtime.openOptionsPage());
       detail.append(options);
@@ -578,8 +578,7 @@ function renderReview(): HTMLElement {
   const prompt = task.dimension === "recognition" ? item.dutch : item.english ?? item.contexts.at(-1)?.text ?? "Use the context cue";
   card.append(eyebrow(revealed ? "Answer" : task.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(revealed ? item.dutch : prompt));
   if (reviewView?.canSubmitResult) {
-    const context = [...item.contexts].sort((first, second) => second.addedAt - first.addedAt)[0];
-    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), teluguMeaning(item.telugu), contextMeaning(context));
+    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), teluguMeaning(item.telugu), contextMeaning(item.contexts));
     const actions = document.createElement("div"); actions.className = "rating-actions";
     for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.disabled = pending; action.addEventListener("click", () => void saveResult(item, task.dimension, result)); actions.append(action); }
     card.append(actions);
@@ -610,8 +609,7 @@ function renderSavedQuiz(): HTMLElement {
     retry.addEventListener("click", () => void saveSavedQuizResult(item, task, savedQuizRetry ?? "got-it"));
     card.append(error, retry);
   } else if (session.revealed) {
-    const context = [...item.contexts].sort((first, second) => second.addedAt - first.addedAt)[0];
-    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), teluguMeaning(item.telugu), contextMeaning(context));
+    card.append(meaning("Dutch", item.dutch), meaning("English", item.english), teluguMeaning(item.telugu), contextMeaning(item.contexts));
     const actions = document.createElement("div");
     actions.className = "rating-actions";
     for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.disabled = pending; action.addEventListener("click", () => void saveSavedQuizResult(item, task, result)); actions.append(action); }
@@ -695,10 +693,39 @@ function helperMeaningWithPhonetics(label: string, value: string, phonetics: str
   }
   return helper;
 }
-function meaning(label: string, value: string | null | undefined): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "unavailable"; if (value == null) content.className = "meaning-unavailable"; row.append(name, content); return row; }
+function meaning(label: string, value: string | null | undefined): HTMLElement { const row = section("meaning-row"); const name = document.createElement("strong"); name.textContent = label; const content = document.createElement("span"); content.textContent = value ?? "Unavailable"; if (value == null) content.className = "meaning-unavailable"; row.append(name, content); return row; }
 function teluguMeaning(value: string | null): HTMLElement { const row = meaning("Telugu", value); if (value) { const phonetics = getSimpleTeluguPhonetics(value); const helper = document.createElement("small"); helper.className = phonetics ? "telugu-phonetics" : "telugu-phonetics meaning-unavailable"; helper.textContent = phonetics ? `Say it: ${phonetics}` : "Phonetics unavailable"; row.append(helper); } return row; }
 function phoneticHint(): HTMLElement { return text("Telugu phonetic guide appears after reveal when helper text is available.", "phonetic-hint"); }
-function contextMeaning(context: LearningItem["contexts"][number] | undefined): HTMLElement { const row = section("meaning-row context-answer"); const name = document.createElement("strong"); name.textContent = "Context"; const dutch = document.createElement("span"); dutch.textContent = context?.text ?? "unavailable"; if (!context?.text) dutch.className = "meaning-unavailable"; row.append(name, dutch); for (const [label, value] of [["English", context?.english], ["Telugu", context?.telugu]] as const) { const translation = document.createElement("small"); translation.textContent = `${label}: ${value ?? "unavailable"}`; if (!value) translation.className = "meaning-unavailable"; row.append(translation); } return row; }
+function contextMeaning(contexts: LearningItem["contexts"]): HTMLElement {
+  const wrapper = section("context-answers");
+  for (const context of getSavedContextViews(contexts)) wrapper.append(renderContextMeaning(context));
+  if (wrapper.childElementCount === 0) wrapper.append(renderContextMeaning({ text: "", originalLabel: "Original context · Language not detected", englishTranslation: null, teluguTranslation: null }));
+  return wrapper;
+}
+function renderContextMeaning(context: SavedContextView): HTMLElement {
+  const row = section("meaning-row context-answer");
+  const name = document.createElement("strong"); name.textContent = context.originalLabel;
+  const original = document.createElement("span"); original.textContent = context.text || "Unavailable"; if (!context.text) original.className = "meaning-unavailable";
+  row.append(name, original);
+  for (const [label, value] of [["English translation", context.englishTranslation], ["Telugu translation", context.teluguTranslation]] as const) {
+    if (label === "English translation" && context.originalLabel === "Original context · English") continue;
+    if (label === "Telugu translation" && context.originalLabel === "Original context · Telugu") continue;
+    const translation = document.createElement("small"); translation.textContent = `${label}: ${value ?? "Unavailable"}`; if (!value) translation.className = "meaning-unavailable"; row.append(translation);
+  }
+  return row;
+}
+function renderSavedContext(context: SavedContextView, savedDutch: string): HTMLElement {
+  const card = section("saved-context-card");
+  card.append(text(context.originalLabel, "saved-context-label"), highlightedSavedContext(context.text, savedDutch));
+  for (const [label, value] of [["English translation", context.englishTranslation], ["Telugu translation", context.teluguTranslation]] as const) {
+    if (label === "English translation" && context.originalLabel === "Original context · English") continue;
+    if (label === "Telugu translation" && context.originalLabel === "Original context · Telugu") continue;
+    const helper = text(`${label}: ${value ?? "Unavailable"}`, "saved-context-helper");
+    if (!value) helper.classList.add("meaning-unavailable");
+    card.append(helper);
+  }
+  return card;
+}
 function highlightedSavedContext(context: string, savedDutch: string): HTMLElement { const paragraph = document.createElement("p"); paragraph.className = "saved-context"; const contextLower = context.toLocaleLowerCase(); const savedLower = savedDutch.toLocaleLowerCase(); const start = contextLower.indexOf(savedLower); if (start < 0 || savedLower.length === 0) { paragraph.textContent = context; return paragraph; } paragraph.append(document.createTextNode(context.slice(0, start))); const mark = document.createElement("mark"); mark.className = "saved-context-highlight"; mark.textContent = context.slice(start, start + savedDutch.length); paragraph.append(mark, document.createTextNode(context.slice(start + savedDutch.length))); return paragraph; }
 function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }
 function toggle(labelText: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement { const label = document.createElement("label"); label.className = "setting-control"; const textNode = document.createElement("strong"); textNode.textContent = labelText; const input = document.createElement("input"); input.type = "checkbox"; input.checked = checked; input.addEventListener("change", () => onChange(input.checked)); label.append(textNode, input); return label; }

@@ -118,6 +118,7 @@ export function createTooltipViewAdapter(callbacks: {
     #hover-translate-tooltip .hover-translate-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 5px 0; }
     #hover-translate-tooltip .hover-translate-label { color: #000; font-size: 11px; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
     #hover-translate-tooltip .hover-translate-value { min-width: 0; overflow-wrap: anywhere; }
+    #hover-translate-tooltip .hover-translate-value.is-unavailable { color: rgba(0, 0, 0, .58); font-style: italic; }
     #hover-translate-tooltip .hover-translate-phonetics { grid-column: 2; color: rgba(0, 0, 0, .68); font-size: 12px; }
     #hover-translate-tooltip .context-slip-fragment:hover:not(:disabled), #hover-translate-tooltip .context-slip-button:hover:not(:disabled), #hover-translate-tooltip .context-slip-close:hover:not(:disabled), #hover-translate-tooltip .hover-translate-save:hover:not(:disabled) { background: #ff6f00; color: #000; }
     #hover-translate-tooltip .context-slip-button.primary:hover:not(:disabled) { background: #000; color: #fff; }
@@ -505,6 +506,7 @@ function renderMultiTargetTooltip(tooltip: HTMLDivElement, text: string): void {
     const value = document.createElement("span");
     value.className = "hover-translate-value";
     value.textContent = valueText;
+    if (valueText === "Unavailable") value.classList.add("is-unavailable");
 
     row.append(label, value);
     if (labelText.toLocaleLowerCase().startsWith("telugu:")) {

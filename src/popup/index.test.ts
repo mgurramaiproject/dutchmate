@@ -238,9 +238,9 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("Englishhouse");
     expect(content().textContent).toContain("Teluguఇల్లు");
     expect(content().querySelector<HTMLElement>(".telugu-phonetics")?.textContent).toBe("Say it: il-lu");
-    expect(content().textContent).toContain("ContextEen huis staat daar.");
-    expect(content().textContent).toContain("English: A house stands there.");
-    expect(content().textContent).toContain("Telugu: అక్కడ ఒక ఇల్లు ఉంది.");
+    expect(content().textContent).toContain("Original context · Language not detectedEen huis staat daar.");
+    expect(content().textContent).toContain("English translation: A house stands there.");
+    expect(content().textContent).toContain("Telugu translation: అక్కడ ఒక ఇల్లు ఉంది.");
     expect(document.activeElement).toBe(content().querySelector<HTMLButtonElement>(".rating-actions .button"));
   });
 
@@ -249,9 +249,9 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
     button("Show answer").click();
 
-    expect(content().textContent).toContain("Teluguunavailable");
-    expect(content().textContent).toContain("Contextunavailable");
-    expect(content().textContent).toContain("English: unavailable");
+    expect(content().textContent).toContain("TeluguUnavailable");
+    expect(content().textContent).toContain("Original context · Language not detectedUnavailable");
+    expect(content().textContent).toContain("English translation: Unavailable");
     expect(content().querySelector(".telugu-phonetics")).toBeNull();
   });
 
@@ -268,7 +268,7 @@ describe("lesson popup", () => {
       expect.stringContaining("2zebra"),
       expect.stringContaining("1huis"),
     ]);
-    expect(content().textContent).toMatch(/EN\s*unavailable/);
+    expect(content().textContent).toMatch(/EN\s*Unavailable/);
     expect(content().textContent).toMatch(/TE\s*జీబ్రా/);
     expect(content().querySelector(".saved-phonetics")?.textContent).toBe("Say it: jeeb-raa");
     expect(content().textContent).toContain("Familiar");
@@ -293,7 +293,7 @@ describe("lesson popup", () => {
 
     button("Show answer").click();
     await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
-    expect(content().textContent).toContain("Context");
+    expect(content().textContent).toContain("Original context · Language not detected");
     button("Got it").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Saved quiz · 2 of 2"));
     button("Show answer").click();

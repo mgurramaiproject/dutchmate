@@ -35,8 +35,8 @@ describe("getSavedShelfView", () => {
     expect(view).toMatchObject({ status: "ready", sort: "newest", count: 3 });
     if (view.status !== "ready") throw new Error("Expected saved items.");
     expect(view.items.map(({ dutch, shelfNumber, mastery, english, telugu }) => ({ dutch, shelfNumber, mastery, english, telugu }))).toEqual([
-      { dutch: "zebra", shelfNumber: 3, mastery: "Familiar", english: "zebra", telugu: "unavailable" },
-      { dutch: "boek", shelfNumber: 2, mastery: "New", english: "unavailable", telugu: "పుస్తకం" },
+      { dutch: "zebra", shelfNumber: 3, mastery: "Familiar", english: "zebra", telugu: "Unavailable" },
+      { dutch: "boek", shelfNumber: 2, mastery: "New", english: "Unavailable", telugu: "పుస్తకం" },
       { dutch: "appel", shelfNumber: 1, mastery: "New", english: "apple", telugu: "ఆపిల్" },
     ]);
   });
@@ -57,11 +57,30 @@ describe("getSavedShelfView", () => {
 
     if (view.status !== "ready") throw new Error("Expected saved items.");
     expect(view.items.map(({ dutch, expanded, details }) => ({ dutch, expanded, details }))).toEqual([
-      { dutch: "straat", expanded: true, details: { source: "Saved from webpage", context: "De straat is vandaag rustig." } },
+      { dutch: "straat", expanded: true, details: { source: "Saved from webpage", contexts: [{ text: "De straat is vandaag rustig.", originalLabel: "Original context · Language not detected", englishTranslation: null, teluguTranslation: null }, { text: "Ik woon aan deze straat.", originalLabel: "Original context · Language not detected", englishTranslation: null, teluguTranslation: null }] } },
       { dutch: "appel", expanded: false, details: undefined },
     ]);
     expect(JSON.stringify(view)).not.toContain("private provider");
     expect(getSavedShelfView([earliest], { expandedItemId: withDetails.id })).not.toMatchObject({ status: "ready", items: [{ expanded: true }] });
+  });
+
+  it("presents three newest contexts with provenance and only relevant helper translations", () => {
+    const withContexts = item("huis", 50, {
+      contexts: [
+        { text: "Old context", addedAt: 10 },
+        { text: "Een huis staat daar.", addedAt: 20, sourceLanguage: "nl", english: "A house stands there.", telugu: null },
+        { text: "A house stands here.", addedAt: 30, sourceLanguage: "en", english: "A house stands here.", telugu: "ఇక్కడ ఒక ఇల్లు ఉంది." },
+        { text: "ఇల్లు ఇక్కడ ఉంది.", addedAt: 40, sourceLanguage: "te", english: "The house is here.", telugu: "ఇల్లు ఇక్కడ ఉంది." },
+      ],
+    });
+    const view = getSavedShelfView([withContexts], { expandedItemId: withContexts.id });
+
+    if (view.status !== "ready") throw new Error("Expected saved items.");
+    expect(view.items[0].details?.contexts).toEqual([
+      { text: "ఇల్లు ఇక్కడ ఉంది.", originalLabel: "Original context · Telugu", englishTranslation: "The house is here.", teluguTranslation: null },
+      { text: "A house stands here.", originalLabel: "Original context · English", englishTranslation: null, teluguTranslation: "ఇక్కడ ఒక ఇల్లు ఉంది." },
+      { text: "Een huis staat daar.", originalLabel: "Original context · Dutch", englishTranslation: "A house stands there.", teluguTranslation: null },
+    ]);
   });
 
   it("caps displayed Page context even if an invalid record reaches the presentation seam", () => {
@@ -69,7 +88,7 @@ describe("getSavedShelfView", () => {
     const view = getSavedShelfView([longContext], { expandedItemId: longContext.id });
 
     if (view.status !== "ready") throw new Error("Expected saved items.");
-    expect(view.items[0].details?.context).toHaveLength(240);
+    expect(view.items[0].details?.contexts[0].text).toHaveLength(240);
   });
 
   it("models loading, recoverable error, and an actionable empty collection", () => {
