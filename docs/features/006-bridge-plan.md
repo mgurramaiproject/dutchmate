@@ -21,6 +21,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - A translation result that is ambiguous, multi-word, or otherwise not one safe Dutch word remains visible for understanding but does not expose Save; 006 adds no choice picker. “One safe Dutch word” reuses the existing Unicode letter/number plus apostrophe/hyphen eligibility rule after normalization.
 - Context translation is best effort per helper. A failed optional context translation must not discard the learner’s deliberate word save; later captures may fill only missing helper fields and never overwrite existing translations.
 - Repeated captures merge into one Dutch item. Contexts deduplicate by normalized text plus source language and fill missing translations/provenance.
+- Legacy contexts with unknown provenance are never retroactively relabeled; a later identical context with known provenance remains a separate provenance-aware context.
 - Source-language resolution prefers Telugu script in the selected text, then supported nearest page metadata, then Dutch/English lexical evidence. A unique saved-form match may support `Seen before` but never overrides a confident source or invents one.
 - Telugu hover never requests a Telugu self-translation: multi-target mode shows Dutch plus English, while one-target mode falls back to Dutch if Telugu would be the configured target. Save remains selection-only; hover remains translation/encounter-only.
 - `Seen before` appears for a confident unique Dutch, English, or Telugu saved-item match even without page context and even if the later encounter write fails. Ambiguous helper-form matches show no cue; Dutch-only recall/reconstruction missions remain unchanged.
@@ -36,6 +37,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Partial provider failure preserves the word and any successful context fields.
 - Repeated captures can fill missing context helpers without replacing an existing translation.
 - Existing records and legacy contexts migrate/read without data loss; unknown context provenance remains honest.
+- Legacy unknown contexts remain distinct from later known-provenance captures even when their normalized text matches.
 - Repeated captures merge correctly without duplicate Saved rows or duplicate contexts.
 - Telugu hover renders the source-aware popup; configured same-language targets fall back safely and never produce an empty/self-translation result.
 - `Seen before` works for all three source forms and remains truthful when encounter persistence fails.

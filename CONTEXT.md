@@ -149,7 +149,7 @@ The fixed English and Telugu renderings of a saved page context shown with its o
 _Avoid_: Generated sentence, sentence coaching, translation history
 
 **Context provenance**:
-The optional source-language identity attached to one saved page context. It distinguishes Dutch, English, Telugu, and older unknown contexts without changing the learning item's Dutch identity.
+The optional source-language identity attached to one saved page context. It distinguishes Dutch, English, Telugu, and older unknown contexts without changing the learning item's Dutch identity; unknown legacy provenance is never inferred later from matching text.
 _Avoid_: Item language switch, browser locale, raw page metadata
 
 **Cross-language merge**:
