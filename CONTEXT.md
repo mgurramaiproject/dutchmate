@@ -101,7 +101,7 @@ The explicit language identity that scopes every learning item and its mastery i
 _Avoid_: Translation direction, helper language, multilingual learning mode
 
 **Canonical Dutch form**:
-The one safe Dutch word that identifies a cross-language capture and can become the learning item's Dutch key. If a result is ambiguous, multi-word, or otherwise not one safe form, DutchMate may explain it but does not save it without an explicit learner choice.
+The one safe Dutch word that identifies a cross-language capture and can become the learning item's Dutch key. It follows the existing normalized Unicode letter/number plus apostrophe/hyphen eligibility rule; if a result is ambiguous, multi-word, or otherwise not one safe form, DutchMate may explain it but does not save it without an explicit learner choice.
 _Avoid_: First translation returned, guessed Dutch key, provider text
 
 **Cross-language capture**:
