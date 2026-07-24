@@ -145,7 +145,7 @@ The short sentence or text snippet the learner encountered when saving a learnin
 _Avoid_: Generated example, translation history, webpage archive
 
 **Context translations**:
-The fixed English and Telugu renderings of a saved page context shown with its original sentence after a review-card reveal; the source-language rendering is copied through and only missing languages are requested. They are supporting comprehension, not generated replacement examples.
+The fixed English and Telugu renderings of a saved page context shown with its original sentence after a review-card reveal; the source-language rendering is copied through, each helper is independently best effort, and later captures fill only missing helpers. They are supporting comprehension, not generated replacement examples.
 _Avoid_: Generated sentence, sentence coaching, translation history
 
 **Context provenance**:

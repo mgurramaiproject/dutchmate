@@ -19,7 +19,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Context translations keep fixed English and Telugu fields. Copy through the source text when it already is English or Telugu; request only missing translations.
 - A successful Dutch canonical translation is enough to expose Save. Missing English/Telugu helpers remain explicitly unavailable rather than hiding Save.
 - A translation result that is ambiguous, multi-word, or otherwise not one safe Dutch word remains visible for understanding but does not expose Save; 006 adds no choice picker.
-- Context translation is best effort. A failed optional context translation must not discard the learner’s deliberate word save.
+- Context translation is best effort per helper. A failed optional context translation must not discard the learner’s deliberate word save; later captures may fill only missing helper fields and never overwrite existing translations.
 - Repeated captures merge into one Dutch item. Contexts deduplicate by normalized text plus source language and fill missing translations/provenance.
 - Source-language resolution prefers Telugu script in the selected text, then supported nearest page metadata, then Dutch/English lexical evidence. A unique saved-form match may support `Seen before` but never overrides a confident source or invents one.
 - Telugu hover shows Dutch and English results, never a Telugu self-translation. Save remains selection-only; hover remains translation/encounter-only.
@@ -34,6 +34,7 @@ Make DutchMate behave consistently when a learner reads Dutch, English, or Telug
 - Saved context from all three source languages retains source text, provenance, and available fixed English/Telugu renderings.
 - Repeated words in one page retain the sentence for the selected occurrence, or no context when the occurrence is uncertain.
 - Partial provider failure preserves the word and any successful context fields.
+- Repeated captures can fill missing context helpers without replacing an existing translation.
 - Existing records and legacy contexts migrate/read without data loss; unknown context provenance remains honest.
 - Repeated captures merge correctly without duplicate Saved rows or duplicate contexts.
 - Telugu hover renders the source-aware popup; configured same-language targets never produce an empty/self-translation result.
