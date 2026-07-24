@@ -4,7 +4,7 @@
 
 **Branch:** `feature-006-bridge`
 
-**Status:** Grill complete; implementation not started.
+**Status:** Grill review complete; decisions recorded; implementation not started.
 
 ## Outcome
 
@@ -86,4 +86,4 @@ All feature artifacts created from this work use the shared `006-bridge` prefix,
 
 ## Next step
 
-Review this plan. If approved, create the `006-bridge` spec and implementation tickets, then implement the first slice on `feature-006-bridge` using the `implement` skill. Keep the branch scoped to this feature and commit every intentional repository change.
+Stop here for explicit approval. After approval, create the `006-bridge` spec with `to-spec`, then create implementation tickets with `to-tickets`; do not implement until those artifacts are reviewed and approved. Keep the branch scoped to this feature and commit every intentional repository change.
