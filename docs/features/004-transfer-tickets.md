@@ -130,7 +130,7 @@ GitHub: [#62](https://github.com/mgurramaiproject/dutchmate/issues/62)
 - [x] The shared `004-transfer` validation artifact records automated evidence, manual-browser evidence, unresolved limitations, and release readiness without conflating them.
 - [x] The validation artifact includes a voluntary delayed-transfer pilot protocol comparing translation-only and translation-plus-mission items after 2–7 days in a different sentence while observing reading disruption.
 - [x] The pilot protocol requires consent, no default background telemetry, and no activity-only success claim; Context Missions remain described as experimental until delayed evidence supports transfer.
-- [ ] Any defect found by validation is fixed and reverified within the approved scope, or the ticket is marked Blocked with the exact remaining evidence and next action.
+- [x] Any defect found by validation is fixed and reverified within the approved scope, or the ticket is marked Blocked with the exact remaining evidence and next action.
 
 **Current T06 state:** Blocked pending the real Chrome and Firefox Context Missions checklist recorded in [004-transfer-validation.md](./004-transfer-validation.md). Automated validation found no defect, and PR [#63](https://github.com/mgurramaiproject/dutchmate/pull/63) has merged the implementation into `main`. After the browser pass, record the result, re-run the focused verification if a defect is fixed, then close issue #62 and move its Delivery Status to Done.
 

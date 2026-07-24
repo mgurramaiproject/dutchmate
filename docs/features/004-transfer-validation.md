@@ -33,7 +33,7 @@ The package gate verified each target contains its background entry, content scr
 
 | Browser | Build | Result | Evidence |
 | --- | --- | --- | --- |
-| Chrome 149.0.7827.114 on Linux | `dist/chrome` | Pending | An interactive extension pass has not been recorded for this Context Missions release candidate. |
+| Chrome 149.0.7827.114 on Linux | `dist/chrome` | Pending | An interactive extension pass has not been recorded. A 2026-07-24 local automation attempt could not register the unpacked extension, so no browser result is claimed. |
 | Firefox 152.0.6 on Linux | `dist/firefox` | Pending | An interactive extension pass has not been recorded for this Context Missions release candidate. |
 
 The required interactive pass is the Context Missions checklist in [manual testing](../release/manual-testing.md): deliberate selection; first encounter; saved-repeat recognition and recall; scrolling; viewport edges; Escape; focus return; keyboard-only completion; touch-sized controls; and safe translation/storage failures. Record browser version, tester, commit, and result in that document's Verification Log.
@@ -62,4 +62,4 @@ This optional product-learning check is not telemetry, a default product flow, o
 
 ## Unresolved limitations and readiness
 
-Automated engineering and packaging evidence is complete, and PR [#63](https://github.com/mgurramaiproject/dutchmate/pull/63) has merged the implementation into `main`. Release readiness remains **blocked** until a tester records the Chrome and Firefox interactive pass above. No implementation defect was found in the automated scope. The next action is to load the generated Chrome and Firefox builds, run the Context Missions browser checklist, then update this record, the T06 checklist, close issue #62, and move its Delivery Status to Done.
+Automated engineering and packaging evidence is complete, and PR [#63](https://github.com/mgurramaiproject/dutchmate/pull/63) has merged the implementation into `main`. Release readiness remains **blocked** until a tester records the Chrome and Firefox interactive pass above. No implementation defect was found in the automated scope. A local 2026-07-24 automation attempt was unable to register the unpacked Chrome extension, so manual browser loading remains the next action. After that pass, update this record, the T06 checklist, close issue #62, and move its Delivery Status to Done.
