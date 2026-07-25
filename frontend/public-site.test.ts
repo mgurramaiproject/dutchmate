@@ -62,9 +62,14 @@ describe("public website", () => {
 
     expect(feedbackPage).toContain("Open feedback form");
     expect(feedbackPage).toContain("https://forms.gle/9KSsqfE1NNZcPEaaA");
-    expect(feedbackPage).toContain("Email us");
+    expect(feedbackPage).toContain("Contact form");
     expect(feedbackPage).toContain("Review on Firefox");
     expect(feedbackPage).toContain("Share on X");
+
+    for (const pageName of ["index.html", "feedback.html", "privacy-policy.html"]) {
+      expect(readFrontendFile(pageName)).not.toMatch(/mailto:|dutchmate\.project@gmail\.com/i);
+    }
+
     expect(feedbackPage).not.toContain("github.com/mgurramaiproject/dutchmate/issues/new");
   });
 });
