@@ -21,6 +21,7 @@
     <title>DutchMate 0.4.0 | Read Dutch from the web</title>
     <link rel="icon" href="assets/dutchmate-logo-gpt-image.png" type="image/png">
     <link rel="stylesheet" href="styles.css">
+    <script src="007-showcase-gallery.js" defer></script>
   </head>
   <body>
     <header class="site-header">
@@ -296,6 +297,27 @@
         </div>
       </section>
     </main>
+
+    <dialog class="screenshot-lightbox" id="screenshot-lightbox" aria-labelledby="screenshot-lightbox-title">
+      <div class="screenshot-lightbox-shell">
+        <div class="screenshot-lightbox-header">
+          <div>
+            <p class="eyebrow">Screenshot preview</p>
+            <h2 id="screenshot-lightbox-title">DutchMate in action</h2>
+            <p class="screenshot-lightbox-counter" id="screenshot-lightbox-counter" aria-live="polite"></p>
+          </div>
+          <button class="button secondary" type="button" data-lightbox-close>Close</button>
+        </div>
+        <figure class="screenshot-lightbox-figure">
+          <img id="screenshot-lightbox-image" src="" alt="">
+          <figcaption id="screenshot-lightbox-caption"></figcaption>
+        </figure>
+        <div class="screenshot-lightbox-controls" aria-label="Screenshot navigation">
+          <button class="button secondary" type="button" data-lightbox-prev>← Previous</button>
+          <button class="button secondary" type="button" data-lightbox-next>Next →</button>
+        </div>
+      </div>
+    </dialog>
 
     <footer class="footer">
       <div class="footer-inner">

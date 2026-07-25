@@ -40,3 +40,15 @@ Implementation frontier for [007-showcase-spec.md](./007-showcase-spec.md), trac
 - [x] Confirm all local asset links resolve and no external source-folder paths remain. Evidence: Vite served the homepage and the browser-popup asset with HTTP 200.
 - [x] Update this checklist with direct evidence and commit the complete feature using the repository commit convention. Implementation is committed as `fdc333c`; tracker reconciliation is recorded in the follow-up docs commit.
 - [x] Reconcile the GitHub issue/Delivery state and open the PR according to the repository workflow when remote access is available. Issue #79 is open with `enhancement`; PR #80 is open; Delivery is `In Review` with `Execution=Agent`.
+
+## T05 — Open story screenshots in an on-page lightbox
+
+**Blocked by:** T02.
+
+- [x] Clicking a screenshot opens a native dialog on the homepage instead of navigating away.
+- [x] Previous and next controls cycle only through the current story group.
+- [x] `Esc`, the close button, and backdrop clicks close the dialog and restore focus to the triggering image.
+- [x] Arrow keys navigate the open story; direct image links remain the no-JavaScript fallback.
+- [x] Lightbox controls and image containment remain usable at desktop and narrow/mobile widths. Browser-level CDP verification passed at 390px and 1440px page widths.
+
+**T05 evidence:** Headless Chrome opened the first story at `1 of 7`, moved to `2 of 7` with ArrowRight, and closed with Escape while restoring focus to the original trigger. `node --check frontend/007-showcase-gallery.js`, focused public-site tests, full tests, typecheck, release verification, and `git diff --check` pass.

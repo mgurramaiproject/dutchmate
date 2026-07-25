@@ -14,6 +14,8 @@ describe("public website", () => {
     expect(homepage).toContain("Install DutchMate free");
     expect(homepage).toContain("No account or subscription");
     expect(homepage).toContain("007-showcase-040-14-browser-popup.png");
+    expect(homepage).toContain('id="screenshot-lightbox"');
+    expect(homepage).toContain('src="007-showcase-gallery.js" defer');
     expect(homepage).toContain("https://addons.mozilla.org/en-US/firefox/addon/dutchmate/");
   });
 

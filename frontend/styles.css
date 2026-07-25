@@ -510,6 +510,82 @@ h3 {
   outline-offset: -3px;
 }
 
+.screenshot-lightbox {
+  width: min(960px, calc(100% - 32px));
+  max-width: 960px;
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--dm-black);
+  border-radius: 8px;
+  background: var(--dm-white);
+  color: var(--dm-black);
+}
+
+.screenshot-lightbox::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.screenshot-lightbox-shell {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.screenshot-lightbox-header,
+.screenshot-lightbox-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.screenshot-lightbox-header h2 {
+  font-size: 1.8rem;
+}
+
+.screenshot-lightbox-header .eyebrow {
+  margin-bottom: 6px;
+}
+
+.screenshot-lightbox-counter {
+  margin: 6px 0 0;
+  color: var(--dm-muted);
+  font-family: var(--dm-sans);
+  font-size: 0.9rem;
+}
+
+.screenshot-lightbox-figure {
+  margin: 0;
+  border: 1px solid var(--dm-line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.screenshot-lightbox-figure img {
+  display: block;
+  width: 100%;
+  max-height: min(68vh, 680px);
+  padding: 18px;
+  object-fit: contain;
+}
+
+.screenshot-lightbox-figure figcaption {
+  padding: 14px 18px 16px;
+  border-top: 1px solid var(--dm-line);
+  color: var(--dm-muted);
+}
+
+.screenshot-lightbox-controls {
+  justify-content: flex-end;
+}
+
+.screenshot-lightbox .button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .feature,
 .privacy-note {
   border: 1px solid var(--dm-line);
@@ -823,5 +899,30 @@ h3 {
 
   .browser-preview img {
     height: 260px;
+  }
+
+  .screenshot-lightbox-shell {
+    padding: 16px;
+  }
+
+  .screenshot-lightbox-header {
+    align-items: flex-start;
+  }
+
+  .screenshot-lightbox-header,
+  .screenshot-lightbox-controls {
+    flex-wrap: wrap;
+  }
+
+  .screenshot-lightbox-header h2 {
+    font-size: 1.45rem;
+  }
+
+  .screenshot-lightbox-header .button {
+    margin-left: auto;
+  }
+
+  .screenshot-lightbox-controls .button {
+    flex: 1 1 140px;
   }
 }
