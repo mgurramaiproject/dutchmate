@@ -1,5 +1,32 @@
 # Release Notes
 
+## 0.4.0
+
+Target: the first minor release after the `0.3.0` LearnLoop baseline, adding Context Missions, learning-loop refinements, and source-aware cross-language capture.
+
+Changes:
+
+- Added optional Context Missions for deliberate webpage selections, including first-encounter reconstruction and saved-item recognition or recall without a popup tab.
+- Added contextual review refinements: Telugu phonetic helpers, Saved recovery controls, Quiz Saved, lesson filters, focused-flow orientation, durable local activity, Daily Five continuity, and lifecycle hardening.
+- Added source-aware Dutch, English, and Telugu selection and hover behavior, including canonical Dutch saves, Seen-before matching, and no self-translation.
+- Added provenance-aware Saved and review contexts with up to three recent contexts, helper translations, explicit unavailable states, and legacy-language handling.
+
+Verification:
+
+- `corepack pnpm test`
+- `corepack pnpm typecheck`
+- `corepack pnpm build:chrome`
+- `corepack pnpm build:firefox`
+- `corepack pnpm verify:release`
+- `git diff --check`
+- Chrome 149.0.7827.114 and Firefox 152.0.6 manual validation confirmed on 2026-07-25.
+
+Notes:
+
+- No new browser permissions, account, cloud sync, or backend provider change.
+- Learning data remains local to the browser; Context Mission state remains ephemeral and experimental.
+- Store submissions remain manual after the GitHub Release is published.
+
 ## 0.3.0
 
 Target: first local flashcard review release after `0.2.0`.
