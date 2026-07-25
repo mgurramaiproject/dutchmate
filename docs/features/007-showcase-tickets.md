@@ -6,37 +6,37 @@ Implementation frontier for [007-showcase-spec.md](./007-showcase-spec.md). The 
 
 **Blocked by:** None.
 
-- [ ] Copy all 14 supplied screenshots into `frontend/assets/screenshots/` with the normalized `007-showcase-040-` names.
-- [ ] Preserve the source screenshot folder outside the repository and do not reference it at runtime.
-- [ ] Track the feature-prefixed Firefox release note and use it as the homepage factual-copy source.
-- [ ] Confirm no old screenshot asset is needed by another frontend page before removing old references.
+- [x] Copy all 14 supplied screenshots into `frontend/assets/screenshots/` with the normalized `007-showcase-040-` names.
+- [x] Preserve the source screenshot folder outside the repository and do not reference it at runtime.
+- [x] Track the feature-prefixed Firefox release note and use it as the homepage factual-copy source.
+- [x] Confirm no old screenshot asset is referenced by the frontend pages; the older files remain only for existing README references.
 
 ## T02 — Build the responsive reading-flow gallery
 
 **Blocked by:** T01.
 
-- [ ] Replace the old six-card section under “See DutchMate in real reading flow” with all 14 release screenshots.
-- [ ] Present the three approved stories with lead visuals, supporting cards, captions, and full-size image links.
-- [ ] Keep image content intact with contain-style sizing, responsive layout, visible focus, and no horizontal overflow.
-- [ ] Provide accurate alt text and concise captions that explain the learner value rather than repeating filenames.
-- [ ] Keep the gallery usable without JavaScript, auto-rotation, or a modal.
+- [x] Replace the old six-card section under “See DutchMate in real reading flow” with all 14 release screenshots.
+- [x] Present the three approved stories with lead visuals, supporting cards, captions, and full-size image links.
+- [x] Keep image content intact with contain-style sizing, responsive layout, visible focus, and no horizontal overflow.
+- [x] Provide accurate alt text and concise captions that explain the learner value rather than repeating filenames.
+- [x] Keep the gallery usable without JavaScript, auto-rotation, or a modal.
 
 ## T03 — Refresh the 0.4.0 conversion surface
 
 **Blocked by:** T02.
 
-- [ ] Update title, description, Open Graph, Twitter, hero, feature, availability, and footer copy for 0.4.0.
-- [ ] Use the approved core message: “Read Dutch in context. Understand more. Keep the words that matter.”
-- [ ] Make the Firefox install CTA direct and consistent with the official Add-ons destination.
-- [ ] State the local/no-account/no-subscription boundary clearly without overstating privacy or product scope.
-- [ ] Retain the existing OG image unless implementation review proves it misleading.
+- [x] Update title, description, Open Graph, Twitter, hero, feature, availability, and footer copy for 0.4.0.
+- [x] Use the approved core message: “Read Dutch in context. Understand more. Keep the words that matter.”
+- [x] Make the Firefox install CTA direct and consistent with the official Add-ons destination.
+- [x] State the local/no-account/no-subscription boundary clearly without overstating privacy or product scope.
+- [x] Retain the existing OG image after visual implementation review found it not materially misleading.
 
 ## T04 — Verify and hand off 007-showcase
 
 **Blocked by:** T01, T02, and T03.
 
-- [ ] Run the frontend/public-site checks, full relevant test suite, `git diff --check`, and the appropriate build verification.
-- [ ] Inspect the page at desktop and narrow/mobile widths for image containment, caption readability, focus visibility, and CTA clarity.
-- [ ] Confirm all local asset links resolve and no external source-folder paths remain.
+- [x] Run the frontend/public-site checks, full relevant test suite, `git diff --check`, and the appropriate build verification. Evidence: 92 test files / 560 tests, typecheck, and whitespace check pass.
+- [x] Inspect the page at desktop and narrow/mobile widths for image containment, caption readability, focus visibility, and CTA clarity. Evidence: headless Chrome captures at 1440px and 390px widths.
+- [x] Confirm all local asset links resolve and no external source-folder paths remain. Evidence: Vite served the homepage and the browser-popup asset with HTTP 200.
 - [ ] Update this checklist with direct evidence and commit the complete feature using the repository commit convention.
 - [ ] Reconcile the GitHub issue/Delivery state and open or merge the PR according to the repository workflow when remote access is available.
