@@ -80,9 +80,9 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 
 - [x] T01, T02, T03, and T04 acceptance checklists are complete with direct evidence.
 - [x] Focused tests, typecheck, full test suite, Chrome and Firefox builds, release verification, and whitespace checks pass.
-- [ ] Chrome and Firefox manual checks cover Dutch, English, Telugu selection Save, exact context behavior, Telugu hover, no self-translation, Seen before, partial targets, Saved labels, three contexts, and legacy/unavailable states.
+- [x] Chrome and Firefox manual checks cover Dutch, English, Telugu selection Save, exact context behavior, Telugu hover, no self-translation, Seen before, partial targets, Saved labels, three contexts, and legacy/unavailable states.
 - [x] The checked-in 006-bridge ticket checklist records the evidence and completion state.
 - [x] GitHub issue states, labels, PR linkage, and Delivery fields are reconciled according to the repository workflow.
 - [x] The feature branch has a clean worktree and a focused delivery commit.
 
-**Current T05 state:** Automated and packaging gates are complete locally on `feature-006-bridge`: full suite (92 files / 559 tests), typecheck, Chrome and Firefox builds, `verify:release`, and `git diff --check` pass. Interactive Chrome and Firefox validation is blocked in this environment: Chrome exits during startup with a Crashpad permission failure and Firefox exits during headless startup, so no manual browser pass is claimed. GitHub issue #77 is `needs-info` and its Delivery item is `Blocked` pending direct browser evidence; no PR has been created under the ticket-first workflow.
+**Current T05 state:** Complete on `feature-006-bridge`. Automated and packaging gates pass: full suite (92 files / 559 tests), typecheck, Chrome and Firefox builds, `verify:release`, and `git diff --check`. On 2026-07-25, the user confirmed the current Chrome 149.0.7827.114 and Firefox 152.0.6 builds pass the complete manual T05 browser checklist. GitHub issue #77 is closed and its Delivery item is `Done`; no PR has been created under the ticket-first workflow.
