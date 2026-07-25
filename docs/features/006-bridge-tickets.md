@@ -16,7 +16,7 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 - [x] Learning-backup version 2 imports and exports remain compatible with optional new fields.
 - [x] Focused learning-record, migration, merge, encounter, and backup tests pass.
 
-**Current T01 state:** Complete locally on `feature-006-bridge`. Evidence: focused learning-record/background tests (27 tests), full suite (92 files / 538 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. GitHub issue #73 and its Delivery item remain open and In Progress while the delivery gate is implemented; no PR has been created.
+**Current T01 state:** Complete on `feature-006-bridge`. Evidence: focused learning-record/background tests (27 tests), full suite (92 files / 538 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. PR #78 is open for review and links issue #73.
 
 ## [#74 — 006-bridge T02: Save English and Telugu selections into Dutch learning items](https://github.com/mgurramaiproject/dutchmate/issues/74)
 
@@ -35,7 +35,7 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 - [x] Repeated captures merge into one Dutch item without duplicate contexts.
 - [x] Focused selection, source-resolution, target-request, Save, partial-failure, and merge tests pass.
 
-**Current T02 state:** Complete locally on `feature-006-bridge`. Evidence: focused selection/source/save/helper tests (50 tests), full suite (92 files / 547 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. GitHub issue #74 and its Delivery item are reconciled as open and In Progress pending the remaining 006-bridge tickets; no PR has been created.
+**Current T02 state:** Complete on `feature-006-bridge`. Evidence: focused selection/source/save/helper tests (50 tests), full suite (92 files / 547 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. PR #78 is open for review and links issue #74.
 
 ## [#75 — 006-bridge T03: Recognize Dutch, English, and Telugu forms during hover](https://github.com/mgurramaiproject/dutchmate/issues/75)
 
@@ -53,7 +53,7 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 - [x] Encounter persistence stores only bounded original context plus provenance and does not request helper translations.
 - [x] Focused hover, target fallback, cross-language matching, ambiguity, partial-result, and encounter-failure tests pass.
 
-**Current T03 state:** Complete locally on `feature-006-bridge`. Evidence: focused hover/Seen-before/encounter tests (47 tests), full suite (92 files / 557 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. GitHub issue #75 and its Delivery item will remain open and In Progress while the remaining 006-bridge tickets are implemented; no PR has been created.
+**Current T03 state:** Complete on `feature-006-bridge`. Evidence: focused hover/Seen-before/encounter tests (47 tests), full suite (92 files / 557 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. PR #78 is open for review and links issue #75.
 
 ## [#76 — 006-bridge T04: Present provenance-aware contexts in popup and Saved](https://github.com/mgurramaiproject/dutchmate/issues/76)
 
@@ -70,7 +70,7 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 - [x] Existing context highlighting, Telugu phonetics, Dutch review, mission, privacy, and no-account UI behavior remains intact.
 - [x] Focused tooltip, Saved-shelf, review, and regression tests pass.
 
-**Current T04 state:** Complete locally on `feature-006-bridge`. Evidence: focused popup/Saved/tooltip tests (45 tests), full suite (92 files / 559 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. GitHub issue #76 and its Delivery item will remain open and In Progress while the delivery gate is implemented; no PR has been created.
+**Current T04 state:** Complete on `feature-006-bridge`. Evidence: focused popup/Saved/tooltip tests (45 tests), full suite (92 files / 559 tests), typecheck, Chrome build, Firefox build, and `git diff --check` all pass. PR #78 is open for review and links issue #76.
 
 ## [#77 — 006-bridge T05: Verify and reconcile the 006-bridge delivery](https://github.com/mgurramaiproject/dutchmate/issues/77)
 
@@ -85,4 +85,4 @@ Tracer-bullet implementation tickets for [006-bridge-spec.md](./006-bridge-spec.
 - [x] GitHub issue states, labels, PR linkage, and Delivery fields are reconciled according to the repository workflow.
 - [x] The feature branch has a clean worktree and a focused delivery commit.
 
-**Current T05 state:** Complete on `feature-006-bridge`. Automated and packaging gates pass: full suite (92 files / 559 tests), typecheck, Chrome and Firefox builds, `verify:release`, and `git diff --check`. On 2026-07-25, the user confirmed the current Chrome 149.0.7827.114 and Firefox 152.0.6 builds pass the complete manual T05 browser checklist. GitHub issue #77 is closed and its Delivery item is `Done`; no PR has been created under the ticket-first workflow.
+**Current T05 state:** Complete on `feature-006-bridge`. Automated and packaging gates pass: full suite (92 files / 559 tests), typecheck, Chrome and Firefox builds, `verify:release`, and `git diff --check`. On 2026-07-25, the user confirmed the current Chrome 149.0.7827.114 and Firefox 152.0.6 builds pass the complete manual T05 browser checklist. GitHub issue #77 is closed and its Delivery item is `Done`; PR #78 is open for review.
