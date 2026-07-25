@@ -76,6 +76,8 @@ GitHub: [#58](https://github.com/mgurramaiproject/dutchmate/issues/58)
 - [x] `Try from memory`, reveal, result, replay, and completion add zero translation-provider requests.
 - [x] Primary-seam, learning-contract, and rendered-card tests prove the local pre-reveal and one-result boundaries.
 
+**Current T03 state:** Complete on `main` through merged PR [#63](https://github.com/mgurramaiproject/dutchmate/pull/63), including implementation commit `b0e8a37`. Evidence: focused Context Mission regression tests (7 files / 100 tests), typecheck, and `git diff --check` pass. Issue #58 and its Delivery item are ready for reconciliation; no new implementation is required.
+
 ## T04 — Rebuild a saved repeat for recall evidence
 
 GitHub: [#60](https://github.com/mgurramaiproject/dutchmate/issues/60)
