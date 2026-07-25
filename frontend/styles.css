@@ -357,9 +357,10 @@ h3 {
 .browser-preview img {
   display: block;
   width: 100%;
-  height: 360px;
-  object-fit: cover;
+  height: 460px;
+  object-fit: contain;
   object-position: center;
+  background: rgba(0, 0, 0, 0.03);
 }
 
 
@@ -400,10 +401,57 @@ h3 {
   gap: 18px;
 }
 
-.screenshot-grid {
+.screenshot-stories {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.screenshot-story {
+  padding: 26px;
+  border: 1px solid var(--dm-line);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.screenshot-story-header {
+  max-width: 720px;
+  margin-bottom: 22px;
+}
+
+.screenshot-story-header .eyebrow {
+  margin-bottom: 8px;
+}
+
+.screenshot-story-header h3 {
+  font-size: 1.8rem;
+}
+
+.screenshot-story-header p:last-child {
+  margin-bottom: 0;
+  color: var(--dm-muted);
+}
+
+.screenshot-story-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.78fr) minmax(0, 1.22fr);
   gap: 18px;
+  align-items: start;
+}
+
+.screenshot-support-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.screenshot-story-browser .screenshot-feature {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.screenshot-story-browser .screenshot-feature img {
+  max-height: 620px;
 }
 
 .screenshot-card {
@@ -417,14 +465,125 @@ h3 {
 .screenshot-card img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 250px;
+  padding: 10px;
+  object-fit: contain;
+  background: var(--dm-white);
   border-bottom: 1px solid var(--dm-line);
 }
 
-.screenshot-card figcaption {
+.screenshot-feature {
+  margin: 0;
+  border: 1px solid var(--dm-black);
+  border-radius: 8px;
+  background: var(--dm-white);
+  overflow: hidden;
+}
+
+.screenshot-feature img {
+  display: block;
+  width: 100%;
+  max-height: 560px;
+  padding: 18px;
+  object-fit: contain;
+  background: var(--dm-white);
+}
+
+.screenshot-card figcaption,
+.screenshot-feature figcaption {
   padding: 16px 18px 18px;
   color: var(--dm-muted);
+  font-size: 0.94rem;
+}
+
+.screenshot-feature figcaption {
+  border-top: 1px solid var(--dm-line);
   font-size: 1rem;
+}
+
+.screenshot-link {
+  display: block;
+}
+
+.screenshot-link:focus-visible {
+  outline: 3px solid var(--dm-orange);
+  outline-offset: -3px;
+}
+
+.screenshot-lightbox {
+  width: min(960px, calc(100% - 32px));
+  max-width: 960px;
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--dm-black);
+  border-radius: 8px;
+  background: var(--dm-white);
+  color: var(--dm-black);
+}
+
+.screenshot-lightbox::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.screenshot-lightbox-shell {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.screenshot-lightbox-header,
+.screenshot-lightbox-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.screenshot-lightbox-header h2 {
+  font-size: 1.8rem;
+}
+
+.screenshot-lightbox-header .eyebrow {
+  margin-bottom: 6px;
+}
+
+.screenshot-lightbox-counter {
+  margin: 6px 0 0;
+  color: var(--dm-muted);
+  font-family: var(--dm-sans);
+  font-size: 0.9rem;
+}
+
+.screenshot-lightbox-figure {
+  margin: 0;
+  border: 1px solid var(--dm-line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.screenshot-lightbox-figure img {
+  display: block;
+  width: 100%;
+  max-height: min(68vh, 680px);
+  padding: 18px;
+  object-fit: contain;
+}
+
+.screenshot-lightbox-figure figcaption {
+  padding: 14px 18px 16px;
+  border-top: 1px solid var(--dm-line);
+  color: var(--dm-muted);
+}
+
+.screenshot-lightbox-controls {
+  justify-content: flex-end;
+}
+
+.screenshot-lightbox .button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .feature,
@@ -699,9 +858,22 @@ h3 {
   .feedback-preview-grid,
   .grid-2,
   .grid-3,
-  .screenshot-grid,
   .steps {
     grid-template-columns: 1fr;
+  }
+
+  .screenshot-story {
+    padding: 18px;
+  }
+
+  .screenshot-story-grid,
+  .screenshot-support-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .screenshot-card img {
+    height: auto;
+    max-height: 460px;
   }
 
   .hero-actions,
@@ -727,5 +899,30 @@ h3 {
 
   .browser-preview img {
     height: 260px;
+  }
+
+  .screenshot-lightbox-shell {
+    padding: 16px;
+  }
+
+  .screenshot-lightbox-header {
+    align-items: flex-start;
+  }
+
+  .screenshot-lightbox-header,
+  .screenshot-lightbox-controls {
+    flex-wrap: wrap;
+  }
+
+  .screenshot-lightbox-header h2 {
+    font-size: 1.45rem;
+  }
+
+  .screenshot-lightbox-header .button {
+    margin-left: auto;
+  }
+
+  .screenshot-lightbox-controls .button {
+    flex: 1 1 140px;
   }
 }
