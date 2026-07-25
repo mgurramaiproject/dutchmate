@@ -4,6 +4,10 @@
 
 **Branch:** `feature-007-showcase`
 
+**GitHub issue:** [#79](https://github.com/mgurramaiproject/dutchmate/issues/79)
+
+**Pull request:** [#80](https://github.com/mgurramaiproject/dutchmate/pull/80)
+
 **Artifact convention:** feature-specific artifacts use the `007-showcase-` prefix. Release screenshots use the same prefix followed by the release number, for example `007-showcase-040-01-today.png`.
 
 **Copy source:** [007-showcase-firefox-0.4.0-addon-description.md](../release/007-showcase-firefox-0.4.0-addon-description.md)

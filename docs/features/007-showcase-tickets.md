@@ -1,6 +1,6 @@
 # Tickets: 007-showcase
 
-Implementation frontier for [007-showcase-spec.md](./007-showcase-spec.md). The feature remains on `feature-007-showcase` until all tickets are verified and the release handoff is complete.
+Implementation frontier for [007-showcase-spec.md](./007-showcase-spec.md), tracked by [issue #79](https://github.com/mgurramaiproject/dutchmate/issues/79) and [PR #80](https://github.com/mgurramaiproject/dutchmate/pull/80). The feature remains on `feature-007-showcase` until review and merge are complete.
 
 ## T01 — Stage the 0.4.0 showcase assets and release copy
 
@@ -38,5 +38,5 @@ Implementation frontier for [007-showcase-spec.md](./007-showcase-spec.md). The 
 - [x] Run the frontend/public-site checks, full relevant test suite, `git diff --check`, and the appropriate build verification. Evidence: 92 test files / 560 tests, typecheck, and whitespace check pass.
 - [x] Inspect the page at desktop and narrow/mobile widths for image containment, caption readability, focus visibility, and CTA clarity. Evidence: headless Chrome captures at 1440px and 390px widths.
 - [x] Confirm all local asset links resolve and no external source-folder paths remain. Evidence: Vite served the homepage and the browser-popup asset with HTTP 200.
-- [ ] Update this checklist with direct evidence and commit the complete feature using the repository commit convention.
-- [ ] Reconcile the GitHub issue/Delivery state and open or merge the PR according to the repository workflow when remote access is available.
+- [x] Update this checklist with direct evidence and commit the complete feature using the repository commit convention. Implementation is committed as `fdc333c`; tracker reconciliation is recorded in the follow-up docs commit.
+- [x] Reconcile the GitHub issue/Delivery state and open the PR according to the repository workflow when remote access is available. Issue #79 is open with `enhancement`; PR #80 is open; Delivery is `In Review` with `Execution=Agent`.
