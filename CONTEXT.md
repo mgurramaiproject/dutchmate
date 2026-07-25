@@ -100,6 +100,26 @@ _Avoid_: Account, cloud progress, browser history
 The explicit language identity that scopes every learning item and its mastery inside the local learning record. `002-learnloop` uses Dutch as its only learning-language key, without exposing a language switch or claiming to teach Telugu.
 _Avoid_: Translation direction, helper language, multilingual learning mode
 
+**Canonical Dutch form**:
+The one safe Dutch word that identifies a cross-language capture and can become the learning item's Dutch key. It follows the existing normalized Unicode letter/number plus apostrophe/hyphen eligibility rule; if a result is ambiguous, multi-word, or otherwise not one safe form, DutchMate may explain it but does not save it without an explicit learner choice.
+_Avoid_: First translation returned, guessed Dutch key, provider text
+
+**Cross-language capture**:
+A learner-controlled save that starts from English or Telugu webpage text but resolves to one Dutch learning item, retaining the source language and original page context alongside the Dutch, English, and Telugu helpers.
+_Avoid_: Source-only saved word, multilingual learning mode, automatic language switching
+
+**Source-language provenance**:
+The language identity of the webpage text that the learner deliberately selected when saving a learning item. It explains where the capture began without changing the item's Dutch learning-language key.
+_Avoid_: Translation direction, detected language as mastery scope, browsing telemetry
+
+**Cross-language encounter**:
+A deliberate or hover interaction with a saved learning item through its Dutch, English, or Telugu form on a webpage. It can show the learner that the item was seen before and retain bounded original context plus provenance, while helper context translations remain a deliberate-save concern and only Dutch encounters qualify for the current contextual recall and reconstruction missions.
+_Avoid_: Reverse-language mastery, passive page scan, multilingual practice mode
+
+**Source-language resolution**:
+The ordered process that identifies a webpage's active language for translation and saved-item matching. An explicit non-`auto` source setting wins; automatic mode uses Telugu script in the selected text, supported nearest page metadata, then Dutch/English lexical evidence. If automatic resolution remains unresolved, translation may continue but Save and provenance assignment stop; a saved-form match can support a `Seen before` cue but never overrides a confident source or invents a saved-item identity.
+_Avoid_: Browser locale, guessed mastery language, silent language switch
+
 **Learning validation**:
 The evidence used to judge whether DutchMate improves durable recognition, recall, and reduced-support story comprehension, gathered through learner-visible local progress and small voluntary learner studies. It excludes background learning telemetry and activity-only success measures.
 _Avoid_: Engagement analytics, review count, silent telemetry
@@ -112,21 +132,45 @@ _Avoid_: Time in app, content consumption, engagement alone
 The learner-controlled path in which DutchMate presents a selected word or candidate meaningful chunk with its normalized learning form, meanings, and page context, and saves it only after confirmation.
 _Avoid_: Automatic saving, translation history, unconfirmed suggestion
 
+**Selection auto-save**:
+The separate opt-in setting that can save eligible Dutch single-word selections without a Save-button click. It is off by default, does not apply to cross-language English/Telugu capture in `006-bridge`, and is unrelated to the translation cache.
+_Avoid_: Translation caching, background saving of hover text, automatic page scan
+
 **Saved vocabulary**:
 The learner-controlled collection of Dutch learning items they intentionally keep for later study. It may contain words and meaningful chunks, and is not an automatic record of every translation request.
 _Avoid_: Translation history, synced word bank
 
 **Review card**:
-The learner-facing practice representation of one learning item, assembled from its available Dutch, English, and Telugu meanings and supporting context. Its answer may show a Telugu phonetic helper and translations of the saved context sentence; it is not an individual saved translation pair.
+The learner-facing practice representation of one learning item, assembled from its available Dutch, English, and Telugu meanings and supporting context. Its answer may show a Telugu phonetic helper and translations of the saved context sentence, with the original context language labeled separately from helper translations; it is not an individual saved translation pair.
 _Avoid_: Saved translation, flashcard entry, word pair
 
 **Page context**:
-The short sentence or text snippet the learner encountered when saving a learning item. It is optional supporting context for a review card and stays local with the learner's saved vocabulary.
+The short sentence or text snippet the learner encountered when saving a learning item, retained in the source language in which it appeared and validated against the selected source occurrence rather than requiring Dutch text. Up to three recent contexts can support one Dutch learning item; each remains optional supporting context for a review card and stays local with the learner's saved vocabulary.
 _Avoid_: Generated example, translation history, webpage archive
 
 **Context translations**:
-The English and Telugu renderings of a saved page context shown with its Dutch original after a review-card reveal. They are supporting comprehension, not generated replacement examples.
+The fixed English and Telugu renderings of a saved page context shown with its original sentence after a review-card reveal; the source-language rendering is copied through, each helper is independently best effort, and later captures fill only missing helpers. They are supporting comprehension, not generated replacement examples.
 _Avoid_: Generated sentence, sentence coaching, translation history
+
+**Context provenance**:
+The optional source-language identity attached to one saved page context. It distinguishes Dutch, English, Telugu, and older unknown contexts without changing the learning item's Dutch identity; unknown legacy provenance is never inferred later from matching text.
+_Avoid_: Item language switch, browser locale, raw page metadata
+
+**Cross-language merge**:
+The canonical merge rule for repeated captures of one learning item: one Dutch item remains, while contexts deduplicate by normalized text and source language and fill missing translations or provenance.
+_Avoid_: Duplicate vocabulary row, source-specific mastery, overwrite history
+
+**Seen-before cue**:
+The learner-facing signal that a confident unique local match found an existing saved item in the current webpage text. It does not require a sentence, remains truthful if encounter persistence later fails, and uses the same wording across Dutch, English, and Telugu surfaces; ambiguous helper matches stay silent.
+_Avoid_: Mastery proof, passive page scan, translation confidence
+
+**Cross-language capture scope**:
+The current cross-language capture improvement applies to single words whose Dutch canonical form can be resolved. Dutch meaningful chunks retain their existing dedicated eligibility and practice rules until a separate cross-language chunk design exists.
+_Avoid_: Arbitrary translated phrase, automatic chunking, multilingual chunk practice
+
+**Optional page context**:
+A bounded source sentence from the exact selected occurrence that enriches a saved word when the webpage exposes it safely. If the occurrence is uncertain, context is omitted; its absence never invalidates the deliberate word save or the canonical learning item.
+_Avoid_: Required sentence capture, generated replacement context, browsing history
 
 **New learning item**:
 A saved review card that has not yet received a rating. It belongs to the separate first-practice queue rather than the scheduled due-review queue.

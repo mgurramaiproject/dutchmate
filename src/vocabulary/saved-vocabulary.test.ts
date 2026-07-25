@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getSavedVocabularyEntryId,
+  isSingleSavedVocabularyWord,
   normalizeSavedVocabularyText,
   SavedVocabularyStore,
   type SaveVocabularyInput,
@@ -179,6 +180,11 @@ describe("SavedVocabularyStore", () => {
 describe("saved vocabulary helpers", () => {
   it("normalizes saved text", () => {
     expect(normalizeSavedVocabularyText(" Huis  mooi ")).toBe("huis mooi");
+  });
+
+  it("accepts one word containing Unicode combining marks", () => {
+    expect(isSingleSavedVocabularyWord("నమస్కారం")).toBe(true);
+    expect(isSingleSavedVocabularyWord("good morning")).toBe(false);
   });
 
   it("prefers detected source language in entry IDs", () => {

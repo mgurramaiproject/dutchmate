@@ -5,7 +5,7 @@ import { WebpageLookupSession, type TranslationOutcome } from "./webpage-lookup-
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import type { ExtensionSettings } from "../shared/settings";
 import { getLearningItemId } from "../vocabulary/learning-record";
-import { normalizeSavedVocabularyText } from "../vocabulary/saved-vocabulary";
+import { isSingleSavedVocabularyWord, normalizeSavedVocabularyText } from "../vocabulary/saved-vocabulary";
 import { getChunkCandidate } from "./chunk-candidate";
 import type { CreateOrMergeLearningItemInput, LearningItem } from "../vocabulary/learning-record";
 import { getWeakerMasteryDimension, type DailyFiveDimension } from "../vocabulary/daily-five";
@@ -197,7 +197,7 @@ export type TranslationTransport = {
   listLearningItemIds(): Promise<Set<string> | undefined>;
   saveLearningItem(input: CreateOrMergeLearningItemInput): Promise<{ ok: boolean; error?: string }>;
   listLearningItems?(): Promise<{ ok: boolean; result?: { items: LearningItem[] } }>;
-  recordLearningEncounter?(input: { id: string; context: string }): Promise<{ ok: boolean }>;
+  recordLearningEncounter?(input: { id: string; context: string; sourceLanguage?: MvpLanguageCode }): Promise<{ ok: boolean }>;
   recordMissionResult?(input: { itemId: string; dimension: DailyFiveDimension; result: "again" | "got-it"; expectedAttemptCount: number }): Promise<{ ok: boolean; error?: string }>;
 };
 
@@ -383,7 +383,7 @@ export class WebpageLookupModule {
         completedLookup.responses,
       )
       : null;
-    const chunk = input.context === "selection" ? getChunkCandidate(input.text) : null;
+    const chunk = input.context === "selection" && completedLookup.sourceLanguage === "nl" ? getChunkCandidate(input.text) : null;
     let chunkConfirmation: ChunkConfirmation | undefined;
     if (chunk && completedLookup.response.ok) {
       const helpers = getChunkHelpers(completedLookup.response.result.translatedText);
@@ -405,7 +405,7 @@ export class WebpageLookupModule {
     });
 
     if (completedLookup.response.ok) {
-      void this.#recordEncounter(requestId, input.text, input.pageContext).then((seenBefore) => {
+      void this.#recordEncounter(requestId, input.text, input.pageContext, completedLookup.sourceLanguage).then((seenBefore) => {
         if (seenBefore && this.#session.isCurrent(requestId)) this.#emit({ type: "show-seen-before" });
       });
     }
@@ -414,7 +414,7 @@ export class WebpageLookupModule {
       void this.#refreshCurrentSaveState();
     }
 
-    if (this.#deps.getSettings().autoSaveSelectedWords && !this.#currentChunk && saveAction.status !== "hidden") {
+    if (this.#deps.getSettings().autoSaveSelectedWords && !this.#currentChunk && this.#currentSaveItem?.contextSourceLanguage === "nl" && saveAction.status !== "hidden") {
       void this.#autoSaveCurrentSelection();
     }
   }
@@ -476,12 +476,23 @@ export class WebpageLookupModule {
     this.#emit({ type: "render-recall-mission", mission: this.#recallMission });
   }
 
-  async #recordEncounter(requestId: number, text: string, context: string | null | undefined): Promise<boolean> {
-    if (!context || !this.#deps.transport.listLearningItems || !this.#deps.transport.recordLearningEncounter) return false;
+  async #recordEncounter(requestId: number, text: string, context: string | null | undefined, sourceLanguage: SourceLanguageCode): Promise<boolean> {
+    if (!this.#deps.transport.listLearningItems || sourceLanguage === "auto") return false;
     try {
       const response = await this.#deps.transport.listLearningItems();
-      const item = response.ok ? response.result?.items.find((candidate) => candidate.normalizedDutch === normalizeSavedVocabularyText(text)) : undefined;
-      return item && this.#session.isCurrent(requestId) ? (await this.#deps.transport.recordLearningEncounter({ id: item.id, context })).ok : false;
+      const normalizedText = normalizeSavedVocabularyText(text);
+      const matches = response.ok
+        ? response.result?.items.filter((candidate) => getSavedForm(candidate, sourceLanguage) === normalizedText) ?? []
+        : [];
+      if (matches.length !== 1 || !this.#session.isCurrent(requestId)) return false;
+      if (context && this.#deps.transport.recordLearningEncounter) {
+        try {
+          await this.#deps.transport.recordLearningEncounter({ id: matches[0].id, context, sourceLanguage });
+        } catch {
+          // Seen-before remains truthful when the best-effort encounter write fails.
+        }
+      }
+      return true;
     } catch {
       return false;
     }
@@ -725,12 +736,19 @@ export class WebpageLookupModule {
 
   async #withContextTranslations(input: CreateOrMergeLearningItemInput): Promise<CreateOrMergeLearningItemInput> {
     if (!input.context || input.source !== "webpage") return input;
-    const [english, telugu] = await Promise.all((["en", "te"] as const).map(async (targetLanguage) => {
-      const response = await this.#deps.transport.translate({ text: input.context!, context: "selection", sourceLanguage: "nl", targetLanguage });
-      if (!response.ok) throw new Error(response.error);
-      return response.result.translatedText;
+    const sourceLanguage = input.contextSourceLanguage ?? "nl";
+    const existing = input.contextTranslations ?? {};
+    const targets = (["en", "te"] as const).filter((targetLanguage) => targetLanguage !== sourceLanguage && existing[targetLanguage === "en" ? "english" : "telugu"] == null);
+    const translations = await Promise.all(targets.map(async (targetLanguage) => {
+      const field = targetLanguage === "en" ? "english" : "telugu";
+      try {
+        const response = await this.#deps.transport.translate({ text: input.context!, context: "selection", sourceLanguage, targetLanguage });
+        return response.ok ? [field, response.result.translatedText] as const : [field, null] as const;
+      } catch {
+        return [field, null] as const;
+      }
     }));
-    return { ...input, contextTranslations: { english, telugu } };
+    return { ...input, contextTranslations: { ...existing, ...Object.fromEntries(translations.filter(([, value]) => value !== null)) } };
   }
 
   async #requestTranslationForCurrentSettings(
@@ -749,10 +767,10 @@ export class WebpageLookupModule {
         text,
         context,
         sourceLanguage,
-        targetLanguage: settings.targetLanguage,
+        targetLanguage: targetLanguages[0],
       });
 
-      return { response, sourceLanguage, responses: [{ targetLanguage: settings.targetLanguage, response }] };
+      return { response, sourceLanguage, responses: [{ targetLanguage: targetLanguages[0], response }] };
     }
 
     const responses = await Promise.all(
@@ -766,11 +784,10 @@ export class WebpageLookupModule {
         }),
       })),
     );
-    const failedResponse = responses.find(({ response }) => !response.ok);
-
-    if (failedResponse?.response.ok === false) {
+    if (responses.every(({ response }) => !response.ok)) {
+      const failedResponse = responses[0].response;
       return {
-        response: failedResponse.response, sourceLanguage, responses,
+        response: failedResponse, sourceLanguage, responses,
       };
     }
 
@@ -781,7 +798,7 @@ export class WebpageLookupModule {
           translatedText: responses
             .map(({ targetLanguage, response }) => {
               const label = this.#getLanguageLabel(targetLanguage);
-              return `${label}: ${response.ok ? response.result.translatedText : ""}`;
+              return `${label}: ${response.ok ? response.result.translatedText : "Unavailable"}`;
             })
             .join("\n"),
           providerName: "multi-target",
@@ -800,7 +817,7 @@ export class WebpageLookupModule {
       response: TranslateMessageResponse;
     }>,
   ): CreateOrMergeLearningItemInput | null {
-    if (!this.#isSelectionSaveCandidate(text) || !["en", "nl", "te"].includes(activeSourceLanguage)) return null;
+    if (activeSourceLanguage === "auto" || !isSingleSavedVocabularyWord(normalizeSavedVocabularyText(text))) return null;
     const sourceLanguage = this.#getRequestedSourceLanguage(this.#deps.getSettings());
     const detectedSourceLanguage = this.#getDetectedSourceLanguage(sourceLanguage, activeSourceLanguage);
     const translated = (language: MvpLanguageCode): string | null => {
@@ -808,7 +825,14 @@ export class WebpageLookupModule {
       return response?.ok ? response.result.translatedText : null;
     };
     const dutch = activeSourceLanguage === "nl" ? text : translated("nl");
-    if (!dutch) return null;
+    if (!dutch || !isSingleSavedVocabularyWord(normalizeSavedVocabularyText(dutch))) return null;
+    const contextTranslations = pageContext
+      ? activeSourceLanguage === "en"
+        ? { english: pageContext }
+        : activeSourceLanguage === "te"
+          ? { telugu: pageContext }
+          : undefined
+      : undefined;
     return {
       dutch,
       kind: "word",
@@ -824,12 +848,11 @@ export class WebpageLookupModule {
           return response?.ok ? response.result.providerName : undefined;
         })(),
       },
+      contextSourceLanguage: activeSourceLanguage,
+      contextSourceText: text,
       ...(pageContext ? { context: pageContext } : {}),
+      ...(contextTranslations ? { contextTranslations } : {}),
     };
-  }
-
-  #isSelectionSaveCandidate(text: string): boolean {
-    return /^[\p{Letter}\p{Number}'-]+$/u.test(text.trim().replace(/\s+/g, " ").toLocaleLowerCase());
   }
 
   #getRequestedSourceLanguage(settings: ExtensionSettings): SourceLanguageCode {
@@ -852,6 +875,8 @@ export class WebpageLookupModule {
     sourceLanguage: SourceLanguageCode,
   ): MvpLanguageCode[] {
     if (!settings.translateToOtherMvpLanguages) {
+      if (sourceLanguage === "nl") return ["en"];
+      if (sourceLanguage === "en" || sourceLanguage === "te") return ["nl"];
       return [settings.targetLanguage];
     }
 
@@ -860,9 +885,10 @@ export class WebpageLookupModule {
         ? [settings.bridgeLanguage, settings.nativeLanguage, settings.learningLanguage]
         : [settings.learningLanguage, settings.bridgeLanguage, settings.nativeLanguage];
 
-    return Array.from(new Set(orderedLanguages)).filter(
+    const targets = Array.from(new Set(orderedLanguages)).filter(
       (languageCode): languageCode is MvpLanguageCode => languageCode !== sourceLanguage,
     );
+    return targets.length > 0 ? targets : [sourceLanguage === "nl" ? "en" : "nl"];
   }
 
   #getActiveSourceLanguage(
@@ -874,17 +900,13 @@ export class WebpageLookupModule {
       return this.#getRequestedSourceLanguage(settings);
     }
 
-    if (!settings.translateToOtherMvpLanguages) {
-      return "auto";
-    }
-
     return this.#detectMvpSourceLanguage(text, sourceLanguageHint);
   }
 
   #detectMvpSourceLanguage(
     text: string,
     sourceLanguageHint?: MvpLanguageCode,
-  ): MvpLanguageCode {
+  ): SourceLanguageCode {
     if (/[\u0C00-\u0C7F]/u.test(text)) {
       return "te";
     }
@@ -920,11 +942,11 @@ export class WebpageLookupModule {
       return "nl";
     }
 
-    if (englishScore > dutchScore || words.length > 0) {
+    if (englishScore > dutchScore) {
       return "en";
     }
 
-    return "nl";
+    return "auto";
   }
 
   #getLanguageLabel(languageCode: string): string {
@@ -936,6 +958,12 @@ export class WebpageLookupModule {
       listener(event);
     }
   }
+}
+
+function getSavedForm(item: LearningItem, sourceLanguage: Exclude<SourceLanguageCode, "auto">): string | null {
+  if (sourceLanguage === "nl") return item.normalizedDutch;
+  const form = sourceLanguage === "en" ? item.english : item.telugu;
+  return form ? normalizeSavedVocabularyText(form) : null;
 }
 
 function getChunkHelpers(translatedText: string): Pick<CreateOrMergeLearningItemInput, "english" | "telugu"> {

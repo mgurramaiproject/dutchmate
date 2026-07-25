@@ -23,7 +23,7 @@ export type LearningMastery = {
   lastPractisedAt: number | null;
 };
 export type LearningItemSource = { type: "webpage" | "lesson"; addedAt: number; lessonId?: string; sourceLanguage?: MvpLanguageCode | "auto"; detectedSourceLanguage?: MvpLanguageCode; targetLanguage?: MvpLanguageCode; providerName?: string; originalLanguage?: MvpLanguageCode };
-export type LearningContext = { text: string; addedAt: number; english?: string | null; telugu?: string | null };
+export type LearningContext = { text: string; addedAt: number; sourceLanguage?: MvpLanguageCode; english?: string | null; telugu?: string | null };
 export type LearningEncounter = { count: number; lastEncounterAt: number | null };
 export type LearningItem = {
   id: string;
@@ -65,7 +65,9 @@ export type CreateOrMergeLearningItemInput = {
   source?: "webpage" | "lesson";
   sourceMetadata?: Omit<LearningItemSource, "type" | "addedAt">;
   context?: string | null;
-  contextTranslations?: { english: string; telugu: string } | null;
+  contextSourceLanguage?: MvpLanguageCode;
+  contextSourceText?: string | null;
+  contextTranslations?: { english?: string | null; telugu?: string | null } | null;
 };
 
 type LegacyReviewData = { cards: Record<string, ReviewCard> };
@@ -141,12 +143,12 @@ export class LearningRecordStore {
     return items;
   }
 
-  async recordEncounter(id: string, context: string | null | undefined): Promise<LearningItem | null> {
+  async recordEncounter(id: string, context: string | null | undefined, sourceLanguage?: MvpLanguageCode): Promise<LearningItem | null> {
     const record = await this.readMigrated();
     const existing = record.items[id];
     if (!existing) return null;
     const encounteredAt = this.now();
-    const encounter = normalizeContext(context, existing.dutch, encounteredAt);
+    const encounter = normalizeContext(context, existing.dutch, encounteredAt, sourceLanguage);
     if (!encounter) return existing;
     const item = { ...existing, contexts: mergeContexts(existing.contexts, encounter), encounters: { count: existing.encounters.count + 1, lastEncounterAt: encounteredAt }, updatedAt: Math.max(existing.updatedAt, encounteredAt) };
     record.items[id] = item;
@@ -281,7 +283,7 @@ export function parseLearningImport(input: string | unknown): LearningBackup | V
 export function serializeLearningBackup(backup: LearningBackup): string { return `${JSON.stringify(backup, null, 2)}\n`; }
 
 function mergeLearningItem(existing: LearningItem | undefined, input: CreateOrMergeLearningItemInput, timestamp: number): LearningItem {
-  const dutch = normalizeSavedVocabularyText(input.dutch); const id = getLearningItemId(dutch); const context = normalizeContext(input.context, dutch, timestamp, input.contextTranslations);
+  const dutch = normalizeSavedVocabularyText(input.dutch); const id = getLearningItemId(dutch); const context = normalizeContext(input.context, dutch, timestamp, input.contextSourceLanguage, input.contextSourceText, input.contextTranslations);
   if (!existing) return { id, learningLanguage: LEARNING_LANGUAGE, normalizedDutch: dutch, dutch, kind: input.kind ?? (dutch.includes(" ") ? "chunk" : "word"), english: input.english ?? null, telugu: input.telugu ?? null, sources: input.source ? [{ type: input.source, addedAt: timestamp, ...input.sourceMetadata }] : [], contexts: context ? [context] : [], encounters: { count: 0, lastEncounterAt: null }, recognition: createNewMastery(), recall: createNewMastery(), createdAt: timestamp, updatedAt: timestamp };
   return { ...existing, english: existing.english ?? input.english ?? null, telugu: existing.telugu ?? input.telugu ?? null, sources: mergeSource(existing.sources, input.source, timestamp, input.sourceMetadata), contexts: mergeContexts(existing.contexts, context), updatedAt: Math.max(existing.updatedAt, timestamp) };
 }
@@ -293,7 +295,7 @@ function mergeLegacyCard(existing: LearningItem | undefined, card: ReviewCard, n
 function mergeImportedLearningItem(existing: LearningItem | undefined, imported: LearningItem): LearningItem {
   if (!existing) return { ...imported, id: getLearningItemId(imported.dutch), normalizedDutch: normalizeSavedVocabularyText(imported.dutch), contexts: imported.contexts.slice(-3) };
   const importedIsNewer = Math.max(imported.recognition.lastPractisedAt ?? imported.updatedAt, imported.recall.lastPractisedAt ?? imported.updatedAt) > Math.max(existing.recognition.lastPractisedAt ?? existing.updatedAt, existing.recall.lastPractisedAt ?? existing.updatedAt);
-  return { ...existing, english: existing.english ?? imported.english, telugu: existing.telugu ?? imported.telugu, sources: deduplicateSources([...existing.sources, ...imported.sources]), contexts: mergeContexts(existing.contexts, ...imported.contexts.map((context) => normalizeContext(context.text, existing.dutch, context.addedAt, typeof context.english === "string" && typeof context.telugu === "string" ? { english: context.english, telugu: context.telugu } : null))), recognition: importedIsNewer ? imported.recognition : existing.recognition, recall: importedIsNewer ? imported.recall : existing.recall, createdAt: Math.min(existing.createdAt, imported.createdAt), updatedAt: Math.max(existing.updatedAt, imported.updatedAt) };
+  return { ...existing, english: existing.english ?? imported.english, telugu: existing.telugu ?? imported.telugu, sources: deduplicateSources([...existing.sources, ...imported.sources]), contexts: mergeContexts(existing.contexts, ...imported.contexts.map((context) => normalizeContext(context.text, existing.dutch, context.addedAt, context.sourceLanguage, undefined, { english: context.english, telugu: context.telugu }))), recognition: importedIsNewer ? imported.recognition : existing.recognition, recall: importedIsNewer ? imported.recall : existing.recall, createdAt: Math.min(existing.createdAt, imported.createdAt), updatedAt: Math.max(existing.updatedAt, imported.updatedAt) };
 }
 function mergeSource(sources: LearningItemSource[], source: "webpage" | "lesson" | undefined, addedAt: number, metadata?: Omit<LearningItemSource, "type" | "addedAt">): LearningItemSource[] { return source ? deduplicateSources([...sources, { type: source, addedAt, ...metadata }]) : sources; }
 function withActiveDay(rhythm: Record<string, unknown>, timestamp: number, source: "dailyFiveCompletions" | "lessonCompletions", extra: Record<string, unknown> = {}): Record<string, unknown> { const day = getLocalDayStart(timestamp); const entry = { completedAt: timestamp, ...extra }; return { activeDays: { ...(isRecord(rhythm.activeDays) ? rhythm.activeDays : {}), [day]: entry }, [source]: { ...(isRecord(rhythm[source]) ? rhythm[source] : {}), [day]: entry } }; }
@@ -337,8 +339,14 @@ function mergeActivityDays(local: unknown, incoming: unknown): Record<string, un
   return result;
 }
 function deduplicateSources(sources: LearningItemSource[]): LearningItemSource[] { return sources.filter((item, index, all) => all.findIndex((candidate) => JSON.stringify(candidate) === JSON.stringify(item)) === index); }
-function mergeContexts(contexts: LearningContext[], ...incoming: Array<LearningContext | null>): LearningContext[] { const result = [...contexts]; for (const context of incoming) { if (!context) continue; const index = result.findIndex((candidate) => normalizeSavedVocabularyText(candidate.text) === normalizeSavedVocabularyText(context.text)); if (index >= 0) { result[index] = { ...context, ...result[index], english: result[index].english ?? context.english ?? null, telugu: result[index].telugu ?? context.telugu ?? null }; continue; } result.push(context); } return result.slice(-3); }
-function normalizeContext(value: string | null | undefined, dutch: string, addedAt: number, translations?: { english: string; telugu: string } | null): LearningContext | null { if (!value) return null; const text = value.trim().replace(/\s+/g, " ").slice(0, 240); return text && text.toLocaleLowerCase().includes(dutch.toLocaleLowerCase()) ? { text, addedAt, ...(translations ? { english: translations.english, telugu: translations.telugu } : {}) } : null; }
+function mergeContexts(contexts: LearningContext[], ...incoming: Array<LearningContext | null>): LearningContext[] { const result = [...contexts]; for (const context of incoming) { if (!context) continue; const index = result.findIndex((candidate) => normalizeSavedVocabularyText(candidate.text) === normalizeSavedVocabularyText(context.text) && candidate.sourceLanguage === context.sourceLanguage); if (index >= 0) { const existing = result[index]; result[index] = { ...existing, ...(existing.english == null && context.english != null ? { english: context.english } : {}), ...(existing.telugu == null && context.telugu != null ? { telugu: context.telugu } : {}) }; continue; } result.push(context); } return result.slice(-3); }
+function normalizeContext(value: string | null | undefined, dutch: string, addedAt: number, sourceLanguage?: MvpLanguageCode, sourceText?: string | null, translations?: { english?: string | null; telugu?: string | null } | null): LearningContext | null {
+  if (!value) return null;
+  const text = value.trim().replace(/\s+/g, " ").slice(0, 240);
+  const requiredText = sourceLanguage ? sourceText?.trim() : dutch;
+  if (!text || (sourceLanguage && typeof sourceText === "string" && !requiredText) || (requiredText && !normalizeSavedVocabularyText(text).includes(normalizeSavedVocabularyText(requiredText)))) return null;
+  return { text, addedAt, ...(sourceLanguage ? { sourceLanguage } : {}), ...(translations?.english != null ? { english: translations.english } : {}), ...(translations?.telugu != null ? { telugu: translations.telugu } : {}) };
+}
 function lessonProgressKey(lessonId: string, contentVersion: number): string { return `${lessonId}\u001f${contentVersion}`; }
 function parseLessonProgress(value: unknown): LessonProgress | undefined { return isRecord(value) && typeof value.lessonId === "string" && finite(value.contentVersion) && (value.stage === "read" || value.stage === "notice" || value.stage === "practise" || value.stage === "replay" || value.stage === "keep") && (value.completedAt === null || finite(value.completedAt)) && Array.isArray(value.keptCandidateIds) && value.keptCandidateIds.every((id) => typeof id === "string") && finite(value.updatedAt) ? { lessonId: value.lessonId, contentVersion: value.contentVersion, stage: value.stage, completedAt: value.completedAt, keptCandidateIds: value.keptCandidateIds, updatedAt: value.updatedAt } : undefined; }
 function mergeLessonProgress(local: Record<string, unknown>, imported: Record<string, unknown>): Record<string, unknown> { const result = { ...local }; for (const [key, value] of Object.entries(imported)) { const incoming = parseLessonProgress(value); if (!incoming) continue; const existing = parseLessonProgress(result[key]); if (!existing || incoming.updatedAt > existing.updatedAt) result[key] = incoming; } return result; }
@@ -360,7 +368,7 @@ function parseDailyFiveSnapshot(value: unknown): DailyFiveSnapshot | null {
 }
 function taskId(task: DailyFiveSnapshot["tasks"][number]): string { return `${task.itemId}\u001f${task.dimension}`; }
 function isLearningSource(value: unknown): value is LearningItemSource { return isRecord(value) && (value.type === "webpage" || value.type === "lesson") && finite(value.addedAt) && (value.lessonId === undefined || typeof value.lessonId === "string") && (value.sourceLanguage === undefined || value.sourceLanguage === "auto" || isLanguage(value.sourceLanguage)) && (value.detectedSourceLanguage === undefined || isLanguage(value.detectedSourceLanguage)) && (value.targetLanguage === undefined || isLanguage(value.targetLanguage)) && (value.providerName === undefined || typeof value.providerName === "string") && (value.originalLanguage === undefined || isLanguage(value.originalLanguage)); }
-function isLearningContext(value: unknown, dutch: string): value is LearningContext { return isRecord(value) && typeof value.text === "string" && value.text.length <= 240 && (!("english" in value) || nullableString(value.english)) && (!("telugu" in value) || nullableString(value.telugu)) && value.text.toLocaleLowerCase().includes(normalizeSavedVocabularyText(dutch)) && finite(value.addedAt); }
+function isLearningContext(value: unknown, dutch: string): value is LearningContext { return isRecord(value) && typeof value.text === "string" && value.text.trim().length > 0 && value.text.length <= 240 && (!("sourceLanguage" in value) || isLanguage(value.sourceLanguage)) && (!("english" in value) || nullableString(value.english)) && (!("telugu" in value) || nullableString(value.telugu)) && (value.sourceLanguage !== undefined || value.text.toLocaleLowerCase().includes(normalizeSavedVocabularyText(dutch))) && finite(value.addedAt); }
 function learningEncounter(value: unknown): value is LearningEncounter { return isRecord(value) && nonNegativeInteger(value.count) && (value.lastEncounterAt === null || finite(value.lastEncounterAt)); }
 function tryJson(input: string): unknown { try { return JSON.parse(input); } catch { throw new Error("This learning file is not valid JSON."); } }
 function mastery(value: unknown): value is LearningMastery { return isRecord(value) && (value.state === "new" || value.state === "learning" || value.state === "familiar" || value.state === "strong") && (value.dueAt === null || finite(value.dueAt)) && finite(value.intervalDays) && nonNegativeInteger(value.attemptCount) && nonNegativeInteger(value.successfulStreak) && (value.lastPractisedAt === null || finite(value.lastPractisedAt)); }

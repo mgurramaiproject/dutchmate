@@ -222,6 +222,131 @@ describe("WebpageLookupModule", () => {
     expect(recordLearningEncounter).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["nl", "huis", "en"],
+    ["en", "house", "nl"],
+    ["te", "నమస్కారం", "nl"],
+  ] as const)("keeps one-target hover translation useful for %s without self-translation", async (sourceLanguage, text, targetLanguage) => {
+    const translate = vi.fn(createTransport().translate);
+    const module = new WebpageLookupModule({
+      getSettings: () => ({ ...defaultSettings, sourceLanguage, targetLanguage, translateToOtherMvpLanguages: false }),
+      transport: createTransport({ translate }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    await module.beginLookup({ text, context: "hover", x: 1, y: 1 });
+
+    expect(translate).toHaveBeenCalledWith(expect.objectContaining({ text, sourceLanguage, targetLanguage }));
+    expect(translate).not.toHaveBeenCalledWith(expect.objectContaining({ sourceLanguage, targetLanguage: sourceLanguage }));
+  });
+
+  it("renders useful Dutch and English Telugu hover targets without Telugu self-translation", async () => {
+    const translate = vi.fn(createTransport().translate);
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({ translate }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "నమస్కారం", context: "hover", x: 1, y: 1 });
+
+    expect(translate).toHaveBeenCalledWith(expect.objectContaining({ sourceLanguage: "te", targetLanguage: "nl" }));
+    expect(translate).toHaveBeenCalledWith(expect.objectContaining({ sourceLanguage: "te", targetLanguage: "en" }));
+    expect(translate).not.toHaveBeenCalledWith(expect.objectContaining({ sourceLanguage: "te", targetLanguage: "te" }));
+    expect(events).toContainEqual(expect.objectContaining({
+      type: "render-result",
+      response: expect.objectContaining({ ok: true, result: { translatedText: "Dutch: నమస్కారం-nl\nEnglish: నమస్కారం-en", providerName: "multi-target" } }),
+    }));
+  });
+
+  it("keeps successful popup targets visible when an optional target fails", async () => {
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({
+        translate: async ({ targetLanguage }) => targetLanguage === "te"
+          ? { ok: false, error: "Telugu unavailable" }
+          : { ok: true, result: { translatedText: "huis-en", providerName: "custom-endpoint" } },
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "huis", context: "hover", x: 1, y: 1, sourceLanguageHint: "nl" });
+
+    expect(events).toContainEqual(expect.objectContaining({
+      type: "render-result",
+      response: { ok: true, result: { translatedText: "English: huis-en\nTelugu: Unavailable", providerName: "multi-target" } },
+    }));
+    expect(events).not.toContainEqual(expect.objectContaining({ type: "render-error" }));
+  });
+
+  it.each([
+    ["nl", "goede morgen"],
+    ["en", "good morning"],
+    ["te", "శుభోదయం"],
+  ] as const)("shows Seen before for one unique saved %s form without page context", async (sourceLanguage, text) => {
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({
+        listLearningItems: async () => ({ ok: true, result: { items: [savedItem({ english: "good morning", telugu: "శుభోదయం" })] } }),
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text, context: "hover", x: 1, y: 1, sourceLanguageHint: sourceLanguage });
+    await vi.waitFor(() => expect(events).toContainEqual({ type: "show-seen-before" }));
+  });
+
+  it("records source-aware bounded hover context while keeping Seen before truthful when persistence fails", async () => {
+    const recordLearningEncounter = vi.fn(async () => { throw new Error("Storage unavailable"); });
+    const events: unknown[] = [];
+    const context = "A house stands here.";
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({
+        listLearningItems: async () => ({ ok: true, result: { items: [savedItem({ english: "house" })] } }),
+        recordLearningEncounter,
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "house", context: "hover", x: 1, y: 1, sourceLanguageHint: "en", pageContext: context });
+    await vi.waitFor(() => expect(events).toContainEqual({ type: "show-seen-before" }));
+    expect(recordLearningEncounter).toHaveBeenCalledWith({ id: "nl\u001fgoede morgen", context, sourceLanguage: "en" });
+  });
+
+  it("does not show Seen before when a helper form matches multiple saved items", async () => {
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({
+        listLearningItems: async () => ({ ok: true, result: { items: [
+          savedItem({ english: "house" }),
+          savedItem({ id: "nl\u001fwoning", normalizedDutch: "woning", dutch: "woning", english: "house" }),
+        ] } }),
+      }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "house", context: "hover", x: 1, y: 1, sourceLanguageHint: "en" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(events).not.toContainEqual({ type: "show-seen-before" });
+  });
+
   it("records a saved word but ignores an interaction cleared before lookup completes", async () => {
     const recordLearningEncounter = vi.fn(async () => ({ ok: true }));
     let resolveItems: ((value: { ok: true; result: { items: LearningItem[] } }) => void) | undefined;
@@ -542,6 +667,102 @@ describe("WebpageLookupModule", () => {
         sourceLanguage: "auto",
         detectedSourceLanguage: "en",
       }),
+    }));
+  });
+
+  it.each([
+    ["morning", "en", "house-nl"],
+    ["నమస్కారం", "te", "hallo-nl"],
+  ] as const)("keeps automatic source detection active for one-target %s selections", async (text, sourceLanguage, dutch) => {
+    const translate = vi.fn(async ({ targetLanguage }: Parameters<TranslationTransport["translate"]>[0]) => ({ ok: true as const, result: { translatedText: targetLanguage === "nl" ? dutch : `${text}-${targetLanguage}`, providerName: "custom-endpoint" } }));
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
+    const module = new WebpageLookupModule({
+      getSettings: () => ({ ...defaultSettings, translateToOtherMvpLanguages: false }),
+      transport: createTransport({ translate, saveLearningItem }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    await module.beginLookup({ text, context: "selection", x: 1, y: 1, pageContext: `${text} context.` });
+    await module.handleSaveAction();
+
+    expect(translate).toHaveBeenCalledWith(expect.objectContaining({ text, sourceLanguage, targetLanguage: "nl" }));
+    expect(saveLearningItem).toHaveBeenCalledWith(expect.objectContaining({ dutch, contextSourceLanguage: sourceLanguage, contextSourceText: text }));
+  });
+
+  it("honors an explicit source setting and still requests Dutch for a cross-language selection", async () => {
+    const translate = vi.fn(async ({ targetLanguage }: Parameters<TranslationTransport["translate"]>[0]) => ({ ok: true as const, result: { translatedText: targetLanguage === "nl" ? "huis" : "ignored", providerName: "custom-endpoint" } }));
+    const module = new WebpageLookupModule({
+      getSettings: () => ({ ...defaultSettings, sourceLanguage: "en", translateToOtherMvpLanguages: false }),
+      transport: createTransport({ translate }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    await module.beginLookup({ text: "house", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl" });
+
+    expect(translate).toHaveBeenCalledWith(expect.objectContaining({ sourceLanguage: "en", targetLanguage: "nl" }));
+  });
+
+  it.each([
+    ["good morning", "morning", "house-nl"],
+    ["morning", "morning", "two words"],
+    ["qwerty", "qwerty", "huis"],
+  ] as const)("keeps unsafe cross-language results translation-only for %s", async (text, languageSample, dutch) => {
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => ({ ...defaultSettings, translateToOtherMvpLanguages: false }),
+      transport: createTransport({ translate: async ({ targetLanguage }) => ({ ok: true, result: { translatedText: targetLanguage === "nl" ? dutch : "ignored", providerName: "custom-endpoint" } }) }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text, context: "selection", x: 1, y: 1, languageSample, sourceLanguageHint: text === "qwerty" ? undefined : "en" });
+
+    expect(events).toContainEqual(expect.objectContaining({ type: "render-result", saveAction: { status: "hidden" } }));
+  });
+
+  it("keeps cross-language save manual even when Dutch auto-save is enabled", async () => {
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
+    const module = new WebpageLookupModule({
+      getSettings: () => ({ ...defaultSettings, sourceLanguage: "en", translateToOtherMvpLanguages: false, autoSaveSelectedWords: true }),
+      transport: createTransport({ saveLearningItem, translate: async ({ targetLanguage }) => ({ ok: true, result: { translatedText: targetLanguage === "nl" ? "huis" : "ignored", providerName: "custom-endpoint" } }) }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    await module.beginLookup({ text: "house", context: "selection", x: 1, y: 1 });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(saveLearningItem).not.toHaveBeenCalled();
+
+    await module.handleSaveAction();
+    expect(saveLearningItem).toHaveBeenCalledOnce();
+  });
+
+  it("retains exact cross-language context and saves the word when an optional helper fails", async () => {
+    const saveLearningItem = vi.fn(async () => ({ ok: true }));
+    const translate = vi.fn(async ({ text, targetLanguage }: Parameters<TranslationTransport["translate"]>[0]) => text === "A house stands here." && targetLanguage === "te"
+      ? { ok: false as const, error: "Telugu unavailable" }
+      : { ok: true as const, result: { translatedText: targetLanguage === "nl" ? "huis" : "unexpected", providerName: "custom-endpoint" } });
+    const module = new WebpageLookupModule({
+      getSettings: () => ({ ...defaultSettings, sourceLanguage: "en", translateToOtherMvpLanguages: false }),
+      transport: createTransport({ translate, saveLearningItem }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+
+    await module.beginLookup({ text: "house", context: "selection", x: 1, y: 1, pageContext: "A house stands here." });
+    await module.handleSaveAction();
+
+    expect(translate).toHaveBeenCalledWith(expect.objectContaining({ text: "A house stands here.", sourceLanguage: "en", targetLanguage: "te" }));
+    expect(saveLearningItem).toHaveBeenCalledWith(expect.objectContaining({
+      dutch: "huis",
+      english: "house",
+      context: "A house stands here.",
+      contextSourceLanguage: "en",
+      contextSourceText: "house",
+      contextTranslations: { english: "A house stands here." },
     }));
   });
 

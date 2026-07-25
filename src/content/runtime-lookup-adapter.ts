@@ -52,7 +52,7 @@ export function createRuntimeLookupAdapter(
   listLearningItemIds(): Promise<Set<string> | undefined>;
   saveLearningItem(input: CreateOrMergeLearningItemInput): ReturnType<typeof requestRuntimeCreateLearningItem>;
   listLearningItems(): ReturnType<typeof requestRuntimeLearningItems>;
-  recordLearningEncounter(input: { id: string; context: string }): ReturnType<typeof requestRuntimeRecordLearningEncounter>;
+  recordLearningEncounter(input: { id: string; context: string; sourceLanguage?: MvpLanguageCode }): ReturnType<typeof requestRuntimeRecordLearningEncounter>;
   recordMissionResult(input: { itemId: string; dimension: DailyFiveDimension; result: "again" | "got-it"; expectedAttemptCount: number }): ReturnType<typeof requestRuntimeRecordMissionResult>;
 } {
   let directTranslationCache: PersistentTranslationCache | undefined;

@@ -183,6 +183,11 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .saved-source { margin: 0; font-size: .64rem; font-weight: 850; }
 .saved-context { margin: 0; color: var(--muted); font-family: var(--serif); font-size: .8rem; font-style: italic; line-height: 1.4; }
 .saved-context-highlight { padding: 1px 3px; border-radius: 3px; background: var(--orange-soft); box-shadow: inset 0 -2px var(--orange); color: var(--black); font-style: normal; }
+.saved-context-card { display: grid; gap: 4px; padding: 8px 0; border-top: 1px solid var(--soft-line); }
+.saved-context-label { margin: 0; color: var(--black); font-size: .64rem; font-weight: 850; letter-spacing: .03em; text-transform: uppercase; }
+.saved-context-helper { margin: 0; color: var(--muted); font-size: .68rem; line-height: 1.35; }
+.context-answers { display: grid; gap: 8px; }
+.context-answer { padding-top: 9px; }
 .saved-options-link { justify-self: start; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--black); font-size: .67rem; font-weight: 850; text-decoration: underline; text-decoration-color: var(--orange); text-underline-offset: 3px; }
 .settings-content { overflow: visible; }
 .info-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; border-top: 1px solid var(--soft-line); border-bottom: 1px solid var(--soft-line); }

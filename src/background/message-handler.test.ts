@@ -56,6 +56,16 @@ describe("createBackgroundMessageHandler", () => {
     await expect(records.list()).resolves.toHaveLength(1);
   });
 
+  it("accepts source-aware contexts with partial helpers through the learning contract", async () => {
+    const storage = new MemoryStorage();
+    const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
+    const reviewCards = new ReviewCardStore(savedVocabulary, storage, () => 1_000);
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary, reviewCards, learningRecords: records, refreshBadge: async () => undefined });
+
+    await expect(send(handleMessage, { type: LEARNING_CREATE_OR_MERGE_MESSAGE, payload: { dutch: "huis", source: "webpage", context: "An English house stands here.", contextSourceLanguage: "en", contextSourceText: "house", contextTranslations: { telugu: "ఇక్కడ ఒక ఇల్లు ఉంది." } } })).resolves.toMatchObject({ ok: true, result: { item: { contexts: [{ text: "An English house stands here.", sourceLanguage: "en", telugu: "ఇక్కడ ఒక ఇల్లు ఉంది." }] } } });
+  });
+
   it("leaves existing learning data intact when chunk persistence fails", async () => {
     const storage = new FailingLearningStorage();
     const savedVocabulary = new SavedVocabularyStore(storage, { now: () => 1_000 });
