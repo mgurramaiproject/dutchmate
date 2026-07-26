@@ -121,6 +121,13 @@ function validateManifest(manifest, target) {
     if (manifest.browser_specific_settings !== undefined) {
       errors.push("Chrome manifest must not declare browser_specific_settings.");
     }
+    const hostPermissions = new Set(manifest.host_permissions ?? []);
+    if (hostPermissions.has("https://*/*")) {
+      errors.push("Chrome store manifest must not request wildcard HTTPS host access.");
+    }
+    if (!hostPermissions.has("https://dutchmate-backend.onrender.com/*")) {
+      errors.push("Chrome manifest must declare DutchMate backend host access.");
+    }
   }
   if (manifest.manifest_version !== 3) {
     errors.push("Extension manifest must use manifest_version 3.");

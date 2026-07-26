@@ -11,7 +11,7 @@ the account owner.
 
 - The Chrome Web Store developer account has been created and the one-time registration fee has been paid.
 - DutchMate has a store-ready Chromium build path: `corepack pnpm package:chrome`.
-- The current package name is `release/dutchmate-chrome-0.4.0.zip`.
+- The current package name is `release/dutchmate-chrome-0.4.1.zip`.
 - The Chrome listing copy, privacy answers, screenshots plan, and public privacy policy already exist in this repository.
 - This guide does not publish the extension or change the developer account.
 
@@ -24,7 +24,7 @@ the account owner.
 | Chrome privacy, data-use, and limited-use answers | [store-disclosure-draft.md](store-disclosure-draft.md) |
 | Screenshot requirements and capture rules | [chrome-web-store-screenshot-plan.md](chrome-web-store-screenshot-plan.md) |
 | Manual Chrome smoke test | [manual-testing.md](manual-testing.md) |
-| Release-specific changes and verification | [v0.4.0.md](notes/v0.4.0.md) |
+| Release-specific changes and verification | [v0.4.1.md](notes/v0.4.1.md) |
 
 ## Important pre-submit gate
 
@@ -46,7 +46,7 @@ Run these commands from the repository root:
 
 ```bash
 corepack pnpm package:chrome
-node scripts/verify-extension-build.mjs chrome release/dutchmate-chrome-0.4.0.zip
+node scripts/verify-extension-build.mjs chrome release/dutchmate-chrome-0.4.1.zip
 ```
 
 The package must contain `manifest.json` at the ZIP root. Do not upload
@@ -58,8 +58,8 @@ number than the previous one: [Prepare your extension](https://developer.chrome.
 Optional inspection:
 
 ```bash
-unzip -l release/dutchmate-chrome-0.4.0.zip
-unzip -p release/dutchmate-chrome-0.4.0.zip manifest.json
+unzip -l release/dutchmate-chrome-0.4.1.zip
+unzip -p release/dutchmate-chrome-0.4.1.zip manifest.json
 ```
 
 If the uploaded manifest has a wrong name, version, description, or icon,
@@ -105,7 +105,7 @@ Confirm these values on the Package tab after upload:
 
 ```text
 Name: DutchMate
-Version: 0.4.0
+Version: 0.4.1
 Manifest description: Learn Dutch while reading, with quick English and Telugu translations in context.
 ```
 
@@ -168,7 +168,7 @@ Permission justifications:
 | --- | --- |
 | `storage` | Stores settings, translation-cache entries, saved vocabulary, and local learning data in browser storage. |
 | `downloads` | Exports a user-requested local learning backup to a file. |
-| `https://*/*` / webpage access | Runs the user-facing hover and selection translation feature on normal HTTPS webpages and sends the text the user asks to translate to the DutchMate backend. |
+| `https://dutchmate-backend.onrender.com/*` | Allows the extension's background worker to send requested translation text to the DutchMate backend. The content script runs only on normal HTTP and HTTPS webpages so hover and selection translation can work passively. |
 
 The localhost permissions are development support from the generated manifest;
 do not claim that the store build uses a local backend for normal users.
@@ -199,7 +199,7 @@ test hover, selection, Save, Options, and the public translation endpoint.
 
 1. Open the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole) while signed into the developer account that paid the registration fee.
 2. Click **Add new item**.
-3. Choose `release/dutchmate-chrome-0.4.0.zip`.
+3. Choose `release/dutchmate-chrome-0.4.1.zip`.
 4. Upload it.
 5. On the Package tab, verify the version, name, description, icons, and permissions before filling the other tabs.
 6. Complete **Store Listing**, **Privacy**, and **Distribution**.

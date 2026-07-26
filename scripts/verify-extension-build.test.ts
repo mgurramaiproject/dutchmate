@@ -49,6 +49,20 @@ describe("validateExtensionBuild", () => {
     );
   });
 
+  it("rejects wildcard HTTPS host access in the Chrome store manifest", async () => {
+    const distDir = await createExtensionFixture("chrome", {
+      service_worker: "assets/background.js",
+    });
+    const manifestPath = join(distDir, "manifest.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.host_permissions = ["https://*/*"];
+    await writeFile(manifestPath, JSON.stringify(manifest));
+
+    await expect(validateExtensionBuild(distDir, "chrome")).resolves.toContain(
+      "Chrome store manifest must not request wildcard HTTPS host access.",
+    );
+  });
+
   it("requires reduced-motion styling in the rendered popup artifact", async () => {
     const distDir = await createExtensionFixture("chrome", {
       service_worker: "assets/background.js",
@@ -115,6 +129,7 @@ async function createExtensionFixture(
         48: "icons/icon-48.png",
         128: "icons/icon-128.png",
       },
+      host_permissions: ["https://dutchmate-backend.onrender.com/*"],
       background,
       content_scripts: [{ js: ["assets/content.js"] }],
       action: { default_popup: "src/popup/index.html" },

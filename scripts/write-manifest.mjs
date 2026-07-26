@@ -10,6 +10,7 @@ if (!["chrome", "firefox"].includes(target)) {
 }
 
 const distDir = resolve(process.cwd(), "dist", target);
+const isLocalTestingBuild = process.env.DUTCHMATE_LOCAL_TESTING_OPTIONS === "1";
 
 const manifest = {
   manifest_version: 3,
@@ -24,7 +25,9 @@ const manifest = {
     48: "icons/icon-48.png",
     128: "icons/icon-128.png",
   },
-  host_permissions: ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"],
+  host_permissions: isLocalTestingBuild
+    ? ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"]
+    : ["https://dutchmate-backend.onrender.com/*"],
   background:
     target === "firefox"
       ? {
@@ -35,7 +38,7 @@ const manifest = {
         },
   content_scripts: [
     {
-      matches: ["<all_urls>"],
+      matches: ["http://*/*", "https://*/*"],
       js: ["assets/content.js"],
       run_at: "document_idle",
     },
