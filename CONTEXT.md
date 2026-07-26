@@ -28,12 +28,16 @@ _Avoid_: Translation workflow, complete Dutch course, standalone game
 The deliberately bounded DutchMate learning range from A0/Pre-A1 through A1 to A2. It supports beginners becoming increasingly independent with practical Dutch without extending the current product promise to B1 or above.
 _Avoid_: A0-B1 pathway, full fluency path, advanced Dutch course
 
+**Open foundation path**:
+The ordered A0-A2 learning path in which DutchMate recommends the earliest incomplete pattern while leaving every unit visible and directly selectable. It requires no placement test, learner-level setting, locked level, or additional starting-point control.
+_Avoid_: Placement flow, level gate, learner-level profile
+
 **Capability progression**:
 Learner-visible movement through the foundation progression based on demonstrated recognition and controlled application of practical Dutch. It is evidence from DutchMate learning activities, not proof of uncued production, lesson completion alone, or a claim of formal CEFR certification.
 _Avoid_: Course completion level, certified CEFR level, engagement score
 
 **Verb Path**:
-A pattern-first A0-A2 teaching sequence in which high-utility Dutch verbs make conjugation and sentence structure concrete through explanation, guided construction, retrieval, and contextual application. Conjugation tables support the sequence as references rather than defining its curriculum.
+A pattern-first A0-A2 grammar sequence threaded through the existing practical mini-lessons and Lessons library, not a separate learner-facing library or navigation area. High-utility Dutch verbs make conjugation and sentence structure concrete through explanation, guided construction, retrieval, and contextual application, while conjugation tables remain supporting references.
 _Avoid_: 100-verb catalog, conjugation-table course, tense encyclopedia
 
 **Click-only grammar practice**:
