@@ -24,6 +24,22 @@ _Avoid_: Everyone, general translation users
 The core DutchMate learning journey: understand Dutch encountered on real websites, keep useful language, practise it, and later recognize or actively use it. Curated teaching and playful mechanics support this loop rather than replace it.
 _Avoid_: Translation workflow, complete Dutch course, standalone game
 
+**Foundation progression**:
+The deliberately bounded DutchMate learning range from A0/Pre-A1 through A1 to A2. It supports beginners becoming increasingly independent with practical Dutch without extending the current product promise to B1 or above.
+_Avoid_: A0-B1 pathway, full fluency path, advanced Dutch course
+
+**Capability progression**:
+Learner-visible movement through the foundation progression based on demonstrated recognition and controlled production of practical Dutch. It is evidence from DutchMate learning activities, not lesson completion alone or a claim of formal CEFR certification.
+_Avoid_: Course completion level, certified CEFR level, engagement score
+
+**Verb Path**:
+A pattern-first A0-A2 teaching sequence in which high-utility Dutch verbs make conjugation and sentence structure concrete through explanation, guided construction, retrieval, and contextual application. Conjugation tables support the sequence as references rather than defining its curriculum.
+_Avoid_: 100-verb catalog, conjugation-table course, tense encyclopedia
+
+**Encounter coaching**:
+An optional grammar-practice offer attached to text DutchMate already handles during an ordinary learner-triggered hover or selection when that Dutch confidently matches a previously studied pattern. It does not scan pages for exercises, interrupt unmatched encounters, or treat a first explanation as mastery evidence.
+_Avoid_: Automatic page scan, passive grammar highlighting, unrelated-content analysis
+
 **Curated mini-lesson**:
 A three-to-five-minute, intentionally sequenced A0-A2 activity that teaches one practical Dutch pattern for daily life in the Netherlands through a micro-story and three to five useful learning items, introducing grammar only where the situation needs it. Published mini-lessons are human-reviewed, versioned, stable across learners, and complementary to the browsing-to-fluency loop rather than a comprehensive curriculum.
 _Avoid_: Full course unit, generated lesson, content feed
