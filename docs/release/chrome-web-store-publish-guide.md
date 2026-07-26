@@ -40,6 +40,51 @@ review risk and resolve or confirm it before clicking **Submit for Review**.
 This guide does not claim that the existing Options copy alone satisfies the
 new requirement.
 
+## Broad host permissions warning
+
+Chrome may show **Publishing will be delayed** with a **Broad Host
+Permissions** warning even when the store manifest no longer contains a
+wildcard backend permission. Chrome evaluates both `host_permissions` and the
+`matches` patterns in `content_scripts` as host access.
+
+DutchMate intentionally matches normal HTTP and HTTPS webpages because hover
+and selection translation must work passively, before the user clicks the
+extension action. The `activeTab` permission is not an equivalent replacement:
+it grants temporary access only after an explicit extension gesture and would
+change DutchMate's core behavior. Do not switch to `activeTab` solely to avoid
+the review warning.
+
+Before uploading, inspect the generated store package:
+
+```bash
+unzip -p release/dutchmate-chrome-0.4.1.zip manifest.json
+```
+
+The store package should contain the fixed backend host permission and normal
+webpage content-script matches:
+
+```json
+"host_permissions": [
+  "https://dutchmate-backend.onrender.com/*"
+],
+"content_scripts": [
+  {
+    "matches": ["http://*/*", "https://*/*"]
+  }
+]
+```
+
+The warning is a review-time notice, not a submission failure. Submit the
+package after confirming the manifest and provide this explanation in the Host
+permission justification field:
+
+> DutchMate translates text on webpages when the user hovers over or selects
+> it. Access to normal HTTP and HTTPS pages is required because these
+> interactions happen without clicking the extension button. DutchMate reads
+> only the hovered or selected text when translation is enabled and sends that
+> text to the DutchMate backend. It does not scan or transmit unrelated page
+> content.
+
 ## 1. Build and verify the Chrome upload package
 
 Run these commands from the repository root:
