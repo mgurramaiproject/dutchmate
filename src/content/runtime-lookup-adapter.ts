@@ -22,8 +22,8 @@ import type { TranslateMessageResponse } from "./runtime-translation-client";
 export type BrowserTarget = "chrome" | "firefox";
 
 type ExtensionStorageApi = {
-  storage: {
-    local: {
+  storage?: {
+    local?: {
       get(keys: string | string[], callback: (items: Record<string, unknown>) => void): void;
       set(items: Record<string, unknown>, callback?: () => void): void;
     };
@@ -117,12 +117,13 @@ class ContentLocalCacheStorage implements PersistentTranslationCacheStorage {
   constructor(private readonly api: ExtensionStorageApi | undefined) {}
 
   async get(key: string): Promise<unknown> {
-    if (!this.api) {
+    const local = this.api?.storage?.local;
+    if (!local?.get) {
       return undefined;
     }
 
     return new Promise((resolve) => {
-      this.api?.storage.local.get(key, (items) => {
+      local.get(key, (items) => {
         if (this.api?.runtime.lastError) {
           resolve(undefined);
           return;
@@ -134,12 +135,13 @@ class ContentLocalCacheStorage implements PersistentTranslationCacheStorage {
   }
 
   async set(key: string, value: unknown): Promise<void> {
-    if (!this.api) {
+    const local = this.api?.storage?.local;
+    if (!local?.set) {
       return;
     }
 
     return new Promise((resolve) => {
-      this.api?.storage.local.set({ [key]: value }, () => {
+      local.set({ [key]: value }, () => {
         resolve();
       });
     });
