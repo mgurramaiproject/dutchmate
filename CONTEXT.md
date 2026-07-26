@@ -29,12 +29,16 @@ The deliberately bounded DutchMate learning range from A0/Pre-A1 through A1 to A
 _Avoid_: A0-B1 pathway, full fluency path, advanced Dutch course
 
 **Capability progression**:
-Learner-visible movement through the foundation progression based on demonstrated recognition and controlled production of practical Dutch. It is evidence from DutchMate learning activities, not lesson completion alone or a claim of formal CEFR certification.
+Learner-visible movement through the foundation progression based on demonstrated recognition and controlled application of practical Dutch. It is evidence from DutchMate learning activities, not proof of uncued production, lesson completion alone, or a claim of formal CEFR certification.
 _Avoid_: Course completion level, certified CEFR level, engagement score
 
 **Verb Path**:
 A pattern-first A0-A2 teaching sequence in which high-utility Dutch verbs make conjugation and sentence structure concrete through explanation, guided construction, retrieval, and contextual application. Conjugation tables support the sequence as references rather than defining its curriculum.
 _Avoid_: 100-verb catalog, conjugation-table course, tense encyclopedia
+
+**Click-only grammar practice**:
+The exercise contract in which learners choose forms, transform prompts, and reconstruct Dutch with tap-, click-, or keyboard-operated controls without entering text. Its results are evidence of supported recognition and controlled application, not independent written production.
+_Avoid_: Typed answer, free-form response, uncued-production claim
 
 **Encounter coaching**:
 An optional grammar-practice offer attached to text DutchMate already handles during an ordinary learner-triggered hover or selection when that Dutch confidently matches a previously studied pattern. It does not scan pages for exercises, interrupt unmatched encounters, or treat a first explanation as mastery evidence.
@@ -77,7 +81,7 @@ The durable local calendar record behind the learning-rhythm heatmaps. It counts
 _Avoid_: Session log, passive activity, telemetry
 
 **Daily Five**:
-The default daily goal of practising five learning items, taking due items first and then new saved items when capacity remains. Completing five is enough; continuing is optional, and an undersized queue may prompt a mini-lesson without starting one automatically.
+The single default daily goal of completing five high-value practice tasks across saved learning items and previously studied grammar patterns. Due work comes first, grammar initially occupies at most two positions so vocabulary practice remains protected, completing five is enough, and continuing is optional.
 _Avoid_: Clear-all-due target, daily quota, timed session
 
 **Meaningful chunk**:
