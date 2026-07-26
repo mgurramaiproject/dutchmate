@@ -56,6 +56,8 @@ describe("public website", () => {
     expect(homepage).toContain("Review on Firefox");
     expect(homepage).toContain("Share on X");
     expect(homepage).toContain("twitter.com/intent/tweet");
+    expect(homepage).toContain('href="https://x.com/dutchmate_addon"');
+    expect(homepage).toContain("Follow @dutchmate_addon");
     expect(homepage).toContain("https://forms.gle/9KSsqfE1NNZcPEaaA");
 
     expect(homepage).not.toContain('<a href="#privacy">Privacy</a>');
@@ -65,6 +67,8 @@ describe("public website", () => {
     expect(feedbackPage).toContain("Contact form");
     expect(feedbackPage).toContain("Review on Firefox");
     expect(feedbackPage).toContain("Share on X");
+    expect(feedbackPage).toContain('href="https://x.com/dutchmate_addon"');
+    expect(feedbackPage).toContain("Follow DutchMate on X");
 
     for (const pageName of ["index.html", "feedback.html", "privacy-policy.html"]) {
       expect(readFrontendFile(pageName)).not.toMatch(/mailto:|dutchmate\.project@gmail\.com/i);
