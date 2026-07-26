@@ -76,6 +76,10 @@ _Avoid_: Grammar chapter, CEFR section, flat topic list
 The restrained set of playful feedback and motivation mechanisms that helps learners return to meaningful Dutch practice. It measures and rewards learning actions without becoming a separate game economy.
 _Avoid_: Gamification system, rewards economy, entertainment mode
 
+**Pattern progress**:
+The learner-visible grammar states Introduced, Practising, and Applied, advanced through scored recognition and controlled application across distinct exercises or contexts. They create honest moments of progress and celebration without representing points, independent production, or formal proficiency.
+_Avoid_: Experience level, lesson-completion badge, certified mastery
+
 **Learning rhythm**:
 The calm engagement pattern built from a small daily review goal, weekly consistency, a grace day, mastery celebrations, and practical learning milestones. It encourages returning without punishing a missed day or rewarding activity that lacks learning value.
 _Avoid_: Endless streak, experience points, daily obligation
