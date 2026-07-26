@@ -35,6 +35,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [Release notes](release/release-notes.md): version-by-version release summary.
 - [Versioned release notes](release/notes/v0.4.0.md): current per-version notes file used by the GitHub release workflow; [0.3.0 notes](release/notes/v0.3.0.md) remain available as the previous release record.
 - [Chrome Web Store listing draft](release/chrome-web-store-listing-draft.md): listing copy draft.
+- [Chrome Web Store publish guide](release/chrome-web-store-publish-guide.md): repository preflight, dashboard steps, privacy gate, and first-publication checklist.
 - [Chrome Web Store screenshot plan](release/chrome-web-store-screenshot-plan.md): screenshot capture plan.
 - [Store disclosure draft](release/store-disclosure-draft.md): browser-store privacy disclosure draft.
 - [Privacy policy](release/privacy-policy.md): public-facing privacy policy source.
