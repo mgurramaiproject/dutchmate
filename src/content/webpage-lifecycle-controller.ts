@@ -89,8 +89,15 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
       window.clearTimeout(hoverTimer);
       const settings = dependencies.getSettings();
 
-      if (!settings.isEnabled || !settings.translateOnHover) {
+      if (!settings.isEnabled) {
         dependencies.lookupModule.clear();
+        return;
+      }
+
+      if (!settings.translateOnHover) {
+        if (!dependencies.lookupModule.hasActiveSelectionControl()) {
+          dependencies.lookupModule.clear();
+        }
         return;
       }
 
