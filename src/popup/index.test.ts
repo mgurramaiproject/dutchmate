@@ -478,6 +478,16 @@ describe("lesson popup", () => {
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
   });
 
+  it("shows separate A0 pattern progress and recommends the earliest incomplete pattern", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Pattern: Not started"));
+    expect(content().textContent).toContain("Pattern: Not started");
+    button("Today").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Next foundation pattern"));
+    expect(content().textContent).toContain("Hallo, ik ben…");
+    expect(content().textContent).toContain("Not started");
+  });
+
   it("filters Lessons by readiness and CEFR level and labels resumable stages", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15));

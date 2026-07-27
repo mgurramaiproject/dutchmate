@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyDailyFiveResult, createDailyFiveSnapshot, getOverallMastery, getWeakerMasteryDimension } from "./daily-five";
+import { applyDailyFiveResult, createDailyFiveSnapshot, getOverallMastery, getWeakerMasteryDimension, selectGrammarDailyFiveTasks } from "./daily-five";
 import { createNewMastery, type LearningItem } from "./learning-record";
 
 const day = 24 * 60 * 60 * 1_000;
@@ -94,7 +94,22 @@ describe("Daily Five scheduling", () => {
     const snapshot = createDailyFiveSnapshot([], 10 * day, undefined, [{ kind: "grammar", patternId: "a0-yes-no-inversion", contentVersion: 1, exerciseId: "inversion-order-je" }]);
     expect(snapshot.tasks).toEqual([{ kind: "grammar", patternId: "a0-yes-no-inversion", contentVersion: 1, exerciseId: "inversion-order-je" }]);
   });
+
+  it("prioritizes seriously overdue grammar and rotates stable ties instead of starving later patterns", () => {
+    const candidates = [
+      grammarCandidate("a0-zijn-present", "zijn-choose-ik", 1 * day, 0),
+      grammarCandidate("a0-hebben-present", "hebben-choose-ik", 1 * day, 1),
+      grammarCandidate("a0-regular-present", "regular-choose-ik", 1 * day, 2),
+      grammarCandidate("a0-yes-no-inversion", "inversion-order-je", 10 * day, 3),
+    ];
+    expect(selectGrammarDailyFiveTasks(candidates, 10 * day, 2).map((task) => task.patternId)).toEqual(["a0-zijn-present", "a0-hebben-present"]);
+    expect(selectGrammarDailyFiveTasks(candidates.slice(2), 10 * day, 2).map((task) => task.patternId)).toEqual(["a0-regular-present", "a0-yes-no-inversion"]);
+  });
 });
+
+function grammarCandidate(patternId: "a0-zijn-present" | "a0-hebben-present" | "a0-regular-present" | "a0-yes-no-inversion", exerciseId: string, dueAt: number, order: number) {
+  return { task: { kind: "grammar" as const, patternId, contentVersion: 1 as const, exerciseId }, dueAt, patternOrder: order };
+}
 
 function item(dutch: string, createdAt: number): LearningItem {
   return { id: `nl\u001f${dutch}`, learningLanguage: "nl", normalizedDutch: dutch, dutch, kind: "word", english: null, telugu: null, sources: [], contexts: [], encounters: { count: 0, lastEncounterAt: null }, recognition: createNewMastery(), recall: createNewMastery(), createdAt, updatedAt: createdAt };

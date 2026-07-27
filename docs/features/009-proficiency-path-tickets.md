@@ -8,7 +8,7 @@ Source specification: [009-proficiency-path-spec.md](./009-proficiency-path-spec
 
 Approved prototype direction: [Paper Rail review prototype](../../frontend/009-proficiency-path-prototype.html)
 
-The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #86 is the current implementation slice; later tickets remain blocked by their listed dependencies.
+The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #87 is the current implementation slice; later tickets remain blocked by their listed dependencies.
 
 ## Delivery rules
 
@@ -30,7 +30,7 @@ The canonical tracker records live issue state. This checked-in document mirrors
              └──> #86 ──┘
 ```
 
-`#86` is the current frontier after #85 delivery completion. #87 remains gated on #86. #89 is a human validation gate and cannot be satisfied by automated tests alone.
+`#87` is the current frontier after #86 delivery completion. #88 remains gated on #87. #89 is a human validation gate and cannot be satisfied by automated tests alone.
 
 ## T01 — Prove the `a0-zijn-present` tracer
 
@@ -123,15 +123,15 @@ GitHub: [#87](https://github.com/mgurramaiproject/dutchmate/issues/87)
 
 **What to build:** Integrate the four reviewed patterns into a coherent additive A0 Foundation experience with recommendation, separate pattern progress, Paper Rail presentation, and balanced Daily Five composition.
 
-- [ ] A0 browsing presents the existing companion and three additive lessons while preserving A0/A1/A2 filters and direct selection.
-- [ ] Existing next-action/continue UI recommends the earliest incomplete foundation pattern without placement, locking, mandatory completion, or a starting-point button.
-- [ ] Completed lessons remain complete; old completion never grants retroactive grammar evidence.
-- [ ] Introduced, Practising, and Applied remain separate from lesson completion.
-- [ ] Paper Rail preserves focused-flow orientation, Exit, keyboard behavior, live feedback, target sizing, and restrained celebration.
-- [ ] Daily Five enforces at most two grammar tasks, at least three vocabulary positions when eligible, due-first selection, overdue grammar protection, and starvation resistance.
-- [ ] Queue reopen resumes the same snapshot and does not fabricate filler.
-- [ ] All released click-only primitives behave consistently across Lessons, Daily Five, and Encounter Coaching.
-- [ ] Regression tests preserve all twelve lessons, progress, saved items, vocabulary mastery, translation, and A1/A2 availability.
+- [x] A0 browsing presents the existing companion and three additive lessons while preserving A0/A1/A2 filters and direct selection.
+- [x] Existing next-action/continue UI recommends the earliest incomplete foundation pattern without placement, locking, mandatory completion, or a starting-point button.
+- [x] Completed lessons remain complete; old completion never grants retroactive grammar evidence.
+- [x] Introduced, Practising, and Applied remain separate from lesson completion.
+- [x] Paper Rail preserves focused-flow orientation, Exit, keyboard behavior, live feedback, target sizing, and restrained celebration.
+- [x] Daily Five enforces at most two grammar tasks, at least three vocabulary positions when eligible, due-first selection, overdue grammar protection, and starvation resistance.
+- [x] Queue reopen resumes the same snapshot and does not fabricate filler.
+- [x] All released click-only primitives behave consistently across Lessons, Daily Five, and Encounter Coaching.
+- [x] Regression tests preserve all twelve lessons, progress, saved items, vocabulary mastery, translation, and A1/A2 availability.
 
 ## T07 — Qualify the A0 release candidate
 

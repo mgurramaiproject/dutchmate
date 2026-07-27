@@ -16,6 +16,7 @@ import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSaved
 import { grammarResultMessage } from "../grammar/learning";
 import { getGrammarPattern, grammarPatterns, type GrammarExercise } from "../grammar/content";
 import type { GrammarRecord } from "../grammar/learning";
+import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
@@ -310,6 +311,16 @@ function renderToday(): HTMLElement {
     nextAction.append(action);
   }
   nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
+  const foundation = getNextFoundationPattern(grammarPatterns, grammarRecords);
+  const foundationLesson = foundation && lessonCatalog.lessons.find((lesson) => lesson.id === foundation.companionLessonId);
+  if (foundation && foundationLesson) {
+    const recommendation = section("foundation-recommendation");
+    recommendation.append(eyebrow("Next foundation pattern"), heading(foundationLesson.title), text(`Pattern: ${getGrammarProgressLabel(grammarRecords[foundation.id])}. Pick up the earliest incomplete A0 pattern whenever you want.`));
+    const action = button("Learn foundation lesson", "button secondary-button");
+    action.addEventListener("click", () => void startLesson(foundationLesson));
+    recommendation.append(action);
+    nextAction.append(recommendation);
+  }
   wrapper.append(nextAction);
   const inProgress = lessonCatalog.lessons.find((lesson) => {
     const progress = lessonProgressById[lesson.id];
@@ -465,7 +476,10 @@ function renderLessons(): HTMLElement {
     titleNode.textContent = title.join(" · ");
     const meta = document.createElement("small");
     meta.textContent = `${lessonDefinition.pathway.replaceAll("-", " ")} · ${availabilityStatus === "continue" ? `Continue · ${lessonStageLabel(lessonProgress!.stage)} · 3 min left` : status}`;
+    const pattern = lessonDefinition.grammarCompanion && getGrammarPattern(lessonDefinition.grammarCompanion.patternId);
+    const patternMeta = pattern ? text(`Pattern: ${getGrammarProgressLabel(grammarRecords[pattern.id])}`, "lesson-pattern-status") : null;
     copy.append(titleNode, meta);
+    if (patternMeta) copy.append(patternMeta);
     lesson.append(text(String(lessonNumber).padStart(2, "0"), "lesson-number"), copy, text(`(${level})`, "level"));
     lesson.addEventListener("click", () => void startLesson(lessonDefinition));
     library.append(lesson);
@@ -560,8 +574,12 @@ function renderLesson(): HTMLElement {
   if (!session) { screen = "lessons"; return renderLessons(); }
   const wrapper = section("lesson-content focused-content");
   const exit = button("Exit lesson", "exit-button"); exit.addEventListener("click", () => { lessonSession = null; screen = focusedOrigin ?? "lessons"; focusedOrigin = null; render(); });
-  const rail = document.createElement("div"); rail.className = "lesson-rail";
-  for (const stage of ["read", "notice", "practise", "keep"] as const) rail.append(text(stage, `lesson-stage${session.stage === stage || (stage === "keep" && session.stage === "replay") ? " active" : ""}`));
+  const rail = document.createElement("div"); rail.className = "lesson-rail"; rail.setAttribute("aria-label", "Lesson stages");
+  for (const stage of ["read", "notice", "practise", "keep"] as const) {
+    const stageNode = text(stage, `lesson-stage${session.stage === stage || (stage === "keep" && session.stage === "replay") ? " active" : ""}`);
+    stageNode.setAttribute("aria-current", session.stage === stage || (stage === "keep" && session.stage === "replay") ? "step" : "false");
+    rail.append(stageNode);
+  }
   wrapper.append(exit, rail);
   if (session.stage === "read" || session.stage === "replay") wrapper.append(renderLessonStory(session, session.stage === "read"));
   if (session.stage === "notice") wrapper.append(renderLessonNotice(session));
@@ -615,6 +633,7 @@ function renderGrammarNotice(session: LessonSession, patternId: GrammarPatternId
   panel.append(eyebrow("Notice · Choose the form"), heading(session.lesson.pattern), text("Notice how the form changes with the subject."), text(exercise.context, "story-dutch"));
   panel.append(renderGrammarAnswerControls(exercise));
   if (grammarFeedback) { const status = text(grammarFeedback.message, "grammar-feedback"); status.setAttribute("role", "status"); panel.append(status); }
+  if (grammarChecked && grammarOutcome === null && grammarRecords[patternId]?.state === "applied") panel.append(text("Applied · this pattern is ready to use in the wild.", "grammar-celebration"));
   if (grammarChecked) {
     if (grammarOutcome === null) { const retry = button("Try again", "button"); retry.disabled = pending; retry.addEventListener("click", retryGrammarAnswer); panel.append(retry); }
     const continueButton = button("Continue to Practise", "button primary-button"); continueButton.disabled = pending; continueButton.addEventListener("click", () => void advanceLesson(session)); panel.append(continueButton);
@@ -674,6 +693,7 @@ function renderGrammarReview(task: GrammarDailyFiveTask): HTMLElement {
   wrapper.append(exit, eyebrow("Daily Five · Grammar"), heading(exercise.prompt), text(exercise.context, "story-dutch"));
   wrapper.append(renderGrammarAnswerControls(exercise));
   if (grammarFeedback) { const status = text(grammarFeedback.message, "grammar-feedback"); status.setAttribute("role", "status"); wrapper.append(status); }
+  if (grammarChecked && grammarOutcome === null && grammarRecords[task.patternId]?.state === "applied") wrapper.append(text("Applied · this pattern is ready to use in the wild.", "grammar-celebration"));
   if (!grammarChecked) {
     const actions = document.createElement("div"); actions.className = "grammar-actions";
     const reveal = button("Reveal", "button answer-button"); reveal.disabled = pending; reveal.addEventListener("click", () => void persistGrammarDailyFiveOutcome(task.patternId, exercise.id, "reveal"));
