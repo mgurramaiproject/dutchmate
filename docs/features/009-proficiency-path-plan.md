@@ -62,6 +62,14 @@ Enhance each applicable lesson stage:
 
 Every unit remains visible and directly selectable. DutchMate may recommend the earliest incomplete pattern, but it does not add a placement test, learner-level profile, locked level, or `Find my starting point` control.
 
+### Preserve and enrich the published library
+
+The twelve published starter lessons remain available with their existing lesson identifiers, content versions, completion records, and saved learning items. Grammar must not replace, renumber, or silently rewrite them.
+
+Compatible lessons gain separately identified and versioned grammar companions. A learner who already completed the lesson keeps that completion; the new pattern practice is available inside the lesson without implying that the learner previously completed it. Lesson completion therefore does not retroactively award Introduced, Practising, or Applied pattern progress.
+
+The existing catalog contains only one A0 lesson, so enrichment alone cannot form a coherent A0 foundation. Add new A0 lessons only where the reviewed progression has a real capability gap, without a fixed lesson-count target. Existing A1 and A2 lessons remain visible and unchanged while their grammar expansion stays parked until the A0 loop is validated.
+
 ### Exercise contract
 
 Grammar practice requires no text entry. Learners use controls that work by tap, click, or keyboard:
@@ -72,11 +80,19 @@ Grammar practice requires no text entry. Learners use controls that work by tap,
 - position a separable prefix;
 - identify and correct one invalid sentence.
 
-Teaching prompts may provide strong guidance. Scored progression must use a different sentence from the initial example and provide precise corrective feedback. The resulting evidence represents supported recognition and controlled application, not uncued written production.
+For authoring, these primitives may be grouped as verb-form practice or sentence-building practice—ideas called Verb Gym and Sentence Forge in the review input. They remain reusable internal exercise families, not learner-facing modes, destinations, queues, or progress systems.
+
+Teaching prompts may provide strong guidance. Scored progression must use a different sentence from the initial example and provide precise corrective feedback. Every scored item declares its accepted answer or finite set of accepted alternatives. Each distractor represents a known misconception with a stable error category, and feedback connects that category to the relevant rule and one reviewed contrast or corrected form. If DutchMate cannot enumerate the valid alternatives or accurately explain a rejection, the item must be omitted or redesigned.
+
+The resulting evidence represents supported recognition and controlled application, not uncued written production.
+
+Content authoring is manual-first. Linguistically sensitive exercises and the initial tracer are authored as complete instances. Safe repetitive cases may use bounded templates only when every subject, verb, context, answer, accepted alternative, distractor, and feedback item is explicitly enumerated. The build must expand and validate every released combination and produce a human-readable review report containing the exact learner-visible material. If an exercise cannot be fully inspected this way, it must use authored instances instead. There is no runtime generation.
+
+Every released content pack records its content version, authorship, review, authoritative reference sources, and license or provenance for any reused material.
 
 ### Verb content
 
-The archived Valley Trail verb page is useful as inspiration for the kinds of forms a reference may expose, but it is not the curriculum or a content source to copy. It mixes essential and advanced tenses, is not sequenced for DutchMate's A0-A2 audience, and has no established reuse license.
+The archived Valley Trail verb page is useful as inspiration for the kinds of forms a reference may expose, but it is not the curriculum or a content source to copy. It mixes essential and advanced tenses, is not sequenced for DutchMate's A0-A2 audience, and this review did not establish a reuse license.
 
 DutchMate should:
 
@@ -93,6 +109,15 @@ Candidate sequencing for content review:
 - **A2:** useful past forms, auxiliary choice, subordinate-clause placement, and mixed-pattern application.
 
 This is a planning outline, not an approved CEFR syllabus. The specification must define and human-review the exact pattern inventory before content implementation.
+
+### Release-quality gate
+
+Every grammar exercise must pass:
+
+1. automated validation of all expanded sentences, answers, accepted alternatives, distractors, feedback, identifiers, and content references; and
+2. human linguistic review recorded with the reviewer, date, and authoritative reference sources.
+
+The internal tracer may be authored and checked by one person. Before content becomes a public learner-facing A0 release, a second fluent Dutch reviewer with grammar-teaching competence must inspect the exact human-readable review report. Formal NT2 certification is not required, and the reviewer does not need codebase access. AI output is drafting assistance, not linguistic approval.
 
 ## Priority 2: Mixed Daily Five
 
@@ -114,9 +139,18 @@ Pattern progress uses honest learner-facing states:
 
 - **Introduced:** the learner completed the relevant teaching encounter;
 - **Practising:** the learner has scored recognition or application evidence;
-- **Applied:** the learner succeeded across distinct exercises or contexts.
+- **Applied:** the learner succeeded across varied exercise primitives, lexical contexts, and sessions, including at least one delayed attempt using unseen or recombined material.
 
 The specification must define scheduling, state transitions, versioning, backup behavior, and how grammar tasks coexist with the current recognition and recall model. It should extend the existing Today flow and local learning record rather than create a competing scheduler or cloud profile.
+
+Persistence follows a minimum-learning-record rule:
+
+- keep the current Daily Five snapshot needed to resume;
+- keep each studied pattern's state, due date, compact evidence markers, and bounded misconception counters;
+- keep recent exercise identifiers only where selection needs them to prevent immediate repetition;
+- do not keep raw webpage text, selected sentences, response times, full attempt histories, or behavioral timelines.
+
+The record remains local and participates in DutchMate's existing export, import, and clear-data behavior. Exact bounds and migration rules belong in the specification.
 
 ## Priority 3: Encounter Coaching
 
@@ -175,6 +209,8 @@ That tracer validates the shared pattern identity, local evidence flow, UI, acce
 
 The first public grammar delivery should then complete a coherent, human-reviewed A0 foundation across the same loop. A1 and A2 content should expand the proven system in later slices rather than being authored in bulk before the learning interaction is validated.
 
+Content volume follows the capability and evidence coverage required by that reviewed A0 sequence. The plan does not impose verb, lesson, skill, or exercise quotas.
+
 ## Learning validation
 
 DutchMate should judge this direction by learning evidence, not engagement alone.
@@ -190,6 +226,19 @@ Useful validation includes:
 
 Clicks, time in the extension, lesson completions, immediate retries, and return frequency may describe use but cannot establish learning effectiveness.
 
+Before the public A0 release, a small product-learning pilot should check that real A0-A2 learners can understand and complete the click-only flow, improve on delayed unseen or recombined items, and reduce the targeted misconception errors. This is a release-quality check for the product's bounded learning claims, not a statistically powered efficacy study or a basis for broad marketing claims. The specification must set the sample, procedure, thresholds, and what happens when a threshold is missed.
+
+## Alternative-plan synthesis
+
+The ChatGPT review input strengthened this plan without replacing the approved product model:
+
+| Disposition | Incorporated decision |
+| --- | --- |
+| Adopted | Contrast, transformation, repair, and recombination primitives; explicit accepted alternatives; misconception-based distractors and stable error categories; exact feedback; deterministic build-time validation; delayed and varied evidence; human-readable content review. |
+| Reframed | Verb Gym and Sentence Forge are internal exercise families. Grammar Minute is absorbed into the existing mixed Daily Five. Five proposed progress states are reduced to the honest learner-facing Introduced, Practising, and Applied states. |
+| Parked | A1 and A2 expansion, a Saved-verb practice entry point, and a larger verb inventory remain in the single [feature parking lot](./feature-parking-lot.md) until their revisit signals are met. |
+| Rejected for `009` | Separate grammar modes or library switch, fixed content quotas, B1, typed answers, runtime generation, pseudo-precise Secure claims, and full attempt or response-time histories. |
+
 ## Out of scope
 
 - B1 or higher curriculum and progression.
@@ -200,6 +249,7 @@ Clicks, time in the extension, lesson completions, immediate retries, and return
 - Independent speaking, writing, pronunciation, or listening claims.
 - Runtime-generated lessons, explanations, questions, or answer scoring.
 - Automatic webpage scanning, grammar highlighting, or unrelated-content analysis.
+- Raw encounter-text storage, response-time tracking, full attempt histories, or behavioral timelines.
 - Copying the archived Valley Trail verb tables or another unlicensed verb database.
 - A second daily queue, game economy, cloud learner profile, or background learning telemetry.
 
@@ -208,7 +258,8 @@ Clicks, time in the extension, lesson completions, immediate retries, and return
 Before implementation, the next specification stage must resolve:
 
 - the exact human-reviewed A0 pattern inventory and lesson changes;
-- grammar-pattern identity, content versioning, and prerequisite representation;
+- grammar-pattern and grammar-companion identity, content versioning, and prerequisite representation;
+- additive catalog migration that preserves all twelve existing lessons and their progress;
 - click-only task schemas and objective scoring rules;
 - pattern progress and spaced scheduling transitions;
 - mixed Daily Five selection and starvation rules;
@@ -226,7 +277,9 @@ Implementation should not begin directly from this discovery plan. Convert it in
 - [LearnLoop specification](./002-learnloop-spec.md)
 - [Context Missions specification](./004-transfer-spec.md)
 - [Context Missions research](./004-transfer-research.md)
+- [Single feature parking lot](./feature-parking-lot.md)
 - [Council of Europe CEFR descriptors](https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors-search)
+- [Taalunie overview of the ERK](https://erk-nederlands.taalunie.org/over-het-erk/)
 - [Woordenlijst.org](https://woordenlijst.org/)
 - [Archived Valley Trail Dutch verb list](https://web.archive.org/web/20200226064312/https://www.valley-trail.com/VerbList100.htm)
 - [Chrome content-script documentation](https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts)

@@ -45,12 +45,24 @@ The exercise contract in which learners choose forms, transform prompts, and rec
 _Avoid_: Typed answer, free-form response, uncued-production claim
 
 **Grammar exercise primitive**:
-A deterministic click-only interaction reused inside Lessons, Daily Five, or Encounter Coaching, such as choosing or contrasting a verb form or building, transforming, and repairing sentence order. Verb Gym and Sentence Forge may group these primitives for authoring, but they are not learner-facing modes or separate progress systems.
+A deterministic click-only interaction reused inside Lessons, Daily Five, or Encounter Coaching, such as choosing or contrasting a verb form or building, transforming, and repairing sentence order. Released instances are manually authored unless a bounded template can enumerate and expose every resulting sentence, answer, accepted alternative, distractor, and feedback item for build-time validation and human review. Verb Gym and Sentence Forge may group these primitives for authoring, but they are not learner-facing modes or separate progress systems.
 _Avoid_: Grammar mode, second practice queue, standalone exercise course
+
+**Grammar companion**:
+Separately identified and versioned pattern teaching and click-only practice attached to a compatible lesson without replacing that lesson, changing its identity, or invalidating its completion. Completing the earlier lesson does not retroactively award pattern progress; the additional practice remains available inside the lesson flow.
+_Avoid_: Replacement lesson, completion reset, separate grammar destination
 
 **Grammar feedback**:
 A deterministic correction that connects a scored wrong answer to one known misconception, one relevant rule, and one reviewed contrast or corrected form. If DutchMate cannot enumerate the accepted alternatives and explain a rejection accurately, the exercise is not eligible for release.
 _Avoid_: Generic incorrect message, random distractor, fuzzy grammar judgment
+
+**Grammar content review**:
+The release gate that combines automated inspection of every expanded learner-visible grammar item with human linguistic review. The internal tracer may be self-reviewed, but public content must also be checked by a second fluent Dutch reviewer with grammar-teaching competence; formal NT2 certification is not required, and reviewer, date, and reference sources are recorded.
+_Avoid_: AI approval, author-only public review, certification requirement
+
+**Grammar learning record**:
+The minimum local evidence needed to resume practice, schedule a studied pattern, prevent immediate repetition, and support its honest progress state. It contains the current Daily Five snapshot, per-pattern state and due date, compact evidence markers, bounded misconception counters, and only the recent exercise identifiers needed for selection; it excludes raw webpage text, selected sentences, response times, full attempt histories, and behavioral timelines.
+_Avoid_: Event log, page-content history, analytics profile
 
 **Encounter coaching**:
 An optional grammar-practice offer attached to text DutchMate already handles during an ordinary learner-triggered hover or selection when that Dutch confidently matches a previously studied pattern. It does not scan pages for exercises, interrupt unmatched encounters, or treat a first explanation as mastery evidence.
