@@ -1,6 +1,6 @@
 export const LESSON_CATALOG_VERSION = 1;
 
-export type GrammarPatternId = "a0-zijn-present" | "a0-hebben-present";
+export type GrammarPatternId = "a0-zijn-present" | "a0-hebben-present" | "a0-regular-present";
 export type LessonLine = { dutch: string; english: string; telugu: string };
 export type LessonCandidate = { id: string; dutch: string; english: string; telugu: string; kind: "word" | "chunk" };
 export type LessonPracticePrompt = { candidateId: string; dimension: "recognition" | "recall" };
@@ -60,6 +60,31 @@ export const hebbenLesson: Lesson = {
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
   grammarCompanion: { id: "a0-hebben-present", contentVersion: 1, patternId: "a0-hebben-present" },
+};
+
+export const regularLesson: Lesson = {
+  id: "a0-ik-woon-en-werk-hier", contentVersion: 1, pathway: "home-and-work", order: 1,
+  cefr: "A0", title: "A0 · Ik woon en werk hier", durationMinutes: 3,
+  pattern: "Ik woon en werk hier.", patternText: "Ik woon", patternExplanation: "Regular verbs usually use the stem with -t for jij, u, and one person, and the full -en form for plural subjects.",
+  lines: [
+    { dutch: "Ik woon in Utrecht en ik leer Nederlands.", english: "I live in Utrecht and I learn Dutch.", telugu: "నేను ఉట్రెహ్ట్‌లో నివసిస్తున్నాను మరియు డచ్ నేర్చుకుంటున్నాను." },
+    { dutch: "Jij werkt in een café en je woont dichtbij.", english: "You work in a cafe and you live nearby.", telugu: "నువ్వు ఒక కేఫేలో పని చేస్తున్నావు మరియు దగ్గరలో నివసిస్తున్నావు." },
+    { dutch: "U leert snel en u werkt elke dag.", english: "You learn quickly and you work every day.", telugu: "మీరు త్వరగా నేర్చుకుంటారు మరియు ప్రతిరోజూ పని చేస్తారు." },
+    { dutch: "Hij maakt een plan voor de week.", english: "He makes a plan for the week.", telugu: "అతను వారానికి ఒక ప్రణాళిక తయారు చేస్తాడు." },
+    { dutch: "Wij wonen en werken hier samen.", english: "We live and work here together.", telugu: "మేము ఇక్కడ కలిసి నివసిస్తూ పని చేస్తున్నాము." },
+  ],
+  candidates: [
+    { id: "ik-woon-hier", dutch: "ik woon hier", english: "I live here", telugu: "నేను ఇక్కడ నివసిస్తున్నాను", kind: "chunk" },
+    { id: "ik-leer-nederlands", dutch: "ik leer Nederlands", english: "I learn Dutch", telugu: "నేను డచ్ నేర్చుకుంటున్నాను", kind: "chunk" },
+    { id: "je-werkt", dutch: "je werkt", english: "you work", telugu: "నువ్వు పని చేస్తున్నావు", kind: "chunk" },
+    { id: "een-plan-maken", dutch: "een plan maken", english: "to make a plan", telugu: "ఒక ప్రణాళిక తయారు చేయడం", kind: "chunk" },
+  ],
+  practice: [
+    { candidateId: "ik-woon-hier", dimension: "recognition" }, { candidateId: "ik-leer-nederlands", dimension: "recall" },
+    { candidateId: "je-werkt", dimension: "recognition" }, { candidateId: "een-plan-maken", dimension: "recall" },
+  ],
+  review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  grammarCompanion: { id: "a0-regular-present", contentVersion: 1, patternId: "a0-regular-present" },
 };
 
 export const repetitionLesson: Lesson = {
@@ -251,7 +276,7 @@ export const letterLesson: Lesson = { id: "a2-wat-staat-er-in-deze-brief", conte
 
 export const lessonCatalog: LessonCatalog = {
   version: LESSON_CATALOG_VERSION,
-  lessons: [introductionLesson, hebbenLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson],
+  lessons: [introductionLesson, hebbenLesson, regularLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson],
 };
 
 export function validateLessonCatalog(catalog: LessonCatalog): string[] {

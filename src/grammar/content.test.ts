@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createGrammarContentReport, hebbenPattern, matchGrammarEncounter, matchIntroducedGrammarEncounter, matchIntroducedZijnEncounter, matchZijnEncounter, validateAllLearningContent, validateGrammarPattern, validateLearningContent, zijnPattern } from "./content";
+import { createGrammarContentReport, hebbenPattern, matchGrammarEncounter, matchIntroducedGrammarEncounter, matchIntroducedZijnEncounter, matchZijnEncounter, regularPattern, validateAllLearningContent, validateGrammarPattern, validateLearningContent, zijnPattern } from "./content";
 
 describe("zijn grammar content", () => {
   it("has finite reviewed answers, coded distractors, and exact feedback", () => {
@@ -31,6 +31,16 @@ describe("zijn grammar content", () => {
     expect(matchGrammarEncounter("u heeft", hebbenPattern)).toEqual({ patternId: "a0-hebben-present", subject: "u", form: "heeft" });
     expect(matchIntroducedGrammarEncounter("u hebt", [], [hebbenPattern])).toBeNull();
     expect(matchIntroducedGrammarEncounter("u hebt", ["a0-hebben-present"], [hebbenPattern])).toEqual({ patternId: "a0-hebben-present", subject: "u", form: "hebt" });
+  });
+
+  it("adds regular present agreement across the reviewed verb inventory", () => {
+    expect(validateGrammarPattern(regularPattern)).toEqual([]);
+    expect(regularPattern.forms.find((entry) => entry.subject === "jij/je")?.forms).toEqual(["woont", "werkt", "leert", "maakt"]);
+    expect(regularPattern.exercises.map((exercise) => exercise.contextTag)).toEqual(["home", "work", "learning", "plans"]);
+    expect(matchGrammarEncounter("jij werkt", regularPattern)).toEqual({ patternId: "a0-regular-present", subject: "jij", form: "werkt" });
+    expect(matchIntroducedGrammarEncounter("u leert", [], [regularPattern])).toBeNull();
+    expect(matchIntroducedGrammarEncounter("u leert", ["a0-regular-present"], [regularPattern])).toEqual({ patternId: "a0-regular-present", subject: "u", form: "leert" });
+    expect(createGrammarContentReport()).toContain("regular-change-jij");
   });
 
   it("generates a deterministic review report with every released exercise", () => {
