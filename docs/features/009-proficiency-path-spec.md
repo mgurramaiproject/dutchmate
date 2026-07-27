@@ -6,6 +6,8 @@
 
 **Status:** Specification ready for ticketing; implementation not started
 
+**GitHub issue:** [#81](https://github.com/mgurramaiproject/dutchmate/issues/81)
+
 **Source plan:** [009-proficiency-path-plan.md](./009-proficiency-path-plan.md)
 
 ## Problem Statement

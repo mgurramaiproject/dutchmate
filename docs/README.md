@@ -21,7 +21,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [004-transfer Context Missions implementation tickets](features/004-transfer-tickets.md): approved tracer-bullet issues, native dependency graph, live acceptance checklists, and delivery order.
 - [009-proficiency-path discovery plan](features/009-proficiency-path-plan.md): approved A0-A2 product direction, quality boundaries, preservation model, and deferred expansion decisions.
 - [009-proficiency-path research](features/009-proficiency-path-research.md): primary-source guidance, Dutch grammar rules, browser boundaries, learning-evidence rationale, and limitations behind the specification.
-- [009-proficiency-path specification](features/009-proficiency-path-spec.md): implementation and testing contract for the A0 grammar tracer, public foundation, mixed Daily Five, and Encounter Coaching.
+- [009-proficiency-path specification](features/009-proficiency-path-spec.md): implementation and testing contract for the A0 grammar tracer, public foundation, mixed Daily Five, and Encounter Coaching; published as GitHub issue [#81](https://github.com/mgurramaiproject/dutchmate/issues/81).
 
 ## Architecture
 
