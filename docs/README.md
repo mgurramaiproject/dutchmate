@@ -19,6 +19,8 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [004-transfer Context Missions specification](features/004-transfer-spec.md): approved learner behavior, implementation decisions, test seams, cost boundary, and scope contract.
 - [004-transfer Context Missions design mockups](features/004-transfer-design-mockups.html): approved Direction A Context Slip implementation contract, interactive mission states, and archived alternatives.
 - [004-transfer Context Missions implementation tickets](features/004-transfer-tickets.md): approved tracer-bullet issues, native dependency graph, live acceptance checklists, and delivery order.
+- [009-proficiency-path discovery plan](features/009-proficiency-path-plan.md): approved A0-A2 product direction, quality boundaries, preservation model, and deferred expansion decisions.
+- [009-proficiency-path specification](features/009-proficiency-path-spec.md): implementation and testing contract for the A0 grammar tracer, public foundation, mixed Daily Five, and Encounter Coaching.
 
 ## Architecture
 
