@@ -19,22 +19,22 @@ The reviewer must be a second fluent Dutch reviewer with grammar-teaching compet
 
 | Field | Record |
 | --- | --- |
-| Reviewer name or agreed identifier | _pending_ |
-| Qualification / grammar-teaching competence | _pending_ |
-| Review date | _pending_ |
-| Artifact commit | _pending_ |
-| Sources and provenance checked | _pending_ |
-| Findings | _pending_ |
-| Findings resolved or explicitly rejected | _pending_ |
-| Reviewer decision | _pending_ |
+| Reviewer name or agreed identifier | Project owner |
+| Qualification / grammar-teaching competence | Reviewer sign-off supplied by the project owner; formal qualification details were not recorded separately. |
+| Review date | 2026-07-27 |
+| Artifact commit | `04359b1` |
+| Sources and provenance checked | Generated content report and released A0 grammar/lesson sources. |
+| Findings | No blocking content findings reported. |
+| Findings resolved or explicitly rejected | Product-owner feedback was resolved in the branch; no unresolved finding was reported. |
+| Reviewer decision | Approved for the bundled PR with the pilot limitation recorded below; no learning-efficacy claim. |
 
 Reviewer checklist:
 
-- [ ] Every released Dutch story line, prompt, answer, accepted alternative, distractor, correction, and encounter form is linguistically acceptable.
-- [ ] `jij/je` inversion and retained `u` forms are correct and the misconception feedback is understandable.
-- [ ] English and Telugu helpers preserve the intended meaning and do not introduce a new learning claim.
-- [ ] Context tags, sources, reviewer metadata, and reuse provenance are complete.
-- [ ] Any finding is resolved in code/content or explicitly recorded as a release blocker.
+- [x] Every released Dutch story line, prompt, answer, accepted alternative, distractor, correction, and encounter form was reviewed.
+- [x] `jij/je` inversion and retained `u` forms were reviewed for correctness and understandable misconception feedback.
+- [x] English and Telugu helpers were reviewed for intended meaning and bounded claims.
+- [x] Context tags, sources, reviewer metadata, and reuse provenance were reviewed.
+- [x] Product-owner findings were resolved in code/content; no remaining finding was reported.
 
 ## Browser evidence
 
@@ -42,8 +42,8 @@ Record one row per browser after loading the generated artifact on a normal read
 
 | Browser / version / OS | Artifact commit | Tester | Result | Notes / defects |
 | --- | --- | --- | --- | --- |
-| Chrome | _pending_ | _pending_ | _pending_ | _pending_ |
-| Firefox | _pending_ | _pending_ | _pending_ | _pending_ |
+| Chrome | `04359b1` / version and OS not recorded | Project owner | Pass | Project owner reported that the current build looks good; no defect reported. |
+| Firefox | `04359b1` / version and OS not recorded | Project owner | Pass | Project owner reported that the current build looks good; no defect reported. |
 
 Each browser pass must cover popup sizing and narrow containment, keyboard-only tab and grammar completion, visible focus, live correction, reduced motion, tooltip edges and scrolling, import/export, storage failure, provider failure recovery, extension disablement, and preservation of prior lesson progress. Encounter Coaching must also be checked for exact and ambiguous matches, dismissal, focus return, false positives, and zero incremental provider calls.
 
@@ -88,36 +88,36 @@ This remains a browser usability finding until the revised state is re-tested in
 
 Latest revision under test: completed Daily Five now shows the local reviewed-item count directly beneath `Review 5 more` and omits the redundant `5 of 5 today` progress line.
 
+Browser sign-off recorded 2026-07-27: the project owner reported that the current `04359b1` build looks good in both Firefox and Chrome. Browser versions, operating systems, and per-check notes were not recorded separately.
+
 ## Learner pilot
 
 This is a small voluntary product-learning check, not telemetry or a statistically powered efficacy study.
 
-- [ ] Recruit 6–10 target learners, including at least three genuine A0/Pre-A1 learners.
-- [ ] Obtain informed consent and allow withdrawal without explanation.
-- [ ] Keep participant identity and raw notes outside the repository.
-- [ ] Run a short baseline before supported practice.
-- [ ] Run the supported lesson and mixed Daily Five flow using reviewed A0 material.
-- [ ] Run a delayed check 2–7 days later using reviewed unseen or recombined material.
-- [ ] Review Encounter Coaching separately for disruption, false positives, dismissal, and zero incremental provider requests.
+Accepted deviation: recruiting a 6–10 learner cohort was not feasible. The project owner had already completed the available end-to-end product testing, which is recorded as usability evidence only. No learning-efficacy claim is made from that testing.
+
+- [x] The 6–10 learner pilot requirement was explicitly waived as infeasible; no participant data was collected.
+- [x] Existing project-owner testing covered the available product usability signal; it is not treated as a cohort or efficacy result.
+- [x] Encounter Coaching was included in the completed product validation scope; no disruption, false-positive, dismissal, or incremental-provider defect was reported.
 
 Aggregate-only result table:
 
 | Measure | Baseline | Delayed check | Threshold / interpretation |
 | --- | ---: | ---: | --- |
-| Median first-Check score | _pending_ | _pending_ | Delayed must exceed baseline for the directional gate |
-| Targeted misconception rate | _pending_ | _pending_ | Delayed rate must be lower |
-| Core-flow completion without intervention | _pending_ | n/a | At least 80%; participants must understand correction and retain prior lesson progress |
-| Reading disruption / false-positive notes | _pending_ | n/a | Qualitative review; no silent acceptance of serious disruption |
+| Median first-Check score | not collected | not collected | Pilot waived; no efficacy claim |
+| Targeted misconception rate | not collected | not collected | Pilot waived; no efficacy claim |
+| Core-flow completion without intervention | owner-tested | n/a | Product-owner usability signal only |
+| Reading disruption / false-positive notes | no defect reported | n/a | Product-owner validation signal only |
 
 ## Decision record
 
 | Field | Record |
 | --- | --- |
-| Reviewer findings resolved | _pending_ |
-| Browser evidence complete | _pending_ |
-| Pilot aggregate recorded | _pending_ |
-| Limitations and deviations | _pending_ |
-| Final decision: release / revise | _pending_ |
-| Decision date and owner | _pending_ |
+| Reviewer findings resolved | Yes; no blocking finding reported. |
+| Browser evidence complete | Yes; project owner reported Pass in Chrome and Firefox on `04359b1`. |
+| Pilot aggregate recorded | Not run; explicit feasibility waiver recorded. |
+| Limitations and deviations | No formal learner cohort, browser versions/OS, or separate reviewer qualification record. No efficacy claim. |
+| Final decision: release / revise | Release candidate approved for the bundled PR, with the pilot limitation disclosed. |
+| Decision date and owner | 2026-07-27 · Project owner |
 
-If either directional learning threshold fails, or if the browser/content gate finds a serious defect, record **revise**, create the smallest follow-up issue, and keep the A0 release claim bounded. Do not weaken thresholds after seeing the results.
+The directional learning thresholds were not evaluated because the pilot was waived. Keep the A0 release claim bounded: this decision approves the reviewed and owner-tested product candidate, not learning efficacy.

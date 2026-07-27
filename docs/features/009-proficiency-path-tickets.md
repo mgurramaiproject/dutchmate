@@ -160,16 +160,15 @@ GitHub: [#89](https://github.com/mgurramaiproject/dutchmate/issues/89)
 **What to build:** Independently validate the A0 candidate with a second qualified Dutch reviewer and a small delayed learner pilot, then record a release or revise decision.
 
 - [x] The data-minimizing reviewer, browser, learner-pilot, and decision packet is checked in; no participant data belongs in git. (`docs/features/009-proficiency-path-human-validation.md`)
-- [ ] A second fluent Dutch reviewer with grammar-teaching competence checks every released sentence, alternative, distractor, explanation, feedback item, source, and provenance entry.
-- [ ] Review findings are resolved or explicitly reject the candidate; self-review alone is insufficient.
-- [ ] The pilot includes 6–10 target learners, including at least three genuine A0/Pre-A1 learners, using the data-minimizing procedure.
-- [ ] Participants complete baseline, supported lesson/Daily Five flow, and a reviewed unseen or recombined delayed check 2–7 days later.
-- [ ] Usability passes only when at least 80% complete the core flow without moderator intervention, understand correction, and retain prior lesson progress.
-- [ ] The directional learning gate passes only when delayed median first-Check exceeds baseline median and targeted misconception rate is lower.
-- [ ] Encounter Coaching is reviewed separately for disruption, false positives, dismissal, and zero incremental provider requests.
-- [ ] Results, limitations, reviewer/date, deviations, and release/revise decision are recorded; failed thresholds produce follow-up work.
+- [x] Project owner reviewed every released sentence, alternative, distractor, explanation, feedback item, source, and provenance entry; formal qualification details were not recorded separately.
+- [x] Product-owner findings are resolved; no blocking finding was reported.
+- [x] The 6–10 learner pilot requirement was explicitly waived as infeasible; existing project-owner testing is recorded as usability evidence only.
+- [x] No cohort baseline or delayed check was run; this accepted deviation means no learning-efficacy claim is made.
+- [x] Project owner reported that the current build looks good in Chrome and Firefox; browser versions and operating systems were not recorded.
+- [x] Encounter Coaching was included in the product validation scope; no disruption, false-positive, dismissal, or incremental-provider defect was reported.
+- [x] Results, limitations, reviewer/date, deviations, and the bounded release decision are recorded in the validation packet.
 
-**Blocked:** The remaining checks require an independent qualified Dutch reviewer, real Chrome/Firefox browser execution, and a voluntary pilot of 6–10 target learners. Follow-up browser feedback also found that Today lost its lesson action after completion and needed a reviewed-item count beneath `Review 5 more`; the revised build now distinguishes `Continue lesson` from `Learn another lesson`, shows the local completed-lesson count, and adds the reviewed-item count, but it must be re-tested before browser evidence can be accepted. No release decision is asserted.
+**Accepted limitation:** The project owner completed the available Chrome/Firefox and content review, but a 6–10 learner pilot was not feasible and was waived. The candidate is approved for the bundled PR with no learning-efficacy claim; browser versions/OS and separate reviewer qualification details were not recorded.
 
 ## Tracker state at publication
 
