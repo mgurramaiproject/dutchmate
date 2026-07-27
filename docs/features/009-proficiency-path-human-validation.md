@@ -86,7 +86,7 @@ This remains a browser usability finding until the revised state is re-tested in
 
 This remains a browser usability finding until the revised state is re-tested in Chrome and Firefox.
 
-Latest revision under test: completed Daily Five now shows the local reviewed-item count directly beneath `Review 5 more`.
+Latest revision under test: completed Daily Five now shows the local reviewed-item count directly beneath `Review 5 more` and omits the redundant `5 of 5 today` progress line.
 
 ## Learner pilot
 

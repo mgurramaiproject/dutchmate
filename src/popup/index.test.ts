@@ -628,6 +628,7 @@ describe("lesson popup", () => {
     const reviewFiveMore = content().querySelector<HTMLButtonElement>(".next-action .primary-button")!;
     expect(reviewFiveMore.textContent).toBe("Review 5 more");
     expect(content().querySelector(".review-completion-meta")?.textContent).toBe("3 items reviewed today");
+    expect(content().querySelector(".action-meta")).toBeFalsy();
     expect(content().textContent).not.toContain("Recognition first");
     expect(content().querySelector(".secondary-actions")).toBeFalsy();
     expect(content().querySelectorAll(".next-action .lesson-entry-button")).toHaveLength(1);
