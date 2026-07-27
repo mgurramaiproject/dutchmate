@@ -10,6 +10,9 @@ describe("popup layout", () => {
     expect(styles).toContain(".popup-shell { display: flex; flex-direction: column;");
     expect(styles).toContain(".popup-content { display: grid; flex: 1 1 auto; min-height: 0;");
     expect(styles).toContain("overflow-x: hidden");
+    expect(styles).toContain(".button { min-height: 48px;");
+    expect(styles).toContain(".lesson-filter { min-height: 44px;");
+    expect(styles).toContain("@media (prefers-reduced-motion: reduce)");
     expect(styles).toContain(".rhythm-day { min-height: 44px;");
     expect(styles).toContain(".lesson-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto;");
     expect(styles).toContain("padding: 6px 8px;");

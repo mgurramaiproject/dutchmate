@@ -50,4 +50,16 @@ describe("release docs consistency", () => {
     expect(storeDisclosure).toContain("translation cache entries");
     expect(releaseNotes).toContain("Daily Five");
   });
+
+  it("documents the 009 engineering gate without overstating human validation", () => {
+    const validation = readRepoFile("docs/features/009-proficiency-path-validation.md");
+
+    for (const heading of ["## Automated engineering evidence", "## Popup accessibility evidence", "## Encounter Coaching evidence", "## Privacy and safe-failure boundary", "## Independent human validation handoff"]) {
+      expect(validation).toContain(heading);
+    }
+    expect(validation).toContain("6–10 target learners");
+    expect(validation).toContain("2–7 days");
+    expect(validation).toContain("does not claim Dutch proficiency");
+    expect(validation).toContain("T08 / #89");
+  });
 });

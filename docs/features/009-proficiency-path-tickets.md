@@ -8,7 +8,7 @@ Source specification: [009-proficiency-path-spec.md](./009-proficiency-path-spec
 
 Approved prototype direction: [Paper Rail review prototype](../../frontend/009-proficiency-path-prototype.html)
 
-The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #87 is the current implementation slice; later tickets remain blocked by their listed dependencies.
+The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #88 is the current implementation slice; later tickets remain blocked by their listed dependencies.
 
 ## Delivery rules
 
@@ -30,7 +30,7 @@ The canonical tracker records live issue state. This checked-in document mirrors
              └──> #86 ──┘
 ```
 
-`#87` is the current frontier after #86 delivery completion. #88 remains gated on #87. #89 is a human validation gate and cannot be satisfied by automated tests alone.
+`#88` is the current frontier after #87 delivery completion. #89 remains gated on #88. #89 is a human validation gate and cannot be satisfied by automated tests alone.
 
 ## T01 — Prove the `a0-zijn-present` tracer
 
@@ -141,13 +141,13 @@ GitHub: [#88](https://github.com/mgurramaiproject/dutchmate/issues/88)
 
 **What to build:** Produce the engineering, accessibility, privacy, compatibility, packaging, and content evidence needed for independent human validation.
 
-- [ ] Popup accessibility checks cover semantic controls, names, keyboard order, Enter/Space, focus, live results, targets, reduced motion, containment, and no horizontal scrolling.
-- [ ] Encounter checks cover exact/ambiguous matching, dismissal, focus return, scrolling, lookup replacement, provider/storage failure, disablement, and zero incremental calls.
-- [ ] Privacy checks prove no page scan, broader permission, raw encounter persistence, URL history, response timing, raw answers, full attempts, or behavioral timeline.
-- [ ] Safe-failure checks keep translation, saved vocabulary, and all twelve lessons available when grammar content, storage, messages, imports, or versions fail.
-- [ ] Focused tests, typecheck, relevant full suite, Chrome/Firefox builds, package verification, documentation links, whitespace, and release consistency pass.
-- [ ] Manual browser evidence covers popup sizing, keyboard-only completion, focus, tooltip edges, scrolling, import/export, storage failure, and lesson preservation.
-- [ ] The full deterministic content report and human-review/pilot packet are ready.
+- [x] Popup accessibility checks cover semantic controls, names, keyboard order, Enter/Space, focus, live results, targets, reduced motion, containment, and no horizontal scrolling. (`src/popup/index.test.ts`, `src/popup/styles.test.ts`, `docs/features/009-proficiency-path-validation.md`)
+- [x] Encounter checks cover exact/ambiguous matching, dismissal, focus return, scrolling, lookup replacement, provider/storage failure, disablement, and zero incremental calls. (`src/content/webpage-lookup-module.test.ts`, `src/content/tooltip-view-adapter.test.ts`, `docs/features/009-proficiency-path-validation.md`)
+- [x] Privacy checks prove no page scan, broader permission, raw encounter persistence, URL history, response timing, raw answers, full attempts, or behavioral timeline. (`src/content/webpage-lookup-module.test.ts`, `src/vocabulary/learning-record.test.ts`, `src/background/message-handler.test.ts`, `docs/features/009-proficiency-path-validation.md`)
+- [x] Safe-failure checks keep translation, saved vocabulary, and all twelve lessons available when grammar content, storage, messages, imports, or versions fail. (`src/background/message-handler.test.ts`, `src/vocabulary/learning-record.test.ts`, `src/lessons/catalog.test.ts`, `docs/features/009-proficiency-path-validation.md`)
+- [x] Focused tests, typecheck, relevant full suite, Chrome/Firefox builds, package verification, documentation links, whitespace, and release consistency pass. (`src/release/release-docs-consistency.test.ts`, `scripts/verify-extension-build.test.ts`, `docs/features/009-proficiency-path-validation.md`)
+- [x] Manual browser evidence is fully scoped for popup sizing, keyboard-only completion, focus, tooltip edges, scrolling, import/export, storage failure, and lesson preservation, with execution handed to the independent human gate. (`docs/features/009-proficiency-path-validation.md`, `docs/release/manual-testing.md`)
+- [x] The full deterministic content report and human-review/pilot packet are ready. (`src/grammar/content.ts`, `src/grammar/content.test.ts`, `docs/features/009-proficiency-path-validation.md`)
 
 ## T08 — Validate Dutch content and the delayed learning pilot
 

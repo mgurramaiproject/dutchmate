@@ -83,8 +83,8 @@ describe("lesson popup", () => {
     document.body.innerHTML = `
       <main class="popup-shell">
         <header class="popup-header"><div class="header-actions"><span id="due-badge"></span><a class="feedback-link" href="https://forms.gle/9KSsqfE1NNZcPEaaA">Feedback</a><button id="settings-button" type="button">Settings</button></div></header>
-        <nav id="primary-navigation"><button id="today-tab" type="button">Today</button><button id="lessons-tab" type="button">Lessons</button><button id="saved-tab" type="button">Saved</button></nav>
-        <div id="popup-content" tabindex="0"></div>
+        <nav id="primary-navigation" role="tablist" aria-label="Learning areas"><button id="today-tab" type="button" role="tab" aria-selected="true" tabindex="0">Today</button><button id="lessons-tab" type="button" role="tab" aria-selected="false" tabindex="-1">Lessons</button><button id="saved-tab" type="button" role="tab" aria-selected="false" tabindex="-1">Saved</button></nav>
+        <div id="popup-content" tabindex="0" role="tabpanel" aria-labelledby="today-tab" aria-live="polite"></div>
       </main>`;
     await import("./index");
     await vi.waitFor(() => expect(content().textContent).toContain("Start your Daily Five."));
@@ -467,6 +467,22 @@ describe("lesson popup", () => {
     navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
     await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
     expect(document.activeElement).toBe(document.querySelector("#saved-tab"));
+  });
+
+  it("keeps the popup controls named, semantic, and keyboard-ready", async () => {
+    const navigation = document.querySelector<HTMLElement>("#primary-navigation")!;
+    expect(navigation.getAttribute("role")).toBe("tablist");
+    expect(navigation.getAttribute("aria-label")).toBe("Learning areas");
+    expect(document.querySelector("#popup-content")?.getAttribute("role")).toBe("tabpanel");
+    expect(document.querySelector("#popup-content")?.getAttribute("aria-live")).toBe("polite");
+    for (const tab of document.querySelectorAll<HTMLButtonElement>("#primary-navigation [role='tab']")) {
+      expect(tab.type).toBe("button");
+      expect(tab.textContent?.trim()).not.toBe("");
+      expect(tab.getAttribute("tabindex")).toMatch(/^-?\d+$/);
+    }
+    for (const control of content().querySelectorAll<HTMLButtonElement>("button")) {
+      expect(control.textContent?.trim() || control.getAttribute("aria-label")).toBeTruthy();
+    }
   });
 
   it("renders Lessons as the compact numbered library from the approved mockup", async () => {
