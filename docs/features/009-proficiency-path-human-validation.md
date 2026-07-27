@@ -127,6 +127,7 @@ The directional learning thresholds were not evaluated because the pilot was wai
 The final standards/spec review against `main` found these engineering follow-ups before PR:
 
 - Encounter Coaching currently explains a matched form but does not launch the reviewed exercise and scoring path.
+- The earliest-incomplete-pattern recommendation required by T06 is absent from the current Today flow.
 - Lesson grammar `Reveal` and `Skip` do not persist the required next-day scheduling outcome.
 - Grammar introduction is recorded when a companion lesson opens rather than after the teaching encounter completes.
 - Unstarted patterns still display `Pattern: Not started`, despite the spec requiring no learner-facing progress label.
