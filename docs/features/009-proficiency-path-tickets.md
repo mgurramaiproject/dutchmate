@@ -124,7 +124,7 @@ GitHub: [#87](https://github.com/mgurramaiproject/dutchmate/issues/87)
 **What to build:** Integrate the four reviewed patterns into a coherent additive A0 Foundation experience with recommendation, separate pattern progress, Paper Rail presentation, and balanced Daily Five composition.
 
 - [x] A0 browsing presents the existing companion and three additive lessons while preserving A0/A1/A2 filters and direct selection.
-- [x] Existing next-action/continue UI recommends the earliest incomplete foundation pattern without placement, locking, mandatory completion, or a starting-point button.
+- [x] Lesson metadata exposes each companion pattern's progress inline; Today does not duplicate it in a separate foundation-path panel.
 - [x] Completed lessons remain complete; old completion never grants retroactive grammar evidence.
 - [x] Introduced, Practising, and Applied remain separate from lesson completion.
 - [x] Paper Rail preserves focused-flow orientation, Exit, keyboard behavior, live feedback, target sizing, and restrained celebration.
@@ -169,7 +169,7 @@ GitHub: [#89](https://github.com/mgurramaiproject/dutchmate/issues/89)
 - [ ] Encounter Coaching is reviewed separately for disruption, false positives, dismissal, and zero incremental provider requests.
 - [ ] Results, limitations, reviewer/date, deviations, and release/revise decision are recorded; failed thresholds produce follow-up work.
 
-**Blocked:** The remaining checks require an independent qualified Dutch reviewer, real Chrome/Firefox browser execution, and a voluntary pilot of 6–10 target learners. Firefox feedback was received, but it identified Today hierarchy, foundation-path semantics, and grammar-value findings; the revised build must be re-tested before browser evidence can be accepted. No release decision is asserted.
+**Blocked:** The remaining checks require an independent qualified Dutch reviewer, real Chrome/Firefox browser execution, and a voluntary pilot of 6–10 target learners. Follow-up Chrome/Firefox feedback identified redundant A0-path metadata, unstable filtered lesson numbering, Today resume-action hierarchy, and a failed Saved export; the revised build must be re-tested before browser evidence can be accepted. No release decision is asserted.
 
 ## Tracker state at publication
 

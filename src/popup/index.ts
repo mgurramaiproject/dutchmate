@@ -16,7 +16,7 @@ import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSaved
 import { grammarResultMessage } from "../grammar/learning";
 import { getGrammarPattern, grammarPatterns, type GrammarExercise } from "../grammar/content";
 import type { GrammarRecord } from "../grammar/learning";
-import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
+import { getGrammarProgressLabel } from "../grammar/progression";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
@@ -250,11 +250,10 @@ async function exportSavedBackup(): Promise<void> {
     const backup = await learningClient.exportBackup();
     const blob = new Blob([serializeLearningBackup(backup)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    await browser.downloads.download({
-      url,
-      filename: `dutchmate-learning-${new Date().toISOString().slice(0, 10)}.json`,
-      saveAs: true,
-    });
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `dutchmate-learning-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 0);
     savedFeedback = { tone: "success", message: `Exported ${backup.learningItems.length} saved item${backup.learningItems.length === 1 ? "" : "s"}.` };
   } catch (error) {
@@ -323,7 +322,7 @@ function renderToday(): HTMLElement {
   }
   nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
   if (inProgress) {
-    const continueLesson = button("Continue lesson", "button quiet-action");
+    const continueLesson = button("Continue lesson", "button secondary-button continue-lesson-button");
     continueLesson.addEventListener("click", () => void startLesson(inProgress));
     nextAction.append(continueLesson);
   }
@@ -442,24 +441,13 @@ function activityTotalValue(activity: LearningRhythm["activity"][number] | undef
 function renderLessons(): HTMLElement {
   const wrapper = section("lessons-content");
   wrapper.append(eyebrow(`Lesson library · ${lessonCatalog.lessons.length} small practical stories`), heading("Lesson library"), text("Choose a situation. Each lesson is 3–5 minutes."));
-  const foundation = getNextFoundationPattern(grammarPatterns, grammarRecords);
-  const foundationLesson = foundation && lessonCatalog.lessons.find((lesson) => lesson.id === foundation.companionLessonId);
-  if (foundation && foundationLesson) {
-    const path = section("foundation-path");
-    path.append(eyebrow("A0 path"), text(`${foundationLesson.title} · ${getGrammarProgressLabel(grammarRecords[foundation.id])}`, "foundation-path-copy"));
-    const action = button("Open lesson", "button secondary-button");
-    action.addEventListener("click", () => void startLesson(foundationLesson));
-    path.append(action);
-    wrapper.append(path);
-  }
   wrapper.append(renderLessonFilters());
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
-  let lessonNumber = 0;
   const library = section("lesson-library");
   const visibleLessons = filterLessons(lessonCatalog.lessons, lessonProgressById, lessonStatusFilter, lessonLevelFilter);
   for (const lessonDefinition of visibleLessons) {
-    lessonNumber += 1;
+    const lessonNumber = lessonCatalog.lessons.indexOf(lessonDefinition) + 1;
     const lesson = button("", "lesson-card lesson-row");
     const lessonProgress = lessonProgressById[lessonDefinition.id] ?? null;
     const [level, ...title] = lessonDefinition.title.split(" · ");

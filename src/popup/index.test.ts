@@ -3,10 +3,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultSettings } from "../shared/settings";
 
-const { runtime, downloads, storageChangeListeners } = vi.hoisted(() => ({ runtime: { sendMessage: vi.fn(), openOptionsPage: vi.fn() }, downloads: { download: vi.fn(async () => 1) }, storageChangeListeners: new Set<(changes: Record<string, unknown>, areaName: string) => void>() }));
+const { runtime, storageChangeListeners } = vi.hoisted(() => ({ runtime: { sendMessage: vi.fn(), openOptionsPage: vi.fn() }, storageChangeListeners: new Set<(changes: Record<string, unknown>, areaName: string) => void>() }));
 
 vi.mock("webextension-polyfill", () => ({
-  default: { runtime, downloads, storage: { sync: { get: vi.fn() }, onChanged: { addListener: vi.fn((listener) => storageChangeListeners.add(listener)) } } },
+  default: { runtime, storage: { sync: { get: vi.fn() }, onChanged: { addListener: vi.fn((listener) => storageChangeListeners.add(listener)) } } },
 }));
 
 describe("lesson popup", () => {
@@ -429,6 +429,7 @@ describe("lesson popup", () => {
   it("exposes Saved backup controls with success and failure feedback", async () => {
     Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn(() => "blob:test") });
     Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
+    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
     button("Saved").click();
     await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
     expect(content().querySelector(".saved-head .heading")?.textContent).toBe("Saved");
@@ -437,7 +438,8 @@ describe("lesson popup", () => {
     button("Export").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Exported 2 saved items."));
     expect(URL.createObjectURL).toHaveBeenCalledOnce();
-    expect(downloads.download).toHaveBeenCalledWith(expect.objectContaining({ url: "blob:test", saveAs: true, filename: expect.stringMatching(/^dutchmate-learning-\d{4}-\d{2}-\d{2}\.json$/) }));
+    expect(anchorClick).toHaveBeenCalledOnce();
+    expect((anchorClick.mock.instances[0] as unknown as HTMLAnchorElement).download).toMatch(/^dutchmate-learning-\d{4}-\d{2}-\d{2}\.json$/);
 
     const input = content().querySelector<HTMLInputElement>('input[type="file"]')!;
     const backupDocument = JSON.stringify({ format: "dutchmate-learning-backup", version: 2, exportedAt: 1, learningItems: [], lessonProgress: {}, rhythm: {} });
@@ -457,6 +459,20 @@ describe("lesson popup", () => {
     exportFails = true;
     button("Export").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Could not export saved learning: Local export failed."));
+    anchorClick.mockRestore();
+  });
+
+  it("keeps the Today lesson resume action centered and consistently styled", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
+    lessonCard("A0 · Hallo, ik ben").click();
+    await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
+    button("Exit lesson").click();
+    button("Today").click();
+    await vi.waitFor(() => expect(button("Continue lesson")).toBeTruthy());
+    const continueLesson = button("Continue lesson");
+    expect(continueLesson.classList.contains("continue-lesson-button")).toBe(true);
+    expect(continueLesson.classList.contains("secondary-button")).toBe(true);
   });
 
   it("moves the three top-level tabs with arrow keys", async () => {
@@ -492,12 +508,14 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("Choose a situation. Each lesson is 3–5 minutes.");
     expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15);
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
+    expect([...content().querySelectorAll<HTMLElement>(".lesson-number")].map((number) => number.textContent)).toEqual(Array.from({ length: 15 }, (_, index) => String(index + 1).padStart(2, "0")));
   });
 
   it("shows separate A0 pattern progress without crowding Today", async () => {
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("A0 path"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Pattern: Not started"));
     expect(content().textContent).toContain("Pattern: Not started");
+    expect(content().querySelector(".foundation-path")).toBeNull();
     button("Today").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Start your Daily Five."));
     expect(content().textContent).not.toContain("Next foundation pattern");
@@ -521,6 +539,7 @@ describe("lesson popup", () => {
     button("All").click();
     button("A0").click();
     await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(4));
+    expect([...content().querySelectorAll<HTMLElement>(".lesson-number")].map((number) => number.textContent)).toEqual(["01", "02", "03", "04"]);
     expect(content().textContent).toContain("Hallo, ik ben");
     expect(content().textContent).toContain("Ik heb dit nodig");
     expect(content().textContent).toContain("Ik woon en werk hier");
@@ -580,7 +599,7 @@ describe("lesson popup", () => {
     expect(reviewFiveMore.textContent).toBe("Review 5 more");
     expect(content().textContent).not.toContain("Recognition first");
     expect(content().querySelector(".secondary-actions")).toBeFalsy();
-    expect(content().querySelectorAll(".next-action .quiet-action")).toHaveLength(1);
+    expect(content().querySelectorAll(".next-action .continue-lesson-button")).toHaveLength(1);
     reviewFiveMore.click();
     await vi.waitFor(() => expect(runtime.sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.dailyFive", payload: { continueAfterCompletion: true } }));
   });

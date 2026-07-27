@@ -57,7 +57,19 @@ Each browser pass must cover popup sizing and narrow containment, keyboard-only 
 
 This is a usability finding, not a release sign-off. The findings require a revised build and a repeat browser check before the browser gate can be marked complete.
 
-Revision under test: Today now keeps one primary Daily Five action and an optional compact lesson-resume action; the A0 path is a compact row in Lessons; redundant Today actions are removed; and grammar tasks name the practical pattern capability before the exercise.
+Previous revision under test: Today kept one primary Daily Five action and an optional compact lesson-resume action; the A0 path was reduced to a compact row in Lessons; redundant Today actions were removed; and grammar tasks named the practical pattern capability before the exercise.
+
+## Follow-up Chrome and Firefox feedback before revision
+
+- Browsers: Chrome and Firefox; versions and operating systems were not recorded.
+- Lessons: the compact `A0 path` row duplicated the CEFR metadata already present on each lesson and did not visibly change after practice, so it was still confusing and is being removed.
+- Lessons: filtered results restarted numbering at `01`; lesson numbers need to remain stable from the full catalog.
+- Today: `Continue lesson` needed a centered, clearly lesson-specific button treatment.
+- Saved: Export failed to download the learning backup in the browser.
+
+This is another usability/functional finding, not a release sign-off. The revised build must be re-tested in both browsers before these observations can be marked resolved.
+
+Latest revision under test: the A0 path row is removed completely; lesson numbers come from the full catalog rather than the filtered view; the Today resume action is centered and styled as a secondary lesson button; and Saved Export uses the popup's native download link path.
 
 ## Learner pilot
 

@@ -54,7 +54,7 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .next-action { display: grid; min-width: 0; gap: 7px; padding: 12px; border: 1px solid var(--black); border-left: 6px solid var(--orange); border-radius: 8px; background: var(--white); }
 .next-action .heading { font-size: 1.4rem; line-height: 1; }
 .next-action .button { width: 100%; background: var(--orange); }
-.next-action .quiet-action { width: auto; min-height: 34px; background: transparent; }
+.next-action .continue-lesson-button { width: min(100%, 220px); justify-self: center; background: var(--white) !important; }
 .completion-copy { white-space: normal; font-size: .64rem; letter-spacing: -.01em; }
 .action-meta { display: flex; justify-content: space-between; gap: 8px; margin: 0; color: var(--muted); font-size: .67rem; font-weight: 750; }
 .learning-rhythm, .calendar-card { display: grid; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -101,7 +101,6 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .heatmap-swatch.grace { background: rgba(255, 111, 0, 0.25); }.heatmap-swatch.active { background: rgba(255, 111, 0, 0.58); }.heatmap-swatch.high { background: var(--orange); }
 .empty-review-hint { margin: -2px 0 0; color: var(--muted); font-size: .72rem; line-height: 1.35; }
 .secondary-button { background: var(--white) !important; }
-.quiet-action { justify-self: start; min-height: 44px; padding: 0; text-align: left; }
 .primary-button { width: 100%; background: var(--orange); }
 .mastery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .mastery > div { display: grid; gap: 4px; padding: 8px; border-top: 3px solid var(--orange); border-radius: 8px; background: rgba(0, 0, 0, 0.04); }
@@ -213,9 +212,6 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .settings-notice { padding: 10px 12px; border-left: 3px solid var(--orange); border-radius: 8px; background: rgba(255, 111, 0, 0.08); }
 .settings-notice.error { border-left-color: var(--black); }
 .error-state { display: grid; align-content: start; gap: 12px; }
-.foundation-path { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.foundation-path-copy { min-width: 0; margin: 0; color: var(--muted); font-size: .72rem; font-weight: 750; overflow-wrap: anywhere; }
-.foundation-path .button { min-height: 36px; padding-inline: 10px; font-size: .68rem; }
 .lesson-library { display: grid; gap: 0; }
 .lesson-filters { display: grid; gap: 5px; padding: 6px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .lesson-filter-group { display: flex; flex-wrap: wrap; gap: 3px; }
