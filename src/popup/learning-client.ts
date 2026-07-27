@@ -17,6 +17,7 @@ import {
 import type { LearningBackup, LearningItem, LessonProgress, LessonProgressStage } from "../vocabulary/learning-record";
 import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
+import type { GrammarRecord } from "../grammar/learning";
 import type { LessonPracticeEvidence } from "./lesson-session";
 
 export type LearningRuntimeApi = { runtime: { sendMessage(message: LearningMessage): Promise<LearningMessageResponse> } };
@@ -33,6 +34,9 @@ export type LearningClient = {
   keepLessonCandidates(lessonId: string, candidateIds: string[], evidence: LessonPracticeEvidence[]): Promise<LearningItem[]>;
   getLessonProgress(lessonId: string): Promise<LessonProgress | null>;
   saveLessonProgress(lessonId: string, stage: LessonProgressStage): Promise<LessonProgress>;
+  getGrammar(): Promise<GrammarRecord | null>;
+  introduceGrammar(): Promise<GrammarRecord>;
+  recordGrammarResult(patternId: "a0-zijn-present", exerciseId: string, answer: string, expectedEvidenceRevision: number): Promise<GrammarRecord>;
 };
 
 export function createLearningClient(extensionApi: LearningRuntimeApi): LearningClient {
@@ -84,5 +88,8 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
       if (response.ok && "progress" in response.result && response.result.progress) return response.result.progress;
       throw new Error(response.ok ? "Lesson progress could not be saved." : response.error);
     },
+    async getGrammar() { const response = await extensionApi.runtime.sendMessage({ type: "dutchmate.learning.grammar" }); if (response.ok && "grammar" in response.result) return response.result.grammar; throw new Error(response.ok ? "Grammar is unavailable." : response.error); },
+    async introduceGrammar() { const response = await extensionApi.runtime.sendMessage({ type: "dutchmate.learning.grammar.introduce" }); if (response.ok && "grammar" in response.result && response.result.grammar) return response.result.grammar; throw new Error(response.ok ? "Grammar is unavailable." : response.error); },
+    async recordGrammarResult(patternId, exerciseId, answer, expectedEvidenceRevision) { const response = await extensionApi.runtime.sendMessage({ type: "dutchmate.learning.grammar.result", payload: { patternId, exerciseId, answer, expectedEvidenceRevision } }); if (response.ok && "grammar" in response.result && response.result.grammar) return response.result.grammar; throw new Error(response.ok ? "Grammar result could not be saved." : response.error); },
   };
 }

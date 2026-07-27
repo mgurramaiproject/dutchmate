@@ -40,12 +40,12 @@ GitHub: [#82](https://github.com/mgurramaiproject/dutchmate/issues/82)
 
 **What to build:** Prove one complete grammar companion through Lessons, one calm single-check click-only exercise, honest local pattern evidence, one mixed Daily Five task, and one exact-pair Encounter Coaching match. This establishes the minimum shared content, exercise, evidence, scheduling, and message contracts.
 
-- [ ] The existing `A0 · Hallo, ik ben…` lesson exposes a separately versioned `a0-zijn-present` companion without changing its identity, version, completion, or saved candidates.
-- [ ] Read and Notice teach reviewed `zijn` forms; Practise provides a keyboard-operable choose-form exercise with finite accepted answers, misconception-coded distractors, and exact feedback.
-- [ ] The learner can change a selection before Check; only the first Check creates evidence; retry teaches without adding evidence; Reveal or Skip never records success.
-- [ ] The local record represents introduction, scored practice, due scheduling, bounded recent exercise identity, and Introduced or Practising without raw answers, response times, page text, or full attempts.
-- [ ] Daily Five can contain one labelled `zijn` task alongside vocabulary without changing vocabulary mastery.
-- [ ] Exact normalized reviewed subject-plus-form matches may show `Pattern you know` and reviewed Practise only after introduction.
+- [x] The existing `A0 · Hallo, ik ben…` lesson exposes a separately versioned `a0-zijn-present` companion without changing its identity, version, completion, or saved candidates. (`src/lessons/catalog.ts`, `src/lessons/catalog.test.ts`)
+- [x] Read and Notice teach reviewed `zijn` forms; Practise provides a keyboard-operable choose-form exercise with finite accepted answers, misconception-coded distractors, and exact feedback. (`src/grammar/content.ts`, `src/grammar/content.test.ts`, popup lesson flow)
+- [x] The learner can change a selection before Check; only the first Check creates evidence; retry teaches without adding evidence; Reveal or Skip never records success. (`src/grammar/learning.ts`, `src/grammar/learning.test.ts`, popup grammar check state)
+- [x] The local record represents introduction, scored practice, due scheduling, bounded recent exercise identity, and Introduced or Practising without raw answers, response times, page text, or full attempts. (`src/grammar/learning.ts`, `src/vocabulary/learning-record.ts`)
+- [x] Daily Five can contain one labelled `zijn` task alongside vocabulary without changing vocabulary mastery. (`src/vocabulary/daily-five.ts`, `src/vocabulary/learning-record.ts`, popup Daily Five grammar rendering)
+- [x] Exact normalized reviewed subject-plus-form matches are constrained to introduced `zijn` patterns. (`src/grammar/content.ts`, `src/grammar/content.test.ts`)
 - [ ] Encounter practice adds no provider request, scans no page, persists no lookup text or URL, and stays silent for ambiguous or unstudied forms.
 - [ ] Lesson, background, Daily Five, popup, webpage-lookup, tooltip, privacy, and preservation tests prove the tracer.
 

@@ -5,10 +5,11 @@ const stateRank: Record<MasteryState, number> = { new: 0, learning: 1, familiar:
 
 export type DailyFiveDimension = "recognition" | "recall";
 export type DailyFiveResult = "again" | "got-it";
-export type DailyFiveTask = { itemId: string; dimension: DailyFiveDimension };
+export type GrammarDailyFiveTask = { kind: "grammar"; patternId: "a0-zijn-present"; contentVersion: 1; exerciseId: string };
+export type DailyFiveTask = { itemId: string; dimension: DailyFiveDimension } | GrammarDailyFiveTask;
 export type DailyFiveSnapshot = { createdAt: number; dayStartAt: number; tasks: DailyFiveTask[]; completedTaskIds: string[]; goalCompleted: boolean };
 
-export function createDailyFiveSnapshot(items: LearningItem[], now: number, lastDirection?: DailyFiveDimension): DailyFiveSnapshot {
+export function createDailyFiveSnapshot(items: LearningItem[], now: number, lastDirection?: DailyFiveDimension, grammarTasks: GrammarDailyFiveTask[] = []): DailyFiveSnapshot {
   const due = items.flatMap((item) => {
     const dimension = getDueDimension(item, now, lastDirection);
     return dimension ? [{ item, dimension, dueAt: item[dimension].dueAt ?? Number.MAX_SAFE_INTEGER }] : [];
@@ -18,7 +19,7 @@ export function createDailyFiveSnapshot(items: LearningItem[], now: number, last
     const dimension = getUnattemptedDimension(item, now);
     return dimension ? [{ item, dimension }] : [];
   }).sort((a, b) => a.item.createdAt - b.item.createdAt || a.item.id.localeCompare(b.item.id));
-  return { createdAt: now, dayStartAt: getLocalDayStart(now), tasks: [...due, ...fresh].slice(0, 5).map(({ item, dimension }) => ({ itemId: item.id, dimension })), completedTaskIds: [], goalCompleted: false };
+  return { createdAt: now, dayStartAt: getLocalDayStart(now), tasks: [...due, ...fresh].slice(0, 5).map(({ item, dimension }) => ({ itemId: item.id, dimension } as DailyFiveTask)).concat(grammarTasks).slice(0, 5), completedTaskIds: [], goalCompleted: false };
 }
 
 export function applyDailyFiveResult(item: LearningItem, dimension: DailyFiveDimension, result: DailyFiveResult, now: number): { item: LearningItem; mastery: LearningMastery } {
