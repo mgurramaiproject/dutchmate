@@ -26,7 +26,7 @@ The reviewer must be a second fluent Dutch reviewer with grammar-teaching compet
 | Sources and provenance checked | Generated content report and released A0 grammar/lesson sources. |
 | Findings | No blocking content findings reported. |
 | Findings resolved or explicitly rejected | Product-owner feedback was resolved in the branch; no unresolved finding was reported. |
-| Reviewer decision | Approved for the bundled PR with the pilot limitation recorded below; no learning-efficacy claim. |
+| Reviewer decision | Human validation passed with the pilot limitation recorded below; final branch review requires engineering revision before the bundled PR. |
 
 Reviewer checklist:
 
@@ -117,7 +117,20 @@ Aggregate-only result table:
 | Browser evidence complete | Yes; project owner reported Pass in Chrome and Firefox on `04359b1`. |
 | Pilot aggregate recorded | Not run; explicit feasibility waiver recorded. |
 | Limitations and deviations | No formal learner cohort, browser versions/OS, or separate reviewer qualification record. No efficacy claim. |
-| Final decision: release / revise | Release candidate approved for the bundled PR, with the pilot limitation disclosed. |
+| Final decision: release / revise | Revise before the bundled PR; human validation passed, but final branch review found engineering/spec gaps. |
 | Decision date and owner | 2026-07-27 · Project owner |
 
-The directional learning thresholds were not evaluated because the pilot was waived. Keep the A0 release claim bounded: this decision approves the reviewed and owner-tested product candidate, not learning efficacy.
+The directional learning thresholds were not evaluated because the pilot was waived. Keep the A0 release claim bounded: human validation covered the reviewed and owner-tested product candidate, not learning efficacy. The bundled PR remains deferred until the final branch-review findings are resolved or explicitly accepted.
+
+## Final branch-review findings
+
+The final standards/spec review against `main` found these engineering follow-ups before PR:
+
+- Encounter Coaching currently explains a matched form but does not launch the reviewed exercise and scoring path.
+- Lesson grammar `Reveal` and `Skip` do not persist the required next-day scheduling outcome.
+- Grammar introduction is recorded when a companion lesson opens rather than after the teaching encounter completes.
+- Unstarted patterns still display `Pattern: Not started`, despite the spec requiring no learner-facing progress label.
+- Delayed evidence uses the next local calendar day rather than 24 elapsed hours.
+- Released grammar metadata still says `self-reviewed`; the completed human review must be represented in the content metadata.
+
+These are implementation/spec findings, not browser or content-review findings. No PR is opened until they are resolved or explicitly accepted in a follow-up decision.

@@ -166,9 +166,9 @@ GitHub: [#89](https://github.com/mgurramaiproject/dutchmate/issues/89)
 - [x] No cohort baseline or delayed check was run; this accepted deviation means no learning-efficacy claim is made.
 - [x] Project owner reported that the current build looks good in Chrome and Firefox; browser versions and operating systems were not recorded.
 - [x] Encounter Coaching was included in the product validation scope; no disruption, false-positive, dismissal, or incremental-provider defect was reported.
-- [x] Results, limitations, reviewer/date, deviations, and the bounded release decision are recorded in the validation packet.
+- [x] Results, limitations, reviewer/date, deviations, and the revise-before-PR decision are recorded in the validation packet.
 
-**Accepted limitation:** The project owner completed the available Chrome/Firefox and content review, but a 6–10 learner pilot was not feasible and was waived. The candidate is approved for the bundled PR with no learning-efficacy claim; browser versions/OS and separate reviewer qualification details were not recorded.
+**Accepted limitation:** The project owner completed the available Chrome/Firefox and content review, but a 6–10 learner pilot was not feasible and was waived. Human validation passed with no learning-efficacy claim; browser versions/OS and separate reviewer qualification details were not recorded. The bundled PR is deferred because final branch review found engineering/spec gaps in Encounter Coaching, grammar timing/scheduling, progress-label semantics, delayed evidence, and review metadata.
 
 ## Tracker state at publication
 
