@@ -343,6 +343,7 @@ Implementation must not begin as one broad feature branch change directly from t
 
 - [DutchMate domain glossary](../../CONTEXT.md)
 - [Approved discovery plan](./009-proficiency-path-plan.md)
+- [Primary-source research and decision rationale](./009-proficiency-path-research.md)
 - [Reviewed ChatGPT source plan](./009-proficiency-path-chatgpt-plan.md)
 - [Single feature parking lot](./feature-parking-lot.md)
 - [LearnLoop specification](./002-learnloop-spec.md)

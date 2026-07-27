@@ -277,6 +277,7 @@ Implementation should not begin directly from this discovery plan. Convert it in
 - [LearnLoop specification](./002-learnloop-spec.md)
 - [Context Missions specification](./004-transfer-spec.md)
 - [Context Missions research](./004-transfer-research.md)
+- [Proficiency Path research and source register](./009-proficiency-path-research.md)
 - [Single feature parking lot](./feature-parking-lot.md)
 - [Council of Europe CEFR descriptors](https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors-search)
 - [Taalunie overview of the ERK](https://erk-nederlands.taalunie.org/over-het-erk/)
