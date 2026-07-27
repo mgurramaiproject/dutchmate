@@ -8,7 +8,7 @@ Source specification: [009-proficiency-path-spec.md](./009-proficiency-path-spec
 
 Approved prototype direction: [Paper Rail review prototype](../../frontend/009-proficiency-path-prototype.html)
 
-The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #88 is the current implementation slice; later tickets remain blocked by their listed dependencies.
+The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #89 is the current human-validation gate; later tickets remain blocked by their listed dependencies.
 
 ## Delivery rules
 
@@ -30,7 +30,7 @@ The canonical tracker records live issue state. This checked-in document mirrors
              └──> #86 ──┘
 ```
 
-`#88` is the current frontier after #87 delivery completion. #89 remains gated on #88. #89 is a human validation gate and cannot be satisfied by automated tests alone.
+`#89` is the current human-validation gate after #88 engineering qualification. It remains blocked pending independent browser evidence, a qualified Dutch reviewer, and the delayed learner pilot; it cannot be satisfied by automated tests alone.
 
 ## T01 — Prove the `a0-zijn-present` tracer
 
@@ -159,6 +159,7 @@ GitHub: [#89](https://github.com/mgurramaiproject/dutchmate/issues/89)
 
 **What to build:** Independently validate the A0 candidate with a second qualified Dutch reviewer and a small delayed learner pilot, then record a release or revise decision.
 
+- [x] The data-minimizing reviewer, browser, learner-pilot, and decision packet is checked in; no participant data belongs in git. (`docs/features/009-proficiency-path-human-validation.md`)
 - [ ] A second fluent Dutch reviewer with grammar-teaching competence checks every released sentence, alternative, distractor, explanation, feedback item, source, and provenance entry.
 - [ ] Review findings are resolved or explicitly reject the candidate; self-review alone is insufficient.
 - [ ] The pilot includes 6–10 target learners, including at least three genuine A0/Pre-A1 learners, using the data-minimizing procedure.
@@ -167,6 +168,8 @@ GitHub: [#89](https://github.com/mgurramaiproject/dutchmate/issues/89)
 - [ ] The directional learning gate passes only when delayed median first-Check exceeds baseline median and targeted misconception rate is lower.
 - [ ] Encounter Coaching is reviewed separately for disruption, false positives, dismissal, and zero incremental provider requests.
 - [ ] Results, limitations, reviewer/date, deviations, and release/revise decision are recorded; failed thresholds produce follow-up work.
+
+**Blocked:** The remaining checks require an independent qualified Dutch reviewer, real Chrome/Firefox browser execution, and a voluntary pilot of 6–10 target learners. No external reviewer or participant evidence is available in this agent session, so no release decision is asserted.
 
 ## Tracker state at publication
 
