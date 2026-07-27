@@ -79,6 +79,15 @@ Latest revision under test: the A0 path row is removed completely; lesson number
 
 This remains a browser usability finding until the revised state is re-tested in Chrome and Firefox.
 
+## Follow-up Daily Five feedback before revision
+
+- The `Review 5 more` action needed the same local-progress cue as the lesson action.
+- The count uses generic reviewed-item wording because the canonical rhythm `reviews` field can include vocabulary and grammar review tasks.
+
+This remains a browser usability finding until the revised state is re-tested in Chrome and Firefox.
+
+Latest revision under test: completed Daily Five now shows the local reviewed-item count directly beneath `Review 5 more`.
+
 ## Learner pilot
 
 This is a small voluntary product-learning check, not telemetry or a statistically powered efficacy study.

@@ -31,6 +31,7 @@ describe("popup layout", () => {
     expect(styles).toContain(".rhythm-day.is-today { box-shadow: inset 0 0 0 2px var(--black); }");
     expect(styles).toContain(".heatmap-month { width: 100%; grid-auto-rows: 36px; }");
     expect(styles).toContain(".next-action .lesson-entry-button { width: min(100%, 220px); justify-self: center; background: var(--white) !important; }");
+    expect(styles).toContain(".review-completion-meta { margin: -2px 0 0; color: var(--muted);");
     expect(styles).toContain(".lesson-completion-meta { margin: -2px 0 0; color: var(--muted);");
     expect(styles).toContain(".grammar-capability { margin: -4px 0 0; color: var(--muted);");
     expect(styles).toContain(".button { min-height: 48px; padding: 8px 10px; border: 1px solid var(--black); border-radius: 8px; background: var(--white); color: var(--black); font-size: .875rem;");

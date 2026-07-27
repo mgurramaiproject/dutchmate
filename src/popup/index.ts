@@ -299,6 +299,7 @@ function renderToday(): HTMLElement {
   });
   const hasCompletedLesson = lessonCatalog.lessons.some((lesson) => lessonProgressById[lesson.id]?.completedAt !== null && lessonProgressById[lesson.id]?.completedAt !== undefined);
   const todayActivity = rhythm?.activity.find((day) => isLocalToday(day.dayStartAt));
+  const reviewsCompletedToday = todayActivity?.reviews ?? null;
   const lessonsCompletedToday = todayActivity?.lessons ?? todayActivity?.lessonAdditions ?? null;
   const grammarCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "grammar").length;
   const nextAction = section("next-action");
@@ -322,6 +323,7 @@ function renderToday(): HTMLElement {
       else { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; activeGrammarTask = null; render(); content?.focus(); }
     });
     nextAction.append(action);
+    if (completed && reviewsCompletedToday !== null) nextAction.append(text(`${reviewsCompletedToday} item${reviewsCompletedToday === 1 ? "" : "s"} reviewed today`, "review-completion-meta"));
   }
   nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
   const lessonActionLabel = inProgress ? "Continue lesson" : hasCompletedLesson ? "Learn another lesson" : null;
