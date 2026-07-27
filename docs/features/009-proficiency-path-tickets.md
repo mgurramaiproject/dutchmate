@@ -8,7 +8,7 @@ Source specification: [009-proficiency-path-spec.md](./009-proficiency-path-spec
 
 Approved prototype direction: [Paper Rail review prototype](../../frontend/009-proficiency-path-prototype.html)
 
-The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #89 is the current human-validation gate; later tickets remain blocked by their listed dependencies.
+The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. T08 human validation is recorded with an accepted pilot limitation; T09 is the current engineering follow-up from the final branch review.
 
 ## Delivery rules
 
@@ -170,6 +170,21 @@ GitHub: [#89](https://github.com/mgurramaiproject/dutchmate/issues/89)
 
 **Accepted limitation:** The project owner completed the available Chrome/Firefox and content review, but a 6–10 learner pilot was not feasible and was waived. Human validation passed with no learning-efficacy claim; browser versions/OS and separate reviewer qualification details were not recorded. The bundled PR is deferred because final branch review found engineering/spec gaps in Encounter Coaching, grammar timing/scheduling, progress-label semantics, delayed evidence, and review metadata.
 
+## T09 — Close the A0 branch-review gaps
+
+GitHub: [#93](https://github.com/mgurramaiproject/dutchmate/issues/93)
+
+**Blocked by:** None — can start immediately on `feature-009-proficiency-path`.
+
+**What to build:** Repair the final A0 grammar-loop gaps found by the standards/spec review while preserving the approved single-habit navigation and the human-validation limitations recorded in T08.
+
+- [ ] Encounter Coaching launches one compatible reviewed exercise, records shared grammar evidence, and preserves dismissal/focus/privacy behavior.
+- [ ] Grammar introduction waits for the teaching encounter; lesson Reveal/Skip persist safe next-day outcomes without success evidence.
+- [ ] The earliest incomplete A0 pattern is discoverable through existing Today/Lessons surfaces without an A0 path panel; unstarted patterns have no progress label.
+- [ ] Delayed evidence requires 24 elapsed hours rather than merely crossing local midnight.
+- [ ] Released grammar metadata records the completed human review instead of `self-reviewed`.
+- [ ] Regression tests preserve lesson progress, vocabulary, Daily Five composition, Encounter Coaching privacy, and backup contracts.
+
 ## Tracker state at publication
 
 | Ticket | GitHub | Label | Execution | Delivery Status | Default Status |
@@ -182,3 +197,4 @@ GitHub: [#89](https://github.com/mgurramaiproject/dutchmate/issues/89)
 | T06 | [#87](https://github.com/mgurramaiproject/dutchmate/issues/87) | `ready-for-agent` | Agent | Blocked | Todo |
 | T07 | [#88](https://github.com/mgurramaiproject/dutchmate/issues/88) | `ready-for-agent` | Agent | Blocked | Todo |
 | T08 | [#89](https://github.com/mgurramaiproject/dutchmate/issues/89) | `ready-for-human` | Human | Blocked | Todo |
+| T09 | [#93](https://github.com/mgurramaiproject/dutchmate/issues/93) | `ready-for-agent` | Agent | Ready | Todo |
