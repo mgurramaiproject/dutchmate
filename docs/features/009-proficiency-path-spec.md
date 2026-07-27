@@ -348,6 +348,8 @@ The design review selected **A · Paper Rail** as the primary learner-facing dir
 - From **C · Today Queue**: expose grammar as one clearly labelled item inside the existing Daily Five queue, never as a second daily queue, grammar-only streak, or new top-level tab.
 - From **B · Pattern Spine**: use token ordering only for exercises whose declared primitive is `order-tokens`; it is an exercise control, not a new “Sentence Forge” destination.
 
+The first tracer uses **calm single-check** exercise density: one decisive exercise per screen, with selection correction before Check and immediate exact feedback after the first Check. Encounter Coaching in the tracer uses **exact pair only** matching: an exact normalized reviewed subject plus form such as `ik ben` or `jij bent`; bounded nearby-phrase matching is not part of this delivery. Any broader matching boundary requires a later explicit product decision.
+
 The review prototype is [009 proficiency-path prototype](../../frontend/009-proficiency-path-prototype.html). It is throwaway visual reference only and must not be shipped as an extension entrypoint. This decision authorizes the next specification-to-ticketing step; it does not authorize implementation before child execution issues exist.
 
 ### Source and authority

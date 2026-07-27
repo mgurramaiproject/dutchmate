@@ -86,6 +86,8 @@ Teaching prompts may provide strong guidance. Scored progression must use a diff
 
 The resulting evidence represents supported recognition and controlled application, not uncued written production.
 
+For the first `a0-zijn-present` tracer, the popup practice posture is **calm single-check**: one decisive exercise per screen, with room to change the selection before Check and immediate corrective feedback after the first Check. A later pattern may use a short contrast sequence when its reviewed exercise set justifies it, but the tracer does not optimize for exercise density.
+
 Content authoring is manual-first. Linguistically sensitive exercises and the initial tracer are authored as complete instances. Safe repetitive cases may use bounded templates only when every subject, verb, context, answer, accepted alternative, distractor, and feedback item is explicitly enumerated. The build must expand and validate every released combination and produce a human-readable review report containing the exact learner-visible material. If an exercise cannot be fully inspected this way, it must use authored instances instead. There is no runtime generation.
 
 Every released content pack records its content version, authorship, review, authoritative reference sources, and license or provenance for any reused material.
