@@ -494,14 +494,14 @@ describe("lesson popup", () => {
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
   });
 
-  it("shows separate A0 pattern progress and recommends the earliest incomplete pattern", async () => {
+  it("shows separate A0 pattern progress without crowding Today", async () => {
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Pattern: Not started"));
+    await vi.waitFor(() => expect(content().textContent).toContain("A0 path"));
     expect(content().textContent).toContain("Pattern: Not started");
     button("Today").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Next foundation pattern"));
-    expect(content().textContent).toContain("Hallo, ik ben…");
-    expect(content().textContent).toContain("Not started");
+    await vi.waitFor(() => expect(content().textContent).toContain("Start your Daily Five."));
+    expect(content().textContent).not.toContain("Next foundation pattern");
+    expect(content().textContent).not.toContain("Pick up the earliest incomplete A0 pattern");
   });
 
   it("filters Lessons by readiness and CEFR level and labels resumable stages", async () => {
@@ -562,7 +562,7 @@ describe("lesson popup", () => {
     expect(button("Review more")).toBeFalsy();
   });
 
-  it("stacks Continue lesson and Review more after Daily Five completes", async () => {
+  it("keeps Today focused after Daily Five completes", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     lessonCard("A1 · Een afspraak maken").click();
@@ -575,11 +575,12 @@ describe("lesson popup", () => {
     button("Show answer").click();
     await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
     button("Got it").click();
-    await vi.waitFor(() => expect(button("Review more")).toBeTruthy());
-    const reviewFiveMore = content().querySelector<HTMLButtonElement>(".next-action .button")!;
+    await vi.waitFor(() => expect(button("Review 5 more")).toBeTruthy());
+    const reviewFiveMore = content().querySelector<HTMLButtonElement>(".next-action .primary-button")!;
     expect(reviewFiveMore.textContent).toBe("Review 5 more");
     expect(content().textContent).not.toContain("Recognition first");
-    expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Continue lesson", "Review Saved items", "Review more"]);
+    expect(content().querySelector(".secondary-actions")).toBeFalsy();
+    expect(content().querySelectorAll(".next-action .quiet-action")).toHaveLength(1);
     reviewFiveMore.click();
     await vi.waitFor(() => expect(runtime.sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.dailyFive", payload: { continueAfterCompletion: true } }));
   });
@@ -601,14 +602,14 @@ describe("lesson popup", () => {
       </main>`;
     await import("./index");
 
-    await vi.waitFor(() => expect(button("Learn a lesson")).toBeTruthy());
+    await vi.waitFor(() => expect(button("Choose a lesson")).toBeTruthy());
     button("Saved").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Nothing saved yet."));
     expect(content().querySelectorAll(".saved-guidelines li").length).toBe(2);
     expect(button("Quiz Saved")).toBeFalsy();
     button("Today").click();
-    expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Learn a lesson", "Review Saved items"]);
-    button("Learn a lesson").click();
+    expect(content().querySelector(".secondary-actions")).toBeFalsy();
+    button("Choose a lesson").click();
     await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
   });
 

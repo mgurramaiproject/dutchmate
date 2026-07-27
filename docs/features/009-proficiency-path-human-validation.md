@@ -47,6 +47,18 @@ Record one row per browser after loading the generated artifact on a normal read
 
 Each browser pass must cover popup sizing and narrow containment, keyboard-only tab and grammar completion, visible focus, live correction, reduced motion, tooltip edges and scrolling, import/export, storage failure, provider failure recovery, extension disablement, and preservation of prior lesson progress. Encounter Coaching must also be checked for exact and ambiguous matches, dismissal, focus return, false positives, and zero incremental provider calls.
 
+## Observed Firefox feedback before revision
+
+- Tester: project owner.
+- Browser: Firefox; version and operating system were not recorded.
+- Positive result: the popup rendered and the tester reported that the Firefox check looked good overall.
+- Revision findings: Today spent too much vertical space on the foundation-pattern card; its `Practising` state and next step were unclear; the lower actions were hidden below the fold; and the grammar contribution inside Daily Five did not feel substantial or valuable enough.
+- Product questions raised: whether the foundation-pattern surface belongs on Today, whether the lower actions are redundant with the top tabs, and how to make grammar practice feel like useful transfer rather than another small click.
+
+This is a usability finding, not a release sign-off. The findings require a revised build and a repeat browser check before the browser gate can be marked complete.
+
+Revision under test: Today now keeps one primary Daily Five action and an optional compact lesson-resume action; the A0 path is a compact row in Lessons; redundant Today actions are removed; and grammar tasks name the practical pattern capability before the exercise.
+
 ## Learner pilot
 
 This is a small voluntary product-learning check, not telemetry or a statistically powered efficacy study.

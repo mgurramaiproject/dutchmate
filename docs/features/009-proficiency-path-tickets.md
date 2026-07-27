@@ -169,7 +169,7 @@ GitHub: [#89](https://github.com/mgurramaiproject/dutchmate/issues/89)
 - [ ] Encounter Coaching is reviewed separately for disruption, false positives, dismissal, and zero incremental provider requests.
 - [ ] Results, limitations, reviewer/date, deviations, and release/revise decision are recorded; failed thresholds produce follow-up work.
 
-**Blocked:** The remaining checks require an independent qualified Dutch reviewer, real Chrome/Firefox browser execution, and a voluntary pilot of 6–10 target learners. No external reviewer or participant evidence is available in this agent session, so no release decision is asserted.
+**Blocked:** The remaining checks require an independent qualified Dutch reviewer, real Chrome/Firefox browser execution, and a voluntary pilot of 6–10 target learners. Firefox feedback was received, but it identified Today hierarchy, foundation-path semantics, and grammar-value findings; the revised build must be re-tested before browser evidence can be accepted. No release decision is asserted.
 
 ## Tracker state at publication
 

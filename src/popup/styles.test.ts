@@ -29,10 +29,10 @@ describe("popup layout", () => {
     expect(styles).toContain(".today-week .learning-rhythm { min-width: 0; }");
     expect(styles).toContain(".completion-copy { white-space: normal; font-size: .64rem; letter-spacing: -.01em; }");
     expect(styles).toContain(".rhythm-day.is-today { box-shadow: inset 0 0 0 2px var(--black); }");
-    expect(styles).toContain(".secondary-actions .secondary-button:hover:not(:disabled), .secondary-actions .secondary-button:focus-visible { border-color: var(--orange);");
     expect(styles).toContain(".heatmap-month { width: 100%; grid-auto-rows: 36px; }");
-    expect(styles).toContain(".secondary-actions { display: grid; width: 100%; grid-template-columns: 1fr; gap: 8px; }");
-    expect(styles).toContain(".secondary-actions .button { min-height: 48px; font-size: .875rem; }");
+    expect(styles).toContain(".foundation-path { display: grid; grid-template-columns: minmax(0, 1fr) auto;");
+    expect(styles).toContain(".next-action .quiet-action { width: auto; min-height: 34px; background: transparent; }");
+    expect(styles).toContain(".grammar-capability { margin: -4px 0 0; color: var(--muted);");
     expect(styles).toContain(".button { min-height: 48px; padding: 8px 10px; border: 1px solid var(--black); border-radius: 8px; background: var(--white); color: var(--black); font-size: .875rem;");
     expect(styles).toContain(".lesson-filters { display: grid; gap: 5px;");
     expect(styles).toContain(".lesson-filter { min-height: 44px;");

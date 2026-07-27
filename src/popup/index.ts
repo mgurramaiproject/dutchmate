@@ -294,8 +294,19 @@ function renderToday(): HTMLElement {
   const completed = view.status === "complete";
   const total = view.total;
   const done = view.completed;
+  const inProgress = lessonCatalog.lessons.find((lesson) => {
+    const progress = lessonProgressById[lesson.id];
+    return progress && progress.completedAt === null;
+  });
+  const grammarCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "grammar").length;
   const nextAction = section("next-action");
-  const actionCopy = completed ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy") : text(total === 0 ? "Choose a short practical story. DutchMate will never start one automatically." : "Practise five useful words. Start now.");
+  const actionCopy = completed
+    ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy")
+    : text(total === 0
+      ? "Choose a short practical story. DutchMate will never start one automatically."
+      : grammarCount > 0
+        ? "Practise useful words and use one grammar pattern in context."
+        : "Practise five useful words. Start now.");
   nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
   if (total === 0) {
     const lessons = button("Choose a lesson", "button primary-button");
@@ -311,38 +322,13 @@ function renderToday(): HTMLElement {
     nextAction.append(action);
   }
   nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
-  const foundation = getNextFoundationPattern(grammarPatterns, grammarRecords);
-  const foundationLesson = foundation && lessonCatalog.lessons.find((lesson) => lesson.id === foundation.companionLessonId);
-  if (foundation && foundationLesson) {
-    const recommendation = section("foundation-recommendation");
-    recommendation.append(eyebrow("Next foundation pattern"), heading(foundationLesson.title), text(`Pattern: ${getGrammarProgressLabel(grammarRecords[foundation.id])}. Pick up the earliest incomplete A0 pattern whenever you want.`));
-    const action = button("Learn foundation lesson", "button secondary-button");
-    action.addEventListener("click", () => void startLesson(foundationLesson));
-    recommendation.append(action);
-    nextAction.append(recommendation);
+  if (inProgress) {
+    const continueLesson = button("Continue lesson", "button quiet-action");
+    continueLesson.addEventListener("click", () => void startLesson(inProgress));
+    nextAction.append(continueLesson);
   }
   wrapper.append(nextAction);
-  const inProgress = lessonCatalog.lessons.find((lesson) => {
-    const progress = lessonProgressById[lesson.id];
-    return progress && progress.completedAt === null;
-  });
   if (rhythm) wrapper.append(renderRhythm(rhythm));
-  const secondaryActions = document.createElement("div");
-  secondaryActions.className = "secondary-actions";
-  const lessonEntry = button(inProgress ? "Continue lesson" : "Learn a lesson", "button secondary-button");
-  lessonEntry.addEventListener("click", () => {
-    if (inProgress) void startLesson(inProgress);
-    else { screen = "lessons"; render(); }
-  });
-  const savedEntry = button("Review Saved items", "button secondary-button");
-  savedEntry.addEventListener("click", () => { screen = "saved"; render(); });
-  secondaryActions.append(lessonEntry, savedEntry);
-  if (completed) {
-    const reviewMore = button("Review more", "button secondary-button");
-    reviewMore.addEventListener("click", () => void startContinuation());
-    secondaryActions.append(reviewMore);
-  }
-  if (secondaryActions.childElementCount) wrapper.append(secondaryActions);
   wrapper.append(localNote());
   return wrapper;
 }
@@ -456,6 +442,16 @@ function activityTotalValue(activity: LearningRhythm["activity"][number] | undef
 function renderLessons(): HTMLElement {
   const wrapper = section("lessons-content");
   wrapper.append(eyebrow(`Lesson library · ${lessonCatalog.lessons.length} small practical stories`), heading("Lesson library"), text("Choose a situation. Each lesson is 3–5 minutes."));
+  const foundation = getNextFoundationPattern(grammarPatterns, grammarRecords);
+  const foundationLesson = foundation && lessonCatalog.lessons.find((lesson) => lesson.id === foundation.companionLessonId);
+  if (foundation && foundationLesson) {
+    const path = section("foundation-path");
+    path.append(eyebrow("A0 path"), text(`${foundationLesson.title} · ${getGrammarProgressLabel(grammarRecords[foundation.id])}`, "foundation-path-copy"));
+    const action = button("Open lesson", "button secondary-button");
+    action.addEventListener("click", () => void startLesson(foundationLesson));
+    path.append(action);
+    wrapper.append(path);
+  }
   wrapper.append(renderLessonFilters());
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
@@ -688,9 +684,9 @@ function renderGrammarReview(task: GrammarDailyFiveTask): HTMLElement {
   grammarPatternId = task.patternId;
   grammarRecord = record;
   const wrapper = section("practice-content focused-content");
-  if (!exercise || !record) { wrapper.append(button("Exit review", "exit-button"), heading("Grammar practice is unavailable.")); return wrapper; }
+  if (!pattern || !exercise || !record) { wrapper.append(button("Exit review", "exit-button"), heading("Grammar practice is unavailable.")); return wrapper; }
   const exit = button("Exit review", "exit-button"); exit.addEventListener("click", () => { screen = focusedOrigin ?? "today"; focusedOrigin = null; render(); });
-  wrapper.append(exit, eyebrow("Daily Five · Grammar"), heading(exercise.prompt), text(exercise.context, "story-dutch"));
+  wrapper.append(exit, eyebrow("Daily Five · Grammar"), heading(exercise.prompt), text(pattern.capability, "grammar-capability"), text(exercise.context, "story-dutch"));
   wrapper.append(renderGrammarAnswerControls(exercise));
   if (grammarFeedback) { const status = text(grammarFeedback.message, "grammar-feedback"); status.setAttribute("role", "status"); wrapper.append(status); }
   if (grammarChecked && grammarOutcome === null && grammarRecords[task.patternId]?.state === "applied") wrapper.append(text("Applied · this pattern is ready to use in the wild.", "grammar-celebration"));
