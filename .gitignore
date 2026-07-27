@@ -2,8 +2,12 @@ node_modules/
 dist/
 /release/
 .vite/
+coverage/
+*.tsbuildinfo
 *.log
+.DS_Store
 .env
 .env.*
 !.env.example
+.lavish/
 _private_docs/
