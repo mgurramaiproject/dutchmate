@@ -8,7 +8,7 @@ Source specification: [009-proficiency-path-spec.md](./009-proficiency-path-spec
 
 Approved prototype direction: [Paper Rail review prototype](../../frontend/009-proficiency-path-prototype.html)
 
-The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #85 is the current implementation slice; later tickets remain blocked by their listed dependencies.
+The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #86 is the current implementation slice; later tickets remain blocked by their listed dependencies.
 
 ## Delivery rules
 
@@ -30,7 +30,7 @@ The canonical tracker records live issue state. This checked-in document mirrors
              └──> #86 ──┘
 ```
 
-`#85` is the current frontier after #84 delivery completion. #86 remains a parallel frontier after #83. #89 is a human validation gate and cannot be satisfied by automated tests alone.
+`#86` is the current frontier after #85 delivery completion. #87 remains gated on #86. #89 is a human validation gate and cannot be satisfied by automated tests alone.
 
 ## T01 — Prove the `a0-zijn-present` tracer
 
@@ -107,13 +107,13 @@ GitHub: [#86](https://github.com/mgurramaiproject/dutchmate/issues/86)
 
 **What to build:** Add the new `A0 · Woon je hier?` lesson and teach simple yes/no question order through click-based token ordering and precise `jij/je` versus `u` correction.
 
-- [ ] Stable lesson `a0-woon-je-hier` and pattern `a0-yes-no-inversion` use the existing focused lesson flow.
-- [ ] Notice and Practise teach finite-verb-before-subject order, `jij/je` loss of `-t`, and reviewed retained `-t` before `u`.
-- [ ] `order-tokens` is keyboard-operable, click-only, correctable before Check, and does not persist unfinished placement.
-- [ ] Contrast and repair exercises identify retained `-t`, dropped `-t`, and invalid word order with exact feedback.
-- [ ] Due inversion practice participates in Daily Five with normal first-Check, retry, Reveal, Skip, and scheduling behavior.
-- [ ] Exact reviewed inversion pairs may offer Encounter Coaching only after introduction, with no extra provider request or raw persistence.
-- [ ] Validation, review output, and regressions cover all released language and preserve earlier patterns and lessons.
+- [x] Stable lesson `a0-woon-je-hier` and pattern `a0-yes-no-inversion` use the existing focused lesson flow. (`src/lessons/catalog.ts`, `src/grammar/content.ts`, `src/popup/index.ts`, `src/popup/index.test.ts`)
+- [x] Notice and Practise teach finite-verb-before-subject order, `jij/je` loss of `-t`, and reviewed retained `-t` before `u`. (`src/lessons/catalog.ts`, `src/grammar/content.ts`, `src/grammar/content.test.ts`)
+- [x] `order-tokens` is keyboard-operable, click-only, correctable before Check, and does not persist unfinished placement. (`src/popup/index.ts`, `src/popup/index.test.ts`, `src/grammar/learning.ts`, `src/grammar/learning.test.ts`)
+- [x] Contrast and repair exercises identify retained `-t`, dropped `-t`, and invalid word order with exact feedback. (`src/grammar/content.ts`, `src/grammar/content.test.ts`)
+- [x] Due inversion practice participates in Daily Five with normal first-Check, retry, Reveal, Skip, and scheduling behavior. (`src/vocabulary/daily-five.ts`, `src/vocabulary/daily-five.test.ts`, `src/vocabulary/learning-record.ts`, `src/vocabulary/learning-record.test.ts`, `src/background/message-handler.test.ts`)
+- [x] Exact reviewed inversion pairs may offer Encounter Coaching only after introduction, with no extra provider request or raw persistence. (`src/grammar/content.ts`, `src/content/webpage-lookup-module.ts`, `src/content/webpage-lookup-module.test.ts`)
+- [x] Validation, review output, and regressions cover all released language and preserve earlier patterns and lessons. (`src/grammar/content.ts`, `src/grammar/content.test.ts`, `src/lessons/catalog.test.ts`, `src/popup/index.test.ts`, `src/background/message-handler.test.ts`)
 
 ## T06 — Complete the A0 Foundation progression experience
 

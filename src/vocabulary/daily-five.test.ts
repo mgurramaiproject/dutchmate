@@ -89,6 +89,11 @@ describe("Daily Five scheduling", () => {
     const snapshot = createDailyFiveSnapshot([], 10 * day, undefined, [{ kind: "grammar", patternId: "a0-regular-present", contentVersion: 1, exerciseId: "regular-choose-ik" }]);
     expect(snapshot.tasks).toEqual([{ kind: "grammar", patternId: "a0-regular-present", contentVersion: 1, exerciseId: "regular-choose-ik" }]);
   });
+
+  it("accepts due inversion practice as a grammar position", () => {
+    const snapshot = createDailyFiveSnapshot([], 10 * day, undefined, [{ kind: "grammar", patternId: "a0-yes-no-inversion", contentVersion: 1, exerciseId: "inversion-order-je" }]);
+    expect(snapshot.tasks).toEqual([{ kind: "grammar", patternId: "a0-yes-no-inversion", contentVersion: 1, exerciseId: "inversion-order-je" }]);
+  });
 });
 
 function item(dutch: string, createdAt: number): LearningItem {

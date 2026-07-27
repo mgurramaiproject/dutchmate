@@ -1,6 +1,6 @@
 export const LESSON_CATALOG_VERSION = 1;
 
-export type GrammarPatternId = "a0-zijn-present" | "a0-hebben-present" | "a0-regular-present";
+export type GrammarPatternId = "a0-zijn-present" | "a0-hebben-present" | "a0-regular-present" | "a0-yes-no-inversion";
 export type LessonLine = { dutch: string; english: string; telugu: string };
 export type LessonCandidate = { id: string; dutch: string; english: string; telugu: string; kind: "word" | "chunk" };
 export type LessonPracticePrompt = { candidateId: string; dimension: "recognition" | "recall" };
@@ -85,6 +85,31 @@ export const regularLesson: Lesson = {
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
   grammarCompanion: { id: "a0-regular-present", contentVersion: 1, patternId: "a0-regular-present" },
+};
+
+export const inversionLesson: Lesson = {
+  id: "a0-woon-je-hier", contentVersion: 1, pathway: "home-and-work", order: 2,
+  cefr: "A0", title: "A0 · Woon je hier?", durationMinutes: 3,
+  pattern: "Woon je hier?", patternText: "Woon je hier", patternExplanation: "In a simple yes-or-no question, put the finite verb first. Before jij or je, the verb loses -t; before u, the reviewed -t stays.",
+  lines: [
+    { dutch: "Je woont nu in Utrecht. Woon je hier al lang?", english: "You live in Utrecht now. Have you lived here long?", telugu: "నువ్వు ఇప్పుడు ఉట్రెహ్ట్‌లో నివసిస్తున్నావు. నువ్వు ఇక్కడ చాలా కాలంగా ఉంటున్నావా?" },
+    { dutch: "Ja, ik woon hier sinds kort en ik werk in de buurt.", english: "Yes, I have lived here for a short time and I work nearby.", telugu: "అవును, నేను కొద్దికాలంగా ఇక్కడ ఉంటున్నాను మరియు దగ్గరలో పని చేస్తున్నాను." },
+    { dutch: "Werk je vandaag in het café? Nee, ik leer thuis.", english: "Are you working in the cafe today? No, I am learning at home.", telugu: "నువ్వు ఈరోజు కేఫేలో పని చేస్తున్నావా? లేదు, నేను ఇంట్లో నేర్చుకుంటున్నాను." },
+    { dutch: "Werkt u morgen in de winkel?", english: "Are you working in the shop tomorrow?", telugu: "మీరు రేపు దుకాణంలో పని చేస్తున్నారా?" },
+    { dutch: "Ja, ik werk morgen. Wij wonen dichtbij en gaan samen.", english: "Yes, I am working tomorrow. We live nearby and go together.", telugu: "అవును, నేను రేపు పని చేస్తున్నాను. మేము దగ్గరలో ఉంటాము మరియు కలిసి వెళ్తాము." },
+  ],
+  candidates: [
+    { id: "woon-je-hier", dutch: "woon je hier", english: "do you live here", telugu: "నువ్వు ఇక్కడ నివసిస్తున్నావా", kind: "chunk" },
+    { id: "werk-je-vandaag", dutch: "werk je vandaag", english: "are you working today", telugu: "నువ్వు ఈరోజు పని చేస్తున్నావా", kind: "chunk" },
+    { id: "werkt-u-morgen", dutch: "werkt u morgen", english: "are you working tomorrow", telugu: "మీరు రేపు పని చేస్తున్నారా", kind: "chunk" },
+    { id: "in-de-buurt", dutch: "in de buurt", english: "nearby", telugu: "దగ్గరలో", kind: "chunk" },
+  ],
+  practice: [
+    { candidateId: "woon-je-hier", dimension: "recognition" }, { candidateId: "werk-je-vandaag", dimension: "recall" },
+    { candidateId: "werkt-u-morgen", dimension: "recognition" }, { candidateId: "in-de-buurt", dimension: "recall" },
+  ],
+  review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  grammarCompanion: { id: "a0-yes-no-inversion", contentVersion: 1, patternId: "a0-yes-no-inversion" },
 };
 
 export const repetitionLesson: Lesson = {
@@ -276,7 +301,7 @@ export const letterLesson: Lesson = { id: "a2-wat-staat-er-in-deze-brief", conte
 
 export const lessonCatalog: LessonCatalog = {
   version: LESSON_CATALOG_VERSION,
-  lessons: [introductionLesson, hebbenLesson, regularLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson],
+  lessons: [introductionLesson, hebbenLesson, regularLesson, inversionLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson],
 };
 
 export function validateLessonCatalog(catalog: LessonCatalog): string[] {

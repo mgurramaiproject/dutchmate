@@ -165,6 +165,33 @@ describe("lesson popup", () => {
     expect(button("woont")).toBeTruthy();
   });
 
+  it("takes the inversion companion through keyboard-operable token ordering and correction before Check", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Woon je hier?"));
+    lessonCard("A0 · Woon je hier?").click();
+    await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+    button("Notice the pattern").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Je woont hier."));
+    expect(button("Woon")).toBeTruthy();
+    expect(button("je")).toBeTruthy();
+    expect(button("hier?")).toBeTruthy();
+    expect(button("Check answer").disabled).toBe(true);
+    const grammarResultsBefore = runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result").length;
+    button("je").click();
+    expect(content().querySelector(".grammar-order-answer")?.textContent).toContain("je");
+    button("je").click();
+    expect(content().querySelector(".grammar-order-answer")?.textContent).not.toContain("je");
+    button("Woon").click();
+    button("je").click();
+    button("hier?").click();
+    expect(button("Check answer").disabled).toBe(false);
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result")).toHaveLength(grammarResultsBefore);
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy());
+    expect(content().textContent).toContain("Woon je hier?");
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result")).toHaveLength(grammarResultsBefore + 1);
+  });
+
   it("allows a grammar retry without submitting a second result", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Ik heb dit nodig"));
@@ -172,15 +199,16 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
     button("Notice the pattern").click();
     await vi.waitFor(() => expect(button("hebt")).toBeTruthy());
+    const grammarResultsBefore = runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result").length;
     button("hebt").click();
     button("Check answer").click();
     await vi.waitFor(() => expect(button("Try again")).toBeTruthy());
-    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result")).toHaveLength(1);
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result")).toHaveLength(grammarResultsBefore + 1);
     button("Try again").click();
     button("heb").click();
     button("Check answer").click();
     await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy());
-    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result")).toHaveLength(1);
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result")).toHaveLength(grammarResultsBefore + 1);
   });
 
   it("keeps the mockup history controls and uses heatmaps for month and year", async () => {
@@ -434,7 +462,7 @@ describe("lesson popup", () => {
   it("moves the three top-level tabs with arrow keys", async () => {
     const navigation = document.querySelector<HTMLElement>("#primary-navigation")!;
     navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
-    await vi.waitFor(() => expect(content().textContent).toContain("14 small practical stories"));
+    await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
     expect(document.activeElement).toBe(document.querySelector("#lessons-tab"));
     navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
     await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
@@ -443,16 +471,16 @@ describe("lesson popup", () => {
 
   it("renders Lessons as the compact numbered library from the approved mockup", async () => {
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("14 small practical stories"));
+    await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
     expect(content().querySelector(".lessons-content .heading")?.textContent).toBe("Lesson library");
     expect(content().textContent).toContain("Choose a situation. Each lesson is 3–5 minutes.");
-    expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(14);
+    expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15);
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
   });
 
   it("filters Lessons by readiness and CEFR level and labels resumable stages", async () => {
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(14));
+    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15));
     expect(content().querySelectorAll(".lesson-filter")).toHaveLength(8);
 
     lessonCard("A0 · Hallo, ik ben").click();
@@ -466,10 +494,11 @@ describe("lesson popup", () => {
 
     button("All").click();
     button("A0").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(3));
+    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(4));
     expect(content().textContent).toContain("Hallo, ik ben");
     expect(content().textContent).toContain("Ik heb dit nodig");
     expect(content().textContent).toContain("Ik woon en werk hier");
+    expect(content().textContent).toContain("Woon je hier?");
 
     button("Completed").click();
     await vi.waitFor(() => expect(content().textContent).toContain("No lessons match these filters."));
@@ -554,7 +583,7 @@ describe("lesson popup", () => {
     button("Today").click();
     expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Learn a lesson", "Review Saved items"]);
     button("Learn a lesson").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("14 small practical stories"));
+    await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
   });
 
   it("does not tell learners with saved vocabulary to save more when no review is available", async () => {
@@ -595,13 +624,14 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson candidates could not be kept."));
   });
 
-  it("lists the fourteen bundled lessons in order and opens the published lessons with help and trilingual practice", async () => {
+  it("lists the fifteen bundled lessons in order and opens the published lessons with help and trilingual practice", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Ik heb last van…"));
     expect([...content().querySelectorAll<HTMLElement>(".lesson-card .lesson-copy strong")].map((heading) => heading.textContent)).toEqual([
       "Hallo, ik ben…",
       "Ik heb dit nodig",
       "Ik woon en werk hier",
+      "Woon je hier?",
       "Kunt u dat herhalen?",
       "Ik wil graag bestellen",
       "Kan ik met pin betalen?",

@@ -11,6 +11,7 @@ export type GrammarExercise = {
   context: string;
   contextTag: string;
   choices: string[];
+  tokens?: string[];
   accepted: string[];
   distractors: Array<{ value: string; misconception: Misconception; feedback: string }>;
   feedback: string;
@@ -34,7 +35,7 @@ export type GrammarPattern = {
   prerequisites: string[];
   forms: Array<{ subject: string; forms: string[] }>;
   exercises: GrammarExercise[];
-  encounterForms: Array<{ subject: string; form: string }>;
+  encounterForms: Array<{ subject: string; form: string; text?: string }>;
   companionLessonId: string;
   review: GrammarReviewMetadata;
 };
@@ -270,7 +271,69 @@ export const regularPattern: GrammarPattern = {
   },
 };
 
-export const grammarPatterns: GrammarPattern[] = [zijnPattern, hebbenPattern, regularPattern];
+export const inversionPattern: GrammarPattern = {
+  id: "a0-yes-no-inversion",
+  contentVersion: 1,
+  level: "A0",
+  capability: "Ask simple yes-or-no questions about everyday places, work, and routines.",
+  prerequisites: ["a0-zijn-present"],
+  forms: [
+    { subject: "jij/je", forms: ["woont", "werkt", "leert", "maakt"] },
+    { subject: "u", forms: ["woont", "werkt", "leert", "maakt"] },
+  ],
+  exercises: [
+    {
+      id: "inversion-order-je", patternId: "a0-yes-no-inversion", primitive: "order-tokens",
+      prompt: "Build the question.", context: "Je woont hier.", contextTag: "inversion", tokens: ["Woon", "je", "hier?"], choices: ["Woon je hier?", "Je woont hier?", "Woon hier je?"], accepted: ["Woon je hier?"],
+      distractors: [
+        { value: "Je woont hier?", misconception: "wrong-person", feedback: "Before je in a question, use the stem without -t and put it first: Woon je hier?" },
+        { value: "Woon hier je?", misconception: "invalid-order", feedback: "Put the finite verb first and je immediately after it: Woon je hier?" },
+      ],
+      feedback: "Put the finite verb first. Before je, use woon without -t: Woon je hier?", evidenceEligible: true,
+    },
+    {
+      id: "inversion-order-u", patternId: "a0-yes-no-inversion", primitive: "order-tokens",
+      prompt: "Build the polite question.", context: "U werkt vandaag.", contextTag: "polite-question", tokens: ["Werkt", "u", "vandaag?"], choices: ["Werkt u vandaag?", "Werk u vandaag?", "U werkt vandaag?"], accepted: ["Werkt u vandaag?"],
+      distractors: [
+        { value: "Werk u vandaag?", misconception: "wrong-person", feedback: "Before u, keep the -t on the finite verb: Werkt u vandaag?" },
+        { value: "U werkt vandaag?", misconception: "invalid-order", feedback: "In a yes-or-no question, put the finite verb before u: Werkt u vandaag?" },
+      ],
+      feedback: "Put the finite verb first and keep -t before u: Werkt u vandaag?", evidenceEligible: true,
+    },
+    {
+      id: "inversion-contrast-je", patternId: "a0-yes-no-inversion", primitive: "contrast-form",
+      prompt: "Choose the form before je.", context: "___ je in Utrecht?", contextTag: "jij-je", choices: ["Woon", "Woont", "Wonen"], accepted: ["Woon"],
+      distractors: [
+        { value: "Woont", misconception: "wrong-person", feedback: "Before je in a question, use woon without -t: Woon je in Utrecht?" },
+        { value: "Wonen", misconception: "wrong-person", feedback: "Je is singular here, so use woon, not the plural wonen: Woon je in Utrecht?" },
+      ],
+      feedback: "Before je in a question, use the stem without -t: woon.", evidenceEligible: true,
+    },
+    {
+      id: "inversion-repair-u", patternId: "a0-yes-no-inversion", primitive: "repair-choice",
+      prompt: "Repair the polite question.", context: "___ u morgen?", contextTag: "u-contrast", choices: ["Werkt", "Werk", "Werken"], accepted: ["Werkt"],
+      distractors: [
+        { value: "Werk", misconception: "wrong-person", feedback: "Before u, keep -t on the finite verb: Werkt u morgen?" },
+        { value: "Werken", misconception: "wrong-person", feedback: "U takes the singular -t form here, not the plural werken: Werkt u morgen?" },
+      ],
+      feedback: "Before u, keep -t on the finite verb: werkt.", evidenceEligible: true,
+    },
+  ],
+  encounterForms: [
+    { subject: "je", form: "woon", text: "Woon je hier?" },
+    { subject: "je", form: "werk", text: "Werk je vandaag?" },
+    { subject: "u", form: "werkt", text: "Werkt u morgen?" },
+    { subject: "u", form: "leert", text: "Leert u Nederlands?" },
+  ],
+  companionLessonId: "a0-woon-je-hier",
+  review: {
+    author: "DutchMate team", reviewState: "self-reviewed", reviewer: "DutchMate team", reviewedAt: "2026-07-27",
+    sources: ["https://taaladvies.net/termen-inversie/", "https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/"],
+    provenance: "Original DutchMate-authored questions using reviewed finite-verb inversion; no copied sentence text.",
+  },
+};
+
+export const grammarPatterns: GrammarPattern[] = [zijnPattern, hebbenPattern, regularPattern, inversionPattern];
 
 export function getGrammarPattern(patternId: GrammarPatternId): GrammarPattern | undefined { return grammarPatterns.find((pattern) => pattern.id === patternId); }
 
@@ -293,6 +356,8 @@ export function validateGrammarPattern(pattern: GrammarPattern): string[] {
     if (!(exercise.primitive === "choose-form" || exercise.primitive === "contrast-form" || exercise.primitive === "change-subject" || exercise.primitive === "order-tokens" || exercise.primitive === "repair-choice")) errors.push(`${exercise.id}: unsupported primitive`);
     if (!exercise.prompt.trim() || !exercise.context.trim() || !exercise.contextTag.trim() || exercise.evidenceEligible !== true) errors.push(`${exercise.id}: incomplete exercise metadata`);
     if (new Set(exercise.choices).size !== exercise.choices.length) errors.push(`${exercise.id}: duplicate choices`);
+    if (exercise.primitive === "order-tokens" && (!exercise.tokens || exercise.tokens.length < 2 || new Set(exercise.tokens).size !== exercise.tokens.length || exercise.tokens.some((token) => !token.trim()))) errors.push(`${exercise.id}: incomplete order tokens`);
+    if (exercise.primitive !== "order-tokens" && exercise.tokens !== undefined) errors.push(`${exercise.id}: unexpected order tokens`);
     if (exercise.accepted.length === 0) errors.push(`${exercise.id}: no accepted answers`);
     if (new Set(exercise.accepted).size !== exercise.accepted.length) errors.push(`${exercise.id}: duplicate accepted answers`);
     if (!exercise.accepted.every((answer) => exercise.choices.includes(answer))) errors.push(`${exercise.id}: accepted answer is not a choice`);
@@ -339,13 +404,13 @@ export function createGrammarContentReport(pattern: GrammarPattern | GrammarPatt
     `Sources: ${pattern.review.sources.join(", ")}`,
     `Provenance: ${pattern.review.provenance}`,
     `Forms: ${pattern.forms.map((entry) => `${entry.subject} -> ${entry.forms.join("/")}`).join("; ")}`,
-    `Encounter pairs: ${pattern.encounterForms.map((entry) => `${entry.subject} ${entry.form}`).join("; ")}`,
+    `Encounter pairs: ${pattern.encounterForms.map((entry) => entry.text ?? `${entry.subject} ${entry.form}`).join("; ")}`,
     `Companion title: ${companion?.title ?? "missing"}`,
     ...(companion?.lines.flatMap((line) => [`Story Dutch: ${line.dutch}`, `Story English: ${line.english}`, `Story Telugu: ${line.telugu}`]) ?? []),
     "",
   ];
   for (const exercise of pattern.exercises) {
-    lines.push(`## ${exercise.id}`, `Primitive: ${exercise.primitive}`, `Context tag: ${exercise.contextTag}`, `Evidence eligible: ${exercise.evidenceEligible}`, `Context: ${exercise.context}`, `Prompt: ${exercise.prompt}`, `Choices: ${exercise.choices.join(" | ")}`, `Accepted: ${exercise.accepted.join(" | ")}`, `Feedback: ${exercise.feedback}`);
+    lines.push(`## ${exercise.id}`, `Primitive: ${exercise.primitive}`, `Context tag: ${exercise.contextTag}`, `Evidence eligible: ${exercise.evidenceEligible}`, `Context: ${exercise.context}`, `Prompt: ${exercise.prompt}`, ...(exercise.tokens ? [`Tokens: ${exercise.tokens.join(" | ")}`] : []), `Choices: ${exercise.choices.join(" | ")}`, `Accepted: ${exercise.accepted.join(" | ")}`, `Feedback: ${exercise.feedback}`);
     for (const distractor of exercise.distractors) lines.push(`Distractor: ${distractor.value} [${distractor.misconception}] -> ${distractor.feedback}`);
     lines.push("");
   }
@@ -361,10 +426,10 @@ export function matchZijnEncounter(value: string, pattern: GrammarPattern = zijn
 
 export function matchGrammarEncounter(value: string, pattern: GrammarPattern): { patternId: GrammarPatternId; subject: string; form: string } | null {
   if (!isGrammarContentAvailable(pattern)) return null;
-  const words = normalizeGrammarText(value).split(" ");
-  if (words.length !== 2) return null;
-  const match = pattern.encounterForms.find((entry) => entry.subject === words[0] && entry.form === words[1]);
-  return match ? { patternId: pattern.id, ...match } : null;
+  const normalized = normalizeGrammarText(value);
+  const words = normalized.split(" ");
+  const match = pattern.encounterForms.find((entry) => entry.text ? normalizeGrammarText(entry.text) === normalized : words.length === 2 && entry.subject === words[0] && entry.form === words[1]);
+  return match ? { patternId: pattern.id, subject: match.subject, form: match.form } : null;
 }
 
 export function matchIntroducedZijnEncounter(value: string, introduced: boolean, pattern: GrammarPattern = zijnPattern): { subject: string; form: string } | null {

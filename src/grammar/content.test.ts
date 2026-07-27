@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createGrammarContentReport, hebbenPattern, matchGrammarEncounter, matchIntroducedGrammarEncounter, matchIntroducedZijnEncounter, matchZijnEncounter, regularPattern, validateAllLearningContent, validateGrammarPattern, validateLearningContent, zijnPattern } from "./content";
+import { createGrammarContentReport, hebbenPattern, inversionPattern, matchGrammarEncounter, matchIntroducedGrammarEncounter, matchIntroducedZijnEncounter, matchZijnEncounter, regularPattern, validateAllLearningContent, validateGrammarPattern, validateLearningContent, zijnPattern } from "./content";
 
 describe("zijn grammar content", () => {
   it("has finite reviewed answers, coded distractors, and exact feedback", () => {
@@ -41,6 +41,21 @@ describe("zijn grammar content", () => {
     expect(matchIntroducedGrammarEncounter("u leert", [], [regularPattern])).toBeNull();
     expect(matchIntroducedGrammarEncounter("u leert", ["a0-regular-present"], [regularPattern])).toEqual({ patternId: "a0-regular-present", subject: "u", form: "leert" });
     expect(createGrammarContentReport()).toContain("regular-change-jij");
+  });
+
+  it("adds reviewed yes-no inversion with token ordering and precise contrast feedback", () => {
+    expect(validateGrammarPattern(inversionPattern)).toEqual([]);
+    expect(inversionPattern.exercises.map((exercise) => exercise.primitive)).toEqual(["order-tokens", "order-tokens", "contrast-form", "repair-choice"]);
+    const jij = inversionPattern.exercises.find((exercise) => exercise.id === "inversion-order-je")!;
+    expect(jij.tokens).toEqual(["Woon", "je", "hier?"]);
+    expect(jij.accepted).toEqual(["Woon je hier?"]);
+    expect(jij.distractors).toEqual(expect.arrayContaining([expect.objectContaining({ value: "Je woont hier?", misconception: "wrong-person" })]));
+    const u = inversionPattern.exercises.find((exercise) => exercise.id === "inversion-order-u")!;
+    expect(u.distractors).toEqual(expect.arrayContaining([expect.objectContaining({ value: "Werk u vandaag?", misconception: "wrong-person" }), expect.objectContaining({ value: "U werkt vandaag?", misconception: "invalid-order" })]));
+    expect(matchGrammarEncounter("Woon je hier?", inversionPattern)).toEqual({ patternId: "a0-yes-no-inversion", subject: "je", form: "woon" });
+    expect(matchIntroducedGrammarEncounter("Woon je hier?", [], [inversionPattern])).toBeNull();
+    expect(matchIntroducedGrammarEncounter("Woon je hier?", ["a0-yes-no-inversion"], [inversionPattern])).toEqual({ patternId: "a0-yes-no-inversion", subject: "je", form: "woon" });
+    expect(createGrammarContentReport()).toContain("inversion-order-u");
   });
 
   it("generates a deterministic review report with every released exercise", () => {
