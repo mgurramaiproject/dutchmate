@@ -44,6 +44,14 @@ _Avoid_: 100-verb catalog, conjugation-table course, tense encyclopedia
 The exercise contract in which learners choose forms, transform prompts, and reconstruct Dutch with tap-, click-, or keyboard-operated controls without entering text. Its results are evidence of supported recognition and controlled application, not independent written production.
 _Avoid_: Typed answer, free-form response, uncued-production claim
 
+**Grammar exercise primitive**:
+A deterministic click-only interaction reused inside Lessons, Daily Five, or Encounter Coaching, such as choosing or contrasting a verb form or building, transforming, and repairing sentence order. Verb Gym and Sentence Forge may group these primitives for authoring, but they are not learner-facing modes or separate progress systems.
+_Avoid_: Grammar mode, second practice queue, standalone exercise course
+
+**Grammar feedback**:
+A deterministic correction that connects a scored wrong answer to one known misconception, one relevant rule, and one reviewed contrast or corrected form. If DutchMate cannot enumerate the accepted alternatives and explain a rejection accurately, the exercise is not eligible for release.
+_Avoid_: Generic incorrect message, random distractor, fuzzy grammar judgment
+
 **Encounter coaching**:
 An optional grammar-practice offer attached to text DutchMate already handles during an ordinary learner-triggered hover or selection when that Dutch confidently matches a previously studied pattern. It does not scan pages for exercises, interrupt unmatched encounters, or treat a first explanation as mastery evidence.
 _Avoid_: Automatic page scan, passive grammar highlighting, unrelated-content analysis
@@ -77,7 +85,7 @@ The restrained set of playful feedback and motivation mechanisms that helps lear
 _Avoid_: Gamification system, rewards economy, entertainment mode
 
 **Pattern progress**:
-The learner-visible grammar states Introduced, Practising, and Applied, advanced through scored recognition and controlled application across distinct exercises or contexts. They create honest moments of progress and celebration without representing points, independent production, or formal proficiency.
+The learner-visible grammar states Introduced, Practising, and Applied. Applied requires scored recognition and controlled application across varied exercise primitives, lexical contexts, sessions, and at least one delayed attempt with unseen or recombined material; the states do not represent points, independent production, or formal proficiency.
 _Avoid_: Experience level, lesson-completion badge, certified mastery
 
 **Learning rhythm**:

@@ -8,7 +8,7 @@ Lesson contract: [002-learnloop-mini-lesson-pattern.md](./002-learnloop-mini-les
 
 Approved popup design: [002-learnloop-approved-popup-design.html](./002-learnloop-approved-popup-design.html)
 
-Deferred scope: [002-learnloop-feature-parking-lot.md](./002-learnloop-feature-parking-lot.md)
+Deferred scope: [feature-parking-lot.md](./feature-parking-lot.md)
 
 ## Delivery rules
 
