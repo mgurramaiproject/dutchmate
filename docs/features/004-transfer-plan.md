@@ -4,7 +4,7 @@ Status: Approved exploration plan
 
 Branch: `feature/004-transfer`
 
-Related deferred ideas: [004-transfer-parking-lot.md](./004-transfer-parking-lot.md)
+Related deferred ideas: [feature-parking-lot.md](./feature-parking-lot.md)
 
 Research and decision rationale: [004-transfer-research.md](./004-transfer-research.md)
 

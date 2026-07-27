@@ -24,6 +24,50 @@ _Avoid_: Everyone, general translation users
 The core DutchMate learning journey: understand Dutch encountered on real websites, keep useful language, practise it, and later recognize or actively use it. Curated teaching and playful mechanics support this loop rather than replace it.
 _Avoid_: Translation workflow, complete Dutch course, standalone game
 
+**Foundation progression**:
+The deliberately bounded DutchMate learning range from A0/Pre-A1 through A1 to A2. It supports beginners becoming increasingly independent with practical Dutch without extending the current product promise to B1 or above.
+_Avoid_: A0-B1 pathway, full fluency path, advanced Dutch course
+
+**Open foundation path**:
+The ordered A0-A2 learning path in which DutchMate recommends the earliest incomplete pattern while leaving every unit visible and directly selectable. It requires no placement test, learner-level setting, locked level, or additional starting-point control.
+_Avoid_: Placement flow, level gate, learner-level profile
+
+**Capability progression**:
+Learner-visible movement through the foundation progression based on demonstrated recognition and controlled application of practical Dutch. It is evidence from DutchMate learning activities, not proof of uncued production, lesson completion alone, or a claim of formal CEFR certification.
+_Avoid_: Course completion level, certified CEFR level, engagement score
+
+**Verb Path**:
+A pattern-first A0-A2 grammar sequence threaded through the existing practical mini-lessons and Lessons library, not a separate learner-facing library or navigation area. High-utility Dutch verbs make conjugation and sentence structure concrete through explanation, guided construction, retrieval, and contextual application, while conjugation tables remain supporting references.
+_Avoid_: 100-verb catalog, conjugation-table course, tense encyclopedia
+
+**Click-only grammar practice**:
+The exercise contract in which learners choose forms, transform prompts, and reconstruct Dutch with tap-, click-, or keyboard-operated controls without entering text. Its results are evidence of supported recognition and controlled application, not independent written production.
+_Avoid_: Typed answer, free-form response, uncued-production claim
+
+**Grammar exercise primitive**:
+A deterministic click-only interaction reused inside Lessons, Daily Five, or Encounter Coaching, such as choosing or contrasting a verb form or building, transforming, and repairing sentence order. Released instances are manually authored unless a bounded template can enumerate and expose every resulting sentence, answer, accepted alternative, distractor, and feedback item for build-time validation and human review. Verb Gym and Sentence Forge may group these primitives for authoring, but they are not learner-facing modes or separate progress systems.
+_Avoid_: Grammar mode, second practice queue, standalone exercise course
+
+**Grammar companion**:
+Separately identified and versioned pattern teaching and click-only practice attached to a compatible lesson without replacing that lesson, changing its identity, or invalidating its completion. Completing the earlier lesson does not retroactively award pattern progress; the additional practice remains available inside the lesson flow.
+_Avoid_: Replacement lesson, completion reset, separate grammar destination
+
+**Grammar feedback**:
+A deterministic correction that connects a scored wrong answer to one known misconception, one relevant rule, and one reviewed contrast or corrected form. If DutchMate cannot enumerate the accepted alternatives and explain a rejection accurately, the exercise is not eligible for release.
+_Avoid_: Generic incorrect message, random distractor, fuzzy grammar judgment
+
+**Grammar content review**:
+The release gate that combines automated inspection of every expanded learner-visible grammar item with human linguistic review. The internal tracer may be self-reviewed, but public content must also be checked by a second fluent Dutch reviewer with grammar-teaching competence; formal NT2 certification is not required, and reviewer, date, and reference sources are recorded.
+_Avoid_: AI approval, author-only public review, certification requirement
+
+**Grammar learning record**:
+The minimum local evidence needed to resume practice, schedule a studied pattern, prevent immediate repetition, and support its honest progress state. It contains the current Daily Five snapshot, per-pattern state and due date, compact evidence markers, bounded misconception counters, and only the recent exercise identifiers needed for selection; it excludes raw webpage text, selected sentences, response times, full attempt histories, and behavioral timelines.
+_Avoid_: Event log, page-content history, analytics profile
+
+**Encounter coaching**:
+An optional grammar-practice offer attached to text DutchMate already handles during an ordinary learner-triggered hover or selection when that Dutch confidently matches a previously studied pattern. It does not scan pages for exercises, interrupt unmatched encounters, or treat a first explanation as mastery evidence.
+_Avoid_: Automatic page scan, passive grammar highlighting, unrelated-content analysis
+
 **Curated mini-lesson**:
 A three-to-five-minute, intentionally sequenced A0-A2 activity that teaches one practical Dutch pattern for daily life in the Netherlands through a micro-story and three to five useful learning items, introducing grammar only where the situation needs it. Published mini-lessons are human-reviewed, versioned, stable across learners, and complementary to the browsing-to-fluency loop rather than a comprehensive curriculum.
 _Avoid_: Full course unit, generated lesson, content feed
@@ -52,6 +96,10 @@ _Avoid_: Grammar chapter, CEFR section, flat topic list
 The restrained set of playful feedback and motivation mechanisms that helps learners return to meaningful Dutch practice. It measures and rewards learning actions without becoming a separate game economy.
 _Avoid_: Gamification system, rewards economy, entertainment mode
 
+**Pattern progress**:
+The learner-visible grammar states Introduced, Practising, and Applied. Applied requires scored recognition and controlled application across varied exercise primitives, lexical contexts, sessions, and at least one delayed attempt with unseen or recombined material; the states do not represent points, independent production, or formal proficiency.
+_Avoid_: Experience level, lesson-completion badge, certified mastery
+
 **Learning rhythm**:
 The calm engagement pattern built from a small daily review goal, weekly consistency, a grace day, mastery celebrations, and practical learning milestones. It encourages returning without punishing a missed day or rewarding activity that lacks learning value.
 _Avoid_: Endless streak, experience points, daily obligation
@@ -61,7 +109,7 @@ The durable local calendar record behind the learning-rhythm heatmaps. It counts
 _Avoid_: Session log, passive activity, telemetry
 
 **Daily Five**:
-The default daily goal of practising five learning items, taking due items first and then new saved items when capacity remains. Completing five is enough; continuing is optional, and an undersized queue may prompt a mini-lesson without starting one automatically.
+The single default daily goal of completing five high-value practice tasks across saved learning items and previously studied grammar patterns. Due work comes first, grammar initially occupies at most two positions so vocabulary practice remains protected, completing five is enough, and continuing is optional.
 _Avoid_: Clear-all-due target, daily quota, timed session
 
 **Meaningful chunk**:

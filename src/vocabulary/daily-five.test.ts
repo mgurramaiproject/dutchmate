@@ -71,6 +71,14 @@ describe("Daily Five scheduling", () => {
     current.recall = { ...createNewMastery(), state: "learning" };
     expect(getOverallMastery(current)).toBe("learning");
   });
+
+  it("keeps at least three vocabulary positions when grammar is eligible", () => {
+    const vocabulary = ["one", "two", "three", "four"].map((id, index) => item(id, index + 1));
+    const snapshot = createDailyFiveSnapshot(vocabulary, 10 * day, undefined, [{ kind: "grammar", patternId: "a0-zijn-present", contentVersion: 1, exerciseId: "zijn-choose-ik" }, { kind: "grammar", patternId: "a0-zijn-present", contentVersion: 1, exerciseId: "zijn-change-jij" }]);
+    expect(snapshot.tasks).toHaveLength(5);
+    expect(snapshot.tasks.filter((task) => "kind" in task)).toHaveLength(2);
+    expect(snapshot.tasks.filter((task) => !("kind" in task))).toHaveLength(3);
+  });
 });
 
 function item(dutch: string, createdAt: number): LearningItem {

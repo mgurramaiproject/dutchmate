@@ -6,7 +6,7 @@ Source roadmap: [002-learnloop-priority-roadmap.md](./002-learnloop-priority-roa
 
 Lesson contract: [002-learnloop-mini-lesson-pattern.md](./002-learnloop-mini-lesson-pattern.md)
 
-Deferred ideas: [002-learnloop-feature-parking-lot.md](./002-learnloop-feature-parking-lot.md)
+Deferred ideas: [feature-parking-lot.md](./feature-parking-lot.md)
 
 ## Problem Statement
 

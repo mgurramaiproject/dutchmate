@@ -5,7 +5,7 @@ Status: Consolidated research note for the approved Context Missions exploration
 Related artifacts:
 
 - [004-transfer plan](./004-transfer-plan.md)
-- [004-transfer parking lot](./004-transfer-parking-lot.md)
+- [consolidated feature parking lot](./feature-parking-lot.md)
 - [DutchMate domain language](../../CONTEXT.md)
 
 ## Purpose
@@ -288,7 +288,7 @@ This section is repo evidence and architectural inference, not external learning
 | AI-generated missions | Breaks the deterministic cost boundary and adds latency, privacy, prompt, quality, and failure-mode obligations. |
 | Mission history or popup destination | Optimizes activity and navigation before evidence shows that a short ephemeral exercise needs persistence. |
 
-The full revisit signals remain in [004-transfer-parking-lot.md](./004-transfer-parking-lot.md).
+The full revisit signals remain in the consolidated [feature-parking-lot.md](./feature-parking-lot.md).
 
 ## 14. Known evidence gaps and risks
 

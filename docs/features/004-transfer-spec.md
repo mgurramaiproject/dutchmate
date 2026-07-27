@@ -8,7 +8,7 @@ Research and rationale: [004-transfer-research.md](./004-transfer-research.md)
 
 Approved design: [Direction A · Context Slip](./004-transfer-design-mockups.html)
 
-Deferred ideas: [004-transfer-parking-lot.md](./004-transfer-parking-lot.md)
+Deferred ideas: [feature-parking-lot.md](./feature-parking-lot.md)
 
 ## Problem Statement
 

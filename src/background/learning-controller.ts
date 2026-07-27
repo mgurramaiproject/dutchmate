@@ -17,11 +17,20 @@ import {
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
   LEARNING_LESSON_PROGRESS_MESSAGE,
   LEARNING_SAVE_LESSON_PROGRESS_MESSAGE,
+  LEARNING_GRAMMAR_MESSAGE,
+  LEARNING_GRAMMAR_INTRODUCE_MESSAGE,
+  LEARNING_GRAMMAR_RESULT_MESSAGE,
 } from "./messages";
 import { lessonCatalog, validateLessonCatalog } from "../lessons/catalog";
+import { isGrammarContentAvailable } from "../grammar/content";
 
 export async function handleLearningMessage(message: LearningMessage, store: LearningRecordStore): Promise<LearningMessageResponse> {
   try {
+    const grammarMessage = message.type === LEARNING_GRAMMAR_MESSAGE || message.type === LEARNING_GRAMMAR_INTRODUCE_MESSAGE || message.type === LEARNING_GRAMMAR_RESULT_MESSAGE;
+    if (grammarMessage && !isGrammarContentAvailable()) return { ok: false, error: "Grammar practice is unavailable until bundled content is fixed." };
+    if (message.type === LEARNING_GRAMMAR_MESSAGE) return { ok: true, result: { grammar: await store.getGrammar() } };
+    if (message.type === LEARNING_GRAMMAR_INTRODUCE_MESSAGE) return { ok: true, result: { grammar: await store.introduceGrammar() } };
+    if (message.type === LEARNING_GRAMMAR_RESULT_MESSAGE) { const result = await store.recordGrammarCheck(message.payload.patternId, message.payload.contentVersion, message.payload.exerciseId, message.payload.answer, message.payload.expectedEvidenceRevision); return result.recorded ? { ok: true, result: { grammar: result.grammar } } : { ok: false, error: "This grammar result was already recorded." }; }
     const catalogErrors = validateLessonCatalog(lessonCatalog);
     if (catalogErrors.length > 0 && (message.type === LEARNING_LESSON_PROGRESS_MESSAGE || message.type === LEARNING_SAVE_LESSON_PROGRESS_MESSAGE || message.type === LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE)) return { ok: false, error: "Lessons are unavailable until bundled content is fixed." };
     if (message.type === LEARNING_LESSON_PROGRESS_MESSAGE) {

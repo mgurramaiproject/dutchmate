@@ -129,7 +129,7 @@ Refine scheduling, wording, lesson difficulty, and interaction only from observe
 - Mini-lessons share the same learning-item, mastery, review, and backup model as webpage captures.
 - Automatic suggestions, page highlighting, cloud sync, full gamification, social competition, sentence coaching, and pronunciation remain parked.
 
-Deferred ideas and their revisit signals live in [002-learnloop-feature-parking-lot.md](./002-learnloop-feature-parking-lot.md).
+Deferred ideas and their revisit signals live in the consolidated [feature-parking-lot.md](./feature-parking-lot.md).
 
 ## Artifact family
 

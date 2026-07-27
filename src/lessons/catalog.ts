@@ -3,10 +3,11 @@ export const LESSON_CATALOG_VERSION = 1;
 export type LessonLine = { dutch: string; english: string; telugu: string };
 export type LessonCandidate = { id: string; dutch: string; english: string; telugu: string; kind: "word" | "chunk" };
 export type LessonPracticePrompt = { candidateId: string; dimension: "recognition" | "recall" };
+export type GrammarCompanion = { id: "a0-zijn-present"; contentVersion: 1; patternId: "a0-zijn-present" };
 export type Lesson = {
   id: string; contentVersion: number; pathway: string; order: number; cefr: "A0" | "A1" | "A2"; title: string; durationMinutes: number;
   pattern: string; patternText: string; patternExplanation: string; lines: LessonLine[];
-  candidates: LessonCandidate[]; practice: LessonPracticePrompt[];
+  candidates: LessonCandidate[]; practice: LessonPracticePrompt[]; grammarCompanion?: GrammarCompanion;
   review: { dutch: true; english: true; telugu: true; cefr: true; cultural: true; practicalUse: true };
 };
 export type LessonCatalog = { version: typeof LESSON_CATALOG_VERSION; lessons: Lesson[] };
@@ -32,6 +33,7 @@ export const introductionLesson: Lesson = {
     { candidateId: "ik-woon", dimension: "recognition" }, { candidateId: "vlakbij", dimension: "recall" },
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  grammarCompanion: { id: "a0-zijn-present", contentVersion: 1, patternId: "a0-zijn-present" },
 };
 
 export const repetitionLesson: Lesson = {
