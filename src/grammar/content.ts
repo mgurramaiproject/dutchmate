@@ -197,7 +197,80 @@ export const hebbenPattern: GrammarPattern = {
   },
 };
 
-export const grammarPatterns: GrammarPattern[] = [zijnPattern, hebbenPattern];
+export const regularPattern: GrammarPattern = {
+  id: "a0-regular-present",
+  contentVersion: 1,
+  level: "A0",
+  capability: "Say what you do, where you live, and what you learn in simple present-tense sentences.",
+  prerequisites: ["a0-zijn-present"],
+  forms: [
+    { subject: "ik", forms: ["woon", "werk", "leer", "maak"] },
+    { subject: "jij/je", forms: ["woont", "werkt", "leert", "maakt"] },
+    { subject: "u", forms: ["woont", "werkt", "leert", "maakt"] },
+    { subject: "hij/zij/het", forms: ["woont", "werkt", "leert", "maakt"] },
+    { subject: "wij/we/jullie/zij/ze", forms: ["wonen", "werken", "leren", "maken"] },
+  ],
+  exercises: [
+    {
+      id: "regular-choose-ik", patternId: "a0-regular-present", primitive: "choose-form",
+      prompt: "Choose the form for ik.", context: "Ik ___ in Utrecht.", contextTag: "home", choices: ["woon", "woont", "wonen"], accepted: ["woon"],
+      distractors: [
+        { value: "woont", misconception: "wrong-person", feedback: "With ik, use the stem woon: ik woon in Utrecht." },
+        { value: "wonen", misconception: "wrong-person", feedback: "With ik, use the stem woon: ik woon in Utrecht." },
+      ],
+      feedback: "With ik, use the stem woon: ik woon in Utrecht.", evidenceEligible: true,
+    },
+    {
+      id: "regular-change-jij", patternId: "a0-regular-present", primitive: "change-subject",
+      prompt: "Change the subject to jij.", context: "Jij ___ in een team.", contextTag: "work", choices: ["werk", "werkt", "werken"], accepted: ["werkt"],
+      distractors: [
+        { value: "werk", misconception: "wrong-person", feedback: "With jij, add -t to the stem: jij werkt in een team." },
+        { value: "werken", misconception: "wrong-person", feedback: "With jij, use werkt, not the plural werken: jij werkt in een team." },
+      ],
+      feedback: "With jij, add -t to the stem: jij werkt in een team.", evidenceEligible: true,
+    },
+    {
+      id: "regular-contrast-u", patternId: "a0-regular-present", primitive: "contrast-form",
+      prompt: "Choose the polite form.", context: "U ___ Nederlands.", contextTag: "learning", choices: ["leer", "leert", "leren"], accepted: ["leert"],
+      distractors: [
+        { value: "leer", misconception: "wrong-person", feedback: "With u, add -t to the stem: u leert Nederlands." },
+        { value: "leren", misconception: "wrong-person", feedback: "With u, use the singular form leert, not the plural leren: u leert Nederlands." },
+      ],
+      feedback: "With u, add -t to the stem: u leert Nederlands.", evidenceEligible: true,
+    },
+    {
+      id: "regular-repair-wij", patternId: "a0-regular-present", primitive: "repair-choice",
+      prompt: "Repair the sentence.", context: "Wij ___ een plan.", contextTag: "plans", choices: ["maak", "maakt", "maken"], accepted: ["maken"],
+      distractors: [
+        { value: "maak", misconception: "wrong-person", feedback: "With wij, use the plural form maken: wij maken een plan." },
+        { value: "maakt", misconception: "wrong-person", feedback: "With wij, use the plural form maken, not maakt: wij maken een plan." },
+      ],
+      feedback: "With wij, use the plural form maken: wij maken een plan.", evidenceEligible: true,
+    },
+  ],
+  encounterForms: [
+    { subject: "ik", form: "woon" }, { subject: "ik", form: "werk" }, { subject: "ik", form: "leer" }, { subject: "ik", form: "maak" },
+    { subject: "jij", form: "woont" }, { subject: "jij", form: "werkt" }, { subject: "jij", form: "leert" }, { subject: "jij", form: "maakt" },
+    { subject: "je", form: "woont" }, { subject: "je", form: "werkt" }, { subject: "je", form: "leert" }, { subject: "je", form: "maakt" },
+    { subject: "u", form: "woont" }, { subject: "u", form: "werkt" }, { subject: "u", form: "leert" }, { subject: "u", form: "maakt" },
+    { subject: "hij", form: "woont" }, { subject: "hij", form: "werkt" }, { subject: "hij", form: "leert" }, { subject: "hij", form: "maakt" },
+    { subject: "zij", form: "woont" }, { subject: "zij", form: "werkt" }, { subject: "zij", form: "leert" }, { subject: "zij", form: "maakt" },
+    { subject: "het", form: "woont" }, { subject: "het", form: "werkt" }, { subject: "het", form: "leert" }, { subject: "het", form: "maakt" },
+    { subject: "wij", form: "wonen" }, { subject: "wij", form: "werken" }, { subject: "wij", form: "leren" }, { subject: "wij", form: "maken" },
+    { subject: "we", form: "wonen" }, { subject: "we", form: "werken" }, { subject: "we", form: "leren" }, { subject: "we", form: "maken" },
+    { subject: "jullie", form: "wonen" }, { subject: "jullie", form: "werken" }, { subject: "jullie", form: "leren" }, { subject: "jullie", form: "maken" },
+    { subject: "zij", form: "wonen" }, { subject: "zij", form: "werken" }, { subject: "zij", form: "leren" }, { subject: "zij", form: "maken" },
+    { subject: "ze", form: "wonen" }, { subject: "ze", form: "werken" }, { subject: "ze", form: "leren" }, { subject: "ze", form: "maken" },
+  ],
+  companionLessonId: "a0-ik-woon-en-werk-hier",
+  review: {
+    author: "DutchMate team", reviewState: "self-reviewed", reviewer: "DutchMate team", reviewedAt: "2026-07-27",
+    sources: ["https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/", "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/vervoeging.html"],
+    provenance: "Original DutchMate-authored examples using reviewed regular present-tense subject agreement; no copied sentence text.",
+  },
+};
+
+export const grammarPatterns: GrammarPattern[] = [zijnPattern, hebbenPattern, regularPattern];
 
 export function getGrammarPattern(patternId: GrammarPatternId): GrammarPattern | undefined { return grammarPatterns.find((pattern) => pattern.id === patternId); }
 

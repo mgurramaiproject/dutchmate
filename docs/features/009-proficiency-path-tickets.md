@@ -8,7 +8,7 @@ Source specification: [009-proficiency-path-spec.md](./009-proficiency-path-spec
 
 Approved prototype direction: [Paper Rail review prototype](../../frontend/009-proficiency-path-prototype.html)
 
-The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #84 is the current implementation slice; later tickets remain blocked by their listed dependencies.
+The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #85 is the current implementation slice; later tickets remain blocked by their listed dependencies.
 
 ## Delivery rules
 
@@ -30,7 +30,7 @@ The canonical tracker records live issue state. This checked-in document mirrors
              └──> #86 ──┘
 ```
 
-`#84` is the current frontier after #83 delivery completion. #85 and #86 become parallel frontiers after #83. #89 is a human validation gate and cannot be satisfied by automated tests alone.
+`#85` is the current frontier after #84 delivery completion. #86 remains a parallel frontier after #83. #89 is a human validation gate and cannot be satisfied by automated tests alone.
 
 ## T01 — Prove the `a0-zijn-present` tracer
 
@@ -91,13 +91,13 @@ GitHub: [#85](https://github.com/mgurramaiproject/dutchmate/issues/85)
 
 **What to build:** Add the new `A0 · Ik woon en werk hier` lesson and teach reviewed present-tense agreement for a small useful regular-verb inventory.
 
-- [ ] Stable lesson `a0-ik-woon-en-werk-hier` and pattern `a0-regular-present` use the existing focused lesson flow.
-- [ ] Reviewed content covers verbs such as `wonen`, `werken`, `leren`, and `maken` in subject-first main clauses.
-- [ ] Click-only practice includes subject changes, varied contexts, finite answers, stable misconception categories, exact feedback, and honest first-Check evidence.
-- [ ] Due practice participates in mixed Daily Five without altering vocabulary mastery or protected positions.
-- [ ] Exact reviewed subject-plus-form pairs can trigger Encounter Coaching only for an Introduced pattern, with no extra provider request or raw text persistence.
-- [ ] Every authored or safely expanded combination appears in validation and the human-readable report.
-- [ ] Existing lessons, progress, saved candidates, `zijn`, and `hebben` remain unchanged.
+- [x] Stable lesson `a0-ik-woon-en-werk-hier` and pattern `a0-regular-present` use the existing focused lesson flow. (`src/lessons/catalog.ts`, `src/grammar/content.ts`, `src/popup/index.ts`, `src/popup/index.test.ts`)
+- [x] Reviewed content covers verbs such as `wonen`, `werken`, `leren`, and `maken` in subject-first main clauses. (`src/lessons/catalog.ts`, `src/lessons/catalog.test.ts`, `src/grammar/content.ts`, `src/grammar/content.test.ts`)
+- [x] Click-only practice includes subject changes, varied contexts, finite answers, stable misconception categories, exact feedback, and honest first-Check evidence. (`src/grammar/content.ts`, `src/grammar/content.test.ts`, `src/grammar/learning.ts`, `src/grammar/learning.test.ts`, `src/background/message-handler.test.ts`)
+- [x] Due practice participates in mixed Daily Five without altering vocabulary mastery or protected positions. (`src/vocabulary/daily-five.ts`, `src/vocabulary/daily-five.test.ts`, `src/vocabulary/learning-record.ts`, `src/vocabulary/learning-record.test.ts`)
+- [x] Exact reviewed subject-plus-form pairs can trigger Encounter Coaching only for an Introduced pattern, with no extra provider request or raw text persistence. (`src/grammar/content.ts`, `src/grammar/content.test.ts`, `src/content/webpage-lookup-module.ts`, `src/content/webpage-lookup-module.test.ts`, `src/content/tooltip-view-adapter.ts`)
+- [x] Every authored or safely expanded combination appears in validation and the human-readable report. (`src/grammar/content.ts`, `src/grammar/content.test.ts`, `src/lessons/catalog.ts`, `src/lessons/catalog.test.ts`)
+- [x] Existing lessons, progress, saved candidates, `zijn`, and `hebben` remain unchanged. (`src/popup/index.test.ts`, `src/vocabulary/learning-record.test.ts`, `src/background/message-handler.test.ts`)
 
 ## T05 — Teach `a0-yes-no-inversion` end to end
 

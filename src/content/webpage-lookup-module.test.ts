@@ -72,6 +72,22 @@ describe("WebpageLookupModule", () => {
     expect(events).toContainEqual({ type: "render-grammar-encounter", encounter: { patternId: "a0-hebben-present", subject: "u", form: "heeft" } });
   });
 
+  it("offers an introduced exact regular-present encounter through the same lookup seam", async () => {
+    const events: unknown[] = [];
+    const grammar: GrammarRecord = { patternId: "a0-regular-present", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, dueAt: 2, intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 };
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({ getGrammar: async (patternId) => ({ ok: true, result: { grammar: patternId === "a0-regular-present" ? grammar : null } }) }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "jij werkt", context: "hover", x: 1, y: 1, sourceLanguageHint: "nl" });
+
+    expect(events).toContainEqual(expect.objectContaining({ type: "render-result", grammarEncounter: { patternId: "a0-regular-present", subject: "jij", form: "werkt" } }));
+  });
+
   it("offers a saved selection locally before contacting the translation provider", async () => {
     const translate = vi.fn(createTransport().translate);
     const events: unknown[] = [];

@@ -84,6 +84,11 @@ describe("Daily Five scheduling", () => {
     const snapshot = createDailyFiveSnapshot([], 10 * day, undefined, [{ kind: "grammar", patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik" }]);
     expect(snapshot.tasks).toEqual([{ kind: "grammar", patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik" }]);
   });
+
+  it("accepts due regular-present practice as a grammar position", () => {
+    const snapshot = createDailyFiveSnapshot([], 10 * day, undefined, [{ kind: "grammar", patternId: "a0-regular-present", contentVersion: 1, exerciseId: "regular-choose-ik" }]);
+    expect(snapshot.tasks).toEqual([{ kind: "grammar", patternId: "a0-regular-present", contentVersion: 1, exerciseId: "regular-choose-ik" }]);
+  });
 });
 
 function item(dutch: string, createdAt: number): LearningItem {

@@ -130,6 +130,18 @@ describe("createBackgroundMessageHandler", () => {
     await expect(send(handleMessage, { type: LEARNING_GRAMMAR_MESSAGE, payload: { patternId: "a0-hebben-present" } })).resolves.toMatchObject({ ok: true, result: { grammar: { patternId: "a0-hebben-present", successfulEvidenceCount: 1 } } });
   });
 
+  it("routes typed regular-present introduction and evidence through the background boundary", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => now);
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary: new SavedVocabularyStore(storage), reviewCards: new ReviewCardStore(new SavedVocabularyStore(storage), storage), learningRecords: records, refreshBadge: async () => undefined });
+
+    await expect(send(handleMessage, { type: LEARNING_GRAMMAR_INTRODUCE_MESSAGE, payload: { patternId: "a0-regular-present" } })).resolves.toMatchObject({ ok: true, result: { grammar: { patternId: "a0-regular-present" } } });
+    now = new Date(2026, 0, 2, 9).getTime();
+    await expect(send(handleMessage, { type: LEARNING_DAILY_FIVE_MESSAGE })).resolves.toMatchObject({ ok: true, result: { snapshot: { tasks: [{ patternId: "a0-regular-present", exerciseId: "regular-choose-ik" }] } } });
+    await expect(send(handleMessage, { type: LEARNING_GRAMMAR_RESULT_MESSAGE, payload: { patternId: "a0-regular-present", contentVersion: 1, exerciseId: "regular-choose-ik", answer: "woon", expectedEvidenceRevision: 0, dailyFive: true } })).resolves.toMatchObject({ ok: true, result: { grammar: { successfulEvidenceCount: 1 } } });
+  });
+
   it("keeps selected lesson candidates atomically with lesson provenance", async () => {
     const storage = new MemoryStorage();
     const records = new LearningRecordStore(storage, () => 1_000);
