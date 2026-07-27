@@ -29,7 +29,7 @@ describe("LearningRecordStore", () => {
     await records.createOrMerge({ dutch: "goede morgen", telugu: "శుభోదయం", source: "lesson", context: "Goede morgen, buur!" });
     const backup = await records.exportBackup();
 
-    expect(backup.version).toBe(2);
+    expect(backup.version).toBe(3);
     expect(backup.learningItems[0]).toMatchObject({
       id: "nl\u001fgoede morgen",
       kind: "chunk",
@@ -324,6 +324,89 @@ describe("LearningRecordStore", () => {
     await localLegacy.importBackup(legacyBackup);
     await localLegacy.importBackup(completeBackup);
     await expect(localLegacy.getRhythm()).resolves.toMatchObject({ activity: expect.arrayContaining([{ dayStartAt: day, reviews: 3, saved: 1, lessons: 1 }]) });
+  });
+
+  it("exports and restores grammar evidence plus the mixed Daily Five snapshot", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const source = new LearningRecordStore(new MemoryStorage(), () => now);
+    await source.introduceGrammar();
+    await source.recordGrammarCheck("a0-zijn-present", 1, "zijn-choose-ik", "ben", 0);
+    now = new Date(2026, 0, 2, 9).getTime();
+    const snapshot = await source.getDailyFive();
+    expect(snapshot.tasks).toEqual([{ kind: "grammar", patternId: "a0-zijn-present", contentVersion: 1, exerciseId: "zijn-change-jij" }]);
+    const backup = await source.exportBackup();
+    expect(backup).toMatchObject({ version: 3, grammar: { "a0-zijn-present": { successfulEvidenceCount: 1 } }, rhythm: { dailyFive: snapshot } });
+
+    const restored = new LearningRecordStore(new MemoryStorage(), () => now);
+    await restored.importBackup(backup);
+    await expect(restored.getGrammar()).resolves.toMatchObject({ successfulEvidenceCount: 1, misconceptionCounts: {} });
+    await expect(restored.getDailyFive()).resolves.toEqual(snapshot);
+  });
+
+  it("imports version 2 without grammar and merges compatible grammar summaries conservatively", async () => {
+    const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await source.introduceGrammar();
+    const backup = await source.exportBackup();
+    const legacy = { ...backup, version: 2 as const, grammar: undefined };
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await restored.importBackup(legacy);
+    await expect(restored.getGrammar()).resolves.toBeNull();
+    await restored.importBackup(backup);
+    await expect(restored.getGrammar()).resolves.toMatchObject({ state: "introduced", dueAt: backup.grammar["a0-zijn-present"].dueAt });
+  });
+
+  it("resumes and completes a grammar position in the persisted mixed snapshot", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const records = new LearningRecordStore(new MemoryStorage(), () => now);
+    await records.introduceGrammar();
+    now = new Date(2026, 0, 2, 9).getTime();
+    const snapshot = await records.getDailyFive();
+    const result = await records.recordGrammarDailyFiveResult("zijn-choose-ik", "ben", 0);
+    expect(result.snapshot.completedTaskIds).toEqual(["a0-zijn-present\u001fzijn-choose-ik"]);
+    await expect(records.getDailyFive()).resolves.toEqual(result.snapshot);
+    expect(JSON.stringify(snapshot)).not.toContain("bent");
+  });
+
+  it("preserves all published lesson progress and saved-item mastery through version 3 round trip", async () => {
+    const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await source.createOrMerge({ dutch: "huis", english: "house" });
+    const item = (await source.list())[0];
+    await source.recordMissionResult(item.id, "recognition", "got-it", 0);
+    for (const lessonId of ["a0-hallo-ik-ben", "a1-kunt-u-dat-herhalen", "a1-ik-wil-graag-bestellen", "a1-kan-ik-met-pin-betalen", "a1-waar-moet-ik-overstappen", "a1-mijn-trein-is-vertraagd", "a1-een-afspraak-maken", "a1-ik-heb-last-van", "a1-er-is-iets-kapot", "a1-ik-ben-beschikbaar-op", "a1-wat-moet-ik-meenemen", "a2-wat-staat-er-in-deze-brief"]) await source.saveLessonProgress(lessonId, 1, "replay");
+    const backup = await source.exportBackup();
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    await restored.importBackup(backup);
+    await expect(restored.list()).resolves.toEqual([expect.objectContaining({ dutch: "huis", recognition: expect.objectContaining({ attemptCount: 1 }) })]);
+    const progress = await Promise.all(["a0-hallo-ik-ben", "a1-kunt-u-dat-herhalen", "a1-ik-wil-graag-bestellen", "a1-kan-ik-met-pin-betalen", "a1-waar-moet-ik-overstappen", "a1-mijn-trein-is-vertraagd", "a1-een-afspraak-maken", "a1-ik-heb-last-van", "a1-er-is-iets-kapot", "a1-ik-ben-beschikbaar-op", "a1-wat-moet-ik-meenemen", "a2-wat-staat-er-in-deze-brief"].map((lessonId) => restored.getLessonProgress(lessonId, 1)));
+    expect(progress.every((entry) => entry?.stage === "replay")).toBe(true);
+  });
+
+  it("awards Applied only when merged summaries prove four distinct exercises", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const first = new LearningRecordStore(new MemoryStorage(), () => now);
+    await first.introduceGrammar();
+    await first.recordGrammarCheck("a0-zijn-present", 1, "zijn-choose-ik", "ben", 0);
+    now = new Date(2026, 0, 3, 9).getTime();
+    await first.recordGrammarCheck("a0-zijn-present", 1, "zijn-change-jij", "bent", 1);
+    now = new Date(2026, 0, 1, 9).getTime();
+    const second = new LearningRecordStore(new MemoryStorage(), () => now);
+    await second.introduceGrammar();
+    await second.recordGrammarCheck("a0-zijn-present", 1, "zijn-contrast-u", "bent", 0);
+    now = new Date(2026, 0, 3, 9).getTime();
+    await second.recordGrammarCheck("a0-zijn-present", 1, "zijn-repair-zij", "is", 1);
+
+    const restored = new LearningRecordStore(new MemoryStorage(), () => now);
+    await restored.importBackup(await first.exportBackup());
+    await restored.importBackup(await second.exportBackup());
+    await expect(restored.getGrammar()).resolves.toMatchObject({ state: "applied", successfulEvidenceCount: 4, successfulExerciseIds: ["zijn-choose-ik", "zijn-change-jij", "zijn-contrast-u", "zijn-repair-zij"] });
+  });
+
+  it("rejects a version 3 grammar record that omits durable distinct-evidence identities", async () => {
+    const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await source.introduceGrammar();
+    const invalid = await source.exportBackup();
+    delete (invalid.grammar["a0-zijn-present"] as unknown as Record<string, unknown>).successfulExerciseIds;
+    expect(() => parseLearningBackup(invalid)).toThrow("invalid grammar evidence");
   });
 });
 

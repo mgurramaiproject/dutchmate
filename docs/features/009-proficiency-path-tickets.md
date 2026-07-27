@@ -8,7 +8,7 @@ Source specification: [009-proficiency-path-spec.md](./009-proficiency-path-spec
 
 Approved prototype direction: [Paper Rail review prototype](../../frontend/009-proficiency-path-prototype.html)
 
-The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #82 is currently ready; later tickets remain blocked by their listed dependencies.
+The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #83 is the current implementation slice; later tickets remain blocked by their listed dependencies.
 
 ## Delivery rules
 
@@ -30,7 +30,7 @@ The canonical tracker records live issue state. This checked-in document mirrors
              └──> #86 ──┘
 ```
 
-`#82` is the current frontier. #84, #85, and #86 become parallel frontiers after #83. #89 is a human validation gate and cannot be satisfied by automated tests alone.
+`#83` is the current frontier after #82 delivery completion. #84, #85, and #86 become parallel frontiers after #83. #89 is a human validation gate and cannot be satisfied by automated tests alone.
 
 ## T01 — Prove the `a0-zijn-present` tracer
 
@@ -57,14 +57,14 @@ GitHub: [#83](https://github.com/mgurramaiproject/dutchmate/issues/83)
 
 **What to build:** Make the tracer portable, migration-safe, schedulable, and linguistically reviewable before adding more patterns.
 
-- [ ] Applied thresholds, local-day scheduling, delayed unseen/recombined evidence, bounded misconception counters, capped recent identities, and continued due practice are implemented.
-- [ ] Typed result submission is idempotent and rejects stale, duplicated, unknown, or incompatible evidence without fabricating progress.
-- [ ] The mixed Daily Five snapshot resumes task identities and completed positions without persisting unfinished token or answer arrangements.
-- [ ] Backup version 3 is atomic, imports versions 1 and 2, exports grammar evidence and the mixed snapshot, merges conservatively, and clears grammar data.
-- [ ] Migration and round-trip tests preserve all twelve lesson records, saved items, and vocabulary mastery unchanged.
-- [ ] The bundled validator covers stable identities, links, finite alternatives, misconception distractors, exact feedback, supported primitives, review metadata, sources, and provenance.
-- [ ] Invalid grammar content disables grammar surfaces safely while translation, saved vocabulary, and existing lessons remain available.
-- [ ] A deterministic human-readable tracer content report is generated and tested.
+- [x] Applied thresholds, local-day scheduling, delayed unseen/recombined evidence, bounded misconception counters, capped recent identities, and continued due practice are implemented. (`src/grammar/learning.ts`, `src/grammar/learning.test.ts`)
+- [x] Typed result submission is idempotent and rejects stale, duplicated, unknown, or incompatible evidence without fabricating progress. (`src/background/messages.ts`, `src/background/learning-controller.ts`, `src/vocabulary/learning-record.ts`)
+- [x] The mixed Daily Five snapshot resumes task identities and completed positions without persisting unfinished token or answer arrangements. (`src/vocabulary/daily-five.ts`, `src/vocabulary/learning-record.ts`, `src/vocabulary/learning-record.test.ts`)
+- [x] Backup version 3 is atomic, imports versions 1 and 2, exports grammar evidence and the mixed snapshot, merges conservatively, and clears grammar data. (`src/vocabulary/learning-record.ts`, `src/vocabulary/learning-record.test.ts`)
+- [x] Migration and round-trip tests preserve all twelve lesson records, saved items, and vocabulary mastery unchanged. (`src/vocabulary/learning-record.test.ts`)
+- [x] The bundled validator covers stable identities, links, finite alternatives, misconception distractors, exact feedback, supported primitives, review metadata, sources, and provenance. (`src/grammar/content.ts`, `src/grammar/content.test.ts`)
+- [x] Invalid grammar content disables grammar surfaces safely while translation, saved vocabulary, and existing lessons remain available. (`src/background/learning-controller.ts`, `src/vocabulary/learning-record.ts`)
+- [x] A deterministic human-readable tracer content report is generated and tested. (`src/grammar/content.ts`, `src/grammar/content.test.ts`)
 
 ## T03 — Teach `a0-hebben-present` end to end
 

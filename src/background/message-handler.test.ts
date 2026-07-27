@@ -40,7 +40,7 @@ describe("createBackgroundMessageHandler", () => {
     });
     await expect(send(handleMessage, { type: LEARNING_CREATE_OR_MERGE_MESSAGE, payload: { dutch: "goedemorgen", english: "good morning", source: "webpage" } })).resolves.toMatchObject({ ok: true, result: { item: { id: "nl\u001fgoedemorgen", createdAt: 1_000 } } });
     const exported = await send(handleMessage, { type: LEARNING_EXPORT_MESSAGE });
-    expect(exported).toMatchObject({ ok: true, result: { backup: { version: 2, learningItems: [expect.objectContaining({ english: "good morning" })] } } });
+    expect(exported).toMatchObject({ ok: true, result: { backup: { version: 3, learningItems: [expect.objectContaining({ english: "good morning" })], grammar: {} } } });
     const versionOne = createVocabularyBackup([{ id: "nl\u001fboom", dutch: "boom", english: "tree", telugu: null, pageContext: null, createdAt: 1, updatedAt: 1, dueAt: null, lastReviewedAt: null, lastRating: null, reviewCount: 0 }], 1_000);
     await expect(send(handleMessage, { type: LEARNING_IMPORT_MESSAGE, payload: { document: JSON.stringify(versionOne) } })).resolves.toMatchObject({ ok: true, result: { importedCount: 1, totalCount: 2 } });
   });
