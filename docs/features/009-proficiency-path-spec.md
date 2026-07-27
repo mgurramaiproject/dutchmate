@@ -341,6 +341,15 @@ Ticketing should use tracer-bullet vertical slices rather than horizontal infras
 
 Implementation must not begin as one broad feature branch change directly from this specification. Use independently deliverable child issues produced from this parent specification.
 
+### Approved prototype direction
+
+The design review selected **A · Paper Rail** as the primary learner-facing direction. It keeps the approved DutchMate popup shell and makes the existing `Read → Notice → Practise → Keep` lesson rail the main grammar orientation cue. The implementation should borrow two constrained details from the other prototype directions without creating new learner-facing modes:
+
+- From **C · Today Queue**: expose grammar as one clearly labelled item inside the existing Daily Five queue, never as a second daily queue, grammar-only streak, or new top-level tab.
+- From **B · Pattern Spine**: use token ordering only for exercises whose declared primitive is `order-tokens`; it is an exercise control, not a new “Sentence Forge” destination.
+
+The review prototype is [009 proficiency-path prototype](../../frontend/009-proficiency-path-prototype.html). It is throwaway visual reference only and must not be shipped as an extension entrypoint. This decision authorizes the next specification-to-ticketing step; it does not authorize implementation before child execution issues exist.
+
 ### Source and authority
 
 - [DutchMate domain glossary](../../CONTEXT.md)

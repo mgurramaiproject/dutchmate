@@ -1,0 +1,155 @@
+<!doctype html>
+<!-- THROWAWAY PROTOTYPE: 009 proficiency path visual directions. Not an extension entrypoint. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DutchMate · Proficiency Path prototype</title>
+    <style>
+      :root { --black:#000; --white:#fff; --orange:#ff6f00; --soft:rgba(255,111,0,.1); --muted:rgba(0,0,0,.62); --line:rgba(0,0,0,.18); --serif:Iowan Old Style,"Palatino Linotype","Book Antiqua",Georgia,"Times New Roman",serif; --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+      * { box-sizing:border-box; }
+      body { margin:0; min-height:100vh; background:#f2f0ed; color:var(--black); font-family:var(--sans); }
+      button { font:inherit; cursor:pointer; }
+      .page { display:grid; grid-template-columns:minmax(260px,1fr) 390px minmax(260px,1fr); gap:28px; align-items:start; width:min(1180px,calc(100% - 32px)); margin:0 auto; padding:44px 0 100px; }
+      .notes { padding-top:10px; }
+      .notes h1 { margin:0 0 14px; font-family:var(--serif); font-size:clamp(2.4rem,5vw,4.5rem); line-height:.95; }
+      .notes p { max-width:310px; margin:0 0 22px; color:var(--muted); font-family:var(--serif); font-size:1.02rem; line-height:1.5; }
+      .notes dl { display:grid; gap:14px; margin:0; }
+      .notes dt { color:var(--orange); font-size:.68rem; font-weight:900; letter-spacing:.07em; text-transform:uppercase; }
+      .notes dd { margin:3px 0 0; font-size:.78rem; line-height:1.4; }
+      .mockup { position:relative; width:390px; height:600px; overflow:hidden; border:1px solid var(--black); border-radius:8px; background:var(--white); box-shadow:0 20px 50px rgba(0,0,0,.16); }
+      .dm-header { display:flex; align-items:center; justify-content:space-between; min-height:58px; padding:12px 16px; border-bottom:1px solid var(--line); font-weight:850; }
+      .brand { display:flex; align-items:center; gap:9px; }
+      .brand-mark { width:29px; height:29px; border-radius:6px; background:var(--orange); display:grid; place-items:center; font-weight:950; }
+      .header-actions { display:flex; align-items:center; gap:12px; color:var(--muted); font-size:.67rem; }
+      .due { display:grid; place-items:center; width:24px; height:24px; border-radius:50%; background:var(--orange); color:var(--black); font-size:.72rem; }
+      .tabs { display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid var(--black); }
+      .tab { min-height:44px; border:0; border-right:1px solid var(--black); background:var(--white); font-size:.68rem; font-weight:900; letter-spacing:.05em; text-transform:uppercase; }
+      .tab:last-child { border-right:0; }
+      .tab.active { background:var(--black); color:var(--white); }
+      .content { height:498px; overflow:auto; padding:16px; }
+      .eyebrow { margin:0; color:var(--orange); font-size:.66rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+      h2,h3 { margin:0; font-family:var(--serif); line-height:1.05; }
+      h2 { font-size:1.7rem; }
+      h3 { font-size:1.25rem; }
+      .muted { color:var(--muted); font-size:.74rem; line-height:1.4; }
+      .button { width:100%; min-height:48px; border:1px solid var(--black); border-radius:8px; background:var(--white); color:var(--black); font-size:.82rem; font-weight:850; }
+      .button.primary { background:var(--orange); }
+      .button:hover,.button:focus-visible { background:var(--black); color:var(--white); }
+      .button.primary:hover,.button.primary:focus-visible { background:var(--black); }
+      .rail { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin:0 0 16px; }
+      .rail span { padding:7px 2px; border:1px solid var(--black); font-size:.56rem; font-weight:900; text-align:center; text-transform:uppercase; }
+      .rail .active { background:var(--black); color:var(--white); }
+      .progress { display:flex; gap:4px; margin:9px 0 16px; }
+      .progress i { height:4px; flex:1; background:rgba(0,0,0,.13); }
+      .progress i.on { background:var(--orange); }
+      .rule-card { display:grid; gap:12px; margin-top:14px; padding:14px; border:1px solid var(--black); border-top:5px solid var(--orange); border-radius:8px; }
+      .rule-card .rule { font-family:var(--serif); font-size:1.12rem; line-height:1.35; }
+      .rule-card .rule mark { padding:1px 3px; background:var(--orange); }
+      .context { margin:0; padding-left:10px; border-left:3px solid var(--orange); font-family:var(--serif); font-size:.88rem; line-height:1.4; }
+      .choices { display:grid; gap:7px; margin-top:12px; }
+      .choice { display:flex; align-items:center; justify-content:space-between; min-height:48px; padding:0 11px; border:1px solid var(--line); border-radius:8px; background:var(--white); text-align:left; }
+      .choice:hover,.choice:focus-visible,.choice.selected { border-color:var(--orange); background:var(--soft); }
+      .choice strong { font-family:var(--serif); font-size:1rem; }
+      .choice small { color:var(--muted); font-size:.62rem; }
+      .footer-action { margin-top:14px; }
+      /* Variant B intentionally removes the stage-card hierarchy: one decisive prompt and a visible pattern spine. */
+      .variant-b .content { padding:0; }
+      .pattern-spine { display:flex; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--black); }
+      .pattern-spine span { display:grid; gap:4px; color:var(--muted); font-size:.58rem; font-weight:900; letter-spacing:.04em; text-align:center; text-transform:uppercase; }
+      .pattern-spine b { display:grid; place-items:center; width:30px; height:30px; margin:auto; border:1px solid var(--black); border-radius:50%; font-size:.72rem; }
+      .pattern-spine .active { color:var(--black); }
+      .pattern-spine .active b { background:var(--orange); border-color:var(--orange); }
+      .forge { display:grid; gap:18px; padding:25px 20px; }
+      .forge-title { display:grid; gap:7px; }
+      .prompt { font-family:var(--serif); font-size:1.9rem; line-height:1.06; }
+      .prompt em { color:var(--orange); font-style:normal; }
+      .answer-tray { display:grid; gap:8px; padding:12px; border:1px dashed var(--black); border-radius:8px; background:#faf9f7; }
+      .answer-tray p { margin:0; color:var(--muted); font-size:.62rem; font-weight:850; text-transform:uppercase; }
+      .token-row { display:flex; flex-wrap:wrap; gap:6px; min-height:42px; padding:3px 0; }
+      .token { min-height:36px; padding:5px 9px; border:1px solid var(--black); border-radius:6px; background:var(--white); font-family:var(--serif); font-size:.93rem; }
+      .token.active { background:var(--orange); }
+      .contrast { display:grid; gap:8px; padding:12px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+      .contrast-row { display:flex; align-items:center; justify-content:space-between; gap:8px; font-family:var(--serif); font-size:.92rem; }
+      .contrast-row span { color:var(--muted); font-family:var(--sans); font-size:.64rem; }
+      .variant-b .footer-action { margin-top:0; }
+      /* Variant C prioritises Today and makes grammar one small, unmistakable item in the existing daily habit. */
+      .variant-c .content { padding:12px; }
+      .today-intro { display:grid; gap:7px; padding:7px 0 14px; }
+      .today-intro h2 { font-size:2rem; }
+      .week { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:12px; }
+      .day { display:grid; place-items:center; min-height:43px; border-radius:8px; background:var(--soft); color:var(--muted); font-size:.56rem; font-weight:900; }
+      .day.done { background:rgba(255,111,0,.36); color:var(--black); }
+      .day.today { background:var(--orange); color:var(--black); box-shadow:inset 0 0 0 2px var(--black); }
+      .queue { display:grid; gap:0; border-top:3px solid var(--black); }
+      .queue-head { display:flex; justify-content:space-between; align-items:baseline; padding:9px 0 5px; }
+      .queue-head strong { font-family:var(--serif); font-size:1.15rem; }
+      .queue-head span { color:var(--muted); font-size:.64rem; font-weight:800; }
+      .queue-item { display:grid; grid-template-columns:26px minmax(0,1fr) auto; gap:8px; align-items:center; min-height:58px; padding:7px 4px; border-top:1px solid var(--line); }
+      .queue-item.current { margin:0 -4px; padding-inline:8px; border:1px solid var(--black); border-left:5px solid var(--orange); border-radius:8px; }
+      .queue-num { font-family:var(--serif); font-size:1.1rem; }
+      .queue-copy { display:grid; gap:2px; min-width:0; }
+      .queue-copy strong { overflow:hidden; font-family:var(--serif); font-size:.89rem; text-overflow:ellipsis; white-space:nowrap; }
+      .queue-copy small { color:var(--muted); font-size:.6rem; }
+      .queue-state { color:var(--muted); font-size:.58rem; font-weight:900; }
+      .queue-item.current .queue-state { color:var(--black); }
+      .queue-action { margin-top:12px; }
+      .switcher { position:fixed; left:50%; bottom:22px; z-index:5; display:flex; align-items:center; gap:10px; transform:translateX(-50%); padding:8px 10px; border:1px solid var(--black); border-radius:999px; background:var(--black); color:var(--white); box-shadow:0 8px 24px rgba(0,0,0,.25); font-size:.7rem; }
+      .switcher button { display:grid; place-items:center; width:32px; height:32px; border:1px solid rgba(255,255,255,.45); border-radius:50%; background:transparent; color:var(--white); }
+      .switcher button:hover,.switcher button:focus-visible { border-color:var(--orange); background:var(--orange); color:var(--black); }
+      .switcher-label { min-width:190px; text-align:center; font-weight:850; }
+      .switcher-label small { display:block; color:rgba(255,255,255,.68); font-size:.58rem; font-weight:600; }
+      @media (max-width:900px) { .page { grid-template-columns:1fr; justify-items:center; } .notes { width:min(390px,100%); order:2; } .mockup { order:1; } }
+      @media (prefers-reduced-motion:reduce) { *,*::before,*::after { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <aside class="notes">
+        <p class="eyebrow">THROWAWAY PROTOTYPE · 009</p>
+        <h1>Three ways to make grammar feel useful.</h1>
+        <p>Compare the same A0 grammar companion in the DutchMate editorial shell. Click-only practice, one next action, and an honest progress signal are shown in each direction.</p>
+        <dl id="variant-notes"></dl>
+      </aside>
+      <section id="mockup" class="mockup" aria-label="DutchMate proficiency path prototype"></section>
+      <aside class="notes">
+        <p class="eyebrow">What stays fixed</p>
+        <dl>
+          <div><dt>Scope</dt><dd>A0 foundation first; existing 12 lessons remain intact.</dd></div>
+          <div><dt>Practice</dt><dd>Choose a form, contrast forms, or arrange tokens. No typing or drag-and-drop.</dd></div>
+          <div><dt>Evidence</dt><dd>First-check results feed pattern progress; exposure alone does not.</dd></div>
+          <div><dt>Privacy</dt><dd>Encounter coaching uses only the learner-triggered lookup text and stores no page text.</dd></div>
+        </dl>
+      </aside>
+    </main>
+    <nav class="switcher" aria-label="Prototype variants">
+      <button id="previous" type="button" aria-label="Previous variant">←</button>
+      <span id="switcher-label" class="switcher-label"></span>
+      <button id="next" type="button" aria-label="Next variant">→</button>
+    </nav>
+    <script>
+      const variants = {
+        paper: { name: 'A · Paper Rail', note: 'Faithful to the approved lesson flow: the stage rail explains where the learner is, while a single rule card turns “Notice” into a useful click-only check.' },
+        pattern: { name: 'B · Pattern Spine', note: 'A more playful, focused practice room: the learner manipulates a sentence pattern without adding a new learner-facing mode or changing the underlying lesson stages.' },
+        today: { name: 'C · Today Queue', note: 'The smallest product change: grammar is one clearly labelled item in Daily Five, protecting the existing vocabulary habit and avoiding a new tab or button.' }
+      };
+      const order = Object.keys(variants);
+      const qs = new URLSearchParams(location.search);
+      let current = order.includes(qs.get('variant')) ? qs.get('variant') : 'paper';
+      const mockup = document.querySelector('#mockup');
+      const notes = document.querySelector('#variant-notes');
+      const label = document.querySelector('#switcher-label');
+      function header() { return '<header class="dm-header"><div class="brand"><span class="brand-mark">D</span><span>DutchMate</span></div><div class="header-actions"><span class="due">3</span><span>Settings</span></div></header>'; }
+      function tabs(active) { return '<nav class="tabs"><button class="tab ' + (active === 'today' ? 'active' : '') + '">Today</button><button class="tab ' + (active === 'lessons' ? 'active' : '') + '">Lessons</button><button class="tab">Saved</button></nav>'; }
+      function paper() { return '<div class="variant-a">' + header() + tabs('lessons') + '<div class="content"><div class="rail"><span>1 Read</span><span class="active">2 Notice</span><span>3 Practise</span><span>4 Keep</span></div><p class="eyebrow">A0 · Notice · 2 of 4</p><h2>Ik ben hier.</h2><p class="muted">Notice the small change when the subject changes. Choose the form that completes the sentence.</p><div class="rule-card"><p class="context">“Hallo, ik … Noor. Ik … hier.”</p><p class="rule"><mark>ik ben</mark> · <mark>jij bent</mark> · <mark>u bent</mark></p><div class="choices"><button class="choice selected"><strong>ben</strong><small>ik</small></button><button class="choice"><strong>bent</strong><small>jij / u</small></button><button class="choice"><strong>is</strong><small>hij / zij / het</small></button></div></div><div class="progress"><i class="on"></i><i class="on"></i><i></i><i></i></div><div class="footer-action"><button class="button primary">Check answer</button></div></div></div>'; }
+      function pattern() { return '<div class="variant-b">' + header() + '<div class="pattern-spine"><span class="active"><b>1</b>See</span><span class="active"><b>2</b>Change</span><span><b>3</b>Build</span><span><b>4</b>Keep</span></div><div class="content"><div class="forge"><div class="forge-title"><p class="eyebrow">A0 · Change subject</p><h2 class="prompt">Make it about <em>jij</em>.</h2><p class="muted">Click the words in the order you would say them. The sentence stays short on purpose.</p></div><div class="answer-tray"><p>Your sentence</p><div class="token-row"><button class="token active">bent</button><button class="token">jij</button><button class="token">hier</button></div></div><div class="contrast"><div class="contrast-row"><strong>ik ben hier.</strong><span>already seen</span></div><div class="contrast-row"><strong>jij bent hier.</strong><span>your turn</span></div><div class="contrast-row"><strong>u bent hier.</strong><span>polite form</span></div></div><div class="progress"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><div class="footer-action"><button class="button primary">Check sentence</button></div></div></div></div>'; }
+      function today() { return '<div class="variant-c">' + header() + tabs('today') + '<div class="content"><div class="today-intro"><p class="eyebrow">Monday · Today</p><h2>Five small wins.</h2><p class="muted">Your next useful action is ready. Grammar is one short part of the same daily habit.</p></div><div class="week"><span class="day done">M<br>✓</span><span class="day done">T<br>✓</span><span class="day">W<br>·</span><span class="day done">T<br>✓</span><span class="day done">F<br>✓</span><span class="day today">S<br>3</span><span class="day">S<br>·</span></div><div class="queue"><div class="queue-head"><strong>Daily Five</strong><span>3 of 5 ready</span></div><div class="queue-item"><span class="queue-num">1</span><span class="queue-copy"><strong>de afspraak</strong><small>recognise · vocabulary</small></span><span class="queue-state">done</span></div><div class="queue-item current"><span class="queue-num">2</span><span class="queue-copy"><strong>Ik ben hier.</strong><small>choose the right form · grammar</small></span><span class="queue-state">now</span></div><div class="queue-item"><span class="queue-num">3</span><span class="queue-copy"><strong>werken</strong><small>say it again · vocabulary</small></span><span class="queue-state">next</span></div><div class="queue-item"><span class="queue-num">4</span><span class="queue-copy"><strong>jij bent</strong><small>change the subject · grammar</small></span><span class="queue-state">later</span></div></div><div class="queue-action"><button class="button primary">Continue Daily Five</button></div></div></div>'; }
+      function render() { mockup.className = 'mockup variant-' + current; mockup.innerHTML = current === 'paper' ? paper() : current === 'pattern' ? pattern() : today(); label.innerHTML = variants[current].name + '<small>← / → or click to compare</small>'; notes.innerHTML = '<div><dt>' + variants[current].name + '</dt><dd>' + variants[current].note + '</dd></div>'; qs.set('variant', current); history.replaceState(null, '', '?' + qs.toString()); }
+      function move(delta) { current = order[(order.indexOf(current) + delta + order.length) % order.length]; render(); }
+      document.querySelector('#previous').addEventListener('click', () => move(-1));
+      document.querySelector('#next').addEventListener('click', () => move(1));
+      document.addEventListener('keydown', event => { if (['INPUT','TEXTAREA'].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable) return; if (event.key === 'ArrowLeft') move(-1); if (event.key === 'ArrowRight') move(1); });
+      render();
+    </script>
+  </body>
+</html>
