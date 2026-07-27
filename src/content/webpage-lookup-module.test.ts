@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { WebpageLookupModule, type TranslationTransport } from "./webpage-lookup-module";
 import type { LearningItem } from "../vocabulary/learning-record";
 import type { ExtensionSettings } from "../shared/settings";
+import type { GrammarRecord } from "../grammar/learning";
 
 const defaultSettings = {
   isEnabled: true,
@@ -49,6 +50,28 @@ function savedItem(overrides: Partial<LearningItem> = {}): LearningItem {
 }
 
 describe("WebpageLookupModule", () => {
+  it("offers an introduced exact hebben encounter without another provider request", async () => {
+    const events: unknown[] = [];
+    const grammar: GrammarRecord = { patternId: "a0-hebben-present", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, dueAt: 2, intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 };
+    const translate = vi.fn(createTransport().translate);
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({ translate, getGrammar: async (patternId) => ({ ok: true, result: { grammar: patternId === "a0-hebben-present" ? grammar : null } }) }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "u heeft", context: "hover", x: 1, y: 1, sourceLanguageHint: "nl" });
+
+    expect(events).toContainEqual(expect.objectContaining({ type: "render-result", grammarEncounter: { patternId: "a0-hebben-present", subject: "u", form: "heeft" } }));
+    const translationCalls = translate.mock.calls.length;
+    expect(translationCalls).toBeGreaterThan(0);
+    module.startGrammarPractice();
+    expect(translate).toHaveBeenCalledTimes(translationCalls);
+    expect(events).toContainEqual({ type: "render-grammar-encounter", encounter: { patternId: "a0-hebben-present", subject: "u", form: "heeft" } });
+  });
+
   it("offers a saved selection locally before contacting the translation provider", async () => {
     const translate = vi.fn(createTransport().translate);
     const events: unknown[] = [];

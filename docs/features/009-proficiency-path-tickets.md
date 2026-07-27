@@ -8,7 +8,7 @@ Source specification: [009-proficiency-path-spec.md](./009-proficiency-path-spec
 
 Approved prototype direction: [Paper Rail review prototype](../../frontend/009-proficiency-path-prototype.html)
 
-The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #83 is the current implementation slice; later tickets remain blocked by their listed dependencies.
+The canonical tracker records live issue state. This checked-in document mirrors the published child-ticket contracts so the implementation plan remains reviewable offline. Update each checklist with direct evidence as its matching issue is implemented. Work the frontier: #84 is the current implementation slice; later tickets remain blocked by their listed dependencies.
 
 ## Delivery rules
 
@@ -30,7 +30,7 @@ The canonical tracker records live issue state. This checked-in document mirrors
              └──> #86 ──┘
 ```
 
-`#83` is the current frontier after #82 delivery completion. #84, #85, and #86 become parallel frontiers after #83. #89 is a human validation gate and cannot be satisfied by automated tests alone.
+`#84` is the current frontier after #83 delivery completion. #85 and #86 become parallel frontiers after #83. #89 is a human validation gate and cannot be satisfied by automated tests alone.
 
 ## T01 — Prove the `a0-zijn-present` tracer
 
@@ -74,14 +74,14 @@ GitHub: [#84](https://github.com/mgurramaiproject/dutchmate/issues/84)
 
 **What to build:** Add the new `A0 · Ik heb dit nodig` lesson and teach reviewed present `hebben` forms through the established Lessons, Daily Five, and Encounter Coaching loop.
 
-- [ ] Stable lesson `a0-ik-heb-dit-nodig` and pattern `a0-hebben-present` use the existing Read, Notice, Practise, Replay, and Keep flow.
-- [ ] Reviewed content retains Dutch, English, and Telugu support.
-- [ ] Click-only exercises use finite answers, known misconception categories, varied contexts, exact correction, first-Check evidence, retry, Reveal, and Skip.
-- [ ] Both reviewed `u hebt` and `u heeft` alternatives are accepted where the context permits either.
-- [ ] Due `hebben` practice participates in mixed Daily Five without changing vocabulary behavior.
-- [ ] Exact reviewed `hebben` pairs may offer Encounter Coaching only after introduction, with no provider calls or raw persistence.
-- [ ] Validation and review output contain every released sentence, answer, distractor, feedback item, source, and review field.
-- [ ] Existing lessons, progress, saved candidates, `zijn`, and the shared contracts remain compatible.
+- [x] Stable lesson `a0-ik-heb-dit-nodig` and pattern `a0-hebben-present` use the existing Read, Notice, Practise, Replay, and Keep flow. (`src/lessons/catalog.ts`, `src/grammar/content.ts`, `src/popup/index.ts`, `src/popup/index.test.ts`)
+- [x] Reviewed content retains Dutch, English, and Telugu support. (`src/lessons/catalog.ts`, `src/lessons/catalog.test.ts`, `src/grammar/content.ts`)
+- [x] Click-only exercises use finite answers, known misconception categories, varied contexts, exact correction, first-Check evidence, retry, Reveal, and Skip. (`src/grammar/content.ts`, `src/grammar/content.test.ts`, `src/grammar/learning.ts`, `src/grammar/learning.test.ts`, `src/popup/index.ts`, `src/popup/index.test.ts`)
+- [x] Both reviewed `u hebt` and `u heeft` alternatives are accepted where the context permits either. (`src/grammar/content.ts`, `src/grammar/content.test.ts`)
+- [x] Due `hebben` practice participates in mixed Daily Five without changing vocabulary behavior. (`src/vocabulary/daily-five.ts`, `src/vocabulary/daily-five.test.ts`, `src/vocabulary/learning-record.ts`, `src/vocabulary/learning-record.test.ts`)
+- [x] Exact reviewed `hebben` pairs may offer Encounter Coaching only after introduction, with no provider calls or raw persistence. (`src/grammar/content.ts`, `src/grammar/content.test.ts`, `src/content/webpage-lookup-module.ts`, `src/content/webpage-lookup-module.test.ts`, `src/content/tooltip-view-adapter.ts`)
+- [x] Validation and review output contain every released sentence, answer, distractor, feedback item, source, and review field. (`src/grammar/content.ts`, `src/grammar/content.test.ts`)
+- [x] Existing lessons, progress, saved candidates, `zijn`, and the shared contracts remain compatible. (`src/popup/index.test.ts`, `src/vocabulary/learning-record.test.ts`, `src/grammar/learning.test.ts`, `src/background/message-handler.test.ts`)
 
 ## T04 — Teach `a0-regular-present` end to end
 

@@ -11,6 +11,9 @@ import {
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
   LEARNING_LESSON_PROGRESS_MESSAGE,
   LEARNING_SAVE_LESSON_PROGRESS_MESSAGE,
+  LEARNING_GRAMMAR_MESSAGE,
+  LEARNING_GRAMMAR_INTRODUCE_MESSAGE,
+  LEARNING_GRAMMAR_RESULT_MESSAGE,
   type LearningMessage,
   type LearningMessageResponse,
 } from "../background/messages";
@@ -18,6 +21,7 @@ import type { LearningBackup, LearningItem, LessonProgress, LessonProgressStage 
 import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import type { GrammarRecord } from "../grammar/learning";
+import type { GrammarPatternId } from "../lessons/catalog";
 import type { LessonPracticeEvidence } from "./lesson-session";
 
 export type LearningRuntimeApi = { runtime: { sendMessage(message: LearningMessage): Promise<LearningMessageResponse> } };
@@ -34,9 +38,10 @@ export type LearningClient = {
   keepLessonCandidates(lessonId: string, candidateIds: string[], evidence: LessonPracticeEvidence[]): Promise<LearningItem[]>;
   getLessonProgress(lessonId: string): Promise<LessonProgress | null>;
   saveLessonProgress(lessonId: string, stage: LessonProgressStage): Promise<LessonProgress>;
-  getGrammar(): Promise<GrammarRecord | null>;
-  introduceGrammar(): Promise<GrammarRecord>;
-  recordGrammarResult(patternId: "a0-zijn-present", contentVersion: 1, exerciseId: string, answer: string, expectedEvidenceRevision: number): Promise<GrammarRecord>;
+  getGrammar(patternId?: GrammarPatternId): Promise<GrammarRecord | null>;
+  introduceGrammar(patternId?: GrammarPatternId): Promise<GrammarRecord>;
+  recordGrammarResult(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string, expectedEvidenceRevision: number): Promise<GrammarRecord>;
+  recordGrammarDailyFiveResult(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip"): Promise<{ grammar: GrammarRecord; snapshot: DailyFiveSnapshot }>;
 };
 
 export function createLearningClient(extensionApi: LearningRuntimeApi): LearningClient {
@@ -88,8 +93,9 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
       if (response.ok && "progress" in response.result && response.result.progress) return response.result.progress;
       throw new Error(response.ok ? "Lesson progress could not be saved." : response.error);
     },
-    async getGrammar() { const response = await extensionApi.runtime.sendMessage({ type: "dutchmate.learning.grammar" }); if (response.ok && "grammar" in response.result) return response.result.grammar; throw new Error(response.ok ? "Grammar is unavailable." : response.error); },
-    async introduceGrammar() { const response = await extensionApi.runtime.sendMessage({ type: "dutchmate.learning.grammar.introduce" }); if (response.ok && "grammar" in response.result && response.result.grammar) return response.result.grammar; throw new Error(response.ok ? "Grammar is unavailable." : response.error); },
-    async recordGrammarResult(patternId, contentVersion, exerciseId, answer, expectedEvidenceRevision) { const response = await extensionApi.runtime.sendMessage({ type: "dutchmate.learning.grammar.result", payload: { patternId, contentVersion, exerciseId, answer, expectedEvidenceRevision } }); if (response.ok && "grammar" in response.result && response.result.grammar) return response.result.grammar; throw new Error(response.ok ? "Grammar result could not be saved." : response.error); },
+    async getGrammar(patternId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_MESSAGE, ...(patternId ? { payload: { patternId } } : {}) }); if (response.ok && "grammar" in response.result) return response.result.grammar; throw new Error(response.ok ? "Grammar is unavailable." : response.error); },
+    async introduceGrammar(patternId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_INTRODUCE_MESSAGE, ...(patternId ? { payload: { patternId } } : {}) }); if (response.ok && "grammar" in response.result && response.result.grammar) return response.result.grammar; throw new Error(response.ok ? "Grammar is unavailable." : response.error); },
+    async recordGrammarResult(patternId, contentVersion, exerciseId, answer, expectedEvidenceRevision) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_RESULT_MESSAGE, payload: { patternId, contentVersion, exerciseId, answer, expectedEvidenceRevision } }); if (response.ok && "grammar" in response.result && response.result.grammar) return response.result.grammar; throw new Error(response.ok ? "Grammar result could not be saved." : response.error); },
+    async recordGrammarDailyFiveResult(patternId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_RESULT_MESSAGE, payload: { patternId, contentVersion, exerciseId, expectedEvidenceRevision, dailyFive: true, ...(outcome ? { outcome } : { answer: answer ?? undefined }) } }); if (response.ok && "grammar" in response.result && "snapshot" in response.result) return response.result; throw new Error(response.ok ? "Grammar result could not be saved." : response.error); },
   };
 }

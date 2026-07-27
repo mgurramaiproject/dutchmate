@@ -1,9 +1,10 @@
 export const LESSON_CATALOG_VERSION = 1;
 
+export type GrammarPatternId = "a0-zijn-present" | "a0-hebben-present";
 export type LessonLine = { dutch: string; english: string; telugu: string };
 export type LessonCandidate = { id: string; dutch: string; english: string; telugu: string; kind: "word" | "chunk" };
 export type LessonPracticePrompt = { candidateId: string; dimension: "recognition" | "recall" };
-export type GrammarCompanion = { id: "a0-zijn-present"; contentVersion: 1; patternId: "a0-zijn-present" };
+export type GrammarCompanion = { id: GrammarPatternId; contentVersion: 1; patternId: GrammarPatternId };
 export type Lesson = {
   id: string; contentVersion: number; pathway: string; order: number; cefr: "A0" | "A1" | "A2"; title: string; durationMinutes: number;
   pattern: string; patternText: string; patternExplanation: string; lines: LessonLine[];
@@ -34,6 +35,31 @@ export const introductionLesson: Lesson = {
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
   grammarCompanion: { id: "a0-zijn-present", contentVersion: 1, patternId: "a0-zijn-present" },
+};
+
+export const hebbenLesson: Lesson = {
+  id: "a0-ik-heb-dit-nodig", contentVersion: 1, pathway: "needs-and-routines", order: 1,
+  cefr: "A0", title: "A0 · Ik heb dit nodig", durationMinutes: 3,
+  pattern: "Ik heb dit nodig.", patternText: "Ik heb", patternExplanation: "Use hebben to say what you have or need. The form changes with the subject.",
+  lines: [
+    { dutch: "Voor mijn Nederlandse les heb ik een pen nodig.", english: "I need a pen for my Dutch lesson.", telugu: "నా డచ్ పాఠానికి నాకు ఒక పెన్ కావాలి." },
+    { dutch: "Ik heb ook een schrift en een potlood bij me.", english: "I also have a notebook and a pencil with me.", telugu: "నా దగ్గర ఒక నోట్‌బుక్ మరియు పెన్సిల్ కూడా ఉన్నాయి." },
+    { dutch: "Heb jij een gum? Ja, jij hebt een pen.", english: "Do you have an eraser? Yes, you have a pen.", telugu: "నీ దగ్గర రబ్బరు ఉందా? అవును, నీ దగ్గర ఒక పెన్ ఉంది." },
+    { dutch: "Hebt u een extra schrift? U heeft geluk.", english: "Do you have an extra notebook? You are in luck.", telugu: "మీ దగ్గర అదనపు నోట్‌బుక్ ఉందా? మీ అదృష్టం బాగుంది." },
+    { dutch: "Wij hebben alles voor de les en kunnen beginnen.", english: "We have everything for the lesson and can begin.", telugu: "పాఠానికి కావాల్సినవన్నీ మా దగ్గర ఉన్నాయి, మేము ప్రారంభించవచ్చు." },
+  ],
+  candidates: [
+    { id: "ik-heb-dit-nodig", dutch: "ik heb dit nodig", english: "I need this", telugu: "నాకు ఇది కావాలి", kind: "chunk" },
+    { id: "een-pen", dutch: "een pen", english: "a pen", telugu: "ఒక పెన్", kind: "word" },
+    { id: "een-schrift", dutch: "een schrift", english: "a notebook", telugu: "ఒక నోట్‌బుక్", kind: "word" },
+    { id: "een-potlood", dutch: "een potlood", english: "a pencil", telugu: "ఒక పెన్సిల్", kind: "word" },
+  ],
+  practice: [
+    { candidateId: "ik-heb-dit-nodig", dimension: "recognition" }, { candidateId: "een-pen", dimension: "recall" },
+    { candidateId: "een-schrift", dimension: "recognition" }, { candidateId: "een-potlood", dimension: "recall" },
+  ],
+  review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  grammarCompanion: { id: "a0-hebben-present", contentVersion: 1, patternId: "a0-hebben-present" },
 };
 
 export const repetitionLesson: Lesson = {
@@ -225,7 +251,7 @@ export const letterLesson: Lesson = { id: "a2-wat-staat-er-in-deze-brief", conte
 
 export const lessonCatalog: LessonCatalog = {
   version: LESSON_CATALOG_VERSION,
-  lessons: [introductionLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson],
+  lessons: [introductionLesson, hebbenLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson],
 };
 
 export function validateLessonCatalog(catalog: LessonCatalog): string[] {

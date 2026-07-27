@@ -1,11 +1,11 @@
-import { lessonCatalog, validateLessonCatalog, type LessonCatalog } from "../lessons/catalog";
+import { lessonCatalog, validateLessonCatalog, type GrammarPatternId, type LessonCatalog } from "../lessons/catalog";
 
 export type GrammarPrimitive = "choose-form" | "contrast-form" | "change-subject" | "order-tokens" | "repair-choice";
 export type Misconception = "wrong-person" | "wrong-irregular-form" | "invalid-order";
 
 export type GrammarExercise = {
   id: string;
-  patternId: "a0-zijn-present";
+  patternId: GrammarPatternId;
   primitive: GrammarPrimitive;
   prompt: string;
   context: string;
@@ -27,7 +27,7 @@ export type GrammarReviewMetadata = {
 };
 
 export type GrammarPattern = {
-  id: "a0-zijn-present";
+  id: GrammarPatternId;
   contentVersion: 1;
   level: "A0";
   capability: string;
@@ -35,7 +35,7 @@ export type GrammarPattern = {
   forms: Array<{ subject: string; forms: string[] }>;
   exercises: GrammarExercise[];
   encounterForms: Array<{ subject: string; form: string }>;
-  companionLessonId: "a0-hallo-ik-ben";
+  companionLessonId: string;
   review: GrammarReviewMetadata;
 };
 
@@ -135,6 +135,72 @@ export const zijnPattern: GrammarPattern = {
   },
 };
 
+export const hebbenPattern: GrammarPattern = {
+  id: "a0-hebben-present",
+  contentVersion: 1,
+  level: "A0",
+  capability: "Say what you have or need in practical lesson situations.",
+  prerequisites: ["a0-zijn-present"],
+  forms: [
+    { subject: "ik", forms: ["heb"] },
+    { subject: "jij/je", forms: ["hebt"] },
+    { subject: "u", forms: ["hebt", "heeft"] },
+    { subject: "hij/zij/het", forms: ["heeft"] },
+    { subject: "wij/we/jullie/zij/ze", forms: ["hebben"] },
+  ],
+  exercises: [
+    {
+      id: "hebben-choose-ik", patternId: "a0-hebben-present", primitive: "choose-form",
+      prompt: "Choose the form for ik.", context: "Ik ___ een pen nodig.", contextTag: "needs", choices: ["heb", "hebt", "heeft"], accepted: ["heb"],
+      distractors: [
+        { value: "hebt", misconception: "wrong-person", feedback: "With ik, use heb: ik heb een pen nodig." },
+        { value: "heeft", misconception: "wrong-person", feedback: "With ik, use heb: ik heb een pen nodig." },
+      ],
+      feedback: "With ik, use heb: ik heb een pen nodig.", evidenceEligible: true,
+    },
+    {
+      id: "hebben-change-jij", patternId: "a0-hebben-present", primitive: "change-subject",
+      prompt: "Change the subject to jij.", context: "Jij ___ een schrift.", contextTag: "school-items", choices: ["heb", "hebt", "heeft"], accepted: ["hebt"],
+      distractors: [
+        { value: "heb", misconception: "wrong-person", feedback: "With jij, use hebt: jij hebt een schrift." },
+        { value: "heeft", misconception: "wrong-person", feedback: "With jij, use hebt: jij hebt een schrift." },
+      ],
+      feedback: "With jij, use hebt: jij hebt een schrift.", evidenceEligible: true,
+    },
+    {
+      id: "hebben-contrast-u", patternId: "a0-hebben-present", primitive: "contrast-form",
+      prompt: "Choose a correct polite form.", context: "U ___ een extra pen.", contextTag: "politeness", choices: ["hebt", "heeft", "hebben"], accepted: ["hebt", "heeft"],
+      distractors: [{ value: "hebben", misconception: "wrong-irregular-form", feedback: "With u, both hebt and heeft are correct: u hebt een extra pen or u heeft een extra pen." }],
+      feedback: "With u, both hebt and heeft are correct: u hebt een extra pen or u heeft een extra pen.", evidenceEligible: true,
+    },
+    {
+      id: "hebben-repair-wij", patternId: "a0-hebben-present", primitive: "repair-choice",
+      prompt: "Repair the sentence.", context: "Wij ___ alles voor de les.", contextTag: "classroom", choices: ["heb", "heeft", "hebben"], accepted: ["hebben"],
+      distractors: [
+        { value: "heb", misconception: "wrong-person", feedback: "With wij, use hebben: wij hebben alles voor de les." },
+        { value: "heeft", misconception: "wrong-person", feedback: "With wij, use hebben: wij hebben alles voor de les." },
+      ],
+      feedback: "With wij, use hebben: wij hebben alles voor de les.", evidenceEligible: true,
+    },
+  ],
+  encounterForms: [
+    { subject: "ik", form: "heb" }, { subject: "jij", form: "hebt" }, { subject: "je", form: "hebt" },
+    { subject: "u", form: "hebt" }, { subject: "u", form: "heeft" }, { subject: "hij", form: "heeft" },
+    { subject: "zij", form: "heeft" }, { subject: "het", form: "heeft" }, { subject: "wij", form: "hebben" },
+    { subject: "we", form: "hebben" }, { subject: "jullie", form: "hebben" }, { subject: "ze", form: "hebben" },
+  ],
+  companionLessonId: "a0-ik-heb-dit-nodig",
+  review: {
+    author: "DutchMate team", reviewState: "self-reviewed", reviewer: "DutchMate team", reviewedAt: "2026-07-27",
+    sources: ["https://taaladvies.net/u-heeft-of-hebt/", "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/onregelmatig_werkwoord.html"],
+    provenance: "Original DutchMate-authored examples; u hebt and u heeft are both retained as reviewed alternatives.",
+  },
+};
+
+export const grammarPatterns: GrammarPattern[] = [zijnPattern, hebbenPattern];
+
+export function getGrammarPattern(patternId: GrammarPatternId): GrammarPattern | undefined { return grammarPatterns.find((pattern) => pattern.id === patternId); }
+
 export function validateGrammarPattern(pattern: GrammarPattern): string[] {
   const errors: string[] = [];
   const stable = (value: string) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(value);
@@ -142,7 +208,7 @@ export function validateGrammarPattern(pattern: GrammarPattern): string[] {
   if (!Number.isInteger(pattern.contentVersion) || pattern.contentVersion < 1) errors.push(`${pattern.id}.contentVersion: expected positive content version`);
   if (pattern.level !== "A0") errors.push(`${pattern.id}.level: expected A0`);
   if (!pattern.capability.trim()) errors.push(`${pattern.id}.capability: expected practical capability`);
-  if (pattern.companionLessonId !== "a0-hallo-ik-ben") errors.push(`${pattern.id}.companionLessonId: incompatible lesson link`);
+  if (!stable(pattern.companionLessonId)) errors.push(`${pattern.id}.companionLessonId: incompatible lesson link`);
   if (!pattern.forms.length || pattern.forms.some((entry) => !entry.subject.trim() || entry.forms.length === 0 || entry.forms.some((form) => !form.trim()))) errors.push(`${pattern.id}.forms: incomplete reviewed forms`);
   if (!pattern.review.author.trim() || !["self-reviewed", "second-review-complete"].includes(pattern.review.reviewState) || !pattern.review.reviewer.trim() || !/^\d{4}-\d{2}-\d{2}$/u.test(pattern.review.reviewedAt) || pattern.review.sources.length === 0 || pattern.review.sources.some((source) => !source.trim()) || !pattern.review.provenance.trim()) errors.push(`${pattern.id}.review: incomplete review metadata or provenance`);
   const ids = new Set<string>();
@@ -174,9 +240,21 @@ export function validateLearningContent(pattern: GrammarPattern = zijnPattern, c
   return errors;
 }
 
-export function isGrammarContentAvailable(pattern: GrammarPattern = zijnPattern): boolean { return validateLearningContent(pattern).length === 0; }
+export function validateAllLearningContent(catalog: LessonCatalog = lessonCatalog): string[] {
+  return [
+    ...validateLessonCatalog(catalog),
+    ...grammarPatterns.flatMap((pattern) => [
+      ...validateGrammarPattern(pattern),
+      ...(catalog.lessons.some((lesson) => lesson.id === pattern.companionLessonId) ? [] : [`${pattern.id}.companionLessonId: lesson is missing from the bundled catalog`]),
+    ]),
+  ];
+}
 
-export function createGrammarContentReport(pattern: GrammarPattern = zijnPattern): string {
+export function isGrammarContentAvailable(pattern?: GrammarPattern): boolean { return pattern ? validateLearningContent(pattern).length === 0 : validateAllLearningContent().length === 0; }
+
+export function createGrammarContentReport(pattern: GrammarPattern | GrammarPattern[] = grammarPatterns): string {
+  if (Array.isArray(pattern)) return `${pattern.map((entry) => createGrammarContentReport(entry).trim()).join("\n\n")}\n`;
+  const companion = lessonCatalog.lessons.find((lesson) => lesson.id === pattern.companionLessonId);
   const lines = [
     `# Grammar content report: ${pattern.id}`,
     `Version: ${pattern.contentVersion}`,
@@ -189,10 +267,12 @@ export function createGrammarContentReport(pattern: GrammarPattern = zijnPattern
     `Provenance: ${pattern.review.provenance}`,
     `Forms: ${pattern.forms.map((entry) => `${entry.subject} -> ${entry.forms.join("/")}`).join("; ")}`,
     `Encounter pairs: ${pattern.encounterForms.map((entry) => `${entry.subject} ${entry.form}`).join("; ")}`,
+    `Companion title: ${companion?.title ?? "missing"}`,
+    ...(companion?.lines.flatMap((line) => [`Story Dutch: ${line.dutch}`, `Story English: ${line.english}`, `Story Telugu: ${line.telugu}`]) ?? []),
     "",
   ];
   for (const exercise of pattern.exercises) {
-    lines.push(`## ${exercise.id}`, `Primitive: ${exercise.primitive}`, `Context: ${exercise.context}`, `Prompt: ${exercise.prompt}`, `Choices: ${exercise.choices.join(" | ")}`, `Accepted: ${exercise.accepted.join(" | ")}`, `Feedback: ${exercise.feedback}`);
+    lines.push(`## ${exercise.id}`, `Primitive: ${exercise.primitive}`, `Context tag: ${exercise.contextTag}`, `Evidence eligible: ${exercise.evidenceEligible}`, `Context: ${exercise.context}`, `Prompt: ${exercise.prompt}`, `Choices: ${exercise.choices.join(" | ")}`, `Accepted: ${exercise.accepted.join(" | ")}`, `Feedback: ${exercise.feedback}`);
     for (const distractor of exercise.distractors) lines.push(`Distractor: ${distractor.value} [${distractor.misconception}] -> ${distractor.feedback}`);
     lines.push("");
   }
@@ -202,12 +282,28 @@ export function createGrammarContentReport(pattern: GrammarPattern = zijnPattern
 export function normalizeGrammarText(value: string): string { return value.toLocaleLowerCase().replace(/[.!?]+$/u, "").trim().replace(/\s+/gu, " "); }
 
 export function matchZijnEncounter(value: string, pattern: GrammarPattern = zijnPattern): { subject: string; form: string } | null {
+  const match = matchGrammarEncounter(value, pattern);
+  return match ? { subject: match.subject, form: match.form } : null;
+}
+
+export function matchGrammarEncounter(value: string, pattern: GrammarPattern): { patternId: GrammarPatternId; subject: string; form: string } | null {
   if (!isGrammarContentAvailable(pattern)) return null;
   const words = normalizeGrammarText(value).split(" ");
   if (words.length !== 2) return null;
-  return pattern.encounterForms.find((entry) => entry.subject === words[0] && entry.form === words[1]) ?? null;
+  const match = pattern.encounterForms.find((entry) => entry.subject === words[0] && entry.form === words[1]);
+  return match ? { patternId: pattern.id, ...match } : null;
 }
 
 export function matchIntroducedZijnEncounter(value: string, introduced: boolean, pattern: GrammarPattern = zijnPattern): { subject: string; form: string } | null {
-  return introduced ? matchZijnEncounter(value, pattern) : null;
+  const match = matchIntroducedGrammarEncounter(value, introduced ? [pattern.id] : [], [pattern]);
+  return match ? { subject: match.subject, form: match.form } : null;
+}
+
+export function matchIntroducedGrammarEncounter(value: string, introducedPatternIds: readonly GrammarPatternId[], patterns: GrammarPattern[] = grammarPatterns): { patternId: GrammarPatternId; subject: string; form: string } | null {
+  for (const pattern of patterns) {
+    if (!introducedPatternIds.includes(pattern.id)) continue;
+    const match = matchGrammarEncounter(value, pattern);
+    if (match) return match;
+  }
+  return null;
 }

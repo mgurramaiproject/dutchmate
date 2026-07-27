@@ -74,10 +74,15 @@ describe("Daily Five scheduling", () => {
 
   it("keeps at least three vocabulary positions when grammar is eligible", () => {
     const vocabulary = ["one", "two", "three", "four"].map((id, index) => item(id, index + 1));
-    const snapshot = createDailyFiveSnapshot(vocabulary, 10 * day, undefined, [{ kind: "grammar", patternId: "a0-zijn-present", contentVersion: 1, exerciseId: "zijn-choose-ik" }, { kind: "grammar", patternId: "a0-zijn-present", contentVersion: 1, exerciseId: "zijn-change-jij" }]);
+    const snapshot = createDailyFiveSnapshot(vocabulary, 10 * day, undefined, [{ kind: "grammar", patternId: "a0-zijn-present", contentVersion: 1, exerciseId: "zijn-choose-ik" }, { kind: "grammar", patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik" }]);
     expect(snapshot.tasks).toHaveLength(5);
     expect(snapshot.tasks.filter((task) => "kind" in task)).toHaveLength(2);
     expect(snapshot.tasks.filter((task) => !("kind" in task))).toHaveLength(3);
+  });
+
+  it("accepts due hebben practice as a second grammar position", () => {
+    const snapshot = createDailyFiveSnapshot([], 10 * day, undefined, [{ kind: "grammar", patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik" }]);
+    expect(snapshot.tasks).toEqual([{ kind: "grammar", patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik" }]);
   });
 });
 

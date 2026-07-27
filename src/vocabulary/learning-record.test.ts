@@ -361,10 +361,27 @@ describe("LearningRecordStore", () => {
     await records.introduceGrammar();
     now = new Date(2026, 0, 2, 9).getTime();
     const snapshot = await records.getDailyFive();
-    const result = await records.recordGrammarDailyFiveResult("zijn-choose-ik", "ben", 0);
+    const result = await records.recordGrammarDailyFiveResult({ patternId: "a0-zijn-present", contentVersion: 1, exerciseId: "zijn-choose-ik", outcome: { type: "check", answer: "ben" }, expectedEvidenceRevision: 0 });
     expect(result.snapshot.completedTaskIds).toEqual(["a0-zijn-present\u001fzijn-choose-ik"]);
     await expect(records.getDailyFive()).resolves.toEqual(result.snapshot);
     expect(JSON.stringify(snapshot)).not.toContain("bent");
+  });
+
+  it("introduces, schedules, and persists the hebben pattern independently", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const records = new LearningRecordStore(new MemoryStorage(), () => now);
+    await records.introduceGrammar("a0-hebben-present");
+    now = new Date(2026, 0, 2, 9).getTime();
+    const snapshot = await records.getDailyFive();
+    expect(snapshot.tasks).toEqual([{ kind: "grammar", patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik" }]);
+    const result = await records.recordGrammarDailyFiveResult({ patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik", outcome: { type: "check", answer: "heb" }, expectedEvidenceRevision: 0 });
+    expect(result.grammar.patternId).toBe("a0-hebben-present");
+    expect(result.snapshot.completedTaskIds).toEqual(["a0-hebben-present\u001fhebben-choose-ik"]);
+    const backup = await records.exportBackup();
+    expect(backup.grammar).toHaveProperty("a0-hebben-present");
+    const restored = new LearningRecordStore(new MemoryStorage(), () => now);
+    await restored.importBackup(backup);
+    await expect(restored.getGrammar("a0-hebben-present")).resolves.toMatchObject({ patternId: "a0-hebben-present", successfulEvidenceCount: 1 });
   });
 
   it("preserves all published lesson progress and saved-item mastery through version 3 round trip", async () => {

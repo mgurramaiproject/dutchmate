@@ -1,9 +1,12 @@
 import type { CreateOrMergeLearningItemInput, LearningItem } from "../vocabulary/learning-record";
+import type { GrammarRecord } from "../grammar/learning";
+import type { GrammarPatternId } from "../lessons/catalog";
 
 const LEARNING_CREATE_OR_MERGE_MESSAGE = "dutchmate.learning.createOrMerge";
 const LEARNING_LIST_MESSAGE = "dutchmate.learning.list";
 const LEARNING_RECORD_ENCOUNTER_MESSAGE = "dutchmate.learning.recordEncounter";
 const LEARNING_RECORD_MISSION_RESULT_MESSAGE = "dutchmate.learning.recordMissionResult";
+const LEARNING_GRAMMAR_MESSAGE = "dutchmate.learning.grammar";
 const DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS = 7000;
 
 export type RuntimeVocabularyExtensionApi = { runtime: { lastError?: { message?: string }; sendMessage(message: unknown, callback: (response?: unknown) => void): void } };
@@ -11,6 +14,7 @@ export type RuntimeLearningSaveResponse = { ok: true; result: { item: LearningIt
 export type RuntimeLearningListResponse = { ok: true; result: { items: LearningItem[] } } | { ok: false; error: string };
 export type RuntimeLearningEncounterResponse = { ok: true; result: { recorded: true } } | { ok: false; error: string };
 export type RuntimeLearningMissionResultResponse = { ok: true; result: { item: LearningItem } } | { ok: false; error: string };
+export type RuntimeGrammarResponse = { ok: true; result: { grammar: GrammarRecord | null } } | { ok: false; error: string };
 
 export function requestRuntimeCreateLearningItem(api: RuntimeVocabularyExtensionApi | undefined, payload: CreateOrMergeLearningItemInput, timeoutMs = DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS): Promise<RuntimeLearningSaveResponse> {
   return requestRuntimeLearningMessage(api, { type: LEARNING_CREATE_OR_MERGE_MESSAGE, payload }, timeoutMs, (response): response is RuntimeLearningSaveResponse => typeof response === "object" && response !== null && "ok" in response && (response.ok === false ? "error" in response && typeof response.error === "string" : "result" in response && typeof response.result === "object" && response.result !== null && "item" in response.result));
@@ -23,6 +27,9 @@ export function requestRuntimeRecordLearningEncounter(api: RuntimeVocabularyExte
 }
 export function requestRuntimeRecordMissionResult(api: RuntimeVocabularyExtensionApi | undefined, payload: { itemId: string; dimension: "recognition" | "recall"; result: "again" | "got-it"; expectedAttemptCount: number }, timeoutMs = DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS): Promise<RuntimeLearningMissionResultResponse> {
   return requestRuntimeLearningMessage(api, { type: LEARNING_RECORD_MISSION_RESULT_MESSAGE, payload }, timeoutMs, (response): response is RuntimeLearningMissionResultResponse => typeof response === "object" && response !== null && "ok" in response && (response.ok === false ? "error" in response && typeof response.error === "string" : "result" in response && typeof response.result === "object" && response.result !== null && "item" in response.result));
+}
+export function requestRuntimeGrammar(api: RuntimeVocabularyExtensionApi | undefined, patternId: GrammarPatternId, timeoutMs = DEFAULT_RUNTIME_RESPONSE_TIMEOUT_MS): Promise<RuntimeGrammarResponse> {
+  return requestRuntimeLearningMessage(api, { type: LEARNING_GRAMMAR_MESSAGE, payload: { patternId } }, timeoutMs, (response): response is RuntimeGrammarResponse => typeof response === "object" && response !== null && "ok" in response && (response.ok === false ? "error" in response && typeof response.error === "string" : "result" in response && typeof response.result === "object" && response.result !== null && "grammar" in response.result));
 }
 function requestRuntimeLearningMessage<T>(api: RuntimeVocabularyExtensionApi | undefined, message: unknown, timeoutMs: number, isResponse: (response: unknown) => response is T): Promise<T | { ok: false; error: string }> {
   if (!api) return Promise.resolve({ ok: false, error: "Extension runtime is unavailable." });

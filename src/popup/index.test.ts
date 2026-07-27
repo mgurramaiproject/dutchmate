@@ -51,6 +51,11 @@ describe("lesson popup", () => {
         const dimension = message.payload?.dimension as "recognition" | "recall";
         return { ok: true, result: { item: { ...item, [dimension]: { ...(item[dimension] as Record<string, unknown>), dueAt: Date.now() + 86_400_000 } }, snapshot: { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [`${dailyItem.id}\u001frecognition`], goalCompleted: true } } };
       }
+      if (message.type === "dutchmate.learning.grammar" || message.type === "dutchmate.learning.grammar.introduce") {
+        const patternId = String(message.payload?.patternId ?? "a0-zijn-present");
+        return { ok: true, result: { grammar: message.type.endsWith("introduce") ? { patternId, contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, dueAt: 2, intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 } : null } };
+      }
+      if (message.type === "dutchmate.learning.grammar.result") return { ok: true, result: { grammar: { patternId: String(message.payload?.patternId), contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, dueAt: 2, intervalDays: 1, successfulEvidenceCount: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], primitives: ["choose-form"], contextTags: ["needs"], recentExerciseIds: [String(message.payload?.exerciseId)], recentSuccessfulDays: [1], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 1, updatedAt: 1 } } };
       if (message.type === "dutchmate.learning.recordMissionResult") {
         if (quizFails) return { ok: false, error: "Quiz result could not be saved." };
         const item = learningItems.find((candidate) => candidate.id === message.payload?.itemId)!;
@@ -131,6 +136,40 @@ describe("lesson popup", () => {
     button("Exit lesson").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(false);
+  });
+
+  it("takes the hebben companion through Notice with visible Reveal and Skip controls", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Ik heb dit nodig"));
+    lessonCard("A0 · Ik heb dit nodig").click();
+    await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+    button("Notice the pattern").click();
+    await vi.waitFor(() => expect(button("Check answer")).toBeTruthy());
+    expect(button("Reveal")).toBeTruthy();
+    expect(button("Skip")).toBeTruthy();
+    button("Reveal").click();
+    await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy());
+    expect(content().textContent).toContain("Answer: heb");
+    button("Continue to Practise").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+  });
+
+  it("allows a grammar retry without submitting a second result", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Ik heb dit nodig"));
+    lessonCard("A0 · Ik heb dit nodig").click();
+    await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+    button("Notice the pattern").click();
+    await vi.waitFor(() => expect(button("hebt")).toBeTruthy());
+    button("hebt").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Try again")).toBeTruthy());
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result")).toHaveLength(1);
+    button("Try again").click();
+    button("heb").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy());
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result")).toHaveLength(1);
   });
 
   it("keeps the mockup history controls and uses heatmaps for month and year", async () => {
@@ -384,7 +423,7 @@ describe("lesson popup", () => {
   it("moves the three top-level tabs with arrow keys", async () => {
     const navigation = document.querySelector<HTMLElement>("#primary-navigation")!;
     navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
-    await vi.waitFor(() => expect(content().textContent).toContain("12 small practical stories"));
+    await vi.waitFor(() => expect(content().textContent).toContain("13 small practical stories"));
     expect(document.activeElement).toBe(document.querySelector("#lessons-tab"));
     navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
     await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
@@ -393,16 +432,16 @@ describe("lesson popup", () => {
 
   it("renders Lessons as the compact numbered library from the approved mockup", async () => {
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("12 small practical stories"));
+    await vi.waitFor(() => expect(content().textContent).toContain("13 small practical stories"));
     expect(content().querySelector(".lessons-content .heading")?.textContent).toBe("Lesson library");
     expect(content().textContent).toContain("Choose a situation. Each lesson is 3–5 minutes.");
-    expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(12);
+    expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(13);
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
   });
 
   it("filters Lessons by readiness and CEFR level and labels resumable stages", async () => {
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(12));
+    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(13));
     expect(content().querySelectorAll(".lesson-filter")).toHaveLength(8);
 
     lessonCard("A0 · Hallo, ik ben").click();
@@ -416,8 +455,9 @@ describe("lesson popup", () => {
 
     button("All").click();
     button("A0").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(1));
+    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(2));
     expect(content().textContent).toContain("Hallo, ik ben");
+    expect(content().textContent).toContain("Ik heb dit nodig");
 
     button("Completed").click();
     await vi.waitFor(() => expect(content().textContent).toContain("No lessons match these filters."));
@@ -502,7 +542,7 @@ describe("lesson popup", () => {
     button("Today").click();
     expect([...content().querySelectorAll<HTMLButtonElement>(".secondary-actions .button")].map((action) => action.textContent)).toEqual(["Learn a lesson", "Review Saved items"]);
     button("Learn a lesson").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("12 small practical stories"));
+    await vi.waitFor(() => expect(content().textContent).toContain("13 small practical stories"));
   });
 
   it("does not tell learners with saved vocabulary to save more when no review is available", async () => {
@@ -543,11 +583,12 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson candidates could not be kept."));
   });
 
-  it("lists the twelve bundled lessons in order and opens the published lessons with help and trilingual practice", async () => {
+  it("lists the thirteen bundled lessons in order and opens the published lessons with help and trilingual practice", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Ik heb last van…"));
     expect([...content().querySelectorAll<HTMLElement>(".lesson-card .lesson-copy strong")].map((heading) => heading.textContent)).toEqual([
       "Hallo, ik ben…",
+      "Ik heb dit nodig",
       "Kunt u dat herhalen?",
       "Ik wil graag bestellen",
       "Kan ik met pin betalen?",

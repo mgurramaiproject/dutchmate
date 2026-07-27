@@ -10,6 +10,9 @@ import { getChunkCandidate } from "./chunk-candidate";
 import type { CreateOrMergeLearningItemInput, LearningItem } from "../vocabulary/learning-record";
 import { getWeakerMasteryDimension, type DailyFiveDimension } from "../vocabulary/daily-five";
 import { normalizeMissionText } from "./mission-text";
+import { grammarPatterns, matchIntroducedGrammarEncounter } from "../grammar/content";
+import type { GrammarPatternId } from "../lessons/catalog";
+import type { GrammarRecord } from "../grammar/learning";
 
 const supportedTargetLanguages = new Set(["en", "nl", "te"]);
 const mvpLanguages = [
@@ -141,6 +144,7 @@ export type RecallMission = {
   expectedAttemptCount: number;
   token: number;
 };
+export type GrammarEncounter = { patternId: GrammarPatternId; subject: string; form: string };
 
 export type WebpageLookupModuleEvent =
   | {
@@ -160,6 +164,7 @@ export type WebpageLookupModuleEvent =
       chunkConfirmation?: ChunkConfirmation;
       seenBefore?: true;
       practiceAvailable?: true;
+      grammarEncounter?: GrammarEncounter;
     }
   | {
       type: "render-error";
@@ -181,6 +186,7 @@ export type WebpageLookupModuleEvent =
       mission: ContextMission;
     }
   | { type: "render-recall-mission"; mission: RecallMission }
+  | { type: "render-grammar-encounter"; encounter: GrammarEncounter }
   | {
       type: "hide-tooltip";
     };
@@ -199,6 +205,7 @@ export type TranslationTransport = {
   listLearningItems?(): Promise<{ ok: boolean; result?: { items: LearningItem[] } }>;
   recordLearningEncounter?(input: { id: string; context: string; sourceLanguage?: MvpLanguageCode }): Promise<{ ok: boolean }>;
   recordMissionResult?(input: { itemId: string; dimension: DailyFiveDimension; result: "again" | "got-it"; expectedAttemptCount: number }): Promise<{ ok: boolean; error?: string }>;
+  getGrammar?(patternId: GrammarPatternId): Promise<{ ok: boolean; result?: { grammar: GrammarRecord | null } }>;
 };
 
 type StorageChange = {
@@ -223,6 +230,7 @@ export class WebpageLookupModule {
   #currentSaveItemId: string | null = null;
   #currentChunk: CreateOrMergeLearningItemInput | null = null;
   #practiceSelection: { dutch: string; pageContext: string | null } | null = null;
+  #grammarEncounter: GrammarEncounter | null = null;
   #mission: ContextMission | null = null;
   #recallMission: RecallMission | null = null;
   #pendingRecallLookup: WebpageLookupInput | null = null;
@@ -289,6 +297,7 @@ export class WebpageLookupModule {
     this.#currentSaveItemId = null;
     this.#currentChunk = null;
     this.#practiceSelection = null;
+    this.#grammarEncounter = null;
     this.#mission = null;
     this.#recallMission = null;
     this.#pendingRecallLookup = null;
@@ -300,6 +309,7 @@ export class WebpageLookupModule {
     this.#currentSaveItem = null;
     this.#currentSaveItemId = null;
     this.#practiceSelection = null;
+    this.#grammarEncounter = null;
     this.#mission = null;
     this.#recallMission = null;
     this.#pendingRecallLookup = null;
@@ -391,6 +401,8 @@ export class WebpageLookupModule {
       chunkConfirmation = { dutch: chunk.normalizedDutch, english: helpers.english ?? null, telugu: helpers.telugu ?? null, context: input.pageContext?.slice(0, 240) ?? null };
     }
     this.#currentSaveItemId = this.#currentSaveItem ? getLearningItemId(this.#currentSaveItem.dutch) : null;
+    const grammarEncounter = completedLookup.response.ok && completedLookup.sourceLanguage === "nl" ? await this.#findGrammarEncounter(input.text) : null;
+    this.#grammarEncounter = grammarEncounter;
     const saveAction: SaveActionState = this.#currentChunk ? { status: "ready", label: "Review & save", disabled: false } : this.#getSaveActionState();
 
     this.#emit({
@@ -402,6 +414,7 @@ export class WebpageLookupModule {
       saveAction,
       ...(chunkConfirmation ? { chunkConfirmation } : {}),
       ...(practiceAvailable ? { practiceAvailable: true } : {}),
+      ...(grammarEncounter ? { grammarEncounter } : {}),
     });
 
     if (completedLookup.response.ok) {
@@ -498,6 +511,17 @@ export class WebpageLookupModule {
     }
   }
 
+  async #findGrammarEncounter(text: string): Promise<GrammarEncounter | null> {
+    if (!this.#deps.transport.getGrammar) return null;
+    try {
+      const responses = await Promise.all(grammarPatterns.map((pattern) => this.#deps.transport.getGrammar!(pattern.id)));
+      const introduced = responses.flatMap((response) => response.ok && response.result?.grammar ? [response.result.grammar.patternId] : []);
+      return matchIntroducedGrammarEncounter(text, introduced, grammarPatterns);
+    } catch {
+      return null;
+    }
+  }
+
   async #findRecallItem(input: WebpageLookupInput): Promise<LearningItem | undefined> {
     if (!input.pageContext || !this.#deps.transport.listLearningItems) return undefined;
     const sourceLanguage = this.#getActiveSourceLanguage(this.#deps.getSettings(), input.languageSample ?? input.text, input.sourceLanguageHint);
@@ -582,6 +606,10 @@ export class WebpageLookupModule {
       ...this.#getMissionCapture(),
     };
     this.#emitMission();
+  }
+
+  startGrammarPractice(): void {
+    if (this.#grammarEncounter) this.#emit({ type: "render-grammar-encounter", encounter: this.#grammarEncounter });
   }
 
   addMissionFragment(index: number): void {
