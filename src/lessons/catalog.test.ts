@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appointmentLesson, lessonCatalog, validateLessonCatalog } from "./catalog";
+import { appointmentLesson, hebbenLesson, lessonCatalog, validateLessonCatalog } from "./catalog";
 
 describe("lesson catalog", () => {
   it("validates the reviewed appointment micro-story", () => {
@@ -13,6 +13,7 @@ describe("lesson catalog", () => {
     expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
     expect(starterLessons.map((lesson) => lesson.title)).toEqual([
       "A0 · Hallo, ik ben…",
+      "A0 · Ik heb dit nodig",
       "A1 · Kunt u dat herhalen?",
       "A1 · Ik wil graag bestellen",
       "A1 · Kan ik met pin betalen?",
@@ -35,6 +36,7 @@ describe("lesson catalog", () => {
     expect(appointmentLesson).toMatchObject({ contentVersion: 2, candidates: [
       { id: "ik-wil-graag" }, { id: "afspraak" }, { id: "afspraak-maken" }, { id: "als-het-kan" },
     ] });
+    expect(hebbenLesson).toMatchObject({ id: "a0-ik-heb-dit-nodig", contentVersion: 1, grammarCompanion: { patternId: "a0-hebben-present" } });
   });
 
   it("reports stable lesson identifiers and fields for structural violations", () => {

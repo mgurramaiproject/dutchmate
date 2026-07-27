@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applyGrammarCheck, applyGrammarOutcome, introduceGrammar } from "./learning";
-import { zijnPattern } from "./content";
+import { hebbenPattern, zijnPattern } from "./content";
 
 describe("zijn grammar evidence", () => {
   it("introduces, records only first checks, schedules, and reaches applied evidence", () => {
@@ -41,5 +41,13 @@ describe("zijn grammar evidence", () => {
     const record = introduceGrammar("a0-zijn-present", 1, start);
     expect(applyGrammarOutcome(record, zijnPattern.exercises[0], { type: "reveal" }, start, true)).toMatchObject({ state: "introduced", successfulEvidenceCount: 0, dueAt: new Date(2026, 0, 2).getTime() });
     expect(applyGrammarOutcome(record, zijnPattern.exercises[0], { type: "skip" }, start, true)).toMatchObject({ state: "introduced", successfulEvidenceCount: 0 });
+  });
+
+  it("applies the same evidence contract to hebben", () => {
+    const start = Date.UTC(2026, 0, 1, 9);
+    let record = introduceGrammar("a0-hebben-present", 1, start);
+    for (const [index, exercise] of hebbenPattern.exercises.entries()) record = applyGrammarCheck(record, exercise, exercise.accepted[0], start + (index ? 2 : 0) * 86_400_000, true);
+    expect(record.state).toBe("applied");
+    expect(record.successfulExerciseIds).toHaveLength(4);
   });
 });

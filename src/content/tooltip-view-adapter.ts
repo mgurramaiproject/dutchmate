@@ -1,5 +1,5 @@
 import type { TranslateMessageResponse } from "./runtime-translation-client";
-import type { ChunkConfirmation, ContextMission, RecallMission, SaveActionState } from "./webpage-lookup-module";
+import type { ChunkConfirmation, ContextMission, GrammarEncounter, RecallMission, SaveActionState } from "./webpage-lookup-module";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
@@ -15,7 +15,9 @@ export type TooltipViewAdapter = {
     saveAction: SaveActionState,
     chunkConfirmation?: ChunkConfirmation,
     practiceAvailable?: true,
+    grammarEncounter?: GrammarEncounter,
   ): void;
+  showGrammarPractice(encounter: GrammarEncounter): void;
   showMission(mission: ContextMission): void;
   showRecallOffer(selectedDutch: string, pageContext: string, x: number, y: number): void;
   showRecallMission(mission: RecallMission): void;
@@ -27,6 +29,7 @@ export type TooltipViewAdapter = {
 export function createTooltipViewAdapter(callbacks: {
   onSaveClick(): void;
   onPractice(): void;
+  onGrammarPractice?(): void;
   onTryFromMemory(): void;
   onTranslateNow(): void;
   onShowMeaning(): void;
@@ -182,7 +185,7 @@ export function createTooltipViewAdapter(callbacks: {
       tooltip.hidden = false;
     },
 
-    showResult(response, x, y, saveAction, chunkConfirmation, practiceAvailable) {
+    showResult(response, x, y, saveAction, chunkConfirmation, practiceAvailable, grammarEncounter) {
       currentSaveButton = null;
       lastPosition = { x, y };
       rememberExternalFocus(tooltip, (element) => { returnFocus = element; });
@@ -214,6 +217,17 @@ export function createTooltipViewAdapter(callbacks: {
       positionTooltip(tooltip, x, y);
       tooltip.hidden = false;
       if (practiceAvailable) renderPracticeAction(tooltip, callbacks.onPractice);
+      if (grammarEncounter && callbacks.onGrammarPractice) renderGrammarPracticeAction(tooltip, grammarEncounter, callbacks.onGrammarPractice);
+    },
+
+    showGrammarPractice(encounter) {
+      currentSaveButton = null;
+      tooltip.textContent = "";
+      const tether = document.createElement("section"); tether.className = "context-slip-tether";
+      const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Pattern you know";
+      const title = document.createElement("h3"); title.className = "context-slip-title"; title.lang = "nl"; title.textContent = `${encounter.subject} ${encounter.form}`;
+      const copy = document.createElement("p"); copy.className = "context-slip-copy"; copy.textContent = "This exact form belongs to a grammar pattern you have started.";
+      tether.append(kicker, title, copy, actionButton("Back to translation", callbacks.onClose, true)); tooltip.append(tether); tooltip.hidden = false;
     },
 
     updateSaveButton(saveAction) {
@@ -330,6 +344,13 @@ function renderPracticeAction(tooltip: HTMLDivElement, onPractice: () => void): 
   button.textContent = "Practise this";
   button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); onPractice(); });
   actions.append(button);
+}
+
+function renderGrammarPracticeAction(tooltip: HTMLDivElement, encounter: GrammarEncounter, onPractice: () => void): void {
+  const actions = tooltip.querySelector(".hover-translate-actions") ?? tooltip.appendChild(document.createElement("div"));
+  actions.classList.add("hover-translate-actions");
+  const button = document.createElement("button"); button.type = "button"; button.className = "context-slip-button"; button.textContent = `Practise ${encounter.subject} ${encounter.form}`;
+  button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); onPractice(); }); actions.append(button);
 }
 
 function renderMission(

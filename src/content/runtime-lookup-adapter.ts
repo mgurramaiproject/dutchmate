@@ -6,12 +6,14 @@ import {
   requestRuntimeLearningItems,
   requestRuntimeRecordLearningEncounter,
   requestRuntimeRecordMissionResult,
+  requestRuntimeGrammar,
   type RuntimeVocabularyExtensionApi,
 } from "./runtime-vocabulary-client";
 import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
 import type { MvpLanguageCode, SourceLanguageCode } from "../shared/languages";
 import type { ExtensionSettings } from "../shared/settings";
 import type { DailyFiveDimension } from "../vocabulary/daily-five";
+import type { GrammarPatternId } from "../lessons/catalog";
 import {
   PersistentTranslationCache,
   type PersistentTranslationCacheStorage,
@@ -54,6 +56,7 @@ export function createRuntimeLookupAdapter(
   listLearningItems(): ReturnType<typeof requestRuntimeLearningItems>;
   recordLearningEncounter(input: { id: string; context: string; sourceLanguage?: MvpLanguageCode }): ReturnType<typeof requestRuntimeRecordLearningEncounter>;
   recordMissionResult(input: { itemId: string; dimension: DailyFiveDimension; result: "again" | "got-it"; expectedAttemptCount: number }): ReturnType<typeof requestRuntimeRecordMissionResult>;
+  getGrammar(patternId: GrammarPatternId): ReturnType<typeof requestRuntimeGrammar>;
 } {
   let directTranslationCache: PersistentTranslationCache | undefined;
 
@@ -109,6 +112,9 @@ export function createRuntimeLookupAdapter(
     },
     recordMissionResult(input) {
       return requestRuntimeRecordMissionResult(dependencies.extensionApi, input);
+    },
+    getGrammar(patternId) {
+      return requestRuntimeGrammar(dependencies.extensionApi, patternId);
     },
   };
 }

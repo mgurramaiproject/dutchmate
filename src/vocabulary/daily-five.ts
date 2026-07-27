@@ -1,11 +1,12 @@
 import type { LearningItem, LearningMastery, MasteryState } from "./learning-record";
+import type { GrammarPatternId } from "../lessons/catalog";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
 const stateRank: Record<MasteryState, number> = { new: 0, learning: 1, familiar: 2, strong: 3 };
 
 export type DailyFiveDimension = "recognition" | "recall";
 export type DailyFiveResult = "again" | "got-it";
-export type GrammarDailyFiveTask = { kind: "grammar"; patternId: "a0-zijn-present"; contentVersion: 1; exerciseId: string };
+export type GrammarDailyFiveTask = { kind: "grammar"; patternId: GrammarPatternId; contentVersion: 1; exerciseId: string };
 export type DailyFiveTask = { itemId: string; dimension: DailyFiveDimension } | GrammarDailyFiveTask;
 export type DailyFiveSnapshot = { createdAt: number; dayStartAt: number; tasks: DailyFiveTask[]; completedTaskIds: string[]; goalCompleted: boolean };
 

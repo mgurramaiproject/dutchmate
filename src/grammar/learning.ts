@@ -1,8 +1,10 @@
 import type { GrammarExercise } from "./content";
+import type { GrammarPatternId } from "../lessons/catalog";
 
 export type GrammarProgressState = "introduced" | "practising" | "applied";
+export type GrammarOutcome = { type: "check"; answer: string } | { type: "reveal" | "skip" };
 export type GrammarRecord = {
-  patternId: "a0-zijn-present";
+  patternId: GrammarPatternId;
   contentVersion: 1;
   state: GrammarProgressState;
   introducedAt: number;
@@ -22,7 +24,7 @@ export type GrammarRecord = {
 };
 
 const intervals = [1, 3, 7, 14, 30, 60];
-export function introduceGrammar(patternId: "a0-zijn-present", contentVersion: 1, now: number): GrammarRecord {
+export function introduceGrammar(patternId: GrammarPatternId, contentVersion: 1, now: number): GrammarRecord {
   return { patternId, contentVersion, state: "introduced", introducedAt: now, lastPractisedAt: null, dueAt: nextLocalDay(now), intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: now };
 }
 
@@ -30,7 +32,7 @@ export function applyGrammarCheck(record: GrammarRecord, exercise: GrammarExerci
   return applyGrammarOutcome(record, exercise, { type: "check", answer }, now, firstCheck);
 }
 
-export function applyGrammarOutcome(record: GrammarRecord, exercise: GrammarExercise, outcome: { type: "check"; answer: string } | { type: "reveal" | "skip" }, now: number, firstCheck: boolean): GrammarRecord {
+export function applyGrammarOutcome(record: GrammarRecord, exercise: GrammarExercise, outcome: GrammarOutcome, now: number, firstCheck: boolean): GrammarRecord {
   if (!firstCheck) return record;
   const recentExerciseIds = [...record.recentExerciseIds.filter((id) => id !== exercise.id), exercise.id].slice(-8);
   const next: GrammarRecord = { ...record, evidenceRevision: record.evidenceRevision + 1, recentExerciseIds, updatedAt: now, dueAt: nextLocalDay(now) };
