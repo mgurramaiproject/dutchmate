@@ -54,9 +54,10 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .next-action { display: grid; min-width: 0; gap: 7px; padding: 12px; border: 1px solid var(--black); border-left: 6px solid var(--orange); border-radius: 8px; background: var(--white); }
 .next-action .heading { font-size: 1.4rem; line-height: 1; }
 .next-action .button { width: 100%; background: var(--orange); }
-.next-action .continue-lesson-button { width: min(100%, 220px); justify-self: center; background: var(--white) !important; }
+.next-action .lesson-entry-button { width: min(100%, 220px); justify-self: center; background: var(--white) !important; }
 .completion-copy { white-space: normal; font-size: .64rem; letter-spacing: -.01em; }
 .action-meta { display: flex; justify-content: space-between; gap: 8px; margin: 0; color: var(--muted); font-size: .67rem; font-weight: 750; }
+.lesson-completion-meta { margin: -2px 0 0; color: var(--muted); font-size: .66rem; text-align: center; }
 .learning-rhythm, .calendar-card { display: grid; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .section-head strong { font-family: var(--serif); font-size: 1.05rem; }

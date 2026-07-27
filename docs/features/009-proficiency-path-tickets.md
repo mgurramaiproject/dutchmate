@@ -169,7 +169,7 @@ GitHub: [#89](https://github.com/mgurramaiproject/dutchmate/issues/89)
 - [ ] Encounter Coaching is reviewed separately for disruption, false positives, dismissal, and zero incremental provider requests.
 - [ ] Results, limitations, reviewer/date, deviations, and release/revise decision are recorded; failed thresholds produce follow-up work.
 
-**Blocked:** The remaining checks require an independent qualified Dutch reviewer, real Chrome/Firefox browser execution, and a voluntary pilot of 6–10 target learners. Follow-up Chrome/Firefox feedback identified redundant A0-path metadata, unstable filtered lesson numbering, Today resume-action hierarchy, and a failed Saved export; the revised build must be re-tested before browser evidence can be accepted. No release decision is asserted.
+**Blocked:** The remaining checks require an independent qualified Dutch reviewer, real Chrome/Firefox browser execution, and a voluntary pilot of 6–10 target learners. Follow-up browser feedback also found that Today lost its lesson action after completion; the revised build now distinguishes `Continue lesson` from `Learn another lesson` and shows the local completed-lesson count, but it must be re-tested before browser evidence can be accepted. No release decision is asserted.
 
 ## Tracker state at publication
 

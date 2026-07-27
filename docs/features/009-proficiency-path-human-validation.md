@@ -71,6 +71,14 @@ This is another usability/functional finding, not a release sign-off. The revise
 
 Latest revision under test: the A0 path row is removed completely; lesson numbers come from the full catalog rather than the filtered view; the Today resume action is centered and styled as a secondary lesson button; and Saved Export uses the popup's native download link path.
 
+## Follow-up Today feedback before revision
+
+- After completing one lesson, the Today lesson action disappeared because `Continue lesson` was only shown for an incomplete lesson.
+- The requested distinction is now explicit: incomplete work uses `Continue lesson`; after a completed lesson, the action becomes `Learn another lesson` and opens the Lessons tab.
+- Today also shows the local count beneath the action, such as `1 lesson completed today`.
+
+This remains a browser usability finding until the revised state is re-tested in Chrome and Firefox.
+
 ## Learner pilot
 
 This is a small voluntary product-learning check, not telemetry or a statistically powered efficacy study.

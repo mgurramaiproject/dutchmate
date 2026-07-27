@@ -471,8 +471,38 @@ describe("lesson popup", () => {
     button("Today").click();
     await vi.waitFor(() => expect(button("Continue lesson")).toBeTruthy());
     const continueLesson = button("Continue lesson");
-    expect(continueLesson.classList.contains("continue-lesson-button")).toBe(true);
+    expect(continueLesson.classList.contains("lesson-entry-button")).toBe(true);
     expect(continueLesson.classList.contains("secondary-button")).toBe(true);
+    expect(content().querySelector(".lesson-completion-meta")?.textContent).toBe("1 lesson completed today");
+  });
+
+  it("offers another lesson and shows today's completed lesson count", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Hallo, ik ben"));
+    lessonCard("A0 · Hallo, ik ben").click();
+    await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+    button("Notice the pattern").click();
+    await vi.waitFor(() => expect(button("ben")).toBeTruthy());
+    button("ben").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy());
+    button("Continue to Practise").click();
+    for (let index = 0; index < 4; index += 1) {
+      await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+      button("Show answer").click();
+      await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
+      button("Got it").click();
+    }
+    await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+    button("Choose what to keep").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
+    const firstCandidate = content().querySelector<HTMLInputElement>(".candidate-choice input")!;
+    firstCandidate.click();
+    button("Keep 3 for review").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
+    button("Today").click();
+    await vi.waitFor(() => expect(button("Learn another lesson")).toBeTruthy());
+    expect(content().querySelector(".lesson-completion-meta")?.textContent).toBe("1 lesson completed today");
   });
 
   it("moves the three top-level tabs with arrow keys", async () => {
@@ -599,7 +629,7 @@ describe("lesson popup", () => {
     expect(reviewFiveMore.textContent).toBe("Review 5 more");
     expect(content().textContent).not.toContain("Recognition first");
     expect(content().querySelector(".secondary-actions")).toBeFalsy();
-    expect(content().querySelectorAll(".next-action .continue-lesson-button")).toHaveLength(1);
+    expect(content().querySelectorAll(".next-action .lesson-entry-button")).toHaveLength(1);
     reviewFiveMore.click();
     await vi.waitFor(() => expect(runtime.sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.dailyFive", payload: { continueAfterCompletion: true } }));
   });

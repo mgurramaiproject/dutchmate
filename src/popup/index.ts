@@ -297,6 +297,9 @@ function renderToday(): HTMLElement {
     const progress = lessonProgressById[lesson.id];
     return progress && progress.completedAt === null;
   });
+  const hasCompletedLesson = lessonCatalog.lessons.some((lesson) => lessonProgressById[lesson.id]?.completedAt !== null && lessonProgressById[lesson.id]?.completedAt !== undefined);
+  const todayActivity = rhythm?.activity.find((day) => isLocalToday(day.dayStartAt));
+  const lessonsCompletedToday = todayActivity?.lessons ?? todayActivity?.lessonAdditions ?? null;
   const grammarCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "grammar").length;
   const nextAction = section("next-action");
   const actionCopy = completed
@@ -321,10 +324,15 @@ function renderToday(): HTMLElement {
     nextAction.append(action);
   }
   nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
-  if (inProgress) {
-    const continueLesson = button("Continue lesson", "button secondary-button continue-lesson-button");
-    continueLesson.addEventListener("click", () => void startLesson(inProgress));
-    nextAction.append(continueLesson);
+  const lessonActionLabel = inProgress ? "Continue lesson" : hasCompletedLesson ? "Learn another lesson" : null;
+  if (lessonActionLabel) {
+    const lessonAction = button(lessonActionLabel, "button secondary-button lesson-entry-button");
+    lessonAction.addEventListener("click", () => {
+      if (inProgress) void startLesson(inProgress);
+      else { screen = "lessons"; render(); }
+    });
+    nextAction.append(lessonAction);
+    if (lessonsCompletedToday !== null) nextAction.append(text(`${lessonsCompletedToday} lesson${lessonsCompletedToday === 1 ? "" : "s"} completed today`, "lesson-completion-meta"));
   }
   wrapper.append(nextAction);
   if (rhythm) wrapper.append(renderRhythm(rhythm));
