@@ -189,15 +189,15 @@ GitHub: [#93](https://github.com/mgurramaiproject/dutchmate/issues/93)
 
 | Ticket | GitHub | Label | Execution | Delivery Status | Default Status |
 | --- | --- | --- | --- | --- | --- |
-| T01 | [#82](https://github.com/mgurramaiproject/dutchmate/issues/82) | `ready-for-agent` | Agent | Ready | Todo |
-| T02 | [#83](https://github.com/mgurramaiproject/dutchmate/issues/83) | `ready-for-agent` | Agent | Blocked | Todo |
-| T03 | [#84](https://github.com/mgurramaiproject/dutchmate/issues/84) | `ready-for-agent` | Agent | Blocked | Todo |
-| T04 | [#85](https://github.com/mgurramaiproject/dutchmate/issues/85) | `ready-for-agent` | Agent | Blocked | Todo |
-| T05 | [#86](https://github.com/mgurramaiproject/dutchmate/issues/86) | `ready-for-agent` | Agent | Blocked | Todo |
-| T06 | [#87](https://github.com/mgurramaiproject/dutchmate/issues/87) | `ready-for-agent` | Agent | Blocked | Todo |
-| T07 | [#88](https://github.com/mgurramaiproject/dutchmate/issues/88) | `ready-for-agent` | Agent | Blocked | Todo |
-| T08 | [#89](https://github.com/mgurramaiproject/dutchmate/issues/89) | `ready-for-human` | Human | Blocked | Todo |
-| T09 | [#93](https://github.com/mgurramaiproject/dutchmate/issues/93) | `ready-for-agent` | Agent | In Progress | In Progress |
+| T01 | [#82](https://github.com/mgurramaiproject/dutchmate/issues/82) | `ready-for-agent` | Agent | Done | Done |
+| T02 | [#83](https://github.com/mgurramaiproject/dutchmate/issues/83) | `ready-for-agent` | Agent | Done | Done |
+| T03 | [#84](https://github.com/mgurramaiproject/dutchmate/issues/84) | `ready-for-agent` | Agent | Done | Done |
+| T04 | [#85](https://github.com/mgurramaiproject/dutchmate/issues/85) | `ready-for-agent` | Agent | Done | Done |
+| T05 | [#86](https://github.com/mgurramaiproject/dutchmate/issues/86) | `ready-for-agent` | Agent | In Review | In Progress |
+| T06 | [#87](https://github.com/mgurramaiproject/dutchmate/issues/87) | `ready-for-agent` | Agent | In Review | In Progress |
+| T07 | [#88](https://github.com/mgurramaiproject/dutchmate/issues/88) | `ready-for-agent` | Agent | In Review | In Progress |
+| T08 | [#89](https://github.com/mgurramaiproject/dutchmate/issues/89) | `ready-for-human` | Human | In Review | In Progress |
+| T09 | [#93](https://github.com/mgurramaiproject/dutchmate/issues/93) | `ready-for-agent` | Agent | In Review | In Progress |
 
 ## Local delivery handoff
 
