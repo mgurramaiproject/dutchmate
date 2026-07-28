@@ -198,3 +198,7 @@ GitHub: [#93](https://github.com/mgurramaiproject/dutchmate/issues/93)
 | T07 | [#88](https://github.com/mgurramaiproject/dutchmate/issues/88) | `ready-for-agent` | Agent | Blocked | Todo |
 | T08 | [#89](https://github.com/mgurramaiproject/dutchmate/issues/89) | `ready-for-human` | Human | Blocked | Todo |
 | T09 | [#93](https://github.com/mgurramaiproject/dutchmate/issues/93) | `ready-for-agent` | Agent | In Progress | In Progress |
+
+## Local delivery handoff
+
+T09 is complete locally on `feature-009-proficiency-path` at commit `5825daa`; the branch is pushed and the checked-in checklist is complete. GitHub issue bodies, issue state, the Delivery project, and the bundled PR still require GitHub write access.
