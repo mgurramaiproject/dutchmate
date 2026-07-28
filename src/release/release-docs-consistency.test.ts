@@ -71,6 +71,6 @@ describe("release docs consistency", () => {
     }
     expect(validation).toContain("No participant data belongs in git");
     expect(validation).toContain("release / revise");
-    expect(validation).toContain("BLOCKED pending external evidence");
+    expect(validation).toContain("Human validation passed with accepted limitations");
   });
 });
