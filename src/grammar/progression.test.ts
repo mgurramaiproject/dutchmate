@@ -19,7 +19,7 @@ describe("A0 foundation progression", () => {
   });
 
   it("keeps pattern progress separate and honest", () => {
-    expect(getGrammarProgressLabel(undefined)).toBe("Not started");
+    expect(getGrammarProgressLabel(undefined)).toBeNull();
     expect(getGrammarProgressLabel(record("a0-zijn-present", "introduced"))).toBe("Introduced");
     expect(getGrammarProgressLabel(record("a0-zijn-present", "practising"))).toBe("Practising");
     expect(getGrammarProgressLabel(record("a0-zijn-present", "applied"))).toBe("Applied");

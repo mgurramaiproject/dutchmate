@@ -178,12 +178,12 @@ GitHub: [#93](https://github.com/mgurramaiproject/dutchmate/issues/93)
 
 **What to build:** Repair the final A0 grammar-loop gaps found by the standards/spec review while preserving the approved single-habit navigation and the human-validation limitations recorded in T08.
 
-- [ ] Encounter Coaching launches one compatible reviewed exercise, records shared grammar evidence, and preserves dismissal/focus/privacy behavior.
-- [ ] Grammar introduction waits for the teaching encounter; lesson Reveal/Skip persist safe next-day outcomes without success evidence.
-- [ ] The earliest incomplete A0 pattern is discoverable through existing Today/Lessons surfaces without an A0 path panel; unstarted patterns have no progress label.
-- [ ] Delayed evidence requires 24 elapsed hours rather than merely crossing local midnight.
-- [ ] Released grammar metadata records the completed human review instead of `self-reviewed`.
-- [ ] Regression tests preserve lesson progress, vocabulary, Daily Five composition, Encounter Coaching privacy, and backup contracts.
+- [x] Encounter Coaching launches one compatible reviewed exercise, records shared grammar evidence, and preserves dismissal/focus/privacy behavior. (`src/content/webpage-lookup-module.ts`, `src/content/tooltip-view-adapter.ts`, `src/content/webpage-lookup-module.test.ts`, `src/content/tooltip-view-adapter.test.ts`)
+- [x] Grammar introduction waits for the teaching encounter; lesson Reveal/Skip persist safe next-day outcomes without success evidence. (`src/popup/index.ts`, `src/grammar/learning.ts`, `src/grammar/learning.test.ts`)
+- [x] The earliest incomplete A0 pattern is discoverable through existing Today/Lessons surfaces without an A0 path panel; unstarted patterns have no progress label. (`src/grammar/progression.ts`, `src/popup/index.ts`, `src/popup/index.test.ts`)
+- [x] Delayed evidence requires 24 elapsed hours rather than merely crossing local midnight. (`src/grammar/learning.ts`, `src/grammar/learning.test.ts`)
+- [x] Released grammar metadata records the completed human review instead of `self-reviewed`. (`src/grammar/content.ts`)
+- [x] Regression tests preserve lesson progress, vocabulary, Daily Five composition, Encounter Coaching privacy, and backup contracts. (`npm run verify`, `npm run verify:release`)
 
 ## Tracker state at publication
 
@@ -197,4 +197,4 @@ GitHub: [#93](https://github.com/mgurramaiproject/dutchmate/issues/93)
 | T06 | [#87](https://github.com/mgurramaiproject/dutchmate/issues/87) | `ready-for-agent` | Agent | Blocked | Todo |
 | T07 | [#88](https://github.com/mgurramaiproject/dutchmate/issues/88) | `ready-for-agent` | Agent | Blocked | Todo |
 | T08 | [#89](https://github.com/mgurramaiproject/dutchmate/issues/89) | `ready-for-human` | Human | Blocked | Todo |
-| T09 | [#93](https://github.com/mgurramaiproject/dutchmate/issues/93) | `ready-for-agent` | Agent | Ready | Todo |
+| T09 | [#93](https://github.com/mgurramaiproject/dutchmate/issues/93) | `ready-for-agent` | Agent | In Progress | In Progress |

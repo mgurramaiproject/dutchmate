@@ -43,6 +43,15 @@ describe("zijn grammar evidence", () => {
     expect(applyGrammarOutcome(record, zijnPattern.exercises[0], { type: "skip" }, start, true)).toMatchObject({ state: "introduced", successfulEvidenceCount: 0 });
   });
 
+  it("waits for 24 elapsed hours before delayed evidence", () => {
+    const start = new Date(2026, 0, 1, 23).getTime();
+    const record = introduceGrammar("a0-zijn-present", 1, start);
+    const nextDayBefore24Hours = applyGrammarCheck(record, zijnPattern.exercises[0], "ben", start + 60 * 60 * 1000, true);
+    expect(nextDayBefore24Hours.delayedEvidence).toBe(false);
+    const after24Hours = applyGrammarCheck(record, zijnPattern.exercises[0], "ben", start + 86_400_000, true);
+    expect(after24Hours.delayedEvidence).toBe(true);
+  });
+
   it("applies the same evidence contract to hebben", () => {
     const start = Date.UTC(2026, 0, 1, 9);
     let record = introduceGrammar("a0-hebben-present", 1, start);

@@ -7,6 +7,26 @@ afterEach(() => {
 });
 
 describe("TooltipViewAdapter", () => {
+  it("renders a reviewed grammar exercise and routes a click-only answer flow", () => {
+    const onGrammarAnswer = vi.fn(); const onGrammarCheck = vi.fn(); const onClose = vi.fn();
+    const view = createTooltipViewAdapter({
+      onSaveClick: vi.fn(), onPractice: vi.fn(), onGrammarAnswer, onGrammarCheck, onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose,
+    });
+
+    view.showGrammarPractice({ encounter: { patternId: "a0-hebben-present", subject: "u", form: "heeft" }, exercise: { id: "hebben-choose-ik", primitive: "choose-form", prompt: "Choose the form for ik.", context: "Ik ___ Noor.", choices: ["heb", "hebt", "heeft"] }, answer: null });
+    expect(document.querySelector(".context-slip-prompt")?.textContent).toBe("Choose the form for ik.");
+    Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "heb")?.click();
+    expect(onGrammarAnswer).toHaveBeenCalledWith("heb");
+    view.showGrammarPractice({ encounter: { patternId: "a0-hebben-present", subject: "u", form: "heeft" }, exercise: { id: "hebben-choose-ik", primitive: "choose-form", prompt: "Choose the form for ik.", context: "Ik ___ Noor.", choices: ["heb", "hebt", "heeft"] }, answer: "heb" });
+    Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Check")?.click();
+    expect(onGrammarCheck).toHaveBeenCalledOnce();
+
+    view.showGrammarPractice({ encounter: { patternId: "a0-hebben-present", subject: "u", form: "heeft" }, exercise: { id: "hebben-choose-ik", primitive: "choose-form", prompt: "Choose the form for ik.", context: "Ik ___ Noor.", choices: ["heb", "hebt", "heeft"] }, answer: "heb", result: { type: "check", correct: true, feedback: "With ik, use heb: ik heb Noor." } });
+    expect(document.querySelector("[role='status']")?.textContent).toContain("With ik, use heb");
+    Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent === "Back to translation")?.click();
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
   it("makes the initial translating state explicit and readable", () => {
     const view = createTooltipViewAdapter({
       onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn(),

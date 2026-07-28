@@ -10,7 +10,8 @@ import { getChunkCandidate } from "./chunk-candidate";
 import type { CreateOrMergeLearningItemInput, LearningItem } from "../vocabulary/learning-record";
 import { getWeakerMasteryDimension, type DailyFiveDimension } from "../vocabulary/daily-five";
 import { normalizeMissionText } from "./mission-text";
-import { grammarPatterns, matchIntroducedGrammarEncounter } from "../grammar/content";
+import { grammarPatterns, getGrammarPattern, matchIntroducedGrammarEncounter, type GrammarExercise } from "../grammar/content";
+import { grammarResultMessage } from "../grammar/learning";
 import type { GrammarPatternId } from "../lessons/catalog";
 import type { GrammarRecord } from "../grammar/learning";
 
@@ -145,6 +146,14 @@ export type RecallMission = {
   token: number;
 };
 export type GrammarEncounter = { patternId: GrammarPatternId; subject: string; form: string };
+export type GrammarPractice = {
+  encounter: GrammarEncounter;
+  exercise: Pick<GrammarExercise, "id" | "primitive" | "prompt" | "context" | "choices" | "tokens">;
+  answer: string | null;
+  result?: { type: "check" | "reveal" | "skip"; correct?: boolean; feedback: string };
+  submitting?: boolean;
+  error?: string;
+};
 
 export type WebpageLookupModuleEvent =
   | {
@@ -186,7 +195,7 @@ export type WebpageLookupModuleEvent =
       mission: ContextMission;
     }
   | { type: "render-recall-mission"; mission: RecallMission }
-  | { type: "render-grammar-encounter"; encounter: GrammarEncounter }
+  | { type: "render-grammar-encounter"; practice: GrammarPractice }
   | {
       type: "hide-tooltip";
     };
@@ -206,6 +215,7 @@ export type TranslationTransport = {
   recordLearningEncounter?(input: { id: string; context: string; sourceLanguage?: MvpLanguageCode }): Promise<{ ok: boolean }>;
   recordMissionResult?(input: { itemId: string; dimension: DailyFiveDimension; result: "again" | "got-it"; expectedAttemptCount: number }): Promise<{ ok: boolean; error?: string }>;
   getGrammar?(patternId: GrammarPatternId): Promise<{ ok: boolean; result?: { grammar: GrammarRecord | null } }>;
+  recordGrammarResult?(input: { patternId: GrammarPatternId; contentVersion: 1; exerciseId: string; answer?: string; outcome?: "reveal" | "skip"; expectedEvidenceRevision: number }): Promise<{ ok: boolean; result?: { grammar: GrammarRecord }; error?: string }>;
 };
 
 type StorageChange = {
@@ -231,6 +241,10 @@ export class WebpageLookupModule {
   #currentChunk: CreateOrMergeLearningItemInput | null = null;
   #practiceSelection: { dutch: string; pageContext: string | null } | null = null;
   #grammarEncounter: GrammarEncounter | null = null;
+  #grammarRecord: GrammarRecord | null = null;
+  #grammarPractice: GrammarPractice | null = null;
+  #nextGrammarPracticeToken = 0;
+  #grammarPracticeToken = 0;
   #mission: ContextMission | null = null;
   #recallMission: RecallMission | null = null;
   #pendingRecallLookup: WebpageLookupInput | null = null;
@@ -298,6 +312,9 @@ export class WebpageLookupModule {
     this.#currentChunk = null;
     this.#practiceSelection = null;
     this.#grammarEncounter = null;
+    this.#grammarRecord = null;
+    this.#grammarPractice = null;
+    this.#nextGrammarPracticeToken += 1;
     this.#mission = null;
     this.#recallMission = null;
     this.#pendingRecallLookup = null;
@@ -310,6 +327,9 @@ export class WebpageLookupModule {
     this.#currentSaveItemId = null;
     this.#practiceSelection = null;
     this.#grammarEncounter = null;
+    this.#grammarRecord = null;
+    this.#grammarPractice = null;
+    this.#nextGrammarPracticeToken += 1;
     this.#mission = null;
     this.#recallMission = null;
     this.#pendingRecallLookup = null;
@@ -609,7 +629,85 @@ export class WebpageLookupModule {
   }
 
   startGrammarPractice(): void {
-    if (this.#grammarEncounter) this.#emit({ type: "render-grammar-encounter", encounter: this.#grammarEncounter });
+    const encounter = this.#grammarEncounter;
+    if (!encounter || !this.#deps.transport.getGrammar) return;
+    void this.#loadGrammarPractice(encounter);
+  }
+
+  async #loadGrammarPractice(encounter: GrammarEncounter): Promise<void> {
+    const requestToken = ++this.#nextGrammarPracticeToken;
+    try {
+      const response = await this.#deps.transport.getGrammar!(encounter.patternId);
+      const record = response.ok ? response.result?.grammar : null;
+      const pattern = getGrammarPattern(encounter.patternId);
+      if (!record || !pattern || this.#grammarEncounter !== encounter || this.#nextGrammarPracticeToken !== requestToken) return;
+      const exercise = pattern.exercises.find((candidate) => !record.recentExerciseIds.includes(candidate.id)) ?? pattern.exercises[0];
+      if (!exercise) return;
+      this.#grammarRecord = record;
+      this.#grammarPracticeToken = requestToken;
+      this.#grammarPractice = { encounter, exercise: { id: exercise.id, primitive: exercise.primitive, prompt: exercise.prompt, context: exercise.context, choices: exercise.choices, ...(exercise.tokens ? { tokens: exercise.tokens } : {}) }, answer: null };
+      this.#emit({ type: "render-grammar-encounter", practice: this.#grammarPractice });
+    } catch {
+      this.#grammarPractice = null;
+    }
+  }
+
+  chooseGrammarAnswer(answer: string): void {
+    const practice = this.#grammarPractice;
+    const tokens = practice?.exercise.tokens;
+    const validOrderAnswer = Boolean(tokens && answer.split(" ").every((token, index) => token === tokens[index]) && answer.split(" ").length <= tokens.length);
+    if (!practice || practice.result || practice.submitting || (!practice.exercise.choices.includes(answer) && !validOrderAnswer)) return;
+    this.#grammarPractice = { ...practice, answer, error: undefined };
+    this.#emit({ type: "render-grammar-encounter", practice: this.#grammarPractice });
+  }
+
+  checkGrammarPractice(): void {
+    const practice = this.#grammarPractice;
+    const record = this.#grammarRecord;
+    const exercise = practice && getGrammarPattern(practice.encounter.patternId)?.exercises.find((candidate) => candidate.id === practice.exercise.id);
+    if (!practice || !record || !exercise || practice.result || practice.submitting || !practice.answer) return;
+    const result = grammarResultMessage(record, exercise, practice.answer);
+    void this.#recordGrammarPractice({ type: "check", correct: result.correct, feedback: result.feedback });
+  }
+
+  revealGrammarPractice(): void {
+    const practice = this.#grammarPractice;
+    const record = this.#grammarRecord;
+    const exercise = practice && getGrammarPattern(practice.encounter.patternId)?.exercises.find((candidate) => candidate.id === practice.exercise.id);
+    if (!practice || !record || !exercise || practice.result || practice.submitting) return;
+    void this.#recordGrammarPractice({ type: "reveal", feedback: `Answer: ${exercise.accepted.join(" or ")}` }, "reveal");
+  }
+
+  skipGrammarPractice(): void {
+    const practice = this.#grammarPractice;
+    if (!practice || practice.result || practice.submitting) return;
+    void this.#recordGrammarPractice({ type: "skip", feedback: "Skipped. Try this pattern again when you are ready." }, "skip");
+  }
+
+  retryGrammarPractice(): void {
+    const encounter = this.#grammarEncounter;
+    if (encounter) void this.#loadGrammarPractice(encounter);
+  }
+
+  async #recordGrammarPractice(result: NonNullable<GrammarPractice["result"]>, outcome?: "reveal" | "skip"): Promise<void> {
+    const practice = this.#grammarPractice;
+    const record = this.#grammarRecord;
+    const recordGrammarResult = this.#deps.transport.recordGrammarResult;
+    if (!practice || !record || !recordGrammarResult) return;
+    const practiceToken = this.#grammarPracticeToken;
+    this.#grammarPractice = { ...practice, result: undefined, submitting: true, error: undefined };
+    this.#emit({ type: "render-grammar-encounter", practice: this.#grammarPractice });
+    try {
+      const response = await recordGrammarResult({ patternId: practice.encounter.patternId, contentVersion: 1, exerciseId: practice.exercise.id, expectedEvidenceRevision: record.evidenceRevision, ...(outcome ? { outcome } : { answer: practice.answer ?? undefined }) });
+      if (!response.ok || !response.result?.grammar) throw new Error(response.error ?? "Grammar result could not be saved.");
+      if (this.#grammarPracticeToken !== practiceToken || this.#grammarEncounter !== practice.encounter) return;
+      this.#grammarRecord = response.result.grammar;
+      this.#grammarPractice = { ...practice, result, submitting: false, error: undefined };
+    } catch (error) {
+      if (this.#grammarPracticeToken !== practiceToken || this.#grammarEncounter !== practice.encounter) return;
+      this.#grammarPractice = { ...practice, submitting: false, error: error instanceof Error ? error.message : "Grammar result could not be saved." };
+    }
+    this.#emit({ type: "render-grammar-encounter", practice: this.#grammarPractice });
   }
 
   addMissionFragment(index: number): void {

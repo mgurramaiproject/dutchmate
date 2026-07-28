@@ -69,7 +69,7 @@ describe("WebpageLookupModule", () => {
     expect(translationCalls).toBeGreaterThan(0);
     module.startGrammarPractice();
     expect(translate).toHaveBeenCalledTimes(translationCalls);
-    expect(events).toContainEqual({ type: "render-grammar-encounter", encounter: { patternId: "a0-hebben-present", subject: "u", form: "heeft" } });
+    await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter", practice: expect.objectContaining({ encounter: { patternId: "a0-hebben-present", subject: "u", form: "heeft" }, exercise: expect.objectContaining({ id: "hebben-choose-ik" }) }) })));
   });
 
   it("offers an introduced exact regular-present encounter through the same lookup seam", async () => {
@@ -86,6 +86,56 @@ describe("WebpageLookupModule", () => {
     await module.beginLookup({ text: "jij werkt", context: "hover", x: 1, y: 1, sourceLanguageHint: "nl" });
 
     expect(events).toContainEqual(expect.objectContaining({ type: "render-result", grammarEncounter: { patternId: "a0-regular-present", subject: "jij", form: "werkt" } }));
+  });
+
+  it("checks one reviewed encounter exercise and records grammar evidence without translating again", async () => {
+    const events: unknown[] = [];
+    const grammar: GrammarRecord = { patternId: "a0-hebben-present", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, dueAt: 2, intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 };
+    const translate = vi.fn(createTransport().translate);
+    const recordGrammarResult = vi.fn(async () => ({ ok: true as const, result: { grammar: { ...grammar, state: "practising" as const, evidenceRevision: 1, recentExerciseIds: ["hebben-choose-ik"] } } }));
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({ translate, getGrammar: async (patternId) => ({ ok: true, result: { grammar: patternId === "a0-hebben-present" ? grammar : null } }), recordGrammarResult }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "u heeft", context: "hover", x: 1, y: 1, sourceLanguageHint: "nl" });
+    const translationCalls = translate.mock.calls.length;
+    module.startGrammarPractice();
+    await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter", practice: expect.objectContaining({ exercise: expect.objectContaining({ id: "hebben-choose-ik" }) }) })));
+    module.chooseGrammarAnswer("heb");
+    module.checkGrammarPractice();
+    await vi.waitFor(() => expect(recordGrammarResult).toHaveBeenCalledWith(expect.objectContaining({ patternId: "a0-hebben-present", exerciseId: "hebben-choose-ik", answer: "heb", expectedEvidenceRevision: 0 })));
+    await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter", practice: expect.objectContaining({ result: expect.objectContaining({ type: "check", correct: true }) }) })));
+    expect(translate).toHaveBeenCalledTimes(translationCalls);
+  });
+
+  it("does not resurrect Encounter Coaching after dismissal while evidence is saving", async () => {
+    const events: unknown[] = [];
+    const grammar: GrammarRecord = { patternId: "a0-hebben-present", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, dueAt: 2, intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 };
+    let resolveRecord: ((response: { ok: true; result: { grammar: GrammarRecord } }) => void) | undefined;
+    const recordGrammarResult = vi.fn(() => new Promise<{ ok: true; result: { grammar: GrammarRecord } }>((resolve) => { resolveRecord = resolve; }));
+    const module = new WebpageLookupModule({
+      getSettings: () => defaultSettings,
+      transport: createTransport({ getGrammar: async (patternId) => ({ ok: true, result: { grammar: patternId === "a0-hebben-present" ? grammar : null } }), recordGrammarResult }),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "u heeft", context: "hover", x: 1, y: 1, sourceLanguageHint: "nl" });
+    module.startGrammarPractice();
+    await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter" })));
+    module.chooseGrammarAnswer("heb");
+    module.checkGrammarPractice();
+    await vi.waitFor(() => expect(recordGrammarResult).toHaveBeenCalled());
+    module.clear();
+    const eventsAfterDismissal = events.length;
+    resolveRecord?.({ ok: true, result: { grammar: { ...grammar, evidenceRevision: 1 } } });
+    await new Promise((resolve) => globalThis.setTimeout(resolve, 0));
+    expect(events.slice(eventsAfterDismissal).some((event) => (event as { type?: string }).type === "render-grammar-encounter")).toBe(false);
   });
 
   it("offers an introduced exact inversion sequence without another provider request", async () => {
@@ -106,7 +156,7 @@ describe("WebpageLookupModule", () => {
     const translationCalls = translate.mock.calls.length;
     module.startGrammarPractice();
     expect(translate).toHaveBeenCalledTimes(translationCalls);
-    expect(events).toContainEqual({ type: "render-grammar-encounter", encounter: { patternId: "a0-yes-no-inversion", subject: "je", form: "woon" } });
+    await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter", practice: expect.objectContaining({ encounter: { patternId: "a0-yes-no-inversion", subject: "je", form: "woon" }, exercise: expect.objectContaining({ id: "inversion-order-je" }) }) })));
   });
 
   it("offers a saved selection locally before contacting the translation provider", async () => {

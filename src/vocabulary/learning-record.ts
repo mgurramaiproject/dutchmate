@@ -128,14 +128,14 @@ export class LearningRecordStore {
     return grammar;
   }
 
-  async recordGrammarCheck(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string, expectedRevision: number): Promise<{ grammar: GrammarRecord; recorded: boolean }> {
+  async recordGrammarCheck(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string | null, expectedRevision: number, outcome: GrammarOutcome = { type: "check", answer: answer! }): Promise<{ grammar: GrammarRecord; recorded: boolean }> {
     const record = await this.readMigrated();
     const grammar = record.grammar[patternId];
     const pattern = getGrammarPattern(patternId);
     const exercise = pattern?.exercises.find((candidate) => candidate.id === exerciseId);
-    if (!isGrammarContentAvailable() || !grammar || !pattern || !exercise || contentVersion !== 1 || !exercise.choices.includes(answer) && !exercise.distractors.some((distractor) => distractor.value === answer)) throw new Error("This grammar exercise is unavailable.");
+    if (!isGrammarContentAvailable() || !grammar || !pattern || !exercise || contentVersion !== 1 || (outcome.type === "check" && (!answer || !exercise.choices.includes(answer) && !exercise.distractors.some((distractor) => distractor.value === answer)))) throw new Error("This grammar exercise is unavailable.");
     if (grammar.evidenceRevision !== expectedRevision) return { grammar, recorded: false };
-    const updated = applyGrammarCheck(grammar, exercise, answer, this.now(), true);
+    const updated = applyGrammarOutcome(grammar, exercise, outcome, this.now(), true);
     record.grammar[patternId] = updated;
     await this.write(record);
     return { grammar: updated, recorded: true };

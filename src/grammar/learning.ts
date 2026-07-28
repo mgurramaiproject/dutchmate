@@ -24,6 +24,7 @@ export type GrammarRecord = {
 };
 
 const intervals = [1, 3, 7, 14, 30, 60];
+const DAY_MS = 86_400_000;
 export function introduceGrammar(patternId: GrammarPatternId, contentVersion: 1, now: number): GrammarRecord {
   return { patternId, contentVersion, state: "introduced", introducedAt: now, lastPractisedAt: null, dueAt: nextLocalDay(now), intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: now };
 }
@@ -53,7 +54,7 @@ export function applyGrammarOutcome(record: GrammarRecord, exercise: GrammarExer
   next.primitives = [...new Set([...record.primitives, exercise.primitive])].slice(-8);
   next.contextTags = [...new Set([...record.contextTags, exercise.contextTag])].slice(-8);
   next.recentSuccessfulDays = [...new Set([...record.recentSuccessfulDays, localDay(now)])].slice(-8);
-  next.delayedEvidence = record.delayedEvidence || (localDay(now) >= addLocalDays(localDay(record.introducedAt), 1) && !record.recentExerciseIds.includes(exercise.id));
+  next.delayedEvidence = record.delayedEvidence || (now - record.introducedAt >= DAY_MS && !record.recentExerciseIds.includes(exercise.id));
   const relatedMisconceptions = new Set(exercise.distractors.map((distractor) => distractor.misconception));
   next.misconceptionCounts = Object.fromEntries(Object.entries(record.misconceptionCounts).map(([key, count]) => [key, relatedMisconceptions.has(key as never) ? Math.max(0, count - 1) : count]));
   if (next.successfulExerciseIds.length >= 4 && next.primitives.length >= 2 && next.contextTags.length >= 3 && next.recentSuccessfulDays.length >= 2 && next.delayedEvidence) next.state = "applied";

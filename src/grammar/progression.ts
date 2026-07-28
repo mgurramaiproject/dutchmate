@@ -4,8 +4,8 @@ import type { GrammarPatternId } from "../lessons/catalog";
 
 export type GrammarProgressLabel = "Not started" | "Introduced" | "Practising" | "Applied";
 
-export function getGrammarProgressLabel(record: GrammarRecord | null | undefined): GrammarProgressLabel {
-  if (!record) return "Not started";
+export function getGrammarProgressLabel(record: GrammarRecord | null | undefined): GrammarProgressLabel | null {
+  if (!record) return null;
   return record.state === "introduced" ? "Introduced" : record.state === "practising" ? "Practising" : "Applied";
 }
 

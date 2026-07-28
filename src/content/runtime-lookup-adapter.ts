@@ -7,6 +7,7 @@ import {
   requestRuntimeRecordLearningEncounter,
   requestRuntimeRecordMissionResult,
   requestRuntimeGrammar,
+  requestRuntimeGrammarResult,
   type RuntimeVocabularyExtensionApi,
 } from "./runtime-vocabulary-client";
 import type { CreateOrMergeLearningItemInput } from "../vocabulary/learning-record";
@@ -57,6 +58,7 @@ export function createRuntimeLookupAdapter(
   recordLearningEncounter(input: { id: string; context: string; sourceLanguage?: MvpLanguageCode }): ReturnType<typeof requestRuntimeRecordLearningEncounter>;
   recordMissionResult(input: { itemId: string; dimension: DailyFiveDimension; result: "again" | "got-it"; expectedAttemptCount: number }): ReturnType<typeof requestRuntimeRecordMissionResult>;
   getGrammar(patternId: GrammarPatternId): ReturnType<typeof requestRuntimeGrammar>;
+  recordGrammarResult(input: { patternId: GrammarPatternId; contentVersion: 1; exerciseId: string; answer?: string; outcome?: "reveal" | "skip"; expectedEvidenceRevision: number }): ReturnType<typeof requestRuntimeGrammarResult>;
 } {
   let directTranslationCache: PersistentTranslationCache | undefined;
 
@@ -115,6 +117,9 @@ export function createRuntimeLookupAdapter(
     },
     getGrammar(patternId) {
       return requestRuntimeGrammar(dependencies.extensionApi, patternId);
+    },
+    recordGrammarResult(input) {
+      return requestRuntimeGrammarResult(dependencies.extensionApi, input);
     },
   };
 }

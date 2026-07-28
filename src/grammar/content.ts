@@ -128,8 +128,8 @@ export const zijnPattern: GrammarPattern = {
   companionLessonId: "a0-hallo-ik-ben",
   review: {
     author: "DutchMate team",
-    reviewState: "self-reviewed",
-    reviewer: "DutchMate team",
+    reviewState: "second-review-complete",
+    reviewer: "Project owner",
     reviewedAt: "2026-07-27",
     sources: ["https://taaladvies.net/u-is-of-bent/"],
     provenance: "Original DutchMate-authored examples; no copied table or sentence text.",
@@ -192,7 +192,7 @@ export const hebbenPattern: GrammarPattern = {
   ],
   companionLessonId: "a0-ik-heb-dit-nodig",
   review: {
-    author: "DutchMate team", reviewState: "self-reviewed", reviewer: "DutchMate team", reviewedAt: "2026-07-27",
+    author: "DutchMate team", reviewState: "second-review-complete", reviewer: "Project owner", reviewedAt: "2026-07-27",
     sources: ["https://taaladvies.net/u-heeft-of-hebt/", "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/onregelmatig_werkwoord.html"],
     provenance: "Original DutchMate-authored examples; u hebt and u heeft are both retained as reviewed alternatives.",
   },
@@ -265,7 +265,7 @@ export const regularPattern: GrammarPattern = {
   ],
   companionLessonId: "a0-ik-woon-en-werk-hier",
   review: {
-    author: "DutchMate team", reviewState: "self-reviewed", reviewer: "DutchMate team", reviewedAt: "2026-07-27",
+    author: "DutchMate team", reviewState: "second-review-complete", reviewer: "Project owner", reviewedAt: "2026-07-27",
     sources: ["https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/", "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/vervoeging.html"],
     provenance: "Original DutchMate-authored examples using reviewed regular present-tense subject agreement; no copied sentence text.",
   },
@@ -327,7 +327,7 @@ export const inversionPattern: GrammarPattern = {
   ],
   companionLessonId: "a0-woon-je-hier",
   review: {
-    author: "DutchMate team", reviewState: "self-reviewed", reviewer: "DutchMate team", reviewedAt: "2026-07-27",
+    author: "DutchMate team", reviewState: "second-review-complete", reviewer: "Project owner", reviewedAt: "2026-07-27",
     sources: ["https://taaladvies.net/termen-inversie/", "https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/"],
     provenance: "Original DutchMate-authored questions using reviewed finite-verb inversion; no copied sentence text.",
   },

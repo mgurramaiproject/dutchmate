@@ -16,7 +16,7 @@ import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSaved
 import { grammarResultMessage } from "../grammar/learning";
 import { getGrammarPattern, grammarPatterns, type GrammarExercise } from "../grammar/content";
 import type { GrammarRecord } from "../grammar/learning";
-import { getGrammarProgressLabel } from "../grammar/progression";
+import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
@@ -456,6 +456,7 @@ function renderLessons(): HTMLElement {
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
   const library = section("lesson-library");
   const visibleLessons = filterLessons(lessonCatalog.lessons, lessonProgressById, lessonStatusFilter, lessonLevelFilter);
+  const nextFoundationPattern = getNextFoundationPattern(grammarPatterns, grammarRecords);
   for (const lessonDefinition of visibleLessons) {
     const lessonNumber = lessonCatalog.lessons.indexOf(lessonDefinition) + 1;
     const lesson = button("", "lesson-card lesson-row");
@@ -471,9 +472,11 @@ function renderLessons(): HTMLElement {
     const meta = document.createElement("small");
     meta.textContent = `${lessonDefinition.pathway.replaceAll("-", " ")} · ${availabilityStatus === "continue" ? `Continue · ${lessonStageLabel(lessonProgress!.stage)} · 3 min left` : status}`;
     const pattern = lessonDefinition.grammarCompanion && getGrammarPattern(lessonDefinition.grammarCompanion.patternId);
-    const patternMeta = pattern ? text(`Pattern: ${getGrammarProgressLabel(grammarRecords[pattern.id])}`, "lesson-pattern-status") : null;
+    const progressLabel = pattern ? getGrammarProgressLabel(grammarRecords[pattern.id]) : null;
+    const patternMeta = pattern && progressLabel ? text(`Pattern: ${progressLabel}`, "lesson-pattern-status") : null;
     copy.append(titleNode, meta);
     if (patternMeta) copy.append(patternMeta);
+    if (pattern?.id === nextFoundationPattern?.id) copy.append(text("Next A0 pattern", "lesson-pattern-status lesson-pattern-next"));
     lesson.append(text(String(lessonNumber).padStart(2, "0"), "lesson-number"), copy, text(`(${level})`, "level"));
     lesson.addEventListener("click", () => void startLesson(lessonDefinition));
     library.append(lesson);
@@ -640,10 +643,19 @@ function renderGrammarNotice(session: LessonSession, patternId: GrammarPatternId
   }
   return panel;
 }
-function showGrammarOutcome(patternId: GrammarPatternId, exerciseId: string, outcome: "reveal" | "skip"): void {
+async function showGrammarOutcome(patternId: GrammarPatternId, exerciseId: string, outcome: "reveal" | "skip"): Promise<void> {
   const pattern = getGrammarPattern(patternId); const exercise = pattern?.exercises.find((candidate) => candidate.id === exerciseId); if (!exercise) return;
   grammarOutcome = outcome; grammarRetrying = false; grammarChecked = true; grammarTokens = []; grammarAnswer = outcome === "reveal" ? exercise.accepted.join(" / ") : null;
-  grammarFeedback = { correct: false, message: outcome === "reveal" ? `Answer: ${exercise.accepted.join(" or ")}. ${exercise.feedback}` : "Skipped. You can practise this pattern again later." }; render();
+  grammarFeedback = { correct: false, message: outcome === "reveal" ? `Answer: ${exercise.accepted.join(" or ")}. ${exercise.feedback}` : "Skipped. You can practise this pattern again later." };
+  const record = grammarRecords[patternId] ?? (grammarPatternId === patternId ? grammarRecord : null);
+  if (!record) { render(); return; }
+  pending = true; render();
+  try {
+    const saved = await learningClient.recordGrammarResult(patternId, 1, exerciseId, null, record.evidenceRevision, outcome);
+    grammarRecord = saved; grammarRecords = { ...grammarRecords, [patternId]: saved };
+  } catch (error) {
+    grammarFeedback = { correct: false, message: error instanceof Error ? error.message : "Grammar result could not be saved." };
+  } finally { pending = false; render(); }
 }
 async function checkGrammarAnswer(patternId: GrammarPatternId, exerciseId: string, dailyFive = false): Promise<void> {
   const record = grammarRecords[patternId] ?? (grammarPatternId === patternId ? grammarRecord : null); const pattern = getGrammarPattern(patternId);
@@ -670,8 +682,8 @@ async function persistGrammarDailyFiveOutcome(patternId: GrammarPatternId, exerc
 }
 function renderLessonPractice(session: LessonSession): HTMLElement { const prompt = session.lesson.practice[session.practiceIndex]; const candidate = session.lesson.candidates.find((item) => item.id === prompt.candidateId)!; const panel = section("practice-card"); panel.append(eyebrow(session.practiceRevealed ? "Answer" : prompt.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.practiceRevealed ? candidate.dutch : prompt.dimension === "recognition" ? candidate.dutch : candidate.english)); if (!session.practiceRevealed) { const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { lessonSession = revealLessonPractice(session); render(); }); panel.append(reveal, phoneticHint()); } else { panel.append(meaning("Dutch", candidate.dutch), meaning("English", candidate.english), teluguMeaning(candidate.telugu)); const actions = document.createElement("div"); actions.className = "rating-actions"; for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.addEventListener("click", () => void saveLessonPractice(session, result)); actions.append(action); } panel.append(actions); } return panel; }
 function renderLessonKeep(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Keep"), heading("Choose what to keep for review.")); for (const candidate of getLessonCandidateChoices(session, items)) { const label = document.createElement("label"); label.className = "candidate-choice"; const checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = candidate.checked; checkbox.addEventListener("change", () => { lessonSession = toggleLessonCandidate(session, candidate.id); render(); }); label.append(checkbox, text(candidate.dutch)); if (candidate.alreadySaved) label.append(text("Already saved", "already-saved")); panel.append(label); } const keep = button(`Keep ${session.selectedCandidateIds.length} for review`, "button primary-button"); keep.disabled = pending; keep.addEventListener("click", () => void keepLessonCandidates(session)); panel.append(keep); return panel; }
-async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); grammarRecord = null; grammarPatternId = lesson.grammarCompanion?.patternId ?? null; activeGrammarTask = null; if (lesson.grammarCompanion) { try { grammarRecord = await learningClient.introduceGrammar(lesson.grammarCompanion.patternId); grammarRecords = { ...grammarRecords, [lesson.grammarCompanion.patternId]: grammarRecord }; } catch { /* Grammar is additive; the published lesson remains usable if its optional companion is unavailable. */ } } grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : "lessons"; render(); } }
-async function advanceLesson(session: LessonSession): Promise<void> { const next = advanceLessonStage(session); pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
+async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); grammarRecord = null; grammarPatternId = lesson.grammarCompanion?.patternId ?? null; activeGrammarTask = null; if (lesson.grammarCompanion && lessonProgress.stage !== "read") { try { grammarRecord = await learningClient.introduceGrammar(lesson.grammarCompanion.patternId); grammarRecords = { ...grammarRecords, [lesson.grammarCompanion.patternId]: grammarRecord }; } catch { /* Grammar is additive; the published lesson remains usable if its optional companion is unavailable. */ } } grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : "lessons"; render(); } }
+async function advanceLesson(session: LessonSession): Promise<void> { const next = advanceLessonStage(session); pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; if (next.stage === "notice" && next.lesson.grammarCompanion && !grammarRecords[next.lesson.grammarCompanion.patternId]) { try { grammarRecord = await learningClient.introduceGrammar(next.lesson.grammarCompanion.patternId); grammarRecords = { ...grammarRecords, [next.lesson.grammarCompanion.patternId]: grammarRecord }; } catch { /* Grammar is additive; the published lesson remains usable if its optional companion is unavailable. */ } } lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function saveLessonPractice(session: LessonSession, result: "again" | "got-it"): Promise<void> { const next = advanceLessonPracticeState(session, result); if (next.stage !== "replay") { lessonSession = next; render(); return; } pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; rhythm = await learningClient.getRhythm(); const lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonProgressById = { ...lessonProgressById, [session.lesson.id]: lessonProgress }; lessonSession = null; screen = focusedOrigin ?? "lessons"; focusedOrigin = null; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
 

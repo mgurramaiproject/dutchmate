@@ -1,5 +1,5 @@
 import type { TranslateMessageResponse } from "./runtime-translation-client";
-import type { ChunkConfirmation, ContextMission, GrammarEncounter, RecallMission, SaveActionState } from "./webpage-lookup-module";
+import type { ChunkConfirmation, ContextMission, GrammarEncounter, GrammarPractice, RecallMission, SaveActionState } from "./webpage-lookup-module";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 
 const MAX_TOOLTIP_TEXT_LENGTH = 1000;
@@ -17,7 +17,7 @@ export type TooltipViewAdapter = {
     practiceAvailable?: true,
     grammarEncounter?: GrammarEncounter,
   ): void;
-  showGrammarPractice(encounter: GrammarEncounter): void;
+  showGrammarPractice(practice: GrammarPractice): void;
   showMission(mission: ContextMission): void;
   showRecallOffer(selectedDutch: string, pageContext: string, x: number, y: number): void;
   showRecallMission(mission: RecallMission): void;
@@ -30,6 +30,11 @@ export function createTooltipViewAdapter(callbacks: {
   onSaveClick(): void;
   onPractice(): void;
   onGrammarPractice?(): void;
+  onGrammarAnswer?(answer: string): void;
+  onGrammarCheck?(): void;
+  onGrammarReveal?(): void;
+  onGrammarSkip?(): void;
+  onGrammarRetry?(): void;
   onTryFromMemory(): void;
   onTranslateNow(): void;
   onShowMeaning(): void;
@@ -220,14 +225,54 @@ export function createTooltipViewAdapter(callbacks: {
       if (grammarEncounter && callbacks.onGrammarPractice) renderGrammarPracticeAction(tooltip, grammarEncounter, callbacks.onGrammarPractice);
     },
 
-    showGrammarPractice(encounter) {
+    showGrammarPractice(practice) {
       currentSaveButton = null;
+      const focus = tooltip.dataset.state === "grammar-practice" ? describeTooltipFocus(tooltip) : undefined;
+      const isOpening = tooltip.dataset.state !== "grammar-practice";
+      tooltip.dataset.state = "grammar-practice";
       tooltip.textContent = "";
       const tether = document.createElement("section"); tether.className = "context-slip-tether";
-      const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Pattern you know";
-      const title = document.createElement("h3"); title.className = "context-slip-title"; title.lang = "nl"; title.textContent = `${encounter.subject} ${encounter.form}`;
-      const copy = document.createElement("p"); copy.className = "context-slip-copy"; copy.textContent = "This exact form belongs to a grammar pattern you have started.";
-      tether.append(kicker, title, copy, actionButton("Back to translation", callbacks.onClose, true)); tooltip.append(tether); tooltip.hidden = false;
+      const close = actionButton("×", callbacks.onClose); close.className = "context-slip-close"; close.setAttribute("aria-label", "Close grammar practice");
+      const kicker = document.createElement("p"); kicker.className = "context-slip-kicker"; kicker.textContent = "Pattern practice";
+      const title = document.createElement("h3"); title.className = "context-slip-title"; title.lang = "nl"; title.textContent = `${practice.encounter.subject} ${practice.encounter.form}`;
+      const prompt = document.createElement("p"); prompt.className = "context-slip-prompt"; prompt.textContent = practice.exercise.prompt;
+      const context = document.createElement("p"); context.className = "context-slip-context"; context.lang = "nl"; context.textContent = practice.exercise.context;
+      tether.append(close, kicker, title, prompt, context);
+      if (practice.exercise.primitive === "order-tokens" && practice.exercise.tokens) {
+        const answer = document.createElement("p"); answer.className = "grammar-order-answer context-slip-copy"; answer.textContent = practice.answer ?? "Choose the words in order.";
+        tether.append(answer);
+        const tokens = document.createElement("div"); tokens.className = "context-slip-fragments"; tokens.setAttribute("aria-label", "Question words");
+        practice.exercise.tokens.forEach((token) => {
+          const button = actionButton(token, () => callbacks.onGrammarAnswer?.(practice.answer ? `${practice.answer} ${token}` : token));
+          button.disabled = Boolean(practice.result || practice.submitting || practice.answer?.split(" ").includes(token));
+          tokens.append(button);
+        });
+        tether.append(tokens);
+      } else {
+        const choices = document.createElement("div"); choices.className = "context-slip-fragments"; choices.setAttribute("aria-label", "Answer choices");
+        practice.exercise.choices.forEach((choice) => {
+          const button = actionButton(choice, () => callbacks.onGrammarAnswer?.(choice), choice === practice.answer);
+          button.disabled = Boolean(practice.result || practice.submitting);
+          choices.append(button);
+        });
+        tether.append(choices);
+      }
+      if (practice.result) {
+        const status = document.createElement("p"); status.className = "context-slip-status"; status.setAttribute("role", "status"); status.textContent = practice.result.feedback;
+        tether.append(status);
+        if (!practice.result.correct) tether.append(actionButton("Try another exercise", () => callbacks.onGrammarRetry?.(), true));
+        tether.append(actionButton("Back to translation", callbacks.onClose, !practice.result.correct));
+      } else {
+        const actions = document.createElement("div"); actions.className = "context-slip-actions";
+        const check = actionButton("Check", () => callbacks.onGrammarCheck?.(), true); check.disabled = !practice.answer || Boolean(practice.submitting);
+        const reveal = actionButton("Reveal", () => callbacks.onGrammarReveal?.()); reveal.disabled = Boolean(practice.submitting);
+        const skip = actionButton("Skip", () => callbacks.onGrammarSkip?.()); skip.disabled = Boolean(practice.submitting);
+        actions.append(check, reveal, skip); tether.append(actions);
+      }
+      if (practice.submitting) { const status = document.createElement("p"); status.className = "context-slip-status"; status.textContent = "Saving…"; tether.append(status); }
+      if (practice.error) { const error = document.createElement("p"); error.className = "context-slip-status"; error.setAttribute("role", "alert"); error.textContent = practice.error; tether.append(error); }
+      tooltip.append(tether); tooltip.hidden = false;
+      if (isOpening) close.focus(); else restoreTooltipFocus(tooltip, focus);
     },
 
     updateSaveButton(saveAction) {

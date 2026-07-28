@@ -149,6 +149,7 @@ describe("lesson popup", () => {
     expect(button("Skip")).toBeTruthy();
     button("Reveal").click();
     await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy());
+    await vi.waitFor(() => expect(button("Continue to Practise").disabled).toBe(false));
     expect(content().textContent).toContain("Answer: heb");
     button("Continue to Practise").click();
     await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
@@ -541,15 +542,16 @@ describe("lesson popup", () => {
     expect([...content().querySelectorAll<HTMLElement>(".lesson-number")].map((number) => number.textContent)).toEqual(Array.from({ length: 15 }, (_, index) => String(index + 1).padStart(2, "0")));
   });
 
-  it("shows separate A0 pattern progress without crowding Today", async () => {
+  it("keeps unstarted A0 patterns quiet without crowding Today", async () => {
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Pattern: Not started"));
-    expect(content().textContent).toContain("Pattern: Not started");
+    await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
+    expect(content().textContent).not.toContain("Pattern: Not started");
+    expect(content().textContent).toContain("Next A0 pattern");
     expect(content().querySelector(".foundation-path")).toBeNull();
     button("Today").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Start your Daily Five."));
     expect(content().textContent).not.toContain("Next foundation pattern");
-    expect(content().textContent).not.toContain("Pick up the earliest incomplete A0 pattern");
+    expect(content().textContent).not.toContain("Next A0 pattern");
   });
 
   it("filters Lessons by readiness and CEFR level and labels resumable stages", async () => {

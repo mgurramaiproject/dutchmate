@@ -40,7 +40,7 @@ export type LearningClient = {
   saveLessonProgress(lessonId: string, stage: LessonProgressStage): Promise<LessonProgress>;
   getGrammar(patternId?: GrammarPatternId): Promise<GrammarRecord | null>;
   introduceGrammar(patternId?: GrammarPatternId): Promise<GrammarRecord>;
-  recordGrammarResult(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string, expectedEvidenceRevision: number): Promise<GrammarRecord>;
+  recordGrammarResult(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip"): Promise<GrammarRecord>;
   recordGrammarDailyFiveResult(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip"): Promise<{ grammar: GrammarRecord; snapshot: DailyFiveSnapshot }>;
 };
 
@@ -95,7 +95,7 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
     },
     async getGrammar(patternId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_MESSAGE, ...(patternId ? { payload: { patternId } } : {}) }); if (response.ok && "grammar" in response.result) return response.result.grammar; throw new Error(response.ok ? "Grammar is unavailable." : response.error); },
     async introduceGrammar(patternId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_INTRODUCE_MESSAGE, ...(patternId ? { payload: { patternId } } : {}) }); if (response.ok && "grammar" in response.result && response.result.grammar) return response.result.grammar; throw new Error(response.ok ? "Grammar is unavailable." : response.error); },
-    async recordGrammarResult(patternId, contentVersion, exerciseId, answer, expectedEvidenceRevision) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_RESULT_MESSAGE, payload: { patternId, contentVersion, exerciseId, answer, expectedEvidenceRevision } }); if (response.ok && "grammar" in response.result && response.result.grammar) return response.result.grammar; throw new Error(response.ok ? "Grammar result could not be saved." : response.error); },
+    async recordGrammarResult(patternId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_RESULT_MESSAGE, payload: { patternId, contentVersion, exerciseId, expectedEvidenceRevision, ...(outcome ? { outcome } : { answer: answer ?? undefined }) } }); if (response.ok && "grammar" in response.result && response.result.grammar) return response.result.grammar; throw new Error(response.ok ? "Grammar result could not be saved." : response.error); },
     async recordGrammarDailyFiveResult(patternId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_RESULT_MESSAGE, payload: { patternId, contentVersion, exerciseId, expectedEvidenceRevision, dailyFive: true, ...(outcome ? { outcome } : { answer: answer ?? undefined }) } }); if (response.ok && "grammar" in response.result && "snapshot" in response.result) return response.result; throw new Error(response.ok ? "Grammar result could not be saved." : response.error); },
   };
 }
