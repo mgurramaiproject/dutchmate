@@ -336,6 +336,13 @@ function renderToday(): HTMLElement {
     nextAction.append(lessonAction);
     if (lessonsCompletedToday !== null) nextAction.append(text(`${lessonsCompletedToday} lesson${lessonsCompletedToday === 1 ? "" : "s"} completed today`, "lesson-completion-meta"));
   }
+  const nextFoundationPattern = getNextFoundationPattern(grammarPatterns, grammarRecords);
+  if (nextFoundationPattern) {
+    const recommendation = button(`Next A0 pattern · ${nextFoundationPattern.capability}`, "button today-pattern-recommendation");
+    recommendation.title = "Open Lessons to start this pattern";
+    recommendation.addEventListener("click", () => { screen = "lessons"; render(); });
+    nextAction.append(recommendation);
+  }
   wrapper.append(nextAction);
   if (rhythm) wrapper.append(renderRhythm(rhythm));
   wrapper.append(localNote());

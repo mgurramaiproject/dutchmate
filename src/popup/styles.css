@@ -55,6 +55,7 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .next-action .heading { font-size: 1.4rem; line-height: 1; }
 .next-action .button { width: 100%; background: var(--orange); }
 .next-action .lesson-entry-button { width: min(100%, 220px); justify-self: center; background: var(--white) !important; }
+.next-action .today-pattern-recommendation { width: 100%; min-height: 32px; padding: 4px 8px; background: var(--white) !important; color: var(--muted); font-size: .66rem; font-weight: 750; text-align: left; }
 .completion-copy { white-space: normal; font-size: .64rem; letter-spacing: -.01em; }
 .action-meta { display: flex; justify-content: space-between; gap: 8px; margin: 0; color: var(--muted); font-size: .67rem; font-weight: 750; }
 .review-completion-meta { margin: -2px 0 0; color: var(--muted); font-size: .66rem; text-align: center; }

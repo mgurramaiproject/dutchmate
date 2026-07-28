@@ -652,11 +652,18 @@ export class WebpageLookupModule {
     }
   }
 
-  chooseGrammarAnswer(answer: string): void {
+  chooseGrammarAnswer(answer: string | null): void {
     const practice = this.#grammarPractice;
-    const tokens = practice?.exercise.tokens;
-    const validOrderAnswer = Boolean(tokens && answer.split(" ").every((token, index) => token === tokens[index]) && answer.split(" ").length <= tokens.length);
-    if (!practice || practice.result || practice.submitting || (!practice.exercise.choices.includes(answer) && !validOrderAnswer)) return;
+    if (!practice || practice.result || practice.submitting) return;
+    if (answer === null) {
+      this.#grammarPractice = { ...practice, answer: null, error: undefined };
+      this.#emit({ type: "render-grammar-encounter", practice: this.#grammarPractice });
+      return;
+    }
+    const tokens = practice.exercise.tokens;
+    const answerTokens = answer.split(" ");
+    const validOrderAnswer = Boolean(tokens && answerTokens.length <= tokens.length && answerTokens.every((token) => tokens.includes(token)) && new Set(answerTokens).size === answerTokens.length);
+    if (!practice.exercise.choices.includes(answer) && !validOrderAnswer) return;
     this.#grammarPractice = { ...practice, answer, error: undefined };
     this.#emit({ type: "render-grammar-encounter", practice: this.#grammarPractice });
   }

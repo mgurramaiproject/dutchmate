@@ -30,7 +30,7 @@ export function createTooltipViewAdapter(callbacks: {
   onSaveClick(): void;
   onPractice(): void;
   onGrammarPractice?(): void;
-  onGrammarAnswer?(answer: string): void;
+  onGrammarAnswer?(answer: string | null): void;
   onGrammarCheck?(): void;
   onGrammarReveal?(): void;
   onGrammarSkip?(): void;
@@ -243,8 +243,9 @@ export function createTooltipViewAdapter(callbacks: {
         tether.append(answer);
         const tokens = document.createElement("div"); tokens.className = "context-slip-fragments"; tokens.setAttribute("aria-label", "Question words");
         practice.exercise.tokens.forEach((token) => {
-          const button = actionButton(token, () => callbacks.onGrammarAnswer?.(practice.answer ? `${practice.answer} ${token}` : token));
-          button.disabled = Boolean(practice.result || practice.submitting || practice.answer?.split(" ").includes(token));
+          const selectedIndex = practice.answer?.split(" ").indexOf(token) ?? -1;
+          const button = actionButton(token, () => callbacks.onGrammarAnswer?.(selectedIndex >= 0 ? practice.answer!.split(" ").filter((_, index) => index !== selectedIndex).join(" ") || null : practice.answer ? `${practice.answer} ${token}` : token), selectedIndex >= 0);
+          button.disabled = Boolean(practice.result || practice.submitting);
           tokens.append(button);
         });
         tether.append(tokens);
