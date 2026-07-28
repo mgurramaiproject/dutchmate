@@ -120,7 +120,7 @@ Aggregate-only result table:
 | Final decision: release / revise | Human validation passed with the pilot limitation recorded below; T09 engineering follow-up is complete, while the pilot waiver remains a release limitation. |
 | Decision date and owner | 2026-07-27 · Project owner |
 
-The directional learning thresholds were not evaluated because the pilot was waived. Keep the A0 release claim bounded: human validation covered the reviewed and owner-tested product candidate, not learning efficacy. T09 resolved the final branch-review findings in commit `d4ed051`; browser versions/OS and separate reviewer qualification details remain unrecorded.
+The directional learning thresholds were not evaluated because the pilot was waived. Keep the A0 release claim bounded: human validation covered the reviewed and owner-tested product candidate, not learning efficacy. T09 resolved the final branch-review findings in commit `fb493a5`; browser versions/OS and separate reviewer qualification details remain unrecorded.
 
 ## Final branch-review findings
 
