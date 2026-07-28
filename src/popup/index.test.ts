@@ -143,12 +143,15 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Ik heb dit nodig"));
     lessonCard("A0 · Ik heb dit nodig").click();
     await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+    const introductionsBeforeNotice = runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.introduce").length;
     button("Notice the pattern").click();
     await vi.waitFor(() => expect(button("Check answer")).toBeTruthy());
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.introduce")).toHaveLength(introductionsBeforeNotice);
     expect(button("Reveal")).toBeTruthy();
     expect(button("Skip")).toBeTruthy();
     button("Reveal").click();
     await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy());
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.introduce")).toHaveLength(introductionsBeforeNotice + 1);
     await vi.waitFor(() => expect(button("Continue to Practise").disabled).toBe(false));
     expect(content().textContent).toContain("Answer: heb");
     button("Continue to Practise").click();
