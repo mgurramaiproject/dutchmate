@@ -69,7 +69,7 @@ describe("WebpageLookupModule", () => {
     expect(translationCalls).toBeGreaterThan(0);
     module.startGrammarPractice();
     expect(translate).toHaveBeenCalledTimes(translationCalls);
-    await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter", practice: expect.objectContaining({ encounter: { patternId: "a0-hebben-present", subject: "u", form: "heeft" }, exercise: expect.objectContaining({ id: "hebben-choose-ik" }) }) })));
+    await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter", practice: expect.objectContaining({ encounter: { patternId: "a0-hebben-present", subject: "u", form: "heeft" }, exercise: expect.objectContaining({ id: "hebben-contrast-u" }) }) })));
   });
 
   it("offers an introduced exact regular-present encounter through the same lookup seam", async () => {
@@ -92,7 +92,7 @@ describe("WebpageLookupModule", () => {
     const events: unknown[] = [];
     const grammar: GrammarRecord = { patternId: "a0-hebben-present", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, dueAt: 2, intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 };
     const translate = vi.fn(createTransport().translate);
-    const recordGrammarResult = vi.fn(async () => ({ ok: true as const, result: { grammar: { ...grammar, state: "practising" as const, evidenceRevision: 1, recentExerciseIds: ["hebben-choose-ik"] } } }));
+    const recordGrammarResult = vi.fn(async () => ({ ok: true as const, result: { grammar: { ...grammar, state: "practising" as const, evidenceRevision: 1, recentExerciseIds: ["hebben-contrast-u"] } } }));
     const module = new WebpageLookupModule({
       getSettings: () => defaultSettings,
       transport: createTransport({ translate, getGrammar: async (patternId) => ({ ok: true, result: { grammar: patternId === "a0-hebben-present" ? grammar : null } }), recordGrammarResult }),
@@ -104,10 +104,10 @@ describe("WebpageLookupModule", () => {
     await module.beginLookup({ text: "u heeft", context: "hover", x: 1, y: 1, sourceLanguageHint: "nl" });
     const translationCalls = translate.mock.calls.length;
     module.startGrammarPractice();
-    await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter", practice: expect.objectContaining({ exercise: expect.objectContaining({ id: "hebben-choose-ik" }) }) })));
-    module.chooseGrammarAnswer("heb");
+    await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter", practice: expect.objectContaining({ exercise: expect.objectContaining({ id: "hebben-contrast-u" }) }) })));
+    module.chooseGrammarAnswer("heeft");
     module.checkGrammarPractice();
-    await vi.waitFor(() => expect(recordGrammarResult).toHaveBeenCalledWith(expect.objectContaining({ patternId: "a0-hebben-present", exerciseId: "hebben-choose-ik", answer: "heb", expectedEvidenceRevision: 0 })));
+    await vi.waitFor(() => expect(recordGrammarResult).toHaveBeenCalledWith(expect.objectContaining({ patternId: "a0-hebben-present", exerciseId: "hebben-contrast-u", answer: "heeft", expectedEvidenceRevision: 0 })));
     await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter", practice: expect.objectContaining({ result: expect.objectContaining({ type: "check", correct: true }) }) })));
     expect(translate).toHaveBeenCalledTimes(translationCalls);
   });
@@ -128,7 +128,7 @@ describe("WebpageLookupModule", () => {
     await module.beginLookup({ text: "u heeft", context: "hover", x: 1, y: 1, sourceLanguageHint: "nl" });
     module.startGrammarPractice();
     await vi.waitFor(() => expect(events).toContainEqual(expect.objectContaining({ type: "render-grammar-encounter" })));
-    module.chooseGrammarAnswer("heb");
+    module.chooseGrammarAnswer("heeft");
     module.checkGrammarPractice();
     await vi.waitFor(() => expect(recordGrammarResult).toHaveBeenCalled());
     module.clear();

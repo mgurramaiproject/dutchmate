@@ -10,7 +10,7 @@ import { getChunkCandidate } from "./chunk-candidate";
 import type { CreateOrMergeLearningItemInput, LearningItem } from "../vocabulary/learning-record";
 import { getWeakerMasteryDimension, type DailyFiveDimension } from "../vocabulary/daily-five";
 import { normalizeMissionText } from "./mission-text";
-import { grammarPatterns, getGrammarPattern, matchIntroducedGrammarEncounter, type GrammarExercise } from "../grammar/content";
+import { grammarPatterns, getGrammarPattern, matchIntroducedGrammarEncounter, normalizeGrammarText, type GrammarExercise } from "../grammar/content";
 import { grammarResultMessage } from "../grammar/learning";
 import type { GrammarPatternId } from "../lessons/catalog";
 import type { GrammarRecord } from "../grammar/learning";
@@ -641,7 +641,9 @@ export class WebpageLookupModule {
       const record = response.ok ? response.result?.grammar : null;
       const pattern = getGrammarPattern(encounter.patternId);
       if (!record || !pattern || this.#grammarEncounter !== encounter || this.#nextGrammarPracticeToken !== requestToken) return;
-      const exercise = pattern.exercises.find((candidate) => !record.recentExerciseIds.includes(candidate.id)) ?? pattern.exercises[0];
+      const compatibleExercises = pattern.exercises.filter((candidate) => grammarExerciseMatchesEncounter(candidate, encounter));
+      const exercisePool = compatibleExercises.length > 0 ? compatibleExercises : pattern.exercises;
+      const exercise = exercisePool.find((candidate) => !record.recentExerciseIds.includes(candidate.id)) ?? exercisePool[0];
       if (!exercise) return;
       this.#grammarRecord = record;
       this.#grammarPracticeToken = requestToken;
@@ -1115,4 +1117,17 @@ function deterministicRotation(words: string[]): string[] {
 
 function normalizeMissionAnswer(value: string): string {
   return value.trim().replace(/[.!?]+$/u, "").trim().toLocaleLowerCase();
+}
+
+function grammarExerciseMatchesEncounter(exercise: GrammarExercise, encounter: GrammarEncounter): boolean {
+  const subject = encounter.subject.toLocaleLowerCase();
+  const subjects = new Set([subject]);
+  if (subject === "jij" || subject === "je") { subjects.add("jij"); subjects.add("je"); }
+  if (subject === "hij" || subject === "zij") { subjects.add("hij"); subjects.add("zij"); }
+  if (subject === "wij" || subject === "we" || subject === "jullie" || subject === "ze") { subjects.add("wij"); subjects.add("we"); subjects.add("jullie"); subjects.add("ze"); }
+  const contextWords = normalizeGrammarText(exercise.context).split(" ");
+  const subjectMatches = contextWords.some((word) => subjects.has(word));
+  const form = encounter.form.toLocaleLowerCase();
+  const formMatches = exercise.accepted.some((answer) => normalizeGrammarText(answer).includes(form)) || exercise.choices.some((choice) => normalizeGrammarText(choice).includes(form)) || contextWords.includes(form);
+  return subjectMatches && formMatches;
 }
