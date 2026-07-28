@@ -158,6 +158,16 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
   });
 
+  it("does not introduce grammar before a resumed lesson reaches its encounter", async () => {
+    progressByLesson["a0-ik-heb-dit-nodig"] = { lessonId: "a0-ik-heb-dit-nodig", contentVersion: 1, stage: "notice", completedAt: null, keptCandidateIds: [], updatedAt: 1 };
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Ik heb dit nodig"));
+    const introductionsBeforeResume = runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.introduce").length;
+    lessonCard("A0 · Ik heb dit nodig").click();
+    await vi.waitFor(() => expect(button("Check answer")).toBeTruthy());
+    expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.introduce")).toHaveLength(introductionsBeforeResume);
+  });
+
   it("takes the regular-present companion into subject-first Notice practice", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Ik woon en werk hier"));
