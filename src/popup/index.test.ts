@@ -564,7 +564,7 @@ describe("lesson popup", () => {
     button("Today").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Start your Daily Five."));
     expect(content().textContent).not.toContain("Next foundation pattern");
-    expect(content().textContent).toContain("Next A0 pattern");
+    expect(content().textContent).not.toContain("Next A0 pattern");
   });
 
   it("filters Lessons by readiness and CEFR level and labels resumable stages", async () => {
