@@ -36,7 +36,8 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
         const result = await store.recordGrammarDailyFiveResult({ patternId: message.payload.patternId, contentVersion: message.payload.contentVersion, exerciseId: message.payload.exerciseId, outcome, expectedEvidenceRevision: message.payload.expectedEvidenceRevision });
         return { ok: true, result: { grammar: result.grammar, snapshot: result.snapshot } };
       }
-      const result = await store.recordGrammarCheck(message.payload.patternId, message.payload.contentVersion, message.payload.exerciseId, message.payload.answer!, message.payload.expectedEvidenceRevision);
+      const outcome = message.payload.outcome ? { type: message.payload.outcome } as const : { type: "check" as const, answer: message.payload.answer! };
+      const result = await store.recordGrammarCheck(message.payload.patternId, message.payload.contentVersion, message.payload.exerciseId, message.payload.answer ?? null, message.payload.expectedEvidenceRevision, outcome);
       return result.recorded ? { ok: true, result: { grammar: result.grammar } } : { ok: false, error: "This grammar result was already recorded." };
     }
     const catalogErrors = validateLessonCatalog(lessonCatalog);

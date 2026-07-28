@@ -397,6 +397,19 @@ describe("LearningRecordStore", () => {
     expect(backup.grammar).toHaveProperty("a0-regular-present");
   });
 
+  it("introduces, schedules, and persists the inversion pattern independently", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const records = new LearningRecordStore(new MemoryStorage(), () => now);
+    await records.introduceGrammar("a0-yes-no-inversion");
+    now = new Date(2026, 0, 2, 9).getTime();
+    const snapshot = await records.getDailyFive();
+    expect(snapshot.tasks).toEqual([{ kind: "grammar", patternId: "a0-yes-no-inversion", contentVersion: 1, exerciseId: "inversion-order-je" }]);
+    const result = await records.recordGrammarDailyFiveResult({ patternId: "a0-yes-no-inversion", contentVersion: 1, exerciseId: "inversion-order-je", outcome: { type: "check", answer: "Woon je hier?" }, expectedEvidenceRevision: 0 });
+    expect(result.grammar).toMatchObject({ patternId: "a0-yes-no-inversion", successfulEvidenceCount: 1, primitives: ["order-tokens"] });
+    expect(JSON.stringify(result.grammar)).not.toContain("Woon je hier?");
+    expect((await records.exportBackup()).grammar).toHaveProperty("a0-yes-no-inversion");
+  });
+
   it("preserves all published lesson progress and saved-item mastery through version 3 round trip", async () => {
     const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     await source.createOrMerge({ dutch: "huis", english: "house" });

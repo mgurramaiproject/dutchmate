@@ -72,6 +72,11 @@ const tooltipView = createTooltipViewAdapter({
   onSaveClick: () => { void lookupModule.handleSaveAction(); },
   onPractice: () => lookupModule.startPractice(),
   onGrammarPractice: () => lookupModule.startGrammarPractice(),
+  onGrammarAnswer: (answer) => lookupModule.chooseGrammarAnswer(answer),
+  onGrammarCheck: () => lookupModule.checkGrammarPractice(),
+  onGrammarReveal: () => lookupModule.revealGrammarPractice(),
+  onGrammarSkip: () => lookupModule.skipGrammarPractice(),
+  onGrammarRetry: () => lookupModule.retryGrammarPractice(),
   onTryFromMemory: () => lookupModule.startRecallMission(),
   onTranslateNow: () => lookupModule.translateNow(),
   onShowMeaning: () => lookupModule.revealRecallMeaning(),
@@ -139,7 +144,7 @@ function handleLookupModuleEvent(event: WebpageLookupModuleEvent): void {
   }
 
   if (event.type === "render-grammar-encounter") {
-    tooltipView.showGrammarPractice(event.encounter);
+    tooltipView.showGrammarPractice(event.practice);
     return;
   }
 

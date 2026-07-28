@@ -54,8 +54,12 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .next-action { display: grid; min-width: 0; gap: 7px; padding: 12px; border: 1px solid var(--black); border-left: 6px solid var(--orange); border-radius: 8px; background: var(--white); }
 .next-action .heading { font-size: 1.4rem; line-height: 1; }
 .next-action .button { width: 100%; background: var(--orange); }
+.next-action .lesson-entry-button { width: min(100%, 220px); justify-self: center; background: var(--white) !important; }
+.next-action .today-pattern-recommendation { width: 100%; min-height: 32px; padding: 4px 8px; background: var(--white) !important; color: var(--muted); font-size: .66rem; font-weight: 750; text-align: left; }
 .completion-copy { white-space: normal; font-size: .64rem; letter-spacing: -.01em; }
 .action-meta { display: flex; justify-content: space-between; gap: 8px; margin: 0; color: var(--muted); font-size: .67rem; font-weight: 750; }
+.review-completion-meta { margin: -2px 0 0; color: var(--muted); font-size: .66rem; text-align: center; }
+.lesson-completion-meta { margin: -2px 0 0; color: var(--muted); font-size: .66rem; text-align: center; }
 .learning-rhythm, .calendar-card { display: grid; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .section-head strong { font-family: var(--serif); font-size: 1.05rem; }
@@ -98,12 +102,8 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .legend-label { margin: 0 3px; font-size: .61rem; }
 .heatmap-swatch { width: 11px; height: 11px; border-radius: 4px; background: rgba(255, 111, 0, 0.08); }
 .heatmap-swatch.grace { background: rgba(255, 111, 0, 0.25); }.heatmap-swatch.active { background: rgba(255, 111, 0, 0.58); }.heatmap-swatch.high { background: var(--orange); }
-.secondary-actions { display: grid; width: 100%; grid-template-columns: 1fr; gap: 8px; }
-.secondary-actions .button { min-height: 48px; font-size: .875rem; }
 .empty-review-hint { margin: -2px 0 0; color: var(--muted); font-size: .72rem; line-height: 1.35; }
 .secondary-button { background: var(--white) !important; }
-.secondary-actions .secondary-button:hover:not(:disabled), .secondary-actions .secondary-button:focus-visible { border-color: var(--orange); background: rgba(255, 111, 0, 0.08) !important; box-shadow: inset 0 0 0 1px var(--orange); transform: translateY(-1px); }
-.quiet-action { justify-self: start; min-height: 44px; padding: 0; text-align: left; }
 .primary-button { width: 100%; background: var(--orange); }
 .mastery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .mastery > div { display: grid; gap: 4px; padding: 8px; border-top: 3px solid var(--orange); border-radius: 8px; background: rgba(0, 0, 0, 0.04); }
@@ -135,8 +135,14 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .button.primary:hover:not(:disabled), .button.primary:focus-visible, .button.primary-button:hover:not(:disabled), .button.primary-button:focus-visible { background: var(--black); color: var(--white); }
 .next-action .button:hover:not(:disabled), .next-action .button:focus-visible { box-shadow: inset 0 0 0 1px var(--black); transform: translateY(-1px); }
 .button:disabled { cursor: not-allowed; opacity: 0.42; }
+.grammar-order-controls { display: grid; gap: 8px; }
+.grammar-order-answer { min-height: 48px; padding: 12px; border: 1px dashed var(--line); border-radius: 8px; font-family: var(--serif); font-size: 1rem; }
+.grammar-order-placeholder { color: var(--muted); font-family: var(--sans); font-size: .72rem; }
+.grammar-token-choices { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grammar-token.is-selected { background: var(--black); color: var(--white); }
 .practice-content { display: grid; align-content: start; gap: 16px; min-width: 0; }
 .practice-progress { margin: 0; color: var(--muted); font-size: 0.7rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
+.grammar-capability { margin: -4px 0 0; color: var(--muted); font-size: .74rem; line-height: 1.35; }
 .practice-card { display: grid; gap: 12px; min-width: 0; padding: 14px; border: 1px solid var(--black); border-top: 5px solid var(--orange); border-radius: 8px; }
 .practice-card .heading { min-width: 0; overflow-wrap: anywhere; }
 .meaning-row { display: grid; gap: 4px; min-width: 0; padding-top: 10px; border-top: 1px solid var(--soft-line); }
@@ -227,11 +233,13 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .lesson-copy { display: grid; gap: 2px; min-width: 0; }
 .lesson-copy strong { overflow: hidden; font-family: var(--serif); font-size: .88rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .lesson-copy small { color: var(--muted); font-size: .6rem; }
+.lesson-pattern-status { margin: 0; color: var(--muted); font-size: .6rem; }
 .level { margin: 0; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); font-size: .57rem; font-weight: 850; }
 .resume-row .lesson-copy strong::after { margin-left: 5px; color: var(--orange); content: "Continue"; font-family: var(--sans); font-size: .54rem; letter-spacing: .05em; text-transform: uppercase; }
 .lesson-rail { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
 .lesson-stage { margin: 0; padding: 6px 2px; border: 1px solid var(--black); font-size: 0.58rem; font-weight: 850; text-align: center; text-transform: uppercase; }
 .lesson-stage.active { background: var(--black); color: var(--white); }
+.grammar-celebration { margin: 0; padding: 8px; border-left: 3px solid var(--orange); background: var(--orange-soft); font-size: .76rem; font-weight: 750; }
 .story-line { display: grid; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--soft-line); }
 .story-dutch { margin: 0; font-family: var(--serif); font-size: 1rem; line-height: 1.35; }
 .helper-copy { color: var(--muted); }

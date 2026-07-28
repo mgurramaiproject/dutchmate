@@ -7,6 +7,7 @@ const stateRank: Record<MasteryState, number> = { new: 0, learning: 1, familiar:
 export type DailyFiveDimension = "recognition" | "recall";
 export type DailyFiveResult = "again" | "got-it";
 export type GrammarDailyFiveTask = { kind: "grammar"; patternId: GrammarPatternId; contentVersion: 1; exerciseId: string };
+export type GrammarDailyFiveCandidate = { task: GrammarDailyFiveTask; dueAt: number; patternOrder: number };
 export type DailyFiveTask = { itemId: string; dimension: DailyFiveDimension } | GrammarDailyFiveTask;
 export type DailyFiveSnapshot = { createdAt: number; dayStartAt: number; tasks: DailyFiveTask[]; completedTaskIds: string[]; goalCompleted: boolean };
 
@@ -25,6 +26,17 @@ export function createDailyFiveSnapshot(items: LearningItem[], now: number, last
   const grammar = grammarTasks.slice(0, 2);
   const vocabularyLimit = eligibleVocabularyCount >= 3 ? 5 - grammar.length : Math.min(5, vocabularyTasks.length);
   return { createdAt: now, dayStartAt: getLocalDayStart(now), tasks: [...vocabularyTasks.slice(0, vocabularyLimit), ...grammar].slice(0, 5), completedTaskIds: [], goalCompleted: false };
+}
+
+export function selectGrammarDailyFiveTasks(candidates: readonly GrammarDailyFiveCandidate[], now: number, limit = 2): GrammarDailyFiveTask[] {
+  return [...candidates]
+    .sort((first, second) => {
+      const firstOverdueDays = Math.max(0, Math.floor((getLocalDayStart(now) - getLocalDayStart(first.dueAt)) / DAY_MS));
+      const secondOverdueDays = Math.max(0, Math.floor((getLocalDayStart(now) - getLocalDayStart(second.dueAt)) / DAY_MS));
+      return secondOverdueDays - firstOverdueDays || first.dueAt - second.dueAt || first.patternOrder - second.patternOrder || first.task.patternId.localeCompare(second.task.patternId);
+    })
+    .slice(0, limit)
+    .map(({ task }) => task);
 }
 
 export function applyDailyFiveResult(item: LearningItem, dimension: DailyFiveDimension, result: DailyFiveResult, now: number): { item: LearningItem; mastery: LearningMastery } {

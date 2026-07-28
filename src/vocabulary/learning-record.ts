@@ -3,7 +3,7 @@ import type { SavedVocabularyEntry, SavedVocabularyStorage } from "./saved-vocab
 import type { ReviewCard, ReviewRating } from "./review-cards";
 import { parseVocabularyBackup, type VocabularyBackup } from "./vocabulary-backup";
 import { normalizeSavedVocabularyText } from "./saved-vocabulary";
-import { applyDailyFiveResult, createDailyFiveSnapshot, getLocalDayStart, type DailyFiveDimension, type DailyFiveResult, type DailyFiveSnapshot, type DailyFiveTask } from "./daily-five";
+import { applyDailyFiveResult, createDailyFiveSnapshot, getLocalDayStart, selectGrammarDailyFiveTasks, type DailyFiveDimension, type DailyFiveResult, type DailyFiveSnapshot, type DailyFiveTask } from "./daily-five";
 import { getLearningRhythm, type LearningRhythm } from "./learning-rhythm";
 import { lessonCatalog, type GrammarPatternId } from "../lessons/catalog";
 import { applyGrammarCheck, applyGrammarOutcome, introduceGrammar, type GrammarOutcome, type GrammarRecord } from "../grammar/learning";
@@ -128,14 +128,14 @@ export class LearningRecordStore {
     return grammar;
   }
 
-  async recordGrammarCheck(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string, expectedRevision: number): Promise<{ grammar: GrammarRecord; recorded: boolean }> {
+  async recordGrammarCheck(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string | null, expectedRevision: number, outcome: GrammarOutcome = { type: "check", answer: answer! }): Promise<{ grammar: GrammarRecord; recorded: boolean }> {
     const record = await this.readMigrated();
     const grammar = record.grammar[patternId];
     const pattern = getGrammarPattern(patternId);
     const exercise = pattern?.exercises.find((candidate) => candidate.id === exerciseId);
-    if (!isGrammarContentAvailable() || !grammar || !pattern || !exercise || contentVersion !== 1 || !exercise.choices.includes(answer) && !exercise.distractors.some((distractor) => distractor.value === answer)) throw new Error("This grammar exercise is unavailable.");
+    if (!isGrammarContentAvailable() || !grammar || !pattern || !exercise || contentVersion !== 1 || (outcome.type === "check" && (!answer || !exercise.choices.includes(answer) && !exercise.distractors.some((distractor) => distractor.value === answer)))) throw new Error("This grammar exercise is unavailable.");
     if (grammar.evidenceRevision !== expectedRevision) return { grammar, recorded: false };
-    const updated = applyGrammarCheck(grammar, exercise, answer, this.now(), true);
+    const updated = applyGrammarOutcome(grammar, exercise, outcome, this.now(), true);
     record.grammar[patternId] = updated;
     await this.write(record);
     return { grammar: updated, recorded: true };
@@ -203,14 +203,15 @@ export class LearningRecordStore {
     const saved = sanitizeDailyFiveSnapshot(parseDailyFiveSnapshot(record.rhythm.dailyFive), record.items);
     if (saved && !continueAfterCompletion && saved.dayStartAt === getLocalDayStart(this.now()) && (saved.tasks.length > 0 || Object.keys(record.items).length === 0)) return saved;
     const lastDirection = record.rhythm.lastDailyFiveDirection === "recognition" || record.rhythm.lastDailyFiveDirection === "recall" ? record.rhythm.lastDailyFiveDirection : undefined;
+    const now = this.now();
     const grammarTasks = isGrammarContentAvailable()
-      ? grammarPatterns.flatMap((pattern) => {
+      ? selectGrammarDailyFiveTasks(grammarPatterns.flatMap((pattern, patternOrder) => {
         const grammar = record.grammar[pattern.id];
-        if (!grammar || grammar.dueAt > this.now()) return [];
-        return [{ kind: "grammar" as const, patternId: pattern.id, contentVersion: 1 as const, exerciseId: pattern.exercises.find((exercise) => !grammar.recentExerciseIds.includes(exercise.id))?.id ?? pattern.exercises[0].id }];
-      }).slice(0, 2)
+        if (!grammar || grammar.dueAt > now) return [];
+        return [{ task: { kind: "grammar" as const, patternId: pattern.id, contentVersion: 1 as const, exerciseId: pattern.exercises.find((exercise) => !grammar.recentExerciseIds.includes(exercise.id))?.id ?? pattern.exercises[0].id }, dueAt: grammar.dueAt, patternOrder }];
+      }), now, 2)
       : [];
-    const snapshot = createDailyFiveSnapshot(Object.values(record.items), this.now(), lastDirection, grammarTasks);
+    const snapshot = createDailyFiveSnapshot(Object.values(record.items), now, lastDirection, grammarTasks);
     record.rhythm = { ...record.rhythm, dailyFive: snapshot };
     await this.write(record);
     return snapshot;
