@@ -114,7 +114,7 @@ Aggregate-only result table:
 | Field | Record |
 | --- | --- |
 | Reviewer findings resolved | Yes; no blocking finding reported. |
-| Browser evidence complete | Yes; project owner reported Pass in Chrome and Firefox on `04359b1`. |
+| Browser evidence complete | Prior candidate only; project owner reported Pass in Chrome and Firefox on `04359b1`, but a separate browser retest of the later T09 branch changes is not recorded. |
 | Pilot aggregate recorded | Not run; explicit feasibility waiver recorded. |
 | Limitations and deviations | No formal learner cohort, browser versions/OS, or separate reviewer qualification record. No efficacy claim. |
 | Final decision: release / revise | Human validation passed with the pilot limitation recorded below; T09 engineering follow-up is complete, while the pilot waiver remains a release limitation. |
@@ -134,4 +134,4 @@ The final standards/spec review against `main` found these engineering follow-up
 - Delayed evidence now requires 24 elapsed hours.
 - Released grammar metadata now records `second-review-complete` and the completed human review.
 
-These were implementation/spec findings, not browser or content-review findings. They are resolved in T09; the pilot waiver and unrecorded browser/reviewer metadata remain explicit limitations.
+These were implementation/spec findings, not browser or content-review findings. They are resolved in T09; the pilot waiver, pre-T09 browser sign-off, and unrecorded browser/reviewer metadata remain explicit limitations.

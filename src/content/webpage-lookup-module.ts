@@ -642,8 +642,8 @@ export class WebpageLookupModule {
       const pattern = getGrammarPattern(encounter.patternId);
       if (!record || !pattern || this.#grammarEncounter !== encounter || this.#nextGrammarPracticeToken !== requestToken) return;
       const compatibleExercises = pattern.exercises.filter((candidate) => grammarExerciseMatchesEncounter(candidate, encounter));
-      const exercisePool = compatibleExercises.length > 0 ? compatibleExercises : pattern.exercises;
-      const exercise = exercisePool.find((candidate) => !record.recentExerciseIds.includes(candidate.id)) ?? exercisePool[0];
+      if (compatibleExercises.length === 0) return;
+      const exercise = compatibleExercises.find((candidate) => !record.recentExerciseIds.includes(candidate.id)) ?? compatibleExercises[0];
       if (!exercise) return;
       this.#grammarRecord = record;
       this.#grammarPracticeToken = requestToken;
