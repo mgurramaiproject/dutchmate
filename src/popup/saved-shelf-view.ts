@@ -7,7 +7,7 @@ export type SavedShelfItem = {
   dutch: string;
   english: string;
   telugu: string;
-  mastery: "New" | "Learning" | "Familiar" | "Strong";
+  mastery: "New" | "Learning" | "Familiar" | "Secure";
   shelfNumber: number;
   expanded: boolean;
   details?: { source: "Saved from webpage" | "From lesson" | null; contexts: SavedContextView[] };
@@ -28,7 +28,7 @@ const masteryLabel: Record<MasteryState, SavedShelfItem["mastery"]> = {
   new: "New",
   learning: "Learning",
   familiar: "Familiar",
-  strong: "Strong",
+  strong: "Secure",
 };
 const SAFE_CONTEXT_MAX_LENGTH = 240;
 

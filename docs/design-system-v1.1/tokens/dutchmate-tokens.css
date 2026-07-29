@@ -1,0 +1,83 @@
+:root {
+  /* Brand and semantic colour */
+  --dm-brand-orange: #ff6b00;
+  --dm-brand-orange-deep: #9c3900;
+  --dm-ink-strong: #1b1714;
+  --dm-ink-muted: #675c54;
+  --dm-paper: #fff9f2;
+  --dm-paper-raised: #ffffff;
+  --dm-paper-soft: #f8eee4;
+  --dm-line: #d8cabe;
+  --dm-success: #2f6b4f;
+  --dm-warning: #7a5100;
+  --dm-danger: #9d2a2a;
+  --dm-info: #275c7d;
+
+  /* Typography */
+  --dm-font-ui: "Nunito Sans", ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+  --dm-font-reading: "Noto Sans", Inter, system-ui, sans-serif;
+  --dm-font-telugu: "Noto Sans Telugu", "Nirmala UI", sans-serif;
+  --dm-font-size-display: 3rem;
+  --dm-line-height-display: 3.125rem;
+  --dm-font-size-h1: 2rem;
+  --dm-line-height-h1: 2.25rem;
+  --dm-font-size-h2: 1.375rem;
+  --dm-line-height-h2: 1.75rem;
+  --dm-font-size-body: 1rem;
+  --dm-line-height-body: 1.5rem;
+  --dm-font-size-label: 0.75rem;
+  --dm-line-height-label: 1rem;
+  --dm-font-size-small: 0.6875rem;
+  --dm-line-height-small: 0.9375rem;
+  --dm-weight-regular: 400;
+  --dm-weight-medium: 600;
+  --dm-weight-bold: 800;
+  --dm-weight-black: 900;
+
+  /* Spacing */
+  --dm-space-1: 0.25rem;
+  --dm-space-2: 0.5rem;
+  --dm-space-3: 0.75rem;
+  --dm-space-4: 1rem;
+  --dm-space-5: 1.5rem;
+  --dm-space-6: 2rem;
+  --dm-space-7: 3rem;
+
+  /* Shape and size */
+  --dm-radius-control: 0.625rem;
+  --dm-radius-card: 1rem;
+  --dm-radius-panel: 1.5rem;
+  --dm-radius-round: 999px;
+  --dm-target-min: 2.75rem;
+  --dm-popup-width: 390px;
+  --dm-popup-height: 600px;
+  --dm-border-width: 1px;
+  --dm-focus-width: 3px;
+  --dm-focus-offset: 2px;
+
+  /* Depth */
+  --dm-shadow-low: 0 1px 2px rgb(27 23 20 / 8%), 0 5px 16px rgb(27 23 20 / 6%);
+  --dm-shadow-high: 0 18px 60px rgb(27 23 20 / 18%);
+
+  /* Motion */
+  --dm-motion-fast: 120ms;
+  --dm-motion-standard: 180ms;
+  --dm-motion-deliberate: 260ms;
+  --dm-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:focus-visible {
+  outline: var(--dm-focus-width) solid var(--dm-brand-orange);
+  outline-offset: var(--dm-focus-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

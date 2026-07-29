@@ -1,13 +1,16 @@
+@import "../design-system/dutchmate-tokens.css";
+@import "../design-system/primitives.css";
+
 :root {
-  --black: #000000;
-  --white: #ffffff;
-  --orange: #ff6f00;
-  --orange-soft: rgba(255, 111, 0, 0.1);
-  --muted: rgba(0, 0, 0, 0.62);
-  --line: rgba(0, 0, 0, 0.18);
-  --soft-line: rgba(0, 0, 0, 0.1);
-  --serif: Iowan Old Style, Palatino Linotype, Book Antiqua, Georgia, "Times New Roman", serif;
-  --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --black: var(--dm-ink-strong);
+  --white: var(--dm-paper-raised);
+  --orange: var(--dm-brand-orange);
+  --orange-soft: color-mix(in srgb, var(--dm-brand-orange) 10%, transparent);
+  --muted: var(--dm-ink-muted);
+  --line: var(--dm-line);
+  --soft-line: color-mix(in srgb, var(--dm-line) 60%, transparent);
+  --serif: var(--dm-font-reading);
+  --sans: var(--dm-font-ui);
 }
 
 * { box-sizing: border-box; }
@@ -249,6 +252,55 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .candidate-choice input { width: 18px; height: 18px; accent-color: var(--orange); }
 .already-saved { margin-left: auto; color: var(--muted); font-family: var(--sans); font-size: 0.68rem; }
 button:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+
+/* v1.1 retrofit: preserve the existing states while giving every popup view
+   the same paper, ink, orange, type, focus, and touch language. */
+body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: var(--dm-font-ui); }
+.popup-shell { background: var(--dm-paper); border-radius: 0; }
+.popup-header { min-height: 64px; padding: 10px 16px; border-bottom-color: var(--dm-line); background: var(--dm-paper-raised); }
+.brand { font-weight: var(--dm-weight-black); letter-spacing: -0.02em; }
+.brand img { border-radius: var(--dm-radius-control); }
+.header-button, .header-link, .exit-button { min-height: var(--dm-target-min); color: var(--dm-ink-muted); font-size: var(--dm-font-size-label); }
+.header-button:hover, .header-button:focus-visible, .header-link:hover, .header-link:focus-visible, .exit-button:hover, .exit-button:focus-visible { color: var(--dm-ink-strong); }
+.due-badge { background: var(--dm-brand-orange); color: var(--dm-ink-strong); }
+.tabs { border-bottom-color: var(--dm-ink-strong); background: var(--dm-paper-raised); }
+.tab { min-height: var(--dm-target-min); border-right-color: var(--dm-ink-strong); background: var(--dm-paper-raised); color: var(--dm-ink-strong); font-family: var(--dm-font-ui); font-size: var(--dm-font-size-label); }
+.tab.is-active { background: var(--dm-ink-strong); color: var(--dm-paper-raised); }
+.tab:not(.is-active):not(:disabled):hover { background: var(--dm-paper-soft); }
+.popup-content { background: var(--dm-paper); }
+.next-action, .practice-card, .lesson-story { border-color: var(--dm-ink-strong); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); box-shadow: var(--dm-shadow-low); }
+.next-action { border-left-color: var(--dm-brand-orange); }
+.next-action .heading { font-family: var(--dm-font-ui); font-weight: var(--dm-weight-black); }
+.next-action .button, .button.primary, .button.primary-button { background: var(--dm-brand-orange); color: var(--dm-ink-strong); }
+.button { min-height: var(--dm-target-min); border-color: var(--dm-ink-strong); border-radius: var(--dm-radius-control); background: var(--dm-paper-raised); color: var(--dm-ink-strong); font-family: var(--dm-font-ui); }
+.button:hover:not(:disabled), .button:focus-visible { background: var(--dm-paper-soft); color: var(--dm-ink-strong); }
+.button.primary:hover:not(:disabled), .button.primary:focus-visible, .button.primary-button:hover:not(:disabled), .button.primary-button:focus-visible { background: var(--dm-ink-strong); color: var(--dm-paper-raised); }
+.learning-rhythm, .calendar-card { border-color: var(--dm-line); }
+.section-head strong, .heading, .story-dutch, .practice-card .heading, .saved-word h2, .saved-context { font-family: var(--dm-font-reading); }
+.heading { font-size: var(--dm-font-size-h1); line-height: var(--dm-line-height-h1); font-weight: var(--dm-weight-black); }
+.body-copy, .helper-copy, .local-note { font-family: var(--dm-font-reading); }
+.eyebrow, .section-title, .stat-label, .practice-progress { color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); }
+.period-tab, .period-control, .rhythm-day, .lesson-filter, .sort-button { min-height: var(--dm-target-min); }
+.period-control { width: var(--dm-target-min); border-color: var(--dm-line); background: var(--dm-paper-raised); }
+.week-grid .rhythm-day, .heatmap-month .rhythm-day { background: var(--dm-paper-soft); }
+.week-grid .rhythm-day.grace, .heatmap .rhythm-day.grace { background: color-mix(in srgb, var(--dm-brand-orange) 24%, var(--dm-paper-raised)); }
+.week-grid .rhythm-day.active, .heatmap .rhythm-day.active { background: color-mix(in srgb, var(--dm-brand-orange) 58%, var(--dm-paper-raised)); }
+.week-grid .rhythm-day.high, .heatmap .rhythm-day.high { background: var(--dm-brand-orange); }
+.lesson-row, .saved-row { min-height: var(--dm-target-min); background: var(--dm-paper-raised); }
+.lesson-row:hover, .lesson-row:focus-visible, .saved-row:hover, .saved-row:focus-visible { background: var(--dm-paper-soft); box-shadow: inset 4px 0 var(--dm-brand-orange); }
+.lesson-stage { min-height: var(--dm-target-min); border-color: var(--dm-ink-strong); }
+.lesson-stage.active { background: var(--dm-ink-strong); color: var(--dm-paper-raised); }
+.meaning-row { border-top-color: var(--dm-line); }
+.meaning-row span, .meaning-row small, .saved-helpers, .saved-context-helper { font-family: var(--dm-font-reading); }
+.saved-helpers { font-size: var(--dm-font-size-small); }
+.saved-helpers b, .saved-context-label { color: var(--dm-ink-strong); font-size: var(--dm-font-size-small); }
+.saved-mastery { border-color: var(--dm-line); font-size: var(--dm-font-size-small); }
+.saved-item.is-expanded { border-color: var(--dm-ink-strong); border-left-color: var(--dm-brand-orange); border-radius: var(--dm-radius-card); }
+.saved-feedback, .settings-notice, .grammar-celebration { background: var(--dm-paper-soft); border-left-color: var(--dm-brand-orange); }
+.local-note, .phonetic-hint, .heatmap-note { font-size: var(--dm-font-size-small); }
+.setting-control input, .direction-setting input { accent-color: var(--dm-brand-orange); }
+.pattern-highlight { background: var(--dm-brand-orange); }
+.popup-content :is(button, a, input, select) { touch-action: manipulation; }
 
 @media (max-width: 360px) {
   .popup-content { padding-inline: 16px; }

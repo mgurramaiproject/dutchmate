@@ -573,7 +573,7 @@ function renderLesson(): HTMLElement {
   const exit = button("Exit lesson", "exit-button"); exit.addEventListener("click", () => { lessonSession = null; screen = focusedOrigin ?? "lessons"; focusedOrigin = null; render(); });
   const rail = document.createElement("div"); rail.className = "lesson-rail"; rail.setAttribute("aria-label", "Lesson stages");
   for (const stage of ["read", "notice", "practise", "keep"] as const) {
-    const stageNode = text(stage, `lesson-stage${session.stage === stage || (stage === "keep" && session.stage === "replay") ? " active" : ""}`);
+    const stageNode = text(stage.charAt(0).toUpperCase() + stage.slice(1), `lesson-stage${session.stage === stage || (stage === "keep" && session.stage === "replay") ? " active" : ""}`);
     stageNode.setAttribute("aria-current", session.stage === stage || (stage === "keep" && session.stage === "replay") ? "step" : "false");
     rail.append(stageNode);
   }

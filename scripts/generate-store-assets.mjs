@@ -93,8 +93,8 @@ function smallToolbarIconPixel(x, y) {
   return pixel;
 }
 
-// Extension icons are derived from the approved GPT-generated Book Bubble mark
-// in frontend/assets/dutchmate-logo-gpt-image.png and are committed as PNG assets.
+// Extension icons are derived from the approved DutchMate Book Bubble mark
+// in the v1.1 brand handoff and are committed as PNG assets.
 // The promo image is maintained separately so it can stay product-based and
 // should not be regenerated here.
 
