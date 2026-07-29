@@ -62,3 +62,12 @@ records evidence for this pass and makes manual blockers explicit.
   accessible label/title instead of leaving a visible `0`.
 - Store asset generation now copies the approved v1.1 raster mark for every
   manifest size and the Chrome Web Store icon.
+- Options now leads with Languages, followed by Behavior; the existing Study
+  preferences, Tuning, Saved vocabulary, and Privacy sections remain present.
+- Options language roles are normalized to Dutch learning, Telugu native, and
+  English bridge; hover translation mode is normalized to Word.
+- Study preferences remain visible but muted and disabled in Options, while
+  their existing popup controls remain the place for those high-frequency
+  changes.
+- Any editable Options change reveals a live save reminder and makes the
+  bottom Save action sticky until changes are saved.

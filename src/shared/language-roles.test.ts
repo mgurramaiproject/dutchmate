@@ -25,24 +25,26 @@ describe("language roles", () => {
     });
   });
 
-  it("keeps all three language roles distinct when one dropdown changes", () => {
+  it("keeps the fixed helper roles when an old dropdown value is submitted", () => {
     expect(
       applyLanguageRoleSelection(DEFAULT_LANGUAGE_ROLES, "nativeLanguage", "en"),
-    ).toEqual({
-      learningLanguage: "nl",
-      nativeLanguage: "en",
-      bridgeLanguage: "te",
-    });
+    ).toEqual(DEFAULT_LANGUAGE_ROLES);
   });
 
   it("limits learning to Dutch and helper roles to English or Telugu", () => {
     expect(getLanguageOptions("learningLanguage")).toEqual(["nl"]);
-    expect(getLanguageOptions("nativeLanguage")).toEqual(["en", "te"]);
-    expect(getLanguageOptions("bridgeLanguage")).toEqual(["en", "te"]);
+    expect(getLanguageOptions("nativeLanguage")).toEqual(["te"]);
+    expect(getLanguageOptions("bridgeLanguage")).toEqual(["en"]);
     expect(normalizeLanguageRoles({
       learningLanguage: "en",
       nativeLanguage: "nl",
       bridgeLanguage: "nl",
     })).toEqual(DEFAULT_LANGUAGE_ROLES);
+  });
+
+  it("migrates old helper-role choices to Telugu native and English bridge", () => {
+    expect(normalizeLanguageRoles({ nativeLanguage: "en", bridgeLanguage: "te" })).toEqual(
+      DEFAULT_LANGUAGE_ROLES,
+    );
   });
 });

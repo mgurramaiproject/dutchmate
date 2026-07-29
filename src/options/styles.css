@@ -297,6 +297,33 @@ input[type="range"] {
   gap: 10px;
 }
 
+.save-reminder {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--dm-brand-orange);
+  border-left-width: 4px;
+  border-radius: var(--dm-radius-control);
+  background: var(--dm-paper-soft);
+  color: var(--dm-ink-strong);
+  font-family: var(--dm-font-ui);
+  font-size: 14px;
+}
+
+.save-reminder[hidden] {
+  display: none;
+}
+
+.locked-settings {
+  display: grid;
+  gap: var(--dm-space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 .cache-control {
   display: flex;
   flex-wrap: wrap;
@@ -363,16 +390,19 @@ input[type="range"] {
   text-transform: uppercase;
 }
 
-.vocabulary-list th:nth-child(1),
-.vocabulary-list td:nth-child(1) { width: 23%; }
-.vocabulary-list th:nth-child(2),
-.vocabulary-list td:nth-child(2) { width: 23%; }
-.vocabulary-list th:nth-child(3),
-.vocabulary-list td:nth-child(3) { width: 23%; }
-.vocabulary-list th:nth-child(4),
-.vocabulary-list td:nth-child(4) { width: 17%; }
-.vocabulary-list th:nth-child(5),
-.vocabulary-list td:nth-child(5) { width: 14%; }
+.vocabulary-list th:nth-child(1), .vocabulary-list td:nth-child(1) { width: 7%; }
+.vocabulary-list th:nth-child(2), .vocabulary-list td:nth-child(2) { width: 21%; }
+.vocabulary-list th:nth-child(3), .vocabulary-list td:nth-child(3) { width: 21%; }
+.vocabulary-list th:nth-child(4), .vocabulary-list td:nth-child(4) { width: 21%; }
+.vocabulary-list th:nth-child(5), .vocabulary-list td:nth-child(5) { width: 17%; }
+.vocabulary-list th:nth-child(6), .vocabulary-list td:nth-child(6) { width: 13%; }
+
+.vocabulary-number {
+  color: var(--dm-ink-muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  text-align: center !important;
+}
 
 .vocabulary-list tbody tr:last-child td {
   border-bottom: 0;
@@ -520,6 +550,19 @@ button:disabled {
   color: var(--dm-ink-strong);
 }
 
+form.is-dirty .form-actions {
+  position: sticky;
+  bottom: 16px;
+  z-index: 5;
+  margin-inline: calc(var(--dm-space-5) * -1);
+  padding: var(--dm-space-3) var(--dm-space-5);
+  border: 1px solid var(--dm-brand-orange);
+  border-radius: var(--dm-radius-control);
+  background: color-mix(in srgb, var(--dm-paper-raised) 94%, transparent);
+  box-shadow: var(--dm-shadow-high);
+  backdrop-filter: blur(10px);
+}
+
 /* v1.1 retrofit: keep the full Options contract, but make the form read as a
    calm, grouped paper document at desktop and narrow reflow widths. */
 body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: var(--dm-font-reading); }
@@ -529,6 +572,10 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .options-title img { width: 186px; height: 36px; border-radius: 0; }
 form { gap: var(--dm-space-5); }
 .settings-section { gap: var(--dm-space-3); padding: var(--dm-space-5); border: var(--dm-border-width) solid var(--dm-line); border-left: 4px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); box-shadow: var(--dm-shadow-low); }
+.settings-section.is-muted-settings { border-left-color: var(--dm-line); background: var(--dm-paper-soft); }
+.locked-settings label, .locked-settings .setting-label, .locked-settings .setting-help, .locked-note { color: var(--dm-ink-muted); }
+.locked-settings input, .setting-choice-group input:disabled { opacity: 0.58; }
+.save-reminder { box-shadow: var(--dm-shadow-low); }
 h2 { color: var(--dm-ink-strong); font-family: var(--dm-font-ui); font-size: var(--dm-font-size-h2); font-weight: var(--dm-weight-bold); }
 h2::after { background: var(--dm-brand-orange); }
 label, .setting-label { color: var(--dm-ink-strong); font-family: var(--dm-font-ui); }

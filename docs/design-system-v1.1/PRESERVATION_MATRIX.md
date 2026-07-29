@@ -39,10 +39,11 @@ and flows remain authoritative.
 | Existing element or interaction | Current location and contract | v1.1 treatment | Verification |
 | --- | --- | --- | --- |
 | Brand header and form shell | `src/options/index.html`, `styles.css`; full browser tab | v1.1 lockup, warm paper document, grouped raised sections | Chrome/Firefox builds; 400% reflow remains manual QA |
+| Options section order and save prompt | Existing form sections and bottom Save action | Languages first, Behavior second; editable changes show a live reminder and sticky bottom Save action | Options form contract test; manual keyboard/zoom QA remains |
 | Behavior controls and matrix | Enable, hover/selection translation, cache toggles, save notes | Tokenized fields/table; dark styling scoped to column headers so Text-column row labels stay on paper; no setting moved out or deleted | Options stylesheet regression test and full suite |
-| Study preferences | Auto-save, page context/example sentence, daily review badge | Tokenized preference rows; sync field names unchanged | Settings tests and popup contract tests |
-| Tuning | Hover mode, fixed delay and selection length controls | Tokenized range/choice controls; fixed semantics preserved | Settings tests/typecheck |
-| Languages | Learning/native/bridge selects and role normalization | Tokenized selects and helper copy; language role contract unchanged | Language-role/settings tests |
+| Study preferences | Auto-save, page context/example sentence, daily review badge | Tokenized muted rows, disabled in Options; sync field names unchanged and popup controls preserved | Settings tests and popup contract tests |
+| Tuning | Hover mode, fixed delay and selection length controls | Tokenized disabled controls; hover mode is fixed to Word | Settings tests/typecheck |
+| Languages | Learning/native/bridge selects and role normalization | Tokenized selects; Dutch learning, Telugu native, and English bridge are the only choices | Language-role/settings tests and Options form contract |
 | Saved vocabulary | Count, refresh, export/import, clear, table, row Delete, empty/help copy | Tokenized table/actions; canonical local learning client retained; newest-first order shared with popup Saved | Saved shelf order regression test, Options vocabulary/cache tests, full suite |
 | Privacy/cache | Cached count, refresh, clear cache, local-storage explanation | Tokenized privacy section; cache key and expiry semantics unchanged | Cache tests and release verification |
 | Save/status/errors and local testing | Form submit, validation focus, status live region, optional local endpoint fields | Shared controls and semantic status colors; provider security validation unchanged | Settings tests/typecheck; manual screen-reader QA remains |

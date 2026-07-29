@@ -39,6 +39,12 @@ describe("settings", () => {
     });
   });
 
+  it("normalizes the retired sentence hover mode to Word", () => {
+    expect(normalizeSettings({ hoverTranslationMode: "sentence" })).toMatchObject({
+      hoverTranslationMode: "word",
+    });
+  });
+
   it("uses the production backend endpoint by default", async () => {
     storageSyncGet.mockResolvedValue(defaultSettings);
 

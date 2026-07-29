@@ -6,7 +6,6 @@ import {
   validateHoverDelayMs,
   validateMaxSelectionLength,
   type ExtensionSettings,
-  type HoverTranslationMode,
 } from "../shared/settings";
 import {
   applyLanguageRoleSelection,
@@ -63,6 +62,8 @@ const importVocabulary = document.querySelector<HTMLButtonElement>("#import-voca
 const importVocabularyFile = document.querySelector<HTMLInputElement>("#import-vocabulary-file");
 const clearVocabulary = document.querySelector<HTMLButtonElement>("#clear-vocabulary");
 const status = document.querySelector<HTMLParagraphElement>("#status");
+const saveReminder = document.querySelector<HTMLElement>("#save-reminder");
+const saveButton = document.querySelector<HTMLButtonElement>("#save-button");
 let statusTimer: number | undefined;
 let currentLanguageRoles: LanguageRoleSettings = normalizeLanguageRoles(undefined);
 const learningClient = createLearningClient(browser);
@@ -79,6 +80,8 @@ form?.addEventListener("submit", (event) => {
   event.preventDefault();
   void saveSettings();
 });
+form?.addEventListener("input", markUnsavedChanges);
+form?.addEventListener("change", markUnsavedChanges);
 
 clearCache?.addEventListener("click", () => {
   void clearTranslationCache();
@@ -163,7 +166,7 @@ async function restoreSettings(): Promise<void> {
   }
 
 
-  setHoverTranslationMode(settings.hoverTranslationMode);
+  setHoverTranslationMode();
 
   if (hoverDelayMs) {
     hoverDelayMs.value = settings.hoverDelayMs.toString();
@@ -223,10 +226,7 @@ async function saveSettings(): Promise<void> {
     translateOnSelection: translateOnSelection?.checked ?? defaultSettings.translateOnSelection,
     cacheHoveredWords: cacheHoveredWords?.checked ?? defaultSettings.cacheHoveredWords,
     cacheSelectedWords: cacheSelectedWords?.checked ?? defaultSettings.cacheSelectedWords,
-    hoverTranslationMode: getHoverTranslationMode(
-      getSelectedHoverTranslationMode(),
-      defaultSettings.hoverTranslationMode,
-    ),
+    hoverTranslationMode: "word",
     hoverDelayMs: hoverDelayValue,
     maxSelectionLength: maxSelectionLengthValue,
     sourceLanguage: getSourceLanguageCode("auto", defaultSettings.sourceLanguage),
@@ -243,7 +243,26 @@ async function saveSettings(): Promise<void> {
   };
 
   await browser.storage.sync.set(settings);
+  setUnsavedChanges(false);
   showStatus("Saved", "success");
+}
+
+function markUnsavedChanges(event: Event): void {
+  const target = event.target;
+  if (target instanceof HTMLInputElement && target.type === "file") {
+    return;
+  }
+  setUnsavedChanges(true);
+}
+
+function setUnsavedChanges(value: boolean): void {
+  form?.classList.toggle("is-dirty", value);
+  if (saveReminder) {
+    saveReminder.hidden = !value;
+  }
+  if (saveButton) {
+    saveButton.textContent = value ? "Save changes" : "Save";
+  }
 }
 
 function renderAdvancedLocalTesting(): void {
@@ -397,15 +416,17 @@ function renderSavedVocabulary(items: LearningItem[]): void {
   vocabularyCount.textContent = `Saved items: ${newestFirst.length}`;
   vocabularyEmpty.hidden = newestFirst.length > 0;
   vocabularyList.hidden = newestFirst.length === 0;
-  vocabularyListBody.replaceChildren(...newestFirst.map(createVocabularyListRow));
+  const shelfNumberById = new Map(sortSavedItems(items, "oldest").map((item, index) => [item.id, index + 1]));
+  vocabularyListBody.replaceChildren(...newestFirst.map((item) => createVocabularyListRow(item, shelfNumberById.get(item.id) ?? 0)));
 }
 
-function createVocabularyListRow(item: LearningItem): HTMLTableRowElement {
+function createVocabularyListRow(item: LearningItem, shelfNumber: number): HTMLTableRowElement {
   const view = getVocabularyItemView(item);
   const row = document.createElement("tr");
   row.className = "vocabulary-item";
 
   row.append(
+    createVocabularyCell(String(shelfNumber), false, "vocabulary-number"),
     createVocabularyCell(view.dutch, true),
     createVocabularyCell(view.english, false),
     createVocabularyCell(view.telugu, false),
@@ -558,13 +579,6 @@ async function clearTranslationCache(): Promise<void> {
   }
 }
 
-function getHoverTranslationMode(
-  value: string | undefined,
-  fallback: HoverTranslationMode,
-): HoverTranslationMode {
-  return value === "word" || value === "sentence" ? value : fallback;
-}
-
 function readNumberInput(input: HTMLInputElement | null, fallback: number): number {
   if (!input) {
     return fallback;
@@ -573,14 +587,10 @@ function readNumberInput(input: HTMLInputElement | null, fallback: number): numb
   return Number(input.value);
 }
 
-function setHoverTranslationMode(mode: HoverTranslationMode): void {
+function setHoverTranslationMode(): void {
   hoverTranslationModes.forEach((input) => {
-    input.checked = input.value === mode;
+    input.checked = input.value === "word";
   });
-}
-
-function getSelectedHoverTranslationMode(): string | undefined {
-  return Array.from(hoverTranslationModes).find((input) => input.checked)?.value;
 }
 
 function updateTuningValueLabels(): void {

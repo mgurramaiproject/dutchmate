@@ -19,26 +19,19 @@ export const DEFAULT_LANGUAGE_ROLES: LanguageRoleSettings = {
 };
 
 export function getLanguageOptions(role: LanguageRole): MvpLanguageCode[] {
-  return role === "learningLanguage" ? ["nl"] : ["en", "te"];
+  if (role === "learningLanguage") return ["nl"];
+  return role === "nativeLanguage" ? ["te"] : ["en"];
 }
 
 export function normalizeLanguageRoles(
   value: Partial<LanguageRoleSettings> | undefined,
 ): LanguageRoleSettings {
   const learningLanguage = DEFAULT_LEARNING_LANGUAGE;
-  const helperLanguages = getLanguageOptions("nativeLanguage");
-  const nativeLanguage = getAvailableLanguage(
-    value?.nativeLanguage,
-    DEFAULT_NATIVE_LANGUAGE,
-    helperLanguages,
-  );
-  const bridgeLanguage = getAvailableLanguage(
-    value?.bridgeLanguage,
-    DEFAULT_BRIDGE_LANGUAGE,
-    helperLanguages.filter((languageCode) => languageCode !== nativeLanguage),
-  );
-
-  return { learningLanguage, nativeLanguage, bridgeLanguage };
+  return {
+    learningLanguage,
+    nativeLanguage: getAvailableLanguage(value?.nativeLanguage, DEFAULT_NATIVE_LANGUAGE, ["te"]),
+    bridgeLanguage: getAvailableLanguage(value?.bridgeLanguage, DEFAULT_BRIDGE_LANGUAGE, ["en"]),
+  };
 }
 
 export function applyLanguageRoleSelection(
@@ -50,43 +43,10 @@ export function applyLanguageRoleSelection(
     return normalizeLanguageRoles(current);
   }
 
-  const helperLanguages = getLanguageOptions(changedRole);
-  if (!helperLanguages.includes(selectedLanguage)) {
+  if (!getLanguageOptions(changedRole).includes(selectedLanguage)) {
     return normalizeLanguageRoles(current);
   }
-
-  const next = {
-    learningLanguage: DEFAULT_LEARNING_LANGUAGE,
-    [changedRole]: selectedLanguage,
-  } as Partial<LanguageRoleSettings>;
-  const used = new Set<MvpLanguageCode>([DEFAULT_LEARNING_LANGUAGE, selectedLanguage]);
-
-  for (const role of ["nativeLanguage", "bridgeLanguage"] as const) {
-    if (role === changedRole) {
-      continue;
-    }
-
-    const candidate = current[role];
-    if (candidate !== selectedLanguage && !used.has(candidate)) {
-      next[role] = candidate;
-      used.add(candidate);
-    }
-  }
-
-  for (const role of ["nativeLanguage", "bridgeLanguage"] as const) {
-    if (role === changedRole || next[role]) {
-      continue;
-    }
-
-    const remainingLanguage = getLanguageOptions(role).find((languageCode) => !used.has(languageCode));
-
-    if (remainingLanguage) {
-      next[role] = remainingLanguage;
-      used.add(remainingLanguage);
-    }
-  }
-
-  return next as LanguageRoleSettings;
+  return normalizeLanguageRoles({ ...current, [changedRole]: selectedLanguage });
 }
 
 function getAvailableLanguage(
