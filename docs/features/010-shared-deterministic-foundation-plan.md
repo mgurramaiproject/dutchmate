@@ -1,4 +1,4 @@
-# Plan: Shared deterministic learning foundation
+# Plan 010: Shared deterministic learning foundation
 
 ## Handoff status
 
@@ -8,6 +8,63 @@
 - Purpose: audit compatibility with the shipped deterministic foundation and identify only the minimum seams needed by the first vertical slice
 - First consumer: Web Sentence Trainer
 - First curated-content consumer: existing A0 grammar patterns, later expanded through the consolidated grammar-content plan
+
+## Compatibility audit
+
+Audit baseline: 2026-07-29. This audit records the shipped contracts and the
+smallest compatible boundary for Web Sentence Trainer. It does not change
+runtime code, storage, UI placement, scheduler behavior, or released behavior.
+
+### Reuse map
+
+| Need | Existing seam | Compatibility result |
+|---|---|---|
+| Canonical Dutch target | `src/vocabulary/learning-record.ts`: `LearningItem`, `getLearningItemId`, `LearningRecordStore` | Reuse the one stable Dutch learning item. Do not add `SavedEncounter` or a sentence-specific item. |
+| Bounded source context | `LearningContext`, `normalizeContext`, `mergeContexts` | Reuse up to three deduplicated contexts, each capped at 240 characters. Missing context does not block saving. |
+| Save-time capture | `src/content/page-context.ts` and `WebpageLookupModule.handleSaveAction()` | Reuse the existing explicit Save flow and bounded page-context extraction. No second extractor, typed editor, or practice-time translation request. |
+| Exposure evidence | `LearningRecordStore.recordEncounter()` and `LearningEncounter` | Keep encounters as exposure only. They do not award recognition or recall evidence. |
+| Direct contextual result | `LearningRecordStore.recordMissionResult()` | Reuse the canonical recognition/recall result with `expectedAttemptCount` for duplicate and stale-result protection. It does not create a sentence queue or alter the Daily Five snapshot. |
+| Daily Five | `DailyFiveTask`, `createDailyFiveSnapshot`, `recordDailyFiveResult()` | Reuse the existing vocabulary task identity and scheduler. Context may enrich the same item, but must not create a second task for the same target. |
+| Deterministic grammar | `src/grammar/content.ts` and `src/grammar/learning.ts` | Reuse the click-only/result conventions where useful. Do not force arbitrary webpage sentences into the reviewed grammar-content model or create a universal exercise DSL. |
+| Delivery surfaces | `src/popup/index.ts`: `Today`, `Lessons`, `Saved`, focused review/lesson flows, and Settings | Use expanded `Saved` as the entry point. No new top-level tab, route, or scheduler is required. |
+
+### Audit decisions
+
+- No storage migration or new persisted field is required. The current
+  learning record already stores the canonical item, bounded contexts,
+  recognition/recall mastery, encounters, export/import data, and mixed Daily
+  Five snapshot.
+- Contexts with `sourceLanguage === "nl"` are eligible for exact
+  reconstruction. Legacy contexts with unknown provenance remain usable for
+  ordinary review but fall back to meaning recall; they are never silently
+  reclassified as Dutch.
+- When several eligible Dutch contexts exist, select the newest by `addedAt`.
+  Use normalized context text as the stable tie-breaker. Do not add a context
+  picker in v1.
+- The smallest likely feature seam is transient deterministic eligibility,
+  tokenization, and reconstruction state owned by Web Sentence Trainer. It is
+  not shared learner storage and does not belong in Plan 010 unless the feature
+  audit proves an existing pure helper cannot express it.
+- The first slice remains click/keyboard-only: meaning recall with reveal and
+  exact reconstruction only when conservative checks pass. Unsafe or ambiguous
+  contexts fall back to meaning recall.
+
+### Verification baseline and regression gates
+
+The current checkout passes `corepack pnpm test` (99 files, 627 tests) and
+`corepack pnpm typecheck`. The first feature audit should preserve and extend
+the focused seams covered by:
+
+- `src/content/page-context.test.ts` and `src/content/webpage-lookup-module.test.ts` for bounded capture, source-language handling, and save behavior;
+- `src/vocabulary/learning-record.test.ts` for identity, context merge, migration, export/import, encounters, canonical results, and duplicate safety;
+- `src/vocabulary/daily-five.test.ts` and `src/popup/daily-five-view.test.ts` for scheduler and task rendering;
+- `src/grammar/content.test.ts`, `src/grammar/learning.test.ts`, and `src/grammar/progression.test.ts` for deterministic reviewed grammar behavior;
+- `src/popup/index.test.ts`, `src/popup/saved-shelf-view.test.ts`, and `src/popup/learning-client.test.ts` for existing surfaces and Saved behavior;
+- `scripts/verify-extension-build.test.ts` and `src/release/release-docs-consistency.test.ts` for build and release regression checks.
+
+Plan 010 is therefore a compatibility gate, not an implementation ticket:
+the user must approve the revised Web Sentence Trainer slice before runtime
+work begins.
 
 ## Goal
 

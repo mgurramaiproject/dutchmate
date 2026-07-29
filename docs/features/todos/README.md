@@ -8,7 +8,7 @@ Implement exactly one queue item at a time. Copying a plan here is not implement
 
 | Order | Plan | Status | Boundary |
 |---:|---|---|---|
-| 0 | [Shared deterministic foundation](./00-shared-deterministic-foundation/plan.md) | First approval candidate | Compatibility audit only; no speculative runtime foundation |
+| 0 | [Shared deterministic foundation](../010-shared-deterministic-foundation-plan.md) | First approval candidate | Compatibility audit only; no speculative runtime foundation |
 | 1 | [Web Sentence Trainer](./01-web-sentence-trainer/plan.md) | Next product slice | Existing `LearningItem` + bounded Dutch `LearningContext`; click-only |
 | 2 | [Grammar content packs](./02-grammar-content-packs/plan.md) | Later active candidate | Internal Verb Gym/Sentence Forge/Grammar Minute families; four shipped A0 patterns first |
 | 3 | [Contrast Packs](./03-contrast-packs/plan.md) | Later active candidate | Small authored repair inserts tied to reliable controlled evidence |
