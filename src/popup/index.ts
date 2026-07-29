@@ -13,6 +13,7 @@ import { lessonCatalog, type GrammarPatternId, type Lesson } from "../lessons/ca
 import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSavedQuiz, type SavedQuizSession } from "./saved-quiz";
+import { createSavedContextMission, revealSavedContextMission, type SavedContextMission } from "./saved-context-mission";
 import { grammarResultMessage } from "../grammar/learning";
 import { getGrammarPattern, grammarPatterns, type GrammarExercise } from "../grammar/content";
 import type { GrammarRecord } from "../grammar/learning";
@@ -32,7 +33,7 @@ let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "settings" = "today";
+let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "savedContextMission" | "settings" = "today";
 let lessonSession: LessonSession | null = null;
 let grammarRecord: GrammarRecord | null = null;
 let grammarRecords: Partial<Record<GrammarPatternId, GrammarRecord>> = {};
@@ -59,6 +60,9 @@ let savedFeedback: { tone: "success" | "error"; message: string } | null = null;
 let savedQuizSession: SavedQuizSession | null = null;
 let savedQuizError: string | null = null;
 let savedQuizRetry: "again" | "got-it" | null = null;
+let savedContextMission: SavedContextMission | null = null;
+let savedContextMissionError: string | null = null;
+let savedContextMissionRetry: "again" | "got-it" | null = null;
 let lessonStatusFilter: LessonFilterStatus = "all";
 let lessonLevelFilter: LessonFilterLevel = "all";
 let focusedOrigin: "today" | "lessons" | "saved" | null = null;
@@ -119,9 +123,9 @@ async function loadSaved(): Promise<void> {
 function render(): void {
   if (!content) return;
   if (screen !== "saved") expandedSavedItemId = null;
-  const focused = screen === "review" || screen === "lesson" || screen === "savedQuiz";
+  const focused = screen === "review" || screen === "lesson" || screen === "savedQuiz" || screen === "savedContextMission";
   const activeTab = focused
-    ? focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" ? "saved" : "today")
+    ? focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" || screen === "savedContextMission" ? "saved" : "today")
     : screen === "lesson" || screen === "lessons" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.classList.toggle("is-locked", focused);
@@ -136,7 +140,7 @@ function render(): void {
   }
   content?.setAttribute("aria-labelledby", `${activeTab}-tab`);
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : renderSettings());
+  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : renderSettings());
 }
 
 function renderSaved(): HTMLElement {
@@ -212,6 +216,13 @@ function renderSaved(): HTMLElement {
       const sourceContexts = [...(sourceItem?.contexts ?? [])].sort((first, second) => second.addedAt - first.addedAt).slice(0, 3);
       for (const [index, context] of item.details.contexts.entries()) detail.append(renderSavedContext(context, item.dutch, item.id, sourceContexts[index]));
       if (item.details.contexts.length === 0) detail.append(text("No saved page context.", "saved-no-context"));
+      const mission = sourceItem ? createSavedContextMission(sourceItem) : null;
+      if (mission) {
+        const practise = button("Practise context", "button primary-button saved-context-practice");
+        practise.disabled = pending || savedActionBusy;
+        practise.addEventListener("click", () => startSavedContextMission(item.id));
+        detail.append(practise);
+      }
       const options = button("Open Options", "saved-options-link");
       options.addEventListener("click", () => void browser.runtime.openOptionsPage());
       detail.append(options);
@@ -797,6 +808,52 @@ function renderSavedQuiz(): HTMLElement {
   return wrapper;
 }
 
+function renderSavedContextMission(): HTMLElement {
+  const wrapper = section("practice-content focused-content saved-context-mission-content");
+  const mission = savedContextMission;
+  const item = mission ? items.find((candidate) => candidate.id === mission.itemId) : undefined;
+  if (!mission || !item) { screen = "saved"; savedContextMission = null; focusedOrigin = null; return renderSaved(); }
+  const exit = button("Exit Context Mission", "exit-button");
+  exit.addEventListener("click", exitSavedContextMission);
+  const card = section("practice-card");
+  card.append(eyebrow("Context Mission"), heading("What does this mean here?"), text("Recall the saved meaning before you reveal it.", "saved-context-mission-copy"));
+  const context = section("saved-context-mission-context");
+  context.append(text("Original context · Dutch", "saved-context-label"), highlightedSavedContext(mission.context.text, item.dutch));
+  card.append(context);
+  if (savedContextMissionError) {
+    const error = text(savedContextMissionError, "saved-context-mission-error");
+    error.setAttribute("role", "alert");
+    const retry = button("Try again", "button primary-button");
+    retry.disabled = pending;
+    retry.addEventListener("click", () => void saveSavedContextMissionResult(item, mission, savedContextMissionRetry ?? "got-it"));
+    card.append(error, retry);
+  } else if (mission.revealed) {
+    const english = item.english ?? mission.context.english ?? null;
+    const telugu = item.telugu ?? mission.context.telugu ?? null;
+    card.append(meaning("Dutch", item.dutch), meaning("English", english), teluguMeaning(telugu));
+    if (english || telugu) {
+      const actions = document.createElement("div");
+      actions.className = "rating-actions";
+      for (const result of ["again", "got-it"] as const) {
+        const action = button(result === "again" ? "Again" : "Got it", "button");
+        action.disabled = pending;
+        action.addEventListener("click", () => void saveSavedContextMissionResult(item, mission, result));
+        actions.append(action);
+      }
+      card.append(actions);
+    } else {
+      card.append(text("No saved helper meaning is available for this context.", "saved-context-mission-copy"));
+    }
+  } else {
+    const reveal = button("Reveal", "button answer-button");
+    reveal.disabled = pending;
+    reveal.addEventListener("click", () => { savedContextMission = revealSavedContextMission(mission); render(); content?.querySelector<HTMLButtonElement>(".rating-actions .button")?.focus(); });
+    card.append(reveal, phoneticHint());
+  }
+  wrapper.append(exit, card, localNote());
+  return wrapper;
+}
+
 function renderSettings(): HTMLElement {
   const wrapper = section("settings-content");
   wrapper.append(eyebrow("Settings"), heading("Review preferences"), toggle("Show page context", settings.showExampleSentence, (checked) => void saveSettings({ showExampleSentence: checked })), toggle("Daily review badge", settings.dailyReviewBadge, (checked) => void saveSettings({ dailyReviewBadge: checked })), text("Other extension settings are available in Options.", "local-note"));
@@ -837,6 +894,51 @@ async function saveSavedQuizResult(item: LearningItem, task: NonNullable<ReturnT
   } catch (error) {
     savedQuizError = error instanceof Error ? error.message : "Your Quiz Saved result could not be saved.";
   } finally { pending = false; render(); }
+}
+
+function startSavedContextMission(itemId: string): void {
+  const item = items.find((candidate) => candidate.id === itemId);
+  const mission = item ? createSavedContextMission(item) : null;
+  if (!mission) return;
+  savedContextMission = mission;
+  savedContextMissionError = null;
+  savedContextMissionRetry = null;
+  focusedOrigin = "saved";
+  screen = "savedContextMission";
+  render();
+  content?.focus();
+}
+
+function exitSavedContextMission(): void {
+  savedContextMission = null;
+  savedContextMissionError = null;
+  savedContextMissionRetry = null;
+  focusedOrigin = null;
+  screen = "saved";
+  render();
+}
+
+async function saveSavedContextMissionResult(item: LearningItem, mission: SavedContextMission, result: "again" | "got-it"): Promise<void> {
+  if (pending || !savedContextMission) return;
+  savedContextMissionError = null;
+  savedContextMissionRetry = result;
+  pending = true;
+  render();
+  try {
+    const updated = await learningClient.recordMissionResult(item.id, mission.dimension, result, mission.expectedAttemptCount);
+    items = items.map((candidate) => candidate.id === updated.id ? updated : candidate);
+    savedContextMission = null;
+    savedContextMissionError = null;
+    savedContextMissionRetry = null;
+    savedFeedback = { tone: "success", message: "Context practice recorded." };
+    focusedOrigin = null;
+    screen = "saved";
+  } catch (error) {
+    savedContextMissionError = error instanceof Error ? error.message : "Context practice could not be saved.";
+  } finally {
+    pending = false;
+    render();
+  }
 }
 
 async function startContinuation(): Promise<void> { pending = true; render(); await load(true); pending = false; if (snapshot?.tasks.length) { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; render(); content?.focus(); } }

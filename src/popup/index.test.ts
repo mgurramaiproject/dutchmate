@@ -490,6 +490,70 @@ describe("lesson popup", () => {
     expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2);
   });
 
+  it("starts a Saved Context Mission with the newest Dutch context and records one canonical result", async () => {
+    learningItems = [learningItems[0], { ...learningItems[1], english: "zebra", contexts: [
+      { text: "De zebra loopt buiten.", addedAt: 2, sourceLanguage: "nl" },
+      { text: "De zebra staat bij de ingang.", addedAt: 3, sourceLanguage: "nl" },
+      { text: "A zebra stands by the entrance.", addedAt: 4, sourceLanguage: "en" },
+    ] }];
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+    button("Saved").click();
+    await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2));
+    content().querySelector<HTMLButtonElement>(".saved-row")!.click();
+    await vi.waitFor(() => expect(button("Practise context")).toBeTruthy());
+    expect(content().textContent).toContain("A zebra stands by the entrance.");
+
+    button("Practise context").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Context Mission"));
+    expect(content().textContent).toContain("De zebra staat bij de ingang.");
+    expect(content().textContent).not.toContain("A zebra stands by the entrance.");
+    expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.disabled).toBe(true);
+    expect(button("Reveal")).toBeTruthy();
+    expect(content().querySelectorAll(".saved-context-mission-context")).toHaveLength(1);
+
+    button("Reveal").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Englishzebra"));
+    const reveal = content().querySelector<HTMLButtonElement>(".rating-actions .button")!;
+    expect(reveal.getAttribute("type")).toBe("button");
+    button("Got it").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Context practice recorded."));
+    expect(runtime.sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.recordMissionResult", payload: { itemId: "saved-item", dimension: "recall", result: "got-it", expectedAttemptCount: 2 } });
+    expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.disabled).toBe(false);
+  });
+
+  it("keeps missing helper meaning reveal-only and does not request a translation", async () => {
+    learningItems = [learningItems[0], { ...learningItems[1], english: null, telugu: null, contexts: [{ text: "De zebra staat hier.", addedAt: 3, sourceLanguage: "nl" }] }];
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+    button("Saved").click();
+    await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2));
+    content().querySelector<HTMLButtonElement>(".saved-row")!.click();
+    await vi.waitFor(() => expect(button("Practise context")).toBeTruthy());
+    button("Practise context").click();
+    button("Reveal").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("EnglishUnavailable"));
+    expect(runtime.sendMessage.mock.calls.some(([message]) => message.type === "hoverTranslate.translate")).toBe(false);
+    expect(content().textContent).toContain("No saved helper meaning is available for this context.");
+    expect(button("Again")).toBeFalsy();
+  });
+
+  it("keeps a failed Context Mission result recoverable without false success", async () => {
+    learningItems = [learningItems[0], { ...learningItems[1], english: "zebra", contexts: [{ text: "De zebra staat hier.", addedAt: 3, sourceLanguage: "nl" }] }];
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+    button("Saved").click();
+    await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2));
+    content().querySelector<HTMLButtonElement>(".saved-row")!.click();
+    await vi.waitFor(() => expect(button("Practise context")).toBeTruthy());
+    button("Practise context").click();
+    button("Reveal").click();
+    quizFails = true;
+    button("Got it").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Quiz result could not be saved."));
+    expect(button("Try again")).toBeTruthy();
+    quizFails = false;
+    button("Try again").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Context practice recorded."));
+  });
+
   it("exposes Saved backup controls with success and failure feedback", async () => {
     Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn(() => "blob:test") });
     Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });

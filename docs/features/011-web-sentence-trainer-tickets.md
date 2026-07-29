@@ -56,13 +56,13 @@ GitHub: [#99](https://github.com/mgurramaiproject/dutchmate/issues/99)
 from Saved, reveal its existing helper meaning, and record one canonical
 recognition or recall result.
 
-- [ ] A saved single-word item with an eligible Dutch context offers the `Practise context` action from its expanded Saved view.
-- [ ] The newest eligible Dutch context is selected deterministically without a context picker.
-- [ ] The learner can reveal the existing helper meaning and choose `Again` or `Got it` using click or keyboard controls.
-- [ ] Missing helper meaning falls back to a safe reveal-only presentation without a new translation request.
-- [ ] Results update the existing learning item once and reject duplicate or stale submissions safely.
-- [ ] Chunks, missing contexts, non-Dutch contexts, and unknown-provenance contexts do not enter this mission path.
-- [ ] Tests cover the focused flow, accessibility, canonical result behavior, privacy boundary, and unchanged existing surfaces.
+- [x] A saved single-word item with an eligible Dutch context offers the `Practise context` action from its expanded Saved view.
+- [x] The newest eligible Dutch context is selected deterministically without a context picker.
+- [x] The learner can reveal the existing helper meaning and choose `Again` or `Got it` using click or keyboard controls.
+- [x] Missing helper meaning falls back to a safe reveal-only presentation without a new translation request.
+- [x] Results update the existing learning item once and reject duplicate or stale submissions safely.
+- [x] Chunks, missing contexts, non-Dutch contexts, and unknown-provenance contexts do not enter this mission path.
+- [x] Tests cover the focused flow, accessibility, canonical result behavior, privacy boundary, and unchanged existing surfaces.
 
 ## T03 — Add exact Dutch reconstruction
 
