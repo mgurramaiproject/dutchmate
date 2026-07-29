@@ -1,4 +1,4 @@
-# Plan: Personal Web Sentence Trainer
+# Plan 011: Personal Web Sentence Trainer
 
 ## Handoff status
 
@@ -8,6 +8,19 @@
 - Runtime AI: prohibited and out of scope for v1
 - Curated admin dataset: not required for the core feature
 - Backend: not required for v1
+
+## Resolved grill decisions
+
+- `Web Sentence Trainer` is the feature name, `Context Mission` is the
+  existing domain term, and `Practise context` is the learner-facing action.
+- The first release covers Saved context practice only. Daily Five eligibility
+  follows as a later phase after duplicate-target and scheduler behavior are
+  proven unchanged.
+- v1 Context Missions are for single-word learning items. Meaningful chunks
+  retain their existing Saved and review behavior until phrase-boundary rules
+  are separately resolved.
+- Removing context acts on one chosen context only. It never removes the
+  canonical learning item or the item's other contexts.
 
 ## Product goal
 

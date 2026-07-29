@@ -15,6 +15,7 @@ import {
   LEARNING_EXPORT_MESSAGE,
   LEARNING_IMPORT_MESSAGE,
   LEARNING_RECORD_ENCOUNTER_MESSAGE,
+  LEARNING_REMOVE_CONTEXT_MESSAGE,
   LEARNING_DAILY_FIVE_MESSAGE,
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
@@ -67,6 +68,16 @@ describe("createBackgroundMessageHandler", () => {
     const handleMessage = createBackgroundMessageHandler({ savedVocabulary, reviewCards, learningRecords: records, refreshBadge: async () => undefined });
 
     await expect(send(handleMessage, { type: LEARNING_CREATE_OR_MERGE_MESSAGE, payload: { dutch: "huis", source: "webpage", context: "An English house stands here.", contextSourceLanguage: "en", contextSourceText: "house", contextTranslations: { telugu: "ఇక్కడ ఒక ఇల్లు ఉంది." } } })).resolves.toMatchObject({ ok: true, result: { item: { contexts: [{ text: "An English house stands here.", sourceLanguage: "en", telugu: "ఇక్కడ ఒక ఇల్లు ఉంది." }] } } });
+  });
+
+  it("removes one context through the learning contract without deleting the item", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const item = await records.createOrMerge({ dutch: "huis", context: "Huis staat hier.", contextSourceLanguage: "nl", contextSourceText: "huis" });
+    const handleMessage = createBackgroundMessageHandler({ learningRecords: records, refreshBadge: async () => undefined });
+
+    await expect(send(handleMessage, { type: LEARNING_REMOVE_CONTEXT_MESSAGE, payload: { itemId: item.id, context: { text: "Huis staat hier.", addedAt: 1_000, sourceLanguage: "nl" } } })).resolves.toMatchObject({ ok: true, result: { item: { id: item.id, contexts: [] } } });
+    await expect(records.list()).resolves.toEqual([expect.objectContaining({ id: item.id, contexts: [] })]);
   });
 
   it("leaves existing learning data intact when chunk persistence fails", async () => {

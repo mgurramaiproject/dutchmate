@@ -5,6 +5,7 @@ import {
   LEARNING_CLEAR_MESSAGE,
   LEARNING_CREATE_OR_MERGE_MESSAGE,
   LEARNING_DELETE_MESSAGE,
+  LEARNING_REMOVE_CONTEXT_MESSAGE,
   LEARNING_EXPORT_MESSAGE,
   LEARNING_IMPORT_MESSAGE,
   LEARNING_LIST_MESSAGE,
@@ -72,6 +73,10 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
       return { ok: true, result: { items: await store.keepLessonCandidates(lesson.id, lesson.contentVersion, selected, evidence) } };
     }
     if (message.type === LEARNING_DELETE_MESSAGE) { await store.delete(message.payload.id); return { ok: true, result: { deleted: true } }; }
+    if (message.type === LEARNING_REMOVE_CONTEXT_MESSAGE) {
+      const item = await store.removeContext(message.payload.itemId, message.payload.context);
+      return item ? { ok: true, result: { item } } : { ok: false, error: "Learning item was not found." };
+    }
     if (message.type === LEARNING_CLEAR_MESSAGE) { await store.clear(); return { ok: true, result: { cleared: true } }; }
     if (message.type === LEARNING_EXPORT_MESSAGE) return { ok: true, result: { backup: await store.exportBackup() } };
     if (message.type === LEARNING_IMPORT_MESSAGE) {

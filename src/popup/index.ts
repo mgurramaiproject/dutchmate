@@ -5,7 +5,7 @@ import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import { getSavedContextViews, getSavedShelfView, type SavedContextView, type SavedShelfSort } from "./saved-shelf-view";
 import { getPopupTabForKey } from "./tab-navigation";
 import type { DailyFiveSnapshot, GrammarDailyFiveTask } from "../vocabulary/daily-five";
-import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
+import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningContext, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
@@ -13,6 +13,7 @@ import { lessonCatalog, type GrammarPatternId, type Lesson } from "../lessons/ca
 import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSavedQuiz, type SavedQuizSession } from "./saved-quiz";
+import { addSavedContextToken, checkSavedContextMission, createSavedContextMission, getSavedContextTokenOrder, removeSavedContextToken, resetSavedContextTokens, revealSavedContextMission, type SavedContextMission } from "./saved-context-mission";
 import { grammarResultMessage } from "../grammar/learning";
 import { getGrammarPattern, grammarPatterns, type GrammarExercise } from "../grammar/content";
 import type { GrammarRecord } from "../grammar/learning";
@@ -32,7 +33,7 @@ let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "settings" = "today";
+let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "savedContextMission" | "settings" = "today";
 let lessonSession: LessonSession | null = null;
 let grammarRecord: GrammarRecord | null = null;
 let grammarRecords: Partial<Record<GrammarPatternId, GrammarRecord>> = {};
@@ -59,6 +60,9 @@ let savedFeedback: { tone: "success" | "error"; message: string } | null = null;
 let savedQuizSession: SavedQuizSession | null = null;
 let savedQuizError: string | null = null;
 let savedQuizRetry: "again" | "got-it" | null = null;
+let savedContextMission: SavedContextMission | null = null;
+let savedContextMissionError: string | null = null;
+let savedContextMissionRetry: "again" | "got-it" | null = null;
 let lessonStatusFilter: LessonFilterStatus = "all";
 let lessonLevelFilter: LessonFilterLevel = "all";
 let focusedOrigin: "today" | "lessons" | "saved" | null = null;
@@ -119,9 +123,9 @@ async function loadSaved(): Promise<void> {
 function render(): void {
   if (!content) return;
   if (screen !== "saved") expandedSavedItemId = null;
-  const focused = screen === "review" || screen === "lesson" || screen === "savedQuiz";
+  const focused = screen === "review" || screen === "lesson" || screen === "savedQuiz" || screen === "savedContextMission";
   const activeTab = focused
-    ? focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" ? "saved" : "today")
+    ? focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" || screen === "savedContextMission" ? "saved" : "today")
     : screen === "lesson" || screen === "lessons" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.classList.toggle("is-locked", focused);
@@ -136,7 +140,7 @@ function render(): void {
   }
   content?.setAttribute("aria-labelledby", `${activeTab}-tab`);
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : renderSettings());
+  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : renderSettings());
 }
 
 function renderSaved(): HTMLElement {
@@ -208,7 +212,17 @@ function renderSaved(): HTMLElement {
       detail.id = `saved-detail-${item.shelfNumber}`;
       detail.className = "saved-detail";
       if (item.details.source) detail.append(text(item.details.source, "saved-source"));
-      for (const context of item.details.contexts) detail.append(renderSavedContext(context, item.dutch));
+      const sourceItem = items.find((candidate) => candidate.id === item.id);
+      const sourceContexts = [...(sourceItem?.contexts ?? [])].sort((first, second) => second.addedAt - first.addedAt).slice(0, 3);
+      for (const [index, context] of item.details.contexts.entries()) detail.append(renderSavedContext(context, item.dutch, item.id, sourceContexts[index]));
+      if (item.details.contexts.length === 0) detail.append(text("No saved page context.", "saved-no-context"));
+      const mission = sourceItem ? createSavedContextMission(sourceItem) : null;
+      if (mission) {
+        const practise = button("Practise context", "button primary-button saved-context-practice");
+        practise.disabled = pending || savedActionBusy;
+        practise.addEventListener("click", () => startSavedContextMission(item.id));
+        detail.append(practise);
+      }
       const options = button("Open Options", "saved-options-link");
       options.addEventListener("click", () => void browser.runtime.openOptionsPage());
       detail.append(options);
@@ -274,6 +288,22 @@ async function importSavedBackup(file: File): Promise<void> {
     savedFeedback = { tone: "success", message: `Imported ${result.importedCount} item${result.importedCount === 1 ? "" : "s"}. You now have ${result.totalCount} saved items.` };
   } catch (error) {
     savedFeedback = { tone: "error", message: error instanceof Error ? error.message : "Saved learning import failed." };
+  } finally {
+    savedActionBusy = false;
+    render();
+  }
+}
+
+async function removeSavedContext(itemId: string, context: Pick<LearningContext, "text" | "addedAt" | "sourceLanguage">): Promise<void> {
+  savedActionBusy = true;
+  savedFeedback = null;
+  render();
+  try {
+    const updated = await learningClient.removeContext(itemId, context);
+    items = items.map((item) => item.id === updated.id ? updated : item);
+    savedFeedback = { tone: "success", message: "Saved context removed." };
+  } catch (error) {
+    savedFeedback = { tone: "error", message: `Could not remove saved context: ${error instanceof Error ? error.message : "Unknown error"}` };
   } finally {
     savedActionBusy = false;
     render();
@@ -778,10 +808,94 @@ function renderSavedQuiz(): HTMLElement {
   return wrapper;
 }
 
+function renderSavedContextMission(): HTMLElement {
+  const wrapper = section("practice-content focused-content saved-context-mission-content");
+  const mission = savedContextMission;
+  const item = mission ? items.find((candidate) => candidate.id === mission.itemId) : undefined;
+  if (!mission || !item) { screen = "saved"; savedContextMission = null; focusedOrigin = null; return renderSaved(); }
+  const exit = button("Exit Context Mission", "exit-button");
+  exit.addEventListener("click", exitSavedContextMission);
+  const card = section("practice-card");
+  card.append(eyebrow("Context Mission"), heading("What does this mean here?"), text("Recall the saved meaning before you reveal it.", "saved-context-mission-copy"));
+  const context = section("saved-context-mission-context");
+  context.append(text("Original context · Dutch", "saved-context-label"), mission.reconstruction ? maskedSavedContext(mission.context.text, mission.reconstruction.targetTokenIndex) : highlightedSavedContext(mission.context.text, item.dutch));
+  card.append(context);
+  if (savedContextMissionError) {
+    const error = text(savedContextMissionError, "saved-context-mission-error");
+    error.setAttribute("role", "alert");
+    const retry = button("Try again", "button primary-button");
+    retry.disabled = pending;
+    retry.addEventListener("click", () => void saveSavedContextMissionResult(item, mission, savedContextMissionRetry ?? "got-it"));
+    card.append(error, retry);
+  } else if (mission.reconstruction) {
+    card.append(text("Rebuild the saved Dutch sentence in its original order.", "saved-context-mission-copy"));
+    const placed = section("saved-context-token-bank");
+    placed.setAttribute("aria-label", "Your answer");
+    placed.append(text("Your answer", "saved-context-token-label"));
+    for (const tokenIndex of mission.placedTokenIndexes) {
+      const token = button(mission.reconstruction.tokens[tokenIndex], "button saved-context-token");
+      token.setAttribute("aria-label", `Remove ${mission.reconstruction.tokens[tokenIndex]}`);
+      token.disabled = pending;
+      token.addEventListener("click", () => { savedContextMission = removeSavedContextToken(mission, tokenIndex); render(); });
+      placed.append(token);
+    }
+    const available = section("saved-context-token-bank");
+    available.setAttribute("aria-label", "Available words");
+    available.append(text("Available words", "saved-context-token-label"));
+    for (const tokenIndex of getSavedContextTokenOrder(mission.reconstruction).filter((index) => !mission.placedTokenIndexes.includes(index))) {
+      const token = button(mission.reconstruction.tokens[tokenIndex], "button saved-context-token");
+      token.disabled = pending;
+      token.addEventListener("click", () => { savedContextMission = addSavedContextToken(mission, tokenIndex); render(); });
+      available.append(token);
+    }
+    const actions = document.createElement("div");
+    actions.className = "rating-actions";
+    const reset = button("Reset", "button");
+    reset.disabled = pending || mission.placedTokenIndexes.length === 0;
+    reset.addEventListener("click", () => { savedContextMission = resetSavedContextTokens(mission); render(); });
+    const check = button("Check", "button primary-button");
+    check.disabled = pending || mission.placedTokenIndexes.length !== mission.reconstruction.tokens.length;
+    check.addEventListener("click", () => { const result = checkSavedContextMission(mission); if (result) void saveSavedContextMissionResult(item, mission, result); });
+    actions.append(reset, check);
+    card.append(placed, available, actions);
+  } else if (mission.revealed) {
+    const english = item.english ?? mission.context.english ?? null;
+    const telugu = item.telugu ?? mission.context.telugu ?? null;
+    card.append(meaning("Dutch", item.dutch), meaning("English", english), teluguMeaning(telugu));
+    if (english || telugu) {
+      const actions = document.createElement("div");
+      actions.className = "rating-actions";
+      for (const result of ["again", "got-it"] as const) {
+        const action = button(result === "again" ? "Again" : "Got it", "button");
+        action.disabled = pending;
+        action.addEventListener("click", () => void saveSavedContextMissionResult(item, mission, result));
+        actions.append(action);
+      }
+      card.append(actions);
+    } else {
+      card.append(text("No saved helper meaning is available for this context.", "saved-context-mission-copy"));
+    }
+  } else {
+    const reveal = button("Reveal", "button answer-button");
+    reveal.disabled = pending;
+    reveal.addEventListener("click", () => { savedContextMission = revealSavedContextMission(mission); render(); content?.querySelector<HTMLButtonElement>(".rating-actions .button")?.focus(); });
+    card.append(reveal, phoneticHint());
+  }
+  wrapper.append(exit, card, localNote());
+  return wrapper;
+}
+
 function renderSettings(): HTMLElement {
   const wrapper = section("settings-content");
   wrapper.append(eyebrow("Settings"), heading("Review preferences"), toggle("Show page context", settings.showExampleSentence, (checked) => void saveSettings({ showExampleSentence: checked })), toggle("Daily review badge", settings.dailyReviewBadge, (checked) => void saveSettings({ dailyReviewBadge: checked })), text("Other extension settings are available in Options.", "local-note"));
   const options = button("Open Options page", "button"); options.addEventListener("click", () => void browser.runtime.openOptionsPage()); wrapper.append(options); return wrapper;
+}
+
+function maskedSavedContext(context: string, targetTokenIndex: number): HTMLElement {
+  const paragraph = document.createElement("p");
+  paragraph.className = "saved-context";
+  paragraph.textContent = context.trim().replace(/\s+/gu, " ").split(" ").map((token, index) => index === targetTokenIndex ? "__________" : token).join(" ");
+  return paragraph;
 }
 
 async function saveResult(item: LearningItem, dimension: "recognition" | "recall", result: "again" | "got-it"): Promise<void> {
@@ -818,6 +932,51 @@ async function saveSavedQuizResult(item: LearningItem, task: NonNullable<ReturnT
   } catch (error) {
     savedQuizError = error instanceof Error ? error.message : "Your Quiz Saved result could not be saved.";
   } finally { pending = false; render(); }
+}
+
+function startSavedContextMission(itemId: string): void {
+  const item = items.find((candidate) => candidate.id === itemId);
+  const mission = item ? createSavedContextMission(item) : null;
+  if (!mission) return;
+  savedContextMission = mission;
+  savedContextMissionError = null;
+  savedContextMissionRetry = null;
+  focusedOrigin = "saved";
+  screen = "savedContextMission";
+  render();
+  content?.focus();
+}
+
+function exitSavedContextMission(): void {
+  savedContextMission = null;
+  savedContextMissionError = null;
+  savedContextMissionRetry = null;
+  focusedOrigin = null;
+  screen = "saved";
+  render();
+}
+
+async function saveSavedContextMissionResult(item: LearningItem, mission: SavedContextMission, result: "again" | "got-it"): Promise<void> {
+  if (pending || !savedContextMission) return;
+  savedContextMissionError = null;
+  savedContextMissionRetry = result;
+  pending = true;
+  render();
+  try {
+    const updated = await learningClient.recordMissionResult(item.id, mission.dimension, result, mission.expectedAttemptCount);
+    items = items.map((candidate) => candidate.id === updated.id ? updated : candidate);
+    savedContextMission = null;
+    savedContextMissionError = null;
+    savedContextMissionRetry = null;
+    savedFeedback = { tone: "success", message: "Context practice recorded." };
+    focusedOrigin = null;
+    screen = "saved";
+  } catch (error) {
+    savedContextMissionError = error instanceof Error ? error.message : "Context practice could not be saved.";
+  } finally {
+    pending = false;
+    render();
+  }
 }
 
 async function startContinuation(): Promise<void> { pending = true; render(); await load(true); pending = false; if (snapshot?.tasks.length) { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; render(); content?.focus(); } }
@@ -882,7 +1041,7 @@ function renderContextMeaning(context: SavedContextView): HTMLElement {
   }
   return row;
 }
-function renderSavedContext(context: SavedContextView, savedDutch: string): HTMLElement {
+function renderSavedContext(context: SavedContextView, savedDutch: string, itemId: string, target?: LearningContext): HTMLElement {
   const card = section("saved-context-card");
   card.append(text(context.originalLabel, "saved-context-label"), highlightedSavedContext(context.text, savedDutch));
   for (const [label, value] of [["English translation", context.englishTranslation], ["Telugu translation", context.teluguTranslation]] as const) {
@@ -891,6 +1050,13 @@ function renderSavedContext(context: SavedContextView, savedDutch: string): HTML
     const helper = text(`${label}: ${value ?? "Unavailable"}`, "saved-context-helper");
     if (!value) helper.classList.add("meaning-unavailable");
     card.append(helper);
+  }
+  if (target) {
+    const remove = button("Remove context", "button secondary-button saved-context-remove");
+    remove.disabled = savedActionBusy;
+    remove.setAttribute("aria-label", `Remove saved context: ${context.text}`);
+    remove.addEventListener("click", (event) => { event.stopPropagation(); void removeSavedContext(itemId, target); });
+    card.append(remove);
   }
   return card;
 }

@@ -7,7 +7,7 @@ describe("createLearningClient", () => {
     const item = { id: "nl\u001fgoede morgen", dutch: "goede morgen", normalizedDutch: "goede morgen", kind: "chunk" } as unknown as LearningItem;
     const snapshot = { createdAt: 1, dayStartAt: 0, tasks: [{ itemId: item.id, dimension: "recognition" as const }], completedTaskIds: [], goalCompleted: false };
     const rhythm = { week: [], activity: [], resetCopy: null, milestones: [] };
-    const sendMessage = vi.fn(async (message) => message.type === "dutchmate.learning.list" ? { ok: true as const, result: { items: [item] } } : message.type === "dutchmate.learning.rhythm" ? { ok: true as const, result: { rhythm } } : message.type === "dutchmate.learning.dailyFive" ? { ok: true as const, result: { snapshot } } : message.type === "dutchmate.learning.dailyFive.result" ? { ok: true as const, result: { item, snapshot } } : message.type === "dutchmate.learning.recordMissionResult" ? { ok: true as const, result: { item } } : { ok: true as const, result: { deleted: true as const } });
+    const sendMessage = vi.fn(async (message) => message.type === "dutchmate.learning.list" ? { ok: true as const, result: { items: [item] } } : message.type === "dutchmate.learning.rhythm" ? { ok: true as const, result: { rhythm } } : message.type === "dutchmate.learning.dailyFive" ? { ok: true as const, result: { snapshot } } : message.type === "dutchmate.learning.dailyFive.result" ? { ok: true as const, result: { item, snapshot } } : message.type === "dutchmate.learning.recordMissionResult" ? { ok: true as const, result: { item } } : message.type === "dutchmate.learning.removeContext" ? { ok: true as const, result: { item } } : { ok: true as const, result: { deleted: true as const } });
     const client = createLearningClient({ runtime: { sendMessage } });
     await expect(client.list()).resolves.toEqual([item]);
     await expect(client.getRhythm()).resolves.toEqual(rhythm);
@@ -15,6 +15,8 @@ describe("createLearningClient", () => {
     await expect(client.getDailyFive()).resolves.toEqual(snapshot);
     await expect(client.recordDailyFiveResult(item.id, "recognition", "got-it")).resolves.toEqual({ item, snapshot });
     await expect(client.recordMissionResult(item.id, "recognition", "got-it", 0)).resolves.toEqual(item);
+    await expect(client.removeContext(item.id, { text: "Goede morgen, buur.", addedAt: 1_000 })).resolves.toEqual(item);
     expect(sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.delete", payload: { id: item.id } });
+    expect(sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.removeContext", payload: { itemId: item.id, context: { text: "Goede morgen, buur.", addedAt: 1_000 } } });
   });
 });
