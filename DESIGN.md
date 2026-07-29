@@ -1,8 +1,14 @@
 # DutchMate Design System
 
-Last updated: 2026-06-17
+Last updated: 2026-07-29
 
 This file defines the visual direction for DutchMate's public site, browser extension UI, store assets, and future marketing pages. It is custom to DutchMate and should be treated as the design source of truth for future UI work.
+
+The adapted implementation contract is checked in under
+[`docs/design-system-v1.1/`](docs/design-system-v1.1/). Runtime surfaces import
+[`src/design-system/dutchmate-tokens.css`](src/design-system/dutchmate-tokens.css)
+and the shared primitives. Existing product information architecture and data
+contracts remain authoritative; the v1.1 work is a visual retrofit.
 
 ## 1. Visual Theme And Atmosphere
 
@@ -26,51 +32,71 @@ Design should support that promise by making pages feel:
 
 ## 2. Color System
 
-DutchMate uses exactly three colors.
-
-Do not introduce additional hues, tinted neutrals, gray scales, gradients, glows, or decorative color families unless the user explicitly approves a design-system change.
+DutchMate uses a warm paper, strong ink, and orange brand language. v1.1
+expresses that language through semantic tokens so surfaces, borders, helper
+text, success, warning, information, and errors remain readable and
+consistent. Do not add gradients, glows, or decorative colour families.
 
 | Token | Hex | Role |
 | --- | --- | --- |
-| `--dm-black` | `#000000` | Text, borders, dark surfaces, line art, primary contrast |
-| `--dm-white` | `#ffffff` | Page background, surface background, reversed text |
-| `--dm-orange` | `#ff6f00` | Dutch identity accent, primary CTA, active state, key highlights |
+| `--dm-brand-orange` | `#ff6b00` | Brand tile, primary action, progress, emphasis |
+| `--dm-brand-orange-deep` | `#9c3900` | Accessible orange text accent |
+| `--dm-ink-strong` | `#1b1714` | Main text, dark surfaces, strong borders |
+| `--dm-ink-muted` | `#675c54` | Secondary text and quiet metadata |
+| `--dm-paper` | `#fff9f2` | Page and popup background |
+| `--dm-paper-raised` | `#ffffff` | Cards and form surfaces |
+| `--dm-paper-soft` | `#f8eee4` | Quiet grouped surfaces |
+| `--dm-line` | `#d8cabe` | Borders and dividers |
+| `--dm-success` / `--dm-warning` / `--dm-danger` / `--dm-info` | semantic | Feedback states paired with text, not colour alone |
 
 ### Color Rules
 
-- Black text on white is the default.
-- Orange is strong and should be used sparingly.
-- Orange is for action, focus, emphasis, and DutchMate identity.
-- White on black is allowed for high-contrast sections.
-- White on orange is allowed only for large, bold text or CTA labels after checking contrast.
-- Do not use blue, green, beige, brown, purple, gray, shadows with color casts, or multi-color illustrations.
-- If a subdued state is needed, use black with opacity rather than adding gray tokens.
-- If a divider is needed, use black at low opacity.
+- Strong ink on paper is the default.
+- Brand Orange is for action, focus, emphasis, and DutchMate identity.
+- Deep Orange is for orange text on paper; never use bright Brand Orange as small text.
+- White on strong ink is allowed for high-contrast sections and selected controls.
+- Semantic success, warning, danger, and info colours are reserved for clearly labelled feedback.
+- Do not add gradients, glows, colour-cast shadows, or decorative colour families.
+- Use paper layers and the line token for subdued structure rather than inventing one-off neutrals.
 
 Recommended CSS tokens:
 
 ```css
 :root {
-  --dm-black: #000000;
-  --dm-white: #ffffff;
-  --dm-orange: #ff6f00;
+  --dm-brand-orange: #ff6b00;
+  --dm-brand-orange-deep: #9c3900;
+  --dm-ink-strong: #1b1714;
+  --dm-ink-muted: #675c54;
+  --dm-paper: #fff9f2;
+  --dm-paper-raised: #ffffff;
+  --dm-paper-soft: #f8eee4;
+  --dm-line: #d8cabe;
 }
 ```
 
 ## 3. Typography
 
-DutchMate should use a serif-led editorial typography system for public-facing pages. The site should feel thoughtful, literary, and calm, while still staying highly readable for learners.
+DutchMate v1.1 uses a humanist sans for compact UI and readable Noto Sans
+stacks for learning copy. Public pages retain the editorial reading role while
+sharing the same semantic token foundation.
 
 Public-facing preferred stacks:
 
 ```css
 --dm-serif: Iowan Old Style, Palatino Linotype, Book Antiqua, Georgia, Times New Roman, serif;
 --dm-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+--dm-font-ui: "Nunito Sans", ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+--dm-font-reading: "Noto Sans", Inter, system-ui, sans-serif;
+--dm-font-telugu: "Noto Sans Telugu", "Nirmala UI", sans-serif;
 ```
 
-Use the serif stack for public page body copy and headings. Use the sans-serif stack for compact UI elements such as navigation, buttons, labels, badges, and any browser-extension settings surfaces where quick scanning matters more than editorial tone.
+Use the reading stack for public page body copy and learning content. Use the
+UI stack for headings, navigation, buttons, labels, badges, and browser
+extension settings where quick scanning matters more than editorial tone.
 
-If a hosted font is introduced later, prefer a readable bookish serif for public marketing pages and a neutral humanist sans for utility UI. Do not use playful rounded fonts, handwriting fonts, or monospace as the main brand voice.
+If a hosted font is introduced later, preserve the humanist UI and readable
+learning roles. Do not use handwriting fonts or monospace as the main brand
+voice.
 
 ### Type Scale
 
@@ -91,7 +117,8 @@ Typography rules:
 - Use short paragraphs, not dense blocks.
 - Keep the hero headline literal and benefit-led.
 - Write in plain language for Dutch learners and non-technical users.
-- The extension Options page may remain sans-serif for clarity, even when the public site is serif-led.
+- The extension Options page uses the UI stack for controls and reading copy for explanations.
+- Dutch remains visually primary; English and Telugu are helper content.
 
 ## 4. Layout Principles
 
@@ -353,7 +380,7 @@ Avoid using DutchMate on private pages if you do not want that text sent for tra
 When changing DutchMate UI:
 
 1. Read this file first.
-2. Preserve the three-color system.
+2. Use the semantic v1.1 token system from `src/design-system/`.
 3. Prefer editing existing CSS/HTML over adding a new framework.
 4. Use real product screenshots before decorative artwork.
 5. Keep cards to repeated items only.
@@ -366,9 +393,15 @@ When changing DutchMate UI:
 Use this prompt when asking an agent to update DutchMate UI:
 
 ```text
-Use DESIGN.md as the source of truth. Build a clean editorial DutchMate interface using only black, white, and strong Dutch orange. Keep the layout text-first, readable, and trustworthy. Use the approved serif-led public typography system, with sans-serif reserved for compact utility UI. Avoid gradients, extra colors, nested cards, decorative blobs, and hype copy. The product is a browser extension that helps Dutch learners use Dutch, English, and their mother tongue while translating hovered words and selected text on real websites.
+Use DESIGN.md and `docs/design-system-v1.1/` as the source of truth. Build a
+clean, warm-paper DutchMate interface with strong ink and Dutch orange through
+semantic tokens. Keep the layout text-first, readable, and trustworthy. Use
+Nunito Sans for compact controls, Noto Sans for learning copy, and Noto Sans
+Telugu for Telugu helpers. Preserve the existing extension features and
+information architecture; avoid gradients, decorative blobs, unsupported
+proficiency claims, and reference-only product concepts.
 ```
 
 ## 14. Source Inspiration
 
-This design system was inspired by the DESIGN.md pattern and the publicly described Claude design analysis on getdesign.md, especially the idea of a warm accent with a clean editorial layout. It has been rewritten for DutchMate's product, privacy needs, and stricter three-color constraint.
+This design system was inspired by the DESIGN.md pattern and the publicly described Claude design analysis on getdesign.md, then adapted for DutchMate's v1.1 product contract, privacy needs, local-first learning model, and semantic accessibility tokens.

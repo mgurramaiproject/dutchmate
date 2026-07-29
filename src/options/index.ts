@@ -23,6 +23,7 @@ import { createSettingsClient } from "../popup/settings-client";
 import { shouldRefreshSavedVocabulary, type StorageChange } from "./saved-vocabulary-refresh";
 import { serializeLearningBackup, type LearningItem } from "../vocabulary/learning-record";
 import { getVocabularyItemView } from "./vocabulary-item-view";
+import { sortSavedItems } from "../popup/saved-shelf-view";
 import "./styles.css";
 
 const MANUAL_REFRESH_MIN_BUSY_MS = 450;
@@ -392,7 +393,7 @@ function renderSavedVocabulary(items: LearningItem[]): void {
     return;
   }
 
-  const newestFirst = [...items].sort((first, second) => second.createdAt - first.createdAt);
+  const newestFirst = sortSavedItems(items, "newest");
   vocabularyCount.textContent = `Saved items: ${newestFirst.length}`;
   vocabularyEmpty.hidden = newestFirst.length > 0;
   vocabularyList.hidden = newestFirst.length === 0;

@@ -48,3 +48,17 @@ records evidence for this pass and makes manual blockers explicit.
   architecture.
 - Reference-site-only product concepts were documented in the preservation
   matrix and were not added to the extension.
+
+## Follow-up fixes — 2026-07-29
+
+- Options Behavior table headers are now scoped to `thead`, so Text-column row
+  labels retain readable paper surfaces instead of black-on-black styling.
+- Options reuses the popup's deterministic newest-first saved-item ordering,
+  including the same ID tie-breaker for equal timestamps.
+- Repeating a completed lesson records another completed lesson for today's
+  local activity count without duplicating saved candidates or changing lesson
+  progress semantics.
+- Disabling Daily review badge removes the popup badge element and clears its
+  accessible label/title instead of leaving a visible `0`.
+- Store asset generation now copies the approved v1.1 raster mark for every
+  manifest size and the Chrome Web Store icon.

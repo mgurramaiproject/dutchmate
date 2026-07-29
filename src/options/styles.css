@@ -537,7 +537,7 @@ input[type="password"], input[type="text"], input[type="url"], select { min-heig
 input[type="checkbox"], input[type="radio"] { accent-color: var(--dm-brand-orange); }
 input[type="range"] { accent-color: var(--dm-brand-orange); }
 .settings-matrix, .vocabulary-list { border-color: var(--dm-line); background: var(--dm-paper-raised); }
-.settings-matrix th, .vocabulary-list th { background: var(--dm-ink-strong); color: var(--dm-paper-raised); }
+ .settings-matrix thead th, .vocabulary-list thead th { background: var(--dm-ink-strong); color: var(--dm-paper-raised); }
 button { min-height: var(--dm-target-min); border: 1px solid var(--dm-ink-strong); border-radius: var(--dm-radius-control); background: var(--dm-brand-orange); color: var(--dm-ink-strong); font-family: var(--dm-font-ui); }
 button:hover:not(:disabled), button:focus-visible { background: var(--dm-ink-strong); color: var(--dm-paper-raised); }
 .secondary-button { border-color: var(--dm-ink-strong); background: var(--dm-paper-raised); color: var(--dm-ink-strong); }

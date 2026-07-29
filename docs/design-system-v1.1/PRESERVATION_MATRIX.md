@@ -19,6 +19,7 @@ and flows remain authoritative.
 | Saved backup actions | `renderSavedBackupControls`; Export/Import JSON through canonical learning client | Secondary controls with preserved filenames and backup contracts | Popup import/export tests and release builds |
 | Saved Quiz, sorting, rows, expansion | Saved shelf view and `savedQuiz`; Quiz Saved, Newest/A–Z, stable shelf numbers, one expanded item, contexts, Open Options | Shared card/field treatment; internal `strong` evidence displays as `Secure` | Saved shelf and popup tests |
 | Popup Settings | `renderSettings`; Show page context, Daily review badge, Open Options page | Secondary settings card; does not duplicate full Options form | Popup settings tests/build; manual keyboard QA remains |
+| Popup due badge | `src/popup/index.ts`, `src/popup/styles.css`; due count derives from local learning records and the Daily review badge setting | Visible only for a positive count; disabling it hides the badge and clears accessible metadata | Popup regression test; manual browser inspection remains |
 
 ## Webpage tooltip and Context Mission
 
@@ -38,11 +39,11 @@ and flows remain authoritative.
 | Existing element or interaction | Current location and contract | v1.1 treatment | Verification |
 | --- | --- | --- | --- |
 | Brand header and form shell | `src/options/index.html`, `styles.css`; full browser tab | v1.1 lockup, warm paper document, grouped raised sections | Chrome/Firefox builds; 400% reflow remains manual QA |
-| Behavior controls and matrix | Enable, hover/selection translation, cache toggles, save notes | Tokenized fields/table; no setting moved out or deleted | Settings adapter/tests and full suite |
+| Behavior controls and matrix | Enable, hover/selection translation, cache toggles, save notes | Tokenized fields/table; dark styling scoped to column headers so Text-column row labels stay on paper; no setting moved out or deleted | Options stylesheet regression test and full suite |
 | Study preferences | Auto-save, page context/example sentence, daily review badge | Tokenized preference rows; sync field names unchanged | Settings tests and popup contract tests |
 | Tuning | Hover mode, fixed delay and selection length controls | Tokenized range/choice controls; fixed semantics preserved | Settings tests/typecheck |
 | Languages | Learning/native/bridge selects and role normalization | Tokenized selects and helper copy; language role contract unchanged | Language-role/settings tests |
-| Saved vocabulary | Count, refresh, export/import, clear, table, row Delete, empty/help copy | Tokenized table/actions; canonical local learning client retained | Options vocabulary/cache tests and full suite |
+| Saved vocabulary | Count, refresh, export/import, clear, table, row Delete, empty/help copy | Tokenized table/actions; canonical local learning client retained; newest-first order shared with popup Saved | Saved shelf order regression test, Options vocabulary/cache tests, full suite |
 | Privacy/cache | Cached count, refresh, clear cache, local-storage explanation | Tokenized privacy section; cache key and expiry semantics unchanged | Cache tests and release verification |
 | Save/status/errors and local testing | Form submit, validation focus, status live region, optional local endpoint fields | Shared controls and semantic status colors; provider security validation unchanged | Settings tests/typecheck; manual screen-reader QA remains |
 

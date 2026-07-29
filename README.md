@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/assets/dutchmate-logo-gpt-image.png" alt="DutchMate logo" width="160" />
+  <img src="public/brand/dutchmate-lockup.svg" alt="DutchMate logo" width="186" />
 </p>
 
 # DutchMate

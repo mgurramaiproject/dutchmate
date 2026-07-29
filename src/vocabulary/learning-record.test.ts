@@ -152,6 +152,8 @@ describe("LearningRecordStore", () => {
     await records.keepLessonCandidates("a1-een-afspraak-maken", 1, candidates, [{ dutch: "een afspraak maken", dimension: "recognition", result: "got-it" }]);
     await expect(records.list()).resolves.toEqual([beforeReplay]);
     await expect(records.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toMatchObject({ completedAt: 2_000, keptCandidateIds: ["afspraak-maken"] });
+    const rhythm = await records.getRhythm();
+    expect(rhythm.activity.some((day) => day.lessons === 2)).toBe(true);
 
     await records.clear();
     await expect(records.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toBeUndefined();

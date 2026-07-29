@@ -42,6 +42,7 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .header-link { display: inline-flex; align-items: center; padding: 0 4px; text-decoration-color: transparent; }
 .header-button:hover, .header-button:focus-visible, .header-link:hover, .header-link:focus-visible, .exit-button:hover, .exit-button:focus-visible { color: var(--black); text-decoration-color: var(--orange); }
 .due-badge { display: inline-grid; min-width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--orange); font-size: 0.75rem; font-weight: 900; }
+.due-badge[hidden] { display: none; }
 .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--black); }
 .tabs.is-locked .tab { cursor: default; }
 .tab { min-height: 44px; border: 0; border-right: 1px solid var(--black); background: var(--white); color: var(--black); font-size: 0.7rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }

@@ -32,8 +32,8 @@ Regenerate the small promotional image with:
 corepack pnpm store:assets
 ```
 
-The production icon is derived from `frontend/assets/dutchmate-logo-gpt-image.png`. Resized extension icon files live in `public/icons/`, are copied into Chrome and Firefox builds, and are referenced from the extension manifest.
+The production icon uses the approved v1.1 Book Bubble mark from `public/brand/png/`. Resized extension icon files live in `public/icons/`, are copied into Chrome and Firefox builds, and are referenced from the extension manifest. Run `corepack pnpm store:assets` to refresh both the extension icons and this store icon from the same source.
 
-The Chrome Web Store icon lives at `assets/store/chrome/icon/icon-128.png` and should match the same GPT-generated Book Bubble mark.
+The Chrome Web Store icon lives at `assets/store/chrome/icon/icon-128.png` and matches the v1.1 Book Bubble mark.
 
 Follow [docs/chrome-web-store-screenshot-plan.md](../../../docs/chrome-web-store-screenshot-plan.md) before capturing or designing these images.
