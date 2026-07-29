@@ -53,7 +53,7 @@ describe("content-settings-adapter", () => {
     });
 
     expect(settings.hoverDelayMs).toBe(450);
-    expect(settings.hoverTranslationMode).toBe("sentence");
+    expect(settings.hoverTranslationMode).toBe("word");
   });
 
   it("falls back to defaults when the runtime reports an error", async () => {
@@ -85,7 +85,7 @@ describe("content-settings-adapter", () => {
       providerEndpoint: { newValue: "https://example.test/translate" },
     });
 
-    expect(next.hoverTranslationMode).toBe("sentence");
+    expect(next.hoverTranslationMode).toBe("word");
     expect(next.cacheSelectedWords).toBe(false);
     expect(next.maxSelectionLength).toBe(100);
     expect(next.hoverDelayMs).toBe(450);

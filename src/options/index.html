@@ -10,12 +10,47 @@
     <main class="options-shell">
       <header class="options-topbar">
         <h1 class="options-title">
-          <img src="../../frontend/assets/dutchmate-logo-gpt-image.png" alt="" width="40" height="40" />
-          <span>DutchMate</span>
+          <img src="../../public/brand/dutchmate-lockup.svg" alt="" width="186" height="36" />
         </h1>
       </header>
 
       <form id="options-form">
+        <div id="save-reminder" class="save-reminder" role="status" aria-live="polite" hidden>
+          <strong>Changes not saved.</strong>
+          <span>Click Save changes at the bottom of this page.</span>
+        </div>
+
+        <section class="settings-section" aria-labelledby="languages-heading">
+          <h2 id="languages-heading">Languages</h2>
+          <p class="settings-note language-intro">
+            Dutch is your learning language. English is your bridge language and Telugu is your language for support.
+          </p>
+
+          <label class="language-setting">
+            <span>
+              <span class="setting-label">Language you're learning</span>
+              <span class="setting-help">The language you want to get better at.</span>
+            </span>
+            <select id="learning-language" name="learningLanguage"></select>
+          </label>
+
+          <label class="language-setting">
+            <span>
+              <span class="setting-label">Your language</span>
+              <span class="setting-help">Telugu is your helper language.</span>
+            </span>
+            <select id="native-language" name="nativeLanguage"></select>
+          </label>
+
+          <label class="language-setting">
+            <span>
+              <span class="setting-label">Bridge language</span>
+              <span class="setting-help">English is your bridge language.</span>
+            </span>
+            <select id="bridge-language" name="bridgeLanguage"></select>
+          </label>
+        </section>
+
         <section class="settings-section" aria-labelledby="behavior-heading">
           <h2 id="behavior-heading">Behavior</h2>
 
@@ -67,32 +102,36 @@
           </p>
         </section>
 
-        <section class="settings-section" aria-labelledby="study-preferences-heading">
+        <section class="settings-section is-muted-settings" aria-labelledby="study-preferences-heading">
           <h2 id="study-preferences-heading">Study preferences</h2>
 
-          <label class="checkbox-label preference-row">
-            <input id="auto-save-selected-words" name="autoSaveSelectedWords" type="checkbox" />
-            <span>
-              <span class="setting-label">Automatically save selected words</span>
-              <span class="setting-help">When off, click Save in the translation popup to add a selected single word.</span>
-            </span>
-          </label>
+          <p id="study-preferences-help" class="settings-note locked-note">These high-frequency review preferences are managed from the popup Settings view.</p>
 
-          <label class="checkbox-label preference-row">
-            <input id="show-example-sentence" name="showExampleSentence" type="checkbox" />
-            <span>
-              <span class="setting-label">Show example sentence on review cards</span>
-              <span class="setting-help">Use the saved page context when it is available.</span>
-            </span>
-          </label>
+          <fieldset class="locked-settings" disabled aria-describedby="study-preferences-help">
+            <label class="checkbox-label preference-row">
+              <input id="auto-save-selected-words" name="autoSaveSelectedWords" type="checkbox" />
+              <span>
+                <span class="setting-label">Automatically save selected words</span>
+                <span class="setting-help">When off, click Save in the translation popup to add a selected single word.</span>
+              </span>
+            </label>
 
-          <label class="checkbox-label preference-row">
-            <input id="daily-review-badge" name="dailyReviewBadge" type="checkbox" />
-            <span>
-              <span class="setting-label">Show due-review badge</span>
-              <span class="setting-help">Display the number of cards ready for review on the extension icon.</span>
-            </span>
-          </label>
+            <label class="checkbox-label preference-row">
+              <input id="show-example-sentence" name="showExampleSentence" type="checkbox" />
+              <span>
+                <span class="setting-label">Show example sentence on review cards</span>
+                <span class="setting-help">Use the saved page context when it is available.</span>
+              </span>
+            </label>
+
+            <label class="checkbox-label preference-row">
+              <input id="daily-review-badge" name="dailyReviewBadge" type="checkbox" />
+              <span>
+                <span class="setting-label">Show due-review badge</span>
+                <span class="setting-help">Display the number of cards ready for review on the extension icon.</span>
+              </span>
+            </label>
+          </fieldset>
 
         </section>
 
@@ -103,15 +142,16 @@
             <span id="hover-translation-mode-label" class="setting-label">Hover translation mode</span>
             <span class="choice-row">
               <label class="choice-label">
-                <input id="hover-translation-mode-word" name="hoverTranslationMode" type="radio" value="word" />
+                <input id="hover-translation-mode-word" name="hoverTranslationMode" type="radio" value="word" checked disabled />
                 Word
               </label>
               <label class="choice-label">
-                <input id="hover-translation-mode-sentence" name="hoverTranslationMode" type="radio" value="sentence" />
+                <input id="hover-translation-mode-sentence" name="hoverTranslationMode" type="radio" value="sentence" disabled />
                 Sentence
               </label>
             </span>
           </div>
+          <p class="settings-note locked-note">Fixed to Word for now.</p>
 
           <label class="range-label">
             <span class="range-label-row">
@@ -129,37 +169,6 @@
             </span>
             <input id="max-selection-length" name="maxSelectionLength" type="range" min="50" max="150" step="50" disabled aria-describedby="max-selection-length-help" />
             <small id="max-selection-length-help">This limit is fixed for now.</small>
-          </label>
-        </section>
-
-        <section class="settings-section" aria-labelledby="languages-heading">
-          <h2 id="languages-heading">Languages</h2>
-          <p class="settings-note language-intro">
-            Choose your three reading-support languages. DutchMate automatically detects whether a page is Dutch, English, or Telugu, then shows the other two.
-          </p>
-
-          <label class="language-setting">
-            <span>
-              <span class="setting-label">Language you're learning</span>
-              <span class="setting-help">The language you want to get better at.</span>
-            </span>
-            <select id="learning-language" name="learningLanguage"></select>
-          </label>
-
-          <label class="language-setting">
-            <span>
-              <span class="setting-label">Your language</span>
-              <span class="setting-help">Your native language, or the one that feels most natural to you.</span>
-            </span>
-            <select id="native-language" name="nativeLanguage"></select>
-          </label>
-
-          <label class="language-setting">
-            <span>
-              <span class="setting-label">Bridge language</span>
-              <span class="setting-help">A support language you already understand well, such as English.</span>
-            </span>
-            <select id="bridge-language" name="bridgeLanguage"></select>
           </label>
         </section>
 
@@ -233,6 +242,7 @@
             <table id="vocabulary-list" class="vocabulary-list" aria-label="Saved vocabulary">
               <thead>
                 <tr>
+                  <th scope="col">#</th>
                   <th scope="col">Dutch</th>
                   <th scope="col">English</th>
                   <th scope="col">Telugu</th>
@@ -311,8 +321,8 @@
           </p>
         </section>
 
-        <div class="form-actions">
-          <button type="submit">Save</button>
+        <div id="form-actions" class="form-actions">
+          <button id="save-button" type="submit">Save</button>
         </div>
 
         <p id="status" role="status" aria-live="polite"></p>

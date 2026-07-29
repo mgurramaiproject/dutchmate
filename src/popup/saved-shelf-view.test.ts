@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getSavedShelfView } from "./saved-shelf-view";
+import { getSavedShelfView, sortSavedItems } from "./saved-shelf-view";
 import type { LearningItem } from "../vocabulary/learning-record";
 
 const item = (dutch: string, createdAt: number, values: Partial<LearningItem> = {}): LearningItem => ({
@@ -46,6 +46,15 @@ describe("getSavedShelfView", () => {
 
     if (view.status !== "ready") throw new Error("Expected saved items.");
     expect(view.items.map(({ dutch, shelfNumber }) => [dutch, shelfNumber])).toEqual([["appel", 1], ["boek", 2], ["zebra", 3]]);
+  });
+
+  it("uses the same deterministic newest-first order for equal save timestamps", () => {
+    const sameTimestamp = item("aardappel", 30);
+
+    expect(sortSavedItems([newest, sameTimestamp], "newest").map(({ dutch }) => dutch)).toEqual([
+      "zebra",
+      "aardappel",
+    ]);
   });
 
   it("expands only the selected item with safe latest provenance and capped context", () => {

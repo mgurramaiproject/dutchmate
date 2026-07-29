@@ -153,6 +153,50 @@ export function createTooltipViewAdapter(callbacks: {
       color: #000;
     }
 
+    /* The tooltip lives inside arbitrary webpages, so its tokens must be
+       scoped and inlined instead of relying on the host page stylesheet. */
+    #hover-translate-tooltip {
+      --dm-brand-orange: #ff6b00;
+      --dm-brand-orange-deep: #9c3900;
+      --dm-ink-strong: #1b1714;
+      --dm-ink-muted: #675c54;
+      --dm-paper: #fff9f2;
+      --dm-paper-raised: #ffffff;
+      --dm-paper-soft: #f8eee4;
+      --dm-line: #d8cabe;
+      --dm-font-ui: "Nunito Sans", ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+      --dm-font-reading: "Noto Sans", Inter, system-ui, sans-serif;
+      --dm-font-telugu: "Noto Sans Telugu", "Nirmala UI", sans-serif;
+      --dm-shadow-low: 0 1px 2px rgb(27 23 20 / 8%), 0 5px 16px rgb(27 23 20 / 6%);
+      min-width: min(240px, calc(100vw - 24px));
+      max-width: min(380px, calc(100vw - 24px));
+      padding: 16px;
+      border: 1px solid var(--dm-ink-strong);
+      border-radius: 16px;
+      background: var(--dm-paper-raised);
+      color: var(--dm-ink-strong);
+      font-family: var(--dm-font-reading);
+      box-shadow: var(--dm-shadow-low);
+    }
+    #hover-translate-tooltip .hover-translate-result { color: var(--dm-ink-strong); font-family: var(--dm-font-reading); font-size: 18px; line-height: 1.35; }
+    #hover-translate-tooltip .hover-translate-label, #hover-translate-tooltip .context-slip-kicker { color: var(--dm-brand-orange-deep); }
+    #hover-translate-tooltip .hover-translate-value, #hover-translate-tooltip .context-slip-context { font-family: var(--dm-font-reading); }
+    #hover-translate-tooltip .hover-translate-phonetics { font-family: var(--dm-font-telugu); color: var(--dm-ink-muted); }
+    #hover-translate-tooltip .hover-translate-actions { gap: 8px; border-top-color: var(--dm-line); }
+    #hover-translate-tooltip .hover-translate-save, #hover-translate-tooltip .context-slip-button.primary { border-color: var(--dm-ink-strong); background: var(--dm-brand-orange); color: var(--dm-ink-strong); }
+    #hover-translate-tooltip .context-slip-button, #hover-translate-tooltip .context-slip-fragment, #hover-translate-tooltip .context-slip-close { min-height: 44px; border-color: var(--dm-ink-strong); border-radius: 10px; background: var(--dm-paper-raised); color: var(--dm-ink-strong); }
+    #hover-translate-tooltip .context-slip-tether { gap: 12px; border-left-color: var(--dm-brand-orange); }
+    #hover-translate-tooltip .context-slip-title { color: var(--dm-ink-strong); font-family: var(--dm-font-reading); font-size: 22px; line-height: 1.2; }
+    #hover-translate-tooltip .context-slip-context { border-left-color: var(--dm-brand-orange); background: var(--dm-paper-soft); }
+    #hover-translate-tooltip .context-slip-copy, #hover-translate-tooltip .context-slip-prompt, #hover-translate-tooltip .context-slip-hidden-answer { color: var(--dm-ink-muted); font-family: var(--dm-font-reading); }
+    #hover-translate-tooltip .context-slip-result, #hover-translate-tooltip .context-slip-capture { border-color: var(--dm-line); border-radius: 16px; background: var(--dm-paper-raised); }
+    #hover-translate-tooltip .context-slip-result { border-left-color: var(--dm-brand-orange); }
+    #hover-translate-tooltip .context-slip-capture-heading { background: var(--dm-paper-soft); color: var(--dm-brand-orange-deep); }
+    #hover-translate-tooltip button:focus-visible { outline: 3px solid var(--dm-brand-orange); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) {
+      #hover-translate-tooltip *, #hover-translate-tooltip *::before, #hover-translate-tooltip *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+    }
+
   `;
 
   document.documentElement.append(style, tooltip);

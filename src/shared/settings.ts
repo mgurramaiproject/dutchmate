@@ -92,10 +92,7 @@ export function normalizeSettings(
     ),
     cacheHoveredWords: getBooleanSetting(stored?.cacheHoveredWords, fallback.cacheHoveredWords),
     cacheSelectedWords: getBooleanSetting(stored?.cacheSelectedWords, fallback.cacheSelectedWords),
-    hoverTranslationMode: getHoverTranslationMode(
-      stored?.hoverTranslationMode,
-      fallback.hoverTranslationMode,
-    ),
+    hoverTranslationMode: "word",
     hoverDelayMs: FIXED_HOVER_DELAY_MS,
     maxSelectionLength: FIXED_MAX_SELECTION_LENGTH,
     sourceLanguage: getSourceLanguageCode(stored?.sourceLanguage, fallback.sourceLanguage),
@@ -130,13 +127,6 @@ export function mergeSettings(
     },
     current,
   );
-}
-
-function getHoverTranslationMode(
-  value: unknown,
-  fallback: HoverTranslationMode,
-): HoverTranslationMode {
-  return value === "word" || value === "sentence" ? value : fallback;
 }
 
 function getStringSetting(value: unknown, fallback: string): string {

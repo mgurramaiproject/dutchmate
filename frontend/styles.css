@@ -1,12 +1,14 @@
+@import "../src/design-system/dutchmate-tokens.css";
+@import "../src/design-system/primitives.css";
+
 :root {
   color-scheme: light;
-  --dm-black: #000000;
-  --dm-white: #ffffff;
-  --dm-orange: #ff6f00;
-  --dm-line: rgba(0, 0, 0, 0.16);
-  --dm-muted: rgba(0, 0, 0, 0.68);
-  --dm-serif: Iowan Old Style, "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
-  --dm-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --dm-black: var(--dm-ink-strong);
+  --dm-white: var(--dm-paper-raised);
+  --dm-orange: var(--dm-brand-orange);
+  --dm-muted: var(--dm-ink-muted);
+  --dm-serif: var(--dm-font-reading);
+  --dm-sans: var(--dm-font-ui);
 }
 
 * {
@@ -19,15 +21,19 @@ html {
 
 body {
   margin: 0;
-  background: var(--dm-white);
+  background: var(--dm-paper);
   color: var(--dm-black);
-  font-family: var(--dm-serif);
+  font-family: var(--dm-sans);
   line-height: 1.6;
 }
 
 a {
   color: inherit;
 }
+
+body, button, a { -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { font-family: var(--dm-sans); }
+p, li, figcaption { font-family: var(--dm-serif); }
 
 .site-header {
   position: sticky;

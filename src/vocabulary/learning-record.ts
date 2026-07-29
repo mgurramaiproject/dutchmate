@@ -156,7 +156,11 @@ export class LearningRecordStore {
     const timestamp = this.now();
     const key = lessonProgressKey(lessonId, contentVersion);
     const existingProgress = parseLessonProgress(record.lessonProgress[key]);
-    if (existingProgress && existingProgress.completedAt !== null) return existingProgress.keptCandidateIds.map((id) => candidates.find((candidate) => candidate.id === id)).filter((candidate): candidate is typeof candidates[number] => candidate !== undefined).map((candidate) => record.items[getLearningItemId(candidate.dutch)]).filter((item): item is LearningItem => item !== undefined);
+    if (existingProgress && existingProgress.completedAt !== null) {
+      record.rhythm = { ...record.rhythm, ...withActiveDay(record.rhythm, timestamp, "lessonCompletions"), ...withActivity(record.rhythm, timestamp, { lessons: 1 }) };
+      await this.write(record);
+      return existingProgress.keptCandidateIds.map((id) => candidates.find((candidate) => candidate.id === id)).filter((candidate): candidate is typeof candidates[number] => candidate !== undefined).map((candidate) => record.items[getLearningItemId(candidate.dutch)]).filter((item): item is LearningItem => item !== undefined);
+    }
     const next = { ...record, items: { ...record.items } };
     const items = candidates.map((candidate) => {
       const item = mergeLearningItem(next.items[getLearningItemId(candidate.dutch)], { ...candidate, source: "lesson", sourceMetadata: { lessonId } }, timestamp);

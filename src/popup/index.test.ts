@@ -17,6 +17,7 @@ describe("lesson popup", () => {
   let exportFails: boolean;
   let quizFails: boolean;
   let forceEmptyDailyFive: boolean;
+  let popupSettings: typeof defaultSettings;
   let learningItems: Array<Record<string, unknown>>;
   let rhythmResponse: { week: Array<{ dayStartAt: number; status: "active" | "grace" | "idle" }>; activity: Array<{ dayStartAt: number; reviews: number | null; saved: number | null; lessons: number | null; lessonAdditions?: number }>; resetCopy: string | null; milestones: Array<{ id: string; label: string }> };
 
@@ -30,6 +31,7 @@ describe("lesson popup", () => {
     exportFails = false;
     quizFails = false;
     forceEmptyDailyFive = false;
+    popupSettings = { ...defaultSettings };
     rhythmResponse = rhythmFixture();
     const dailyItem = { id: "daily-item", learningLanguage: "nl", normalizedDutch: "huis", dutch: "huis", kind: "word", english: "house", telugu: null, sources: [], contexts: [], encounters: { count: 0, lastEncounterAt: null }, recognition: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, recall: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, createdAt: 1, updatedAt: 1 };
     learningItems = [dailyItem, { ...dailyItem, id: "saved-item", normalizedDutch: "zebra", dutch: "zebra", english: null, telugu: "జీబ్రా", sources: [{ type: "webpage", addedAt: 2 }], contexts: [{ text: "De zebra staat bij de ingang.", addedAt: 2 }], createdAt: 2, updatedAt: 2, recognition: { ...dailyItem.recognition, state: "strong", attemptCount: 3 }, recall: { ...dailyItem.recall, state: "familiar", attemptCount: 2 } }];
@@ -64,7 +66,11 @@ describe("lesson popup", () => {
         learningItems = learningItems.map((candidate) => candidate.id === updated.id ? updated : candidate);
         return { ok: true, result: { item: updated } };
       }
-      if (message.type === "dutchmate.review.settings") return { ok: true, result: { settings: defaultSettings } };
+      if (message.type === "dutchmate.review.settings") return { ok: true, result: { settings: popupSettings } };
+      if (message.type === "dutchmate.review.settings.update") {
+        popupSettings = { ...popupSettings, ...(message.payload as Partial<typeof defaultSettings>) };
+        return { ok: true, result: { settings: popupSettings } };
+      }
       if (message.type === "dutchmate.learning.lessonProgress") return { ok: true, result: { progress: progressByLesson[String(message.payload?.lessonId)] ?? null } };
       if (message.type === "dutchmate.learning.lessonProgress.save") {
         const lessonId = String(message.payload?.lessonId);
@@ -316,6 +322,24 @@ describe("lesson popup", () => {
 
     await vi.waitFor(() => expect(document.querySelector<HTMLElement>("#due-badge")?.textContent).toBe("1"));
     expect(document.querySelector<HTMLElement>("#due-badge")?.hidden).toBe(false);
+  });
+
+  it("removes the popup due badge when Daily review badge is disabled", async () => {
+    learningItems = learningItems.map((item) => ({
+      ...item,
+      recognition: { ...(item.recognition as Record<string, unknown>), state: "learning", attemptCount: 1, dueAt: 0 },
+    }));
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+    await vi.waitFor(() => expect(document.querySelector<HTMLElement>("#due-badge")?.textContent).toBe("2"));
+
+    document.querySelector<HTMLButtonElement>("#settings-button")!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Review preferences"));
+    const badgeToggle = content().querySelectorAll<HTMLInputElement>('.setting-control input[type="checkbox"]')[1];
+    badgeToggle.checked = false;
+    badgeToggle.dispatchEvent(new Event("change", { bubbles: true }));
+
+    await vi.waitFor(() => expect(document.querySelector<HTMLElement>("#due-badge")?.hidden).toBe(true));
+    expect(document.querySelector<HTMLElement>("#due-badge")?.textContent).toBe("");
   });
 
   it("reveals a compact contextual answer with local Telugu phonetics", async () => {

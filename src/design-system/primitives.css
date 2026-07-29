@@ -1,0 +1,54 @@
+/* Shared names are intentionally small. Existing surfaces keep their own
+   layout classes, while these primitives provide one visual contract for any
+   new or migrated control. */
+.dm-button {
+  min-height: var(--dm-target-min);
+  padding: var(--dm-space-2) var(--dm-space-4);
+  border: var(--dm-border-width) solid var(--dm-ink-strong);
+  border-radius: var(--dm-radius-control);
+  background: var(--dm-paper-raised);
+  color: var(--dm-ink-strong);
+  font: 600 var(--dm-font-size-body) / var(--dm-line-height-body) var(--dm-font-ui);
+  cursor: pointer;
+}
+
+.dm-button-primary {
+  background: var(--dm-brand-orange);
+  color: var(--dm-ink-strong);
+}
+
+.dm-button-quiet {
+  border-color: transparent;
+  background: transparent;
+  text-decoration: underline;
+  text-decoration-color: var(--dm-brand-orange);
+  text-underline-offset: 3px;
+}
+
+.dm-card {
+  border: var(--dm-border-width) solid var(--dm-line);
+  border-radius: var(--dm-radius-card);
+  background: var(--dm-paper-raised);
+  box-shadow: var(--dm-shadow-low);
+}
+
+.dm-field {
+  min-height: var(--dm-target-min);
+  border: var(--dm-border-width) solid var(--dm-line);
+  border-radius: var(--dm-radius-control);
+  background: var(--dm-paper-raised);
+  color: var(--dm-ink-strong);
+  font: 400 var(--dm-font-size-body) / var(--dm-line-height-body) var(--dm-font-reading);
+}
+
+.dm-feedback {
+  padding: var(--dm-space-3);
+  border-left: 4px solid var(--dm-brand-orange);
+  border-radius: 0 var(--dm-radius-control) var(--dm-radius-control) 0;
+  background: var(--dm-paper-soft);
+}
+
+.dm-telugu {
+  font-family: var(--dm-font-telugu);
+  line-height: 1.625;
+}

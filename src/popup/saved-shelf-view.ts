@@ -7,7 +7,7 @@ export type SavedShelfItem = {
   dutch: string;
   english: string;
   telugu: string;
-  mastery: "New" | "Learning" | "Familiar" | "Strong";
+  mastery: "New" | "Learning" | "Familiar" | "Secure";
   shelfNumber: number;
   expanded: boolean;
   details?: { source: "Saved from webpage" | "From lesson" | null; contexts: SavedContextView[] };
@@ -28,9 +28,17 @@ const masteryLabel: Record<MasteryState, SavedShelfItem["mastery"]> = {
   new: "New",
   learning: "Learning",
   familiar: "Familiar",
-  strong: "Strong",
+  strong: "Secure",
 };
 const SAFE_CONTEXT_MAX_LENGTH = 240;
+
+export function sortSavedItems(items: LearningItem[], sort: SavedShelfSort | "oldest" = "newest"): LearningItem[] {
+  const chronological = [...items].sort((first, second) => first.createdAt - second.createdAt || first.id.localeCompare(second.id));
+  if (sort === "oldest") return chronological;
+  return sort === "newest"
+    ? chronological.reverse()
+    : chronological.sort((first, second) => first.dutch.localeCompare(second.dutch, "nl") || first.id.localeCompare(second.id));
+}
 
 export function getSavedShelfView(items: LearningItem[], state: { sort?: SavedShelfSort; expandedItemId?: string | null; loading?: boolean; error?: string | null } = {}): SavedShelfView {
   const sort = state.sort ?? "newest";
@@ -38,11 +46,9 @@ export function getSavedShelfView(items: LearningItem[], state: { sort?: SavedSh
   if (state.error) return { status: "error", sort, message: state.error };
   if (items.length === 0) return { status: "empty", sort };
 
-  const chronological = [...items].sort((first, second) => first.createdAt - second.createdAt || first.id.localeCompare(second.id));
+  const chronological = sortSavedItems(items, "oldest");
   const shelfNumberById = new Map(chronological.map((item, index) => [item.id, index + 1]));
-  const ordered = sort === "newest"
-    ? [...chronological].reverse()
-    : [...chronological].sort((first, second) => first.dutch.localeCompare(second.dutch, "nl") || first.id.localeCompare(second.id));
+  const ordered = sortSavedItems(items, sort);
 
   return {
     status: "ready",
