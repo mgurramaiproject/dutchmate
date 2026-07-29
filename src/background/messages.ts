@@ -1,6 +1,6 @@
 import type { TranslationRequest, TranslationResult } from "../translation/provider";
 import type { ExtensionSettings } from "../shared/settings";
-import type { CreateOrMergeLearningItemInput, LearningBackup, LearningItem, LessonProgress, LessonProgressStage } from "../vocabulary/learning-record";
+import type { CreateOrMergeLearningItemInput, LearningBackup, LearningContext, LearningItem, LessonProgress, LessonProgressStage } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { GrammarRecord } from "../grammar/learning";
@@ -14,6 +14,7 @@ export const LEARNING_SUMMARY_MESSAGE = "dutchmate.learning.summary";
 export const LEARNING_RHYTHM_MESSAGE = "dutchmate.learning.rhythm";
 export const LEARNING_CREATE_OR_MERGE_MESSAGE = "dutchmate.learning.createOrMerge";
 export const LEARNING_DELETE_MESSAGE = "dutchmate.learning.delete";
+export const LEARNING_REMOVE_CONTEXT_MESSAGE = "dutchmate.learning.removeContext";
 export const LEARNING_CLEAR_MESSAGE = "dutchmate.learning.clear";
 export const LEARNING_EXPORT_MESSAGE = "dutchmate.learning.export";
 export const LEARNING_IMPORT_MESSAGE = "dutchmate.learning.import";
@@ -37,6 +38,7 @@ export type LearningMessage =
   | { type: typeof LEARNING_RHYTHM_MESSAGE }
   | { type: typeof LEARNING_CREATE_OR_MERGE_MESSAGE; payload: CreateOrMergeLearningItemInput }
   | { type: typeof LEARNING_DELETE_MESSAGE; payload: { id: string } }
+  | { type: typeof LEARNING_REMOVE_CONTEXT_MESSAGE; payload: { itemId: string; context: Pick<LearningContext, "text" | "addedAt" | "sourceLanguage"> } }
   | { type: typeof LEARNING_CLEAR_MESSAGE }
   | { type: typeof LEARNING_EXPORT_MESSAGE }
   | { type: typeof LEARNING_IMPORT_MESSAGE; payload: { document: string } }
@@ -68,6 +70,9 @@ export function isLearningMessage(message: unknown): message is LearningMessage 
   if (!("payload" in message) || typeof message.payload !== "object" || message.payload === null) return false;
   const payload = message.payload as Record<string, unknown>;
   if (message.type === LEARNING_DELETE_MESSAGE) return typeof payload.id === "string";
+  if (message.type === LEARNING_REMOVE_CONTEXT_MESSAGE) {
+    return typeof payload.itemId === "string" && typeof payload.context === "object" && payload.context !== null && typeof (payload.context as Record<string, unknown>).text === "string" && Number.isFinite((payload.context as Record<string, unknown>).addedAt) && ((payload.context as Record<string, unknown>).sourceLanguage === undefined || (payload.context as Record<string, unknown>).sourceLanguage === "en" || (payload.context as Record<string, unknown>).sourceLanguage === "nl" || (payload.context as Record<string, unknown>).sourceLanguage === "te");
+  }
   if (message.type === LEARNING_LESSON_PROGRESS_MESSAGE) return typeof payload.lessonId === "string";
   if (message.type === LEARNING_SAVE_LESSON_PROGRESS_MESSAGE) return typeof payload.lessonId === "string" && (payload.stage === "read" || payload.stage === "notice" || payload.stage === "practise" || payload.stage === "replay" || payload.stage === "keep");
   if (message.type === LEARNING_RECORD_ENCOUNTER_MESSAGE) return typeof payload.id === "string" && typeof payload.context === "string" && (payload.sourceLanguage === undefined || payload.sourceLanguage === "en" || payload.sourceLanguage === "nl" || payload.sourceLanguage === "te");

@@ -43,6 +43,12 @@ describe("lesson popup", () => {
         learningItems = [...learningItems, { ...learningItems[0], id: "imported-item", normalizedDutch: "fiets", dutch: "fiets", createdAt: 3, updatedAt: 3 }];
         return { ok: true, result: { importedCount: 1, totalCount: learningItems.length, items: learningItems } };
       }
+      if (message.type === "dutchmate.learning.removeContext") {
+        const itemId = String(message.payload?.itemId);
+        const target = message.payload?.context as { text: string; addedAt: number; sourceLanguage?: string };
+        learningItems = learningItems.map((item) => item.id === itemId ? { ...item, contexts: (item.contexts as Array<{ text: string; addedAt: number; sourceLanguage?: string }>).filter((context) => !(context.text === target.text && context.addedAt === target.addedAt && context.sourceLanguage === target.sourceLanguage)) } : item);
+        return { ok: true, result: { item: learningItems.find((item) => item.id === itemId) } };
+      }
       if (message.type === "dutchmate.learning.rhythm") return { ok: true, result: { rhythm: rhythmResponse } };
       if (message.type === "dutchmate.learning.dailyFive") {
         const emptyContinuation = message.payload?.continueAfterCompletion === true && (learningItems.length === 0 || forceEmptyDailyFive);
@@ -462,6 +468,26 @@ describe("lesson popup", () => {
     for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
     await vi.waitFor(() => expect(content().querySelectorAll(".saved-row")).toHaveLength(1));
     expect(content().querySelector(".saved-detail")).toBeNull();
+  });
+
+  it("removes one Saved context with an accessible control while keeping the item", async () => {
+    learningItems = [learningItems[0], { ...learningItems[1], contexts: [{ text: "De zebra staat bij de ingang.", addedAt: 2 }, { text: "Zebra loopt naar huis.", addedAt: 3, sourceLanguage: "nl" }] }];
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+    button("Saved").click();
+    await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2));
+    content().querySelector<HTMLButtonElement>(".saved-row")!.click();
+    await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-context-remove")).toHaveLength(2));
+    const remove = content().querySelector<HTMLButtonElement>(".saved-context-remove")!;
+    expect(remove.textContent).toBe("Remove context");
+    expect(remove.getAttribute("type")).toBe("button");
+    remove.click();
+    await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-context-remove")).toHaveLength(1));
+    expect(content().textContent).toContain("De zebra staat bij de ingang.");
+    expect(content().textContent).toContain("Saved");
+    expect(runtime.sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.removeContext", payload: { itemId: "saved-item", context: { text: "Zebra loopt naar huis.", addedAt: 3, sourceLanguage: "nl" } } });
+    content().querySelector<HTMLButtonElement>(".saved-context-remove")!.click();
+    await vi.waitFor(() => expect(content().querySelector(".saved-no-context")?.textContent).toBe("No saved page context."));
+    expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2);
   });
 
   it("exposes Saved backup controls with success and failure feedback", async () => {

@@ -40,11 +40,11 @@ GitHub: [#98](https://github.com/mgurramaiproject/dutchmate/issues/98)
 **What to build:** Let a learner inspect and manage the bounded page contexts
 attached to a saved learning item from the expanded Saved surface.
 
-- [ ] Expanded Saved items show retained bounded contexts with clear original-language labeling.
-- [ ] The learner can remove exactly one context with a click and keyboard-accessible control.
-- [ ] Removing a context preserves the canonical learning item and every other context.
-- [ ] Existing save, sorting, ordinary review, export/import, and Saved navigation behavior remain intact.
-- [ ] Tests cover context removal, persistence, accessibility, and safe behavior when no context exists.
+- [x] Expanded Saved items show retained bounded contexts with clear original-language labeling.
+- [x] The learner can remove exactly one context with a click and keyboard-accessible control.
+- [x] Removing a context preserves the canonical learning item and every other context.
+- [x] Existing save, sorting, ordinary review, export/import, and Saved navigation behavior remain intact.
+- [x] Tests cover context removal, persistence, accessibility, and safe behavior when no context exists.
 
 ## T02 — Add reveal Context Mission from Saved
 

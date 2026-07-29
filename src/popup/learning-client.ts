@@ -1,5 +1,6 @@
 import {
   LEARNING_DELETE_MESSAGE,
+  LEARNING_REMOVE_CONTEXT_MESSAGE,
   LEARNING_CLEAR_MESSAGE,
   LEARNING_EXPORT_MESSAGE,
   LEARNING_IMPORT_MESSAGE,
@@ -17,7 +18,7 @@ import {
   type LearningMessage,
   type LearningMessageResponse,
 } from "../background/messages";
-import type { LearningBackup, LearningItem, LessonProgress, LessonProgressStage } from "../vocabulary/learning-record";
+import type { LearningBackup, LearningContext, LearningItem, LessonProgress, LessonProgressStage } from "../vocabulary/learning-record";
 import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import type { GrammarRecord } from "../grammar/learning";
@@ -29,6 +30,7 @@ export type LearningClient = {
   list(): Promise<LearningItem[]>;
   getRhythm(): Promise<LearningRhythm>;
   delete(id: string): Promise<void>;
+  removeContext(itemId: string, context: Pick<LearningContext, "text" | "addedAt" | "sourceLanguage">): Promise<LearningItem>;
   clear(): Promise<void>;
   exportBackup(): Promise<LearningBackup>;
   importBackup(document: string): Promise<{ importedCount: number; totalCount: number }>;
@@ -59,6 +61,11 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
     async delete(id) {
       const response = await extensionApi.runtime.sendMessage({ type: LEARNING_DELETE_MESSAGE, payload: { id } });
       if (!response.ok || !("deleted" in response.result) || response.result.deleted !== true) throw new Error(response.ok ? "Learning item could not be deleted." : response.error);
+    },
+    async removeContext(itemId, context) {
+      const response = await extensionApi.runtime.sendMessage({ type: LEARNING_REMOVE_CONTEXT_MESSAGE, payload: { itemId, context } });
+      if (response.ok && "item" in response.result) return response.result.item;
+      throw new Error(response.ok ? "Saved context could not be removed." : response.error);
     },
     async clear() { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CLEAR_MESSAGE }); if (!response.ok || !("cleared" in response.result)) throw new Error(response.ok ? "Learning data could not be cleared." : response.error); },
     async exportBackup() { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_EXPORT_MESSAGE }); if (response.ok && "backup" in response.result) return response.result.backup; throw new Error(response.ok ? "Learning backup is unavailable." : response.error); },

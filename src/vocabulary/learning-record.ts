@@ -189,6 +189,18 @@ export class LearningRecordStore {
     return item;
   }
 
+  async removeContext(id: string, context: Pick<LearningContext, "text" | "addedAt" | "sourceLanguage">): Promise<LearningItem | null> {
+    const record = await this.readMigrated();
+    const existing = record.items[id];
+    if (!existing) return null;
+    const contexts = existing.contexts.filter((candidate) => !(candidate.addedAt === context.addedAt && candidate.sourceLanguage === context.sourceLanguage && normalizeSavedVocabularyText(candidate.text) === normalizeSavedVocabularyText(context.text)));
+    if (contexts.length === existing.contexts.length) return existing;
+    const item = { ...existing, contexts, updatedAt: Math.max(existing.updatedAt, this.now()) };
+    record.items[id] = item;
+    await this.write(record);
+    return item;
+  }
+
   async recordMissionResult(itemId: string, dimension: DailyFiveDimension, result: DailyFiveResult, expectedAttemptCount: number): Promise<{ item: LearningItem; recorded: boolean }> {
     const record = await this.readMigrated();
     const existing = record.items[itemId];

@@ -5,7 +5,7 @@ import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import { getSavedContextViews, getSavedShelfView, type SavedContextView, type SavedShelfSort } from "./saved-shelf-view";
 import { getPopupTabForKey } from "./tab-navigation";
 import type { DailyFiveSnapshot, GrammarDailyFiveTask } from "../vocabulary/daily-five";
-import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
+import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningContext, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
@@ -208,7 +208,10 @@ function renderSaved(): HTMLElement {
       detail.id = `saved-detail-${item.shelfNumber}`;
       detail.className = "saved-detail";
       if (item.details.source) detail.append(text(item.details.source, "saved-source"));
-      for (const context of item.details.contexts) detail.append(renderSavedContext(context, item.dutch));
+      const sourceItem = items.find((candidate) => candidate.id === item.id);
+      const sourceContexts = [...(sourceItem?.contexts ?? [])].sort((first, second) => second.addedAt - first.addedAt).slice(0, 3);
+      for (const [index, context] of item.details.contexts.entries()) detail.append(renderSavedContext(context, item.dutch, item.id, sourceContexts[index]));
+      if (item.details.contexts.length === 0) detail.append(text("No saved page context.", "saved-no-context"));
       const options = button("Open Options", "saved-options-link");
       options.addEventListener("click", () => void browser.runtime.openOptionsPage());
       detail.append(options);
@@ -274,6 +277,22 @@ async function importSavedBackup(file: File): Promise<void> {
     savedFeedback = { tone: "success", message: `Imported ${result.importedCount} item${result.importedCount === 1 ? "" : "s"}. You now have ${result.totalCount} saved items.` };
   } catch (error) {
     savedFeedback = { tone: "error", message: error instanceof Error ? error.message : "Saved learning import failed." };
+  } finally {
+    savedActionBusy = false;
+    render();
+  }
+}
+
+async function removeSavedContext(itemId: string, context: Pick<LearningContext, "text" | "addedAt" | "sourceLanguage">): Promise<void> {
+  savedActionBusy = true;
+  savedFeedback = null;
+  render();
+  try {
+    const updated = await learningClient.removeContext(itemId, context);
+    items = items.map((item) => item.id === updated.id ? updated : item);
+    savedFeedback = { tone: "success", message: "Saved context removed." };
+  } catch (error) {
+    savedFeedback = { tone: "error", message: `Could not remove saved context: ${error instanceof Error ? error.message : "Unknown error"}` };
   } finally {
     savedActionBusy = false;
     render();
@@ -882,7 +901,7 @@ function renderContextMeaning(context: SavedContextView): HTMLElement {
   }
   return row;
 }
-function renderSavedContext(context: SavedContextView, savedDutch: string): HTMLElement {
+function renderSavedContext(context: SavedContextView, savedDutch: string, itemId: string, target?: LearningContext): HTMLElement {
   const card = section("saved-context-card");
   card.append(text(context.originalLabel, "saved-context-label"), highlightedSavedContext(context.text, savedDutch));
   for (const [label, value] of [["English translation", context.englishTranslation], ["Telugu translation", context.teluguTranslation]] as const) {
@@ -891,6 +910,13 @@ function renderSavedContext(context: SavedContextView, savedDutch: string): HTML
     const helper = text(`${label}: ${value ?? "Unavailable"}`, "saved-context-helper");
     if (!value) helper.classList.add("meaning-unavailable");
     card.append(helper);
+  }
+  if (target) {
+    const remove = button("Remove context", "button secondary-button saved-context-remove");
+    remove.disabled = savedActionBusy;
+    remove.setAttribute("aria-label", `Remove saved context: ${context.text}`);
+    remove.addEventListener("click", (event) => { event.stopPropagation(); void removeSavedContext(itemId, target); });
+    card.append(remove);
   }
   return card;
 }

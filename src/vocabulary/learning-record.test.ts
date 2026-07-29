@@ -82,6 +82,25 @@ describe("LearningRecordStore", () => {
     expect(updated.recall).toEqual(item.recall);
   });
 
+  it("removes one saved context while preserving the canonical item and safe empty state", async () => {
+    const storage = new MemoryStorage();
+    let now = 1_000;
+    const records = new LearningRecordStore(storage, () => now);
+    const item = await records.createOrMerge({ dutch: "huis", english: "house", context: "Huis staat hier.", contextSourceLanguage: "nl", contextSourceText: "huis" });
+    now = 2_000;
+    await records.createOrMerge({ dutch: "huis", context: "An English house stands here.", contextSourceLanguage: "en", contextSourceText: "house" });
+    const before = (await records.list())[0];
+    await records.recordMissionResult(item.id, "recognition", "got-it", 0);
+
+    const removed = await records.removeContext(item.id, before.contexts.find((context) => context.sourceLanguage === "en")!);
+
+    expect(removed).toMatchObject({ id: item.id, dutch: "huis", contexts: [{ text: "Huis staat hier.", sourceLanguage: "nl" }], recognition: { attemptCount: 1 } });
+    expect(removed?.sources).toEqual(item.sources);
+    const empty = await records.removeContext(item.id, removed!.contexts[0]);
+    expect(empty).toMatchObject({ id: item.id, dutch: "huis", contexts: [], recognition: { attemptCount: 1 } });
+    await expect(records.list()).resolves.toEqual([empty]);
+  });
+
   it("records Context Mission recognition without completing or changing a Daily Five snapshot", async () => {
     const storage = new MemoryStorage();
     const records = new LearningRecordStore(storage, () => 1_000);
