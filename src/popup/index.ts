@@ -13,7 +13,7 @@ import { lessonCatalog, type GrammarPatternId, type Lesson } from "../lessons/ca
 import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonStage, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, toggleLessonCandidate, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSavedQuiz, type SavedQuizSession } from "./saved-quiz";
-import { createSavedContextMission, revealSavedContextMission, type SavedContextMission } from "./saved-context-mission";
+import { addSavedContextToken, checkSavedContextMission, createSavedContextMission, getSavedContextTokenOrder, removeSavedContextToken, resetSavedContextTokens, revealSavedContextMission, type SavedContextMission } from "./saved-context-mission";
 import { grammarResultMessage } from "../grammar/learning";
 import { getGrammarPattern, grammarPatterns, type GrammarExercise } from "../grammar/content";
 import type { GrammarRecord } from "../grammar/learning";
@@ -818,7 +818,7 @@ function renderSavedContextMission(): HTMLElement {
   const card = section("practice-card");
   card.append(eyebrow("Context Mission"), heading("What does this mean here?"), text("Recall the saved meaning before you reveal it.", "saved-context-mission-copy"));
   const context = section("saved-context-mission-context");
-  context.append(text("Original context · Dutch", "saved-context-label"), highlightedSavedContext(mission.context.text, item.dutch));
+  context.append(text("Original context · Dutch", "saved-context-label"), mission.reconstruction ? maskedSavedContext(mission.context.text, mission.reconstruction.targetTokenIndex) : highlightedSavedContext(mission.context.text, item.dutch));
   card.append(context);
   if (savedContextMissionError) {
     const error = text(savedContextMissionError, "saved-context-mission-error");
@@ -827,6 +827,37 @@ function renderSavedContextMission(): HTMLElement {
     retry.disabled = pending;
     retry.addEventListener("click", () => void saveSavedContextMissionResult(item, mission, savedContextMissionRetry ?? "got-it"));
     card.append(error, retry);
+  } else if (mission.reconstruction) {
+    card.append(text("Rebuild the saved Dutch sentence in its original order.", "saved-context-mission-copy"));
+    const placed = section("saved-context-token-bank");
+    placed.setAttribute("aria-label", "Your answer");
+    placed.append(text("Your answer", "saved-context-token-label"));
+    for (const tokenIndex of mission.placedTokenIndexes) {
+      const token = button(mission.reconstruction.tokens[tokenIndex], "button saved-context-token");
+      token.setAttribute("aria-label", `Remove ${mission.reconstruction.tokens[tokenIndex]}`);
+      token.disabled = pending;
+      token.addEventListener("click", () => { savedContextMission = removeSavedContextToken(mission, tokenIndex); render(); });
+      placed.append(token);
+    }
+    const available = section("saved-context-token-bank");
+    available.setAttribute("aria-label", "Available words");
+    available.append(text("Available words", "saved-context-token-label"));
+    for (const tokenIndex of getSavedContextTokenOrder(mission.reconstruction).filter((index) => !mission.placedTokenIndexes.includes(index))) {
+      const token = button(mission.reconstruction.tokens[tokenIndex], "button saved-context-token");
+      token.disabled = pending;
+      token.addEventListener("click", () => { savedContextMission = addSavedContextToken(mission, tokenIndex); render(); });
+      available.append(token);
+    }
+    const actions = document.createElement("div");
+    actions.className = "rating-actions";
+    const reset = button("Reset", "button");
+    reset.disabled = pending || mission.placedTokenIndexes.length === 0;
+    reset.addEventListener("click", () => { savedContextMission = resetSavedContextTokens(mission); render(); });
+    const check = button("Check", "button primary-button");
+    check.disabled = pending || mission.placedTokenIndexes.length !== mission.reconstruction.tokens.length;
+    check.addEventListener("click", () => { const result = checkSavedContextMission(mission); if (result) void saveSavedContextMissionResult(item, mission, result); });
+    actions.append(reset, check);
+    card.append(placed, available, actions);
   } else if (mission.revealed) {
     const english = item.english ?? mission.context.english ?? null;
     const telugu = item.telugu ?? mission.context.telugu ?? null;
@@ -858,6 +889,13 @@ function renderSettings(): HTMLElement {
   const wrapper = section("settings-content");
   wrapper.append(eyebrow("Settings"), heading("Review preferences"), toggle("Show page context", settings.showExampleSentence, (checked) => void saveSettings({ showExampleSentence: checked })), toggle("Daily review badge", settings.dailyReviewBadge, (checked) => void saveSettings({ dailyReviewBadge: checked })), text("Other extension settings are available in Options.", "local-note"));
   const options = button("Open Options page", "button"); options.addEventListener("click", () => void browser.runtime.openOptionsPage()); wrapper.append(options); return wrapper;
+}
+
+function maskedSavedContext(context: string, targetTokenIndex: number): HTMLElement {
+  const paragraph = document.createElement("p");
+  paragraph.className = "saved-context";
+  paragraph.textContent = context.trim().replace(/\s+/gu, " ").split(" ").map((token, index) => index === targetTokenIndex ? "__________" : token).join(" ");
+  return paragraph;
 }
 
 async function saveResult(item: LearningItem, dimension: "recognition" | "recall", result: "again" | "got-it"): Promise<void> {

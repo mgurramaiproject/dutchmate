@@ -493,7 +493,7 @@ describe("lesson popup", () => {
   it("starts a Saved Context Mission with the newest Dutch context and records one canonical result", async () => {
     learningItems = [learningItems[0], { ...learningItems[1], english: "zebra", contexts: [
       { text: "De zebra loopt buiten.", addedAt: 2, sourceLanguage: "nl" },
-      { text: "De zebra staat bij de ingang.", addedAt: 3, sourceLanguage: "nl" },
+      { text: "De zebra staat bij de zebra.", addedAt: 3, sourceLanguage: "nl" },
       { text: "A zebra stands by the entrance.", addedAt: 4, sourceLanguage: "en" },
     ] }];
     for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
@@ -505,7 +505,7 @@ describe("lesson popup", () => {
 
     button("Practise context").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Context Mission"));
-    expect(content().textContent).toContain("De zebra staat bij de ingang.");
+    expect(content().textContent).toContain("De zebra staat bij de zebra.");
     expect(content().textContent).not.toContain("A zebra stands by the entrance.");
     expect(document.querySelector<HTMLButtonElement>("#saved-tab")?.disabled).toBe(true);
     expect(button("Reveal")).toBeTruthy();
@@ -522,7 +522,7 @@ describe("lesson popup", () => {
   });
 
   it("keeps missing helper meaning reveal-only and does not request a translation", async () => {
-    learningItems = [learningItems[0], { ...learningItems[1], english: null, telugu: null, contexts: [{ text: "De zebra staat hier.", addedAt: 3, sourceLanguage: "nl" }] }];
+    learningItems = [learningItems[0], { ...learningItems[1], english: null, telugu: null, contexts: [{ text: "De zebra staat bij de zebra.", addedAt: 3, sourceLanguage: "nl" }] }];
     for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
     button("Saved").click();
     await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2));
@@ -537,7 +537,7 @@ describe("lesson popup", () => {
   });
 
   it("keeps a failed Context Mission result recoverable without false success", async () => {
-    learningItems = [learningItems[0], { ...learningItems[1], english: "zebra", contexts: [{ text: "De zebra staat hier.", addedAt: 3, sourceLanguage: "nl" }] }];
+    learningItems = [learningItems[0], { ...learningItems[1], english: "zebra", contexts: [{ text: "De zebra staat bij de zebra.", addedAt: 3, sourceLanguage: "nl" }] }];
     for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
     button("Saved").click();
     await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2));
@@ -552,6 +552,30 @@ describe("lesson popup", () => {
     quizFails = false;
     button("Try again").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Context practice recorded."));
+  });
+
+  it("rebuilds an eligible Dutch context in stored order and records recall once", async () => {
+    learningItems = [learningItems[0], { ...learningItems[1], english: "zebra", contexts: [{ text: "De zebra loopt.", addedAt: 3, sourceLanguage: "nl" }] }];
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+    button("Saved").click();
+    await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(2));
+    content().querySelector<HTMLButtonElement>(".saved-row")!.click();
+    await vi.waitFor(() => expect(button("Practise context")).toBeTruthy());
+    button("Practise context").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Rebuild the saved Dutch sentence in its original order."));
+    expect(content().querySelector(".saved-context-mission-context .saved-context")?.textContent).toContain("__________");
+    expect(button("Check").disabled).toBe(true);
+    const token = (value: string) => [...content().querySelectorAll<HTMLButtonElement>("[aria-label='Available words'] button")].find((candidate) => candidate.textContent === value)!;
+    token("zebra").focus();
+    expect(document.activeElement).toBe(token("zebra"));
+    token("zebra").click();
+    token("loopt.").click();
+    token("De").click();
+    expect(button("Check").disabled).toBe(false);
+    button("Check").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Context practice recorded."));
+    expect(runtime.sendMessage).toHaveBeenCalledWith({ type: "dutchmate.learning.recordMissionResult", payload: { itemId: "saved-item", dimension: "recall", result: "got-it", expectedAttemptCount: 2 } });
+    expect(runtime.sendMessage.mock.calls.some(([message]) => message.type === "hoverTranslate.translate")).toBe(false);
   });
 
   it("exposes Saved backup controls with success and failure feedback", async () => {

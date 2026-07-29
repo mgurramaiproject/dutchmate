@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createSavedContextMission, getSavedContext, revealSavedContextMission } from "./saved-context-mission";
+import { addSavedContextToken, checkSavedContextMission, createSavedContextMission, getSavedContext, getSavedContextReconstruction, getSavedContextTokenOrder, removeSavedContextToken, revealSavedContextMission } from "./saved-context-mission";
 import type { LearningItem } from "../vocabulary/learning-record";
 
 const item = (values: Partial<LearningItem> = {}): LearningItem => ({
@@ -43,5 +43,34 @@ describe("Saved Context Mission", () => {
     expect(getSavedContext(tied)?.text).toBe("De zebra staat.");
     expect(createSavedContextMission(item({ kind: "chunk", contexts: [{ text: "De zebra loopt.", addedAt: 1, sourceLanguage: "nl" }] }))).toBeNull();
     expect(createSavedContextMission(item({ contexts: [{ text: "A zebra walks.", addedAt: 1, sourceLanguage: "en" }, { text: "Legacy zebra context", addedAt: 2 }] }))).toBeNull();
+  });
+
+  it("offers only conservative reconstruction and accepts only the stored token order", () => {
+    const saved = item({ contexts: [{ text: "De zebra loopt.", addedAt: 10, sourceLanguage: "nl" }] });
+    const reconstruction = getSavedContextReconstruction(saved);
+    const mission = createSavedContextMission(saved)!;
+
+    expect(reconstruction).toEqual({ tokens: ["De", "zebra", "loopt."], targetTokenIndex: 1 });
+    expect(mission.reconstruction).toEqual(reconstruction);
+    expect(getSavedContextTokenOrder(reconstruction!)).toEqual([1, 2, 0]);
+    expect(checkSavedContextMission(mission)).toBeNull();
+
+    const correct = [0, 1, 2].reduce((current, index) => addSavedContextToken(current, index), mission);
+    expect(checkSavedContextMission(correct)).toBe("got-it");
+    expect(addSavedContextToken(correct, 1)).toEqual(correct);
+    const wrong = removeSavedContextToken(correct, 0);
+    const reordered = addSavedContextToken(addSavedContextToken(addSavedContextToken(mission, 1), 0), 2);
+    expect(wrong.placedTokenIndexes).toEqual([1, 2]);
+    expect(checkSavedContextMission(reordered)).toBe("again");
+  });
+
+  it("falls back from duplicate, malformed, over-limit, and unsafe Unicode punctuation", () => {
+    const unsafe = (text: string) => expect(getSavedContextReconstruction(item({ contexts: [{ text, addedAt: 1, sourceLanguage: "nl" }] }))).toBeNull();
+    unsafe("De zebra staat bij de zebra.");
+    unsafe("De de zebra loopt.");
+    unsafe("De, zebra loopt.");
+    unsafe(`De zebra ${"x".repeat(153)}.`);
+    unsafe(Array.from({ length: 13 }, (_, index) => index === 1 ? "zebra" : "woord").join(" "));
+    expect(getSavedContextReconstruction(item({ dutch: "straat", normalizedDutch: "straat", contexts: [{ text: "De straat is héél rustig.", addedAt: 1, sourceLanguage: "nl" }] }))).toMatchObject({ tokens: ["De", "straat", "is", "héél", "rustig."] });
   });
 });

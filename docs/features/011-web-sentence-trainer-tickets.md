@@ -74,13 +74,13 @@ GitHub: [#100](https://github.com/mgurramaiproject/dutchmate/issues/100)
 reconstruction for eligible Dutch single-word contexts, while preserving
 meaning-recall fallback for every unsafe case.
 
-- [ ] Reconstruction is offered only for explicitly Dutch contexts with one unambiguous saved-target occurrence.
-- [ ] Conservative length, token, punctuation, Unicode, and duplicate-token checks determine eligibility.
-- [ ] The learner can rebuild the stored Dutch sentence using click or keyboard controls.
-- [ ] Only the stored source order is accepted; the feature does not grade arbitrary Dutch alternatives.
-- [ ] Ambiguous, unsafe, non-Dutch, unknown-provenance, chunk, and over-limit contexts fall back to meaning recall.
-- [ ] No raw answers, sentence attempts, new due state, new queue, backend call, or runtime AI dependency is introduced.
-- [ ] Tests cover eligibility, tokenization, fallback, interaction accessibility, privacy, and full build/release regressions.
+- [x] Reconstruction is offered only for explicitly Dutch contexts with one unambiguous saved-target occurrence.
+- [x] Conservative length, token, punctuation, Unicode, and duplicate-token checks determine eligibility.
+- [x] The learner can rebuild the stored Dutch sentence using click or keyboard controls.
+- [x] Only the stored source order is accepted; the feature does not grade arbitrary Dutch alternatives.
+- [x] Ambiguous, unsafe, non-Dutch, unknown-provenance, chunk, and over-limit contexts fall back to meaning recall.
+- [x] No raw answers, sentence attempts, new due state, new queue, backend call, or runtime AI dependency is introduced.
+- [x] Tests cover eligibility, tokenization, fallback, interaction accessibility, privacy, and full build/release regressions.
 
 ## Tracker state at publication
 
