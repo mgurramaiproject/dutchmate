@@ -186,9 +186,9 @@ contracts. `git diff --check` passed.
 Chrome/Firefox browser pass are recorded in the [T04 validation
 record](./012-grammar-packs-validation.md). The pack demonstrates bounded,
 controlled practice evidence only and makes no formal CEFR or
-independent-production claim. Issue #105 remains in the Delivery project with
-`Execution=Agent` and will be set to `Delivery Status=Done` after the feature
-PR is merged.
+independent-production claim. Issue #105 is merged and reconciled in the
+Delivery project with `Execution=Agent`, `Status=Done`, and
+`Delivery Status=Done`.
 
 ## Explicitly deferred work
 

@@ -50,8 +50,8 @@ in `docs/release/manual-testing.md`.
 
 Issue #105 is in the `Delivery` project and its custom fields are reconciled
 using the current field and option IDs returned by `gh project field-list`.
-The live values are `Execution=Agent` and `Delivery Status=Blocked`, matching
-the still-open browser gate. The earlier `NOT_FOUND` result came from stale
+The live values are `Execution=Agent`, default `Status=Done`, and
+`Delivery Status=Done`. The earlier `NOT_FOUND` result came from stale
 custom-field IDs; it was not an authentication failure.
 
 ## Browser verification
