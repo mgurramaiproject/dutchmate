@@ -26,8 +26,8 @@ import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import type { GrammarRecord } from "../grammar/learning";
 import type { GrammarPatternId } from "../lessons/catalog";
-import type { ContrastRecord } from "../grammar/contrast-learning";
-import type { ContrastPackId } from "../grammar/contrast";
+import type { ContrastRecord, ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
+import type { ContrastMisconceptionCode, ContrastPackId } from "../grammar/contrast";
 import type { LessonPracticeEvidence } from "./lesson-session";
 
 export type LearningRuntimeApi = { runtime: { sendMessage(message: LearningMessage): Promise<LearningMessageResponse> } };
@@ -51,7 +51,7 @@ export type LearningClient = {
   recordGrammarDailyFiveResult(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip"): Promise<{ grammar: GrammarRecord; snapshot: DailyFiveSnapshot }>;
   getContrast(packId?: ContrastPackId): Promise<ContrastRecord | null>;
   introduceContrast(packId?: ContrastPackId): Promise<ContrastRecord>;
-  recordContrastResult(packId: ContrastPackId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip"): Promise<ContrastRecord>;
+  recordContrastResult(packId: ContrastPackId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip", misconceptionCode?: ContrastMisconceptionCode): Promise<{ contrast: ContrastRecord; repairOffer: ImmediateContrastRepairOffer | null }>;
 };
 
 export function createLearningClient(extensionApi: LearningRuntimeApi): LearningClient {
@@ -114,6 +114,6 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
     async recordGrammarDailyFiveResult(patternId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_RESULT_MESSAGE, payload: { patternId, contentVersion, exerciseId, expectedEvidenceRevision, dailyFive: true, ...(outcome ? { outcome } : { answer: answer ?? undefined }) } }); if (response.ok && "grammar" in response.result && "snapshot" in response.result) return response.result; throw new Error(response.ok ? "Grammar result could not be saved." : response.error); },
     async getContrast(packId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_MESSAGE, ...(packId ? { payload: { packId } } : {}) }); if (response.ok && "contrast" in response.result) return response.result.contrast; throw new Error(response.ok ? "Contrast practice is unavailable." : response.error); },
     async introduceContrast(packId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_INTRODUCE_MESSAGE, ...(packId ? { payload: { packId } } : {}) }); if (response.ok && "contrast" in response.result && response.result.contrast) return response.result.contrast; throw new Error(response.ok ? "Contrast practice is unavailable." : response.error); },
-    async recordContrastResult(packId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId, contentVersion, exerciseId, expectedEvidenceRevision, ...(outcome ? { outcome } : { answer: answer ?? undefined }) } }); if (response.ok && "contrast" in response.result && response.result.contrast) return response.result.contrast; throw new Error(response.ok ? "Contrast result could not be saved." : response.error); },
+    async recordContrastResult(packId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome, misconceptionCode) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId, contentVersion, exerciseId, expectedEvidenceRevision, ...(outcome ? { outcome } : { answer: answer ?? undefined }), ...(misconceptionCode ? { misconceptionCode } : {}) } }); if (response.ok && "contrast" in response.result && response.result.contrast && "repairOffer" in response.result) return response.result; throw new Error(response.ok ? "Contrast result could not be saved." : response.error); },
   };
 }

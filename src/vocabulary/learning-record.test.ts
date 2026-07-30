@@ -496,6 +496,20 @@ describe("LearningRecordStore", () => {
     await expect(restored.getContrast()).resolves.toMatchObject({ successfulExerciseIds: ["contrast-choose-time-first"] });
   });
 
+  it("records only the supported misconception and returns one immediate repair offer", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await records.introduceContrast();
+    const first = await records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-choose-time-first", "ik werk", 0, undefined, "MAIN_CLAUSE_NO_INVERSION");
+    expect(first.repairOffer).toMatchObject({ code: "MAIN_CLAUSE_NO_INVERSION", packId: "contrast.main_clause_inversion", label: "Practise this contrast (1 min)" });
+    expect(first.contrast).toMatchObject({ misconceptionCounts: { MAIN_CLAUSE_NO_INVERSION: 1 } });
+    expect(JSON.stringify(await records.exportBackup())).not.toContain("ik werk");
+
+    const second = await records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-choose-time-first", "ik werk", 1);
+    expect(second.repairOffer).toBeNull();
+    expect(second.contrast.misconceptionCounts).toEqual({ MAIN_CLAUSE_NO_INVERSION: 2 });
+    await expect(records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-choose-time-first", "ik werk", 2, undefined, "UNKNOWN_CODE" as never)).rejects.toThrow("unavailable");
+  });
+
   it("preserves all published lesson progress and saved-item mastery through version 3 round trip", async () => {
     const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     await source.createOrMerge({ dutch: "huis", english: "house" });

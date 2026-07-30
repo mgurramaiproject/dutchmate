@@ -64,8 +64,8 @@ describe("lesson popup", () => {
         return { ok: true, result: { grammar: message.type.endsWith("introduce") ? { patternId, contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, dueAt: 2, intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 } : null } };
       }
       if (message.type === "dutchmate.learning.grammar.result") return { ok: true, result: { grammar: { patternId: String(message.payload?.patternId), contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, dueAt: 2, intervalDays: 1, successfulEvidenceCount: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], primitives: ["choose-form"], contextTags: ["needs"], recentExerciseIds: [String(message.payload?.exerciseId)], recentSuccessfulDays: [1], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 1, updatedAt: 1 } } };
-      if (message.type === "dutchmate.learning.contrast" || message.type === "dutchmate.learning.contrast.introduce") return { ok: true, result: { contrast: message.type.endsWith("introduce") ? { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, successfulExerciseIds: [], recentExerciseIds: [], evidenceRevision: 0, updatedAt: 1 } : null } };
-      if (message.type === "dutchmate.learning.contrast.result") return { ok: true, result: { contrast: { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], recentExerciseIds: [String(message.payload?.exerciseId)], evidenceRevision: 1, updatedAt: 1 } } };
+      if (message.type === "dutchmate.learning.contrast" || message.type === "dutchmate.learning.contrast.introduce") return { ok: true, result: { contrast: message.type.endsWith("introduce") ? { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, successfulExerciseIds: [], recentExerciseIds: [], misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 } : null } };
+      if (message.type === "dutchmate.learning.contrast.result") return { ok: true, result: { contrast: { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], recentExerciseIds: [String(message.payload?.exerciseId)], misconceptionCounts: message.payload?.answer === "ik werk" || message.payload?.answer === "Morgen ik werk thuis." ? { MAIN_CLAUSE_NO_INVERSION: 1 } : {}, evidenceRevision: 1, updatedAt: 1 }, repairOffer: message.payload?.answer === "ik werk" || message.payload?.answer === "Morgen ik werk thuis." ? { code: "MAIN_CLAUSE_NO_INVERSION", packId: "contrast.main_clause_inversion", contentVersion: 1, label: "Practise this contrast (1 min)" } : null } };
       if (message.type === "dutchmate.learning.recordMissionResult") {
         if (quizFails) return { ok: false, error: "Quiz result could not be saved." };
         const item = learningItems.find((candidate) => candidate.id === message.payload?.itemId)!;
@@ -163,6 +163,36 @@ describe("lesson popup", () => {
     button("Exit lesson").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(false);
+  });
+
+  it("offers immediate repair only for the controlled misconception and keeps Accept and Dismiss explicit", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
+    lessonCard("A1 · Een afspraak maken").click();
+    await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+    button("Notice the pattern").click();
+    await vi.waitFor(() => expect(button("ik werk")).toBeTruthy());
+    button("ik werk").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Practise this contrast (1 min)")).toBeTruthy());
+    expect(content().querySelector('[role="status"]')?.textContent).toContain("finite verb");
+    expect(runtime.sendMessage.mock.calls.at(-1)?.[0]).toMatchObject({ payload: { misconceptionCode: "MAIN_CLAUSE_NO_INVERSION" } });
+
+    button("Practise this contrast (1 min)").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Choose the finite verb after Morgen."));
+    expect(button("Check answer").disabled).toBe(true);
+
+    button("werk").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue to next contrast")).toBeTruthy());
+    button("Continue to next contrast").click();
+    await vi.waitFor(() => expect(button("Morgen ik werk thuis.")).toBeTruthy());
+    button("Morgen ik werk thuis.").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Practise this contrast (1 min)")).toBeTruthy());
+    button("Continue").click();
+    expect(button("Practise this contrast (1 min)")).toBeFalsy();
+    expect(button("Try again")).toBeTruthy();
   });
 
   it("takes the hebben companion through Notice with visible Reveal and Skip controls", async () => {

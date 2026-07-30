@@ -1,12 +1,13 @@
 import { lessonCatalog } from "../lessons/catalog";
 import type { GrammarPrimitive, GrammarReviewMetadata } from "./content";
+import { isRegisteredMisconceptionSource, MAIN_CLAUSE_NO_INVERSION, misconceptionRegistry } from "./misconceptions";
+
+export { MAIN_CLAUSE_NO_INVERSION } from "./misconceptions";
 
 export const CONTRAST_PACK_ID = "contrast.main_clause_inversion" as const;
 export const CONTRAST_CONTENT_VERSION = 1 as const;
-export const MAIN_CLAUSE_NO_INVERSION = "MAIN_CLAUSE_NO_INVERSION" as const;
-
 export type ContrastPackId = typeof CONTRAST_PACK_ID;
-export type ContrastMisconceptionCode = typeof MAIN_CLAUSE_NO_INVERSION;
+export type ContrastMisconceptionCode = keyof typeof misconceptionRegistry;
 export type ContrastComparisonItem = { id: string; label: string; sentenceNl: string; valid: boolean };
 export type ContrastExercise = {
   id: string;
@@ -141,7 +142,8 @@ export function validateContrastPack(pack: ContrastPack): string[] {
     const distractorValues = exercise.distractors.map((distractor) => distractor.value);
     if (new Set(distractorValues).size !== exercise.distractors.length || exercise.distractors.some((distractor) => exercise.accepted.includes(distractor.value))) errors.push(`${exercise.id}: invalid distractor partition`);
     if (exercise.choices.some((choice) => !exercise.accepted.includes(choice) && !distractorValues.includes(choice)) || exercise.distractors.some((distractor) => !exercise.choices.includes(distractor.value))) errors.push(`${exercise.id}: every choice must be accepted or an item-specific distractor`);
-    if (exercise.distractors.some((distractor) => distractor.misconception !== undefined && distractor.misconception !== MAIN_CLAUSE_NO_INVERSION)) errors.push(`${exercise.id}: unknown misconception code`);
+    if (exercise.distractors.some((distractor) => distractor.misconception !== undefined && !Object.hasOwn(misconceptionRegistry, distractor.misconception))) errors.push(`${exercise.id}: unknown misconception code`);
+    if (exercise.distractors.some((distractor) => distractor.misconception !== undefined && Object.hasOwn(misconceptionRegistry, distractor.misconception) && !isRegisteredMisconceptionSource(distractor.misconception, pack.id, exercise.id))) errors.push(`${exercise.id}: unsupported misconception source`);
     if (exercise.distractors.some((distractor) => !distractor.feedback.trim()) || !exercise.feedback.trim() || exercise.feedback === "Incorrect") errors.push(`${exercise.id}: incomplete or generic feedback`);
     errors.push(...validateReviewMetadata(exercise.review, `${exercise.id}.review`));
   }

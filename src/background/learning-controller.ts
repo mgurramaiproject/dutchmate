@@ -51,8 +51,8 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
     if (message.type === LEARNING_CONTRAST_INTRODUCE_MESSAGE) return { ok: true, result: { contrast: await store.introduceContrast(message.payload?.packId) } };
     if (message.type === LEARNING_CONTRAST_RESULT_MESSAGE) {
       const outcome = message.payload.outcome ? { type: message.payload.outcome } as const : { type: "check" as const, answer: message.payload.answer! };
-      const result = await store.recordContrastCheck(message.payload.packId, message.payload.contentVersion, message.payload.exerciseId, message.payload.answer ?? null, message.payload.expectedEvidenceRevision, outcome);
-      return result.recorded ? { ok: true, result: { contrast: result.contrast } } : { ok: false, error: "This contrast result was already recorded." };
+      const result = await store.recordContrastCheck(message.payload.packId, message.payload.contentVersion, message.payload.exerciseId, message.payload.answer ?? null, message.payload.expectedEvidenceRevision, outcome, message.payload.misconceptionCode);
+      return result.recorded ? { ok: true, result: { contrast: result.contrast, repairOffer: result.repairOffer } } : { ok: false, error: "This contrast result was already recorded." };
     }
     const catalogErrors = validateLessonCatalog(lessonCatalog);
     if (catalogErrors.length > 0 && (message.type === LEARNING_LESSON_PROGRESS_MESSAGE || message.type === LEARNING_SAVE_LESSON_PROGRESS_MESSAGE || message.type === LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE)) return { ok: false, error: "Lessons are unavailable until bundled content is fixed." };

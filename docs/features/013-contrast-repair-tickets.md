@@ -12,7 +12,7 @@
 
 **Source specification:** [013-contrast-repair-spec.md](./013-contrast-repair-spec.md)
 
-**Status:** T01 implemented locally; feature PR deferred until T02–T04 are complete
+**Status:** T01–T02 implemented locally; feature PR deferred until T03–T04 are complete
 
 ## Delivery rules
 
@@ -98,23 +98,35 @@ misconception and returns the normal correction plus an explicit action to
 practise this exact contrast. Accepting opens the pack; declining leaves the
 learner in the current flow.
 
-- [ ] The shared misconception registry defines
+- [x] The shared misconception registry defines
   `MAIN_CLAUSE_NO_INVERSION` with narrow scope, learner description,
   allowlisted source, and associated pack.
-- [ ] Only the pilot's controlled source action can emit the code; arbitrary
+- [x] Only the pilot's controlled source action can emit the code; arbitrary
   webpage text, free writing, and unsupported distractors never emit it.
-- [ ] A first clear error may return an immediate repair offer with concise,
+- [x] A first clear error may return an immediate repair offer with concise,
   scoped feedback and no automatic navigation.
-- [ ] The offer has explicit Accept and Dismiss behavior; Accept starts the
+- [x] The offer has explicit Accept and Dismiss behavior; Accept starts the
   exact pack and Dismiss preserves the current lesson or review flow.
-- [ ] The existing canonical result boundary updates evidence once and
+- [x] The existing canonical result boundary updates evidence once and
   protects against duplicate or stale submissions.
-- [ ] The typed background boundary rejects unknown codes, pack IDs,
+- [x] The typed background boundary rejects unknown codes, pack IDs,
   exercises, content versions, outcomes, and malformed revision values.
-- [ ] The offer and repair state remain bounded local evidence and do not store
+- [x] The offer and repair state remain bounded local evidence and do not store
   raw answers, page text, response timing, or a general attempt history.
-- [ ] Focused content, learning-record, background, popup, accessibility, and
+- [x] Focused content, learning-record, background, popup, accessibility, and
   provider-isolation tests pass.
+
+### T02 evidence
+
+Verified locally on `feature-013-contrast-repair`: the registry allowlists
+`MAIN_CLAUSE_NO_INVERSION` to the two authored pilot source exercises; the
+learning record clamps and persists only bounded misconception counts; the
+typed background contract rejects unknown codes, packs, exercises, versions,
+outcomes, and revisions; and the popup test covers normal feedback, explicit
+Accept, explicit Dismiss, and no automatic navigation. The full suite passed
+with 104 files and 658 tests, plus typecheck, Chrome and Firefox builds,
+release packaging, and `git diff --check`. T03 threshold scheduling and T04
+manual qualification remain out of scope.
 
 ## T03 — Schedule delayed repair in Daily Five
 
@@ -197,7 +209,7 @@ opened until T02–T04 are implemented.
 
 ## Implementation handoff
 
-The next concrete action is to implement T02 / #109 after this branch is ready
-for the combined Feature 013 PR. Use `$implement` with `$tdd`; do not start T03
-until T02 is complete. T03 and T04 remain blocked until their stated
-predecessors are complete.
+The next concrete action is to implement T03 / #110 after this branch is ready
+for the combined Feature 013 PR. Use `$implement` with `$tdd`; do not start T04
+until T03 is complete. T04 remains blocked until its stated predecessor is
+complete.

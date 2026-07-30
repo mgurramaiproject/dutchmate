@@ -9,7 +9,9 @@ import { lessonCatalog, type GrammarPatternId } from "../lessons/catalog";
 import { applyGrammarCheck, applyGrammarOutcome, introduceGrammar, type GrammarOutcome, type GrammarRecord } from "../grammar/learning";
 import { getGrammarPattern, grammarPatterns, isGrammarContentAvailable } from "../grammar/content";
 import { CONTRAST_CONTENT_VERSION, CONTRAST_PACK_ID, contrastPack, isContrastContentAvailable, type ContrastPackId } from "../grammar/contrast";
-import { applyContrastOutcome, introduceContrast as createContrastRecord, type ContrastOutcome, type ContrastRecord } from "../grammar/contrast-learning";
+import { applyContrastOutcome, getImmediateContrastRepairOffer, introduceContrast as createContrastRecord, type ContrastOutcome, type ContrastRecord, type ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
+import type { ContrastMisconceptionCode } from "../grammar/contrast";
+import { getMisconceptionDefinition } from "../grammar/misconceptions";
 
 export const LEARNING_RECORD_STORAGE_KEY = "dutchmate.learningRecord.v2";
 export const LEARNING_BACKUP_FORMAT = "dutchmate-learning-backup";
@@ -157,17 +159,19 @@ export class LearningRecordStore {
     return contrast;
   }
 
-  async recordContrastCheck(packId: ContrastPackId, contentVersion: 1, exerciseId: string, answer: string | null, expectedRevision: number, outcome: ContrastOutcome = { type: "check", answer: answer! }): Promise<{ contrast: ContrastRecord; recorded: boolean }> {
+  async recordContrastCheck(packId: ContrastPackId, contentVersion: 1, exerciseId: string, answer: string | null, expectedRevision: number, outcome: ContrastOutcome = { type: "check", answer: answer! }, claimedMisconceptionCode?: ContrastMisconceptionCode): Promise<{ contrast: ContrastRecord; recorded: boolean; repairOffer: ImmediateContrastRepairOffer | null }> {
     const record = await this.readMigrated();
     const contrast = record.contrast[packId];
     const pack = packId === contrastPack.id ? contrastPack : undefined;
     const exercise = pack?.exercises.find((candidate) => candidate.id === exerciseId);
-    if (!isContrastContentAvailable() || !contrast || !pack || !exercise || contentVersion !== CONTRAST_CONTENT_VERSION || (outcome.type === "check" && (!exercise.choices.includes(outcome.answer) && !exercise.distractors.some((distractor) => distractor.value === outcome.answer)))) throw new Error("This contrast exercise is unavailable.");
-    if (contrast.evidenceRevision !== expectedRevision) return { contrast, recorded: false };
+    const expectedMisconceptionCode = outcome.type === "check" ? exercise?.distractors.find((distractor) => distractor.value === outcome.answer)?.misconception : undefined;
+    if (!isContrastContentAvailable() || !contrast || !pack || !exercise || contentVersion !== CONTRAST_CONTENT_VERSION || (outcome.type === "check" && (!exercise.choices.includes(outcome.answer) && !exercise.distractors.some((distractor) => distractor.value === outcome.answer))) || (claimedMisconceptionCode !== undefined && claimedMisconceptionCode !== expectedMisconceptionCode) || (claimedMisconceptionCode !== undefined && !getMisconceptionDefinition(claimedMisconceptionCode))) throw new Error("This contrast exercise is unavailable.");
+    if (contrast.evidenceRevision !== expectedRevision) return { contrast, recorded: false, repairOffer: null };
+    const repairOffer = outcome.type === "check" ? getImmediateContrastRepairOffer(contrast, exercise, outcome.answer) : null;
     const updated = applyContrastOutcome(contrast, exercise, outcome, this.now(), true, pack.exercises.length);
     record.contrast[packId] = updated;
     await this.write(record);
-    return { contrast: updated, recorded: true };
+    return { contrast: updated, recorded: true, repairOffer };
   }
 
   async saveLessonProgress(lessonId: string, contentVersion: number, stage: LessonProgressStage): Promise<LessonProgress> {
@@ -451,6 +455,7 @@ function mergeContrastRecords(local: Record<string, ContrastRecord>, imported: R
       lastPractisedAt: Math.max(existing.lastPractisedAt ?? 0, incoming.lastPractisedAt ?? 0) || null,
       successfulExerciseIds: [...new Set([...existing.successfulExerciseIds, ...incoming.successfulExerciseIds])].slice(-8),
       recentExerciseIds: [...new Set([...existing.recentExerciseIds, ...incoming.recentExerciseIds])].slice(-8),
+      misconceptionCounts: Object.fromEntries(Array.from(new Set([...Object.keys(existing.misconceptionCounts), ...Object.keys(incoming.misconceptionCounts)])).map((key) => [key, Math.min(9, Math.max(existing.misconceptionCounts[key as ContrastMisconceptionCode] ?? 0, incoming.misconceptionCounts[key as ContrastMisconceptionCode] ?? 0))])) as ContrastRecord["misconceptionCounts"],
       evidenceRevision: Math.max(existing.evidenceRevision, incoming.evidenceRevision),
       updatedAt: Math.max(existing.updatedAt, incoming.updatedAt),
     };
@@ -594,7 +599,19 @@ function parseContrastRecord(value: unknown): ContrastRecord | null {
   if (!isRecord(value) || value.packId !== CONTRAST_PACK_ID || value.contentVersion !== CONTRAST_CONTENT_VERSION || (value.state !== "introduced" && value.state !== "practising" && value.state !== "complete") || !finite(value.introducedAt) || (value.lastPractisedAt !== null && !finite(value.lastPractisedAt)) || !Array.isArray(value.successfulExerciseIds) || !value.successfulExerciseIds.every((entry) => typeof entry === "string") || !Array.isArray(value.recentExerciseIds) || !value.recentExerciseIds.every((entry) => typeof entry === "string") || !nonNegativeInteger(value.evidenceRevision) || !finite(value.updatedAt)) return null;
   const knownExerciseIds = new Set(contrastPack.exercises.map((exercise) => exercise.id));
   if (value.successfulExerciseIds.some((entry) => !knownExerciseIds.has(entry)) || value.recentExerciseIds.some((entry) => !knownExerciseIds.has(entry))) return null;
-  return { packId: CONTRAST_PACK_ID, contentVersion: CONTRAST_CONTENT_VERSION, state: value.state, introducedAt: value.introducedAt, lastPractisedAt: value.lastPractisedAt, successfulExerciseIds: [...new Set(value.successfulExerciseIds)].slice(-8), recentExerciseIds: [...new Set(value.recentExerciseIds)].slice(-8), evidenceRevision: value.evidenceRevision, updatedAt: value.updatedAt };
+  const misconceptionCounts = value.misconceptionCounts === undefined ? {} : parseContrastMisconceptionCounts(value.misconceptionCounts);
+  if (misconceptionCounts === null) return null;
+  return { packId: CONTRAST_PACK_ID, contentVersion: CONTRAST_CONTENT_VERSION, state: value.state, introducedAt: value.introducedAt, lastPractisedAt: value.lastPractisedAt, successfulExerciseIds: [...new Set(value.successfulExerciseIds)].slice(-8), recentExerciseIds: [...new Set(value.recentExerciseIds)].slice(-8), misconceptionCounts, evidenceRevision: value.evidenceRevision, updatedAt: value.updatedAt };
+}
+
+function parseContrastMisconceptionCounts(value: unknown): ContrastRecord["misconceptionCounts"] | null {
+  if (!isRecord(value)) return null;
+  const entries: Partial<Record<ContrastMisconceptionCode, number>> = {};
+  for (const [key, count] of Object.entries(value)) {
+    if (!getMisconceptionDefinition(key) || !nonNegativeInteger(count)) return null;
+    entries[key as ContrastMisconceptionCode] = Math.min(9, count);
+  }
+  return entries;
 }
 function parseGrammarRecord(value: unknown, durable = false): GrammarRecord | null {
   if (!isRecord(value) || typeof value.patternId !== "string" || value.contentVersion !== 1 || (value.state !== "introduced" && value.state !== "practising" && value.state !== "applied") || !finite(value.introducedAt) || (value.lastPractisedAt !== null && !finite(value.lastPractisedAt)) || !finite(value.dueAt) || !finite(value.intervalDays) || !nonNegativeInteger(value.successfulEvidenceCount) || !Array.isArray(value.primitives) || !value.primitives.every((entry) => typeof entry === "string") || !Array.isArray(value.contextTags) || !value.contextTags.every((entry) => typeof entry === "string") || !Array.isArray(value.recentExerciseIds) || !value.recentExerciseIds.every((entry) => typeof entry === "string") || !Array.isArray(value.recentSuccessfulDays) || !value.recentSuccessfulDays.every(finite) || typeof value.delayedEvidence !== "boolean" || !isRecord(value.misconceptionCounts) || !Object.values(value.misconceptionCounts).every(nonNegativeInteger) || !nonNegativeInteger(value.evidenceRevision)) return null;

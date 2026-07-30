@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { contrastPack } from "./contrast";
-import { applyContrastOutcome, contrastResultMessage, introduceContrast } from "./contrast-learning";
+import { applyContrastOutcome, contrastResultMessage, getImmediateContrastRepairOffer, introduceContrast } from "./contrast-learning";
 
 describe("contrast repair learning", () => {
   it("records one first result per reviewed exercise and keeps retry transient", () => {
@@ -22,6 +22,8 @@ describe("contrast repair learning", () => {
 
     expect(checked.evidenceRevision).toBe(1);
     expect(checked.successfulExerciseIds).toEqual([]);
-    expect(contrastResultMessage(checked, exercise, wrong)).toEqual({ correct: false, feedback: exercise.distractors[0].feedback });
+    expect(contrastResultMessage(checked, exercise, wrong)).toEqual({ correct: false, feedback: exercise.distractors[0].feedback, misconception: "MAIN_CLAUSE_NO_INVERSION" });
+    expect(getImmediateContrastRepairOffer(record, exercise, wrong)).toMatchObject({ code: "MAIN_CLAUSE_NO_INVERSION", label: "Practise this contrast (1 min)" });
+    expect(getImmediateContrastRepairOffer(checked, exercise, wrong)).toBeNull();
   });
 });

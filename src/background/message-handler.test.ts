@@ -181,6 +181,16 @@ describe("createBackgroundMessageHandler", () => {
     await expect(send(handleMessage, { type: LEARNING_CONTRAST_MESSAGE, payload: { packId: "contrast.main_clause_inversion" } })).resolves.toMatchObject({ ok: true, result: { contrast: { evidenceRevision: 1 } } });
   });
 
+  it("returns an immediate repair offer only for the allowlisted controlled misconception", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary: new SavedVocabularyStore(storage), reviewCards: new ReviewCardStore(new SavedVocabularyStore(storage), storage), learningRecords: records, refreshBadge: async () => undefined });
+
+    await send(handleMessage, { type: LEARNING_CONTRAST_INTRODUCE_MESSAGE, payload: { packId: "contrast.main_clause_inversion" } });
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "ik werk", expectedEvidenceRevision: 0, misconceptionCode: "MAIN_CLAUSE_NO_INVERSION" } })).resolves.toMatchObject({ ok: true, result: { repairOffer: { code: "MAIN_CLAUSE_NO_INVERSION", label: "Practise this contrast (1 min)" }, contrast: { misconceptionCounts: { MAIN_CLAUSE_NO_INVERSION: 1 } } } });
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "ik werk", expectedEvidenceRevision: 1, misconceptionCode: "MAIN_CLAUSE_NO_INVERSION" } })).resolves.toMatchObject({ ok: true, result: { repairOffer: null, contrast: { misconceptionCounts: { MAIN_CLAUSE_NO_INVERSION: 2 } } } });
+  });
+
   it("keeps selected lesson candidates atomically with lesson provenance", async () => {
     const storage = new MemoryStorage();
     const records = new LearningRecordStore(storage, () => 1_000);
