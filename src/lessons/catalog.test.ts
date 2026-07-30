@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appointmentLesson, cardPaymentLesson, cafeOrderLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, regularLesson, repetitionLesson, validateLessonCatalog } from "./catalog";
+import { appointmentLesson, availabilityLesson, brokenThingLesson, bringLesson, cardPaymentLesson, cafeOrderLesson, delayedTrainLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, regularLesson, repetitionLesson, symptomsLesson, transferLesson, validateLessonCatalog } from "./catalog";
 
 describe("lesson catalog", () => {
   it("requires the A0 tracer to declare outcome coverage, transfer, and review metadata", () => {
@@ -50,6 +50,19 @@ describe("lesson catalog", () => {
     const invalid = structuredClone(lessonCatalog);
     invalid.lessons.find((lesson) => lesson.id === cafeOrderLesson.id)!.practiceEnvelope!.support = "guided";
     expect(validateLessonCatalog(invalid)).toContain("a1-ik-wil-graag-bestellen.practiceEnvelope.support: expected reduced support or supported version");
+  });
+
+  it("backfills the A1 transport lessons with reviewed reduced-support transfer", () => {
+    const transportLessons = [transferLesson, delayedTrainLesson];
+
+    expect(transportLessons.every((lesson) => lesson.practiceEnvelope?.support === "reduced")).toBe(true);
+    expect(transportLessons.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["waar-moet-ik-overstappen", "mijn-trein-is-vertraagd"]);
+    expect(transportLessons.every((lesson) => lesson.practiceEnvelope?.coverage.safeApplication)).toBe(true);
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === delayedTrainLesson.id)!.practiceEnvelope!.transfer.accepted = ["unknown-answer"];
+    expect(validateLessonCatalog(invalid)).toContain("a1-mijn-trein-is-vertraagd.practiceEnvelope.transfer: expected reviewed transfer task");
   });
 
   it("validates the reviewed appointment micro-story", () => {

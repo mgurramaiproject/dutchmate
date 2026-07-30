@@ -109,12 +109,12 @@ and `Kan ik met pin betalen?` with complete A1 lesson-integrated practice.
 vertraagd` with outcome-aligned practice grounded in reviewed transport
 contexts.
 
-- [ ] Both lessons have reviewed outcome maps and behavior-complete envelopes.
-- [ ] Practice uses reduced support, varied contexts, and controlled
+- [x] Both lessons have reviewed outcome maps and behavior-complete envelopes.
+- [x] Practice uses reduced support, varied contexts, and controlled
   recombination appropriate to the outcomes.
-- [ ] Each lesson includes guaranteed in-lesson transfer.
-- [ ] Results update only existing pattern or learning-item evidence.
-- [ ] Validation, independent Dutch review, persistence, accessibility,
+- [x] Each lesson includes guaranteed in-lesson transfer.
+- [x] Results update only existing pattern or learning-item evidence.
+- [x] Validation, independent Dutch review, persistence, accessibility,
   popup, and provider-isolation checks pass.
 
 ## T05 — Backfill A1 appointment and healthcare lessons

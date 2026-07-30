@@ -24,13 +24,13 @@ export type Lesson = {
   review: { dutch: true; english: true; telugu: true; cefr: true; cultural: true; practicalUse: true };
 };
 export type LessonCatalog = { version: typeof LESSON_CATALOG_VERSION; lessons: Lesson[] };
-const a0PracticeReview: LessonPracticeReviewMetadata = {
+const lessonPracticeReview: LessonPracticeReviewMetadata = {
   author: "DutchMate team",
   reviewState: "second-review-complete",
   reviewer: "Project owner",
   reviewedAt: "2026-07-30",
   sources: ["Original DutchMate-authored lesson content."],
-  provenance: "Original DutchMate-authored A0 transfer task reviewed with its lesson micro-story; no copied sentence text.",
+  provenance: "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text.",
 };
 
 export const introductionLesson: Lesson = {
@@ -71,7 +71,7 @@ export const introductionLesson: Lesson = {
       distractors: [{ answer: "ik woon", misconception: "location-not-identity" }, { answer: "vlakbij", misconception: "place-fragment-not-introduction" }],
       feedback: "Use ik ben to say who you are: Ik ben Ravi.",
     },
-    review: a0PracticeReview,
+    review: lessonPracticeReview,
   },
 };
 
@@ -113,7 +113,7 @@ export const hebbenLesson: Lesson = {
       distractors: [{ answer: "ik woon hier", misconception: "place-not-need" }, { answer: "ik ben beschikbaar", misconception: "availability-not-need" }],
       feedback: "Use ik heb dit nodig to say that you need this: Ik heb dit nodig.",
     },
-    review: a0PracticeReview,
+    review: lessonPracticeReview,
   },
   grammarCompanion: { id: "a0-hebben-present", contentVersion: 1, patternId: "a0-hebben-present" },
 };
@@ -156,7 +156,7 @@ export const regularLesson: Lesson = {
       distractors: [{ answer: "ik heb dit nodig", misconception: "need-not-place" }, { answer: "woon je hier", misconception: "question-not-statement" }],
       feedback: "Use ik woon hier to say where you live: Ik woon hier.",
     },
-    review: a0PracticeReview,
+    review: lessonPracticeReview,
   },
   grammarCompanion: { id: "a0-regular-present", contentVersion: 1, patternId: "a0-regular-present" },
 };
@@ -199,7 +199,7 @@ export const inversionLesson: Lesson = {
       distractors: [{ answer: "ik woon hier", misconception: "statement-not-question" }, { answer: "werkt u morgen", misconception: "wrong-meaning" }],
       feedback: "Use woon je hier to ask whether someone lives here: Woon je hier?",
     },
-    review: a0PracticeReview,
+    review: lessonPracticeReview,
   },
   grammarCompanion: { id: "a0-yes-no-inversion", contentVersion: 1, patternId: "a0-yes-no-inversion" },
 };
@@ -242,7 +242,7 @@ export const repetitionLesson: Lesson = {
       distractors: [{ answer: "ik wil graag", misconception: "order-not-clarification" }, { answer: "met pin betalen", misconception: "payment-not-clarification" }],
       feedback: "Use Kunt u dat herhalen? to ask politely for repetition.",
     },
-    review: a0PracticeReview,
+    review: lessonPracticeReview,
   },
 };
 
@@ -285,7 +285,7 @@ export const cafeOrderLesson: Lesson = {
       distractors: [{ answer: "kunt u dat herhalen", misconception: "clarification-not-order" }, { answer: "met pin betalen", misconception: "payment-not-order" }],
       feedback: "Use Ik wil graag before saying what you would like to order.",
     },
-    review: a0PracticeReview,
+    review: lessonPracticeReview,
   },
 };
 
@@ -327,7 +327,7 @@ export const cardPaymentLesson: Lesson = {
       distractors: [{ answer: "ik wil graag", misconception: "ordering-not-payment" }, { answer: "kunt u dat herhalen", misconception: "clarification-not-payment" }],
       feedback: "Use met pin betalen to say that you will pay by debit card.",
     },
-    review: a0PracticeReview,
+    review: lessonPracticeReview,
   },
 };
 
@@ -354,6 +354,24 @@ export const transferLesson: Lesson = {
     { candidateId: "spoor-acht", dimension: "recognition" }, { candidateId: "de-aansluiting", dimension: "recall" },
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  practiceEnvelope: {
+    contentVersion: 1,
+    support: "reduced",
+    outcome: { primary: "Ask where to change trains at a station.", supporting: ["Recognize the key transport question in a real platform exchange."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a1-waar-moet-ik-overstappen-transfer",
+      primitive: "choose-meaning",
+      candidateId: "waar-moet-ik-overstappen",
+      prompt: "You need to change trains but do not know where. Choose the Dutch question.",
+      context: "At the station, ask where you need to change: ___.",
+      choices: ["waar moet ik overstappen", "mijn trein is vertraagd", "spoor acht"],
+      accepted: ["waar moet ik overstappen"],
+      distractors: [{ answer: "mijn trein is vertraagd", misconception: "delay-not-change-location" }, { answer: "spoor acht", misconception: "platform-answer-not-question" }],
+      feedback: "Use waar moet ik overstappen to ask where you need to change trains.",
+    },
+    review: lessonPracticeReview,
+  },
 };
 
 export const delayedTrainLesson: Lesson = {
@@ -379,6 +397,24 @@ export const delayedTrainLesson: Lesson = {
     { candidateId: "twintig-minuten-later", dimension: "recognition" }, { candidateId: "een-bericht", dimension: "recall" },
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  practiceEnvelope: {
+    contentVersion: 1,
+    support: "reduced",
+    outcome: { primary: "Tell someone that your train is delayed.", supporting: ["Recognize a simple delay report and respond with the next practical detail."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a1-mijn-trein-is-vertraagd-transfer",
+      primitive: "choose-meaning",
+      candidateId: "mijn-trein-is-vertraagd",
+      prompt: "The station screen shows a delay. Choose the Dutch sentence to report it.",
+      context: "Tell your colleague about the train: ___.",
+      choices: ["mijn trein is vertraagd", "waar moet ik overstappen", "een bericht"],
+      accepted: ["mijn trein is vertraagd"],
+      distractors: [{ answer: "waar moet ik overstappen", misconception: "change-location-not-delay" }, { answer: "een bericht", misconception: "object-not-delay-report" }],
+      feedback: "Use mijn trein is vertraagd to report that your train is delayed.",
+    },
+    review: lessonPracticeReview,
+  },
 };
 
 export const appointmentLesson: Lesson = {
