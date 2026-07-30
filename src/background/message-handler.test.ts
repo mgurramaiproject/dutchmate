@@ -23,6 +23,9 @@ import {
   LEARNING_GRAMMAR_INTRODUCE_MESSAGE,
   LEARNING_GRAMMAR_MESSAGE,
   LEARNING_GRAMMAR_RESULT_MESSAGE,
+  LEARNING_CONTRAST_INTRODUCE_MESSAGE,
+  LEARNING_CONTRAST_MESSAGE,
+  LEARNING_CONTRAST_RESULT_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
 import { createBackgroundMessageHandler } from "./message-handler";
@@ -164,6 +167,41 @@ describe("createBackgroundMessageHandler", () => {
     now = new Date(2026, 0, 2, 9).getTime();
     await expect(send(handleMessage, { type: LEARNING_DAILY_FIVE_MESSAGE })).resolves.toMatchObject({ ok: true, result: { snapshot: { tasks: [{ patternId: "a0-yes-no-inversion", exerciseId: "inversion-order-je" }] } } });
     await expect(send(handleMessage, { type: LEARNING_GRAMMAR_RESULT_MESSAGE, payload: { patternId: "a0-yes-no-inversion", contentVersion: 1, exerciseId: "inversion-order-je", answer: "Woon je hier?", expectedEvidenceRevision: 0, dailyFive: true } })).resolves.toMatchObject({ ok: true, result: { grammar: { successfulEvidenceCount: 1 } } });
+  });
+
+  it("routes the reviewed contrast pilot through one canonical first-check boundary", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary: new SavedVocabularyStore(storage), reviewCards: new ReviewCardStore(new SavedVocabularyStore(storage), storage), learningRecords: records, refreshBadge: async () => undefined });
+
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_MESSAGE, payload: { packId: "contrast.main_clause_inversion" } })).resolves.toMatchObject({ ok: true, result: { contrast: null } });
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_INTRODUCE_MESSAGE, payload: { packId: "contrast.main_clause_inversion" } })).resolves.toMatchObject({ ok: true, result: { contrast: { packId: "contrast.main_clause_inversion", evidenceRevision: 0 } } });
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "werk", expectedEvidenceRevision: 0 } })).resolves.toMatchObject({ ok: true, result: { contrast: { successfulExerciseIds: ["contrast-choose-time-first"], evidenceRevision: 1 } } });
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "werk", expectedEvidenceRevision: 0 } })).resolves.toEqual({ ok: false, error: "This contrast result was already recorded." });
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_MESSAGE, payload: { packId: "contrast.main_clause_inversion" } })).resolves.toMatchObject({ ok: true, result: { contrast: { evidenceRevision: 1 } } });
+  });
+
+  it("returns an immediate repair offer only for the allowlisted controlled misconception", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary: new SavedVocabularyStore(storage), reviewCards: new ReviewCardStore(new SavedVocabularyStore(storage), storage), learningRecords: records, refreshBadge: async () => undefined });
+
+    await send(handleMessage, { type: LEARNING_CONTRAST_INTRODUCE_MESSAGE, payload: { packId: "contrast.main_clause_inversion" } });
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "ik werk", expectedEvidenceRevision: 0, misconceptionCode: "MAIN_CLAUSE_NO_INVERSION" } })).resolves.toMatchObject({ ok: true, result: { repairOffer: { code: "MAIN_CLAUSE_NO_INVERSION", label: "Practise this contrast (1 min)" }, contrast: { misconceptionCounts: { MAIN_CLAUSE_NO_INVERSION: 1 } } } });
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "ik werk", expectedEvidenceRevision: 1, misconceptionCode: "MAIN_CLAUSE_NO_INVERSION" } })).resolves.toMatchObject({ ok: true, result: { repairOffer: null, contrast: { misconceptionCounts: { MAIN_CLAUSE_NO_INVERSION: 2 } } } });
+  });
+
+  it("routes a scheduled contrast repair through the mixed Daily Five boundary", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => now);
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary: new SavedVocabularyStore(storage), reviewCards: new ReviewCardStore(new SavedVocabularyStore(storage), storage), learningRecords: records, refreshBadge: async () => undefined });
+    await send(handleMessage, { type: LEARNING_CONTRAST_INTRODUCE_MESSAGE, payload: { packId: "contrast.main_clause_inversion" } });
+    await send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "ik werk", expectedEvidenceRevision: 0, misconceptionCode: "MAIN_CLAUSE_NO_INVERSION" } });
+    await send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-repair-time-first", answer: "Morgen ik werk thuis.", expectedEvidenceRevision: 1, misconceptionCode: "MAIN_CLAUSE_NO_INVERSION" } });
+    now = new Date(2026, 0, 2, 9).getTime();
+    await expect(send(handleMessage, { type: LEARNING_DAILY_FIVE_MESSAGE })).resolves.toMatchObject({ ok: true, result: { snapshot: { tasks: [{ kind: "contrast", exerciseId: "contrast-rebuild-appointment" }] } } });
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", answer: "Morgen maak ik een afspraak.", expectedEvidenceRevision: 2, dailyFive: true } })).resolves.toMatchObject({ ok: true, result: { contrast: { repair: { pending: false } }, snapshot: { goalCompleted: true } } });
   });
 
   it("keeps selected lesson candidates atomically with lesson provenance", async () => {

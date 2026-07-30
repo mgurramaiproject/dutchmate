@@ -482,6 +482,67 @@ describe("LearningRecordStore", () => {
     expect((await records.exportBackup()).grammar).toHaveProperty("a0-yes-no-inversion");
   });
 
+  it("introduces and persists the contrast pilot without changing grammar pattern records", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    const introduced = await records.introduceContrast();
+    expect(introduced).toMatchObject({ packId: "contrast.main_clause_inversion", state: "introduced", evidenceRevision: 0 });
+    const result = await records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-choose-time-first", "werk", 0);
+    expect(result).toMatchObject({ contrast: { packId: "contrast.main_clause_inversion", evidenceRevision: 1, successfulExerciseIds: ["contrast-choose-time-first"] }, recorded: true });
+    expect(await records.getGrammar("a0-yes-no-inversion")).toBeNull();
+    const backup = await records.exportBackup();
+    expect(backup.contrast).toHaveProperty("contrast.main_clause_inversion");
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    await restored.importBackup(backup);
+    await expect(restored.getContrast()).resolves.toMatchObject({ successfulExerciseIds: ["contrast-choose-time-first"] });
+  });
+
+  it("records only the supported misconception and returns one immediate repair offer", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await records.introduceContrast();
+    const first = await records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-choose-time-first", "ik werk", 0, undefined, "MAIN_CLAUSE_NO_INVERSION");
+    expect(first.repairOffer).toMatchObject({ code: "MAIN_CLAUSE_NO_INVERSION", packId: "contrast.main_clause_inversion", label: "Practise this contrast (1 min)" });
+    expect(first.contrast).toMatchObject({ misconceptionCounts: { MAIN_CLAUSE_NO_INVERSION: 1 } });
+    expect(JSON.stringify(await records.exportBackup())).not.toContain("ik werk");
+
+    const second = await records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-choose-time-first", "ik werk", 1);
+    expect(second.repairOffer).toBeNull();
+    expect(second.contrast.misconceptionCounts).toEqual({ MAIN_CLAUSE_NO_INVERSION: 2 });
+    await expect(records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-choose-time-first", "ik werk", 2, undefined, "UNKNOWN_CODE" as never)).rejects.toThrow("unavailable");
+  });
+
+  it("schedules one delayed contrast repair in the mixed Daily Five and clears it only on success", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const records = new LearningRecordStore(new MemoryStorage(), () => now);
+    await records.introduceContrast();
+    await records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-choose-time-first", "ik werk", 0, undefined, "MAIN_CLAUSE_NO_INVERSION");
+    await records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-repair-time-first", "Morgen ik werk thuis.", 1, undefined, "MAIN_CLAUSE_NO_INVERSION");
+
+    now = new Date(2026, 0, 2, 9).getTime();
+    const snapshot = await records.getDailyFive();
+    expect(snapshot.tasks).toEqual([{ kind: "contrast", packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment" }]);
+    expect(JSON.stringify(snapshot)).not.toContain("Morgen maak ik een afspraak.");
+
+    const skipped = await records.recordContrastDailyFiveResult({ packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", outcome: { type: "skip" }, expectedEvidenceRevision: 2 });
+    expect(skipped.contrast).toMatchObject({ repair: { pending: true }, evidenceRevision: 3 });
+    expect((await records.recordContrastDailyFiveResult({ packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", outcome: { type: "check", answer: "Morgen maak ik een afspraak." }, expectedEvidenceRevision: 2 })).contrast).toEqual(skipped.contrast);
+
+    now = new Date(2026, 0, 4, 9).getTime();
+    const next = await records.getDailyFive();
+    expect(next.tasks).toEqual([]);
+  });
+
+  it("clears the pending delayed trigger after a successful Daily Five repair", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const records = new LearningRecordStore(new MemoryStorage(), () => now);
+    await records.introduceContrast();
+    await records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-choose-time-first", "ik werk", 0, undefined, "MAIN_CLAUSE_NO_INVERSION");
+    await records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-repair-time-first", "Morgen ik werk thuis.", 1, undefined, "MAIN_CLAUSE_NO_INVERSION");
+    now = new Date(2026, 0, 2, 9).getTime();
+    await records.getDailyFive();
+    const result = await records.recordContrastDailyFiveResult({ packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", outcome: { type: "check", answer: "Morgen maak ik een afspraak." }, expectedEvidenceRevision: 2 });
+    expect(result.contrast).toMatchObject({ repair: { pending: false, recentRelevantCodes: [] }, successfulExerciseIds: ["contrast-rebuild-appointment"], evidenceRevision: 3 });
+  });
+
   it("preserves all published lesson progress and saved-item mastery through version 3 round trip", async () => {
     const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     await source.createOrMerge({ dutch: "huis", english: "house" });

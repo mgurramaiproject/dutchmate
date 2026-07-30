@@ -80,6 +80,17 @@ describe("Daily Five scheduling", () => {
     expect(snapshot.tasks.filter((task) => !("kind" in task))).toHaveLength(3);
   });
 
+  it("keeps one delayed contrast repair bounded while protecting vocabulary", () => {
+    const vocabulary = ["one", "two", "three", "four"].map((id, index) => item(id, index + 1));
+    const snapshot = createDailyFiveSnapshot(vocabulary, 10 * day, undefined, [
+      { kind: "grammar", patternId: "a0-zijn-present", contentVersion: 1, exerciseId: "zijn-choose-ik" },
+      { kind: "contrast", packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment" },
+      { kind: "contrast", packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment" },
+    ]);
+    expect(snapshot.tasks.filter((task) => "kind" in task && task.kind === "contrast")).toHaveLength(1);
+    expect(snapshot.tasks.filter((task) => !("kind" in task))).toHaveLength(3);
+  });
+
   it("accepts due hebben practice as a second grammar position", () => {
     const snapshot = createDailyFiveSnapshot([], 10 * day, undefined, [{ kind: "grammar", patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik" }]);
     expect(snapshot.tasks).toEqual([{ kind: "grammar", patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik" }]);

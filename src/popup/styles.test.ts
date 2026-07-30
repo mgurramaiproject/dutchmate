@@ -34,6 +34,10 @@ describe("popup layout", () => {
     expect(styles).toContain(".review-completion-meta { margin: -2px 0 0; color: var(--muted);");
     expect(styles).toContain(".lesson-completion-meta { margin: -2px 0 0; color: var(--muted);");
     expect(styles).toContain(".grammar-capability { margin: -4px 0 0; color: var(--muted);");
+    expect(styles).toContain(".grammar-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }");
+    expect(styles).toContain(".grammar-choices .is-selected { background: var(--black); color: var(--white); }");
+    expect(styles).toContain(".contrast-repair-offer { display: grid;");
+    expect(styles).toContain(".contrast-offer-copy { margin: 0;");
     expect(styles).toContain(".button { min-height: 48px; padding: 8px 10px; border: 1px solid var(--black); border-radius: 8px; background: var(--white); color: var(--black); font-size: .875rem;");
     expect(styles).toContain(".lesson-filters { display: grid; gap: 5px;");
     expect(styles).toContain(".lesson-filter { min-height: 44px;");

@@ -11,6 +11,15 @@ This is the single canonical parking lot for deferred DutchMate product ideas. A
 | `009-proficiency-path` | 2026-07-27 | `009-proficiency-path-chatgpt-plan.md` local review input and the `grill-with-docs` revision session | [A0-A2 grammar progression plan](./009-proficiency-path-plan.md) |
 | `deterministic-feature-plans-review` | 2026-07-29 | `DutchMate-deterministic-feature-plans` local review input, including the AI comparison mockup and the `grill-with-docs` revision session | this parking lot |
 
+## Prioritized parked ideas
+
+The general parking lot remains unordered unless a product decision explicitly
+assigns a priority. Lower numbers are higher priority.
+
+| Priority order | Idea | What is preserved | Why parked now | Revisit signal |
+|---:|---|---|---|---|
+| 1 | Broader lesson-integrated practice coverage | Revisit the A1-A2 Lessons catalog and add reviewed, lesson-appropriate Verb Gym/Sentence Forge-style exercises, Sentence Trainer connections where the saved-context contract fits, and additional Contrast Packs mapped to explicit misconceptions; assess any separate progress visualization such as Verb Timeline without creating duplicate queues. | Feature 013 validated one narrow contrast pilot only. Broad coverage needs a new curriculum/content map, lesson-by-lesson accepted answers and distractors, scheduling limits, independent Dutch review, and evidence that the existing popup remains understandable. | The Contrast Repair pilot is merged and its learner-value and browser gates are complete; a reviewed A1/A2 coverage map identifies specific lesson gaps worth filling. |
+
 ## Parked ideas
 
 | Idea | What is preserved | Why parked now | Revisit signal | Origin and references |

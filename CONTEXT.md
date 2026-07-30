@@ -68,6 +68,33 @@ _Avoid_: AI approval, author-only public review, certification requirement
 The minimum local evidence needed to resume practice, schedule a studied pattern, prevent immediate repetition, and support its honest progress state. It contains the current Daily Five snapshot, per-pattern state and due date, compact evidence markers, bounded misconception counters, and only the recent exercise identifiers needed for selection; it excludes raw webpage text, selected sentences, response times, full attempt histories, and behavioral timelines.
 _Avoid_: Event log, page-content history, analytics profile
 
+**Contrast pack**:
+A reviewed, versioned set of short deterministic examples and click-only repair
+tasks focused on one narrow Dutch contrast. It is content delivered through
+existing Lessons or Daily Five, not a learner-facing destination, separate
+queue, or general grammar diagnosis system.
+_Avoid_: Grammar library, grammar coach, standalone lesson mode
+
+**Misconception code**:
+A stable, narrowly scoped label for an unambiguous incorrect action in a
+controlled authored exercise. It supports explainable repair selection but
+does not claim that DutchMate diagnosed an arbitrary sentence or free-writing
+error.
+_Avoid_: Generic grammar error, parser result, proficiency label
+
+**Controlled misconception evidence**:
+Bounded local evidence that a learner selected a known misconception-coded
+distractor during a supported exercise. It can guide an optional repair offer;
+it is not a mastery score, behavior timeline, or raw attempt history.
+_Avoid_: Passive exposure, grammar diagnosis, independent-production proof
+
+**Contrast repair**:
+The learner's deliberate, short practice of one contrast after immediate
+feedback or a bounded repeated controlled error. It begins at the exact
+contrast, uses reviewed examples and controls, and may later appear as one
+Daily Five repair task without creating another practice system.
+_Avoid_: Grammar course, remediation queue, automatic intervention
+
 **Encounter coaching**:
 An optional grammar-practice offer attached to text DutchMate already handles during an ordinary learner-triggered hover or selection when that Dutch confidently matches a previously studied pattern. It does not scan pages for exercises, interrupt unmatched encounters, or treat a first explanation as mastery evidence.
 _Avoid_: Automatic page scan, passive grammar highlighting, unrelated-content analysis
