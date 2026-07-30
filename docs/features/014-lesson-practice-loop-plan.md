@@ -6,9 +6,11 @@
 
 **Branch:** `014-lesson-practice-loop`
 
-**Status:** Grilled plan; specification and ticket publication require explicit user approval.
+**Status:** Grilled plan; specification published as [GitHub issue #113](https://github.com/mgurramaiproject/dutchmate/issues/113); ticket publication requires explicit user approval.
 
 **Architecture decision:** [ADR 0007](../adr/0007-014-lesson-practice-uses-shared-envelope-and-evidence.md)
+
+**Specification:** [014-lesson-practice-loop-spec.md](./014-lesson-practice-loop-spec.md), published as [GitHub issue #113](https://github.com/mgurramaiproject/dutchmate/issues/113) with `ready-for-agent`.
 
 ## Product goal
 
