@@ -154,22 +154,40 @@ schema change was required for T03.
 **What to build:** Qualify the complete four-pattern pack for implementation
 handoff and independent human validation without claiming language proficiency.
 
-- [ ] Run the relevant full test suite.
-- [ ] Run typecheck.
-- [ ] Run Chrome and Firefox builds or package/release checks required by the
+- [x] Run the relevant full test suite.
+- [x] Run typecheck.
+- [x] Run Chrome and Firefox builds or package/release checks required by the
   current repository workflow.
-- [ ] Run documentation consistency checks and `git diff --check`.
+- [x] Run documentation consistency checks and `git diff --check`.
 - [ ] Manually verify keyboard-only Lessons and Daily Five flows, visible focus,
   feedback announcement, narrow-popup containment, offline practice, and no
   unexpected provider request.
 - [ ] Have changed public content checked by a second fluent Dutch reviewer
   with grammar-teaching competence; record reviewer and date.
-- [ ] Verify all four pattern IDs and existing lesson/progress/storage contracts
+- [x] Verify all four pattern IDs and existing lesson/progress/storage contracts
   remain compatible with export/import and release artifacts.
-- [ ] Record known limitations without converting controlled evidence into a
+- [x] Record known limitations without converting controlled evidence into a
   formal CEFR or independent-production claim.
 - [ ] Reconcile the checked-in checklist with the published GitHub issues and
   Delivery state once the tracker work is approved and available.
+
+**T04 automated evidence (2026-07-30):** `npm run verify` passed with 100 test
+files and 643 tests, typecheck, and Chrome/Firefox builds. The release gate
+`npm run verify:release` then produced and verified
+`release/dutchmate-chrome-0.4.1.zip` and
+`release/dutchmate-firefox-0.4.1.zip`, including required extension files,
+browser-specific manifests, popup roles, fixed 390x600 layout, scroll and
+focus styles, and reduced-motion styles. Existing content, grammar-learning,
+learning-record, backup, popup, background, and release-doc consistency tests
+cover all four canonical pattern IDs and the preserved lesson/progress/storage
+contracts. `git diff --check` passed.
+
+**T04 remaining gates:** No interactive Chrome/Firefox browser pass was
+performed in this session, and no independent second fluent-Dutch reviewer was
+available; those remain explicit human gates. The pack demonstrates bounded,
+controlled practice evidence only and makes no formal CEFR or
+independent-production claim. GitHub issue and Delivery reconciliation also
+remain pending because the GitHub API was unavailable from this environment.
 
 ## Explicitly deferred work
 
