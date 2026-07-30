@@ -46,3 +46,11 @@ result, and notes for keyboard-only Lessons/Daily Five, visible focus, live
 feedback, narrow-popup containment, offline practice, and provider-request
 behavior.
 
+## Browser verification attempt
+
+On 2026-07-30, Chrome 149.0.7827.114 was launched under Xvfb with both the
+unpacked checkout build and the packaged ZIP extracted to a disposable `/tmp`
+directory. In both cases the loaded extension service worker appeared, but the
+popup URL returned `ERR_FILE_NOT_FOUND`; no browser result is claimed. Firefox
+153.0 is installed, but no supported automation driver is available in this
+environment, so no Firefox interactive result is claimed either.
