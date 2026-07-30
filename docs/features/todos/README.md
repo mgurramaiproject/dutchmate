@@ -13,7 +13,7 @@ Implement exactly one queue item at a time. Copying a plan here is not implement
 | 0 | [Shared deterministic foundation](../010-shared-deterministic-foundation-plan.md) | Completed compatibility audit | No runtime foundation was added; the audit established the reuse boundary for later slices. |
 | 1 | [Web Sentence Trainer](../011-web-sentence-trainer-plan.md) | Completed and merged in PR [#101](https://github.com/mgurramaiproject/dutchmate/pull/101) | Saved Context Missions reuse the canonical learning item and bounded Dutch context. Issues #97–#100 are closed. |
 | 2 | [Grammar content packs](../012-grammar-packs-plan.md) | Completed and merged in PR [#106](https://github.com/mgurramaiproject/dutchmate/pull/106) | Four reviewed A0 patterns remain inside Lessons, Today, and Daily Five. Issues #102–#105 are closed. |
-| 3 | [Contrast Repair / Feature 013](./03-contrast-packs/plan.md) | Completed and merged in PR [#112](https://github.com/mgurramaiproject/dutchmate/pull/112) | One authored time-first main-clause inversion repair pack shipped through the existing lesson and Daily Five flows. Issues #107–#111 are closed. |
+| 3 | [Contrast Repair / Feature 013](../013-contrast-repair-plan.md) | Completed and merged in PR [#112](https://github.com/mgurramaiproject/dutchmate/pull/112) | One authored time-first main-clause inversion repair pack shipped through the existing lesson and Daily Five flows. Issues #107–#111 are closed. |
 
 ## Next approval candidate
 
@@ -36,8 +36,6 @@ start with a reviewed plan and explicit implementation approval.
 
 Reviewed source package: `/home/mgurram/MGurramAI/projects/dutchmate-proj/DutchMate-deterministic-feature-plans`.
 
-Feature 011 and Feature 012 canonical plans, specifications, ticket trees, and
-validation records live in [`docs/features/`](..). The original
-`todos/02-grammar-content-packs` copy is retained only as historical queue
-input; Feature 012's checked-in artifacts are the implementation and delivery
-record.
+Feature plans, specifications, ticket trees, and validation records live in
+the canonical [`docs/features/`](..) files. This directory remains only as a
+compact completed-queue index; it does not contain duplicate plan documents.

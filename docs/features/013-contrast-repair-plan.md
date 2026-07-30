@@ -8,7 +8,8 @@
 
 **Status:** Grilled plan; implementation and qualification complete; merged in PR [#112](https://github.com/mgurramaiproject/dutchmate/pull/112)
 
-**Queue source:** [historical Contrast Packs plan](./todos/03-contrast-packs/plan.md)
+**Queue source:** completed queue item 03, now represented by this canonical
+Feature 013 plan.
 
 **Specification:** [013-contrast-repair-spec.md](./013-contrast-repair-spec.md)
 published as [GitHub issue #107](https://github.com/mgurramaiproject/dutchmate/issues/107)
