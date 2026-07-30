@@ -6,7 +6,11 @@
 
 **Branch:** `014-lesson-practice-loop`
 
-**Status:** Grilled plan; specification published as [GitHub issue #113](https://github.com/mgurramaiproject/dutchmate/issues/113); tickets published as [GitHub issues #114–#121](https://github.com/mgurramaiproject/dutchmate/issues/114); implementation is not approved.
+**Status:** Grilled plan; specification and tickets published as GitHub issues
+[#113](https://github.com/mgurramaiproject/dutchmate/issues/113) and
+[#114–#121](https://github.com/mgurramaiproject/dutchmate/issues/114);
+implementation is complete locally on the feature branch, with the single PR
+intentionally deferred until the feature bundle is ready.
 
 **Architecture decision:** [ADR 0007](../adr/0007-014-lesson-practice-uses-shared-envelope-and-evidence.md)
 
@@ -30,16 +34,19 @@ production, or permanent retention.
 
 ## Resolved product decisions
 
-- Every lesson receives a lesson practice envelope. The envelope's exercise
-  types and quantity follow the lesson outcome; every primitive is not forced
-  into every lesson.
+- Every lesson receives a lesson practice envelope that retains its existing
+  exercises and adds exactly three authored exercises: one `contrast-form`,
+  one `repair-choice`, and one `order-tokens`, each adapted to the lesson
+  outcome. Existing flashcards, grammar companions, Contrast Repair packs,
+  and Apply transfer remain additive and are never replaced.
 - The default lesson remains three to five minutes. Practice is interleaved
   with teaching and replaces passive explanation where it improves the
   outcome.
 - Each lesson has one primary practical outcome and limited supporting
   outcomes recorded in a lesson outcome map.
 - Coverage is behavioral—understand, guided action, reduced-support retrieval,
-  and safe application—not a fixed number of exercises.
+  and safe application—with a fixed three-exercise authored pack in addition
+  to the existing lesson interactions.
 - A0, A1, and A2 use one architecture with a practice support gradient:
   tighter controls at A0, controlled transformations and contrasts at A1,
   and more varied recombination at A2.
@@ -68,7 +75,7 @@ The specification must map each of the fifteen published lessons to:
 
 - one primary practical outcome;
 - supporting learning items and grammar patterns, where applicable;
-- the smallest behavior-complete practice envelope;
+- the existing lesson interactions plus three additional authored exercises;
 - the guaranteed in-lesson transfer action;
 - optional eligible links to Saved-context, Sentence Trainer, Contrast
   Repair, or Encounter Coaching;
@@ -89,9 +96,11 @@ enumerated for validation, independently reviewed in Dutch, and compatible
 with the shared result and local-record contracts. Each envelope also records
 the shared keyboard, focus, feedback-announcement, and narrow-popup
 accessibility requirements plus the compatible-additive history policy keyed by
-lesson ID and content version. A new lesson may use fewer or different
-primitives when its practical outcome justifies that choice; it may not omit
-reduced-support application merely because an external context is unavailable.
+lesson ID and content version. Every future lesson must include the same three
+additional authored exercise types, adapted to its outcome; it may not omit
+one merely because the existing lesson already has another interaction that
+looks similar. It may not omit reduced-support application merely because an
+external context is unavailable.
 
 ## Proposed testing seams
 
@@ -144,8 +153,8 @@ identifies the smallest high-value tracer.
 
 Apply the approved standard to all fifteen published lessons in bounded
 vertical slices. Each slice keeps the existing lesson identity and completion
-record, adds only outcome-justified practice, and records direct content and
-manual review evidence.
+record, retains existing exercises, adds the three outcome-justified authored
+exercise types, and records direct content and manual review evidence.
 
 ### Phase 4 — Qualify future-authoring and release safety
 
@@ -162,7 +171,7 @@ checks, and manual learner-flow evidence.
 - runtime AI, provider requests during practice, arbitrary webpage parsing,
   automatic page scanning, or generated content/grading;
 - typed answers, free-form writing, speech grading, or formal CEFR claims;
-- fixed exercise, verb, lesson, or daily grammar quotas;
+- fixed quotas beyond the required three-exercise authored pack;
 - branching or silently personalized lesson scripts;
 - automatic chunk discovery, social practice, audio/listening, or a Telugu
   learning mode;

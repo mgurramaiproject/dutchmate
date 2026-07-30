@@ -29,6 +29,16 @@ T01 is the only shared prerequisite. T02–T07 are independent catalog slices
 after T01 and may be delivered in any order. T08 is the final full-catalog and
 future-authoring qualification gate and waits for every backfill slice.
 
+## Additive authored-pack amendment
+
+The implementation correction for Feature 014 makes the lesson authoring
+requirement explicit: every current and future lesson retains all existing
+flashcards, grammar companions, Contrast Repair exercises, and Apply transfer,
+then adds exactly three separately authored exercises—one `contrast-form`, one
+`repair-choice`, and one `order-tokens`—adapted to that lesson's practical
+outcome. These exercises are not replacements, and compatible browser updates
+must preserve the learner's existing local history.
+
 ## T01 — Establish the shared lesson-practice contract and A0 tracer
 
 **GitHub:** [#114](https://github.com/mgurramaiproject/dutchmate/issues/114)
@@ -45,6 +55,8 @@ validation contract for later slices.
 - [x] One representative A0 lesson has a reviewed outcome map covering
   understand, guided action, reduced-support retrieval, and guaranteed
   in-lesson transfer.
+- [x] The lesson retains its existing exercises and adds one reviewed
+  `contrast-form`, one `repair-choice`, and one `order-tokens` exercise.
 - [x] The shared deterministic exercise contract routes results through the
   existing typed learning boundary and existing grammar or learning-item
   evidence owner.
@@ -70,6 +82,8 @@ outcome-relevant primitives, and gives every learner safe in-lesson transfer.
 
 - [x] The three remaining A0 lessons have reviewed outcome maps and
   behavior-complete practice coverage.
+- [x] Each lesson retains its existing exercises and adds the three reviewed
+  authored exercise types.
 - [x] A0 practice uses recognition, choosing, ordering, and tightly guided
   controlled application without typed answers.
 - [x] Each lesson includes reduced-support retrieval and guaranteed transfer
@@ -91,6 +105,8 @@ and `Kan ik met pin betalen?` with complete A1 lesson-integrated practice.
 
 - [x] All three lessons have reviewed outcome maps and behavior-complete
   practice envelopes.
+- [x] Each lesson retains its existing exercises and adds the three reviewed
+  authored exercise types.
 - [x] A1 practice uses less support and more varied controlled contexts than
   the A0 slice.
 - [x] Each lesson includes reduced-support retrieval and guaranteed transfer.
@@ -110,6 +126,8 @@ vertraagd` with outcome-aligned practice grounded in reviewed transport
 contexts.
 
 - [x] Both lessons have reviewed outcome maps and behavior-complete envelopes.
+- [x] Each lesson retains its existing exercises and adds the three reviewed
+  authored exercise types.
 - [x] Practice uses reduced support, varied contexts, and controlled
   recombination appropriate to the outcomes.
 - [x] Each lesson includes guaranteed in-lesson transfer.
@@ -131,6 +149,8 @@ practice remains complete without it.
 - [x] Both lessons have reviewed outcome maps and behavior-complete envelopes.
 - [x] The appointment lesson retains its existing contrast identity and shared
   result semantics.
+- [x] Both lessons retain their existing exercises and add the three reviewed
+  authored exercise types.
 - [x] Healthcare practice does not infer errors from arbitrary text.
 - [x] Each lesson includes reduced-support retrieval and guaranteed transfer.
 - [x] Grammar, learning-item, contrast, Daily Five, completion, export/import,
@@ -148,8 +168,8 @@ transfer.
 
 - [x] All three lessons have reviewed outcome maps and behavior-complete
   envelopes.
-- [x] Practice uses the A1 support gradient without unrelated primitives or
-  fixed exercise counts.
+- [x] Practice uses the A1 support gradient and includes the three additional
+  authored exercise types without replacing existing interactions.
 - [x] Each lesson includes reduced-support retrieval and guaranteed transfer.
 - [x] Results update existing evidence through the shared contract only.
 - [x] Validation, independent Dutch review, identity, completion, Daily Five,
@@ -166,6 +186,8 @@ A2 recombination across the reviewed letter-help context and a practical
 transfer action without typed or free-form grading.
 
 - [x] The lesson has a reviewed outcome map and behavior-complete A2 envelope.
+- [x] The lesson retains its existing exercises and adds the three reviewed
+  authored exercise types.
 - [x] Practice uses reduced support, varied reviewed contexts, and controlled
   recombination appropriate to A2.
 - [x] The lesson includes guaranteed in-lesson transfer.
@@ -186,9 +208,12 @@ shared standard and preserve local history across extension updates.
 
 - [x] All 15 lessons have outcome maps, behavior coverage, guaranteed transfer,
   stable identifiers, and content-version behavior.
+- [x] All 15 lessons retain existing exercises and add exactly three reviewed
+  authored exercise types.
 - [x] All learner-visible content passes automated validation and independent
   Dutch review with provenance metadata.
-- [x] Future-authoring validation rejects incomplete or unreviewed practice.
+- [x] Future-authoring validation rejects incomplete or unreviewed practice,
+  including a missing or incomplete three-exercise authored pack.
 - [x] Persistence and backup checks prove compatible updates preserve learning
   items, lesson progress, pattern evidence, Daily Five state, rhythm, and
   bounded contrast evidence.

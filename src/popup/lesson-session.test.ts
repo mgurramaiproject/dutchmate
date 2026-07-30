@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advanceLessonPractice, advanceLessonStage, advanceLessonTransfer, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, selectLessonTransferAnswer, toggleLessonCandidate } from "./lesson-session";
+import { advanceLessonPractice, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken } from "./lesson-session";
 import { appointmentLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, regularLesson } from "../lessons/catalog";
 
 describe("lesson session", () => {
@@ -72,7 +72,7 @@ describe("lesson session", () => {
     const checked = checkLessonTransfer(selected);
 
     expect(checked.transferResult).toBe("correct");
-    expect(advanceLessonTransfer(checked).stage).toBe("keep");
+    expect(advanceLessonTransfer(checked)).toMatchObject({ stage: "replay", authoredExerciseIndex: 0 });
     expect(advanceLessonTransfer(replay)).toEqual(replay);
   });
 
@@ -83,7 +83,31 @@ describe("lesson session", () => {
       const checked = checkLessonTransfer(selectLessonTransferAnswer(replay, transfer.accepted[0]));
 
       expect(checked.transferResult).toBe("correct");
-      expect(advanceLessonTransfer(checked).stage).toBe("keep");
+      expect(advanceLessonTransfer(checked)).toMatchObject({ stage: "replay", authoredExerciseIndex: 0 });
     }
+  });
+
+  it("runs the three additional authored exercise types after the existing transfer", () => {
+    const transfer = appointmentLesson.practiceEnvelope!.transfer;
+    let session = advanceLessonTransfer(checkLessonTransfer(selectLessonTransferAnswer(createLessonSession(appointmentLesson, "replay"), transfer.accepted[0])));
+    expect(session.stage).toBe("replay");
+    expect(session.authoredExerciseIndex).toBe(0);
+
+    const first = session.lesson.practiceExercises[0];
+    session = checkLessonPracticeExercise(selectLessonPracticeExerciseAnswer(session, first.accepted[0]));
+    expect(session.authoredResult).toBe("correct");
+    session = advanceLessonPracticeExercise(session);
+
+    const second = session.lesson.practiceExercises[1];
+    session = checkLessonPracticeExercise(selectLessonPracticeExerciseAnswer(session, second.accepted[0]));
+    session = advanceLessonPracticeExercise(session);
+
+    const third = session.lesson.practiceExercises[2];
+    for (const token of third.tokens!) session = toggleLessonPracticeExerciseToken(session, token);
+    session = checkLessonPracticeExercise(session);
+    expect(session.authoredResult).toBe("correct");
+    expect(advanceLessonPracticeExercise(session)).toMatchObject({ stage: "keep", authoredExerciseIndex: 3, practiceEvidence: expect.arrayContaining([
+      { candidateId: "ik-wil-graag", dimension: "recognition", result: "got-it" },
+    ]) });
   });
 });

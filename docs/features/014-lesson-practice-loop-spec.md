@@ -6,7 +6,7 @@
 
 **Branch:** `014-lesson-practice-loop`
 
-**Status:** Published as [GitHub issue #113](https://github.com/mgurramaiproject/dutchmate/issues/113) with `ready-for-agent`; implementation is not approved.
+**Status:** Published as [GitHub issue #113](https://github.com/mgurramaiproject/dutchmate/issues/113) with `ready-for-agent`; implementation is complete locally on the feature branch, with the single PR intentionally deferred until the feature bundle is ready.
 
 **Source plan:** [014-lesson-practice-loop-plan.md](./014-lesson-practice-loop-plan.md)
 
@@ -32,9 +32,12 @@ local learning history when the extension updates in the browser.
 Give every published and future curated mini-lesson a lesson practice
 envelope: understand one practical outcome, act with support, retrieve it with
 less support, and apply it in a safe Dutch context. Interleave these behaviors
-inside the existing three-to-five-minute lesson flow. Select the smallest
-reviewed set of deterministic click-, tap-, or keyboard-operated primitives
-that covers the lesson outcome; do not impose a fixed exercise quota.
+inside the existing three-to-five-minute lesson flow. Retain the existing
+lesson exercises and add a separate three-exercise authored pack of
+deterministic click-, tap-, or keyboard-operated primitives: one
+`contrast-form`, one `repair-choice`, and one `order-tokens`, each adapted to
+the lesson outcome. Existing flashcards, grammar companions, Contrast Repair
+packs, and Apply transfer are additive and are never replaced.
 
 Use one shared lesson exercise contract across Lessons, Daily Five, Contrast
 Repair, eligible Saved-context practice, and Encounter Coaching. Existing
@@ -104,7 +107,7 @@ deferred as priority 2 in the canonical parking lot.
 40. As a learner, I want export and import to preserve compatible history, so that my local record remains portable without an account.
 41. As a lesson author, I want one outcome map format, so that I can design new practice without inventing a new runtime model.
 42. As a lesson author, I want to choose only the primitives that serve the outcome, so that short lessons remain focused.
-43. As a lesson author, I want behavior coverage criteria instead of fixed exercise quotas, so that content quality matters more than exercise count.
+43. As a lesson author, I want a required three-exercise authored pack plus behavior coverage criteria, so that every lesson has comparable deliberate practice without replacing richer existing interactions.
 44. As a lesson author, I want the A0-A2 support gradient documented, so that future lessons can increase challenge without creating separate modes.
 45. As a lesson author, I want guaranteed in-lesson transfer requirements, so that external webpage eligibility is never a reason to omit application.
 46. As a lesson author, I want stable identifiers and content versions, so that future content releases preserve learner history.
@@ -132,8 +135,10 @@ deferred as priority 2 in the canonical parking lot.
   reduced-support retrieval, and guaranteed in-lesson transfer.
 - Every lesson has one primary outcome and limited supporting outcomes. Each
   learner-visible practice item must trace to that outcome map.
-- Behavior coverage is required, but fixed exercise counts, verb quotas, and
-  daily grammar quotas are not.
+- Behavior coverage is required, and every lesson has exactly three additional
+  authored exercises—`contrast-form`, `repair-choice`, and `order-tokens`—in
+  addition to its existing exercises. There are no other fixed exercise,
+  verb, or daily grammar quotas.
 - A0, A1, and A2 use the same deterministic click-only exercise contract.
   Support, context variation, and recombination increase across levels.
 - Lesson content remains stable across learners. Existing evidence may select
@@ -213,7 +218,7 @@ deferred as priority 2 in the canonical parking lot.
   automatic page scanning, or generated practice content;
 - typed answers, free-form writing, speech grading, formal CEFR claims,
   uncued-production claims, or permanent-retention claims;
-- fixed exercise, verb, lesson, or daily grammar quotas;
+- fixed exercise quotas beyond the required three-exercise authored pack;
 - branching or silently personalized lesson scripts;
 - automatic chunk discovery, social practice, audio/listening, or Telugu
   learning mode;

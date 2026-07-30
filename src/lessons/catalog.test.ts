@@ -124,6 +124,23 @@ describe("lesson catalog", () => {
     expect(validateLessonCatalog(missingMigration)).toContain("a0-hallo-ik-ben.practiceEnvelope: expected accessibility and migration declarations");
   });
 
+  it("requires three additional authored exercise types for every lesson", () => {
+    expect(lessonCatalog.lessons.every((lesson) => lesson.practiceExercises.length === 3)).toBe(true);
+    expect(lessonCatalog.lessons.every((lesson) => new Set(lesson.practiceExercises.map((exercise) => exercise.primitive)).size === 3)).toBe(true);
+    expect(lessonCatalog.lessons.every((lesson) => lesson.practiceExercises.every((exercise) => exercise.review.reviewState === "second-review-complete"))).toBe(true);
+    expect(lessonCatalog.lessons.every((lesson) => lesson.practice.length > 0 && lesson.practiceEnvelope)).toBe(true);
+    expect(appointmentLesson.contrastCompanion).toEqual({ id: "contrast.main_clause_inversion", contentVersion: 1 });
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const missing = structuredClone(lessonCatalog);
+    missing.lessons[0].practiceExercises = missing.lessons[0].practiceExercises.slice(0, 2);
+    expect(validateLessonCatalog(missing)).toContain("a0-hallo-ik-ben.practiceExercises: expected three reviewed additional exercise types");
+
+    const unsafe = structuredClone(lessonCatalog);
+    unsafe.lessons[0].practiceExercises[2].accepted = ["not the authored answer"];
+    expect(validateLessonCatalog(unsafe)).toContain("a0-hallo-ik-ben.practiceExercises: expected three reviewed additional exercise types");
+  });
+
   it("validates the reviewed appointment micro-story", () => {
     expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
     expect(appointmentLesson.title).toBe("A1 · Een afspraak maken");
