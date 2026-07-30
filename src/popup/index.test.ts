@@ -225,6 +225,30 @@ describe("lesson popup", () => {
     }
   });
 
+  it("gives the A2 official-life lesson reduced-support transfer", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
+    lessonCard("A2 · Wat staat er in deze brief?").click();
+    await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+    button("Notice the pattern").click();
+    await vi.waitFor(() => expect(button("Practise")).toBeTruthy());
+    button("Practise").click();
+    for (let index = 0; index < 4; index += 1) {
+      await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+      button("Show answer").click();
+      await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
+      button("Got it").click();
+    }
+    await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
+    button("wat staat er in deze brief").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+    button("Choose what to keep").click();
+    await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
+    button("Exit lesson").click();
+    await vi.waitFor(() => expect(lessonCard("A2 · Wat staat er in deze brief?")).toBeTruthy());
+  });
+
   it("offers immediate repair only for the controlled misconception and keeps Accept and Dismiss explicit", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appointmentLesson, availabilityLesson, brokenThingLesson, bringLesson, cardPaymentLesson, cafeOrderLesson, delayedTrainLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, regularLesson, repetitionLesson, symptomsLesson, transferLesson, validateLessonCatalog } from "./catalog";
+import { appointmentLesson, availabilityLesson, brokenThingLesson, bringLesson, cardPaymentLesson, cafeOrderLesson, delayedTrainLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, letterLesson, regularLesson, repetitionLesson, symptomsLesson, transferLesson, validateLessonCatalog } from "./catalog";
 
 describe("lesson catalog", () => {
   it("requires the A0 tracer to declare outcome coverage, transfer, and review metadata", () => {
@@ -89,6 +89,20 @@ describe("lesson catalog", () => {
     const invalid = structuredClone(lessonCatalog);
     invalid.lessons.find((lesson) => lesson.id === bringLesson.id)!.practiceEnvelope!.transfer.choices = ["wat moet ik meenemen"];
     expect(validateLessonCatalog(invalid)).toContain("a1-wat-moet-ik-meenemen.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
+  it("backfills the A2 official-life lesson with reduced-support letter transfer", () => {
+    expect(letterLesson.practiceEnvelope).toMatchObject({
+      contentVersion: 1,
+      support: "reduced",
+      coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+      transfer: { primitive: "choose-meaning", candidateId: "wat-staat-er-in-deze-brief", accepted: ["wat staat er in deze brief"] },
+    });
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === letterLesson.id)!.practiceEnvelope!.transfer.accepted = ["unknown-answer"];
+    expect(validateLessonCatalog(invalid)).toContain("a2-wat-staat-er-in-deze-brief.practiceEnvelope.transfer: expected reviewed transfer task");
   });
 
   it("validates the reviewed appointment micro-story", () => {

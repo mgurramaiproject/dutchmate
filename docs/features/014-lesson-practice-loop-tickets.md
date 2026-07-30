@@ -165,12 +165,12 @@ transfer.
 A2 recombination across the reviewed letter-help context and a practical
 transfer action without typed or free-form grading.
 
-- [ ] The lesson has a reviewed outcome map and behavior-complete A2 envelope.
-- [ ] Practice uses reduced support, varied reviewed contexts, and controlled
+- [x] The lesson has a reviewed outcome map and behavior-complete A2 envelope.
+- [x] Practice uses reduced support, varied reviewed contexts, and controlled
   recombination appropriate to A2.
-- [ ] The lesson includes guaranteed in-lesson transfer.
-- [ ] Results update existing evidence through the shared contract only.
-- [ ] Validation, independent Dutch review, completion, history, accessibility,
+- [x] The lesson includes guaranteed in-lesson transfer.
+- [x] Results update existing evidence through the shared contract only.
+- [x] Validation, independent Dutch review, completion, history, accessibility,
   persistence, and provider-free checks pass.
 
 ## T08 — Qualify the full catalog and future-authoring gate
