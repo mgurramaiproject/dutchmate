@@ -52,20 +52,23 @@ surface and evidence seams. T04 is the release and independent human gate.
 **What to build:** Establish a checked, repository-grounded gap list for the
 four shipped A0 patterns before changing runtime behavior.
 
-- [ ] Map the four pattern IDs, content versions, exercises, primitives,
+- [x] Map the four pattern IDs, content versions, exercises, primitives,
   accepted answers, distractors, feedback, review metadata, and companion
   lessons.
-- [ ] Map the exercise renderer and keyboard/focus behavior in Lessons and
+- [x] Map the exercise renderer and keyboard/focus behavior in Lessons and
   Daily Five.
-- [ ] Map first-Check, retry, Reveal, Skip, `evidenceRevision`, scheduling,
+- [x] Map first-Check, retry, Reveal, Skip, `evidenceRevision`, scheduling,
   recent-exercise protection, and duplicate/stale submission guards.
-- [ ] Map Daily Five grammar cap, due-first selection, duplicate-target
+- [x] Map Daily Five grammar cap, due-first selection, duplicate-target
   protection, and vocabulary protection.
-- [ ] Run the existing focused grammar/content/learning/Daily Five/popup checks
+- [x] Run the existing focused grammar/content/learning/Daily Five/popup checks
   and record the baseline.
-- [ ] Identify only concrete content, accessibility, selection, or validation
+- [x] Identify only concrete content, accessibility, selection, or validation
   gaps; do not invent new curriculum or speculative schema work.
-- [ ] Confirm whether T02 or T03 needs a code change. If no gap exists, close
+- [x] Confirm whether T02 or T03 needs a code change. T02 needs the four
+  validator/content-governance fixes recorded in
+  [the T01 audit](./012-grammar-packs-audit.md); no T03 runtime fix is
+  indicated by the audit. If no gap exists, close
   the ticket with evidence and avoid unnecessary implementation.
 
 ## T02 — Harden reviewed four-pattern content
