@@ -105,6 +105,25 @@ describe("lesson catalog", () => {
     expect(validateLessonCatalog(invalid)).toContain("a2-wat-staat-er-in-deze-brief.practiceEnvelope.transfer: expected reviewed transfer task");
   });
 
+  it("qualifies every bundled lesson and rejects incomplete future-authoring release metadata", () => {
+    expect(lessonCatalog.lessons).toHaveLength(15);
+    expect(lessonCatalog.lessons.every((lesson) => lesson.practiceEnvelope)).toBe(true);
+    expect(lessonCatalog.lessons.every((lesson) => lesson.practiceEnvelope?.accessibility.narrowPopup && lesson.practiceEnvelope.migration.policy === "compatible-additive")).toBe(true);
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const missingEnvelope = structuredClone(lessonCatalog);
+    missingEnvelope.lessons[0].practiceEnvelope = undefined;
+    expect(validateLessonCatalog(missingEnvelope)).toContain("a0-hallo-ik-ben.practiceEnvelope: required reviewed release envelope");
+
+    const missingAccessibility = structuredClone(lessonCatalog);
+    missingAccessibility.lessons[0].practiceEnvelope!.accessibility.keyboard = false as never;
+    expect(validateLessonCatalog(missingAccessibility)).toContain("a0-hallo-ik-ben.practiceEnvelope: expected accessibility and migration declarations");
+
+    const missingMigration = structuredClone(lessonCatalog);
+    missingMigration.lessons[0].practiceEnvelope!.migration.policy = "explicit" as never;
+    expect(validateLessonCatalog(missingMigration)).toContain("a0-hallo-ik-ben.practiceEnvelope: expected accessibility and migration declarations");
+  });
+
   it("validates the reviewed appointment micro-story", () => {
     expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
     expect(appointmentLesson.title).toBe("A1 · Een afspraak maken");

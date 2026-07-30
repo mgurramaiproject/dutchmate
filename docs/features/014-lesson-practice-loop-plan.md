@@ -86,10 +86,12 @@ not rewrite lesson identity or completion history.
 Future lessons must ship with an outcome map and behavior coverage evidence.
 Their authored practice content must be deterministic, versioned, fully
 enumerated for validation, independently reviewed in Dutch, and compatible
-with the shared result and local-record contracts. A new lesson may use fewer
-or different primitives when its practical outcome justifies that choice; it
-may not omit reduced-support application merely because an external context
-is unavailable.
+with the shared result and local-record contracts. Each envelope also records
+the shared keyboard, focus, feedback-announcement, and narrow-popup
+accessibility requirements plus the compatible-additive history policy keyed by
+lesson ID and content version. A new lesson may use fewer or different
+primitives when its practical outcome justifies that choice; it may not omit
+reduced-support application merely because an external context is unavailable.
 
 ## Proposed testing seams
 

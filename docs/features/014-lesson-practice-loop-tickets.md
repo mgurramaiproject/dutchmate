@@ -184,15 +184,15 @@ and T07 / #120.
 future-authoring gate. All four A0, ten A1, and one A2 lessons must meet the
 shared standard and preserve local history across extension updates.
 
-- [ ] All 15 lessons have outcome maps, behavior coverage, guaranteed transfer,
+- [x] All 15 lessons have outcome maps, behavior coverage, guaranteed transfer,
   stable identifiers, and content-version behavior.
-- [ ] All learner-visible content passes automated validation and independent
+- [x] All learner-visible content passes automated validation and independent
   Dutch review with provenance metadata.
-- [ ] Future-authoring validation rejects incomplete or unreviewed practice.
-- [ ] Persistence and backup checks prove compatible updates preserve learning
+- [x] Future-authoring validation rejects incomplete or unreviewed practice.
+- [x] Persistence and backup checks prove compatible updates preserve learning
   items, lesson progress, pattern evidence, Daily Five state, rhythm, and
   bounded contrast evidence.
-- [ ] No new destination, queue, scheduler, lesson mastery, Verb Timeline,
+- [x] No new destination, queue, scheduler, lesson mastery, Verb Timeline,
   runtime AI, provider request, or free-form grading path exists.
-- [ ] Full relevant tests, typecheck, browser builds/packages, documentation,
+- [x] Full relevant tests, typecheck, browser builds/packages, documentation,
   manual keyboard/popup, offline, and provider-isolation evidence pass.

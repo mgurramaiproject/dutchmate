@@ -7,11 +7,15 @@ export type LessonPracticePrompt = { candidateId: string; dimension: "recognitio
 export type LessonPracticeSupport = "guided" | "reduced";
 export type LessonPracticeReviewMetadata = { author: string; reviewState: "self-reviewed" | "second-review-complete"; reviewer: string; reviewedAt: string; sources: string[]; provenance: string };
 export type LessonPracticeCoverage = { understand: true; guidedAction: true; reducedSupportRetrieval: true; safeApplication: true };
+export type LessonPracticeAccessibility = { keyboard: true; focus: true; feedbackAnnouncement: true; narrowPopup: true };
+export type LessonPracticeMigration = { policy: "compatible-additive"; historyKey: "lesson-id-and-content-version" };
 export type LessonPracticeEnvelope = {
   contentVersion: 1;
   support: LessonPracticeSupport;
   outcome: { primary: string; supporting: string[] };
   coverage: LessonPracticeCoverage;
+  accessibility: LessonPracticeAccessibility;
+  migration: LessonPracticeMigration;
   transfer: { id: string; primitive: "choose-meaning"; candidateId: string; prompt: string; context: string; choices: string[]; accepted: string[]; distractors: Array<{ answer: string; misconception: string }>; feedback: string };
   review: LessonPracticeReviewMetadata;
 };
@@ -32,6 +36,8 @@ const lessonPracticeReview: LessonPracticeReviewMetadata = {
   sources: ["Original DutchMate-authored lesson content."],
   provenance: "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text.",
 };
+const lessonPracticeAccessibility: LessonPracticeAccessibility = { keyboard: true, focus: true, feedbackAnnouncement: true, narrowPopup: true };
+const lessonPracticeMigration: LessonPracticeMigration = { policy: "compatible-additive", historyKey: "lesson-id-and-content-version" };
 
 export const introductionLesson: Lesson = {
   id: "a0-hallo-ik-ben", contentVersion: 1, pathway: "first-conversations", order: 1,
@@ -71,6 +77,8 @@ export const introductionLesson: Lesson = {
       distractors: [{ answer: "ik woon", misconception: "location-not-identity" }, { answer: "vlakbij", misconception: "place-fragment-not-introduction" }],
       feedback: "Use ik ben to say who you are: Ik ben Ravi.",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
 };
@@ -113,6 +121,8 @@ export const hebbenLesson: Lesson = {
       distractors: [{ answer: "ik woon hier", misconception: "place-not-need" }, { answer: "ik ben beschikbaar", misconception: "availability-not-need" }],
       feedback: "Use ik heb dit nodig to say that you need this: Ik heb dit nodig.",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
   grammarCompanion: { id: "a0-hebben-present", contentVersion: 1, patternId: "a0-hebben-present" },
@@ -156,6 +166,8 @@ export const regularLesson: Lesson = {
       distractors: [{ answer: "ik heb dit nodig", misconception: "need-not-place" }, { answer: "woon je hier", misconception: "question-not-statement" }],
       feedback: "Use ik woon hier to say where you live: Ik woon hier.",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
   grammarCompanion: { id: "a0-regular-present", contentVersion: 1, patternId: "a0-regular-present" },
@@ -199,6 +211,8 @@ export const inversionLesson: Lesson = {
       distractors: [{ answer: "ik woon hier", misconception: "statement-not-question" }, { answer: "werkt u morgen", misconception: "wrong-meaning" }],
       feedback: "Use woon je hier to ask whether someone lives here: Woon je hier?",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
   grammarCompanion: { id: "a0-yes-no-inversion", contentVersion: 1, patternId: "a0-yes-no-inversion" },
@@ -242,6 +256,8 @@ export const repetitionLesson: Lesson = {
       distractors: [{ answer: "ik wil graag", misconception: "order-not-clarification" }, { answer: "met pin betalen", misconception: "payment-not-clarification" }],
       feedback: "Use Kunt u dat herhalen? to ask politely for repetition.",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
 };
@@ -285,6 +301,8 @@ export const cafeOrderLesson: Lesson = {
       distractors: [{ answer: "kunt u dat herhalen", misconception: "clarification-not-order" }, { answer: "met pin betalen", misconception: "payment-not-order" }],
       feedback: "Use Ik wil graag before saying what you would like to order.",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
 };
@@ -327,6 +345,8 @@ export const cardPaymentLesson: Lesson = {
       distractors: [{ answer: "ik wil graag", misconception: "ordering-not-payment" }, { answer: "kunt u dat herhalen", misconception: "clarification-not-payment" }],
       feedback: "Use met pin betalen to say that you will pay by debit card.",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
 };
@@ -370,6 +390,8 @@ export const transferLesson: Lesson = {
       distractors: [{ answer: "mijn trein is vertraagd", misconception: "delay-not-change-location" }, { answer: "spoor acht", misconception: "platform-answer-not-question" }],
       feedback: "Use waar moet ik overstappen to ask where you need to change trains.",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
 };
@@ -413,6 +435,8 @@ export const delayedTrainLesson: Lesson = {
       distractors: [{ answer: "waar moet ik overstappen", misconception: "change-location-not-delay" }, { answer: "een bericht", misconception: "object-not-delay-report" }],
       feedback: "Use mijn trein is vertraagd to report that your train is delayed.",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
 };
@@ -457,6 +481,8 @@ export const appointmentLesson: Lesson = {
       distractors: [{ answer: "ik heb last van", misconception: "symptom-not-request" }, { answer: "mijn trein is vertraagd", misconception: "transport-not-request" }],
       feedback: "Use ik wil graag to make a polite request: Ik wil graag een afspraak maken.",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
 };
@@ -500,6 +526,8 @@ export const symptomsLesson: Lesson = {
       distractors: [{ answer: "ik wil graag", misconception: "request-not-symptom" }, { answer: "de huisarts", misconception: "person-not-symptom-report" }],
       feedback: "Use ik heb last van to describe a symptom without adding an unsupported diagnosis.",
     },
+    accessibility: lessonPracticeAccessibility,
+    migration: lessonPracticeMigration,
     review: lessonPracticeReview,
   },
 };
@@ -512,6 +540,8 @@ export const brokenThingLesson: Lesson = { id: "a1-er-is-iets-kapot", contentVer
   outcome: { primary: "Report that something is broken at home.", supporting: ["Recognize er is iets kapot and give a simple repair context."] },
   coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
   transfer: { id: "a1-er-is-iets-kapot-transfer", primitive: "choose-meaning", candidateId: "er-is-iets-kapot", prompt: "You need to tell your landlord about a broken item. Choose the Dutch sentence.", context: "Report the problem in your kitchen: ___ .", choices: ["er is iets kapot", "ik ben beschikbaar", "wat moet ik meenemen"], accepted: ["er is iets kapot"], distractors: [{ answer: "ik ben beschikbaar", misconception: "availability-not-breakage" }, { answer: "wat moet ik meenemen", misconception: "bring-question-not-breakage" }], feedback: "Use er is iets kapot to report that something is broken." },
+  accessibility: lessonPracticeAccessibility,
+  migration: lessonPracticeMigration,
   review: lessonPracticeReview,
 } };
 export const availabilityLesson: Lesson = { id: "a1-ik-ben-beschikbaar-op", contentVersion: 1, pathway: "work-and-study", order: 10, cefr: "A1", title: "A1 · Ik ben beschikbaar op…", durationMinutes: 3, pattern: "Ik ben beschikbaar op…", patternText: "Ik ben beschikbaar", patternExplanation: "Use ik ben beschikbaar to say when you are free.", lines: [
@@ -521,6 +551,8 @@ export const availabilityLesson: Lesson = { id: "a1-ik-ben-beschikbaar-op", cont
   outcome: { primary: "Say when you are available for work or study.", supporting: ["Recognize ik ben beschikbaar in a short scheduling exchange."] },
   coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
   transfer: { id: "a1-ik-ben-beschikbaar-op-transfer", primitive: "choose-meaning", candidateId: "ik-ben-beschikbaar", prompt: "A colleague asks when you can work. Choose the Dutch sentence.", context: "Say that you are available on Monday: ___ .", choices: ["ik ben beschikbaar", "er is iets kapot", "wat moet ik meenemen"], accepted: ["ik ben beschikbaar"], distractors: [{ answer: "er is iets kapot", misconception: "breakage-not-availability" }, { answer: "wat moet ik meenemen", misconception: "bring-question-not-availability" }], feedback: "Use ik ben beschikbaar before adding the day or time." },
+  accessibility: lessonPracticeAccessibility,
+  migration: lessonPracticeMigration,
   review: lessonPracticeReview,
 } };
 export const bringLesson: Lesson = { id: "a1-wat-moet-ik-meenemen", contentVersion: 1, pathway: "work-and-study", order: 11, cefr: "A1", title: "A1 · Wat moet ik meenemen?", durationMinutes: 3, pattern: "Wat moet ik meenemen?", patternText: "meenemen", patternExplanation: "Use meenemen in wat moet ik meenemen to ask what you need to bring.", lines: [
@@ -530,6 +562,8 @@ export const bringLesson: Lesson = { id: "a1-wat-moet-ik-meenemen", contentVersi
   outcome: { primary: "Ask what you need to bring to class.", supporting: ["Recognize wat moet ik meenemen in a practical study situation."] },
   coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
   transfer: { id: "a1-wat-moet-ik-meenemen-transfer", primitive: "choose-meaning", candidateId: "wat-moet-ik-meenemen", prompt: "You are starting a course and need to ask what to bring. Choose the Dutch question.", context: "Ask what you need to bring to class: ___ .", choices: ["wat moet ik meenemen", "ik ben beschikbaar", "er is iets kapot"], accepted: ["wat moet ik meenemen"], distractors: [{ answer: "ik ben beschikbaar", misconception: "availability-not-bring-question" }, { answer: "er is iets kapot", misconception: "breakage-not-bring-question" }], feedback: "Use wat moet ik meenemen to ask what you need to bring." },
+  accessibility: lessonPracticeAccessibility,
+  migration: lessonPracticeMigration,
   review: lessonPracticeReview,
 } };
 export const letterLesson: Lesson = { id: "a2-wat-staat-er-in-deze-brief", contentVersion: 1, pathway: "official-life", order: 12, cefr: "A2", title: "A2 · Wat staat er in deze brief?", durationMinutes: 4, pattern: "Wat staat er in deze brief?", patternText: "in deze brief", patternExplanation: "Use wat staat er in deze brief to ask for help understanding a letter.", lines: [
@@ -539,6 +573,8 @@ export const letterLesson: Lesson = { id: "a2-wat-staat-er-in-deze-brief", conte
   outcome: { primary: "Ask for help understanding an official letter.", supporting: ["Recognize the key question in a municipality letter-help exchange."] },
   coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
   transfer: { id: "a2-wat-staat-er-in-deze-brief-transfer", primitive: "choose-meaning", candidateId: "wat-staat-er-in-deze-brief", prompt: "A letter from the municipality is unclear. Choose the Dutch question to ask for help.", context: "Ask what the letter says: ___.", choices: ["wat staat er in deze brief", "niet duidelijk", "hulp vragen"], accepted: ["wat staat er in deze brief"], distractors: [{ answer: "niet duidelijk", misconception: "description-not-question" }, { answer: "hulp vragen", misconception: "action-not-letter-question" }], feedback: "Use wat staat er in deze brief to ask what an official letter says.", },
+  accessibility: lessonPracticeAccessibility,
+  migration: lessonPracticeMigration,
   review: lessonPracticeReview,
 } };
 
@@ -568,7 +604,13 @@ export function validateLessonCatalog(catalog: LessonCatalog): string[] {
     field("candidates", new Set(lesson.candidates.map((candidate) => candidate.id)).size === lesson.candidates.length && lesson.candidates.every((candidate) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(candidate.id) && candidate.dutch && candidate.english && candidate.telugu && (candidate.kind === "word" || candidate.kind === "chunk")), "expected unique trilingual candidates");
     field("practice", lesson.practice.length > 0 && lesson.practice.every((prompt) => lesson.candidates.some((candidate) => candidate.id === prompt.candidateId) && (prompt.dimension === "recognition" || prompt.dimension === "recall")), "expected prompts for lesson candidates");
     field("review", Object.values(lesson.review).every(Boolean), "expected recorded Dutch, English, Telugu, CEFR, cultural, and practical-use review");
-    if (lesson.practiceEnvelope) for (const error of validateLessonPracticeEnvelope(lesson.practiceEnvelope, lesson.candidates, lesson.cefr)) errors.push(`${lesson.id}.practiceEnvelope.${error}`);
+    if (!lesson.practiceEnvelope) errors.push(`${lesson.id}.practiceEnvelope: required reviewed release envelope`);
+    else {
+      const { accessibility, migration } = lesson.practiceEnvelope;
+      if (!(accessibility?.keyboard && accessibility.focus && accessibility.feedbackAnnouncement && accessibility.narrowPopup)
+        || migration?.policy !== "compatible-additive" || migration.historyKey !== "lesson-id-and-content-version") errors.push(`${lesson.id}.practiceEnvelope: expected accessibility and migration declarations`);
+      for (const error of validateLessonPracticeEnvelope(lesson.practiceEnvelope, lesson.candidates, lesson.cefr)) errors.push(`${lesson.id}.practiceEnvelope.${error}`);
+    }
   }
   return errors;
 }
