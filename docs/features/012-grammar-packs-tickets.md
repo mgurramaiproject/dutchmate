@@ -81,19 +81,30 @@ four shipped A0 patterns before changing runtime behavior.
 changes required by the T01 gap list while keeping existing pattern identity and
 runtime contracts stable.
 
-- [ ] Keep all content attached to one of the four shipped pattern IDs.
-- [ ] Preserve content versions and local-record migration behavior.
-- [ ] Add or adjust an exercise only when its prompt, context, accepted
+- [x] Keep all content attached to one of the four shipped pattern IDs.
+- [x] Preserve content versions and local-record migration behavior.
+- [x] Add or adjust an exercise only when its prompt, context, accepted
   alternatives, distractors, misconception codes, and feedback are fully
+  enumerated. T02 adds no exercise; the existing sixteen remain fully
   enumerated.
-- [ ] Confirm every released answer is linguistically defensible and every
+- [x] Confirm every released answer is linguistically defensible and every
   deliberately incorrect example is excluded from positive pools.
-- [ ] Record author, reviewer, review state, review date, sources, and
+- [x] Record author, reviewer, review state, review date, sources, and
   provenance for every changed item.
-- [ ] Add deterministic fixtures for correct, incorrect, ambiguous, retry,
+- [x] Add deterministic fixtures for correct, incorrect, ambiguous, retry,
   Reveal, Skip, and repeated-selection behavior where coverage is missing.
-- [ ] Prove draft or unreviewed content cannot enter the runtime bundle.
-- [ ] Run the focused content and grammar-learning checks.
+- [x] Prove draft or unreviewed content cannot enter the runtime bundle.
+- [x] Run the focused content and grammar-learning checks.
+
+**T02 evidence (2026-07-30):** `src/grammar/content.ts` now requires the
+canonical four-pattern pack, second-review metadata at pattern and exercise
+level, and a complete accepted-answer/distractor partition for every choice.
+`createGrammarContentReport()` emits every exercise's review metadata.
+`src/grammar/content.test.ts` covers missing-pack, draft-pattern,
+draft-exercise, multi-answer, report-completeness, and unclassified-choice
+fixtures. Existing grammar-learning, Daily Five, storage, popup, background,
+and webpage-encounter tests remain green. Independent fluent-Dutch release
+review remains a T04 gate.
 
 ## T03 — Qualify existing Lessons and Daily Five integration
 

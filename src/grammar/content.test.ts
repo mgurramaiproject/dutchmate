@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createGrammarContentReport, hebbenPattern, inversionPattern, matchGrammarEncounter, matchIntroducedGrammarEncounter, matchIntroducedZijnEncounter, matchZijnEncounter, regularPattern, validateAllLearningContent, validateGrammarPattern, validateLearningContent, zijnPattern } from "./content";
+import { createGrammarContentReport, grammarPatterns, hebbenPattern, inversionPattern, isGrammarContentAvailable, matchGrammarEncounter, matchIntroducedGrammarEncounter, matchIntroducedZijnEncounter, matchZijnEncounter, regularPattern, validateAllLearningContent, validateGrammarPattern, validateLearningContent, zijnPattern } from "./content";
+import { lessonCatalog } from "../lessons/catalog";
 
 describe("zijn grammar content", () => {
   it("has finite reviewed answers, coded distractors, and exact feedback", () => {
@@ -79,5 +80,30 @@ describe("zijn grammar content", () => {
   it("extends the lesson validator with the companion link", () => {
     const invalidCatalog = { version: 1 as const, lessons: [] };
     expect(validateLearningContent(zijnPattern, invalidCatalog)).toContain("a0-zijn-present.companionLessonId: lesson is missing from the bundled catalog");
+  });
+
+  it("requires a complete four-pattern pack and second review for every release item", () => {
+    const missingPattern = grammarPatterns.filter((pattern) => pattern.id !== "a0-regular-present");
+    expect(validateAllLearningContent(lessonCatalog, missingPattern)).toContain("grammar pack: expected exactly the four shipped A0 pattern IDs");
+
+    const draftPattern = structuredClone(zijnPattern);
+    draftPattern.review.reviewState = "self-reviewed";
+    expect(validateGrammarPattern(draftPattern)).toContain("a0-zijn-present.review: requires second review before runtime release");
+    expect(isGrammarContentAvailable(draftPattern)).toBe(false);
+
+    const draftExercise = structuredClone(zijnPattern);
+    draftExercise.exercises[0].review.reviewState = "self-reviewed";
+    expect(validateGrammarPattern(draftExercise)).toContain("zijn-choose-ik.review: requires second review before runtime release");
+
+    expect(grammarPatterns.every((pattern) => pattern.exercises.every((exercise) => exercise.review.reviewState === "second-review-complete"))).toBe(true);
+  });
+
+  it("requires every released choice to be classified as accepted or a distractor", () => {
+    const invalid = structuredClone(zijnPattern);
+    invalid.exercises[0].choices.push("onbekend");
+    expect(validateGrammarPattern(invalid)).toContain("zijn-choose-ik: every choice must be accepted or a coded distractor");
+
+    const report = createGrammarContentReport();
+    expect(report.match(/Exercise review state:/g)).toHaveLength(16);
   });
 });
