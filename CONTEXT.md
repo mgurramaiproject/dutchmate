@@ -48,6 +48,10 @@ _Avoid_: Typed answer, free-form response, uncued-production claim
 A deterministic click-only interaction reused inside Lessons, Daily Five, or Encounter Coaching, such as choosing or contrasting a verb form or building, transforming, and repairing sentence order. Released instances are manually authored unless a bounded template can enumerate and expose every resulting sentence, answer, accepted alternative, distractor, and feedback item for build-time validation and human review. Verb Gym and Sentence Forge may group these primitives for authoring, but they are not learner-facing modes or separate progress systems.
 _Avoid_: Grammar mode, second practice queue, standalone exercise course
 
+**Grammar content pack**:
+A reviewed, versioned set of deterministic exercises attached to the existing Verb Path and its pattern IDs. The first pack hardens the four shipped A0 patterns; it is not a learner-facing destination, separate queue, or promise of a fixed exercise count.
+_Avoid_: Grammar product, Verb Gym destination, fixed verb catalog
+
 **Grammar companion**:
 Separately identified and versioned pattern teaching and click-only practice attached to a compatible lesson without replacing that lesson, changing its identity, or invalidating its completion. Completing the earlier lesson does not retroactively award pattern progress; the additional practice remains available inside the lesson flow.
 _Avoid_: Replacement lesson, completion reset, separate grammar destination
