@@ -1,17 +1,24 @@
 # DutchMate implementation queue
 
-These are the four revised plans currently eligible for implementation. They are copied from the reviewed plan package and tracked here so the implementation queue has one repo-local source.
+These are the reviewed plan records for the deterministic feature sequence. The
+completed slices stay listed here for traceability; only the next candidate is
+eligible for new implementation approval.
 
 Implement exactly one queue item at a time. Copying a plan here is not implementation approval; the user must explicitly approve the next item after reviewing its current architecture and release gate.
 
-## Queue
+## Completed
 
 | Order | Plan | Status | Boundary |
 |---:|---|---|---|
-| 0 | [Shared deterministic foundation](../010-shared-deterministic-foundation-plan.md) | First approval candidate | Compatibility audit only; no speculative runtime foundation |
-| 1 | [Web Sentence Trainer](../011-web-sentence-trainer-plan.md) | Next product slice | Existing `LearningItem` + bounded Dutch `LearningContext`; click-only |
-| 2 | [Grammar content packs](../012-grammar-packs-plan.md) | Later active candidate | Internal Verb Gym/Sentence Forge/Grammar Minute families; four shipped A0 patterns first |
-| 3 | [Contrast Packs](./03-contrast-packs/plan.md) | Later active candidate | Small authored repair inserts tied to reliable controlled evidence |
+| 0 | [Shared deterministic foundation](../010-shared-deterministic-foundation-plan.md) | Completed compatibility audit | No runtime foundation was added; the audit established the reuse boundary for later slices. |
+| 1 | [Web Sentence Trainer](../011-web-sentence-trainer-plan.md) | Completed and merged in PR [#101](https://github.com/mgurramaiproject/dutchmate/pull/101) | Saved Context Missions reuse the canonical learning item and bounded Dutch context. Issues #97–#100 are closed. |
+| 2 | [Grammar content packs](../012-grammar-packs-plan.md) | Completed and merged in PR [#106](https://github.com/mgurramaiproject/dutchmate/pull/106) | Four reviewed A0 patterns remain inside Lessons, Today, and Daily Five. Issues #102–#105 are closed. |
+
+## Next approval candidate
+
+| Order | Plan | Status | Boundary |
+|---:|---|---|---|
+| 3 | [Contrast Packs](./03-contrast-packs/plan.md) | Next candidate; not implementation-approved | Small authored repair inserts tied to reliable controlled misconception evidence; no new destination or queue. |
 
 ## Approval and handoff rules
 
@@ -19,12 +26,18 @@ Implement exactly one queue item at a time. Copying a plan here is not implement
 - Do not implement a later queue item while an earlier item lacks its release and learner-value gate.
 - Do not add runtime AI, typing, free-form grading, a second scheduler, or a new top-level destination without a new explicit product decision.
 - Keep deferred ideas in [the canonical parking lot](../feature-parking-lot.md), not in this queue.
-- After implementation approval, update the selected plan checklist with evidence and keep the other plans untouched.
+- Do not implement the next candidate from this queue entry alone. First review
+  its current architecture, learner-value gate, and ticket boundary, then
+  explicitly approve it.
+- After implementation approval, update the selected plan checklist with
+  evidence and keep completed plans unchanged.
 
 ## Source
 
 Reviewed source package: `/home/mgurram/MGurramAI/projects/dutchmate-proj/DutchMate-deterministic-feature-plans`.
 
-Feature 012's canonical plan, specification, and ticket tree live in
-[`docs/features/`](..). The original `todos/02-grammar-content-packs`
-copy remains as queue input and is not the implementation contract.
+Feature 011 and Feature 012 canonical plans, specifications, ticket trees, and
+validation records live in [`docs/features/`](..). The original
+`todos/02-grammar-content-packs` copy is retained only as historical queue
+input; Feature 012's checked-in artifacts are the implementation and delivery
+record.

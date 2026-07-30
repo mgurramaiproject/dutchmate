@@ -2,13 +2,16 @@
 
 ## Handoff status
 
-- Priority: later active candidate, after a reliable controlled exercise emits evidence
+- Priority: next approval candidate after the completed grammar-pack slice
 - Primary surface: existing Lessons or Daily Five as a small authored repair insert; no new Contrast Packs destination
 - Contextual entry: offered only after a supported misconception is observed or the learner opens an approved lesson item
 - Daily delivery: repair exercises may enter `Today` / `Daily Five`
 - Runtime AI: prohibited for v1
 - Curated content: required
-- Dependency: controlled exercises that emit reliable misconception codes
+- Dependency: controlled exercises that emit reliable misconception codes; the
+  completed grammar-pack slice now provides reviewed codes within its supported
+  A0 patterns, but this plan still requires explicit design and implementation
+  approval before work begins
 
 ## Product goal
 

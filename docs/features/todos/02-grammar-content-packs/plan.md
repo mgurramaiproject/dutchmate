@@ -3,7 +3,8 @@
 ## Handoff status
 
 - Priority: 2, after Plan 00 and Web Sentence Trainer
-- Status: active candidate, not implementation-approved
+- Status: superseded by completed Feature 012; retained as historical queue input
+- Canonical implementation record: [Feature 012 plan](../../012-grammar-packs-plan.md), [specification](../../012-grammar-packs-spec.md), and [tickets](../../012-grammar-packs-tickets.md)
 - Primary surfaces: existing `Lessons`, `Today`, and `Daily Five`
 - Runtime AI: prohibited
 - Interaction: click-only; no typing or free-form grading
