@@ -6,6 +6,19 @@ Implementation and delivery conventions are documented in `docs/agents/workflow.
 
 Issues are tracked in GitHub Issues for this repo. External PRs are not part of the triage surface. See `docs/agents/issue-tracker.md`.
 
+### GitHub authentication
+
+- Treat the GitHub OAuth `project` scope as satisfying both Project read and
+  write access; `gh auth status` does not need to print a separate
+  `read:project` scope.
+- Before requesting device-code reauthentication, run the intended read-only
+  GitHub command once. For Project access, verify with:
+  `gh api graphql -f query='query { viewer { projectsV2(first: 1) { totalCount } } }' --jq '.data.viewer.projectsV2.totalCount'`.
+- Do not request another device-code login solely because `gh auth status`
+  lists `project` without separately listing `read:project`.
+- If the verification command genuinely fails, report the exact command and
+  error. Do not print or paste token values.
+
 ### Triage labels
 
 This repo uses the default triage labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, and `wontfix`. See `docs/agents/triage-labels.md`.

@@ -48,6 +48,10 @@ _Avoid_: Typed answer, free-form response, uncued-production claim
 A deterministic click-only interaction reused inside Lessons, Daily Five, or Encounter Coaching, such as choosing or contrasting a verb form or building, transforming, and repairing sentence order. Released instances are manually authored unless a bounded template can enumerate and expose every resulting sentence, answer, accepted alternative, distractor, and feedback item for build-time validation and human review. Verb Gym and Sentence Forge may group these primitives for authoring, but they are not learner-facing modes or separate progress systems.
 _Avoid_: Grammar mode, second practice queue, standalone exercise course
 
+**Grammar content pack**:
+A reviewed, versioned set of deterministic exercises attached to the existing Verb Path and its pattern IDs. The first pack hardens the four shipped A0 patterns; it is not a learner-facing destination, separate queue, or promise of a fixed exercise count.
+_Avoid_: Grammar product, Verb Gym destination, fixed verb catalog
+
 **Grammar companion**:
 Separately identified and versioned pattern teaching and click-only practice attached to a compatible lesson without replacing that lesson, changing its identity, or invalidating its completion. Completing the earlier lesson does not retroactively award pattern progress; the additional practice remains available inside the lesson flow.
 _Avoid_: Replacement lesson, completion reset, separate grammar destination
@@ -111,6 +115,10 @@ _Avoid_: Session log, passive activity, telemetry
 **Daily Five**:
 The single default daily goal of completing five high-value practice tasks across saved learning items and previously studied grammar patterns. Due work comes first, grammar initially occupies at most two positions so vocabulary practice remains protected, completing five is enough, and continuing is optional.
 _Avoid_: Clear-all-due target, daily quota, timed session
+
+**Grammar Minute**:
+An internal packaging label for a concise grammar task or sequence delivered through the existing Today or Daily Five flow. It does not create a grammar destination, fixed feature mix, second queue, or separate progress record.
+_Avoid_: Grammar tab, grammar session, second scheduler
 
 **Meaningful chunk**:
 A reusable Dutch multiword expression whose meaning or use is best learned as a unit, such as a collocation, fixed expression, idiom, or separable verb pattern. An arbitrary selected phrase or complete sentence is not automatically a meaningful chunk.

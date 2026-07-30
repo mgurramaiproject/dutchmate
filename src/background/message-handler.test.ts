@@ -138,6 +138,7 @@ describe("createBackgroundMessageHandler", () => {
     now = new Date(2026, 0, 2, 9).getTime();
     await expect(send(handleMessage, { type: LEARNING_DAILY_FIVE_MESSAGE })).resolves.toMatchObject({ ok: true, result: { snapshot: { tasks: [{ patternId: "a0-hebben-present", exerciseId: "hebben-choose-ik" }] } } });
     await expect(send(handleMessage, { type: LEARNING_GRAMMAR_RESULT_MESSAGE, payload: { patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik", answer: "heb", expectedEvidenceRevision: 0, dailyFive: true } })).resolves.toMatchObject({ ok: true, result: { grammar: { successfulEvidenceCount: 1 }, snapshot: { completedTaskIds: ["a0-hebben-present\u001fhebben-choose-ik"] } } });
+    await expect(send(handleMessage, { type: LEARNING_GRAMMAR_RESULT_MESSAGE, payload: { patternId: "a0-hebben-present", contentVersion: 1, exerciseId: "hebben-choose-ik", answer: "heb", expectedEvidenceRevision: 0, dailyFive: true } })).resolves.toMatchObject({ ok: true, result: { grammar: { evidenceRevision: 1, successfulEvidenceCount: 1 }, snapshot: { completedTaskIds: ["a0-hebben-present\u001fhebben-choose-ik"] } } });
     await expect(send(handleMessage, { type: LEARNING_GRAMMAR_MESSAGE, payload: { patternId: "a0-hebben-present" } })).resolves.toMatchObject({ ok: true, result: { grammar: { patternId: "a0-hebben-present", successfulEvidenceCount: 1 } } });
   });
 

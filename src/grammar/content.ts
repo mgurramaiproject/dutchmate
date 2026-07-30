@@ -16,6 +16,7 @@ export type GrammarExercise = {
   distractors: Array<{ value: string; misconception: Misconception; feedback: string }>;
   feedback: string;
   evidenceEligible: true;
+  review: GrammarReviewMetadata;
 };
 
 export type GrammarReviewMetadata = {
@@ -38,6 +39,33 @@ export type GrammarPattern = {
   encounterForms: Array<{ subject: string; form: string; text?: string }>;
   companionLessonId: string;
   review: GrammarReviewMetadata;
+};
+
+const zijnReview: GrammarReviewMetadata = {
+  author: "DutchMate team",
+  reviewState: "second-review-complete",
+  reviewer: "Project owner",
+  reviewedAt: "2026-07-27",
+  sources: ["https://taaladvies.net/u-is-of-bent/"],
+  provenance: "Original DutchMate-authored examples; no copied table or sentence text.",
+};
+
+const hebbenReview: GrammarReviewMetadata = {
+  author: "DutchMate team", reviewState: "second-review-complete", reviewer: "Project owner", reviewedAt: "2026-07-27",
+  sources: ["https://taaladvies.net/u-heeft-of-hebt/", "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/onregelmatig_werkwoord.html"],
+  provenance: "Original DutchMate-authored examples; u hebt and u heeft are both retained as reviewed alternatives.",
+};
+
+const regularReview: GrammarReviewMetadata = {
+  author: "DutchMate team", reviewState: "second-review-complete", reviewer: "Project owner", reviewedAt: "2026-07-27",
+  sources: ["https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/", "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/vervoeging.html"],
+  provenance: "Original DutchMate-authored examples using reviewed regular present-tense subject agreement; no copied sentence text.",
+};
+
+const inversionReview: GrammarReviewMetadata = {
+  author: "DutchMate team", reviewState: "second-review-complete", reviewer: "Project owner", reviewedAt: "2026-07-27",
+  sources: ["https://taaladvies.net/termen-inversie/", "https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/"],
+  provenance: "Original DutchMate-authored questions using reviewed finite-verb inversion; no copied sentence text.",
 };
 
 export const zijnPattern: GrammarPattern = {
@@ -69,6 +97,7 @@ export const zijnPattern: GrammarPattern = {
       ],
       feedback: "With ik, use ben: ik ben Noor.",
       evidenceEligible: true,
+      review: { ...zijnReview },
     },
     {
       id: "zijn-change-jij",
@@ -85,6 +114,7 @@ export const zijnPattern: GrammarPattern = {
       ],
       feedback: "With jij, use bent: jij bent hier.",
       evidenceEligible: true,
+      review: { ...zijnReview },
     },
     {
       id: "zijn-contrast-u",
@@ -101,6 +131,7 @@ export const zijnPattern: GrammarPattern = {
       ],
       feedback: "With u, use bent: u bent welkom.",
       evidenceEligible: true,
+      review: { ...zijnReview },
     },
     {
       id: "zijn-repair-zij",
@@ -117,6 +148,7 @@ export const zijnPattern: GrammarPattern = {
       ],
       feedback: "For one person with zij, use is: zij is thuis.",
       evidenceEligible: true,
+      review: { ...zijnReview },
     },
   ],
   encounterForms: [
@@ -126,14 +158,7 @@ export const zijnPattern: GrammarPattern = {
     { subject: "jullie", form: "zijn" }, { subject: "ze", form: "zijn" },
   ],
   companionLessonId: "a0-hallo-ik-ben",
-  review: {
-    author: "DutchMate team",
-    reviewState: "second-review-complete",
-    reviewer: "Project owner",
-    reviewedAt: "2026-07-27",
-    sources: ["https://taaladvies.net/u-is-of-bent/"],
-    provenance: "Original DutchMate-authored examples; no copied table or sentence text.",
-  },
+  review: zijnReview,
 };
 
 export const hebbenPattern: GrammarPattern = {
@@ -157,7 +182,7 @@ export const hebbenPattern: GrammarPattern = {
         { value: "hebt", misconception: "wrong-person", feedback: "With ik, use heb: ik heb een pen nodig." },
         { value: "heeft", misconception: "wrong-person", feedback: "With ik, use heb: ik heb een pen nodig." },
       ],
-      feedback: "With ik, use heb: ik heb een pen nodig.", evidenceEligible: true,
+      feedback: "With ik, use heb: ik heb een pen nodig.", evidenceEligible: true, review: { ...hebbenReview },
     },
     {
       id: "hebben-change-jij", patternId: "a0-hebben-present", primitive: "change-subject",
@@ -166,13 +191,13 @@ export const hebbenPattern: GrammarPattern = {
         { value: "heb", misconception: "wrong-person", feedback: "With jij, use hebt: jij hebt een schrift." },
         { value: "heeft", misconception: "wrong-person", feedback: "With jij, use hebt: jij hebt een schrift." },
       ],
-      feedback: "With jij, use hebt: jij hebt een schrift.", evidenceEligible: true,
+      feedback: "With jij, use hebt: jij hebt een schrift.", evidenceEligible: true, review: { ...hebbenReview },
     },
     {
       id: "hebben-contrast-u", patternId: "a0-hebben-present", primitive: "contrast-form",
       prompt: "Choose a correct polite form.", context: "U ___ een extra pen.", contextTag: "politeness", choices: ["hebt", "heeft", "hebben"], accepted: ["hebt", "heeft"],
       distractors: [{ value: "hebben", misconception: "wrong-irregular-form", feedback: "With u, both hebt and heeft are correct: u hebt een extra pen or u heeft een extra pen." }],
-      feedback: "With u, both hebt and heeft are correct: u hebt een extra pen or u heeft een extra pen.", evidenceEligible: true,
+      feedback: "With u, both hebt and heeft are correct: u hebt een extra pen or u heeft een extra pen.", evidenceEligible: true, review: { ...hebbenReview },
     },
     {
       id: "hebben-repair-wij", patternId: "a0-hebben-present", primitive: "repair-choice",
@@ -181,7 +206,7 @@ export const hebbenPattern: GrammarPattern = {
         { value: "heb", misconception: "wrong-person", feedback: "With wij, use hebben: wij hebben alles voor de les." },
         { value: "heeft", misconception: "wrong-person", feedback: "With wij, use hebben: wij hebben alles voor de les." },
       ],
-      feedback: "With wij, use hebben: wij hebben alles voor de les.", evidenceEligible: true,
+      feedback: "With wij, use hebben: wij hebben alles voor de les.", evidenceEligible: true, review: { ...hebbenReview },
     },
   ],
   encounterForms: [
@@ -191,11 +216,7 @@ export const hebbenPattern: GrammarPattern = {
     { subject: "we", form: "hebben" }, { subject: "jullie", form: "hebben" }, { subject: "ze", form: "hebben" },
   ],
   companionLessonId: "a0-ik-heb-dit-nodig",
-  review: {
-    author: "DutchMate team", reviewState: "second-review-complete", reviewer: "Project owner", reviewedAt: "2026-07-27",
-    sources: ["https://taaladvies.net/u-heeft-of-hebt/", "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/onregelmatig_werkwoord.html"],
-    provenance: "Original DutchMate-authored examples; u hebt and u heeft are both retained as reviewed alternatives.",
-  },
+  review: hebbenReview,
 };
 
 export const regularPattern: GrammarPattern = {
@@ -219,7 +240,7 @@ export const regularPattern: GrammarPattern = {
         { value: "woont", misconception: "wrong-person", feedback: "With ik, use the stem woon: ik woon in Utrecht." },
         { value: "wonen", misconception: "wrong-person", feedback: "With ik, use the stem woon: ik woon in Utrecht." },
       ],
-      feedback: "With ik, use the stem woon: ik woon in Utrecht.", evidenceEligible: true,
+      feedback: "With ik, use the stem woon: ik woon in Utrecht.", evidenceEligible: true, review: { ...regularReview },
     },
     {
       id: "regular-change-jij", patternId: "a0-regular-present", primitive: "change-subject",
@@ -228,7 +249,7 @@ export const regularPattern: GrammarPattern = {
         { value: "werk", misconception: "wrong-person", feedback: "With jij, add -t to the stem: jij werkt in een team." },
         { value: "werken", misconception: "wrong-person", feedback: "With jij, use werkt, not the plural werken: jij werkt in een team." },
       ],
-      feedback: "With jij, add -t to the stem: jij werkt in een team.", evidenceEligible: true,
+      feedback: "With jij, add -t to the stem: jij werkt in een team.", evidenceEligible: true, review: { ...regularReview },
     },
     {
       id: "regular-contrast-u", patternId: "a0-regular-present", primitive: "contrast-form",
@@ -237,7 +258,7 @@ export const regularPattern: GrammarPattern = {
         { value: "leer", misconception: "wrong-person", feedback: "With u, add -t to the stem: u leert Nederlands." },
         { value: "leren", misconception: "wrong-person", feedback: "With u, use the singular form leert, not the plural leren: u leert Nederlands." },
       ],
-      feedback: "With u, add -t to the stem: u leert Nederlands.", evidenceEligible: true,
+      feedback: "With u, add -t to the stem: u leert Nederlands.", evidenceEligible: true, review: { ...regularReview },
     },
     {
       id: "regular-repair-wij", patternId: "a0-regular-present", primitive: "repair-choice",
@@ -246,7 +267,7 @@ export const regularPattern: GrammarPattern = {
         { value: "maak", misconception: "wrong-person", feedback: "With wij, use the plural form maken: wij maken een plan." },
         { value: "maakt", misconception: "wrong-person", feedback: "With wij, use the plural form maken, not maakt: wij maken een plan." },
       ],
-      feedback: "With wij, use the plural form maken: wij maken een plan.", evidenceEligible: true,
+      feedback: "With wij, use the plural form maken: wij maken een plan.", evidenceEligible: true, review: { ...regularReview },
     },
   ],
   encounterForms: [
@@ -264,11 +285,7 @@ export const regularPattern: GrammarPattern = {
     { subject: "ze", form: "wonen" }, { subject: "ze", form: "werken" }, { subject: "ze", form: "leren" }, { subject: "ze", form: "maken" },
   ],
   companionLessonId: "a0-ik-woon-en-werk-hier",
-  review: {
-    author: "DutchMate team", reviewState: "second-review-complete", reviewer: "Project owner", reviewedAt: "2026-07-27",
-    sources: ["https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/", "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/vervoeging.html"],
-    provenance: "Original DutchMate-authored examples using reviewed regular present-tense subject agreement; no copied sentence text.",
-  },
+  review: regularReview,
 };
 
 export const inversionPattern: GrammarPattern = {
@@ -289,7 +306,7 @@ export const inversionPattern: GrammarPattern = {
         { value: "Je woont hier?", misconception: "wrong-person", feedback: "Before je in a question, use the stem without -t and put it first: Woon je hier?" },
         { value: "Woon hier je?", misconception: "invalid-order", feedback: "Put the finite verb first and je immediately after it: Woon je hier?" },
       ],
-      feedback: "Put the finite verb first. Before je, use woon without -t: Woon je hier?", evidenceEligible: true,
+      feedback: "Put the finite verb first. Before je, use woon without -t: Woon je hier?", evidenceEligible: true, review: { ...inversionReview },
     },
     {
       id: "inversion-order-u", patternId: "a0-yes-no-inversion", primitive: "order-tokens",
@@ -298,7 +315,7 @@ export const inversionPattern: GrammarPattern = {
         { value: "Werk u vandaag?", misconception: "wrong-person", feedback: "Before u, keep the -t on the finite verb: Werkt u vandaag?" },
         { value: "U werkt vandaag?", misconception: "invalid-order", feedback: "In a yes-or-no question, put the finite verb before u: Werkt u vandaag?" },
       ],
-      feedback: "Put the finite verb first and keep -t before u: Werkt u vandaag?", evidenceEligible: true,
+      feedback: "Put the finite verb first and keep -t before u: Werkt u vandaag?", evidenceEligible: true, review: { ...inversionReview },
     },
     {
       id: "inversion-contrast-je", patternId: "a0-yes-no-inversion", primitive: "contrast-form",
@@ -307,7 +324,7 @@ export const inversionPattern: GrammarPattern = {
         { value: "Woont", misconception: "wrong-person", feedback: "Before je in a question, use woon without -t: Woon je in Utrecht?" },
         { value: "Wonen", misconception: "wrong-person", feedback: "Je is singular here, so use woon, not the plural wonen: Woon je in Utrecht?" },
       ],
-      feedback: "Before je in a question, use the stem without -t: woon.", evidenceEligible: true,
+      feedback: "Before je in a question, use the stem without -t: woon.", evidenceEligible: true, review: { ...inversionReview },
     },
     {
       id: "inversion-repair-u", patternId: "a0-yes-no-inversion", primitive: "repair-choice",
@@ -316,7 +333,7 @@ export const inversionPattern: GrammarPattern = {
         { value: "Werk", misconception: "wrong-person", feedback: "Before u, keep -t on the finite verb: Werkt u morgen?" },
         { value: "Werken", misconception: "wrong-person", feedback: "U takes the singular -t form here, not the plural werken: Werkt u morgen?" },
       ],
-      feedback: "Before u, keep -t on the finite verb: werkt.", evidenceEligible: true,
+      feedback: "Before u, keep -t on the finite verb: werkt.", evidenceEligible: true, review: { ...inversionReview },
     },
   ],
   encounterForms: [
@@ -326,13 +343,10 @@ export const inversionPattern: GrammarPattern = {
     { subject: "u", form: "leert", text: "Leert u Nederlands?" },
   ],
   companionLessonId: "a0-woon-je-hier",
-  review: {
-    author: "DutchMate team", reviewState: "second-review-complete", reviewer: "Project owner", reviewedAt: "2026-07-27",
-    sources: ["https://taaladvies.net/termen-inversie/", "https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/"],
-    provenance: "Original DutchMate-authored questions using reviewed finite-verb inversion; no copied sentence text.",
-  },
+  review: inversionReview,
 };
 
+export const GRAMMAR_PATTERN_IDS: readonly GrammarPatternId[] = ["a0-zijn-present", "a0-hebben-present", "a0-regular-present", "a0-yes-no-inversion"];
 export const grammarPatterns: GrammarPattern[] = [zijnPattern, hebbenPattern, regularPattern, inversionPattern];
 
 export function getGrammarPattern(patternId: GrammarPatternId): GrammarPattern | undefined { return grammarPatterns.find((pattern) => pattern.id === patternId); }
@@ -341,12 +355,13 @@ export function validateGrammarPattern(pattern: GrammarPattern): string[] {
   const errors: string[] = [];
   const stable = (value: string) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(value);
   if (!stable(pattern.id)) errors.push(`${pattern.id}.id: expected stable kebab-case identifier`);
+  if (!GRAMMAR_PATTERN_IDS.includes(pattern.id)) errors.push(`${pattern.id}.id: expected one of the four shipped A0 pattern IDs`);
   if (!Number.isInteger(pattern.contentVersion) || pattern.contentVersion < 1) errors.push(`${pattern.id}.contentVersion: expected positive content version`);
   if (pattern.level !== "A0") errors.push(`${pattern.id}.level: expected A0`);
   if (!pattern.capability.trim()) errors.push(`${pattern.id}.capability: expected practical capability`);
   if (!stable(pattern.companionLessonId)) errors.push(`${pattern.id}.companionLessonId: incompatible lesson link`);
   if (!pattern.forms.length || pattern.forms.some((entry) => !entry.subject.trim() || entry.forms.length === 0 || entry.forms.some((form) => !form.trim()))) errors.push(`${pattern.id}.forms: incomplete reviewed forms`);
-  if (!pattern.review.author.trim() || !["self-reviewed", "second-review-complete"].includes(pattern.review.reviewState) || !pattern.review.reviewer.trim() || !/^\d{4}-\d{2}-\d{2}$/u.test(pattern.review.reviewedAt) || pattern.review.sources.length === 0 || pattern.review.sources.some((source) => !source.trim()) || !pattern.review.provenance.trim()) errors.push(`${pattern.id}.review: incomplete review metadata or provenance`);
+  errors.push(...validateReviewMetadata(pattern.review, `${pattern.id}.review`));
   const ids = new Set<string>();
   for (const exercise of pattern.exercises) {
     if (!stable(exercise.id)) errors.push(`${exercise.id}.id: expected stable kebab-case identifier`);
@@ -361,11 +376,14 @@ export function validateGrammarPattern(pattern: GrammarPattern): string[] {
     if (exercise.accepted.length === 0) errors.push(`${exercise.id}: no accepted answers`);
     if (new Set(exercise.accepted).size !== exercise.accepted.length) errors.push(`${exercise.id}: duplicate accepted answers`);
     if (!exercise.accepted.every((answer) => exercise.choices.includes(answer))) errors.push(`${exercise.id}: accepted answer is not a choice`);
-    if (new Set(exercise.distractors.map((distractor) => distractor.value)).size !== exercise.distractors.length) errors.push(`${exercise.id}: duplicate distractors`);
+    const distractorValues = exercise.distractors.map((distractor) => distractor.value);
+    if (new Set(distractorValues).size !== exercise.distractors.length) errors.push(`${exercise.id}: duplicate distractors`);
     if (exercise.distractors.some((distractor) => exercise.accepted.includes(distractor.value))) errors.push(`${exercise.id}: accepted answer is a distractor`);
+    if (exercise.choices.some((choice) => !exercise.accepted.includes(choice) && !distractorValues.includes(choice)) || exercise.distractors.some((distractor) => !exercise.choices.includes(distractor.value))) errors.push(`${exercise.id}: every choice must be accepted or a coded distractor`);
     if (exercise.distractors.some((distractor) => !["wrong-person", "wrong-irregular-form", "invalid-order"].includes(distractor.misconception))) errors.push(`${exercise.id}: unknown misconception`);
     if (exercise.distractors.some((distractor) => distractor.feedback.trim().length === 0)) errors.push(`${exercise.id}: distractor feedback is incomplete`);
     if (!exercise.feedback.trim() || exercise.feedback === "Incorrect") errors.push(`${exercise.id}: generic feedback`);
+    errors.push(...validateReviewMetadata(exercise.review, `${exercise.id}.review`));
   }
   const encounterKeys = pattern.encounterForms.map((entry) => `${entry.subject}\u001f${entry.form}`);
   if (encounterKeys.some((entry, index) => encounterKeys.indexOf(entry) !== index) || pattern.encounterForms.some((entry) => !entry.subject.trim() || !entry.form.trim())) errors.push(`${pattern.id}.encounterForms: expected unique reviewed pairs`);
@@ -378,14 +396,20 @@ export function validateLearningContent(pattern: GrammarPattern = zijnPattern, c
   return errors;
 }
 
-export function validateAllLearningContent(catalog: LessonCatalog = lessonCatalog): string[] {
+export function validateAllLearningContent(catalog: LessonCatalog = lessonCatalog, patterns: readonly GrammarPattern[] = grammarPatterns): string[] {
   return [
     ...validateLessonCatalog(catalog),
-    ...grammarPatterns.flatMap((pattern) => [
+    ...(patterns.length !== GRAMMAR_PATTERN_IDS.length || new Set(patterns.map((pattern) => pattern.id)).size !== GRAMMAR_PATTERN_IDS.length || GRAMMAR_PATTERN_IDS.some((patternId) => !patterns.some((pattern) => pattern.id === patternId)) ? ["grammar pack: expected exactly the four shipped A0 pattern IDs"] : []),
+    ...patterns.flatMap((pattern) => [
       ...validateGrammarPattern(pattern),
       ...(catalog.lessons.some((lesson) => lesson.id === pattern.companionLessonId) ? [] : [`${pattern.id}.companionLessonId: lesson is missing from the bundled catalog`]),
     ]),
   ];
+}
+
+function validateReviewMetadata(review: GrammarReviewMetadata | undefined, field: string): string[] {
+  if (!review || typeof review.author !== "string" || typeof review.reviewer !== "string" || typeof review.reviewedAt !== "string" || !Array.isArray(review.sources) || typeof review.provenance !== "string" || !review.author.trim() || !review.reviewer.trim() || !/^\d{4}-\d{2}-\d{2}$/u.test(review.reviewedAt) || review.sources.length === 0 || review.sources.some((source) => typeof source !== "string" || !source.trim()) || !review.provenance.trim()) return [`${field}: incomplete review metadata or provenance`];
+  return review.reviewState === "second-review-complete" ? [] : [`${field}: requires second review before runtime release`];
 }
 
 export function isGrammarContentAvailable(pattern?: GrammarPattern): boolean { return pattern ? validateLearningContent(pattern).length === 0 : validateAllLearningContent().length === 0; }
@@ -410,7 +434,7 @@ export function createGrammarContentReport(pattern: GrammarPattern | GrammarPatt
     "",
   ];
   for (const exercise of pattern.exercises) {
-    lines.push(`## ${exercise.id}`, `Primitive: ${exercise.primitive}`, `Context tag: ${exercise.contextTag}`, `Evidence eligible: ${exercise.evidenceEligible}`, `Context: ${exercise.context}`, `Prompt: ${exercise.prompt}`, ...(exercise.tokens ? [`Tokens: ${exercise.tokens.join(" | ")}`] : []), `Choices: ${exercise.choices.join(" | ")}`, `Accepted: ${exercise.accepted.join(" | ")}`, `Feedback: ${exercise.feedback}`);
+    lines.push(`## ${exercise.id}`, `Primitive: ${exercise.primitive}`, `Context tag: ${exercise.contextTag}`, `Evidence eligible: ${exercise.evidenceEligible}`, `Exercise author: ${exercise.review.author}`, `Exercise review state: ${exercise.review.reviewState}`, `Exercise reviewer: ${exercise.review.reviewer}`, `Exercise reviewed at: ${exercise.review.reviewedAt}`, `Exercise sources: ${exercise.review.sources.join(", ")}`, `Exercise provenance: ${exercise.review.provenance}`, `Context: ${exercise.context}`, `Prompt: ${exercise.prompt}`, ...(exercise.tokens ? [`Tokens: ${exercise.tokens.join(" | ")}`] : []), `Choices: ${exercise.choices.join(" | ")}`, `Accepted: ${exercise.accepted.join(" | ")}`, `Feedback: ${exercise.feedback}`);
     for (const distractor of exercise.distractors) lines.push(`Distractor: ${distractor.value} [${distractor.misconception}] -> ${distractor.feedback}`);
     lines.push("");
   }
