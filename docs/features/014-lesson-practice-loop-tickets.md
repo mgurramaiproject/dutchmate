@@ -146,13 +146,13 @@ practice remains complete without it.
 `Wat moet ik meenemen?` with concise everyday practice and safe in-lesson
 transfer.
 
-- [ ] All three lessons have reviewed outcome maps and behavior-complete
+- [x] All three lessons have reviewed outcome maps and behavior-complete
   envelopes.
-- [ ] Practice uses the A1 support gradient without unrelated primitives or
+- [x] Practice uses the A1 support gradient without unrelated primitives or
   fixed exercise counts.
-- [ ] Each lesson includes reduced-support retrieval and guaranteed transfer.
-- [ ] Results update existing evidence through the shared contract only.
-- [ ] Validation, independent Dutch review, identity, completion, Daily Five,
+- [x] Each lesson includes reduced-support retrieval and guaranteed transfer.
+- [x] Results update existing evidence through the shared contract only.
+- [x] Validation, independent Dutch review, identity, completion, Daily Five,
   export/import, upgrade, accessibility, and provider-isolation checks pass.
 
 ## T07 — Backfill the A2 official-life lesson

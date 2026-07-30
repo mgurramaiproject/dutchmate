@@ -78,6 +78,19 @@ describe("lesson catalog", () => {
     expect(validateLessonCatalog(invalid)).toContain("a1-ik-heb-last-van.practiceEnvelope.transfer: expected reviewed transfer task");
   });
 
+  it("backfills the A1 home, work, and study lessons with reduced-support transfer", () => {
+    const everydayLessons = [brokenThingLesson, availabilityLesson, bringLesson];
+
+    expect(everydayLessons.every((lesson) => lesson.practiceEnvelope?.support === "reduced")).toBe(true);
+    expect(everydayLessons.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["er-is-iets-kapot", "ik-ben-beschikbaar", "wat-moet-ik-meenemen"]);
+    expect(everydayLessons.every((lesson) => lesson.practice.some((prompt) => prompt.dimension === "recall"))).toBe(true);
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === bringLesson.id)!.practiceEnvelope!.transfer.choices = ["wat moet ik meenemen"];
+    expect(validateLessonCatalog(invalid)).toContain("a1-wat-moet-ik-meenemen.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
   it("validates the reviewed appointment micro-story", () => {
     expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
     expect(appointmentLesson.title).toBe("A1 · Een afspraak maken");
