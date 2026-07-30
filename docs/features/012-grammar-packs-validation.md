@@ -46,14 +46,13 @@ result, and notes for keyboard-only Lessons/Daily Five, visible focus, live
 feedback, narrow-popup containment, offline practice, and provider-request
 behavior.
 
-## Delivery reconciliation attempt
+## Delivery reconciliation
 
-Issue #105 was added to the `Delivery` project after project-scope
-authentication succeeded. The project API reads the item and its custom
-`Execution` and `Delivery Status` fields, but both the CLI and direct GraphQL
-`updateProjectV2ItemFieldValue` mutation reject those field IDs with
-`NOT_FOUND`. The item remains readable with its default `Status=Todo`; no
-custom Delivery field completion is claimed.
+Issue #105 is in the `Delivery` project and its custom fields are reconciled
+using the current field and option IDs returned by `gh project field-list`.
+The live values are `Execution=Agent` and `Delivery Status=Blocked`, matching
+the still-open browser gate. The earlier `NOT_FOUND` result came from stale
+custom-field IDs; it was not an authentication failure.
 
 ## Browser verification attempt
 

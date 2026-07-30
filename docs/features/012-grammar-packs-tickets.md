@@ -187,9 +187,8 @@ contracts. `git diff --check` passed.
 Chrome/Firefox browser pass is recorded yet; that remains an explicit human
 gate. The pack demonstrates bounded, controlled practice evidence only and
 makes no formal CEFR or independent-production claim. Issue #105 is in the
-Delivery project, but GitHub rejects mutations to the custom `Execution` and
-`Delivery Status` fields with `NOT_FOUND` even though the fields are readable;
-the custom field state is therefore not claimed as reconciled.
+Delivery project with `Execution=Agent` and `Delivery Status=Blocked`; the
+blocked value reflects the open browser gate, not a Project API failure.
 
 ## Explicitly deferred work
 
