@@ -6,7 +6,7 @@
 
 **Branch:** `feature-013-contrast-repair`
 
-**Artifact under qualification:** `c5a66e4`
+**Artifact under qualification:** `2afee30`
 
 **Ticket:** [#111 — T04: Qualify the Contrast Repair pilot for release](https://github.com/mgurramaiproject/dutchmate/issues/111)
 
@@ -36,6 +36,18 @@ The contrast path is provider-free: the bundled contrast modules,
 translation request. The popup tests use an injected runtime boundary, and a
 source scan of the relevant practice modules found no `fetch`,
 `XMLHttpRequest`, or translation request call.
+
+## Manual feedback triage
+
+On 2026-07-30, manual checking reported that an option in the A1 appointment
+lesson's repair exercise did not visibly highlight after selection. The popup
+state already set `is-selected` and `aria-pressed="true"`; the defect was a
+missing visual rule for ordinary `.grammar-choices` controls. The shared
+choice layout and selected state were added in commit `2afee30`, with an A1
+regression assertion covering both state markers. The focused popup/style
+tests, full suite, typecheck, Chrome build, Firefox build, and release package
+verification pass after the fix. Interactive Chrome/Firefox revalidation of
+the generated artifacts remains required.
 
 ## Compatibility evidence
 
