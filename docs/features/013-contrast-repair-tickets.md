@@ -190,6 +190,8 @@ reviewed, usable through the existing popup surfaces, deterministic and
 provider-free, compatible with existing learning records, and supported by
 the repository's automated and release evidence.
 
+**Qualification record:** [013-contrast-repair-validation.md](./013-contrast-repair-validation.md)
+
 - [ ] A second fluent Dutch reviewer with grammar-teaching competence confirms
   the pilot examples, explanations, accepted answers, distractors, feedback,
   scope limits, and fresh repair items; reviewer and date are recorded.
@@ -197,13 +199,13 @@ the repository's automated and release evidence.
   dismissal, delayed Daily Five repair, keyboard-only operation, visible
   focus, feedback announcement, narrow-popup containment, Retry, Reveal, Skip,
   Exit, offline practice, and no unexpected provider request.
-- [ ] Existing lesson identity and completion, four grammar pattern IDs,
+- [x] Existing lesson identity and completion, four grammar pattern IDs,
   content versions, grammar progress, ordinary review, Daily Five vocabulary
   protection, and export/import compatibility remain intact.
-- [ ] The full relevant test suite, typecheck, Chrome and Firefox builds or
+- [x] The full relevant test suite, typecheck, Chrome and Firefox builds or
   package/release checks, documentation consistency checks, and
   `git diff --check` pass.
-- [ ] The checked-in ticket checklist records direct verification evidence and
+- [x] The checked-in ticket checklist records direct verification evidence and
   known limitations without claiming formal CEFR mastery or uncued
   production.
 - [ ] GitHub issue state and the Delivery project are reconciled when the
@@ -222,8 +224,26 @@ revisions, and duplicate results. `corepack pnpm test` passed with 102 files and
 T04. The T01 commit is local; the issue remains open and no feature PR is being
 opened until T02–T04 are implemented.
 
+### T04 engineering evidence
+
+The qualification record is checked in at
+[013-contrast-repair-validation.md](./013-contrast-repair-validation.md).
+Repository evidence is complete on the T03 artifact: the full suite passed
+with 104 test files and 664 tests; typecheck passed; Chrome and Firefox builds,
+release packaging, release verification, documentation consistency tests, and
+`git diff --check` passed. The contrast content validator, bounded learning
+record, mixed Daily Five, typed background boundary, popup route, persistence,
+privacy, and compatibility checks are covered without adding provider calls or
+raw-answer storage.
+
+The independent Dutch reviewer record and interactive Chrome/Firefox browser
+gate remain explicitly pending. T04 is not marked complete, the issue remains
+open, and the combined Feature 013 PR remains deferred.
+
 ## Implementation handoff
 
-The next concrete action is to implement T04 / #111 after this branch is ready
-for the combined Feature 013 PR. Use `$implement` with `$tdd`; do not open the
-feature PR until T04 is complete and manually qualified.
+T04 engineering qualification is recorded in
+[013-contrast-repair-validation.md](./013-contrast-repair-validation.md).
+The independent Dutch review and interactive browser gate remain pending.
+Do not open the feature PR until those gates are complete. Use `$implement`
+with `$tdd` only if a gate exposes an implementation defect.
