@@ -311,6 +311,27 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .pattern-highlight { background: var(--dm-brand-orange); }
 .popup-content :is(button, a, input, select) { touch-action: manipulation; }
 
+/* Lesson practice follows the compact 390 × 600 reference: H2 prompts,
+   readable supporting copy, and full-size touch targets without incidental scroll. */
+.lesson-content .practice-card,
+.lesson-content .lesson-transfer { display: grid; gap: 8px; }
+.lesson-content .practice-card { padding: 12px; }
+.lesson-content .practice-card .heading,
+.lesson-content .lesson-transfer .heading { font-size: var(--dm-font-size-h2); line-height: var(--dm-line-height-h2); }
+.lesson-content .practice-card .story-dutch,
+.lesson-content .lesson-transfer .story-dutch { font-size: .86rem; line-height: 1.35; }
+.lesson-content .practice-card .meaning-row { gap: 2px; padding-top: 8px; }
+.lesson-content .practice-card .meaning-row span { font-size: .82rem; line-height: 1.25; }
+.lesson-content .practice-card .meaning-row small { font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
+.lesson-content .practice-card .grammar-order-answer,
+.lesson-content .lesson-transfer .grammar-order-answer { min-height: var(--dm-target-min); padding: 8px 10px; font-size: .9rem; }
+.lesson-content .practice-card .grammar-choices,
+.lesson-content .lesson-transfer .grammar-choices { gap: 6px; }
+.lesson-content .practice-card .button,
+.lesson-content .lesson-transfer .button { min-height: var(--dm-target-min); padding: 7px 8px; font-size: var(--dm-font-size-label); line-height: var(--dm-line-height-label); overflow-wrap: anywhere; }
+.lesson-content .practice-card .grammar-feedback,
+.lesson-content .lesson-transfer .grammar-feedback { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
+
 @media (max-width: 360px) {
   .popup-content { padding-inline: 16px; }
   .heading { font-size: 1.7rem; }

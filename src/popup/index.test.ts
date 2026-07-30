@@ -1225,6 +1225,7 @@ function button(label: string): HTMLButtonElement {
 async function completeAdditionalLessonExercises(): Promise<void> {
   for (let index = 0; index < 3; index += 1) {
     await vi.waitFor(() => expect(content().querySelector(".lesson-authored-exercise")).toBeTruthy());
+    expect(content().querySelector(".lesson-authored-exercise")?.classList.contains("practice-card")).toBe(true);
     expect(content().querySelector<HTMLElement>(".lesson-stage.active")?.textContent).toBe("Practise");
     const token = content().querySelector<HTMLButtonElement>(".lesson-authored-token:not(.is-selected)");
     if (token) {

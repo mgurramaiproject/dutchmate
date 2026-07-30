@@ -49,6 +49,10 @@ describe("popup layout", () => {
     expect(styles).toContain(".practice-card { display: grid; gap: 12px; min-width: 0;");
     expect(styles).toContain(".practice-card .heading { min-width: 0; overflow-wrap: anywhere;");
     expect(styles).toContain(".meaning-row span { min-width: 0; overflow-wrap: anywhere;");
+    expect(styles).toContain(".lesson-content .practice-card .heading,\n.lesson-content .lesson-transfer .heading { font-size: var(--dm-font-size-h2); line-height: var(--dm-line-height-h2); }");
+    expect(styles).toContain(".lesson-content .lesson-transfer { display: grid; gap: 8px; }");
+    expect(styles).toContain(".lesson-content .practice-card .button,\n.lesson-content .lesson-transfer .button { min-height: var(--dm-target-min);");
+    expect(styles).toContain(".lesson-content .practice-card .grammar-feedback,\n.lesson-content .lesson-transfer .grammar-feedback { margin: 0; font-size: var(--dm-font-size-small);");
     expect(styles).toContain(".year-month-labels span { min-width: 0; white-space: nowrap; }");
   });
 });
