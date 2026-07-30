@@ -128,12 +128,12 @@ complete A1 practice. Preserve the existing approved Contrast Repair companion
 where its controlled misconception contract makes it useful; ordinary lesson
 practice remains complete without it.
 
-- [ ] Both lessons have reviewed outcome maps and behavior-complete envelopes.
-- [ ] The appointment lesson retains its existing contrast identity and shared
+- [x] Both lessons have reviewed outcome maps and behavior-complete envelopes.
+- [x] The appointment lesson retains its existing contrast identity and shared
   result semantics.
-- [ ] Healthcare practice does not infer errors from arbitrary text.
-- [ ] Each lesson includes reduced-support retrieval and guaranteed transfer.
-- [ ] Grammar, learning-item, contrast, Daily Five, completion, export/import,
+- [x] Healthcare practice does not infer errors from arbitrary text.
+- [x] Each lesson includes reduced-support retrieval and guaranteed transfer.
+- [x] Grammar, learning-item, contrast, Daily Five, completion, export/import,
   migration, accessibility, and provider-isolation checks pass.
 
 ## T06 — Backfill A1 home, work, and study lessons

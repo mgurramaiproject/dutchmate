@@ -146,9 +146,13 @@ describe("lesson popup", () => {
       if (index === 0) expect(content().querySelector(".telugu-phonetics")?.textContent).toContain("Say it:");
       await vi.waitFor(() => expect(button(result)).toBeTruthy());
       button(result).click();
-      await vi.waitFor(() => expect(index === 2 ? button("Choose what to keep") : button("Show answer")).toBeTruthy());
+      if (index === 2) await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
+      else await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
     }
 
+    await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
+    button("ik wil graag").click();
+    button("Check answer").click();
     await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
     button("Choose what to keep").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
@@ -165,6 +169,30 @@ describe("lesson popup", () => {
     button("Exit lesson").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(false);
+  });
+
+  it("gives the A1 healthcare symptom lesson reduced-support transfer", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
+    lessonCard("A1 · Ik heb last van…").click();
+    await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+    button("Notice the pattern").click();
+    await vi.waitFor(() => expect(button("Practise")).toBeTruthy());
+    button("Practise").click();
+    for (let index = 0; index < 4; index += 1) {
+      await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+      button("Show answer").click();
+      await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
+      button("Got it").click();
+    }
+    await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
+    button("ik heb last van").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+    button("Choose what to keep").click();
+    await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
+    button("Exit lesson").click();
+    await vi.waitFor(() => expect(lessonCard("A1 · Ik heb last van…")).toBeTruthy());
   });
 
   it("offers immediate repair only for the controlled misconception and keeps Accept and Dismiss explicit", async () => {

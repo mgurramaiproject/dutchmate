@@ -65,6 +65,19 @@ describe("lesson catalog", () => {
     expect(validateLessonCatalog(invalid)).toContain("a1-mijn-trein-is-vertraagd.practiceEnvelope.transfer: expected reviewed transfer task");
   });
 
+  it("backfills appointment and healthcare lessons without replacing the appointment contrast companion", () => {
+    const healthcareLessons = [appointmentLesson, symptomsLesson];
+
+    expect(healthcareLessons.every((lesson) => lesson.practiceEnvelope?.support === "reduced")).toBe(true);
+    expect(healthcareLessons.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["ik-wil-graag", "ik-heb-last-van"]);
+    expect(appointmentLesson.contrastCompanion).toEqual({ id: "contrast.main_clause_inversion", contentVersion: 1 });
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === symptomsLesson.id)!.practiceEnvelope!.transfer.distractors[0].misconception = "";
+    expect(validateLessonCatalog(invalid)).toContain("a1-ik-heb-last-van.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
   it("validates the reviewed appointment micro-story", () => {
     expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
     expect(appointmentLesson.title).toBe("A1 · Een afspraak maken");

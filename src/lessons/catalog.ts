@@ -441,6 +441,24 @@ export const appointmentLesson: Lesson = {
   ],
   contrastCompanion: { id: "contrast.main_clause_inversion", contentVersion: 1 },
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  practiceEnvelope: {
+    contentVersion: 1,
+    support: "reduced",
+    outcome: { primary: "Make a polite request for an appointment.", supporting: ["Recognize ik wil graag in a short reception-desk exchange."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a1-een-afspraak-maken-transfer",
+      primitive: "choose-meaning",
+      candidateId: "ik-wil-graag",
+      prompt: "You are calling a clinic. Choose the Dutch phrase to make a polite request.",
+      context: "Ask politely for an appointment: ___ een afspraak maken.",
+      choices: ["ik wil graag", "ik heb last van", "mijn trein is vertraagd"],
+      accepted: ["ik wil graag"],
+      distractors: [{ answer: "ik heb last van", misconception: "symptom-not-request" }, { answer: "mijn trein is vertraagd", misconception: "transport-not-request" }],
+      feedback: "Use ik wil graag to make a polite request: Ik wil graag een afspraak maken.",
+    },
+    review: lessonPracticeReview,
+  },
 };
 
 export const symptomsLesson: Lesson = {
@@ -466,6 +484,24 @@ export const symptomsLesson: Lesson = {
     { candidateId: "hoofdpijn", dimension: "recognition" }, { candidateId: "de-huisarts", dimension: "recall" },
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  practiceEnvelope: {
+    contentVersion: 1,
+    support: "reduced",
+    outcome: { primary: "Describe a symptom when arranging care.", supporting: ["Recognize ik heb last van without guessing a diagnosis or cause."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a1-ik-heb-last-van-transfer",
+      primitive: "choose-meaning",
+      candidateId: "ik-heb-last-van",
+      prompt: "You are speaking to the GP receptionist. Choose the Dutch phrase to describe a symptom.",
+      context: "Say that you have trouble with your throat: ___ mijn keel.",
+      choices: ["ik heb last van", "ik wil graag", "de huisarts"],
+      accepted: ["ik heb last van"],
+      distractors: [{ answer: "ik wil graag", misconception: "request-not-symptom" }, { answer: "de huisarts", misconception: "person-not-symptom-report" }],
+      feedback: "Use ik heb last van to describe a symptom without adding an unsupported diagnosis.",
+    },
+    review: lessonPracticeReview,
+  },
 };
 
 const reviewed = { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true } as const;
