@@ -11,5 +11,5 @@ The published specification is
 published ticket breakdown is
 [013-contrast-repair-tickets.md](../../013-contrast-repair-tickets.md).
 
-Status: ticketed but not implementation-approved. The frontier is T01 / GitHub
-issue #108.
+Status: implemented and qualified locally; combined Feature 013 PR is in the
+delivery step. Issues #107–#111 remain open until the merged PR reconciliation.

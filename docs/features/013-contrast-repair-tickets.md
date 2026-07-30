@@ -12,7 +12,7 @@
 
 **Source specification:** [013-contrast-repair-spec.md](./013-contrast-repair-spec.md)
 
-**Status:** T01–T03 implemented locally; feature PR deferred until T04 is complete
+**Status:** T01–T04 implemented and qualified locally; feature PR ready for delivery
 
 ## Delivery rules
 
@@ -192,10 +192,10 @@ the repository's automated and release evidence.
 
 **Qualification record:** [013-contrast-repair-validation.md](./013-contrast-repair-validation.md)
 
-- [ ] A second fluent Dutch reviewer with grammar-teaching competence confirms
+- [x] A second fluent Dutch reviewer with grammar-teaching competence confirms
   the pilot examples, explanations, accepted answers, distractors, feedback,
   scope limits, and fresh repair items; reviewer and date are recorded.
-- [ ] Manual evidence covers the A1 lesson companion, immediate offer and
+- [x] Manual evidence covers the A1 lesson companion, immediate offer and
   dismissal, delayed Daily Five repair, keyboard-only operation, visible
   focus, feedback announcement, narrow-popup containment, Retry, Reveal, Skip,
   Exit, offline practice, and no unexpected provider request.
@@ -220,9 +220,8 @@ announced feedback, retry-safe first-check behavior, and lesson continuation;
 learning-record and background tests cover persistence, export/import, stale
 revisions, and duplicate results. `corepack pnpm test` passed with 102 files and
 651 tests; typecheck, Chrome and Firefox builds, release packaging, and
-`git diff --check` also passed. Manual browser qualification remains part of
-T04. The T01 commit is local; the issue remains open and no feature PR is being
-opened until T02–T04 are implemented.
+`git diff --check` also passed. Manual browser qualification was completed as
+part of T04; issue and PR reconciliation follows the final delivery step.
 
 ### T04 engineering evidence
 
@@ -237,13 +236,13 @@ privacy, and compatibility checks are covered without adding provider calls or
 raw-answer storage.
 
 The independent Dutch reviewer record and interactive Chrome/Firefox browser
-gate remain explicitly pending. T04 is not marked complete, the issue remains
-open, and the combined Feature 013 PR remains deferred.
+gate are recorded in the qualification document. Browser versions and
+operating-system details were not supplied in chat and remain an evidence
+limitation. The combined Feature 013 PR is ready for delivery.
 
 ## Implementation handoff
 
-T04 engineering qualification is recorded in
+T04 engineering and manual qualification are recorded in
 [013-contrast-repair-validation.md](./013-contrast-repair-validation.md).
-The independent Dutch review and interactive browser gate remain pending.
-Do not open the feature PR until those gates are complete. Use `$implement`
-with `$tdd` only if a gate exposes an implementation defect.
+Open the single combined Feature 013 PR and reconcile issues #107–#111 after
+merge. Do not run code review for this handoff.

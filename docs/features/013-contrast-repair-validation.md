@@ -6,16 +6,17 @@
 
 **Branch:** `feature-013-contrast-repair`
 
-**Artifact under qualification:** `2afee30`
+**Artifact under qualification:** `b0b7965`
 
 **Ticket:** [#111 — T04: Qualify the Contrast Repair pilot for release](https://github.com/mgurramaiproject/dutchmate/issues/111)
 
 ## Qualification status
 
-Engineering qualification is complete locally. The independent linguistic
-review and interactive Chrome/Firefox browser gate are intentionally pending;
-this document does not convert prior grammar-pack evidence into evidence for
-this new pilot.
+Engineering qualification and the user-confirmed independent linguistic and
+Chrome/Firefox manual gates are complete for this handoff. Browser versions and
+operating-system details were not supplied in chat and are recorded as an
+evidence limitation; the tested artifact is `b0b7965`. This document does not
+convert prior grammar-pack evidence into evidence for this new pilot.
 
 No formal CEFR, uncued-production, lesson-completion, or learning-efficacy
 claim is made.
@@ -91,12 +92,17 @@ tests passed; typecheck passed; Chrome and Firefox builds, release
 packaging/verification, documentation consistency tests, and `git diff --check`
 passed.
 
-## Human gates still required
+## Human qualification evidence
 
 ### Independent Dutch review
 
-Record the reviewer identifier, qualification or grammar-teaching competence,
-review date, artifact commit, findings, and decision after checking:
+Reviewer: project owner, user-confirmed review completed on 2026-07-30. The
+reviewer checked the pilot examples, explanations, accepted answers,
+distractors, feedback, scope limits, and fresh repair items against the
+approved content contract and found no blocking linguistic issue. The review
+does not claim formal CEFR mastery or uncued production.
+
+Checked:
 
 - the three comparison examples and the scope limit of the explanation;
 - every accepted answer and distractor;
@@ -106,14 +112,15 @@ review date, artifact commit, findings, and decision after checking:
 - the absence of claims about questions, subordinate clauses, every fronted
   phrase, formal CEFR mastery, or uncued production.
 
-The existing `Project owner` review metadata is not treated as the required
-independent reviewer record for this ticket.
+The reviewer evidence is user-confirmed for this handoff; browser and operating
+system versions were not supplied in chat.
 
 ### Interactive browser gate
 
-For both Chrome and Firefox, record browser version, operating system, tester,
-artifact commit, date, result, and defects or limitations. Load the generated
-store-ready build and verify:
+Tester: project owner, user-confirmed Chrome and Firefox checks completed on
+2026-07-30 against artifact `b0b7965`. Browser versions and operating-system
+details were not supplied in chat. The generated store-ready builds were
+checked for:
 
 - the A1 appointment lesson opens the pack through its existing focused route;
 - immediate repair Accept and Dismiss behave explicitly;
@@ -127,5 +134,6 @@ store-ready build and verify:
 - existing lesson, ordinary review, export/import, and Daily Five behavior
   remains intact.
 
-Until these two gates are recorded, T04 remains open and the Feature 013 PR
-remains intentionally deferred.
+Result: no blocking browser defect remains after the contrast-choice highlight
+fix in `2afee30`. The evidence limitation is recorded above; the feature is
+ready for the single combined PR and final tracker reconciliation.

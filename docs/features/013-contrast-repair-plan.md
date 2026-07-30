@@ -6,7 +6,7 @@
 
 **Branch:** `feature-013-contrast-repair`
 
-**Status:** Grilled plan; specification and ticket breakdown published; implementation not approved
+**Status:** Grilled plan; implementation and qualification complete; delivery in progress
 
 **Queue source:** [historical Contrast Packs plan](./todos/03-contrast-packs/plan.md)
 
@@ -27,8 +27,9 @@ with `ready-for-agent`.
 - Content: authored, versioned, and independently linguistically reviewed.
 - Interaction: click-, tap-, or keyboard-only; no typed answers.
 - Pilot: one time-first main-clause inversion contrast.
-- `to-spec` and `to-tickets`: intentionally not run; explicit approval is
-  required before creating those documents.
+- `to-spec` and `to-tickets`: approved and published. T01–T04 are implemented
+  and qualified locally; the combined feature PR is the remaining delivery
+  step.
 
 ## Product goal
 
