@@ -20,6 +20,23 @@ describe("lesson catalog", () => {
     expect(validateLessonCatalog(unsafe)).toContain("a0-hallo-ik-ben.practiceEnvelope.transfer: expected reviewed transfer task");
   });
 
+  it("backfills the remaining A0 lessons with behavior-complete envelopes", () => {
+    const remainingA0 = [hebbenLesson, regularLesson, inversionLesson];
+
+    expect(remainingA0.every((lesson) => lesson.practiceEnvelope)).toBe(true);
+    expect(remainingA0.map((lesson) => lesson.practiceEnvelope?.coverage)).toEqual([
+      { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+      { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+      { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    ]);
+    expect(remainingA0.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["ik-heb-dit-nodig", "ik-woon-hier", "woon-je-hier"]);
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === inversionLesson.id)!.practiceEnvelope!.transfer.accepted = ["unknown-answer"];
+    expect(validateLessonCatalog(invalid)).toContain("a0-woon-je-hier.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
   it("validates the reviewed appointment micro-story", () => {
     expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
     expect(appointmentLesson.title).toBe("A1 · Een afspraak maken");

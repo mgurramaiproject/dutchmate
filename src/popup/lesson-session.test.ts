@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { advanceLessonPractice, advanceLessonStage, advanceLessonTransfer, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, selectLessonTransferAnswer, toggleLessonCandidate } from "./lesson-session";
-import { appointmentLesson, introductionLesson, lessonCatalog } from "../lessons/catalog";
+import { appointmentLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, regularLesson } from "../lessons/catalog";
 
 describe("lesson session", () => {
   it("moves through Read, Notice, Practise, Replay, and Keep while retaining candidate choice", () => {
@@ -74,5 +74,16 @@ describe("lesson session", () => {
     expect(checked.transferResult).toBe("correct");
     expect(advanceLessonTransfer(checked).stage).toBe("keep");
     expect(advanceLessonTransfer(replay)).toEqual(replay);
+  });
+
+  it("requires transfer checks for every remaining A0 lesson before Keep", () => {
+    for (const lesson of [hebbenLesson, regularLesson, inversionLesson]) {
+      const replay = createLessonSession(lesson, "replay");
+      const transfer = lesson.practiceEnvelope!.transfer;
+      const checked = checkLessonTransfer(selectLessonTransferAnswer(replay, transfer.accepted[0]));
+
+      expect(checked.transferResult).toBe("correct");
+      expect(advanceLessonTransfer(checked).stage).toBe("keep");
+    }
   });
 });

@@ -68,16 +68,16 @@ validation contract for later slices.
 lesson-practice envelope. Each remains a stable practical story, selects only
 outcome-relevant primitives, and gives every learner safe in-lesson transfer.
 
-- [ ] The three remaining A0 lessons have reviewed outcome maps and
+- [x] The three remaining A0 lessons have reviewed outcome maps and
   behavior-complete practice coverage.
-- [ ] A0 practice uses recognition, choosing, ordering, and tightly guided
+- [x] A0 practice uses recognition, choosing, ordering, and tightly guided
   controlled application without typed answers.
-- [ ] Each lesson includes reduced-support retrieval and guaranteed transfer
+- [x] Each lesson includes reduced-support retrieval and guaranteed transfer
   without Saved or webpage discovery.
-- [ ] Existing pattern and learning-item evidence remain the progress owners.
-- [ ] Identity, completion, versions, Daily Five, export/import, and clear-data
+- [x] Existing pattern and learning-item evidence remain the progress owners.
+- [x] Identity, completion, versions, Daily Five, export/import, and clear-data
   behavior remain intact.
-- [ ] Automated validation, independent Dutch review, and focused integration
+- [x] Automated validation, independent Dutch review, and focused integration
   checks pass.
 
 ## T03 — Backfill A1 conversation and café lessons

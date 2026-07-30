@@ -22,6 +22,14 @@ export type Lesson = {
   review: { dutch: true; english: true; telugu: true; cefr: true; cultural: true; practicalUse: true };
 };
 export type LessonCatalog = { version: typeof LESSON_CATALOG_VERSION; lessons: Lesson[] };
+const a0PracticeReview: LessonPracticeReviewMetadata = {
+  author: "DutchMate team",
+  reviewState: "second-review-complete",
+  reviewer: "Project owner",
+  reviewedAt: "2026-07-30",
+  sources: ["Original DutchMate-authored lesson content."],
+  provenance: "Original DutchMate-authored A0 transfer task reviewed with its lesson micro-story; no copied sentence text.",
+};
 
 export const introductionLesson: Lesson = {
   id: "a0-hallo-ik-ben", contentVersion: 1, pathway: "first-conversations", order: 1,
@@ -60,14 +68,7 @@ export const introductionLesson: Lesson = {
       distractors: [{ answer: "ik woon", misconception: "location-not-identity" }, { answer: "vlakbij", misconception: "place-fragment-not-introduction" }],
       feedback: "Use ik ben to say who you are: Ik ben Ravi.",
     },
-    review: {
-      author: "DutchMate team",
-      reviewState: "second-review-complete",
-      reviewer: "Project owner",
-      reviewedAt: "2026-07-30",
-      sources: ["Original DutchMate-authored lesson content."],
-      provenance: "Original A0 lesson transfer task reviewed with the introduction micro-story; no copied sentence text.",
-    },
+    review: a0PracticeReview,
   },
 };
 
@@ -93,6 +94,23 @@ export const hebbenLesson: Lesson = {
     { candidateId: "een-schrift", dimension: "recognition" }, { candidateId: "een-potlood", dimension: "recall" },
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  practiceEnvelope: {
+    contentVersion: 1,
+    outcome: { primary: "Say that you need a simple item.", supporting: ["Recognize ik heb dit nodig in a classroom or shopping situation."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a0-ik-heb-dit-nodig-transfer",
+      primitive: "choose-meaning",
+      candidateId: "ik-heb-dit-nodig",
+      prompt: "You need a pen for class. Choose the Dutch phrase to say that you need this.",
+      context: "You need a pen: ___ een pen nodig.",
+      choices: ["ik heb dit nodig", "ik woon hier", "ik ben beschikbaar"],
+      accepted: ["ik heb dit nodig"],
+      distractors: [{ answer: "ik woon hier", misconception: "place-not-need" }, { answer: "ik ben beschikbaar", misconception: "availability-not-need" }],
+      feedback: "Use ik heb dit nodig to say that you need this: Ik heb dit nodig.",
+    },
+    review: a0PracticeReview,
+  },
   grammarCompanion: { id: "a0-hebben-present", contentVersion: 1, patternId: "a0-hebben-present" },
 };
 
@@ -118,6 +136,23 @@ export const regularLesson: Lesson = {
     { candidateId: "je-werkt", dimension: "recognition" }, { candidateId: "een-plan-maken", dimension: "recall" },
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  practiceEnvelope: {
+    contentVersion: 1,
+    outcome: { primary: "Say where you live and work in simple present tense.", supporting: ["Recognize ik woon hier and je werkt in everyday home-and-work situations."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a0-ik-woon-en-werk-hier-transfer",
+      primitive: "choose-meaning",
+      candidateId: "ik-woon-hier",
+      prompt: "You tell a new neighbour where you live. Choose the Dutch phrase.",
+      context: "You say where you live: ___.",
+      choices: ["ik woon hier", "ik heb dit nodig", "woon je hier"],
+      accepted: ["ik woon hier"],
+      distractors: [{ answer: "ik heb dit nodig", misconception: "need-not-place" }, { answer: "woon je hier", misconception: "question-not-statement" }],
+      feedback: "Use ik woon hier to say where you live: Ik woon hier.",
+    },
+    review: a0PracticeReview,
+  },
   grammarCompanion: { id: "a0-regular-present", contentVersion: 1, patternId: "a0-regular-present" },
 };
 
@@ -143,6 +178,23 @@ export const inversionLesson: Lesson = {
     { candidateId: "werkt-u-morgen", dimension: "recognition" }, { candidateId: "in-de-buurt", dimension: "recall" },
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  practiceEnvelope: {
+    contentVersion: 1,
+    outcome: { primary: "Ask whether someone lives here.", supporting: ["Recognize verb-first yes-or-no questions about home and work."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a0-woon-je-hier-transfer",
+      primitive: "choose-meaning",
+      candidateId: "woon-je-hier",
+      prompt: "You meet a neighbour. Choose the Dutch yes-or-no question about living here.",
+      context: "Ask whether the person lives here: ___.",
+      choices: ["woon je hier", "ik woon hier", "werkt u morgen"],
+      accepted: ["woon je hier"],
+      distractors: [{ answer: "ik woon hier", misconception: "statement-not-question" }, { answer: "werkt u morgen", misconception: "wrong-meaning" }],
+      feedback: "Use woon je hier to ask whether someone lives here: Woon je hier?",
+    },
+    review: a0PracticeReview,
+  },
   grammarCompanion: { id: "a0-yes-no-inversion", contentVersion: 1, patternId: "a0-yes-no-inversion" },
 };
 
