@@ -186,10 +186,10 @@ contracts. `git diff --check` passed.
 [T04 validation record](./012-grammar-packs-validation.md). No interactive
 Chrome/Firefox browser pass is recorded yet; that remains an explicit human
 gate. The pack demonstrates bounded, controlled practice evidence only and
-makes no formal CEFR or independent-production claim. Reconciliation of issue
-#105 and Delivery was attempted, but both available GitHub mutation paths
-returned authentication/permission errors; the remote state remains
-unmodified.
+makes no formal CEFR or independent-production claim. Issue #105 is in the
+Delivery project, but GitHub rejects mutations to the custom `Execution` and
+`Delivery Status` fields with `NOT_FOUND` even though the fields are readable;
+the custom field state is therefore not claimed as reconciled.
 
 ## Explicitly deferred work
 

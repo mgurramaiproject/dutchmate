@@ -46,6 +46,15 @@ result, and notes for keyboard-only Lessons/Daily Five, visible focus, live
 feedback, narrow-popup containment, offline practice, and provider-request
 behavior.
 
+## Delivery reconciliation attempt
+
+Issue #105 was added to the `Delivery` project after project-scope
+authentication succeeded. The project API reads the item and its custom
+`Execution` and `Delivery Status` fields, but both the CLI and direct GraphQL
+`updateProjectV2ItemFieldValue` mutation reject those field IDs with
+`NOT_FOUND`. The item remains readable with its default `Status=Todo`; no
+custom Delivery field completion is claimed.
+
 ## Browser verification attempt
 
 On 2026-07-30, Chrome 149.0.7827.114 was launched under Xvfb with both the
