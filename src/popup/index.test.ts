@@ -111,7 +111,8 @@ describe("lesson popup", () => {
     lessonCard("A1 · Een afspraak maken").click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
     expect(document.activeElement).toBe(content());
-    expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(false);
+    expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(true);
+    expect(content().classList.contains("lesson-panel")).toBe(true);
     expect(document.querySelector<HTMLButtonElement>("#lessons-tab")?.disabled).toBe(true);
     expect(document.querySelector<HTMLButtonElement>("#lessons-tab")?.getAttribute("aria-selected")).toBe("true");
     expect(document.querySelector<HTMLButtonElement>("#today-tab")?.disabled).toBe(true);
@@ -172,6 +173,7 @@ describe("lesson popup", () => {
     button("Exit lesson").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     expect(document.querySelector("#primary-navigation")?.hasAttribute("hidden")).toBe(false);
+    expect(content().classList.contains("lesson-panel")).toBe(false);
   });
 
   it("gives the A1 healthcare symptom lesson reduced-support transfer", async () => {
