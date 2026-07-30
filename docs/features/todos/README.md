@@ -10,7 +10,7 @@ Implement exactly one queue item at a time. Copying a plan here is not implement
 |---:|---|---|---|
 | 0 | [Shared deterministic foundation](../010-shared-deterministic-foundation-plan.md) | First approval candidate | Compatibility audit only; no speculative runtime foundation |
 | 1 | [Web Sentence Trainer](../011-web-sentence-trainer-plan.md) | Next product slice | Existing `LearningItem` + bounded Dutch `LearningContext`; click-only |
-| 2 | [Grammar content packs](./02-grammar-content-packs/plan.md) | Later active candidate | Internal Verb Gym/Sentence Forge/Grammar Minute families; four shipped A0 patterns first |
+| 2 | [Grammar content packs](../../feature/012-grammar-packs-plan.md) | Later active candidate | Internal Verb Gym/Sentence Forge/Grammar Minute families; four shipped A0 patterns first |
 | 3 | [Contrast Packs](./03-contrast-packs/plan.md) | Later active candidate | Small authored repair inserts tied to reliable controlled evidence |
 
 ## Approval and handoff rules
@@ -24,3 +24,7 @@ Implement exactly one queue item at a time. Copying a plan here is not implement
 ## Source
 
 Reviewed source package: `/home/mgurram/MGurramAI/projects/dutchmate-proj/DutchMate-deterministic-feature-plans`.
+
+Feature 012's canonical plan, specification, and ticket tree live in
+[`docs/feature/`](../../feature/). The original `todos/02-grammar-content-packs`
+copy remains as queue input and is not the implementation contract.
