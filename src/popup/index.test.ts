@@ -694,12 +694,17 @@ describe("lesson popup", () => {
       await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
       button("Got it").click();
     }
+    await vi.waitFor(() => expect(content().textContent).toContain("You meet someone new"));
+    expect(button("Check answer").disabled).toBe(true);
+    button("ik ben").click();
+    button("Check answer").click();
     await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
     button("Choose what to keep").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
-    const firstCandidate = content().querySelector<HTMLInputElement>(".candidate-choice input")!;
-    firstCandidate.click();
+    const secondCandidate = content().querySelectorAll<HTMLInputElement>(".candidate-choice input")[1];
+    secondCandidate.click();
     button("Keep 3 for review").click();
+    expect(runtime.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ type: "dutchmate.learning.keepLessonCandidates", payload: expect.objectContaining({ lessonId: "a0-hallo-ik-ben", evidence: expect.arrayContaining([{ candidateId: "ik-ben", dimension: "recognition", result: "got-it" }]) }) }));
     await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
     button("Today").click();
     await vi.waitFor(() => expect(button("Learn another lesson")).toBeTruthy());

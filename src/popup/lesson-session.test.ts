@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { advanceLessonPractice, advanceLessonStage, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, toggleLessonCandidate } from "./lesson-session";
-import { appointmentLesson, lessonCatalog } from "../lessons/catalog";
+import { advanceLessonPractice, advanceLessonStage, advanceLessonTransfer, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, selectLessonTransferAnswer, toggleLessonCandidate } from "./lesson-session";
+import { appointmentLesson, introductionLesson, lessonCatalog } from "../lessons/catalog";
 
 describe("lesson session", () => {
   it("moves through Read, Notice, Practise, Replay, and Keep while retaining candidate choice", () => {
@@ -64,5 +64,15 @@ describe("lesson session", () => {
       { candidateId: "als-het-kan", dimension: "recognition", result: "got-it" },
     ] });
     expect(getLessonCandidateChoices(keep, []).map((candidate) => candidate.checked)).toEqual([true, true, true, true]);
+  });
+
+  it("requires the tracer transfer check before moving from Replay to Keep", () => {
+    const replay = createLessonSession(introductionLesson, "replay");
+    const selected = selectLessonTransferAnswer(replay, "ik ben");
+    const checked = checkLessonTransfer(selected);
+
+    expect(checked.transferResult).toBe("correct");
+    expect(advanceLessonTransfer(checked).stage).toBe("keep");
+    expect(advanceLessonTransfer(replay)).toEqual(replay);
   });
 });

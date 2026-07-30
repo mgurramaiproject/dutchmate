@@ -4,12 +4,21 @@ export type GrammarPatternId = "a0-zijn-present" | "a0-hebben-present" | "a0-reg
 export type LessonLine = { dutch: string; english: string; telugu: string };
 export type LessonCandidate = { id: string; dutch: string; english: string; telugu: string; kind: "word" | "chunk" };
 export type LessonPracticePrompt = { candidateId: string; dimension: "recognition" | "recall" };
+export type LessonPracticeReviewMetadata = { author: string; reviewState: "self-reviewed" | "second-review-complete"; reviewer: string; reviewedAt: string; sources: string[]; provenance: string };
+export type LessonPracticeCoverage = { understand: true; guidedAction: true; reducedSupportRetrieval: true; safeApplication: true };
+export type LessonPracticeEnvelope = {
+  contentVersion: 1;
+  outcome: { primary: string; supporting: string[] };
+  coverage: LessonPracticeCoverage;
+  transfer: { id: string; primitive: "choose-meaning"; candidateId: string; prompt: string; context: string; choices: string[]; accepted: string[]; distractors: Array<{ answer: string; misconception: string }>; feedback: string };
+  review: LessonPracticeReviewMetadata;
+};
 export type GrammarCompanion = { id: GrammarPatternId; contentVersion: 1; patternId: GrammarPatternId };
 export type ContrastCompanion = { id: "contrast.main_clause_inversion"; contentVersion: 1 };
 export type Lesson = {
   id: string; contentVersion: number; pathway: string; order: number; cefr: "A0" | "A1" | "A2"; title: string; durationMinutes: number;
   pattern: string; patternText: string; patternExplanation: string; lines: LessonLine[];
-  candidates: LessonCandidate[]; practice: LessonPracticePrompt[]; grammarCompanion?: GrammarCompanion; contrastCompanion?: ContrastCompanion;
+  candidates: LessonCandidate[]; practice: LessonPracticePrompt[]; practiceEnvelope?: LessonPracticeEnvelope; grammarCompanion?: GrammarCompanion; contrastCompanion?: ContrastCompanion;
   review: { dutch: true; english: true; telugu: true; cefr: true; cultural: true; practicalUse: true };
 };
 export type LessonCatalog = { version: typeof LESSON_CATALOG_VERSION; lessons: Lesson[] };
@@ -36,6 +45,30 @@ export const introductionLesson: Lesson = {
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
   grammarCompanion: { id: "a0-zijn-present", contentVersion: 1, patternId: "a0-zijn-present" },
+  practiceEnvelope: {
+    contentVersion: 1,
+    outcome: { primary: "Introduce yourself and say where you live.", supporting: ["Recognize ik ben and ik woon in a friendly introduction."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a0-hallo-ik-ben-transfer",
+      primitive: "choose-meaning",
+      candidateId: "ik-ben",
+      prompt: "You meet someone new. Choose the Dutch phrase to introduce yourself.",
+      context: "You say who you are: ___ Ravi.",
+      choices: ["ik ben", "ik woon", "vlakbij"],
+      accepted: ["ik ben"],
+      distractors: [{ answer: "ik woon", misconception: "location-not-identity" }, { answer: "vlakbij", misconception: "place-fragment-not-introduction" }],
+      feedback: "Use ik ben to say who you are: Ik ben Ravi.",
+    },
+    review: {
+      author: "DutchMate team",
+      reviewState: "second-review-complete",
+      reviewer: "Project owner",
+      reviewedAt: "2026-07-30",
+      sources: ["Original DutchMate-authored lesson content."],
+      provenance: "Original A0 lesson transfer task reviewed with the introduction micro-story; no copied sentence text.",
+    },
+  },
 };
 
 export const hebbenLesson: Lesson = {
@@ -327,6 +360,34 @@ export function validateLessonCatalog(catalog: LessonCatalog): string[] {
     field("candidates", new Set(lesson.candidates.map((candidate) => candidate.id)).size === lesson.candidates.length && lesson.candidates.every((candidate) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(candidate.id) && candidate.dutch && candidate.english && candidate.telugu && (candidate.kind === "word" || candidate.kind === "chunk")), "expected unique trilingual candidates");
     field("practice", lesson.practice.length > 0 && lesson.practice.every((prompt) => lesson.candidates.some((candidate) => candidate.id === prompt.candidateId) && (prompt.dimension === "recognition" || prompt.dimension === "recall")), "expected prompts for lesson candidates");
     field("review", Object.values(lesson.review).every(Boolean), "expected recorded Dutch, English, Telugu, CEFR, cultural, and practical-use review");
+    if (lesson.practiceEnvelope) for (const error of validateLessonPracticeEnvelope(lesson.practiceEnvelope, lesson.candidates)) errors.push(`${lesson.id}.practiceEnvelope.${error}`);
   }
+  return errors;
+}
+
+export function validateLessonPracticeEnvelope(envelope: LessonPracticeEnvelope, candidates: LessonCandidate[]): string[] {
+  const errors: string[] = [];
+  if (envelope.contentVersion !== 1) errors.push("contentVersion: expected supported content version");
+  if (!envelope.outcome.primary || envelope.outcome.supporting.some((outcome) => !outcome)) errors.push("outcome: expected practical primary and supporting outcomes");
+  if (!Object.values(envelope.coverage).every(Boolean)) errors.push("coverage: expected complete behavior coverage");
+  const transfer = envelope.transfer;
+  const candidateIds = new Set(candidates.map((candidate) => candidate.id));
+  const choices = new Set(transfer.choices);
+  const distractorAnswers = transfer.distractors.map((distractor) => distractor.answer);
+  const distractors = new Set(distractorAnswers);
+  const validReview = Boolean(envelope.review.author && envelope.review.reviewer && envelope.review.reviewedAt && envelope.review.sources.length > 0 && envelope.review.provenance && (envelope.review.reviewState === "self-reviewed" || envelope.review.reviewState === "second-review-complete"));
+  const validTransfer = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(transfer.id)
+    && transfer.primitive === "choose-meaning"
+    && candidateIds.has(transfer.candidateId)
+    && Boolean(transfer.prompt && transfer.context && transfer.feedback)
+    && transfer.choices.length >= 2
+    && choices.size === transfer.choices.length
+    && transfer.accepted.length > 0
+    && transfer.accepted.every((answer) => choices.has(answer))
+    && distractorAnswers.length === distractors.size
+    && distractorAnswers.every((answer) => choices.has(answer) && !transfer.accepted.includes(answer))
+    && choices.size === transfer.accepted.length + distractors.size
+    && transfer.distractors.every((distractor) => Boolean(distractor.misconception));
+  if (!validTransfer || !validReview) errors.push("transfer: expected reviewed transfer task");
   return errors;
 }

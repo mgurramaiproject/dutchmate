@@ -1,7 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { appointmentLesson, hebbenLesson, inversionLesson, lessonCatalog, regularLesson, validateLessonCatalog } from "./catalog";
+import { appointmentLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, regularLesson, validateLessonCatalog } from "./catalog";
 
 describe("lesson catalog", () => {
+  it("requires the A0 tracer to declare outcome coverage, transfer, and review metadata", () => {
+    expect(introductionLesson.practiceEnvelope).toMatchObject({
+      contentVersion: 1,
+      outcome: { primary: "Introduce yourself and say where you live." },
+      coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+      transfer: { primitive: "choose-meaning", candidateId: "ik-ben", accepted: ["ik ben"] },
+    });
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons[0].practiceEnvelope!.transfer.feedback = "";
+    expect(validateLessonCatalog(invalid)).toContain("a0-hallo-ik-ben.practiceEnvelope.transfer: expected reviewed transfer task");
+
+    const unsafe = structuredClone(lessonCatalog);
+    unsafe.lessons[0].practiceEnvelope!.transfer.distractors[0].misconception = "";
+    expect(validateLessonCatalog(unsafe)).toContain("a0-hallo-ik-ben.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
   it("validates the reviewed appointment micro-story", () => {
     expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
     expect(appointmentLesson.title).toBe("A1 · Een afspraak maken");

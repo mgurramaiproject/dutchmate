@@ -42,20 +42,20 @@ provides guaranteed in-lesson transfer, and records results through existing
 evidence and local-history contracts. Establish the shared authored-content and
 validation contract for later slices.
 
-- [ ] One representative A0 lesson has a reviewed outcome map covering
+- [x] One representative A0 lesson has a reviewed outcome map covering
   understand, guided action, reduced-support retrieval, and guaranteed
   in-lesson transfer.
-- [ ] The shared deterministic exercise contract routes results through the
+- [x] The shared deterministic exercise contract routes results through the
   existing typed learning boundary and existing grammar or learning-item
   evidence owner.
-- [ ] Lesson completion, stage behavior, Daily Five semantics, and Saved
+- [x] Lesson completion, stage behavior, Daily Five semantics, and Saved
   behavior remain compatible.
-- [ ] Validation rejects missing coverage, unstable identifiers, unsupported
+- [x] Validation rejects missing coverage, unstable identifiers, unsupported
   answers, unsafe distractors, missing feedback, missing review metadata, and
   incompatible versions before runtime use.
-- [ ] Compatible extension updates preserve local history; failed migration
+- [x] Compatible extension updates preserve local history; failed migration
   leaves the prior record readable.
-- [ ] Focused content, learning-record, background, popup, migration,
+- [x] Focused content, learning-record, background, popup, migration,
   accessibility, and provider-isolation tests pass.
 
 ## T02 — Backfill the remaining A0 lessons
