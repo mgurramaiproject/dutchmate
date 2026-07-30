@@ -5,6 +5,8 @@ import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import type { DailyFiveDimension, DailyFiveResult, DailyFiveSnapshot } from "../vocabulary/daily-five";
 import type { GrammarRecord } from "../grammar/learning";
 import type { GrammarPatternId } from "../lessons/catalog";
+import type { ContrastRecord } from "../grammar/contrast-learning";
+import type { ContrastPackId } from "../grammar/contrast";
 
 export const TRANSLATE_MESSAGE = "hoverTranslate.translate";
 export const REVIEW_SETTINGS_MESSAGE = "dutchmate.review.settings";
@@ -28,6 +30,9 @@ export const LEARNING_SAVE_LESSON_PROGRESS_MESSAGE = "dutchmate.learning.lessonP
 export const LEARNING_GRAMMAR_MESSAGE = "dutchmate.learning.grammar";
 export const LEARNING_GRAMMAR_INTRODUCE_MESSAGE = "dutchmate.learning.grammar.introduce";
 export const LEARNING_GRAMMAR_RESULT_MESSAGE = "dutchmate.learning.grammar.result";
+export const LEARNING_CONTRAST_MESSAGE = "dutchmate.learning.contrast";
+export const LEARNING_CONTRAST_INTRODUCE_MESSAGE = "dutchmate.learning.contrast.introduce";
+export const LEARNING_CONTRAST_RESULT_MESSAGE = "dutchmate.learning.contrast.result";
 
 export type ReviewSettingsChanges = Pick<ExtensionSettings, "autoSaveSelectedWords" | "showExampleSentence" | "dailyReviewBadge">;
 export type TranslateMessage = { type: typeof TRANSLATE_MESSAGE; payload: TranslationRequest };
@@ -51,11 +56,14 @@ export type LearningMessage =
   | { type: typeof LEARNING_SAVE_LESSON_PROGRESS_MESSAGE; payload: { lessonId: string; stage: LessonProgressStage } }
   | { type: typeof LEARNING_GRAMMAR_MESSAGE; payload?: { patternId?: GrammarPatternId } }
   | { type: typeof LEARNING_GRAMMAR_INTRODUCE_MESSAGE; payload?: { patternId?: GrammarPatternId } }
-  | { type: typeof LEARNING_GRAMMAR_RESULT_MESSAGE; payload: { patternId: GrammarPatternId; contentVersion: 1; exerciseId: string; answer?: string; expectedEvidenceRevision: number; dailyFive?: boolean; outcome?: "reveal" | "skip" } };
+  | { type: typeof LEARNING_GRAMMAR_RESULT_MESSAGE; payload: { patternId: GrammarPatternId; contentVersion: 1; exerciseId: string; answer?: string; expectedEvidenceRevision: number; dailyFive?: boolean; outcome?: "reveal" | "skip" } }
+  | { type: typeof LEARNING_CONTRAST_MESSAGE; payload?: { packId?: ContrastPackId } }
+  | { type: typeof LEARNING_CONTRAST_INTRODUCE_MESSAGE; payload?: { packId?: ContrastPackId } }
+  | { type: typeof LEARNING_CONTRAST_RESULT_MESSAGE; payload: { packId: ContrastPackId; contentVersion: 1; exerciseId: string; answer?: string; expectedEvidenceRevision: number; outcome?: "reveal" | "skip" } };
 
 export type TranslateMessageResponse = { ok: true; result: TranslationResult } | { ok: false; error: string };
 export type SettingsMessageResponse = { ok: true; result: { settings: ExtensionSettings } } | { ok: false; error: string };
-export type LearningMessageResponse = { ok: true; result: { items: LearningItem[] } | { total: number; due: number; new: number; recent: LearningItem[] } | { rhythm: LearningRhythm } | { grammar: GrammarRecord | null } | { grammar: GrammarRecord; snapshot: DailyFiveSnapshot } | { item: LearningItem } | { deleted: true } | { cleared: true } | { backup: LearningBackup } | { importedCount: number; totalCount: number; items: LearningItem[] } | { recorded: true } | { snapshot: DailyFiveSnapshot } | { item: LearningItem; snapshot: DailyFiveSnapshot } | { progress: LessonProgress | null } } | { ok: false; error: string };
+export type LearningMessageResponse = { ok: true; result: { items: LearningItem[] } | { total: number; due: number; new: number; recent: LearningItem[] } | { rhythm: LearningRhythm } | { grammar: GrammarRecord | null } | { grammar: GrammarRecord; snapshot: DailyFiveSnapshot } | { contrast: ContrastRecord | null } | { contrast: ContrastRecord } | { item: LearningItem } | { deleted: true } | { cleared: true } | { backup: LearningBackup } | { importedCount: number; totalCount: number; items: LearningItem[] } | { recorded: true } | { snapshot: DailyFiveSnapshot } | { item: LearningItem; snapshot: DailyFiveSnapshot } | { progress: LessonProgress | null } } | { ok: false; error: string };
 export type BackgroundMessageResponse = TranslateMessageResponse | SettingsMessageResponse | LearningMessageResponse;
 
 export function isTranslateMessage(message: unknown): message is TranslateMessage {
@@ -66,6 +74,7 @@ export function isLearningMessage(message: unknown): message is LearningMessage 
   if (typeof message !== "object" || message === null || !("type" in message)) return false;
   if (message.type === LEARNING_LIST_MESSAGE || message.type === LEARNING_SUMMARY_MESSAGE || message.type === LEARNING_RHYTHM_MESSAGE || message.type === LEARNING_CLEAR_MESSAGE || message.type === LEARNING_EXPORT_MESSAGE) return true;
   if (message.type === LEARNING_GRAMMAR_MESSAGE || message.type === LEARNING_GRAMMAR_INTRODUCE_MESSAGE) { const payload = "payload" in message ? message.payload : undefined; return payload === undefined || (typeof payload === "object" && payload !== null && (!((payload as Record<string, unknown>).patternId) || (payload as Record<string, unknown>).patternId === "a0-zijn-present" || (payload as Record<string, unknown>).patternId === "a0-hebben-present" || (payload as Record<string, unknown>).patternId === "a0-regular-present" || (payload as Record<string, unknown>).patternId === "a0-yes-no-inversion")); }
+  if (message.type === LEARNING_CONTRAST_MESSAGE || message.type === LEARNING_CONTRAST_INTRODUCE_MESSAGE) { const payload = "payload" in message ? message.payload : undefined; return payload === undefined || (typeof payload === "object" && payload !== null && ((payload as Record<string, unknown>).packId === undefined || (payload as Record<string, unknown>).packId === "contrast.main_clause_inversion")); }
   if (message.type === LEARNING_DAILY_FIVE_MESSAGE) { const payload = "payload" in message ? message.payload : undefined; return payload === undefined || (typeof payload === "object" && payload !== null && (!("continueAfterCompletion" in payload) || typeof payload.continueAfterCompletion === "boolean")); }
   if (!("payload" in message) || typeof message.payload !== "object" || message.payload === null) return false;
   const payload = message.payload as Record<string, unknown>;
@@ -79,6 +88,7 @@ export function isLearningMessage(message: unknown): message is LearningMessage 
   if (message.type === LEARNING_RECORD_MISSION_RESULT_MESSAGE) return typeof payload.itemId === "string" && (payload.dimension === "recognition" || payload.dimension === "recall") && (payload.result === "again" || payload.result === "got-it") && typeof payload.expectedAttemptCount === "number" && Number.isInteger(payload.expectedAttemptCount) && payload.expectedAttemptCount >= 0;
   if (message.type === LEARNING_DAILY_FIVE_RESULT_MESSAGE) return typeof payload.itemId === "string" && (payload.dimension === "recognition" || payload.dimension === "recall") && (payload.result === "again" || payload.result === "got-it");
   if (message.type === LEARNING_GRAMMAR_RESULT_MESSAGE) return (payload.patternId === "a0-zijn-present" || payload.patternId === "a0-hebben-present" || payload.patternId === "a0-regular-present" || payload.patternId === "a0-yes-no-inversion") && payload.contentVersion === 1 && typeof payload.exerciseId === "string" && typeof payload.expectedEvidenceRevision === "number" && Number.isInteger(payload.expectedEvidenceRevision) && payload.expectedEvidenceRevision >= 0 && (payload.dailyFive === undefined || typeof payload.dailyFive === "boolean") && (payload.outcome === undefined || payload.outcome === "reveal" || payload.outcome === "skip") && (payload.outcome !== undefined ? payload.dailyFive === true : typeof payload.answer === "string");
+  if (message.type === LEARNING_CONTRAST_RESULT_MESSAGE) return payload.packId === "contrast.main_clause_inversion" && payload.contentVersion === 1 && typeof payload.exerciseId === "string" && typeof payload.expectedEvidenceRevision === "number" && Number.isInteger(payload.expectedEvidenceRevision) && payload.expectedEvidenceRevision >= 0 && (payload.outcome === undefined || payload.outcome === "reveal" || payload.outcome === "skip") && (payload.outcome !== undefined ? payload.answer === undefined : typeof payload.answer === "string");
   if (message.type === LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE) return typeof payload.lessonId === "string" && Array.isArray(payload.candidateIds) && payload.candidateIds.every((id) => typeof id === "string") && Array.isArray(payload.evidence) && payload.evidence.every((entry) => typeof entry === "object" && entry !== null && "candidateId" in entry && typeof entry.candidateId === "string" && "dimension" in entry && (entry.dimension === "recognition" || entry.dimension === "recall") && "result" in entry && (entry.result === "again" || entry.result === "got-it"));
   if (message.type === LEARNING_IMPORT_MESSAGE) return typeof payload.document === "string";
   return message.type === LEARNING_CREATE_OR_MERGE_MESSAGE && typeof payload.dutch === "string" && (payload.kind === undefined || payload.kind === "word" || payload.kind === "chunk") && (payload.english === undefined || payload.english === null || typeof payload.english === "string") && (payload.telugu === undefined || payload.telugu === null || typeof payload.telugu === "string") && (payload.context === undefined || payload.context === null || typeof payload.context === "string") && (payload.contextSourceLanguage === undefined || payload.contextSourceLanguage === "en" || payload.contextSourceLanguage === "nl" || payload.contextSourceLanguage === "te") && (payload.contextSourceText === undefined || payload.contextSourceText === null || typeof payload.contextSourceText === "string") && (payload.contextTranslations === undefined || payload.contextTranslations === null || isContextTranslations(payload.contextTranslations)) && (payload.source === undefined || payload.source === "webpage" || payload.source === "lesson");

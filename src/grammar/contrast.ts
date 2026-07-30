@@ -1,0 +1,183 @@
+import { lessonCatalog } from "../lessons/catalog";
+import type { GrammarPrimitive, GrammarReviewMetadata } from "./content";
+
+export const CONTRAST_PACK_ID = "contrast.main_clause_inversion" as const;
+export const CONTRAST_CONTENT_VERSION = 1 as const;
+export const MAIN_CLAUSE_NO_INVERSION = "MAIN_CLAUSE_NO_INVERSION" as const;
+
+export type ContrastPackId = typeof CONTRAST_PACK_ID;
+export type ContrastMisconceptionCode = typeof MAIN_CLAUSE_NO_INVERSION;
+export type ContrastComparisonItem = { id: string; label: string; sentenceNl: string; valid: boolean };
+export type ContrastExercise = {
+  id: string;
+  packId: ContrastPackId;
+  primitive: GrammarPrimitive;
+  prompt: string;
+  context: string;
+  contextTag: string;
+  choices: string[];
+  tokens?: string[];
+  accepted: string[];
+  distractors: Array<{ value: string; misconception?: ContrastMisconceptionCode; feedback: string }>;
+  feedback: string;
+  evidenceEligible: true;
+  review: GrammarReviewMetadata;
+};
+export type ContrastPack = {
+  id: ContrastPackId;
+  contentVersion: typeof CONTRAST_CONTENT_VERSION;
+  level: "A1";
+  title: string;
+  capability: string;
+  companionLessonId: string;
+  comparison: { items: ContrastComparisonItem[] };
+  explanation: string;
+  meaningNote: string;
+  exercises: ContrastExercise[];
+  review: GrammarReviewMetadata;
+};
+
+const contrastReview: GrammarReviewMetadata = {
+  author: "DutchMate team",
+  reviewState: "second-review-complete",
+  reviewer: "Project owner",
+  reviewedAt: "2026-07-30",
+  sources: ["https://taaladvies.net/termen-inversie/"],
+  provenance: "Original DutchMate-authored examples about time-first main-clause order; no copied exercise text.",
+};
+
+export const contrastPack: ContrastPack = {
+  id: CONTRAST_PACK_ID,
+  contentVersion: CONTRAST_CONTENT_VERSION,
+  level: "A1",
+  title: "Time first? Put the verb next",
+  capability: "Put the finite verb before the subject when a time phrase starts a simple main clause.",
+  companionLessonId: "a1-een-afspraak-maken",
+  comparison: {
+    items: [
+      { id: "subject-first", label: "Subject first", sentenceNl: "Ik werk morgen thuis.", valid: true },
+      { id: "time-first", label: "Time first", sentenceNl: "Morgen werk ik thuis.", valid: true },
+      { id: "learner-error", label: "Common learner error", sentenceNl: "Morgen ik werk thuis.", valid: false },
+    ],
+  },
+  explanation: "When a time phrase comes first in a simple main clause, the finite verb comes next: Morgen werk ik thuis.",
+  meaningNote: "The first two sentences have the same basic meaning. The second one puts tomorrow first.",
+  exercises: [
+    {
+      id: "contrast-choose-time-first",
+      packId: CONTRAST_PACK_ID,
+      primitive: "contrast-form",
+      prompt: "Choose the finite verb after Morgen.",
+      context: "Morgen ___ ik thuis.",
+      contextTag: "time-first",
+      choices: ["werk", "ik werk", "werkt"],
+      accepted: ["werk"],
+      distractors: [
+        { value: "ik werk", misconception: MAIN_CLAUSE_NO_INVERSION, feedback: "Because morgen is first, put the finite verb werk next: Morgen werk ik thuis." },
+        { value: "werkt", feedback: "Use werk with ik: Morgen werk ik thuis." },
+      ],
+      feedback: "Because morgen is first, put the finite verb werk next: Morgen werk ik thuis.",
+      evidenceEligible: true,
+      review: { ...contrastReview },
+    },
+    {
+      id: "contrast-repair-time-first",
+      packId: CONTRAST_PACK_ID,
+      primitive: "repair-choice",
+      prompt: "Repair the sentence.",
+      context: "Morgen ik werk thuis.",
+      contextTag: "repair",
+      choices: ["Morgen werk ik thuis.", "Morgen ik werk thuis.", "Morgen werkt ik thuis."],
+      accepted: ["Morgen werk ik thuis."],
+      distractors: [
+        { value: "Morgen ik werk thuis.", misconception: MAIN_CLAUSE_NO_INVERSION, feedback: "Because morgen is first, put werk before ik: Morgen werk ik thuis." },
+        { value: "Morgen werkt ik thuis.", feedback: "Use werk with ik: Morgen werk ik thuis." },
+      ],
+      feedback: "Because morgen is first, put werk before ik: Morgen werk ik thuis.",
+      evidenceEligible: true,
+      review: { ...contrastReview },
+    },
+    {
+      id: "contrast-rebuild-appointment",
+      packId: CONTRAST_PACK_ID,
+      primitive: "order-tokens",
+      prompt: "Build a fresh time-first sentence.",
+      context: "___ maak ik een afspraak.",
+      contextTag: "fresh-repair",
+      tokens: ["Morgen", "maak", "ik", "een", "afspraak."],
+      choices: ["Morgen maak ik een afspraak."],
+      accepted: ["Morgen maak ik een afspraak."],
+      distractors: [],
+      feedback: "Morgen comes first, then the finite verb maak: Morgen maak ik een afspraak.",
+      evidenceEligible: true,
+      review: { ...contrastReview },
+    },
+  ],
+  review: contrastReview,
+};
+
+export function validateContrastPack(pack: ContrastPack): string[] {
+  const errors: string[] = [];
+  const stable = (value: string) => /^[a-z0-9]+(?:[-.][a-z0-9]+)*$/u.test(value);
+  if (pack.id !== CONTRAST_PACK_ID) errors.push(`${pack.id}.id: expected contrast.main_clause_inversion`);
+  if (pack.contentVersion !== CONTRAST_CONTENT_VERSION) errors.push(`${pack.id}.contentVersion: expected version 1`);
+  if (pack.level !== "A1") errors.push(`${pack.id}.level: expected A1`);
+  if (!pack.title.trim() || !pack.capability.trim() || !stable(pack.companionLessonId)) errors.push(`${pack.id}: incomplete pack metadata`);
+  if (!pack.explanation.trim() || !pack.meaningNote.trim()) errors.push(`${pack.id}: incomplete scoped explanation`);
+  if (!pack.comparison.items.length || new Set(pack.comparison.items.map((item) => item.id)).size !== pack.comparison.items.length || pack.comparison.items.some((item) => !stable(item.id) || !item.label.trim() || !item.sentenceNl.trim() || typeof item.valid !== "boolean")) errors.push(`${pack.id}.comparison: incomplete or duplicate comparison items`);
+  if (pack.comparison.items.filter((item) => item.valid).length < 2 || pack.comparison.items.every((item) => item.valid)) errors.push(`${pack.id}.comparison: expected positive and intentionally incorrect examples`);
+  errors.push(...validateReviewMetadata(pack.review, `${pack.id}.review`));
+  const ids = new Set<string>();
+  for (const exercise of pack.exercises) {
+    if (!stable(exercise.id)) errors.push(`${exercise.id}.id: expected stable kebab-case identifier`);
+    if (ids.has(exercise.id)) errors.push(`duplicate contrast exercise: ${exercise.id}`);
+    ids.add(exercise.id);
+    if (exercise.packId !== pack.id || !exercise.prompt.trim() || !exercise.context.trim() || !exercise.contextTag.trim() || exercise.evidenceEligible !== true) errors.push(`${exercise.id}: incomplete exercise metadata`);
+    if (!(exercise.primitive === "choose-form" || exercise.primitive === "contrast-form" || exercise.primitive === "change-subject" || exercise.primitive === "order-tokens" || exercise.primitive === "repair-choice")) errors.push(`${exercise.id}: unsupported primitive`);
+    if (new Set(exercise.choices).size !== exercise.choices.length) errors.push(`${exercise.id}: duplicate choices`);
+    if (exercise.primitive === "order-tokens" && (!exercise.tokens || exercise.tokens.length < 2 || new Set(exercise.tokens).size !== exercise.tokens.length || exercise.tokens.some((token) => !token.trim()))) errors.push(`${exercise.id}: incomplete order tokens`);
+    if (exercise.primitive !== "order-tokens" && exercise.tokens !== undefined) errors.push(`${exercise.id}: unexpected order tokens`);
+    if (exercise.accepted.length === 0 || new Set(exercise.accepted).size !== exercise.accepted.length || !exercise.accepted.every((answer) => exercise.choices.includes(answer))) errors.push(`${exercise.id}: incomplete accepted answers`);
+    const distractorValues = exercise.distractors.map((distractor) => distractor.value);
+    if (new Set(distractorValues).size !== exercise.distractors.length || exercise.distractors.some((distractor) => exercise.accepted.includes(distractor.value))) errors.push(`${exercise.id}: invalid distractor partition`);
+    if (exercise.choices.some((choice) => !exercise.accepted.includes(choice) && !distractorValues.includes(choice)) || exercise.distractors.some((distractor) => !exercise.choices.includes(distractor.value))) errors.push(`${exercise.id}: every choice must be accepted or an item-specific distractor`);
+    if (exercise.distractors.some((distractor) => distractor.misconception !== undefined && distractor.misconception !== MAIN_CLAUSE_NO_INVERSION)) errors.push(`${exercise.id}: unknown misconception code`);
+    if (exercise.distractors.some((distractor) => !distractor.feedback.trim()) || !exercise.feedback.trim() || exercise.feedback === "Incorrect") errors.push(`${exercise.id}: incomplete or generic feedback`);
+    errors.push(...validateReviewMetadata(exercise.review, `${exercise.id}.review`));
+  }
+  return errors;
+}
+
+export function isContrastContentAvailable(pack: ContrastPack = contrastPack): boolean {
+  return validateContrastPack(pack).length === 0 && lessonCatalog.lessons.some((lesson) => lesson.id === pack.companionLessonId);
+}
+
+export function createContrastContentReport(pack: ContrastPack = contrastPack): string {
+  const lines = [
+    `# Contrast content report: ${pack.id}`,
+    `Version: ${pack.contentVersion}`,
+    `Level: ${pack.level}`,
+    `Title: ${pack.title}`,
+    `Companion lesson: ${pack.companionLessonId}`,
+    `Author: ${pack.review.author}`,
+    `Review state: ${pack.review.reviewState}`,
+    `Reviewer: ${pack.review.reviewer}`,
+    `Reviewed at: ${pack.review.reviewedAt}`,
+    `Sources: ${pack.review.sources.join(", ")}`,
+    `Provenance: ${pack.review.provenance}`,
+    `Explanation: ${pack.explanation}`,
+    `Meaning note: ${pack.meaningNote}`,
+    "",
+  ];
+  for (const item of pack.comparison.items) lines.push(`Comparison: ${item.label} [${item.valid ? "valid" : "intentionally incorrect"}] -> ${item.sentenceNl}`);
+  for (const exercise of pack.exercises) {
+    lines.push(`## ${exercise.id}`, `Primitive: ${exercise.primitive}`, `Context tag: ${exercise.contextTag}`, `Prompt: ${exercise.prompt}`, `Context: ${exercise.context}`, ...(exercise.tokens ? [`Tokens: ${exercise.tokens.join(" | ")}`] : []), `Choices: ${exercise.choices.join(" | ")}`, `Accepted: ${exercise.accepted.join(" | ")}`, `Feedback: ${exercise.feedback}`);
+    for (const distractor of exercise.distractors) lines.push(`Distractor: ${distractor.value} [${distractor.misconception ?? "item-specific"}] -> ${distractor.feedback}`);
+  }
+  return `${lines.join("\n").trim()}\n`;
+}
+
+function validateReviewMetadata(review: GrammarReviewMetadata | undefined, field: string): string[] {
+  if (!review || typeof review.author !== "string" || typeof review.reviewer !== "string" || typeof review.reviewedAt !== "string" || !Array.isArray(review.sources) || typeof review.provenance !== "string" || !review.author.trim() || !review.reviewer.trim() || !/^\d{4}-\d{2}-\d{2}$/u.test(review.reviewedAt) || review.sources.length === 0 || review.sources.some((source) => typeof source !== "string" || !source.trim()) || !review.provenance.trim()) return [`${field}: incomplete review metadata or provenance`];
+  return review.reviewState === "second-review-complete" ? [] : [`${field}: requires second review before runtime release`];
+}

@@ -38,6 +38,7 @@ describe("lesson catalog", () => {
     expect(appointmentLesson).toMatchObject({ contentVersion: 2, candidates: [
       { id: "ik-wil-graag" }, { id: "afspraak" }, { id: "afspraak-maken" }, { id: "als-het-kan" },
     ] });
+    expect(appointmentLesson).toMatchObject({ contrastCompanion: { id: "contrast.main_clause_inversion", contentVersion: 1 } });
     expect(hebbenLesson).toMatchObject({ id: "a0-ik-heb-dit-nodig", contentVersion: 1, grammarCompanion: { patternId: "a0-hebben-present" } });
     expect(regularLesson).toMatchObject({ id: "a0-ik-woon-en-werk-hier", contentVersion: 1, grammarCompanion: { patternId: "a0-regular-present" } });
     expect(inversionLesson).toMatchObject({ id: "a0-woon-je-hier", contentVersion: 1, grammarCompanion: { patternId: "a0-yes-no-inversion" } });

@@ -21,14 +21,20 @@ import {
   LEARNING_GRAMMAR_MESSAGE,
   LEARNING_GRAMMAR_INTRODUCE_MESSAGE,
   LEARNING_GRAMMAR_RESULT_MESSAGE,
+  LEARNING_CONTRAST_MESSAGE,
+  LEARNING_CONTRAST_INTRODUCE_MESSAGE,
+  LEARNING_CONTRAST_RESULT_MESSAGE,
 } from "./messages";
 import { lessonCatalog, validateLessonCatalog } from "../lessons/catalog";
 import { isGrammarContentAvailable } from "../grammar/content";
+import { isContrastContentAvailable } from "../grammar/contrast";
 
 export async function handleLearningMessage(message: LearningMessage, store: LearningRecordStore): Promise<LearningMessageResponse> {
   try {
     const grammarMessage = message.type === LEARNING_GRAMMAR_MESSAGE || message.type === LEARNING_GRAMMAR_INTRODUCE_MESSAGE || message.type === LEARNING_GRAMMAR_RESULT_MESSAGE;
     if (grammarMessage && !isGrammarContentAvailable()) return { ok: false, error: "Grammar practice is unavailable until bundled content is fixed." };
+    const contrastMessage = message.type === LEARNING_CONTRAST_MESSAGE || message.type === LEARNING_CONTRAST_INTRODUCE_MESSAGE || message.type === LEARNING_CONTRAST_RESULT_MESSAGE;
+    if (contrastMessage && !isContrastContentAvailable()) return { ok: false, error: "Contrast practice is unavailable until bundled content is fixed." };
     if (message.type === LEARNING_GRAMMAR_MESSAGE) return { ok: true, result: { grammar: await store.getGrammar(message.payload?.patternId) } };
     if (message.type === LEARNING_GRAMMAR_INTRODUCE_MESSAGE) return { ok: true, result: { grammar: await store.introduceGrammar(message.payload?.patternId) } };
     if (message.type === LEARNING_GRAMMAR_RESULT_MESSAGE) {
@@ -40,6 +46,13 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
       const outcome = message.payload.outcome ? { type: message.payload.outcome } as const : { type: "check" as const, answer: message.payload.answer! };
       const result = await store.recordGrammarCheck(message.payload.patternId, message.payload.contentVersion, message.payload.exerciseId, message.payload.answer ?? null, message.payload.expectedEvidenceRevision, outcome);
       return result.recorded ? { ok: true, result: { grammar: result.grammar } } : { ok: false, error: "This grammar result was already recorded." };
+    }
+    if (message.type === LEARNING_CONTRAST_MESSAGE) return { ok: true, result: { contrast: await store.getContrast(message.payload?.packId) } };
+    if (message.type === LEARNING_CONTRAST_INTRODUCE_MESSAGE) return { ok: true, result: { contrast: await store.introduceContrast(message.payload?.packId) } };
+    if (message.type === LEARNING_CONTRAST_RESULT_MESSAGE) {
+      const outcome = message.payload.outcome ? { type: message.payload.outcome } as const : { type: "check" as const, answer: message.payload.answer! };
+      const result = await store.recordContrastCheck(message.payload.packId, message.payload.contentVersion, message.payload.exerciseId, message.payload.answer ?? null, message.payload.expectedEvidenceRevision, outcome);
+      return result.recorded ? { ok: true, result: { contrast: result.contrast } } : { ok: false, error: "This contrast result was already recorded." };
     }
     const catalogErrors = validateLessonCatalog(lessonCatalog);
     if (catalogErrors.length > 0 && (message.type === LEARNING_LESSON_PROGRESS_MESSAGE || message.type === LEARNING_SAVE_LESSON_PROGRESS_MESSAGE || message.type === LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE)) return { ok: false, error: "Lessons are unavailable until bundled content is fixed." };

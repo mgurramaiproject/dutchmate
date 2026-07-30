@@ -17,6 +17,8 @@ import { addSavedContextToken, checkSavedContextMission, createSavedContextMissi
 import { grammarResultMessage } from "../grammar/learning";
 import { getGrammarPattern, grammarPatterns, type GrammarExercise } from "../grammar/content";
 import type { GrammarRecord } from "../grammar/learning";
+import { contrastPack, type ContrastExercise, type ContrastPackId } from "../grammar/contrast";
+import { contrastResultMessage, type ContrastRecord } from "../grammar/contrast-learning";
 import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
 import "./styles.css";
 
@@ -44,6 +46,9 @@ let grammarFeedback: { correct: boolean; message: string } | null = null;
 let grammarChecked = false;
 let grammarOutcome: "reveal" | "skip" | null = null;
 let grammarRetrying = false;
+let contrastRecord: ContrastRecord | null = null;
+let contrastPackId: ContrastPackId | null = null;
+let contrastExerciseIndex = 0;
 let activeGrammarTask: GrammarDailyFiveTask | null = null;
 let lessonProgressById: Record<string, LessonProgress | null> = {};
 let lessonsError: string | null = null;
@@ -621,8 +626,8 @@ function renderLessonStory(session: LessonSession, allowHelp: boolean): HTMLElem
   const next = button(session.stage === "read" ? "Notice the pattern" : "Choose what to keep", "button primary-button"); next.addEventListener("click", () => void advanceLesson(session)); story.append(next); return story;
 }
 
-function renderLessonNotice(session: LessonSession): HTMLElement { const companion = session.lesson.grammarCompanion; if (companion) return renderGrammarNotice(session, companion.patternId); const panel = section("lesson-story"); panel.append(eyebrow("Notice"), heading(session.lesson.pattern), text(session.lesson.patternExplanation)); for (const line of session.lesson.lines) { const row = document.createElement("p"); row.className = "story-dutch"; const start = line.dutch.indexOf(session.lesson.patternText); if (start < 0) row.textContent = line.dutch; else { row.append(line.dutch.slice(0, start), highlightedPattern(session.lesson.patternText), line.dutch.slice(start + session.lesson.patternText.length)); } panel.append(row); } const next = button("Practise", "button primary-button"); next.addEventListener("click", () => void advanceLesson(session)); panel.append(next); return panel; }
-function renderGrammarAnswerControls(exercise: GrammarExercise): HTMLElement {
+function renderLessonNotice(session: LessonSession): HTMLElement { const contrastCompanion = session.lesson.contrastCompanion; if (contrastCompanion) return renderContrastNotice(session, contrastCompanion.id); const companion = session.lesson.grammarCompanion; if (companion) return renderGrammarNotice(session, companion.patternId); const panel = section("lesson-story"); panel.append(eyebrow("Notice"), heading(session.lesson.pattern), text(session.lesson.patternExplanation)); for (const line of session.lesson.lines) { const row = document.createElement("p"); row.className = "story-dutch"; const start = line.dutch.indexOf(session.lesson.patternText); if (start < 0) row.textContent = line.dutch; else { row.append(line.dutch.slice(0, start), highlightedPattern(session.lesson.patternText), line.dutch.slice(start + session.lesson.patternText.length)); } panel.append(row); } const next = button("Practise", "button primary-button"); next.addEventListener("click", () => void advanceLesson(session)); panel.append(next); return panel; }
+function renderGrammarAnswerControls(exercise: GrammarExercise | ContrastExercise): HTMLElement {
   if (exercise.primitive === "order-tokens" && exercise.tokens) {
     const wrapper = section("grammar-order-controls");
     const answer = section("grammar-order-answer");
@@ -651,6 +656,27 @@ function renderGrammarAnswerControls(exercise: GrammarExercise): HTMLElement {
     action.addEventListener("click", () => { grammarTokens = []; grammarAnswer = choice; grammarFeedback = null; render(); }); choices.append(action);
   }
   return choices;
+}
+
+function renderContrastNotice(session: LessonSession, packId: ContrastPackId): HTMLElement {
+  const exercise = contrastPack.exercises[contrastExerciseIndex];
+  const panel = section("lesson-story grammar-practice contrast-practice");
+  panel.append(eyebrow(`Notice · ${contrastExerciseIndex === 0 ? "See the contrast" : "Repair the contrast"}`), heading(contrastPack.title), text(contrastPack.explanation), text(contrastPack.meaningNote, "grammar-capability"));
+  const comparison = section("contrast-comparison");
+  for (const item of contrastPack.comparison.items) comparison.append(text(`${item.valid ? "✓" : "✗"} ${item.label}: ${item.sentenceNl}`, item.valid ? "contrast-valid" : "contrast-incorrect"));
+  panel.append(comparison, heading(exercise.prompt), text(exercise.context, "story-dutch"), renderGrammarAnswerControls(exercise));
+  if (grammarFeedback) { const status = text(grammarFeedback.message, "grammar-feedback"); status.setAttribute("role", "status"); panel.append(status); }
+  if (grammarChecked) {
+    if (grammarOutcome === null) { const retry = button("Try again", "button"); retry.disabled = pending; retry.addEventListener("click", retryGrammarAnswer); panel.append(retry); }
+    const label = contrastExerciseIndex < contrastPack.exercises.length - 1 ? "Continue to next contrast" : "Continue to Practise";
+    const continueButton = button(label, "button primary-button"); continueButton.disabled = pending; continueButton.addEventListener("click", () => void advanceContrastExercise(session)); panel.append(continueButton);
+  } else {
+    const actions = document.createElement("div"); actions.className = "grammar-actions";
+    const reveal = button("Reveal", "button answer-button"); reveal.disabled = pending; reveal.addEventListener("click", () => void showContrastOutcome(packId, exercise.id, "reveal"));
+    const skip = button("Skip", "button"); skip.disabled = pending; skip.addEventListener("click", () => void showContrastOutcome(packId, exercise.id, "skip")); actions.append(reveal, skip); panel.append(actions);
+    const check = button("Check answer", "button primary-button"); check.disabled = grammarAnswer === null || pending; check.addEventListener("click", () => void checkContrastAnswer(packId, exercise.id)); panel.append(check);
+  }
+  return panel;
 }
 
 function renderGrammarNotice(session: LessonSession, patternId: GrammarPatternId): HTMLElement {
@@ -704,6 +730,39 @@ async function checkGrammarAnswer(patternId: GrammarPatternId, exerciseId: strin
   finally { pending = false; render(); }
 }
 function retryGrammarAnswer(): void { grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarOutcome = null; grammarRetrying = true; grammarChecked = false; render(); }
+async function showContrastOutcome(packId: ContrastPackId, exerciseId: string, outcome: "reveal" | "skip"): Promise<void> {
+  const exercise = contrastPack.exercises.find((candidate) => candidate.id === exerciseId); if (!exercise) return;
+  grammarOutcome = outcome; grammarRetrying = false; grammarChecked = true; grammarTokens = []; grammarAnswer = outcome === "reveal" ? exercise.accepted.join(" / ") : null;
+  grammarFeedback = { correct: false, message: outcome === "reveal" ? `Answer: ${exercise.accepted.join(" or ")}. ${exercise.feedback}` : "Skipped. You can practise this contrast again later." };
+  pending = true; render();
+  try {
+    const record = contrastRecord ?? await learningClient.introduceContrast(packId);
+    contrastRecord = await learningClient.recordContrastResult(packId, 1, exerciseId, null, record.evidenceRevision, outcome);
+  } catch (error) {
+    grammarOutcome = null; grammarChecked = false; grammarAnswer = null;
+    grammarFeedback = { correct: false, message: error instanceof Error ? error.message : "Contrast result could not be saved." };
+  } finally { pending = false; render(); }
+}
+
+async function checkContrastAnswer(packId: ContrastPackId, exerciseId: string): Promise<void> {
+  if (grammarAnswer === null || grammarChecked) return;
+  const exercise = contrastPack.exercises.find((candidate) => candidate.id === exerciseId); if (!exercise) return;
+  pending = true; render();
+  try {
+    const record = contrastRecord ?? await learningClient.introduceContrast(packId);
+    const result = contrastResultMessage(record, exercise, grammarAnswer);
+    grammarFeedback = { correct: result.correct, message: result.feedback };
+    if (!grammarRetrying) contrastRecord = await learningClient.recordContrastResult(packId, 1, exerciseId, grammarAnswer, record.evidenceRevision);
+    grammarOutcome = null; grammarChecked = true;
+  } catch (error) { grammarFeedback = { correct: false, message: error instanceof Error ? error.message : "Contrast result could not be saved." }; }
+  finally { pending = false; render(); }
+}
+
+async function advanceContrastExercise(session: LessonSession): Promise<void> {
+  if (contrastExerciseIndex >= contrastPack.exercises.length - 1) { await advanceLesson(session); return; }
+  contrastExerciseIndex += 1; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; render(); content?.focus();
+}
+
 async function persistGrammarDailyFiveOutcome(patternId: GrammarPatternId, exerciseId: string, outcome: "reveal" | "skip"): Promise<void> {
   const record = grammarRecords[patternId]; const exercise = getGrammarPattern(patternId)?.exercises.find((candidate) => candidate.id === exerciseId); if (!record || !exercise || pending) return;
   grammarFeedback = { correct: false, message: outcome === "reveal" ? `Answer: ${exercise.accepted.join(" or ")}. ${exercise.feedback}` : "Skipped. You can practise this pattern again later." };
@@ -714,7 +773,7 @@ async function persistGrammarDailyFiveOutcome(patternId: GrammarPatternId, exerc
 }
 function renderLessonPractice(session: LessonSession): HTMLElement { const prompt = session.lesson.practice[session.practiceIndex]; const candidate = session.lesson.candidates.find((item) => item.id === prompt.candidateId)!; const panel = section("practice-card"); panel.append(eyebrow(session.practiceRevealed ? "Answer" : prompt.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.practiceRevealed ? candidate.dutch : prompt.dimension === "recognition" ? candidate.dutch : candidate.english)); if (!session.practiceRevealed) { const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { lessonSession = revealLessonPractice(session); render(); }); panel.append(reveal, phoneticHint()); } else { panel.append(meaning("Dutch", candidate.dutch), meaning("English", candidate.english), teluguMeaning(candidate.telugu)); const actions = document.createElement("div"); actions.className = "rating-actions"; for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.addEventListener("click", () => void saveLessonPractice(session, result)); actions.append(action); } panel.append(actions); } return panel; }
 function renderLessonKeep(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Keep"), heading("Choose what to keep for review.")); for (const candidate of getLessonCandidateChoices(session, items)) { const label = document.createElement("label"); label.className = "candidate-choice"; const checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = candidate.checked; checkbox.addEventListener("change", () => { lessonSession = toggleLessonCandidate(session, candidate.id); render(); }); label.append(checkbox, text(candidate.dutch)); if (candidate.alreadySaved) label.append(text("Already saved", "already-saved")); panel.append(label); } const keep = button(`Keep ${session.selectedCandidateIds.length} for review`, "button primary-button"); keep.disabled = pending; keep.addEventListener("click", () => void keepLessonCandidates(session)); panel.append(keep); return panel; }
-async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); grammarRecord = null; grammarPatternId = lesson.grammarCompanion?.patternId ?? null; activeGrammarTask = null; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : "lessons"; render(); } }
+async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); grammarRecord = null; grammarPatternId = lesson.grammarCompanion?.patternId ?? null; contrastRecord = null; contrastPackId = lesson.contrastCompanion?.id ?? null; contrastExerciseIndex = 0; activeGrammarTask = null; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : "lessons"; render(); } }
 async function advanceLesson(session: LessonSession): Promise<void> { const next = advanceLessonStage(session); pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function saveLessonPractice(session: LessonSession, result: "again" | "got-it"): Promise<void> { const next = advanceLessonPracticeState(session, result); if (next.stage !== "replay") { lessonSession = next; render(); return; } pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; rhythm = await learningClient.getRhythm(); const lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonProgressById = { ...lessonProgressById, [session.lesson.id]: lessonProgress }; lessonSession = null; screen = focusedOrigin ?? "lessons"; focusedOrigin = null; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }

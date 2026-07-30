@@ -64,6 +64,8 @@ describe("lesson popup", () => {
         return { ok: true, result: { grammar: message.type.endsWith("introduce") ? { patternId, contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, dueAt: 2, intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 } : null } };
       }
       if (message.type === "dutchmate.learning.grammar.result") return { ok: true, result: { grammar: { patternId: String(message.payload?.patternId), contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, dueAt: 2, intervalDays: 1, successfulEvidenceCount: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], primitives: ["choose-form"], contextTags: ["needs"], recentExerciseIds: [String(message.payload?.exerciseId)], recentSuccessfulDays: [1], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 1, updatedAt: 1 } } };
+      if (message.type === "dutchmate.learning.contrast" || message.type === "dutchmate.learning.contrast.introduce") return { ok: true, result: { contrast: message.type.endsWith("introduce") ? { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, successfulExerciseIds: [], recentExerciseIds: [], evidenceRevision: 0, updatedAt: 1 } : null } };
+      if (message.type === "dutchmate.learning.contrast.result") return { ok: true, result: { contrast: { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], recentExerciseIds: [String(message.payload?.exerciseId)], evidenceRevision: 1, updatedAt: 1 } } };
       if (message.type === "dutchmate.learning.recordMissionResult") {
         if (quizFails) return { ok: false, error: "Quiz result could not be saved." };
         const item = learningItems.find((candidate) => candidate.id === message.payload?.itemId)!;
@@ -119,8 +121,21 @@ describe("lesson popup", () => {
     button("Show line help").click();
     await vi.waitFor(() => expect(content().textContent).toContain("English: Receptionist: Good morning. How can I help you?"));
     button("Notice the pattern").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Use Ik wil graag…"));
-    button("Practise").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Morgen werk ik thuis."));
+    button("werk").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue to next contrast")).toBeTruthy());
+    button("Continue to next contrast").click();
+    await vi.waitFor(() => expect(button("Morgen werk ik thuis.")).toBeTruthy());
+    button("Morgen werk ik thuis.").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue to next contrast")).toBeTruthy());
+    button("Continue to next contrast").click();
+    await vi.waitFor(() => expect(button("Morgen")).toBeTruthy());
+    for (const token of ["Morgen", "maak", "ik", "een", "afspraak."]) button(token).click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy());
+    button("Continue to Practise").click();
     await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
 
     for (const [index, result] of ["Got it", "Again", "Got it"].entries()) {
@@ -841,8 +856,21 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
 
     button("Notice the pattern").click();
-    await vi.waitFor(() => expect(button("Practise")).toBeTruthy());
-    button("Practise").click();
+    await vi.waitFor(() => expect(button("werk")).toBeTruthy());
+    button("werk").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue to next contrast")).toBeTruthy());
+    button("Continue to next contrast").click();
+    await vi.waitFor(() => expect(button("Morgen werk ik thuis.")).toBeTruthy());
+    button("Morgen werk ik thuis.").click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue to next contrast")).toBeTruthy());
+    button("Continue to next contrast").click();
+    await vi.waitFor(() => expect(button("Morgen")).toBeTruthy());
+    for (const token of ["Morgen", "maak", "ik", "een", "afspraak."]) button(token).click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy());
+    button("Continue to Practise").click();
     await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
     for (const [index, result] of ["Got it", "Got it", "Got it"].entries()) {
       button("Show answer").click();
@@ -893,12 +921,25 @@ describe("lesson popup", () => {
       button("Show line help").click();
       await vi.waitFor(() => expect(content().textContent).toContain("English:"));
       button("Notice the pattern").click();
+      if (title === "A1 · Een afspraak maken") {
+        await vi.waitFor(() => expect(button("werk")).toBeTruthy());
+        button("werk").click(); button("Check answer").click();
+        await vi.waitFor(() => expect(button("Continue to next contrast")).toBeTruthy()); button("Continue to next contrast").click();
+        await vi.waitFor(() => expect(button("Morgen werk ik thuis.")).toBeTruthy());
+        button("Morgen werk ik thuis.").click(); button("Check answer").click();
+        await vi.waitFor(() => expect(button("Continue to next contrast")).toBeTruthy()); button("Continue to next contrast").click();
+        await vi.waitFor(() => expect(button("Morgen")).toBeTruthy());
+        for (const token of ["Morgen", "maak", "ik", "een", "afspraak."]) button(token).click();
+        button("Check answer").click();
+        await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy()); button("Continue to Practise").click();
+      } else {
       await vi.waitFor(() => expect(button("Practise")).toBeTruthy());
       button("Practise").click();
       await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
       button("Show answer").click();
       await vi.waitFor(() => expect(content().textContent).toContain(candidate));
       expect(content().textContent).toContain("Telugu");
+      }
       if (title === "A1 · Waar moet ik overstappen?") {
         for (let index = 0; index < 4; index += 1) {
           button("Got it").click();

@@ -12,7 +12,7 @@
 
 **Source specification:** [013-contrast-repair-spec.md](./013-contrast-repair-spec.md)
 
-**Status:** Ticket breakdown published; implementation not approved
+**Status:** T01 implemented locally; feature PR deferred until T02–T04 are complete
 
 ## Delivery rules
 
@@ -60,28 +60,28 @@ click-only choose, repair, and fresh rebuild tasks, and receive the existing
 canonical grammar feedback without entering text or leaving the focused lesson
 flow.
 
-- [ ] The pilot pack is versioned as `contrast.main_clause_inversion` and
+- [x] The pilot pack is versioned as `contrast.main_clause_inversion` and
   contains the reviewed subject-first example, time-first example, and
   explicitly marked incorrect example.
-- [ ] The pack uses `MAIN_CLAUSE_NO_INVERSION` only for an authored,
+- [x] The pack uses `MAIN_CLAUSE_NO_INVERSION` only for an authored,
   controlled distractor and keeps `a0-yes-no-inversion` unchanged.
-- [ ] Every learner-visible example, accepted answer, alternative, distractor,
+- [x] Every learner-visible example, accepted answer, alternative, distractor,
   explanation, feedback message, fresh repair item, and review field is
   enumerated and passes the release validator.
-- [ ] Draft, unreviewed, ambiguous, malformed, duplicate, and incorrectly
+- [x] Draft, unreviewed, ambiguous, malformed, duplicate, and incorrectly
   pooled content cannot enter the runtime bundle.
-- [ ] The existing A1 appointment lesson opens the pack through its current
+- [x] The existing A1 appointment lesson opens the pack through its current
   focused practice route; no new tab, destination, queue, or grammar selector
   appears.
-- [ ] The learner can complete the supported sequence with click, tap, or
+- [x] The learner can complete the supported sequence with click, tap, or
   keyboard controls, visible focus, announced feedback, and readable
   narrow-popup containment.
-- [ ] The canonical grammar result path records at most one first scored
+- [x] The canonical grammar result path records at most one first scored
   result; Reveal, Skip, Retry, duplicate, and stale-result behavior retain
   existing semantics.
-- [ ] The implementation makes no provider request and stores no raw answer,
+- [x] The implementation makes no provider request and stores no raw answer,
   page text, response timing, or full attempt history.
-- [ ] Focused content, lesson, grammar-learning, popup, background, privacy,
+- [x] Focused content, lesson, grammar-learning, popup, background, privacy,
   and compatibility tests pass.
 
 ## T02 — Offer immediate repair after a controlled misconception
@@ -182,9 +182,22 @@ the repository's automated and release evidence.
 - [ ] GitHub issue state and the Delivery project are reconciled when the
   implementation and review evidence are complete.
 
+### T01 evidence
+
+Verified locally on `feature-013-contrast-repair`: `contrast.test.ts` covers
+review gating plus duplicate/unknown-diagnosis rejection; the popup test covers
+the A1 appointment route, all three pilot exercises, keyboard-ready controls,
+announced feedback, retry-safe first-check behavior, and lesson continuation;
+learning-record and background tests cover persistence, export/import, stale
+revisions, and duplicate results. `corepack pnpm test` passed with 102 files and
+651 tests; typecheck, Chrome and Firefox builds, release packaging, and
+`git diff --check` also passed. Manual browser qualification remains part of
+T04. The T01 commit is local; the issue remains open and no feature PR is being
+opened until T02–T04 are implemented.
+
 ## Implementation handoff
 
-The next concrete action after implementation approval is to implement T01 in
-a fresh session using the repository's implementation workflow, with `$tdd`
-for the smallest behavioral check and `$code-review` before committing. T02,
-T03, and T04 remain blocked until their stated predecessors are complete.
+The next concrete action is to implement T02 / #109 after this branch is ready
+for the combined Feature 013 PR. Use `$implement` with `$tdd`; do not start T03
+until T02 is complete. T03 and T04 remain blocked until their stated
+predecessors are complete.

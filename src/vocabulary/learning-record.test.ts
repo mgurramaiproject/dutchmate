@@ -482,6 +482,20 @@ describe("LearningRecordStore", () => {
     expect((await records.exportBackup()).grammar).toHaveProperty("a0-yes-no-inversion");
   });
 
+  it("introduces and persists the contrast pilot without changing grammar pattern records", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    const introduced = await records.introduceContrast();
+    expect(introduced).toMatchObject({ packId: "contrast.main_clause_inversion", state: "introduced", evidenceRevision: 0 });
+    const result = await records.recordContrastCheck("contrast.main_clause_inversion", 1, "contrast-choose-time-first", "werk", 0);
+    expect(result).toMatchObject({ contrast: { packId: "contrast.main_clause_inversion", evidenceRevision: 1, successfulExerciseIds: ["contrast-choose-time-first"] }, recorded: true });
+    expect(await records.getGrammar("a0-yes-no-inversion")).toBeNull();
+    const backup = await records.exportBackup();
+    expect(backup.contrast).toHaveProperty("contrast.main_clause_inversion");
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    await restored.importBackup(backup);
+    await expect(restored.getContrast()).resolves.toMatchObject({ successfulExerciseIds: ["contrast-choose-time-first"] });
+  });
+
   it("preserves all published lesson progress and saved-item mastery through version 3 round trip", async () => {
     const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     await source.createOrMerge({ dutch: "huis", english: "house" });

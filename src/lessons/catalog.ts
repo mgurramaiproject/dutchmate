@@ -5,10 +5,11 @@ export type LessonLine = { dutch: string; english: string; telugu: string };
 export type LessonCandidate = { id: string; dutch: string; english: string; telugu: string; kind: "word" | "chunk" };
 export type LessonPracticePrompt = { candidateId: string; dimension: "recognition" | "recall" };
 export type GrammarCompanion = { id: GrammarPatternId; contentVersion: 1; patternId: GrammarPatternId };
+export type ContrastCompanion = { id: "contrast.main_clause_inversion"; contentVersion: 1 };
 export type Lesson = {
   id: string; contentVersion: number; pathway: string; order: number; cefr: "A0" | "A1" | "A2"; title: string; durationMinutes: number;
   pattern: string; patternText: string; patternExplanation: string; lines: LessonLine[];
-  candidates: LessonCandidate[]; practice: LessonPracticePrompt[]; grammarCompanion?: GrammarCompanion;
+  candidates: LessonCandidate[]; practice: LessonPracticePrompt[]; grammarCompanion?: GrammarCompanion; contrastCompanion?: ContrastCompanion;
   review: { dutch: true; english: true; telugu: true; cefr: true; cultural: true; practicalUse: true };
 };
 export type LessonCatalog = { version: typeof LESSON_CATALOG_VERSION; lessons: Lesson[] };
@@ -257,6 +258,7 @@ export const appointmentLesson: Lesson = {
     { candidateId: "ik-wil-graag", dimension: "recognition" }, { candidateId: "afspraak-maken", dimension: "recall" },
     { candidateId: "als-het-kan", dimension: "recognition" },
   ],
+  contrastCompanion: { id: "contrast.main_clause_inversion", contentVersion: 1 },
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
 };
 
@@ -320,6 +322,7 @@ export function validateLessonCatalog(catalog: LessonCatalog): string[] {
     field("lines", words >= 35 && words <= 60, "expected 35 to 60 Dutch words");
     field("lineHelp", lesson.lines.every((line) => line.dutch && line.english && line.telugu), "expected Dutch, English, and Telugu for every line");
     field("pattern", lesson.pattern.length > 0 && lesson.patternText.length > 0 && lesson.patternExplanation.length > 0 && lesson.lines.some((line) => line.dutch.includes(lesson.patternText)), "expected one story-grounded explained practical pattern");
+    field("contrastCompanion", lesson.contrastCompanion === undefined || (lesson.contrastCompanion.id === "contrast.main_clause_inversion" && lesson.contrastCompanion.contentVersion === 1), "expected supported contrast companion");
     field("candidates", lesson.candidates.length >= 3 && lesson.candidates.length <= 5, "expected 3 to 5 candidates");
     field("candidates", new Set(lesson.candidates.map((candidate) => candidate.id)).size === lesson.candidates.length && lesson.candidates.every((candidate) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(candidate.id) && candidate.dutch && candidate.english && candidate.telugu && (candidate.kind === "word" || candidate.kind === "chunk")), "expected unique trilingual candidates");
     field("practice", lesson.practice.length > 0 && lesson.practice.every((prompt) => lesson.candidates.some((candidate) => candidate.id === prompt.candidateId) && (prompt.dimension === "recognition" || prompt.dimension === "recall")), "expected prompts for lesson candidates");
