@@ -56,6 +56,46 @@ _Avoid_: Grammar product, Verb Gym destination, fixed verb catalog
 Separately identified and versioned pattern teaching and click-only practice attached to a compatible lesson without replacing that lesson, changing its identity, or invalidating its completion. Completing the earlier lesson does not retroactively award pattern progress; the additional practice remains available inside the lesson flow.
 _Avoid_: Replacement lesson, completion reset, separate grammar destination
 
+**Lesson practice envelope**:
+The consistent Learn → guided practice → retrieval → real-world transfer sequence available to every curated mini-lesson. Its exercise primitives, quantity, and transfer hook are selected for the lesson's practical outcome; a lesson is not required to contain every primitive.
+_Avoid_: Fixed exercise bundle, lesson checklist, standalone practice mode
+
+**Interleaved lesson rhythm**:
+The short lesson pacing in which explanation, a controlled learner action, reduced-support retrieval, and an optional transfer prompt alternate within the normal three-to-five-minute mini-lesson. It replaces passive explanation where practice improves the outcome and does not make an extended quiz a completion gate.
+_Avoid_: Lesson-plus-quiz, mandatory assessment, timed drill
+
+**Lesson outcome map**:
+The reviewed authoring map that names one practical primary outcome for a mini-lesson, any limited supporting outcomes, the learning items and grammar patterns that serve them, and the evidence-bearing practice primitives that verify controlled progress. Every learner-visible exercise must trace to this map.
+_Avoid_: Grammar dump, exercise quota, topic tag
+
+**Upgrade-safe learning history**:
+The guarantee that an extension update preserves the learner's readable local learning record, including saved items, lesson progress, pattern evidence, daily state, rhythm, and contrast evidence. Stable compatible content is additive; an incompatible change requires an explicit migration, and a failed migration leaves the prior record intact.
+_Avoid_: Reset on update, silent regrading, cloud account history
+
+**Practice support gradient**:
+The A0-A2 progression in which the shared lesson-practice envelope moves from tightly guided recognition and ordering toward reduced-support, varied, and recombined controlled application. It changes learner support and context, not the underlying practice architecture or evidence contract.
+_Avoid_: Separate level modes, difficulty slider, independent-production claim
+
+**Guaranteed lesson transfer**:
+The reviewed reduced-support application step every lesson provides within its own Dutch context. Eligible Saved-context or ordinary webpage practice may extend it, but external discovery is never required to finish the lesson's practice envelope.
+_Avoid_: Transfer search task, webpage prerequisite, arbitrary-page exercise
+
+**Lesson practice release gate**:
+The combined automated and independent linguistic review required before a learner-visible lesson practice item ships. It verifies deterministic behavior, outcome alignment, accepted answers, feedback, and review provenance without requiring a runtime service.
+_Avoid_: Author-only approval, runtime grading, unreviewed exercise
+
+**Behavior coverage contract**:
+The lesson-authoring requirement to demonstrate the envelope's learning behaviors—understand, act with support, retrieve with less support, and apply in a safe context—without prescribing a fixed exercise count or content quota. Coverage is judged against the lesson outcome map and learner time budget.
+_Avoid_: Exercise quota, fixed bundle, completion percentage
+
+**Stable lesson core**:
+The predictable, reviewed lesson sequence shared by learners. Existing evidence may select optional follow-up practice, but it does not branch the lesson script, silently skip its teaching, or create a separate personalization record.
+_Avoid_: Adaptive lesson tree, hidden skip, personalized curriculum
+
+**Shared lesson exercise contract**:
+The deterministic interaction and result contract reused by lesson practice, Daily Five, Contrast Repair, eligible Saved-context practice, and Encounter Coaching. It gives every surface the same accepted-answer, feedback, evidence, idempotency, and persistence meaning while authored lesson packs supply the relevant content.
+_Avoid_: Per-surface scoring, lesson-specific runtime logic, duplicate evidence system
+
 **Grammar feedback**:
 A deterministic correction that connects a scored wrong answer to one known misconception, one relevant rule, and one reviewed contrast or corrected form. If DutchMate cannot enumerate the accepted alternatives and explain a rejection accurately, the exercise is not eligible for release.
 _Avoid_: Generic incorrect message, random distractor, fuzzy grammar judgment
