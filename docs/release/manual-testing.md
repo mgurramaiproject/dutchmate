@@ -110,6 +110,7 @@ Notes:
 
 Recent entries:
 
+- 2026-07-30 | `d878bc4` | Chrome and Firefox | MGurram | Pass | User confirmed the complete T04 grammar-pack checklist: keyboard-only Lessons and Daily Five flows, visible focus, feedback announcement, narrow-popup containment, offline practice, and no unexpected provider request. Browser versions and operating-system details were not recorded.
 - 2026-07-25 | `d0c1708` | Chrome 149.0.7827.114 and Firefox 152.0.6 | MGurram | Pass | User confirmed the current 006-bridge builds look good in both browsers, completing the T05 cross-language selection, hover, Saved-context, review, unavailable-state, and no-self-translation gate.
 - 2026-07-24 | `b5cbf94` | Chrome and Firefox | MGurram | Pass | User confirmed the current 005-refinement build looks good in both browsers, completing the T06 lifecycle, accessibility, and popup-geometry gate.
 

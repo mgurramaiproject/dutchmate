@@ -1,7 +1,7 @@
 # Feature 012 grammar-pack validation record
 
 Status: engineering qualification passed; independent content review recorded;
-interactive browser gate remains open.
+interactive browser gate passed.
 
 This record is separate from the automated evidence in
 [012-grammar-packs-tickets.md](./012-grammar-packs-tickets.md). It records the
@@ -39,12 +39,12 @@ Reviewer checklist:
 
 ## Browser gate
 
-This content-review confirmation does not record an interactive Chrome or
-Firefox pass. The browser gate remains to be recorded in
-`docs/release/manual-testing.md` with browser version, tester, artifact commit,
-result, and notes for keyboard-only Lessons/Daily Five, visible focus, live
-feedback, narrow-popup containment, offline practice, and provider-request
-behavior.
+The project owner confirmed the interactive Chrome and Firefox pass for the
+current grammar-pack artifact. The check covered keyboard-only Lessons and
+Daily Five flows, visible focus, live feedback, narrow-popup containment,
+offline practice, and absence of unexpected provider requests. Browser
+versions were not recorded; the result is recorded as owner-confirmed evidence
+in `docs/release/manual-testing.md`.
 
 ## Delivery reconciliation
 
@@ -54,11 +54,10 @@ The live values are `Execution=Agent` and `Delivery Status=Blocked`, matching
 the still-open browser gate. The earlier `NOT_FOUND` result came from stale
 custom-field IDs; it was not an authentication failure.
 
-## Browser verification attempt
+## Browser verification
 
-On 2026-07-30, Chrome 149.0.7827.114 was launched under Xvfb with both the
-unpacked checkout build and the packaged ZIP extracted to a disposable `/tmp`
-directory. In both cases the loaded extension service worker appeared, but the
-popup URL returned `ERR_FILE_NOT_FOUND`; no browser result is claimed. Firefox
-153.0 is installed, but no supported automation driver is available in this
-environment, so no Firefox interactive result is claimed either.
+On 2026-07-30, the project owner confirmed the current Chrome and Firefox
+grammar-pack builds pass the T04 interactive checklist. Browser versions and
+operating-system details were not recorded. The earlier disposable automation
+failure is environment evidence only and is superseded by the owner-confirmed
+manual pass; no automation result is claimed.

@@ -159,7 +159,7 @@ handoff and independent human validation without claiming language proficiency.
 - [x] Run Chrome and Firefox builds or package/release checks required by the
   current repository workflow.
 - [x] Run documentation consistency checks and `git diff --check`.
-- [ ] Manually verify keyboard-only Lessons and Daily Five flows, visible focus,
+- [x] Manually verify keyboard-only Lessons and Daily Five flows, visible focus,
   feedback announcement, narrow-popup containment, offline practice, and no
   unexpected provider request.
 - [x] Have changed public content checked by a second fluent Dutch reviewer
@@ -182,13 +182,13 @@ learning-record, backup, popup, background, and release-doc consistency tests
 cover all four canonical pattern IDs and the preserved lesson/progress/storage
 contracts. `git diff --check` passed.
 
-**T04 remaining gates:** The independent content review is recorded in the
-[T04 validation record](./012-grammar-packs-validation.md). No interactive
-Chrome/Firefox browser pass is recorded yet; that remains an explicit human
-gate. The pack demonstrates bounded, controlled practice evidence only and
-makes no formal CEFR or independent-production claim. Issue #105 is in the
-Delivery project with `Execution=Agent` and `Delivery Status=Blocked`; the
-blocked value reflects the open browser gate, not a Project API failure.
+**T04 qualification:** The independent content review and owner-confirmed
+Chrome/Firefox browser pass are recorded in the [T04 validation
+record](./012-grammar-packs-validation.md). The pack demonstrates bounded,
+controlled practice evidence only and makes no formal CEFR or
+independent-production claim. Issue #105 remains in the Delivery project with
+`Execution=Agent` and will be set to `Delivery Status=Done` after the feature
+PR is merged.
 
 ## Explicitly deferred work
 
