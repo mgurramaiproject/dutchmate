@@ -128,6 +128,8 @@ describe("lesson popup", () => {
     button("Continue to next contrast").click();
     await vi.waitFor(() => expect(button("Morgen werk ik thuis.")).toBeTruthy());
     button("Morgen werk ik thuis.").click();
+    expect(button("Morgen werk ik thuis.").classList.contains("is-selected")).toBe(true);
+    expect(button("Morgen werk ik thuis.").getAttribute("aria-pressed")).toBe("true");
     button("Check answer").click();
     await vi.waitFor(() => expect(button("Continue to next contrast")).toBeTruthy());
     button("Continue to next contrast").click();

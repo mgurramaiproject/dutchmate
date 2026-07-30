@@ -142,6 +142,8 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .grammar-order-controls { display: grid; gap: 8px; }
 .grammar-order-answer { min-height: 48px; padding: 12px; border: 1px dashed var(--line); border-radius: 8px; font-family: var(--serif); font-size: 1rem; }
 .grammar-order-placeholder { color: var(--muted); font-family: var(--sans); font-size: .72rem; }
+.grammar-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.grammar-choices .is-selected { background: var(--black); color: var(--white); }
 .grammar-token-choices { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .grammar-token.is-selected { background: var(--black); color: var(--white); }
 .practice-content { display: grid; align-content: start; gap: 16px; min-width: 0; }
