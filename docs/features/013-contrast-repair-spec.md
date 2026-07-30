@@ -6,7 +6,7 @@
 
 **Branch:** `feature-013-contrast-repair`
 
-**Status:** Published as [GitHub issue #107](https://github.com/mgurramaiproject/dutchmate/issues/107); implementation approved and qualified on `feature-013-contrast-repair`
+**Status:** Published as [GitHub issue #107](https://github.com/mgurramaiproject/dutchmate/issues/107); implementation approved, qualified, and merged in [PR #112](https://github.com/mgurramaiproject/dutchmate/pull/112)
 
 **Source plan:** [013-contrast-repair-plan.md](./013-contrast-repair-plan.md)
 

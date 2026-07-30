@@ -12,7 +12,7 @@
 
 **Source specification:** [013-contrast-repair-spec.md](./013-contrast-repair-spec.md)
 
-**Status:** T01–T04 implemented and qualified locally; feature PR ready for delivery
+**Status:** T01–T04 implemented, qualified, and merged in [PR #112](https://github.com/mgurramaiproject/dutchmate/pull/112)
 
 ## Delivery rules
 
@@ -175,8 +175,8 @@ repair clears the pending trigger. Older records default to empty repair state,
 and backup merge clamps the bounded fields. Focused checks passed with 111
 tests; the full suite passed with 104 files and 664 tests, plus typecheck,
 Chrome and Firefox builds, release packaging, and `git diff --check`. Manual
-browser qualification remains part of T04. The issue remains open and no
-feature PR is being opened until T04 is implemented and qualified.
+browser qualification was completed as part of T04. The issue and feature
+were delivered through PR #112.
 
 ## T04 — Qualify the Contrast Repair pilot for release
 
@@ -208,7 +208,7 @@ the repository's automated and release evidence.
 - [x] The checked-in ticket checklist records direct verification evidence and
   known limitations without claiming formal CEFR mastery or uncued
   production.
-- [ ] GitHub issue state and the Delivery project are reconciled when the
+- [x] GitHub issue state and the Delivery project are reconciled when the
   implementation and review evidence are complete.
 
 ### T01 evidence
@@ -221,7 +221,8 @@ learning-record and background tests cover persistence, export/import, stale
 revisions, and duplicate results. `corepack pnpm test` passed with 102 files and
 651 tests; typecheck, Chrome and Firefox builds, release packaging, and
 `git diff --check` also passed. Manual browser qualification was completed as
-part of T04; issue and PR reconciliation follows the final delivery step.
+part of T04; PR #112 merged at `c6d8119`, issues #107–#111 are closed, and the
+Delivery project items are marked Done.
 
 ### T04 engineering evidence
 
@@ -238,11 +239,11 @@ raw-answer storage.
 The independent Dutch reviewer record and interactive Chrome/Firefox browser
 gate are recorded in the qualification document. Browser versions and
 operating-system details were not supplied in chat and remain an evidence
-limitation. The combined Feature 013 PR is ready for delivery.
+limitation. The combined Feature 013 PR merged at `c6d8119`.
 
 ## Implementation handoff
 
 T04 engineering and manual qualification are recorded in
 [013-contrast-repair-validation.md](./013-contrast-repair-validation.md).
-Open the single combined Feature 013 PR and reconcile issues #107–#111 after
-merge. Do not run code review for this handoff.
+The single combined Feature 013 PR is merged at `c6d8119`; issues #107–#111
+are closed and the Delivery project is reconciled. No code review was run.

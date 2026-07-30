@@ -6,7 +6,7 @@
 
 **Branch:** `feature-013-contrast-repair`
 
-**Status:** Grilled plan; implementation and qualification complete; delivery in progress
+**Status:** Grilled plan; implementation and qualification complete; merged in PR [#112](https://github.com/mgurramaiproject/dutchmate/pull/112)
 
 **Queue source:** [historical Contrast Packs plan](./todos/03-contrast-packs/plan.md)
 
@@ -27,9 +27,8 @@ with `ready-for-agent`.
 - Content: authored, versioned, and independently linguistically reviewed.
 - Interaction: click-, tap-, or keyboard-only; no typed answers.
 - Pilot: one time-first main-clause inversion contrast.
-- `to-spec` and `to-tickets`: approved and published. T01–T04 are implemented
-  and qualified locally; the combined feature PR is the remaining delivery
-  step.
+- `to-spec` and `to-tickets`: approved and published. T01–T04 are implemented,
+  qualified, merged, and reconciled.
 
 ## Product goal
 

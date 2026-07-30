@@ -13,10 +13,11 @@
 ## Qualification status
 
 Engineering qualification and the user-confirmed independent linguistic and
-Chrome/Firefox manual gates are complete for this handoff. Browser versions and
-operating-system details were not supplied in chat and are recorded as an
-evidence limitation; the tested artifact is `b0b7965`. This document does not
-convert prior grammar-pack evidence into evidence for this new pilot.
+Chrome/Firefox manual gates are complete for this handoff. The feature merged
+in PR #112 at `c6d8119`. Browser versions and operating-system details were not
+supplied in chat and are recorded as an evidence limitation; the tested
+artifact is `b0b7965`. This document does not convert prior grammar-pack
+evidence into evidence for this new pilot.
 
 No formal CEFR, uncued-production, lesson-completion, or learning-efficacy
 claim is made.
@@ -135,5 +136,5 @@ checked for:
   remains intact.
 
 Result: no blocking browser defect remains after the contrast-choice highlight
-fix in `2afee30`. The evidence limitation is recorded above; the feature is
-ready for the single combined PR and final tracker reconciliation.
+fix in `2afee30`. The evidence limitation is recorded above. PR #112 merged at
+`c6d8119`; issues #107–#111 are closed and the Delivery project is marked Done.

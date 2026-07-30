@@ -11,5 +11,4 @@ The published specification is
 published ticket breakdown is
 [013-contrast-repair-tickets.md](../../013-contrast-repair-tickets.md).
 
-Status: implemented and qualified locally; combined Feature 013 PR is in the
-delivery step. Issues #107–#111 remain open until the merged PR reconciliation.
+Status: implemented, qualified, and merged in PR [#112](https://github.com/mgurramaiproject/dutchmate/pull/112). Issues #107–#111 are closed and the Delivery project is reconciled.
