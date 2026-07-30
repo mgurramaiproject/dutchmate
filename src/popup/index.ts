@@ -4,7 +4,7 @@ import { createSettingsClient } from "./settings-client";
 import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import { getSavedContextViews, getSavedShelfView, type SavedContextView, type SavedShelfSort } from "./saved-shelf-view";
 import { getPopupTabForKey } from "./tab-navigation";
-import type { DailyFiveSnapshot, GrammarDailyFiveTask } from "../vocabulary/daily-five";
+import type { ContrastDailyFiveTask, DailyFiveSnapshot, GrammarDailyFiveTask } from "../vocabulary/daily-five";
 import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningContext, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
@@ -50,6 +50,7 @@ let contrastRecord: ContrastRecord | null = null;
 let contrastExerciseIndex = 0;
 let contrastOffer: ImmediateContrastRepairOffer | null = null;
 let activeGrammarTask: GrammarDailyFiveTask | null = null;
+let activeContrastTask: ContrastDailyFiveTask | null = null;
 let lessonProgressById: Record<string, LessonProgress | null> = {};
 let lessonsError: string | null = null;
 let revealed = false;
@@ -99,6 +100,7 @@ async function load(continueAfterCompletion = false): Promise<void> {
       grammarRecords = Object.fromEntries(records.filter((entry): entry is [GrammarPatternId, GrammarRecord] => entry[1] !== null));
       grammarRecord = grammarRecords["a0-zijn-present"] ?? null;
     } catch { grammarRecords = {}; grammarRecord = null; }
+    try { contrastRecord = await learningClient.getContrast(); } catch { contrastRecord = null; }
     try {
       lessonProgressById = Object.fromEntries(await Promise.all(lessonCatalog.lessons.map(async (lesson) => [lesson.id, await learningClient.getLessonProgress(lesson.id)] as const)));
       lessonsError = null;
@@ -355,7 +357,7 @@ function renderToday(): HTMLElement {
     action.disabled = pending;
     action.addEventListener("click", () => {
       if (completed) void startContinuation();
-      else { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; activeGrammarTask = null; render(); content?.focus(); }
+      else { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; activeGrammarTask = null; activeContrastTask = null; render(); content?.focus(); }
     });
     nextAction.append(action);
     if (completed && reviewsCompletedToday !== null) nextAction.append(text(`${reviewsCompletedToday} item${reviewsCompletedToday === 1 ? "" : "s"} reviewed today`, "review-completion-meta"));
@@ -788,10 +790,55 @@ async function persistGrammarDailyFiveOutcome(patternId: GrammarPatternId, exerc
 }
 function renderLessonPractice(session: LessonSession): HTMLElement { const prompt = session.lesson.practice[session.practiceIndex]; const candidate = session.lesson.candidates.find((item) => item.id === prompt.candidateId)!; const panel = section("practice-card"); panel.append(eyebrow(session.practiceRevealed ? "Answer" : prompt.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.practiceRevealed ? candidate.dutch : prompt.dimension === "recognition" ? candidate.dutch : candidate.english)); if (!session.practiceRevealed) { const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { lessonSession = revealLessonPractice(session); render(); }); panel.append(reveal, phoneticHint()); } else { panel.append(meaning("Dutch", candidate.dutch), meaning("English", candidate.english), teluguMeaning(candidate.telugu)); const actions = document.createElement("div"); actions.className = "rating-actions"; for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.addEventListener("click", () => void saveLessonPractice(session, result)); actions.append(action); } panel.append(actions); } return panel; }
 function renderLessonKeep(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Keep"), heading("Choose what to keep for review.")); for (const candidate of getLessonCandidateChoices(session, items)) { const label = document.createElement("label"); label.className = "candidate-choice"; const checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = candidate.checked; checkbox.addEventListener("change", () => { lessonSession = toggleLessonCandidate(session, candidate.id); render(); }); label.append(checkbox, text(candidate.dutch)); if (candidate.alreadySaved) label.append(text("Already saved", "already-saved")); panel.append(label); } const keep = button(`Keep ${session.selectedCandidateIds.length} for review`, "button primary-button"); keep.disabled = pending; keep.addEventListener("click", () => void keepLessonCandidates(session)); panel.append(keep); return panel; }
-async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); grammarRecord = null; grammarPatternId = lesson.grammarCompanion?.patternId ?? null; contrastRecord = null; contrastExerciseIndex = 0; contrastOffer = null; activeGrammarTask = null; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : "lessons"; render(); } }
+async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); grammarRecord = null; grammarPatternId = lesson.grammarCompanion?.patternId ?? null; contrastRecord = null; contrastExerciseIndex = 0; contrastOffer = null; activeGrammarTask = null; activeContrastTask = null; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : "lessons"; render(); } }
 async function advanceLesson(session: LessonSession): Promise<void> { const next = advanceLessonStage(session); pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function saveLessonPractice(session: LessonSession, result: "again" | "got-it"): Promise<void> { const next = advanceLessonPracticeState(session, result); if (next.stage !== "replay") { lessonSession = next; render(); return; } pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function keepLessonCandidates(session: LessonSession): Promise<void> { pending = true; render(); try { const kept = await learningClient.keepLessonCandidates(session.lesson.id, session.selectedCandidateIds, session.practiceEvidence); items = [...items.filter((item) => !kept.some((saved) => saved.id === item.id)), ...kept]; rhythm = await learningClient.getRhythm(); const lessonProgress = await learningClient.getLessonProgress(session.lesson.id); lessonProgressById = { ...lessonProgressById, [session.lesson.id]: lessonProgress }; lessonSession = null; screen = focusedOrigin ?? "lessons"; focusedOrigin = null; render(); } catch (error) { renderError(error instanceof Error ? error.message : "Your lesson choices could not be saved."); } finally { pending = false; } }
+
+function renderContrastDailyFiveReview(task: ContrastDailyFiveTask): HTMLElement {
+  const exercise = contrastPack.exercises.find((candidate) => candidate.id === task.exerciseId);
+  const record = contrastRecord;
+  const wrapper = section("practice-content focused-content");
+  if (!exercise || !record) { wrapper.append(button("Exit review", "exit-button"), heading("Contrast practice is unavailable.")); return wrapper; }
+  const exit = button("Exit review", "exit-button"); exit.addEventListener("click", () => { screen = focusedOrigin ?? "today"; focusedOrigin = null; render(); });
+  wrapper.append(exit, eyebrow("Daily Five · Contrast repair"), heading(exercise.prompt), text(contrastPack.title, "grammar-capability"), text(exercise.context, "story-dutch"), renderGrammarAnswerControls(exercise));
+  if (grammarFeedback) { const status = text(grammarFeedback.message, "grammar-feedback"); status.setAttribute("role", "status"); wrapper.append(status); }
+  if (!grammarChecked) {
+    const actions = document.createElement("div"); actions.className = "grammar-actions";
+    const reveal = button("Reveal", "button answer-button"); reveal.disabled = pending; reveal.addEventListener("click", () => void persistContrastDailyFiveOutcome(task, "reveal"));
+    const skip = button("Skip", "button"); skip.disabled = pending; skip.addEventListener("click", () => void persistContrastDailyFiveOutcome(task, "skip")); actions.append(reveal, skip); wrapper.append(actions);
+  }
+  if (grammarChecked && grammarOutcome === null) { const retry = button("Try again", "button"); retry.disabled = pending; retry.addEventListener("click", retryContrastAnswer); wrapper.append(retry); }
+  const check = button(grammarChecked ? "Continue" : "Check answer", "button primary-button"); check.disabled = !grammarChecked && (grammarAnswer === null || pending); check.addEventListener("click", () => { if (grammarChecked) continueContrastDailyFiveReview(); else void checkContrastDailyFiveAnswer(task); }); wrapper.append(check);
+  return wrapper;
+}
+
+async function persistContrastDailyFiveOutcome(task: ContrastDailyFiveTask, outcome: "reveal" | "skip"): Promise<void> {
+  const record = contrastRecord; const exercise = contrastPack.exercises.find((candidate) => candidate.id === task.exerciseId); if (!record || !exercise || pending) return;
+  grammarFeedback = { correct: false, message: outcome === "reveal" ? `Answer: ${exercise.accepted.join(" or ")}. ${exercise.feedback}` : "Skipped. You can practise this contrast again later." };
+  grammarOutcome = outcome; grammarChecked = true; pending = true; render();
+  try { const saved = await learningClient.recordContrastDailyFiveResult(task.packId, 1, task.exerciseId, null, record.evidenceRevision, outcome); contrastRecord = saved.contrast; snapshot = saved.snapshot; }
+  catch (error) { grammarChecked = false; grammarOutcome = null; grammarFeedback = { correct: false, message: error instanceof Error ? error.message : "Contrast result could not be saved." }; }
+  finally { pending = false; render(); }
+}
+
+async function checkContrastDailyFiveAnswer(task: ContrastDailyFiveTask): Promise<void> {
+  if (grammarAnswer === null || grammarChecked || !contrastRecord) return;
+  const exercise = contrastPack.exercises.find((candidate) => candidate.id === task.exerciseId); if (!exercise) return;
+  pending = true; render();
+  try {
+    const result = contrastResultMessage(contrastRecord, exercise, grammarAnswer); grammarFeedback = { correct: result.correct, message: result.feedback };
+    if (!grammarRetrying) { const saved = await learningClient.recordContrastDailyFiveResult(task.packId, 1, task.exerciseId, grammarAnswer, contrastRecord.evidenceRevision); contrastRecord = saved.contrast; snapshot = saved.snapshot; }
+    grammarOutcome = null; grammarChecked = true;
+  } catch (error) { grammarFeedback = { correct: false, message: error instanceof Error ? error.message : "Contrast result could not be saved." }; }
+  finally { pending = false; render(); }
+}
+
+function continueContrastDailyFiveReview(): void {
+  const completed = activeContrastTask && snapshot?.completedTaskIds.includes(`${activeContrastTask.packId}\u001f${activeContrastTask.exerciseId}`);
+  if (!snapshot || snapshot.goalCompleted || !completed) { activeContrastTask = null; screen = focusedOrigin ?? "today"; focusedOrigin = null; render(); return; }
+  activeContrastTask = null; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; render();
+}
 
 function renderGrammarReview(task: GrammarDailyFiveTask): HTMLElement {
   const pattern = getGrammarPattern(task.patternId);
@@ -827,7 +874,8 @@ function renderReview(): HTMLElement {
   const reviewView = snapshot ? getDailyFiveReviewView(snapshot, revealed) : null;
   const task = reviewView?.task;
   if (activeGrammarTask) return renderGrammarReview(activeGrammarTask);
-  if (task && "kind" in task) { activeGrammarTask = task; return renderGrammarReview(task); }
+  if (activeContrastTask) return renderContrastDailyFiveReview(activeContrastTask);
+  if (task && "kind" in task) { if (task.kind === "contrast") { activeContrastTask = task; return renderContrastDailyFiveReview(task); } activeGrammarTask = task; return renderGrammarReview(task); }
   const item = task ? items.find((candidate) => candidate.id === task.itemId) : undefined;
   if (!snapshot || !task || !item) { screen = focusedOrigin ?? "today"; focusedOrigin = null; return screen === "today" ? renderToday() : renderLessons(); }
   const exit = button("Exit review", "exit-button");

@@ -9,6 +9,12 @@ describe("contrast learning messages", () => {
     })).toBe(true);
   });
 
+  it("accepts a Daily Five contrast result only with a checked or explicit non-success outcome", () => {
+    expect(isLearningMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", answer: "Morgen maak ik een afspraak.", expectedEvidenceRevision: 2, dailyFive: true } })).toBe(true);
+    expect(isLearningMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", outcome: "skip", expectedEvidenceRevision: 2, dailyFive: true } })).toBe(true);
+    expect(isLearningMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", outcome: "skip", expectedEvidenceRevision: 2 } })).toBe(false);
+  });
+
   it("rejects unknown codes, packs, exercises, versions, outcomes, and revisions", () => {
     const valid = { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "ik werk", expectedEvidenceRevision: 0 } };
     expect(isLearningMessage({ ...valid, payload: { ...valid.payload, misconceptionCode: "UNKNOWN_CODE" } })).toBe(false);

@@ -52,6 +52,7 @@ export type LearningClient = {
   getContrast(packId?: ContrastPackId): Promise<ContrastRecord | null>;
   introduceContrast(packId?: ContrastPackId): Promise<ContrastRecord>;
   recordContrastResult(packId: ContrastPackId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip", misconceptionCode?: ContrastMisconceptionCode): Promise<{ contrast: ContrastRecord; repairOffer: ImmediateContrastRepairOffer | null }>;
+  recordContrastDailyFiveResult(packId: ContrastPackId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip"): Promise<{ contrast: ContrastRecord; snapshot: DailyFiveSnapshot }>;
 };
 
 export function createLearningClient(extensionApi: LearningRuntimeApi): LearningClient {
@@ -115,5 +116,6 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
     async getContrast(packId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_MESSAGE, ...(packId ? { payload: { packId } } : {}) }); if (response.ok && "contrast" in response.result) return response.result.contrast; throw new Error(response.ok ? "Contrast practice is unavailable." : response.error); },
     async introduceContrast(packId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_INTRODUCE_MESSAGE, ...(packId ? { payload: { packId } } : {}) }); if (response.ok && "contrast" in response.result && response.result.contrast) return response.result.contrast; throw new Error(response.ok ? "Contrast practice is unavailable." : response.error); },
     async recordContrastResult(packId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome, misconceptionCode) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId, contentVersion, exerciseId, expectedEvidenceRevision, ...(outcome ? { outcome } : { answer: answer ?? undefined }), ...(misconceptionCode ? { misconceptionCode } : {}) } }); if (response.ok && "contrast" in response.result && response.result.contrast && "repairOffer" in response.result) return response.result; throw new Error(response.ok ? "Contrast result could not be saved." : response.error); },
+    async recordContrastDailyFiveResult(packId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId, contentVersion, exerciseId, expectedEvidenceRevision, dailyFive: true, ...(outcome ? { outcome } : { answer: answer ?? undefined }) } }); if (response.ok && "contrast" in response.result && response.result.contrast && "snapshot" in response.result) return response.result; throw new Error(response.ok ? "Contrast result could not be saved." : response.error); },
   };
 }

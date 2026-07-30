@@ -191,6 +191,19 @@ describe("createBackgroundMessageHandler", () => {
     await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "ik werk", expectedEvidenceRevision: 1, misconceptionCode: "MAIN_CLAUSE_NO_INVERSION" } })).resolves.toMatchObject({ ok: true, result: { repairOffer: null, contrast: { misconceptionCounts: { MAIN_CLAUSE_NO_INVERSION: 2 } } } });
   });
 
+  it("routes a scheduled contrast repair through the mixed Daily Five boundary", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => now);
+    const handleMessage = createBackgroundMessageHandler({ savedVocabulary: new SavedVocabularyStore(storage), reviewCards: new ReviewCardStore(new SavedVocabularyStore(storage), storage), learningRecords: records, refreshBadge: async () => undefined });
+    await send(handleMessage, { type: LEARNING_CONTRAST_INTRODUCE_MESSAGE, payload: { packId: "contrast.main_clause_inversion" } });
+    await send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "ik werk", expectedEvidenceRevision: 0, misconceptionCode: "MAIN_CLAUSE_NO_INVERSION" } });
+    await send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-repair-time-first", answer: "Morgen ik werk thuis.", expectedEvidenceRevision: 1, misconceptionCode: "MAIN_CLAUSE_NO_INVERSION" } });
+    now = new Date(2026, 0, 2, 9).getTime();
+    await expect(send(handleMessage, { type: LEARNING_DAILY_FIVE_MESSAGE })).resolves.toMatchObject({ ok: true, result: { snapshot: { tasks: [{ kind: "contrast", exerciseId: "contrast-rebuild-appointment" }] } } });
+    await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", answer: "Morgen maak ik een afspraak.", expectedEvidenceRevision: 2, dailyFive: true } })).resolves.toMatchObject({ ok: true, result: { contrast: { repair: { pending: false } }, snapshot: { goalCompleted: true } } });
+  });
+
   it("keeps selected lesson candidates atomically with lesson provenance", async () => {
     const storage = new MemoryStorage();
     const records = new LearningRecordStore(storage, () => 1_000);

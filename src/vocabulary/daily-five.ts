@@ -1,5 +1,6 @@
 import type { LearningItem, LearningMastery, MasteryState } from "./learning-record";
 import type { GrammarPatternId } from "../lessons/catalog";
+import type { ContrastPackId } from "../grammar/contrast";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
 const stateRank: Record<MasteryState, number> = { new: 0, learning: 1, familiar: 2, strong: 3 };
@@ -8,10 +9,12 @@ export type DailyFiveDimension = "recognition" | "recall";
 export type DailyFiveResult = "again" | "got-it";
 export type GrammarDailyFiveTask = { kind: "grammar"; patternId: GrammarPatternId; contentVersion: 1; exerciseId: string };
 export type GrammarDailyFiveCandidate = { task: GrammarDailyFiveTask; dueAt: number; patternOrder: number };
-export type DailyFiveTask = { itemId: string; dimension: DailyFiveDimension } | GrammarDailyFiveTask;
+export type ContrastDailyFiveTask = { kind: "contrast"; packId: ContrastPackId; contentVersion: 1; exerciseId: string };
+export type DailyFivePracticeTask = GrammarDailyFiveTask | ContrastDailyFiveTask;
+export type DailyFiveTask = { itemId: string; dimension: DailyFiveDimension } | DailyFivePracticeTask;
 export type DailyFiveSnapshot = { createdAt: number; dayStartAt: number; tasks: DailyFiveTask[]; completedTaskIds: string[]; goalCompleted: boolean };
 
-export function createDailyFiveSnapshot(items: LearningItem[], now: number, lastDirection?: DailyFiveDimension, grammarTasks: GrammarDailyFiveTask[] = []): DailyFiveSnapshot {
+export function createDailyFiveSnapshot(items: LearningItem[], now: number, lastDirection?: DailyFiveDimension, grammarTasks: DailyFivePracticeTask[] = []): DailyFiveSnapshot {
   const due = items.flatMap((item) => {
     const dimension = getDueDimension(item, now, lastDirection);
     return dimension ? [{ item, dimension, dueAt: item[dimension].dueAt ?? Number.MAX_SAFE_INTEGER }] : [];
@@ -23,9 +26,9 @@ export function createDailyFiveSnapshot(items: LearningItem[], now: number, last
   }).sort((a, b) => a.item.createdAt - b.item.createdAt || a.item.id.localeCompare(b.item.id));
   const vocabularyTasks = [...due, ...fresh].map(({ item, dimension }) => ({ itemId: item.id, dimension } as DailyFiveTask));
   const eligibleVocabularyCount = vocabularyTasks.length;
-  const grammar = grammarTasks.slice(0, 2);
-  const vocabularyLimit = eligibleVocabularyCount >= 3 ? 5 - grammar.length : Math.min(5, vocabularyTasks.length);
-  return { createdAt: now, dayStartAt: getLocalDayStart(now), tasks: [...vocabularyTasks.slice(0, vocabularyLimit), ...grammar].slice(0, 5), completedTaskIds: [], goalCompleted: false };
+  const practice = grammarTasks.filter((task, index, all) => task.kind !== "contrast" || all.findIndex((candidate) => candidate.kind === "contrast") === index).slice(0, 2);
+  const vocabularyLimit = eligibleVocabularyCount >= 3 ? 5 - practice.length : Math.min(5, vocabularyTasks.length);
+  return { createdAt: now, dayStartAt: getLocalDayStart(now), tasks: [...vocabularyTasks.slice(0, vocabularyLimit), ...practice].slice(0, 5), completedTaskIds: [], goalCompleted: false };
 }
 
 export function selectGrammarDailyFiveTasks(candidates: readonly GrammarDailyFiveCandidate[], now: number, limit = 2): GrammarDailyFiveTask[] {

@@ -51,6 +51,10 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
     if (message.type === LEARNING_CONTRAST_INTRODUCE_MESSAGE) return { ok: true, result: { contrast: await store.introduceContrast(message.payload?.packId) } };
     if (message.type === LEARNING_CONTRAST_RESULT_MESSAGE) {
       const outcome = message.payload.outcome ? { type: message.payload.outcome } as const : { type: "check" as const, answer: message.payload.answer! };
+      if (message.payload.dailyFive) {
+        const result = await store.recordContrastDailyFiveResult({ packId: message.payload.packId, contentVersion: message.payload.contentVersion, exerciseId: message.payload.exerciseId, outcome, expectedEvidenceRevision: message.payload.expectedEvidenceRevision });
+        return { ok: true, result: { contrast: result.contrast, snapshot: result.snapshot } };
+      }
       const result = await store.recordContrastCheck(message.payload.packId, message.payload.contentVersion, message.payload.exerciseId, message.payload.answer ?? null, message.payload.expectedEvidenceRevision, outcome, message.payload.misconceptionCode);
       return result.recorded ? { ok: true, result: { contrast: result.contrast, repairOffer: result.repairOffer } } : { ok: false, error: "This contrast result was already recorded." };
     }

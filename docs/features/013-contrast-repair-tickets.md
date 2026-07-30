@@ -12,7 +12,7 @@
 
 **Source specification:** [013-contrast-repair-spec.md](./013-contrast-repair-spec.md)
 
-**Status:** T01–T02 implemented locally; feature PR deferred until T03–T04 are complete
+**Status:** T01–T03 implemented locally; feature PR deferred until T04 is complete
 
 ## Delivery rules
 
@@ -41,9 +41,8 @@
 T01 / #108  ──>  T02 / #109  ──>  T03 / #110  ──>  T04 / #111
 ```
 
-T01 is the current frontier. It establishes the reviewed pilot and voluntary
-lesson path. T02 depends on that path to add the immediate controlled-error
-offer. T03 depends on the shared misconception and offer seam to add bounded
+T04 is the current frontier. T01 establishes the reviewed pilot and voluntary
+lesson path. T02 adds the immediate controlled-error offer. T03 adds bounded
 delayed selection through Daily Five. T04 is the final release and human
 qualification gate.
 
@@ -141,27 +140,43 @@ attempts and outside the three-day cooldown, the learner receives a different
 reviewed repair item without losing vocabulary protection or entering a second
 queue. Completing that delayed repair clears the pending trigger.
 
-- [ ] Bounded per-code state supports the six-relevant-attempt window,
+- [x] Bounded per-code state supports the six-relevant-attempt window,
   two-occurrence threshold, three-day cooldown, pending trigger, recent repair
   diversity, and successful delayed clearing.
-- [ ] Attempts outside the relevant controlled scope do not contribute to the
+- [x] Attempts outside the relevant controlled scope do not contribute to the
   threshold, and one code cannot dominate practice during cooldown.
-- [ ] Daily Five can select at most one eligible contrast repair task while
+- [x] Daily Five can select at most one eligible contrast repair task while
   preserving due-first behavior, vocabulary protection, duplicate-target
   protection, completion accounting, and continuation behavior.
-- [ ] The Daily Five task references pack identity, content version, and
+- [x] The Daily Five task references pack identity, content version, and
   exercise identity without copying explanations or sentence text into
   learner state.
-- [ ] A delayed task uses a different reviewed repair item; if no safe fresh
+- [x] A delayed task uses a different reviewed repair item; if no safe fresh
   item exists, DutchMate omits the delayed offer.
-- [ ] Reveal and Skip do not count as successful repair evidence; a successful
+- [x] Reveal and Skip do not count as successful repair evidence; a successful
   delayed repair clears the pending trigger.
-- [ ] Older local records and backups load with empty repair state, while
+- [x] Older local records and backups load with empty repair state, while
   export/import and merge clamp and preserve only approved bounded state.
-- [ ] Duplicate, stale, unavailable, and malformed Daily Five repair results
+- [x] Duplicate, stale, unavailable, and malformed Daily Five repair results
   cannot mutate the record twice.
-- [ ] Focused learning-record, Daily Five, background, popup, persistence,
+- [x] Focused learning-record, Daily Five, background, popup, persistence,
   privacy, and provider-isolation tests pass.
+
+### T03 evidence
+
+Verified locally on `feature-013-contrast-repair`: the bounded contrast repair
+state keeps at most six relevant misconception codes and eight recent repair
+exercise IDs, applies the two-match threshold and three-day cooldown, and
+selects at most one fresh reviewed repair task through the existing mixed Daily
+Five snapshot. Contrast tasks carry only pack, content version, and exercise
+identity; the popup uses the bundled exercise at render time. Reveal, Skip,
+duplicate, stale, and unavailable results are covered, and successful delayed
+repair clears the pending trigger. Older records default to empty repair state,
+and backup merge clamps the bounded fields. Focused checks passed with 111
+tests; the full suite passed with 104 files and 664 tests, plus typecheck,
+Chrome and Firefox builds, release packaging, and `git diff --check`. Manual
+browser qualification remains part of T04. The issue remains open and no
+feature PR is being opened until T04 is implemented and qualified.
 
 ## T04 — Qualify the Contrast Repair pilot for release
 
@@ -209,7 +224,6 @@ opened until T02–T04 are implemented.
 
 ## Implementation handoff
 
-The next concrete action is to implement T03 / #110 after this branch is ready
-for the combined Feature 013 PR. Use `$implement` with `$tdd`; do not start T04
-until T03 is complete. T04 remains blocked until its stated predecessor is
-complete.
+The next concrete action is to implement T04 / #111 after this branch is ready
+for the combined Feature 013 PR. Use `$implement` with `$tdd`; do not open the
+feature PR until T04 is complete and manually qualified.
