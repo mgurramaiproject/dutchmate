@@ -116,6 +116,10 @@ _Avoid_: Session log, passive activity, telemetry
 The single default daily goal of completing five high-value practice tasks across saved learning items and previously studied grammar patterns. Due work comes first, grammar initially occupies at most two positions so vocabulary practice remains protected, completing five is enough, and continuing is optional.
 _Avoid_: Clear-all-due target, daily quota, timed session
 
+**Grammar Minute**:
+An internal packaging label for a concise grammar task or sequence delivered through the existing Today or Daily Five flow. It does not create a grammar destination, fixed feature mix, second queue, or separate progress record.
+_Avoid_: Grammar tab, grammar session, second scheduler
+
 **Meaningful chunk**:
 A reusable Dutch multiword expression whose meaning or use is best learned as a unit, such as a collocation, fixed expression, idiom, or separable verb pattern. An arbitrary selected phrase or complete sentence is not automatically a meaningful chunk.
 _Avoid_: Any phrase, sentence card, text selection
