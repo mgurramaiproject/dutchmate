@@ -168,7 +168,7 @@ handoff and independent human validation without claiming language proficiency.
   remain compatible with export/import and release artifacts.
 - [x] Record known limitations without converting controlled evidence into a
   formal CEFR or independent-production claim.
-- [ ] Reconcile the checked-in checklist with the published GitHub issues and
+- [x] Reconcile the checked-in checklist with the published GitHub issues and
   Delivery state once the tracker work is approved and available.
 
 **T04 automated evidence (2026-07-30):** `npm run verify` passed with 100 test
