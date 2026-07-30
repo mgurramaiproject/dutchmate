@@ -53,6 +53,8 @@ describe("popup layout", () => {
     expect(styles).toContain(".lesson-content .lesson-transfer { display: grid; gap: 8px; }");
     expect(styles).toContain(".lesson-content .practice-card .button,\n.lesson-content .lesson-transfer .button { min-height: var(--dm-target-min);");
     expect(styles).toContain(".lesson-content .practice-card .grammar-feedback,\n.lesson-content .lesson-transfer .grammar-feedback { margin: 0; font-size: var(--dm-font-size-small);");
+    expect(styles).toContain(".lesson-content.focused-content { gap: 0; padding-top: 8px; }");
+    expect(styles).toContain(".lesson-content .lesson-stage { display: grid; min-height: var(--dm-target-min); place-items: center;");
     expect(styles).toContain(".year-month-labels span { min-width: 0; white-space: nowrap; }");
   });
 });

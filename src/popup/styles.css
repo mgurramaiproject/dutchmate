@@ -331,6 +331,10 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .lesson-content .lesson-transfer .button { min-height: var(--dm-target-min); padding: 7px 8px; font-size: var(--dm-font-size-label); line-height: var(--dm-line-height-label); overflow-wrap: anywhere; }
 .lesson-content .practice-card .grammar-feedback,
 .lesson-content .lesson-transfer .grammar-feedback { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
+.lesson-content.focused-content { gap: 0; padding-top: 8px; }
+.lesson-content.focused-content > .exit-button { justify-self: start; padding: 0 4px; text-align: left; }
+.lesson-content .lesson-rail { gap: 0; }
+.lesson-content .lesson-stage { display: grid; min-height: var(--dm-target-min); place-items: center; padding: 0 2px; line-height: var(--dm-line-height-small); }
 
 @media (max-width: 360px) {
   .popup-content { padding-inline: 16px; }
