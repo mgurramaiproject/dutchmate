@@ -89,14 +89,14 @@ outcome-relevant primitives, and gives every learner safe in-lesson transfer.
 **What to build:** Backfill `Kunt u dat herhalen?`, `Ik wil graag bestellen`,
 and `Kan ik met pin betalen?` with complete A1 lesson-integrated practice.
 
-- [ ] All three lessons have reviewed outcome maps and behavior-complete
+- [x] All three lessons have reviewed outcome maps and behavior-complete
   practice envelopes.
-- [ ] A1 practice uses less support and more varied controlled contexts than
+- [x] A1 practice uses less support and more varied controlled contexts than
   the A0 slice.
-- [ ] Each lesson includes reduced-support retrieval and guaranteed transfer.
-- [ ] Existing evidence remains the sole progress owner; no new queue or
+- [x] Each lesson includes reduced-support retrieval and guaranteed transfer.
+- [x] Existing evidence remains the sole progress owner; no new queue or
   lesson mastery is added.
-- [ ] Content, feedback, review metadata, migration, accessibility, and
+- [x] Content, feedback, review metadata, migration, accessibility, and
   provider-free behavior pass release checks.
 
 ## T04 — Backfill A1 transport lessons

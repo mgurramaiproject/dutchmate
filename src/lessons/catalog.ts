@@ -4,10 +4,12 @@ export type GrammarPatternId = "a0-zijn-present" | "a0-hebben-present" | "a0-reg
 export type LessonLine = { dutch: string; english: string; telugu: string };
 export type LessonCandidate = { id: string; dutch: string; english: string; telugu: string; kind: "word" | "chunk" };
 export type LessonPracticePrompt = { candidateId: string; dimension: "recognition" | "recall" };
+export type LessonPracticeSupport = "guided" | "reduced";
 export type LessonPracticeReviewMetadata = { author: string; reviewState: "self-reviewed" | "second-review-complete"; reviewer: string; reviewedAt: string; sources: string[]; provenance: string };
 export type LessonPracticeCoverage = { understand: true; guidedAction: true; reducedSupportRetrieval: true; safeApplication: true };
 export type LessonPracticeEnvelope = {
   contentVersion: 1;
+  support: LessonPracticeSupport;
   outcome: { primary: string; supporting: string[] };
   coverage: LessonPracticeCoverage;
   transfer: { id: string; primitive: "choose-meaning"; candidateId: string; prompt: string; context: string; choices: string[]; accepted: string[]; distractors: Array<{ answer: string; misconception: string }>; feedback: string };
@@ -55,6 +57,7 @@ export const introductionLesson: Lesson = {
   grammarCompanion: { id: "a0-zijn-present", contentVersion: 1, patternId: "a0-zijn-present" },
   practiceEnvelope: {
     contentVersion: 1,
+    support: "guided",
     outcome: { primary: "Introduce yourself and say where you live.", supporting: ["Recognize ik ben and ik woon in a friendly introduction."] },
     coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
     transfer: {
@@ -96,6 +99,7 @@ export const hebbenLesson: Lesson = {
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
   practiceEnvelope: {
     contentVersion: 1,
+    support: "guided",
     outcome: { primary: "Say that you need a simple item.", supporting: ["Recognize ik heb dit nodig in a classroom or shopping situation."] },
     coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
     transfer: {
@@ -138,6 +142,7 @@ export const regularLesson: Lesson = {
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
   practiceEnvelope: {
     contentVersion: 1,
+    support: "guided",
     outcome: { primary: "Say where you live and work in simple present tense.", supporting: ["Recognize ik woon hier and je werkt in everyday home-and-work situations."] },
     coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
     transfer: {
@@ -180,6 +185,7 @@ export const inversionLesson: Lesson = {
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
   practiceEnvelope: {
     contentVersion: 1,
+    support: "guided",
     outcome: { primary: "Ask whether someone lives here.", supporting: ["Recognize verb-first yes-or-no questions about home and work."] },
     coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
     transfer: {
@@ -220,6 +226,24 @@ export const repetitionLesson: Lesson = {
     { candidateId: "ik-begrijp-het-niet", dimension: "recognition" }, { candidateId: "geen-probleem", dimension: "recall" },
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  practiceEnvelope: {
+    contentVersion: 1,
+    support: "reduced",
+    outcome: { primary: "Ask someone to repeat information politely.", supporting: ["Recognize Kunt u dat herhalen? when you need clarification in a conversation."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a1-kunt-u-dat-herhalen-transfer",
+      primitive: "choose-meaning",
+      candidateId: "kunt-u-dat-herhalen",
+      prompt: "You did not hear the platform number. Choose the polite Dutch request.",
+      context: "You ask someone to repeat it: ___, alstublieft.",
+      choices: ["kunt u dat herhalen", "ik wil graag", "met pin betalen"],
+      accepted: ["kunt u dat herhalen"],
+      distractors: [{ answer: "ik wil graag", misconception: "order-not-clarification" }, { answer: "met pin betalen", misconception: "payment-not-clarification" }],
+      feedback: "Use Kunt u dat herhalen? to ask politely for repetition.",
+    },
+    review: a0PracticeReview,
+  },
 };
 
 export const cafeOrderLesson: Lesson = {
@@ -245,6 +269,24 @@ export const cafeOrderLesson: Lesson = {
     { candidateId: "iets-bij", dimension: "recognition" }, { candidateId: "graag", dimension: "recall" },
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  practiceEnvelope: {
+    contentVersion: 1,
+    support: "reduced",
+    outcome: { primary: "Order a drink or snack politely in a café.", supporting: ["Recognize Ik wil graag… before naming what you want."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a1-ik-wil-graag-bestellen-transfer",
+      primitive: "choose-meaning",
+      candidateId: "ik-wil-graag",
+      prompt: "You are ready to order in a café. Choose the Dutch phrase to start politely.",
+      context: "You order a coffee: ___ een koffie met melk.",
+      choices: ["ik wil graag", "kunt u dat herhalen", "met pin betalen"],
+      accepted: ["ik wil graag"],
+      distractors: [{ answer: "kunt u dat herhalen", misconception: "clarification-not-order" }, { answer: "met pin betalen", misconception: "payment-not-order" }],
+      feedback: "Use Ik wil graag before saying what you would like to order.",
+    },
+    review: a0PracticeReview,
+  },
 };
 
 export const cardPaymentLesson: Lesson = {
@@ -269,6 +311,24 @@ export const cardPaymentLesson: Lesson = {
     { candidateId: "de-rekening", dimension: "recognition" }, { candidateId: "is-gelukt", dimension: "recall" },
   ],
   review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  practiceEnvelope: {
+    contentVersion: 1,
+    support: "reduced",
+    outcome: { primary: "Ask whether you can pay by debit card.", supporting: ["Recognize met pin betalen in a practical payment exchange."] },
+    coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    transfer: {
+      id: "a1-kan-ik-met-pin-betalen-transfer",
+      primitive: "choose-meaning",
+      candidateId: "met-pin-betalen",
+      prompt: "The café asks how you will pay. Choose the Dutch phrase about paying by debit card.",
+      context: "You say you will pay by card: Ik wil ___ .",
+      choices: ["met pin betalen", "ik wil graag", "kunt u dat herhalen"],
+      accepted: ["met pin betalen"],
+      distractors: [{ answer: "ik wil graag", misconception: "ordering-not-payment" }, { answer: "kunt u dat herhalen", misconception: "clarification-not-payment" }],
+      feedback: "Use met pin betalen to say that you will pay by debit card.",
+    },
+    review: a0PracticeReview,
+  },
 };
 
 export const transferLesson: Lesson = {
@@ -412,14 +472,15 @@ export function validateLessonCatalog(catalog: LessonCatalog): string[] {
     field("candidates", new Set(lesson.candidates.map((candidate) => candidate.id)).size === lesson.candidates.length && lesson.candidates.every((candidate) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(candidate.id) && candidate.dutch && candidate.english && candidate.telugu && (candidate.kind === "word" || candidate.kind === "chunk")), "expected unique trilingual candidates");
     field("practice", lesson.practice.length > 0 && lesson.practice.every((prompt) => lesson.candidates.some((candidate) => candidate.id === prompt.candidateId) && (prompt.dimension === "recognition" || prompt.dimension === "recall")), "expected prompts for lesson candidates");
     field("review", Object.values(lesson.review).every(Boolean), "expected recorded Dutch, English, Telugu, CEFR, cultural, and practical-use review");
-    if (lesson.practiceEnvelope) for (const error of validateLessonPracticeEnvelope(lesson.practiceEnvelope, lesson.candidates)) errors.push(`${lesson.id}.practiceEnvelope.${error}`);
+    if (lesson.practiceEnvelope) for (const error of validateLessonPracticeEnvelope(lesson.practiceEnvelope, lesson.candidates, lesson.cefr)) errors.push(`${lesson.id}.practiceEnvelope.${error}`);
   }
   return errors;
 }
 
-export function validateLessonPracticeEnvelope(envelope: LessonPracticeEnvelope, candidates: LessonCandidate[]): string[] {
+export function validateLessonPracticeEnvelope(envelope: LessonPracticeEnvelope, candidates: LessonCandidate[], cefr: Lesson["cefr"] = "A0"): string[] {
   const errors: string[] = [];
   if (envelope.contentVersion !== 1) errors.push("contentVersion: expected supported content version");
+  if ((cefr === "A0" && envelope.support !== "guided") || (cefr !== "A0" && envelope.support !== "reduced")) errors.push("support: expected reduced support or supported version");
   if (!envelope.outcome.primary || envelope.outcome.supporting.some((outcome) => !outcome)) errors.push("outcome: expected practical primary and supporting outcomes");
   if (!Object.values(envelope.coverage).every(Boolean)) errors.push("coverage: expected complete behavior coverage");
   const transfer = envelope.transfer;

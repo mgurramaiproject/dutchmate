@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { appointmentLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, regularLesson, validateLessonCatalog } from "./catalog";
+import { appointmentLesson, cardPaymentLesson, cafeOrderLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, regularLesson, repetitionLesson, validateLessonCatalog } from "./catalog";
 
 describe("lesson catalog", () => {
   it("requires the A0 tracer to declare outcome coverage, transfer, and review metadata", () => {
     expect(introductionLesson.practiceEnvelope).toMatchObject({
       contentVersion: 1,
       outcome: { primary: "Introduce yourself and say where you live." },
+      support: "guided",
       coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
       transfer: { primitive: "choose-meaning", candidateId: "ik-ben", accepted: ["ik ben"] },
     });
@@ -29,12 +30,26 @@ describe("lesson catalog", () => {
       { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
       { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
     ]);
+    expect(remainingA0.every((lesson) => lesson.practiceEnvelope?.support === "guided")).toBe(true);
     expect(remainingA0.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["ik-heb-dit-nodig", "ik-woon-hier", "woon-je-hier"]);
     expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
 
     const invalid = structuredClone(lessonCatalog);
     invalid.lessons.find((lesson) => lesson.id === inversionLesson.id)!.practiceEnvelope!.transfer.accepted = ["unknown-answer"];
     expect(validateLessonCatalog(invalid)).toContain("a0-woon-je-hier.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
+  it("backfills the A1 conversation and cafe lessons with reduced-support transfer", () => {
+    const a1Lessons = [repetitionLesson, cafeOrderLesson, cardPaymentLesson];
+
+    expect(a1Lessons.every((lesson) => lesson.practiceEnvelope?.support === "reduced")).toBe(true);
+    expect(a1Lessons.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["kunt-u-dat-herhalen", "ik-wil-graag", "met-pin-betalen"]);
+    expect(a1Lessons.every((lesson) => lesson.practice.some((prompt) => prompt.dimension === "recall"))).toBe(true);
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === cafeOrderLesson.id)!.practiceEnvelope!.support = "guided";
+    expect(validateLessonCatalog(invalid)).toContain("a1-ik-wil-graag-bestellen.practiceEnvelope.support: expected reduced support or supported version");
   });
 
   it("validates the reviewed appointment micro-story", () => {

@@ -762,6 +762,36 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
   });
 
+  it("gives the A1 conversation and cafe lessons reduced-support transfer", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
+    for (const lesson of [
+      { title: "A1 · Kunt u dat herhalen?", answer: "kunt u dat herhalen" },
+      { title: "A1 · Ik wil graag bestellen", answer: "ik wil graag" },
+      { title: "A1 · Kan ik met pin betalen?", answer: "met pin betalen" },
+    ]) {
+      lessonCard(lesson.title).click();
+      await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+      button("Notice the pattern").click();
+      await vi.waitFor(() => expect(button("Practise")).toBeTruthy());
+      button("Practise").click();
+      for (let index = 0; index < 4; index += 1) {
+        await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+        button("Show answer").click();
+        await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
+        button("Got it").click();
+      }
+      await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
+      button(lesson.answer).click();
+      button("Check answer").click();
+      await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+      button("Choose what to keep").click();
+      await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
+      button("Exit lesson").click();
+      await vi.waitFor(() => expect(lessonCard(lesson.title)).toBeTruthy());
+    }
+  });
+
   it("moves the three top-level tabs with arrow keys", async () => {
     const navigation = document.querySelector<HTMLElement>("#primary-navigation")!;
     navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
