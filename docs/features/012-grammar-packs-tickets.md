@@ -162,7 +162,7 @@ handoff and independent human validation without claiming language proficiency.
 - [ ] Manually verify keyboard-only Lessons and Daily Five flows, visible focus,
   feedback announcement, narrow-popup containment, offline practice, and no
   unexpected provider request.
-- [ ] Have changed public content checked by a second fluent Dutch reviewer
+- [x] Have changed public content checked by a second fluent Dutch reviewer
   with grammar-teaching competence; record reviewer and date.
 - [x] Verify all four pattern IDs and existing lesson/progress/storage contracts
   remain compatible with export/import and release artifacts.
@@ -182,12 +182,14 @@ learning-record, backup, popup, background, and release-doc consistency tests
 cover all four canonical pattern IDs and the preserved lesson/progress/storage
 contracts. `git diff --check` passed.
 
-**T04 remaining gates:** No interactive Chrome/Firefox browser pass was
-performed in this session, and no independent second fluent-Dutch reviewer was
-available; those remain explicit human gates. The pack demonstrates bounded,
-controlled practice evidence only and makes no formal CEFR or
-independent-production claim. GitHub issue and Delivery reconciliation also
-remain pending because the GitHub API was unavailable from this environment.
+**T04 remaining gates:** The independent content review is recorded in the
+[T04 validation record](./012-grammar-packs-validation.md). No interactive
+Chrome/Firefox browser pass is recorded yet; that remains an explicit human
+gate. The pack demonstrates bounded, controlled practice evidence only and
+makes no formal CEFR or independent-production claim. Reconciliation of issue
+#105 and Delivery was attempted, but both available GitHub mutation paths
+returned authentication/permission errors; the remote state remains
+unmodified.
 
 ## Explicitly deferred work
 
