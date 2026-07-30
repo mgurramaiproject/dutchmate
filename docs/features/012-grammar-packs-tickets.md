@@ -2,15 +2,16 @@
 
 **Code name:** `grammar-packs`
 
-**Status:** proposed; tickets are not implementation approval.
+**Status:** published; tickets are implementation-ready but remain subject to
+the repository's normal issue and Delivery workflow.
 
 **Source plan:** [012-grammar-packs-plan.md](./012-grammar-packs-plan.md)
 
 **Source specification:** [012-grammar-packs-spec.md](./012-grammar-packs-spec.md)
 
-GitHub issues are the tracker source of truth once this ticket tree is
-approved and published. Until then, this document is the offline contract for
-the proposed implementation slices.
+GitHub issues are the tracker source of truth. This checked-in document mirrors
+the published implementation slices and their dependency edges for offline
+review.
 
 ## Delivery rules
 
@@ -44,6 +45,8 @@ surface and evidence seams. T04 is the release and independent human gate.
 
 ## T01 — Audit the existing grammar pack
 
+**GitHub:** [#102](https://github.com/mgurramaiproject/dutchmate/issues/102)
+
 **Blocked by:** None.
 
 **What to build:** Establish a checked, repository-grounded gap list for the
@@ -67,7 +70,9 @@ four shipped A0 patterns before changing runtime behavior.
 
 ## T02 — Harden reviewed four-pattern content
 
-**Blocked by:** T01.
+**GitHub:** [#103](https://github.com/mgurramaiproject/dutchmate/issues/103)
+
+**Blocked by:** [T01 / #102](https://github.com/mgurramaiproject/dutchmate/issues/102).
 
 **What to build:** Make the smallest authored-content or build-time validation
 changes required by the T01 gap list while keeping existing pattern identity and
@@ -89,7 +94,10 @@ runtime contracts stable.
 
 ## T03 — Qualify existing Lessons and Daily Five integration
 
-**Blocked by:** T02, or T01 if T02 records no required content change.
+**GitHub:** [#104](https://github.com/mgurramaiproject/dutchmate/issues/104)
+
+**Blocked by:** [T02 / #103](https://github.com/mgurramaiproject/dutchmate/issues/103),
+or T01 if T02 records no required content change.
 
 **What to build:** Prove the hardened pack remains inside the existing learner
 loop and does not fork evidence, scheduling, navigation, or daily composition.
@@ -113,7 +121,9 @@ loop and does not fork evidence, scheduling, navigation, or daily composition.
 
 ## T04 — Release qualification and human review
 
-**Blocked by:** T03.
+**GitHub:** [#105](https://github.com/mgurramaiproject/dutchmate/issues/105)
+
+**Blocked by:** [T03 / #104](https://github.com/mgurramaiproject/dutchmate/issues/104).
 
 **What to build:** Qualify the complete four-pattern pack for implementation
 handoff and independent human validation without claiming language proficiency.
