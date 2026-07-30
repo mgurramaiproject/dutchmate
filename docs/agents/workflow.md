@@ -191,7 +191,17 @@ If an agent needs to create or manage the Project through `gh`, first verify:
 
 - `gh auth status`
 
-If the `project` scope is missing, refresh auth before continuing:
+The OAuth `project` scope covers Project read and write access even when
+`gh auth status` does not list a separate `read:project` scope. Verify actual
+access with the intended read-only query before requesting reauthentication:
+
+```bash
+gh api graphql \
+  -f query='query { viewer { projectsV2(first: 1) { totalCount } } }' \
+  --jq '.data.viewer.projectsV2.totalCount'
+```
+
+Only if that check fails should auth be refreshed:
 
 - `gh auth refresh -h github.com -s project`
 
