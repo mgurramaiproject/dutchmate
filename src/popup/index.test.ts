@@ -1081,8 +1081,11 @@ describe("lesson popup", () => {
       button("Show answer").click();
       await vi.waitFor(() => expect(button(result)).toBeTruthy());
       button(result).click();
-      await vi.waitFor(() => expect(index === 2 ? button("Choose what to keep") : button("Show answer")).toBeTruthy());
+      if (index === 2) await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
+      else await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
     }
+    button("ik wil graag").click();
+    button("Check answer").click();
     await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
     button("Choose what to keep").click();
     await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
@@ -1148,9 +1151,13 @@ describe("lesson popup", () => {
       if (title === "A1 · Waar moet ik overstappen?") {
         for (let index = 0; index < 4; index += 1) {
           button("Got it").click();
-          await vi.waitFor(() => expect(index === 3 ? button("Choose what to keep") : button("Show answer")).toBeTruthy());
+          if (index === 3) await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
+          else await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
           if (index < 3) button("Show answer").click();
         }
+        button("waar moet ik overstappen").click();
+        button("Check answer").click();
+        await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
         expect(content().textContent).toContain("Replay");
       }
       button("Exit lesson").click();
