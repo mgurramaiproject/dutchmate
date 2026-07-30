@@ -18,7 +18,7 @@ Implement exactly one queue item at a time. Copying a plan here is not implement
 
 | Order | Plan | Status | Boundary |
 |---:|---|---|---|
-| 3 | [Contrast Repair / Feature 013](./03-contrast-packs/plan.md) | Grilled plan; spec and tickets await approval | One authored time-first main-clause inversion repair pack tied to controlled misconception evidence; no new destination or queue. |
+| 3 | [Contrast Repair / Feature 013](./03-contrast-packs/plan.md) | Ticketed; implementation not approved | One authored time-first main-clause inversion repair pack tied to controlled misconception evidence; no new destination or queue. |
 
 ## Approval and handoff rules
 

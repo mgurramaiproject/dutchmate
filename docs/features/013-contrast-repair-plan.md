@@ -6,12 +6,17 @@
 
 **Branch:** `feature-013-contrast-repair`
 
-**Status:** Grilled plan; specification published; implementation not approved
+**Status:** Grilled plan; specification and ticket breakdown published; implementation not approved
 
 **Queue source:** [historical Contrast Packs plan](./todos/03-contrast-packs/plan.md)
 
 **Specification:** [013-contrast-repair-spec.md](./013-contrast-repair-spec.md)
 published as [GitHub issue #107](https://github.com/mgurramaiproject/dutchmate/issues/107)
+with `ready-for-agent`.
+
+**Tickets:** [013-contrast-repair-tickets.md](./013-contrast-repair-tickets.md)
+published as GitHub issues [#108](https://github.com/mgurramaiproject/dutchmate/issues/108)
+through [#111](https://github.com/mgurramaiproject/dutchmate/issues/111), each
 with `ready-for-agent`.
 
 ## Handoff status
@@ -209,8 +214,7 @@ cannot establish that the pilot is safe to release.
 
 ## Next approval gate
 
-The specification is now published as GitHub issue #107. The next action is
-to approve creation of the Feature 013 ticket breakdown. Once approved, use
-`$to-tickets` to write `docs/features/013-contrast-repair-tickets.md` and
-publish the approved child issues. Implementation remains unauthorized until
-the ticket frontier is approved separately.
+The specification and ticket breakdown are now published as GitHub issue #107
+and child issues #108–#111. The next action is to approve implementation of
+the frontier ticket T01 / #108 in a fresh session. Implementation remains
+unauthorized until that approval is explicit.
