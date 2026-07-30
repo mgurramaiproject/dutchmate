@@ -116,22 +116,34 @@ or T01 if T02 records no required content change.
 **What to build:** Prove the hardened pack remains inside the existing learner
 loop and does not fork evidence, scheduling, navigation, or daily composition.
 
-- [ ] Existing Lessons expose the reviewed pattern practice without changing
+- [x] Existing Lessons expose the reviewed pattern practice without changing
   lesson identity, completion, or saved-candidate behavior.
-- [ ] Existing Daily Five can select eligible grammar work without creating a
+- [x] Existing Daily Five can select eligible grammar work without creating a
   second queue, fixed grammar mix, duplicate target, or vocabulary starvation.
-- [ ] Existing Today remains a single calm daily entry surface with no grammar
+- [x] Existing Today remains a single calm daily entry surface with no grammar
   tab, panel, separate Grammar Minute session, or learner-facing family mode.
-- [ ] One first scored action creates at most one canonical learning result;
+- [x] One first scored action creates at most one canonical learning result;
   duplicate or stale submissions cannot mutate the record twice.
-- [ ] Retry, Reveal, Skip, local scheduling, delayed evidence, and
+- [x] Retry, Reveal, Skip, local scheduling, delayed evidence, and
   recent-exercise protection retain their existing semantics.
-- [ ] Every visible action is keyboard-operable with visible focus and clear
+- [x] Every visible action is keyboard-operable with visible focus and clear
   accessible naming; feedback remains announced and narrow-popup contained.
-- [ ] Practice adds no provider request and stores no raw answers, page text,
+- [x] Practice adds no provider request and stores no raw answers, page text,
   response timing, or full attempt history.
-- [ ] Run focused popup, background, Daily Five, privacy, and preservation
+- [x] Run focused popup, background, Daily Five, privacy, and preservation
   checks.
+
+**T03 evidence (2026-07-30):** The existing Lessons, Today, Daily Five, and
+learning-record contracts remain unchanged. New regression coverage proves
+mixed Daily Five keeps two eligible grammar tasks distinct while reserving
+three vocabulary positions; duplicate and stale grammar submissions produce
+one evidence revision; and Daily Five Reveal remains unscored and idempotent.
+The typed background boundary repeats the duplicate-result check, while popup
+coverage verifies keyboard-operable grammar choices and announced result
+feedback. Focused verification passed: 6 files, 155 tests, covering grammar
+learning, Daily Five selection, learning-record persistence, background
+routing, popup behavior, and webpage privacy boundaries. No runtime code or
+schema change was required for T03.
 
 ## T04 — Release qualification and human review
 

@@ -388,6 +388,57 @@ describe("LearningRecordStore", () => {
     expect(JSON.stringify(snapshot)).not.toContain("bent");
   });
 
+  it("keeps mixed Daily Five bounded while protecting vocabulary and grammar targets", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const records = new LearningRecordStore(new MemoryStorage(), () => now);
+    for (const dutch of ["een", "twee", "drie", "vier"]) await records.createOrMerge({ dutch });
+    await records.introduceGrammar("a0-zijn-present");
+    await records.introduceGrammar("a0-hebben-present");
+
+    now = new Date(2026, 0, 2, 9).getTime();
+    const snapshot = await records.getDailyFive();
+    const grammarTasks = snapshot.tasks.filter((task): task is Extract<(typeof snapshot.tasks)[number], { kind: "grammar" }> => "kind" in task && task.kind === "grammar");
+    const vocabularyTasks = snapshot.tasks.filter((task) => !("kind" in task));
+
+    expect(snapshot.tasks).toHaveLength(5);
+    expect(grammarTasks).toHaveLength(2);
+    expect(vocabularyTasks).toHaveLength(3);
+    expect(new Set(grammarTasks.map((task) => `${task.patternId}\u001f${task.exerciseId}`)).size).toBe(grammarTasks.length);
+  });
+
+  it("does not apply duplicate or stale grammar Daily Five submissions twice", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const records = new LearningRecordStore(new MemoryStorage(), () => now);
+    await records.introduceGrammar();
+    now = new Date(2026, 0, 2, 9).getTime();
+    await records.getDailyFive();
+    const input = { patternId: "a0-zijn-present" as const, contentVersion: 1 as const, exerciseId: "zijn-choose-ik", outcome: { type: "check" as const, answer: "ben" }, expectedEvidenceRevision: 0 };
+
+    const first = await records.recordGrammarDailyFiveResult(input);
+    const duplicate = await records.recordGrammarDailyFiveResult(input);
+    const stale = await records.recordGrammarCheck("a0-zijn-present", 1, "zijn-change-jij", "bent", 0);
+
+    expect(duplicate).toEqual(first);
+    expect(stale).toMatchObject({ recorded: false, grammar: { evidenceRevision: 1, successfulEvidenceCount: 1 } });
+    expect((await records.exportBackup()).grammar["a0-zijn-present"]).toMatchObject({ evidenceRevision: 1, successfulEvidenceCount: 1 });
+  });
+
+  it("keeps Daily Five Reveal unscored and idempotent", async () => {
+    let now = new Date(2026, 0, 1, 9).getTime();
+    const records = new LearningRecordStore(new MemoryStorage(), () => now);
+    await records.introduceGrammar();
+    now = new Date(2026, 0, 2, 9).getTime();
+    await records.getDailyFive();
+    const input = { patternId: "a0-zijn-present" as const, contentVersion: 1 as const, exerciseId: "zijn-choose-ik", outcome: { type: "reveal" as const }, expectedEvidenceRevision: 0 };
+
+    const first = await records.recordGrammarDailyFiveResult(input);
+    const duplicate = await records.recordGrammarDailyFiveResult({ ...input, outcome: { type: "skip" } });
+
+    expect(first.grammar).toMatchObject({ evidenceRevision: 1, successfulEvidenceCount: 0, delayedEvidence: false });
+    expect(first.snapshot.completedTaskIds).toEqual(["a0-zijn-present\u001fzijn-choose-ik"]);
+    expect(duplicate).toEqual(first);
+  });
+
   it("introduces, schedules, and persists the hebben pattern independently", async () => {
     let now = new Date(2026, 0, 1, 9).getTime();
     const records = new LearningRecordStore(new MemoryStorage(), () => now);

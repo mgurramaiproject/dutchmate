@@ -215,6 +215,8 @@ describe("lesson popup", () => {
     button("Check answer").click();
     await vi.waitFor(() => expect(button("Continue to Practise")).toBeTruthy());
     expect(content().textContent).toContain("Woon je hier?");
+    expect(content().querySelector('[role="status"]')).toBeTruthy();
+    expect([...content().querySelectorAll<HTMLButtonElement>(".grammar-choices button")].every((choice) => choice.hasAttribute("aria-pressed"))).toBe(true);
     expect(runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.result")).toHaveLength(grammarResultsBefore + 1);
   });
 
