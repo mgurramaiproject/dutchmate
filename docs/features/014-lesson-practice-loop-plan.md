@@ -54,6 +54,11 @@ production, or permanent retention.
   completion remains its existing record.
 - The core lesson sequence is stable. Existing evidence selects optional
   follow-up practice but does not branch or silently skip the lesson.
+- All lesson exercises are learner-facing Practice content: existing
+  flashcards, the three authored exercises, and Apply. Keep is reserved for
+  selecting candidates for review. The internal Replay state remains only as
+  a safe transition, and incomplete legacy Replay progress resumes in
+  Practice so updates cannot skip the authored exercises.
 - Every lesson includes guaranteed in-lesson transfer. Eligible Saved-context,
   Sentence Trainer, and Encounter Coaching paths are optional extensions.
 - The shared deterministic exercise contract is reused across Lessons, Daily

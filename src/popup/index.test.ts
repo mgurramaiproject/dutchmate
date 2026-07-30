@@ -146,15 +146,19 @@ describe("lesson popup", () => {
       if (index === 0) expect(content().querySelector(".telugu-phonetics")?.textContent).toContain("Say it:");
       await vi.waitFor(() => expect(button(result)).toBeTruthy());
       button(result).click();
-      if (index === 2) await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
-      else await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+      if (index < 2) await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
     }
 
+    await completeAdditionalLessonExercises();
     await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
+    expect(content().querySelector<HTMLElement>(".lesson-stage.active")?.textContent).toBe("Practise");
     button("ik wil graag").click();
     button("Check answer").click();
-    await completeAdditionalLessonExercises();
+    await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+    button("Choose what to keep").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
+    expect(content().querySelector(".lesson-authored-exercise")).toBeNull();
+    expect(content().querySelector<HTMLElement>(".lesson-stage.active")?.textContent).toBe("Keep");
     const firstCandidate = content().querySelector<HTMLInputElement>(".candidate-choice input")!;
     firstCandidate.click();
     expect(button("Keep 3 for review")).toBeTruthy();
@@ -184,10 +188,12 @@ describe("lesson popup", () => {
       await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
       button("Got it").click();
     }
+    await completeAdditionalLessonExercises();
     await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
     button("ik heb last van").click();
     button("Check answer").click();
-    await completeAdditionalLessonExercises();
+    await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+    button("Choose what to keep").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
     await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
     button("Exit lesson").click();
@@ -213,10 +219,12 @@ describe("lesson popup", () => {
         await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
         button("Got it").click();
       }
+      await completeAdditionalLessonExercises();
       await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
       button(lesson.answer).click();
       button("Check answer").click();
-      await completeAdditionalLessonExercises();
+      await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+      button("Choose what to keep").click();
       await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
       await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
       button("Exit lesson").click();
@@ -238,10 +246,12 @@ describe("lesson popup", () => {
       await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
       button("Got it").click();
     }
+    await completeAdditionalLessonExercises();
     await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
     button("wat staat er in deze brief").click();
     button("Check answer").click();
-    await completeAdditionalLessonExercises();
+    await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+    button("Choose what to keep").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
     await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
     button("Exit lesson").click();
@@ -775,11 +785,13 @@ describe("lesson popup", () => {
       await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
       button("Got it").click();
     }
+    await completeAdditionalLessonExercises();
     await vi.waitFor(() => expect(content().textContent).toContain("You meet someone new"));
     expect(button("Check answer").disabled).toBe(true);
     button("ik ben").click();
     button("Check answer").click();
-    await completeAdditionalLessonExercises();
+    await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+    button("Choose what to keep").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
     const secondCandidate = content().querySelectorAll<HTMLInputElement>(".candidate-choice input")[1];
     secondCandidate.click();
@@ -812,10 +824,12 @@ describe("lesson popup", () => {
         await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
         button("Got it").click();
       }
+      await completeAdditionalLessonExercises();
       await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
       button(lesson.title === "A0 · Ik heb dit nodig" ? "ik heb dit nodig" : "ik woon hier").click();
       button("Check answer").click();
-      await completeAdditionalLessonExercises();
+      await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+      button("Choose what to keep").click();
       await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
       await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
       button("Exit lesson").click();
@@ -836,10 +850,12 @@ describe("lesson popup", () => {
       await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
       button("Got it").click();
     }
+    await completeAdditionalLessonExercises();
     await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
     button("woon je hier").click();
     button("Check answer").click();
-    await completeAdditionalLessonExercises();
+    await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+    button("Choose what to keep").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
   });
 
@@ -862,10 +878,12 @@ describe("lesson popup", () => {
         await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
         button("Got it").click();
       }
+      await completeAdditionalLessonExercises();
       await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
       button(lesson.answer).click();
       button("Check answer").click();
-      await completeAdditionalLessonExercises();
+      await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+      button("Choose what to keep").click();
       await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
       await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
       button("Exit lesson").click();
@@ -891,10 +909,12 @@ describe("lesson popup", () => {
         await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
         button("Got it").click();
       }
+      await completeAdditionalLessonExercises();
       await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
       button(lesson.answer).click();
       button("Check answer").click();
-      await completeAdditionalLessonExercises();
+      await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+      button("Choose what to keep").click();
       await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
       await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
       button("Exit lesson").click();
@@ -1104,12 +1124,14 @@ describe("lesson popup", () => {
       button("Show answer").click();
       await vi.waitFor(() => expect(button(result)).toBeTruthy());
       button(result).click();
-      if (index === 2) await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
-      else await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+      if (index < 2) await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
     }
+    await completeAdditionalLessonExercises();
+    await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
     button("ik wil graag").click();
     button("Check answer").click();
-    await completeAdditionalLessonExercises();
+    await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+    button("Choose what to keep").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
     await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
     button("Keep 4 for review").click();
@@ -1174,13 +1196,15 @@ describe("lesson popup", () => {
       if (title === "A1 · Waar moet ik overstappen?") {
         for (let index = 0; index < 4; index += 1) {
           button("Got it").click();
-          if (index === 3) await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
-          else await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+          if (index < 3) await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
           if (index < 3) button("Show answer").click();
         }
+        await completeAdditionalLessonExercises();
+        await vi.waitFor(() => expect(content().textContent).toContain("Apply"));
         button("waar moet ik overstappen").click();
         button("Check answer").click();
-        await completeAdditionalLessonExercises();
+        await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+        button("Choose what to keep").click();
         await vi.waitFor(() => expect(content().textContent).toContain("Choose what to keep for review."));
         expect(content().textContent).toContain("Keep 4 for review");
       }
@@ -1201,6 +1225,7 @@ function button(label: string): HTMLButtonElement {
 async function completeAdditionalLessonExercises(): Promise<void> {
   for (let index = 0; index < 3; index += 1) {
     await vi.waitFor(() => expect(content().querySelector(".lesson-authored-exercise")).toBeTruthy());
+    expect(content().querySelector<HTMLElement>(".lesson-stage.active")?.textContent).toBe("Practise");
     const token = content().querySelector<HTMLButtonElement>(".lesson-authored-token:not(.is-selected)");
     if (token) {
       while (content().querySelector(".lesson-authored-token:not(.is-selected)")) {

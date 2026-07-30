@@ -39,6 +39,11 @@ then adds exactly three separately authored exercises—one `contrast-form`, one
 outcome. These exercises are not replacements, and compatible browser updates
 must preserve the learner's existing local history.
 
+The learner-facing placement is also explicit: existing flashcards, the three
+authored exercises, and Apply all belong to Practice; Keep contains candidate
+selection only. The internal Replay state remains a safe transition and
+legacy incomplete Replay progress resumes in Practice.
+
 ## T01 — Establish the shared lesson-practice contract and A0 tracer
 
 **GitHub:** [#114](https://github.com/mgurramaiproject/dutchmate/issues/114)

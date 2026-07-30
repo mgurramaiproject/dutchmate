@@ -46,6 +46,13 @@ Lesson completion remains its own record. The core lesson sequence is stable;
 evidence may influence optional follow-up practice but does not branch or
 silently skip the teaching path.
 
+All lesson exercises belong to the learner-facing Practice section: the
+existing flashcards, the three additional authored exercises, and Apply. The
+Keep section contains candidate selection only. Replay remains an internal
+safe transition state, is visually grouped with Practice, and incomplete
+legacy Replay progress resumes in Practice so an extension update cannot skip
+the authored exercises.
+
 Every lesson provides a guaranteed in-lesson transfer step. Saved-context,
 Sentence Trainer, and Encounter Coaching connections can extend transfer only
 when their existing safety contracts find an eligible item or encounter.
