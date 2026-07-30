@@ -54,7 +54,8 @@ learner-visible content is deterministic, versioned, automatically validated,
 and independently reviewed by a fluent Dutch reviewer with grammar-teaching
 competence.
 
-The current twelve published lessons are backfilled. Future lessons cannot
+The current fifteen bundled lessons—four A0, ten A1, and one A2—are
+backfilled. Future lessons cannot
 ship without an outcome map, behavior coverage, guaranteed transfer, review
 metadata, and compatible content-version behavior. Verb Timeline remains
 deferred as priority 2 in the canonical parking lot.
@@ -115,11 +116,11 @@ deferred as priority 2 in the canonical parking lot.
 52. As a maintainer, I want one shared exercise-result contract across surfaces, so that scoring, feedback, evidence, and idempotency cannot diverge.
 53. As a maintainer, I want one typed boundary to validate practice results, so that malformed or stale learner actions cannot mutate progress.
 54. As a maintainer, I want old local records and backups to remain readable, so that content delivery does not require account migration or data loss.
-55. As a maintainer, I want the twelve existing lesson identities preserved, so that content backfill remains additive.
+55. As a maintainer, I want the fifteen existing lesson identities preserved, so that content backfill remains additive.
 56. As a maintainer, I want invalid lesson practice content rejected before runtime use, so that unsafe content fails during validation.
 57. As a maintainer, I want provider-isolation tests, so that practice cannot accidentally add translation cost or latency.
 58. As an accessibility-conscious maintainer, I want focus, keyboard, feedback announcement, and narrow-popup behavior tested at the learner-visible seam, so that practice remains usable.
-59. As a product owner, I want all current lessons covered, so that the feature does not leave the existing catalog with visibly uneven practice quality.
+59. As a product owner, I want all fifteen current lessons covered, so that the feature does not leave the existing catalog with visibly uneven practice quality.
 60. As a product owner, I want future lessons held to the same contract, so that the catalog does not regress as it grows.
 61. As a product owner, I want no formal CEFR, uncued-production, or permanent-retention claim, so that product language remains honest.
 62. As a product owner, I want Verb Timeline deferred separately, so that this feature proves the practice loop before adding another progress surface.
@@ -138,7 +139,7 @@ deferred as priority 2 in the canonical parking lot.
 - Lesson content remains stable across learners. Existing evidence may select
   optional follow-up work but does not branch the core lesson or silently skip
   teaching.
-- The current twelve lessons are backfilled without changing their stable
+- The current fifteen lessons are backfilled without changing their stable
   identities, completion records, or existing lesson-stage meaning.
 - Future lessons must provide an outcome map, behavior coverage, guaranteed
   transfer, review metadata, stable identifiers, content versions, and
@@ -224,8 +225,8 @@ deferred as priority 2 in the canonical parking lot.
 
 ## Further Notes
 
-- “All existing lessons” means the twelve currently published lessons in the
-  bundled catalog at the time of Feature 014 planning.
+- “All existing lessons” means the fifteen currently bundled lessons in the
+  catalog at the time of Feature 014 planning: four A0, ten A1, and one A2.
 - “Future lessons” means the authoring and release contract, not an attempt to
   author an unlimited future curriculum in this feature branch.
 - A lesson may use different primitive combinations when its outcome map

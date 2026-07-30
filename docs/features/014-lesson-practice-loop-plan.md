@@ -6,11 +6,13 @@
 
 **Branch:** `014-lesson-practice-loop`
 
-**Status:** Grilled plan; specification published as [GitHub issue #113](https://github.com/mgurramaiproject/dutchmate/issues/113); ticket publication requires explicit user approval.
+**Status:** Grilled plan; specification published as [GitHub issue #113](https://github.com/mgurramaiproject/dutchmate/issues/113); tickets published as [GitHub issues #114–#121](https://github.com/mgurramaiproject/dutchmate/issues/114); implementation is not approved.
 
 **Architecture decision:** [ADR 0007](../adr/0007-014-lesson-practice-uses-shared-envelope-and-evidence.md)
 
 **Specification:** [014-lesson-practice-loop-spec.md](./014-lesson-practice-loop-spec.md), published as [GitHub issue #113](https://github.com/mgurramaiproject/dutchmate/issues/113) with `ready-for-agent`.
+
+**Tickets:** [014-lesson-practice-loop-tickets.md](./014-lesson-practice-loop-tickets.md), published as GitHub issues [#114](https://github.com/mgurramaiproject/dutchmate/issues/114) through [#121](https://github.com/mgurramaiproject/dutchmate/issues/121), each with `ready-for-agent`.
 
 ## Product goal
 
@@ -20,7 +22,8 @@ The learner should understand one practical outcome, make meaningful
 controlled decisions, retrieve the idea with less support, and apply it in a
 safe Dutch context before leaving the lesson.
 
-Feature 014 covers all twelve currently published lessons and establishes the
+Feature 014 covers all fifteen currently bundled lessons—four A0, ten A1, and
+one A2—and establishes the
 content and validation contract that future lessons must satisfy before
 release. It does not claim formal CEFR attainment, independent written
 production, or permanent retention.
@@ -61,7 +64,7 @@ production, or permanent retention.
 
 ## Current-catalog coverage
 
-The specification must map each of the twelve published lessons to:
+The specification must map each of the fifteen published lessons to:
 
 - one primary practical outcome;
 - supporting learning items and grammar patterns, where applicable;
@@ -116,7 +119,7 @@ represent the agreed behavior.
 
 ### Phase 0 — Compatibility and catalog audit
 
-Inventory all twelve lessons, current lesson stages, grammar companions,
+Inventory all fifteen lessons, current lesson stages, grammar companions,
 learning-item practice, Daily Five, Contrast Repair, Saved-context, Encounter
 Coaching, content validators, migration logic, and existing tests. Produce a
 lesson-by-lesson gap map before changing runtime behavior.
@@ -137,7 +140,7 @@ identifies the smallest high-value tracer.
 
 ### Phase 3 — Backfill the current A0-A2 catalog
 
-Apply the approved standard to all twelve published lessons in bounded
+Apply the approved standard to all fifteen published lessons in bounded
 vertical slices. Each slice keeps the existing lesson identity and completion
 record, adds only outcome-justified practice, and records direct content and
 manual review evidence.
