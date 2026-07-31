@@ -356,6 +356,6 @@ cards, and actual supported popup widths.
   expansion. Each implementation phase must report changed behavior, evidence,
   checks, remaining risks, and one recommended next action.
 - This specification is the parent work definition. The vertical ticket
-  breakdown is approved and checked in; GitHub ticket publication remains
-  blocked by API connectivity. Implementation remains gated on the published
+  breakdown is approved and checked in; parent issue #130 and child issues
+  #123–#129 are published. Implementation remains gated on the published
   ticket state and normal delivery workflow.

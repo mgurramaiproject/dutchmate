@@ -6,7 +6,9 @@
 
 **Branch:** `015-verb-journeys`
 
-**Status:** Approved ticket breakdown; checked in; GitHub publication blocked by API connectivity.
+**Status:** Published as GitHub Issues [#123](https://github.com/mgurramaiproject/dutchmate/issues/123) through [#129](https://github.com/mgurramaiproject/dutchmate/issues/129).
+
+**Parent issue:** [#130 — Feature 015: Verb Journeys](https://github.com/mgurramaiproject/dutchmate/issues/130)
 
 **Source plan:** [015-verb-journeys-plan.md](./015-verb-journeys-plan.md)
 
@@ -17,10 +19,10 @@
 ## Dependency map
 
 ```text
-T01 ──┬──> T02 ──> T03 ──> T04 ──┐
-      ├──> T05 ───────────────────┤
-      └──> T02 ──> T06 ───────────┤──> T07
-                                  ┘
+T01 / #123 ──┬──> T02 / #124 ──> T03 / #125 ──> T04 / #126 ──┐
+             ├──> T05 / #127 ─────────────────────────────────┤
+             └──> T02 / #124 ──> T06 / #128 ──────────────────┤──> T07 / #129
+                                                              ┘
 ```
 
 T01 establishes the authored `werken` read path and the shared popup
@@ -28,6 +30,8 @@ integration boundary. T02–T06 then add independently verifiable slices where
 their prerequisites are complete. T07 is the final qualification gate.
 
 ## T01 — Establish the `werken` journey read path
+
+**GitHub:** [#123](https://github.com/mgurramaiproject/dutchmate/issues/123)
 
 **Blocked by:** None — can start immediately.
 
@@ -56,6 +60,8 @@ and no audio controls.
 
 ## T02 — Add bounded VTT practice and completion
 
+**GitHub:** [#124](https://github.com/mgurramaiproject/dutchmate/issues/124)
+
 **Blocked by:** T01.
 
 **What to build:** Let a learner practise the VTT `werken` journey through five
@@ -79,6 +85,8 @@ verb mastery.
 
 ## T03 — Persist Verb skill evidence safely
 
+**GitHub:** [#125](https://github.com/mgurramaiproject/dutchmate/issues/125)
+
 **Blocked by:** T02.
 
 **What to build:** Record VTT practice results as additive verb/form/skill and
@@ -100,6 +108,8 @@ skill evidence from journey completion.
 
 ## T04 — Connect Verb Journey review to Today and Daily Five
 
+**GitHub:** [#126](https://github.com/mgurramaiproject/dutchmate/issues/126)
+
 **Blocked by:** T03.
 
 **What to build:** Make due or weak `werken` skills eligible for the existing
@@ -119,6 +129,8 @@ scheduler, or learner-facing mastery system.
 - [ ] Review-selection, popup, persistence, and regression checks pass.
 
 ## T05 — Add the twelve-pattern English comparison
+
+**GitHub:** [#127](https://github.com/mgurramaiproject/dutchmate/issues/127)
 
 **Blocked by:** T01.
 
@@ -141,6 +153,8 @@ return without losing the journey position.
 
 ## T06 — Add conditional Saved integration
 
+**GitHub:** [#128](https://github.com/mgurramaiproject/dutchmate/issues/128)
+
 **Blocked by:** T01 and T02.
 
 **What to build:** Connect a reliably resolved saved `werken` form to the same
@@ -161,6 +175,8 @@ and unchanged.
       pass.
 
 ## T07 — Qualify the complete `werken` slice
+
+**GitHub:** [#129](https://github.com/mgurramaiproject/dutchmate/issues/129)
 
 **Blocked by:** T03, T04, T05, and T06.
 

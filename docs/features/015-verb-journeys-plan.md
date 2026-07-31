@@ -6,7 +6,7 @@
 
 **Branch:** `015-verb-journeys`
 
-**Status:** Prototype and ticket breakdown approved; specification and ticket document committed; GitHub parent-issue and ticket publication remain blocked by API connectivity.
+**Status:** Prototype and ticket breakdown approved; specification and ticket document committed; GitHub parent issue #130 and child issues #123–#129 published.
 
 **Source handoff:** [Verb Journeys Codex CLI handoff](./todos/verb-journeys-codex-handoff/README.md)
 
