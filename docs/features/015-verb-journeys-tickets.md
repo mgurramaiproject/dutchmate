@@ -109,17 +109,31 @@ exercise-family evidence through the existing learning-record and typed
 background boundaries, preserving unrelated learning history and separating
 skill evidence from journey completion.
 
-- [ ] Evidence identity is stable across verb, form or skill, and exercise
+- [x] Evidence identity is stable across verb, form or skill, and exercise
       family.
-- [ ] Demonstrated status requires the specified varied and later evidence;
+- [x] Demonstrated status requires the specified varied and later evidence;
       later scored errors can return a skill to needs-practice.
-- [ ] Writes are additive, idempotent, stale-submission-safe, and cannot
+- [x] Writes are additive, idempotent, stale-submission-safe, and cannot
       award duplicate evidence.
-- [ ] Compatible migration, backup, export, import, clear-data, and failed-
+- [x] Compatible migration, backup, export, import, clear-data, and failed-
       migration behavior preserve prior records.
-- [ ] Unknown or unavailable Verb Journey content cannot crash history reads.
-- [ ] Learning-record, typed-boundary, migration, and provider-isolation
+- [x] Unknown or unavailable Verb Journey content cannot crash history reads.
+- [x] Learning-record, typed-boundary, migration, and provider-isolation
       checks pass.
+
+**Implementation evidence:** Added the additive `verbJourneys` learning-record
+section and version-checked background messages for the authored `015-1`
+`werken` practice path. Evidence is keyed by verb, skill, and exercise family;
+varied successful families plus a later recombined attempt produce
+`demonstrated`, while a later incorrect result returns the skill to
+`needs-practice`. Revision-checked writes reject stale duplicates, malformed or
+unknown evidence is ignored during history reads, and export/import/clear and
+legacy migration preserve unrelated learning data. The popup now persists each
+scored practice attempt through a serialized client queue. Incorrect feedback
+has a working `Try again` action that resets the current answer without
+advancing the journey. Focused checks (110 tests), full suite (107 files / 697
+tests), typechecking, Chrome/Firefox builds, and extension-build verification
+pass. No PR is opened; this slice is reserved for the single Feature 015 PR.
 
 ## T04 — Connect Verb Journey review to Today and Daily Five
 

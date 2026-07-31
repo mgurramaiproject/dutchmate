@@ -584,6 +584,18 @@ describe("LearningRecordStore", () => {
     delete (invalid.grammar["a0-zijn-present"] as unknown as Record<string, unknown>).successfulExerciseIds;
     expect(() => parseLearningBackup(invalid)).toThrow("invalid grammar evidence");
   });
+
+  it("records additive verb journey evidence, rejects stale writes, and restores it through backup", async () => {
+    const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    const input = { verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1" as const, exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "correct" as const, expectedEvidenceRevision: 0 };
+    await expect(source.recordVerbJourneyResult(input)).resolves.toMatchObject({ recorded: true, verbJourneys: { evidenceRevision: 1 } });
+    await expect(source.recordVerbJourneyResult(input)).resolves.toMatchObject({ recorded: false, verbJourneys: { evidenceRevision: 1 } });
+    const backup = await source.exportBackup();
+    expect(backup.verbJourneys.skills["verb.werken\u001fskill.werken.vtt-completed"].exerciseFamilies.meaning.id).toBe("verb.werken\u001fskill.werken.vtt-completed\u001fmeaning");
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    await restored.importBackup(backup);
+    await expect(restored.getVerbJourneyRecord()).resolves.toEqual(backup.verbJourneys);
+  });
 });
 
 function entry(targetLanguage: "en" | "te", translatedText: string) { return { id: `nl\u001fhuis\u001f${targetLanguage}`, text: "huis", normalizedText: "huis", sourceLanguage: "auto" as const, detectedSourceLanguage: "nl" as const, targetLanguage, translatedText, providerName: "test", createdAt: 1_000, updatedAt: 2_000, pageContext: "Een huis staat daar." }; }

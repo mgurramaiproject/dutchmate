@@ -4,6 +4,10 @@ export type VerbPracticeAnswer = string | string[];
 
 export type VerbPracticeQuestion = {
   id: string;
+  verbId: "verb.werken";
+  formOrSkillId: "skill.werken.vtt-completed";
+  exerciseFamily: string;
+  delayedOrRecombined?: boolean;
   kind: VerbPracticeKind;
   prompt: string;
   context: string;
@@ -31,26 +35,26 @@ export type VerbPracticeSession = {
 
 const questions: VerbPracticeQuestion[] = [
   {
-    id: "exercise.werken.vtt.meaning", kind: "choice", prompt: "What does this sentence report?", context: "Ik heb gisteren thuis gewerkt.",
+    id: "exercise.werken.vtt.meaning", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "meaning", kind: "choice", prompt: "What does this sentence report?", context: "Ik heb gisteren thuis gewerkt.",
     choices: ["A weekly work routine", "One completed event from yesterday", "A possible future plan"], accepted: ["One completed event from yesterday"],
     feedback: "Correct. VTT commonly reports a completed conversational fact.", incorrectFeedback: "Look at gisteren and heb gewerkt: this reports a completed event.", repairIds: ["exercise.werken.vtt.repair-auxiliary", "exercise.werken.vtt.repair-order"],
   },
   {
-    id: "exercise.werken.vtt.construct", kind: "token-slots", prompt: "Build the completed phrase with taps.", context: "Complete: ___ gewerkt.",
+    id: "exercise.werken.vtt.construct", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "construction", kind: "token-slots", prompt: "Build the completed phrase with taps.", context: "Complete: ___ gewerkt.",
     tokens: ["ik", "heb", "gewerkt"], accepted: ["ik heb gewerkt"], feedback: "Correct. Build VTT with ik + heb + gewerkt.", incorrectFeedback: "Use the auxiliary heb before the participle gewerkt.",
   },
   {
-    id: "exercise.werken.vtt.natural-translation", kind: "choice", prompt: "Choose the best conversational answer.", context: "A colleague asks: What did you do yesterday?",
+    id: "exercise.werken.vtt.natural-translation", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the best conversational answer.", context: "A colleague asks: What did you do yesterday?",
     choices: ["Ik werk gisteren thuis.", "Ik heb gisteren thuis gewerkt.", "Ik had gisteren thuis werken."], accepted: ["Ik heb gisteren thuis gewerkt."],
     feedback: "Correct. VTT is the usual conversational choice for this standalone completed fact.", incorrectFeedback: "For this conversational context, choose Ik heb gisteren thuis gewerkt.",
   },
   {
-    id: "exercise.werken.vtt.map-placement", kind: "map-placement", prompt: "Where does this sentence belong?", context: "Ik heb gisteren thuis gewerkt.",
+    id: "exercise.werken.vtt.map-placement", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this sentence belong?", context: "Ik heb gisteren thuis gewerkt.",
     choices: ["OTT · onvoltooid tegenwoordige tijd", "VTT · voltooid tegenwoordige tijd", "OVT · onvoltooid verleden tijd", "VVT · voltooid verleden tijd"], accepted: ["VTT · voltooid tegenwoordige tijd"],
     feedback: "Correct. The present auxiliary heb plus participle gewerkt forms VTT.", incorrectFeedback: "The present auxiliary heb plus participle gewerkt forms VTT.",
   },
   {
-    id: "exercise.werken.vtt.word-order", kind: "token-order", prompt: "Put the words in the correct order.", context: "Start with the time phrase: Gisteren …",
+    id: "exercise.werken.vtt.word-order", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the words in the correct order.", context: "Start with the time phrase: Gisteren …",
     tokens: ["Gisteren", "heb", "ik", "thuis", "gewerkt."], accepted: ["Gisteren heb ik thuis gewerkt."],
     feedback: "Correct. After Gisteren, the finite verb heb comes before ik.", incorrectFeedback: "After Gisteren, put the finite verb heb before ik: Gisteren heb ik thuis gewerkt.",
   },
@@ -58,11 +62,11 @@ const questions: VerbPracticeQuestion[] = [
 
 const repairs: VerbPracticeQuestion[] = [
   {
-    id: "exercise.werken.vtt.repair-auxiliary", kind: "choice", prompt: "Repair the VTT phrase.", context: "Ik ___ gisteren gewerkt.",
+    id: "exercise.werken.vtt.repair-auxiliary", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "repair-auxiliary", kind: "choice", prompt: "Repair the VTT phrase.", context: "Ik ___ gisteren gewerkt.",
     choices: ["heb", "hebt", "heeft"], accepted: ["heb"], feedback: "Correct. With ik, use heb: Ik heb gisteren gewerkt.", incorrectFeedback: "With ik, use heb before the participle gewerkt.",
   },
   {
-    id: "exercise.werken.vtt.repair-order", kind: "token-order", prompt: "Repair the word order after a time phrase.", context: "Gisteren …",
+    id: "exercise.werken.vtt.repair-order", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the word order after a time phrase.", context: "Gisteren …",
     tokens: ["Gisteren", "heb", "ik", "gewerkt."], accepted: ["Gisteren heb ik gewerkt."], feedback: "Correct. Dutch keeps the finite verb in the second position.", incorrectFeedback: "After Gisteren, put heb before ik: Gisteren heb ik gewerkt.",
   },
 ];
@@ -81,6 +85,11 @@ export function getCurrentVerbPracticeQuestion(session: VerbPracticeSession): (V
   if (session.completed) return null;
   const question = session.currentRepairId ? questionById.get(session.currentRepairId) : questions[session.coreIndex];
   return question ? { ...question, phase: session.currentRepairId ? "repair" : "core" } : null;
+}
+
+export function getVerbPracticeQuestion(id: string): (VerbPracticeQuestion & { phase: VerbPracticePhase }) | null {
+  const question = questionById.get(id);
+  return question ? { ...question, phase: questions.some((candidate) => candidate.id === id) ? "core" : "repair" } : null;
 }
 
 export function checkVerbPracticeAnswer(session: VerbPracticeSession, answer: VerbPracticeAnswer): { session: VerbPracticeSession; result: VerbPracticeResult } {

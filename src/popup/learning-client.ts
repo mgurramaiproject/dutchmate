@@ -18,6 +18,8 @@ import {
   LEARNING_CONTRAST_MESSAGE,
   LEARNING_CONTRAST_INTRODUCE_MESSAGE,
   LEARNING_CONTRAST_RESULT_MESSAGE,
+  LEARNING_VERB_JOURNEY_MESSAGE,
+  LEARNING_VERB_JOURNEY_RESULT_MESSAGE,
   type LearningMessage,
   type LearningMessageResponse,
 } from "../background/messages";
@@ -29,6 +31,7 @@ import type { GrammarPatternId } from "../lessons/catalog";
 import type { ContrastRecord, ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
 import type { ContrastMisconceptionCode, ContrastPackId } from "../grammar/contrast";
 import type { LessonPracticeEvidence } from "./lesson-session";
+import type { RecordVerbJourneyEvidenceInput, VerbJourneyRecord } from "../verb-journeys/learning";
 
 export type LearningRuntimeApi = { runtime: { sendMessage(message: LearningMessage): Promise<LearningMessageResponse> } };
 export type LearningClient = {
@@ -53,6 +56,8 @@ export type LearningClient = {
   introduceContrast(packId?: ContrastPackId): Promise<ContrastRecord>;
   recordContrastResult(packId: ContrastPackId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip", misconceptionCode?: ContrastMisconceptionCode): Promise<{ contrast: ContrastRecord; repairOffer: ImmediateContrastRepairOffer | null }>;
   recordContrastDailyFiveResult(packId: ContrastPackId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip"): Promise<{ contrast: ContrastRecord; snapshot: DailyFiveSnapshot }>;
+  getVerbJourneyRecord(): Promise<VerbJourneyRecord>;
+  recordVerbJourneyResult(input: Omit<RecordVerbJourneyEvidenceInput, "expectedEvidenceRevision"> & { expectedEvidenceRevision: number }): Promise<VerbJourneyRecord>;
 };
 
 export function createLearningClient(extensionApi: LearningRuntimeApi): LearningClient {
@@ -117,5 +122,7 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
     async introduceContrast(packId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_INTRODUCE_MESSAGE, ...(packId ? { payload: { packId } } : {}) }); if (response.ok && "contrast" in response.result && response.result.contrast) return response.result.contrast; throw new Error(response.ok ? "Contrast practice is unavailable." : response.error); },
     async recordContrastResult(packId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome, misconceptionCode) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId, contentVersion, exerciseId, expectedEvidenceRevision, ...(outcome ? { outcome } : { answer: answer ?? undefined }), ...(misconceptionCode ? { misconceptionCode } : {}) } }); if (response.ok && "contrast" in response.result && response.result.contrast && "repairOffer" in response.result) return response.result; throw new Error(response.ok ? "Contrast result could not be saved." : response.error); },
     async recordContrastDailyFiveResult(packId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId, contentVersion, exerciseId, expectedEvidenceRevision, dailyFive: true, ...(outcome ? { outcome } : { answer: answer ?? undefined }) } }); if (response.ok && "contrast" in response.result && response.result.contrast && "snapshot" in response.result) return response.result; throw new Error(response.ok ? "Contrast result could not be saved." : response.error); },
+    async getVerbJourneyRecord() { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_VERB_JOURNEY_MESSAGE }); if (response.ok && "verbJourneys" in response.result) return response.result.verbJourneys; throw new Error(response.ok ? "Verb journey evidence is unavailable." : response.error); },
+    async recordVerbJourneyResult(input) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload: input }); if (response.ok && "verbJourneys" in response.result) return response.result.verbJourneys; throw new Error(response.ok ? "Verb journey result could not be saved." : response.error); },
   };
 }

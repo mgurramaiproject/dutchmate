@@ -22,6 +22,7 @@ import { contrastResultMessage, type ContrastRecord, type ImmediateContrastRepai
 import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
 import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type JourneyRecord, type VerbFormRecord } from "../verb-journeys/content";
 import { advanceVerbPractice, checkVerbPracticeAnswer, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
+import type { VerbJourneyRecord } from "../verb-journeys/learning";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
@@ -79,6 +80,8 @@ let selectedVerbFormTense: DutchTense = "VTT";
 let verbMapOrigin: "overview" | "notice" = "overview";
 let verbBoundaryMessage: string | null = null;
 let verbPracticeSession: VerbPracticeSession | null = null;
+let verbJourneyRecord: VerbJourneyRecord | null = null;
+let verbJourneySaveChain: Promise<void> = Promise.resolve();
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
@@ -108,6 +111,7 @@ async function load(continueAfterCompletion = false): Promise<void> {
       grammarRecord = grammarRecords["a0-zijn-present"] ?? null;
     } catch { grammarRecords = {}; grammarRecord = null; }
     try { contrastRecord = await learningClient.getContrast(); } catch { contrastRecord = null; }
+    try { verbJourneyRecord = await learningClient.getVerbJourneyRecord(); } catch { verbJourneyRecord = null; }
     try {
       lessonProgressById = Object.fromEntries(await Promise.all(lessonCatalog.lessons.map(async (lesson) => [lesson.id, await learningClient.getLessonProgress(lesson.id)] as const)));
       lessonsError = null;
@@ -736,6 +740,16 @@ function renderVerbPractice(): HTMLElement {
     const status = text(session.lastResult.correct ? `Correct. ${session.lastResult.feedback}` : `Try again. ${session.lastResult.feedback}`, `verb-practice-feedback ${session.lastResult.correct ? "correct" : "incorrect"}`);
     status.setAttribute("role", "status");
     wrapper.append(status);
+    if (!session.lastResult.correct) {
+      const retry = button("Try again", "button secondary-button");
+      retry.addEventListener("click", () => {
+        const emptyAnswer: VerbPracticeAnswer = question.kind === "token-slots" || question.kind === "token-order" ? [] : "";
+        verbPracticeSession = { ...session, selectedAnswer: emptyAnswer, checked: false, lastResult: null };
+        render();
+        content?.focus();
+      });
+      wrapper.append(retry);
+    }
     const lastCoreQuestion = session.coreIndex === getVerbPracticeQuestions().length - 1 && question.phase === "core";
     const next = button(session.lastResult.correct && lastCoreQuestion ? "See completion" : "Continue", "button primary-button");
     next.addEventListener("click", () => {
@@ -778,9 +792,34 @@ function renderVerbPracticeControls(question: VerbPracticeQuestion & { phase: "c
   const answer = session.selectedAnswer;
   const hasAnswer = Array.isArray(answer) ? answer.length > 0 : Boolean(answer);
   const check = button("Check answer", "button primary-button"); check.disabled = session.checked || !hasAnswer;
-  check.addEventListener("click", () => { if (session.selectedAnswer === null) return; verbPracticeSession = checkVerbPracticeAnswer(session, session.selectedAnswer).session; render(); });
+  check.addEventListener("click", () => {
+    if (session.selectedAnswer === null) return;
+    const checked = checkVerbPracticeAnswer(session, session.selectedAnswer);
+    verbPracticeSession = checked.session;
+    queueVerbJourneyResult(question, checked.result.correct);
+    render();
+  });
   wrapper.append(check);
   return wrapper;
+}
+
+function queueVerbJourneyResult(question: VerbPracticeQuestion & { phase: "core" | "repair" }, correct: boolean): void {
+  verbJourneySaveChain = verbJourneySaveChain.then(async () => {
+    try {
+      verbJourneyRecord = await learningClient.recordVerbJourneyResult({
+        verbId: question.verbId,
+        formOrSkillId: question.formOrSkillId,
+        exerciseFamily: question.exerciseFamily,
+        exerciseId: question.id,
+        contentVersion: "015-1",
+        result: correct ? "correct" : "incorrect",
+        ...(question.delayedOrRecombined ? { delayedOrRecombined: true } : {}),
+        expectedEvidenceRevision: verbJourneyRecord?.evidenceRevision ?? 0,
+      });
+    } catch {
+      // Practice feedback remains usable when persistence is unavailable.
+    }
+  }).catch(() => undefined);
 }
 
 function renderVerbCompletion(): HTMLElement {

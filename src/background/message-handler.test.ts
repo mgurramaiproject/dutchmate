@@ -26,6 +26,8 @@ import {
   LEARNING_CONTRAST_INTRODUCE_MESSAGE,
   LEARNING_CONTRAST_MESSAGE,
   LEARNING_CONTRAST_RESULT_MESSAGE,
+  LEARNING_VERB_JOURNEY_MESSAGE,
+  LEARNING_VERB_JOURNEY_RESULT_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
 import { createBackgroundMessageHandler } from "./message-handler";
@@ -179,6 +181,16 @@ describe("createBackgroundMessageHandler", () => {
     await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "werk", expectedEvidenceRevision: 0 } })).resolves.toMatchObject({ ok: true, result: { contrast: { successfulExerciseIds: ["contrast-choose-time-first"], evidenceRevision: 1 } } });
     await expect(send(handleMessage, { type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-choose-time-first", answer: "werk", expectedEvidenceRevision: 0 } })).resolves.toEqual({ ok: false, error: "This contrast result was already recorded." });
     await expect(send(handleMessage, { type: LEARNING_CONTRAST_MESSAGE, payload: { packId: "contrast.main_clause_inversion" } })).resolves.toMatchObject({ ok: true, result: { contrast: { evidenceRevision: 1 } } });
+  });
+
+  it("routes verb journey evidence through the revision-checked learning boundary", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({ learningRecords: records, refreshBadge: async () => undefined });
+    await expect(send(handleMessage, { type: LEARNING_VERB_JOURNEY_MESSAGE })).resolves.toMatchObject({ ok: true, result: { verbJourneys: { evidenceRevision: 0 } } });
+    const payload = { verbId: "verb.werken" as const, formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", contentVersion: "015-1" as const, result: "correct" as const, expectedEvidenceRevision: 0 };
+    await expect(send(handleMessage, { type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload })).resolves.toMatchObject({ ok: true, result: { verbJourneys: { evidenceRevision: 1 } } });
+    await expect(send(handleMessage, { type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload })).resolves.toEqual({ ok: false, error: "This verb journey result was already recorded." });
   });
 
   it("returns an immediate repair offer only for the allowlisted controlled misconception", async () => {
