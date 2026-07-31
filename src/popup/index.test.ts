@@ -961,6 +961,35 @@ describe("lesson popup", () => {
     expect([...content().querySelectorAll<HTMLElement>(".lesson-number")].map((number) => number.textContent)).toEqual(Array.from({ length: 15 }, (_, index) => String(index + 1).padStart(2, "0")));
   });
 
+  it("opens the numbered werken read path through story, Notice, and the complete Verb Map", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    const entry = content().querySelector<HTMLButtonElement>(".verb-journey-entry")!;
+    expect(entry.getAttribute("aria-label")).toBe("Open Verb Journeys");
+    entry.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Verb Journeys"));
+    expect([...content().querySelectorAll<HTMLElement>(".verb-directory-number")].map((number) => number.textContent)).toEqual(["01", "02", "03", "04"]);
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    expect(content().textContent).toContain("What I completed");
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I completed"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Een drukke werkdag"));
+    expect(content().textContent).toContain("Gisteren heb ik op kantoor gewerkt.");
+    button("Notice the pattern →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("The completed event"));
+    expect(content().textContent).toContain("FORMULA");
+    expect(content().textContent).toContain("VALUABLE CONTRAST");
+    button("Place it on the 8-form map →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    expect(content().querySelectorAll(".verb-form-card")).toHaveLength(8);
+    expect(content().textContent).toContain("Common usage");
+    const ott = content().querySelector<HTMLButtonElement>(".verb-form-card[aria-label^='OTT']")!;
+    ott.click();
+    expect(content().querySelector(".verb-detail-example")?.textContent).toBe("Ik werk thuis.");
+    expect(document.querySelector<HTMLButtonElement>("#today-tab")?.textContent).toContain("Today");
+    expect(document.querySelector<HTMLButtonElement>("#lessons-tab")?.getAttribute("aria-selected")).toBe("true");
+  });
+
   it("keeps unstarted A0 patterns quiet without crowding Today", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));

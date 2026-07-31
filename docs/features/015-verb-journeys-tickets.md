@@ -42,21 +42,29 @@ approved compact popup interaction contract: persistent icon-labeled Today,
 Lessons, and Saved bottom tabs; visible clickable controls; fixed verb numbers;
 and no audio controls.
 
-- [ ] The validated authored `werken` pack exposes stable journey, form, map,
+- [x] The validated authored `werken` pack exposes stable journey, form, map,
       and target identifiers.
-- [ ] Lessons opens Verb Journeys without adding a new top-level popup tab.
-- [ ] The verb list visibly numbers `werken` as `01` and future placeholders in
+- [x] Lessons opens Verb Journeys without adding a new top-level popup tab.
+- [x] The verb list visibly numbers `werken` as `01` and future placeholders in
       stable order.
-- [ ] The `werken` overview shows staged OTT, VTT, and OVT journeys plus later
+- [x] The `werken` overview shows staged OTT, VTT, and OVT journeys plus later
       or reference material without implying beginner mastery gates.
-- [ ] Story, Notice the pattern, Formula, Valuable contrast, and eight-form
+- [x] Story, Notice the pattern, Formula, Valuable contrast, and eight-form
       map content match the approved behavior and information architecture.
-- [ ] The map includes all eight Dutch forms, status cues, form detail,
+- [x] The map includes all eight Dutch forms, status cues, form detail,
       practical meaning, common usage, and learning priority.
-- [ ] The popup retains standard dimensions, compact top spacing, persistent
+- [x] The popup retains standard dimensions, compact top spacing, persistent
       bottom tabs, keyboard-operable controls, and no audio/listening UI.
-- [ ] Content validation, popup navigation, keyboard, narrow-layout, and
+- [x] Content validation, popup navigation, keyboard, narrow-layout, and
       provider-isolation checks pass.
+
+**Implementation evidence:** `src/verb-journeys/content.ts` provides the
+versioned `werken` pack and validator; `src/popup/index.ts` and the popup
+styles provide the Lessons → Verb Journeys → overview → story → Notice → map
+route. Focused content and popup tests, typechecking, the full test suite, and
+Chrome/Firefox builds and extension-build verification passed. No PR is opened
+in this ticket-scoped handoff; the work is reserved for the single Feature 015
+PR.
 
 ## T02 — Add bounded VTT practice and completion
 
