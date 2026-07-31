@@ -17,22 +17,21 @@
     .prototype-toolbar .toolbar-copy { display: grid; gap: 2px; }
     .prototype-toolbar .toolbar-note { color: var(--dm-brand-orange-deep); }
     .popup-stage { display: grid; place-items: start center; min-height: 600px; }
-    .popup-shell { display: flex; flex-direction: column; width: var(--dm-popup-width); height: var(--dm-popup-height); overflow: hidden; border: 1px solid var(--dm-line); border-radius: 8px; background: var(--dm-paper); box-shadow: var(--dm-shadow-high); }
-    .popup-header { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 10px 16px; border-bottom: 1px solid var(--dm-line); background: var(--dm-paper-raised); }
+    .popup-shell { display: flex; flex-direction: column; width: min(var(--dm-popup-width), 100vw); height: var(--dm-popup-height); overflow: hidden; border: 1px solid var(--dm-line); border-radius: 12px; background: var(--dm-paper); box-shadow: var(--dm-shadow-high); }
+    .popup-header { display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 8px 14px; border-bottom: 1px solid var(--dm-line); background: var(--dm-paper-raised); }
     .brand { display: flex; align-items: center; gap: 9px; color: var(--dm-ink-strong); font-weight: var(--dm-weight-black); letter-spacing: -.02em; }
     .brand img { width: 29px; height: 29px; border-radius: var(--dm-radius-control); }
     .header-actions { display: flex; align-items: center; gap: 7px; }
     .header-button, .header-link { min-height: var(--dm-target-min); padding: 4px; border: 0; border-radius: 6px; background: transparent; color: var(--dm-ink-muted); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-bold); }
     .header-button:hover, .header-link:hover { color: var(--dm-ink-strong); text-decoration: underline; text-decoration-color: var(--dm-brand-orange); text-underline-offset: 3px; }
     .due-badge { display: inline-grid; min-width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--dm-brand-orange); color: var(--dm-ink-strong); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
-    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--dm-ink-strong); background: var(--dm-paper-raised); }
-    .tab { min-height: var(--dm-target-min); border: 0; border-right: 1px solid var(--dm-ink-strong); background: var(--dm-paper-raised); color: var(--dm-ink-strong); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); letter-spacing: .04em; text-transform: uppercase; }
+    .tabs { display: grid; flex: 0 0 auto; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--dm-line); background: var(--dm-paper-raised); }
+    .tab { display: grid; min-height: 58px; place-items: center; gap: 3px; padding: 6px 4px 5px; border: 0; border-right: 1px solid var(--dm-line); background: var(--dm-paper-raised); color: var(--dm-ink-muted); font-size: .58rem; font-weight: var(--dm-weight-black); letter-spacing: .04em; text-transform: uppercase; }
     .tab:last-child { border-right: 0; }
     .tab.is-active { background: var(--dm-ink-strong); color: var(--dm-paper-raised); }
-    .tab:disabled { cursor: default; opacity: .62; }
-    .popup-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 16px; background: var(--dm-paper); }
-    .popup-content.focused { padding: 2px 16px 16px; }
-    .content { display: grid; align-content: start; gap: 12px; }
+    .tab .icon { width: 17px; height: 17px; }
+    .popup-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 10px 14px 12px; background: var(--dm-paper); }
+    .content { display: grid; align-content: start; gap: 10px; }
     .eyebrow, .section-title, .stat-label { margin: 0; color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); letter-spacing: .04em; text-transform: uppercase; }
     .heading { margin: 0; color: var(--dm-ink-strong); font-family: var(--dm-font-reading); font-size: var(--dm-font-size-h1); font-weight: var(--dm-weight-black); line-height: var(--dm-line-height-h1); }
     .subheading { margin: 0; color: var(--dm-ink-strong); font-family: var(--dm-font-reading); font-size: var(--dm-font-size-h2); font-weight: var(--dm-weight-black); line-height: var(--dm-line-height-h2); }
@@ -72,8 +71,8 @@
     .lesson-number { font-family: var(--dm-font-reading); font-size: 1rem; }
     .level, .tag { display: inline-block; padding: 4px 6px; border: 1px solid var(--dm-line); border-radius: 6px; color: var(--dm-ink-muted); font-size: .58rem; font-weight: var(--dm-weight-black); white-space: nowrap; }
     .tag.orange { border-color: var(--dm-brand-orange); color: var(--dm-brand-orange-deep); }
-    .lesson-continue { display: grid; gap: 8px; padding: 13px; border: 0; border-radius: var(--dm-radius-card); background: linear-gradient(145deg, var(--dm-ink-strong), #4f3c31); color: var(--dm-paper-raised); box-shadow: var(--dm-shadow-low); }
-    .lesson-continue .eyebrow, .lesson-continue .body-copy { color: var(--dm-paper-soft); }
+    .lesson-continue { display: grid; gap: 8px; padding: 13px; border: 0; border-radius: var(--dm-radius-card); background: linear-gradient(145deg, var(--dm-success), #24553f); color: var(--dm-paper-raised); box-shadow: var(--dm-shadow-low); }
+    .lesson-continue .eyebrow, .lesson-continue .subheading, .lesson-continue .body-copy { color: var(--dm-paper-raised); }
     .lesson-continue .progress { background: rgb(255 255 255 / 22%); }
     .lesson-continue .progress span { background: var(--dm-paper-raised) !important; }
     .lesson-continue .local-note { color: var(--dm-paper-soft); font-size: .6rem; text-align: center; }
@@ -86,13 +85,13 @@
     .category-card small { display: block; margin-top: 2px; color: var(--dm-ink-muted); font-size: .59rem; line-height: 1.3; }
     .chevron { color: var(--dm-ink-muted); font-size: 1.15rem; }
     .journey-list { display: grid; gap: 6px; }
-    .journey-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; width: 100%; padding: 10px; border: 1px solid var(--dm-line); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); color: var(--dm-ink-strong); text-align: left; }
+    .journey-card { display: grid; grid-template-columns: 27px minmax(0, 1fr) auto; align-items: center; gap: 8px; width: 100%; padding: 10px; border: 1px solid var(--dm-line); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); color: var(--dm-ink-strong); text-align: left; }
     .journey-card:hover, .journey-card:focus-visible { background: var(--dm-paper-soft); box-shadow: inset 4px 0 var(--dm-brand-orange); }
     .journey-card h2 { margin: 0; font-family: var(--dm-font-reading); font-size: .94rem; }
     .journey-card p { margin: 3px 0 0; color: var(--dm-ink-muted); font-size: .63rem; line-height: 1.3; }
     .journey-card .icon { width: 16px; height: 16px; }
-    .mastery-card { display: grid; gap: 9px; padding: 13px; border: 0; border-radius: var(--dm-radius-card); background: linear-gradient(145deg, var(--dm-ink-strong), #4f3c31); color: var(--dm-paper-raised); box-shadow: var(--dm-shadow-low); }
-    .mastery-card .eyebrow, .mastery-card .body-copy { color: var(--dm-paper-soft); }
+    .mastery-card { display: grid; gap: 9px; padding: 13px; border: 0; border-radius: var(--dm-radius-card); background: linear-gradient(145deg, var(--dm-success), #24553f); color: var(--dm-paper-raised); box-shadow: var(--dm-shadow-low); }
+    .mastery-card .eyebrow, .mastery-card .subheading, .mastery-card .body-copy { color: var(--dm-paper-raised); }
     .mastery-card .progress { background: rgb(255 255 255 / 22%); }
     .mastery-card .progress span { background: var(--dm-paper-raised) !important; }
     .mastery-card .button.secondary { border-color: var(--dm-paper-soft); background: transparent; color: var(--dm-paper-raised); }
@@ -108,6 +107,8 @@
     .status-dot.reference { border-style: dashed; }
     .journey-row strong { display: block; font-family: var(--dm-font-reading); font-size: .7rem; }
     .journey-row small { display: block; margin-top: 2px; color: var(--dm-ink-muted); font-size: .57rem; line-height: 1.25; }
+    .verb-number { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid var(--dm-line); border-radius: 8px; background: var(--dm-paper-soft); color: var(--dm-ink-muted); font-size: .62rem; font-weight: var(--dm-weight-black); }
+    .next-action .verb-number { border-color: var(--dm-brand-orange); background: var(--dm-paper-soft); color: var(--dm-brand-orange-deep); }
     .lesson-rail { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-bottom: 12px; }
     .lesson-stage { display: grid; min-height: var(--dm-target-min); place-items: center; padding: 4px 2px; border: 1px solid var(--dm-ink-strong); background: var(--dm-paper-raised); color: var(--dm-ink-strong); font-size: .58rem; font-weight: var(--dm-weight-black); line-height: var(--dm-line-height-small); text-align: center; text-transform: uppercase; }
     .lesson-stage.active { background: var(--dm-ink-strong); color: var(--dm-paper-raised); }
@@ -264,7 +265,9 @@
       "arrow-left": '<path d="M19 12H5M12 19l-7-7 7-7"/>',
       "arrow-right": '<path d="M5 12h14M12 5l7 7-7 7"/>',
       "book-open": '<path d="M2 4.5A2.5 2.5 0 0 1 4.5 2H11v18H4.5A2.5 2.5 0 0 0 2 22zM22 4.5A2.5 2.5 0 0 0 19.5 2H13v18h6.5a2.5 2.5 0 0 1 2.5 2z"/>',
+      "bookmark": '<path d="M6 3h12v18l-6-3-6 3z"/>',
       "check": '<path d="m5 12 4 4L19 6"/>',
+      "circle-check": '<circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/>',
       "circle-alert": '<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>',
       "message-circle": '<path d="M20 11.5a8 8 0 0 1-8 8 8.3 8.3 0 0 1-3.4-.7L4 20l1.2-3.4A8 8 0 1 1 20 11.5Z"/>',
       "map": '<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15"/>',
@@ -281,7 +284,6 @@
     function setVariant(key) { state.variant = key; setUrlValue("variant", key); render(); }
     function setScreen(screen) { if (!screens.includes(screen)) return; state.screen = screen; if (screen === "practice") resetQuestion(); render(); }
     function resetQuestion() { state.checked = false; state.repairOffered = false; state.selected = null; state.slots = []; state.order = []; }
-    function openFocusedScreen() { return ["story", "notice", "dutch-map", "english-map", "practice", "complete"].includes(state.screen); }
     function topHeader() {
       const header = document.createElement("header"); header.className = "popup-header";
       header.innerHTML = `<div class="brand"><img src="../../public/brand/dutchmate-mark.svg" alt="" width="29" height="29"><span>DutchMate</span></div><div class="header-actions"><span class="due-badge" aria-label="2 items due">2</span><button class="header-link icon-button" type="button" data-action="feedback">${iconMarkup("message-circle", "Feedback")}</button><button class="header-button icon-button" type="button" data-action="settings">${iconMarkup("settings", "Settings")}</button></div>`;
@@ -291,14 +293,14 @@
     }
     function tabs() {
       const nav = document.createElement("nav"); nav.className = "tabs"; nav.setAttribute("aria-label", "Learning areas");
-      ["today", "lessons", "saved"].forEach((key) => { const tab = button(key, () => setScreen(key), "tab"); tab.textContent = key[0].toUpperCase() + key.slice(1); tab.classList.toggle("is-active", state.screen === key || (key === "lessons" && ["verb-list", "werken"].includes(state.screen))); tab.disabled = openFocusedScreen(); nav.append(tab); });
+      [["today", "Today", "circle-check"], ["lessons", "Lessons", "book-open"], ["saved", "Saved", "bookmark"]].forEach(([key, label, icon]) => { const tab = button(label, () => setScreen(key), "tab"); const lessonScreens = ["verb-list", "werken", "story", "notice", "dutch-map", "english-map", "practice", "complete"]; tab.innerHTML = `${iconMarkup(icon)}<span>${label}</span>`; tab.classList.toggle("is-active", state.screen === key || (key === "lessons" && lessonScreens.includes(state.screen))); nav.append(tab); });
       return nav;
     }
     function contentHeader(eyebrow, heading, copy) { const node = document.createElement("div"); node.className = "content"; node.innerHTML = `<p class="eyebrow">${html(eyebrow)}</p><h1 class="heading">${html(heading)}</h1>${copy ? `<p class="body-copy">${html(copy)}</p>` : ""}`; return node; }
     function actions(...items) { const row = document.createElement("div"); row.className = `actions${items.length === 1 ? " single" : ""}`; items.forEach((item) => row.append(item)); return row; }
     function card(eyebrow, heading, copy) { const node = document.createElement("section"); node.className = "card"; node.innerHTML = `<p class="eyebrow">${html(eyebrow)}</p><h2 class="subheading">${html(heading)}</h2>${copy ? `<p class="body-copy">${html(copy)}</p>` : ""}`; return node; }
     function lessonRail(active) { const rail = document.createElement("div"); rail.className = "lesson-rail"; ["Read", "Notice", "Practise", "Review"].forEach((label) => { const stage = document.createElement("div"); stage.className = `lesson-stage${label.toLowerCase() === active ? " active" : ""}`; stage.textContent = label; rail.append(stage); }); return rail; }
-    function baseContent() { const content = document.createElement("div"); content.className = `popup-content${openFocusedScreen() ? " focused" : ""}`; return content; }
+    function baseContent() { const content = document.createElement("div"); content.className = "popup-content"; return content; }
     function renderToday() {
       const content = baseContent(); const body = document.createElement("div"); body.className = "content";
       const intro = contentHeader("Today", state.variant === "today" ? "Goed bezig!" : "Keep your Dutch active", "One small meaningful session, using the existing learning rhythm."); body.append(...intro.children);
@@ -319,8 +321,8 @@
     }
     function renderVerbList() {
       const content = baseContent(); const body = document.createElement("div"); body.className = "content"; body.append(iconButton("arrow-left", "Lessons", () => setScreen("lessons"), "quiet-link"), ...contentHeader("Lessons · Verb Journeys", "Build usable verbs", "Learn forms through stories, a reusable Verb Map and click-only practice.").children);
-      const continueCard = document.createElement("section"); continueCard.className = "next-action"; continueCard.innerHTML = `<p class="eyebrow">Continue</p><h2 class="subheading">werken</h2><p class="body-copy">to work · A1 core verb</p><div class="progress"><span style="display:block;width:25%;height:100%;background:var(--dm-brand-orange)"></span></div><div class="section-head"><span class="local-note">VTT learning now · 2 / 8</span><strong>Open →</strong></div>`; continueCard.addEventListener("click", () => setScreen("werken")); continueCard.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setScreen("werken"); } }); continueCard.setAttribute("role", "button"); continueCard.tabIndex = 0; body.append(continueCard);
-      const list = document.createElement("div"); list.className = "journey-list"; [["gaan", "to go · irregular · uses zijn", "Not started"], ["hebben", "to have · irregular", "1 / 8"], ["wonen", "to live · regular", "Not started"]].forEach(([title, copy, status]) => { const row = button("", () => {}, "journey-card"); row.innerHTML = `<span><h2>${title}</h2><p>${copy}</p></span><span class="tag">${status}</span>`; list.append(row); }); body.append(list); content.append(body); return content;
+      const continueCard = document.createElement("section"); continueCard.className = "next-action"; continueCard.innerHTML = `<div class="section-head"><span class="verb-number">01</span><span class="tag orange">2 / 8</span></div><h2 class="subheading">werken</h2><p class="body-copy">to work · A1 core verb</p><div class="progress"><span style="display:block;width:25%;height:100%;background:var(--dm-brand-orange)"></span></div><div class="section-head"><span class="local-note">VTT learning now</span><strong>Open →</strong></div>`; continueCard.addEventListener("click", () => setScreen("werken")); continueCard.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setScreen("werken"); } }); continueCard.setAttribute("role", "button"); continueCard.tabIndex = 0; body.append(continueCard);
+      const list = document.createElement("div"); list.className = "journey-list"; [["02", "gaan", "to go · irregular · uses zijn", "Not started"], ["03", "hebben", "to have · irregular", "1 / 8"], ["04", "wonen", "to live · regular", "Not started"]].forEach(([number, title, copy, status]) => { const row = button("", () => {}, "journey-card"); row.innerHTML = `<span class="verb-number">${number}</span><span><h2>${title}</h2><p>${copy}</p></span><span class="tag">${status}</span>`; list.append(row); }); body.append(list); content.append(body); return content;
     }
     function renderWerken() {
       const content = baseContent(); const body = document.createElement("div"); body.className = "content"; body.append(iconButton("arrow-left", "Verb Journeys", () => setScreen("verb-list"), "quiet-link"), ...contentHeader("A1 core verb", "werken", "to work · regular weak verb · auxiliary: hebben").children);
@@ -376,7 +378,7 @@
       const mastery = card("Verb progress", "2 of 8 forms practised", "VTT is learning now. Advanced forms remain reference content rather than beginner requirements."); mastery.innerHTML += `<div class="progress"><span style="display:block;width:25%;height:100%;background:var(--dm-brand-orange)"></span></div><p class="local-note">Pattern progress and journey completion remain separate.</p>`; body.append(mastery); content.append(body); return content;
     }
     function render() {
-      popup.replaceChildren(topHeader(), tabs());
+      popup.replaceChildren(topHeader());
       if (state.screen === "today") popup.append(renderToday());
       else if (state.screen === "lessons") popup.append(renderLessons());
       else if (state.screen === "saved") popup.append(renderSaved());
@@ -388,6 +390,7 @@
       else if (state.screen === "english-map") popup.append(renderEnglishMap());
       else if (state.screen === "practice") popup.append(renderPractice());
       else popup.append(renderComplete());
+      popup.append(tabs());
       document.getElementById("variantLabel").textContent = `${currentVariant().name} · ${currentVariant().description}`;
       loadFeedback();
     }
