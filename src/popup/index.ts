@@ -627,6 +627,7 @@ function renderVerbJourneys(): HTMLElement {
   const back = journeyBack("Lessons");
   back.addEventListener("click", () => { screen = "lessons"; render(); });
   wrapper.append(back, eyebrow("Lessons · Verb Journeys"), heading("Verb Journeys"), text("Choose one useful Dutch verb and follow its staged forms from context to reference."));
+  wrapper.append(renderVerbJourneyProgressCard());
   const list = section("verb-directory");
   const entries = [
     { number: "01", lemma: "werken", detail: "to work · A1 core verb", enabled: true },
@@ -652,24 +653,76 @@ function renderVerbJourneys(): HTMLElement {
   return wrapper;
 }
 
+function getVerbJourneyProgress(): { completedForms: number; totalForms: number; percentage: number } {
+  const completedForms = verbJourneyPack.dutchForms.filter((form) => form.status === "mastered" || form.status === "learning").length;
+  const totalForms = verbJourneyPack.dutchForms.length;
+  return { completedForms, totalForms, percentage: totalForms === 0 ? 0 : Math.round((completedForms / totalForms) * 100) };
+}
+
+function renderVerbProgressTrack(progress: ReturnType<typeof getVerbJourneyProgress>, className = ""): HTMLElement {
+  const track = document.createElement("div");
+  track.className = `verb-progress-track${className ? ` ${className}` : ""}`;
+  track.setAttribute("role", "progressbar");
+  track.setAttribute("aria-valuemin", "0");
+  track.setAttribute("aria-valuemax", String(progress.totalForms));
+  track.setAttribute("aria-valuenow", String(progress.completedForms));
+  track.setAttribute("aria-label", `${progress.completedForms} of ${progress.totalForms} Dutch forms practised`);
+  const fill = document.createElement("span");
+  fill.className = "verb-progress-fill";
+  fill.style.width = `${progress.percentage}%`;
+  track.append(fill);
+  return track;
+}
+
+function renderVerbJourneyProgressCard(): HTMLButtonElement {
+  const progress = getVerbJourneyProgress();
+  const card = button("", "verb-journey-progress");
+  card.setAttribute("aria-label", `Continue werken Verb Journey, ${progress.completedForms} of ${progress.totalForms} forms practised`);
+  const header = document.createElement("div");
+  header.className = "verb-progress-header";
+  const copy = document.createElement("span");
+  copy.className = "verb-progress-copy";
+  copy.append(eyebrow("Continue"), spanText("werken", "verb-progress-title"), text("to work · A1 core verb", "verb-entry-copy"));
+  header.append(copy, spanText(`${progress.completedForms} / ${progress.totalForms}`, "verb-progress-count"));
+  const footer = document.createElement("div");
+  footer.className = "verb-progress-footer";
+  footer.append(text("VTT learning now", "verb-entry-copy"), spanText("Open →", "verb-entry-action"));
+  card.append(header, text(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-progress-summary"), renderVerbProgressTrack(progress), footer);
+  card.addEventListener("click", () => { activeVerbJourneyId = "journey.werken.vtt-completed"; screen = "verbJourneyOverview"; render(); content?.focus(); });
+  return card;
+}
+
 function renderVerbJourneyOverview(): HTMLElement {
   const wrapper = section("verb-journey-overview");
   const pack = verbJourneyPack;
   const back = journeyBack("Verb Journeys");
   back.addEventListener("click", () => { screen = "verbJourneys"; render(); });
   wrapper.append(back, eyebrow("A1 core verb"), heading(pack.verb.lemma), text(`${pack.verb.english} · regular weak verb · auxiliary: ${pack.verb.auxiliary}`, "journey-lead"));
-  const mapAction = button("", "verb-map-summary");
-  mapAction.setAttribute("aria-label", "Open the eight-form Verb Map");
-  mapAction.append(spanText("CANONICAL REFERENCE", "map-summary-kicker"), spanText("Eight Dutch forms", "map-summary-title"), spanText("One stable map for every werken journey.", "map-summary-copy"), spanText("Open Verb Map →", "map-summary-action"));
+  const progress = getVerbJourneyProgress();
+  const mastery = section("verb-mastery-card");
+  const masteryHeader = document.createElement("div");
+  masteryHeader.className = "verb-progress-header";
+  const masteryCopy = document.createElement("span");
+  masteryCopy.className = "verb-progress-copy";
+  masteryCopy.append(eyebrow("Your Verb Journey"), spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-mastery-count"), text("VTT learning now · VTT vs OVT contrast offered next", "verb-mastery-note"));
+  masteryHeader.append(masteryCopy, svgIcon("route", "verb-mastery-icon"));
+  const mapAction = button("8 Dutch forms", "button primary-button");
   mapAction.addEventListener("click", () => { selectedVerbFormTense = "VTT"; verbMapOrigin = "overview"; screen = "verbMap"; render(); content?.focus(); });
-  const comparisonAction = button("Compare 12 English forms →", "button secondary-button verb-comparison-action");
+  const comparisonAction = button("12 English forms", "button secondary-button");
   comparisonAction.addEventListener("click", () => { verbEnglishComparisonOrigin = "overview"; screen = "verbEnglishComparison"; render(); content?.focus(); });
-  wrapper.append(mapAction, comparisonAction, text("Learning journeys", "journey-section-label"));
+  const actions = document.createElement("div");
+  actions.className = "verb-mastery-actions";
+  actions.append(mapAction, comparisonAction);
+  mastery.append(masteryHeader, spanText("Eight Dutch forms", "verb-mastery-map-label"), renderVerbProgressTrack(progress, "light"), actions);
+  wrapper.append(mastery, text("Learning journeys", "journey-section-label"));
   const journeyList = section("journey-list");
-  for (const journey of pack.journeys) {
+  for (const [index, journey] of pack.journeys.entries()) {
     const row = button("", "journey-list-row");
-    row.setAttribute("aria-label", `${journey.title}, ${journey.subtitle}, ${journey.status}`);
-    const status = document.createElement("span"); status.className = `journey-status ${journey.status}`; status.textContent = journey.status === "mastered" ? "✓" : journey.status === "reference" ? "◇" : journey.status === "learning" ? "2" : journey.status === "next" ? "3" : journey.targetForms[0] ?? "·";
+    const journeyNumber = String(index + 1).padStart(2, "0");
+    row.setAttribute("aria-label", `Journey ${journeyNumber}: ${journey.title}, ${journey.subtitle}, ${journey.status}`);
+    const status = document.createElement("span"); status.className = `journey-status ${journey.status}`;
+    status.append(spanText(journeyNumber, "journey-status-number"));
+    if (journey.status === "mastered") { const completion = spanText("✓", "journey-completion-mark"); completion.setAttribute("aria-label", "Completed"); completion.title = "Completed"; status.append(completion); }
     const copy = document.createElement("span"); copy.className = "journey-list-copy";
     const title = document.createElement("strong"); title.textContent = journey.title;
     const subtitle = document.createElement("small"); subtitle.textContent = journey.subtitle;
