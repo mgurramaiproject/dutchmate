@@ -5,6 +5,19 @@ export type DutchTense = "OTT" | "OVT" | "VTT" | "VVT" | "OTTT" | "OVTT" | "VTTT
 export type TeachingPriority = "core" | "later" | "reference";
 export type JourneyStatus = "mastered" | "learning" | "next" | "later" | "reference";
 export type JourneyKind = "core" | "later" | "reference";
+export type EnglishTense =
+  | "present-simple"
+  | "present-continuous"
+  | "present-perfect"
+  | "present-perfect-continuous"
+  | "past-simple"
+  | "past-continuous"
+  | "past-perfect"
+  | "past-perfect-continuous"
+  | "future-simple"
+  | "future-continuous"
+  | "future-perfect"
+  | "future-perfect-continuous";
 
 export type VerbFormRecord = {
   id: string;
@@ -20,6 +33,24 @@ export type VerbFormRecord = {
   cefrLevel: "A1" | "A2" | "reference";
   teachingPriority: TeachingPriority;
   status: JourneyStatus;
+};
+
+export type EnglishMapRecord = {
+  id: string;
+  englishTense: EnglishTense;
+  group: "present" | "past" | "future";
+  english: string;
+  situation: string;
+  meaningPreservingDutch: string;
+  commonEverydayDutch: string;
+  dutchAnalysis: {
+    primaryForm?: DutchTense;
+    construction?: string;
+    alternativeForms?: DutchTense[];
+  };
+  mismatchNote: string;
+  cefrLevel: "A1" | "A2" | "reference";
+  teachingPriority: TeachingPriority;
 };
 
 export type StoryTarget = { text: string; skillIds: string[] };
@@ -56,6 +87,7 @@ export type VerbJourneyPack = {
   contentVersion: typeof VERB_JOURNEY_CONTENT_VERSION;
   verb: { id: string; lemma: string; english: string; level: "A1"; tags: string[]; auxiliary: "hebben" };
   dutchForms: VerbFormRecord[];
+  englishComparison: EnglishMapRecord[];
   journeys: JourneyRecord[];
 };
 
@@ -98,6 +130,45 @@ const ovtNotice: NoticeContent = {
   valuableContrast: "Ik werkte vroeger thuis sets the background or describes a habit. Ik heb gisteren gewerkt reports a completed fact.",
 };
 
+const englishComparison: EnglishMapRecord[] = [
+  {
+    id: "english.werken.present-simple", englishTense: "present-simple", group: "present", english: "I work at home every Monday.", situation: "A repeated routine or fact.", meaningPreservingDutch: "Ik werk elke maandag thuis.", commonEverydayDutch: "Ik werk elke maandag thuis.", dutchAnalysis: { primaryForm: "OTT" }, mismatchNote: "This is a direct mapping for routines, facts, and repeated actions.", cefrLevel: "A1", teachingPriority: "core",
+  },
+  {
+    id: "english.werken.present-continuous", englishTense: "present-continuous", group: "present", english: "I am working at home right now.", situation: "An activity happening now.", meaningPreservingDutch: "Ik ben nu thuis aan het werken.", commonEverydayDutch: "Ik werk nu thuis.", dutchAnalysis: { primaryForm: "OTT", construction: "OTT + nu" }, mismatchNote: "Dutch has no separate continuous tense; ordinary OTT plus nu is often enough.", cefrLevel: "A1", teachingPriority: "core",
+  },
+  {
+    id: "english.werken.present-perfect", englishTense: "present-perfect", group: "present", english: "I have worked at home three times this week.", situation: "Completed events connected to the current period.", meaningPreservingDutch: "Ik heb deze week drie keer thuis gewerkt.", commonEverydayDutch: "Ik heb deze week drie keer thuis gewerkt.", dutchAnalysis: { primaryForm: "VTT" }, mismatchNote: "VTT presents completed events as relevant to the current period.", cefrLevel: "A1", teachingPriority: "core",
+  },
+  {
+    id: "english.werken.present-perfect-continuous", englishTense: "present-perfect-continuous", group: "present", english: "I have been working for two hours.", situation: "An activity started earlier and is still continuing.", meaningPreservingDutch: "Ik ben al twee uur aan het werken.", commonEverydayDutch: "Ik werk al twee uur.", dutchAnalysis: { primaryForm: "OTT", construction: "OTT + al + duration" }, mismatchNote: "Because the activity continues now, Dutch treats it as a present situation with al and a duration.", cefrLevel: "A2", teachingPriority: "core",
+  },
+  {
+    id: "english.werken.past-simple", englishTense: "past-simple", group: "past", english: "I worked at home yesterday.", situation: "One completed fact in a past conversation.", meaningPreservingDutch: "Gisteren werkte ik thuis.", commonEverydayDutch: "Ik heb gisteren thuis gewerkt.", dutchAnalysis: { primaryForm: "VTT", alternativeForms: ["OVT"] }, mismatchNote: "English simple past often maps to VTT for a standalone completed fact; OVT is common for narrative background or habits.", cefrLevel: "A2", teachingPriority: "core",
+  },
+  {
+    id: "english.werken.past-continuous", englishTense: "past-continuous", group: "past", english: "I was working when she called.", situation: "An ongoing past activity interrupted by another event.", meaningPreservingDutch: "Ik was aan het werken toen ze belde.", commonEverydayDutch: "Ik zat te werken toen ze belde.", dutchAnalysis: { primaryForm: "OVT", construction: "OVT + aan het / zitten te" }, mismatchNote: "Dutch supplies ongoing meaning with aan het or a position verb such as zitten te.", cefrLevel: "A2", teachingPriority: "core",
+  },
+  {
+    id: "english.werken.past-perfect", englishTense: "past-perfect", group: "past", english: "I had already worked at home before the meeting began.", situation: "An earlier completed event viewed from a past reference point.", meaningPreservingDutch: "Ik had al thuis gewerkt voordat de vergadering begon.", commonEverydayDutch: "Ik had al thuis gewerkt voordat de vergadering begon.", dutchAnalysis: { primaryForm: "VVT" }, mismatchNote: "VVT explicitly marks the earlier of two past events.", cefrLevel: "A2", teachingPriority: "later",
+  },
+  {
+    id: "english.werken.past-perfect-continuous", englishTense: "past-perfect-continuous", group: "past", english: "I had been working for two hours when she called.", situation: "A continuing activity measured up to a past reference point.", meaningPreservingDutch: "Ik was al twee uur aan het werken toen ze belde.", commonEverydayDutch: "Ik zat al twee uur te werken toen ze belde.", dutchAnalysis: { primaryForm: "OVT", construction: "OVT + al + duration" }, mismatchNote: "The past reference point and al twee uur carry the had been meaning; Dutch normally does not need VVT here.", cefrLevel: "reference", teachingPriority: "reference",
+  },
+  {
+    id: "english.werken.future-simple", englishTense: "future-simple", group: "future", english: "I will work at home tomorrow.", situation: "A planned or predicted future event.", meaningPreservingDutch: "Ik zal morgen thuis werken.", commonEverydayDutch: "Morgen werk ik thuis.", dutchAnalysis: { primaryForm: "OTT", construction: "OTT + future time marker", alternativeForms: ["OTTT"] }, mismatchNote: "English will does not automatically require Dutch zal; a future time word often makes OTT sufficient.", cefrLevel: "A1", teachingPriority: "core",
+  },
+  {
+    id: "english.werken.future-continuous", englishTense: "future-continuous", group: "future", english: "Tomorrow at eight, I will be working.", situation: "An activity in progress at a future time.", meaningPreservingDutch: "Morgen om acht uur zal ik aan het werken zijn.", commonEverydayDutch: "Morgen om acht uur ben ik aan het werk.", dutchAnalysis: { primaryForm: "OTT", construction: "future time + aan het werk", alternativeForms: ["OTTT"] }, mismatchNote: "The future time phrase and progressive expression carry both the future and ongoing meaning.", cefrLevel: "reference", teachingPriority: "reference",
+  },
+  {
+    id: "english.werken.future-perfect", englishTense: "future-perfect", group: "future", english: "By Friday, I will have worked forty hours.", situation: "A completed amount measured before a future deadline.", meaningPreservingDutch: "Tegen vrijdag zal ik veertig uur gewerkt hebben.", commonEverydayDutch: "Tegen vrijdag heb ik veertig uur gewerkt.", dutchAnalysis: { primaryForm: "VTTT", alternativeForms: ["VTT"] }, mismatchNote: "VTTT explicitly marks completion before a future point; everyday Dutch may let the deadline carry the future meaning.", cefrLevel: "reference", teachingPriority: "reference",
+  },
+  {
+    id: "english.werken.future-perfect-continuous", englishTense: "future-perfect-continuous", group: "future", english: "Tomorrow at eight, I will have been working for two hours.", situation: "A continuing activity measured at a future time.", meaningPreservingDutch: "Morgen om acht uur zal ik al twee uur aan het werken zijn.", commonEverydayDutch: "Morgen om acht uur ben ik al twee uur aan het werk.", dutchAnalysis: { primaryForm: "OTT", construction: "future time + al + duration", alternativeForms: ["OTTT"] }, mismatchNote: "The activity is still ongoing at the future point, so Dutch normally avoids a completed VTTT form.", cefrLevel: "reference", teachingPriority: "reference",
+  },
+];
+
 export const verbJourneyPack: VerbJourneyPack = {
   schemaVersion: VERB_JOURNEY_SCHEMA_VERSION,
   contentVersion: VERB_JOURNEY_CONTENT_VERSION,
@@ -112,6 +183,7 @@ export const verbJourneyPack: VerbJourneyPack = {
     { id: "form.werken.ovtt", dutchTense: "OVTT", viewpoint: "future-from-past", completion: "onvoltooid", fullNameNl: "onvoltooid verleden toekomende tijd", sentence: "Ik zou thuis werken.", naturalEnglish: "I would work at home.", usageMeaning: "future viewed from the past or a hypothetical / conditional situation", formula: "ik + zou + … + werken", commonUsage: "Ik zou thuis werken als dat kon.", cefrLevel: "reference", teachingPriority: "later", status: "later" },
     { id: "form.werken.vvtt", dutchTense: "VVTT", viewpoint: "future-from-past", completion: "voltooid", fullNameNl: "voltooid verleden toekomende tijd", sentence: "Ik zou thuis gewerkt hebben.", naturalEnglish: "I would have worked at home.", usageMeaning: "an unreal or unrealised completed result", formula: "ik + zou + … + gewerkt hebben", commonUsage: "Ik zou thuis gewerkt hebben als dat mogelijk was.", cefrLevel: "reference", teachingPriority: "reference", status: "reference" },
   ],
+  englishComparison,
   journeys: [
     {
       id: "journey.werken.ott-routine", verbId: "verb.werken", title: "What I normally do", subtitle: "OTT · present and routine", level: "A1", kind: "core", status: "mastered", targetForms: ["OTT"], targetSkills: ["skill.werken.ott-routine"], learningGoal: "Describe a routine or present work situation.", estimatedMinutes: 3,
@@ -145,6 +217,7 @@ export const verbJourneyPack: VerbJourneyPack = {
 };
 
 const tenseValues = new Set<DutchTense>(["OTT", "OVT", "VTT", "VVT", "OTTT", "OVTT", "VTTT", "VVTT"]);
+const englishTenseValues = new Set<EnglishTense>(["present-simple", "present-continuous", "present-perfect", "present-perfect-continuous", "past-simple", "past-continuous", "past-perfect", "past-perfect-continuous", "future-simple", "future-continuous", "future-perfect", "future-perfect-continuous"]);
 const stableId = /^[a-z0-9]+(?:[.-][a-z0-9]+)*$/u;
 
 export function validateVerbJourneyPack(pack: VerbJourneyPack): string[] {
@@ -170,6 +243,22 @@ export function validateVerbJourneyPack(pack: VerbJourneyPack): string[] {
     if (!(["core", "later", "reference"] as string[]).includes(form.teachingPriority)) errors.push(`dutchForms[${index}].teachingPriority: unknown priority`);
   }
   if (forms.size !== 8) errors.push("dutchForms: expected one record for each tense");
+  if (pack.englishComparison.length !== 12) errors.push("englishComparison: expected exactly twelve patterns");
+  const englishTenses = new Set<EnglishTense>();
+  const englishGroups = new Map<string, number>();
+  for (const [index, record] of pack.englishComparison.entries()) {
+    addId(record.id, `englishComparison[${index}].id`);
+    if (!englishTenseValues.has(record.englishTense)) errors.push(`englishComparison[${index}].englishTense: unknown tense`);
+    if (englishTenses.has(record.englishTense)) errors.push(`englishComparison[${index}].englishTense: duplicate tense`);
+    englishTenses.add(record.englishTense);
+    englishGroups.set(record.group, (englishGroups.get(record.group) ?? 0) + 1);
+    if (!record.english || !record.situation || !record.meaningPreservingDutch || !record.commonEverydayDutch || !record.mismatchNote) errors.push(`englishComparison[${index}]: missing learner-facing comparison detail`);
+    if (!record.dutchAnalysis.primaryForm && !record.dutchAnalysis.construction) errors.push(`englishComparison[${index}].dutchAnalysis: expected a form or construction`);
+    if (record.dutchAnalysis.primaryForm && !forms.has(record.dutchAnalysis.primaryForm)) errors.push(`englishComparison[${index}].dutchAnalysis.primaryForm: unknown form`);
+    for (const alternative of record.dutchAnalysis.alternativeForms ?? []) if (!forms.has(alternative)) errors.push(`englishComparison[${index}].dutchAnalysis.alternativeForms: unknown form`);
+  }
+  for (const group of ["present", "past", "future"]) if (englishGroups.get(group) !== 4) errors.push(`englishComparison: expected four ${group} patterns`);
+  if (englishTenses.size !== 12) errors.push("englishComparison: expected one record for each English tense");
   const skills = new Set<string>();
   for (const [index, journey] of pack.journeys.entries()) {
     addId(journey.id, `journeys[${index}].id`);

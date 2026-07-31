@@ -1029,6 +1029,35 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("VALUABLE CONTRAST"));
   });
 
+  it("opens all twelve English mappings and returns to the selected Verb Map form", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    await vi.waitFor(() => expect(button("Compare 12 English forms →")).toBeTruthy());
+    button("Compare 12 English forms →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("12 English forms → Dutch"));
+    expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4);
+    expect(content().textContent).toContain("I am working at home right now.");
+    expect(content().textContent).toContain("Common everyday Dutch");
+    expect(content().querySelector<HTMLButtonElement>(".verb-english-card")?.getAttribute("aria-expanded")).toBe("true");
+    content().querySelector<HTMLButtonElement>(".verb-english-card")!.click();
+    expect(content().querySelector<HTMLButtonElement>(".verb-english-card")?.getAttribute("aria-expanded")).toBe("false");
+    button("Past · 4").click();
+    expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4);
+    expect(content().textContent).toContain("I worked at home yesterday.");
+    button("← werken").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    content().querySelector<HTMLButtonElement>(".verb-map-summary")!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    content().querySelector<HTMLButtonElement>(".verb-form-card[aria-label^='OVT']")!.click();
+    button("Compare 12 English forms →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("12 English forms → Dutch"));
+    button("Back to 8-form map").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    expect(content().querySelector(".verb-detail-example")?.textContent).toBe("Ik werkte thuis.");
+  });
+
   it("surfaces a weak verb skill through the existing Daily Five review flow", async () => {
     button("Start Daily Five").click();
     await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());

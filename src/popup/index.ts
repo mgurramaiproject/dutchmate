@@ -20,7 +20,7 @@ import type { GrammarRecord } from "../grammar/learning";
 import { contrastPack, type ContrastExercise, type ContrastPackId } from "../grammar/contrast";
 import { contrastResultMessage, type ContrastRecord, type ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
 import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
-import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type JourneyRecord, type VerbFormRecord } from "../verb-journeys/content";
+import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type VerbFormRecord } from "../verb-journeys/content";
 import { advanceVerbPractice, checkVerbPracticeAnswer, checkVerbPracticeQuestion, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
 import type { VerbJourneyRecord } from "../verb-journeys/learning";
 import "./styles.css";
@@ -38,7 +38,7 @@ let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "savedContextMission" | "settings" | "verbJourneys" | "verbJourneyOverview" | "verbJourneyStory" | "verbJourneyNotice" | "verbMap" | "verbPractice" | "verbCompletion" = "today";
+let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "savedContextMission" | "settings" | "verbJourneys" | "verbJourneyOverview" | "verbJourneyStory" | "verbJourneyNotice" | "verbMap" | "verbEnglishComparison" | "verbPractice" | "verbCompletion" = "today";
 let lessonSession: LessonSession | null = null;
 let grammarRecord: GrammarRecord | null = null;
 let grammarRecords: Partial<Record<GrammarPatternId, GrammarRecord>> = {};
@@ -78,6 +78,9 @@ let focusedOrigin: "today" | "lessons" | "saved" | null = null;
 let activeVerbJourneyId = "journey.werken.vtt-completed";
 let selectedVerbFormTense: DutchTense = "VTT";
 let verbMapOrigin: "overview" | "notice" = "overview";
+let verbEnglishComparisonOrigin: "overview" | "map" = "overview";
+let verbEnglishComparisonGroup: "present" | "past" | "future" = "present";
+let expandedEnglishTense: EnglishTense | null = "present-simple";
 let verbBoundaryMessage: string | null = null;
 let verbPracticeSession: VerbPracticeSession | null = null;
 let verbJourneyRecord: VerbJourneyRecord | null = null;
@@ -149,12 +152,12 @@ function render(): void {
   const focused = screen === "review" || screen === "lesson" || screen === "savedQuiz" || screen === "savedContextMission";
   const activeTab = focused
     ? focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" || screen === "savedContextMission" ? "saved" : "today")
-    : screen === "lesson" || screen === "lessons" || screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" || screen === "verbPractice" || screen === "verbCompletion" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
+    : screen === "lesson" || screen === "lessons" || screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" || screen === "verbEnglishComparison" || screen === "verbPractice" || screen === "verbCompletion" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.toggleAttribute("hidden", screen === "lesson");
   primaryNavigation?.classList.toggle("is-locked", focused);
   content.classList.toggle("lesson-panel", screen === "lesson");
-  content.classList.toggle("verb-journey-panel", screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" || screen === "verbPractice" || screen === "verbCompletion");
+  content.classList.toggle("verb-journey-panel", screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" || screen === "verbEnglishComparison" || screen === "verbPractice" || screen === "verbCompletion");
   content.classList.toggle("today-panel", screen === "today");
   for (const [tab, key] of [[todayTab, "today"], [lessonsTab, "lessons"], [savedTab, "saved"]] as const) {
     const selected = activeTab === key;
@@ -166,7 +169,7 @@ function render(): void {
   }
   content?.setAttribute("aria-labelledby", `${activeTab}-tab`);
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : screen === "verbJourneys" ? renderVerbJourneys() : screen === "verbJourneyOverview" ? renderVerbJourneyOverview() : screen === "verbJourneyStory" ? renderVerbJourneyStory() : screen === "verbJourneyNotice" ? renderVerbJourneyNotice() : screen === "verbMap" ? renderVerbMap() : screen === "verbPractice" ? renderVerbPractice() : screen === "verbCompletion" ? renderVerbCompletion() : renderSettings());
+  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : screen === "verbJourneys" ? renderVerbJourneys() : screen === "verbJourneyOverview" ? renderVerbJourneyOverview() : screen === "verbJourneyStory" ? renderVerbJourneyStory() : screen === "verbJourneyNotice" ? renderVerbJourneyNotice() : screen === "verbMap" ? renderVerbMap() : screen === "verbEnglishComparison" ? renderVerbEnglishComparison() : screen === "verbPractice" ? renderVerbPractice() : screen === "verbCompletion" ? renderVerbCompletion() : renderSettings());
 }
 
 function renderSaved(): HTMLElement {
@@ -597,7 +600,9 @@ function renderVerbJourneyOverview(): HTMLElement {
   mapAction.setAttribute("aria-label", "Open the eight-form Verb Map");
   mapAction.append(spanText("CANONICAL REFERENCE", "map-summary-kicker"), spanText("Eight Dutch forms", "map-summary-title"), spanText("One stable map for every werken journey.", "map-summary-copy"), spanText("Open Verb Map →", "map-summary-action"));
   mapAction.addEventListener("click", () => { selectedVerbFormTense = "VTT"; verbMapOrigin = "overview"; screen = "verbMap"; render(); content?.focus(); });
-  wrapper.append(mapAction, text("Learning journeys", "journey-section-label"));
+  const comparisonAction = button("Compare 12 English forms →", "button secondary-button verb-comparison-action");
+  comparisonAction.addEventListener("click", () => { verbEnglishComparisonOrigin = "overview"; screen = "verbEnglishComparison"; render(); content?.focus(); });
+  wrapper.append(mapAction, comparisonAction, text("Learning journeys", "journey-section-label"));
   const journeyList = section("journey-list");
   for (const journey of pack.journeys) {
     const row = button("", "journey-list-row");
@@ -617,7 +622,7 @@ function renderVerbJourneyOverview(): HTMLElement {
   const current = getVerbJourney(activeVerbJourneyId) ?? pack.journeys[1];
   const continueButton = button(`Continue ${current.title} →`, "button primary-button");
   continueButton.addEventListener("click", () => openVerbJourney(current));
-  const practiceButton = button("Practise VTT · 5 questions →", "button secondary-button");
+  const practiceButton = button(verbPracticeActionLabel(), "button secondary-button");
   practiceButton.addEventListener("click", startVerbPractice);
   wrapper.append(continueButton, practiceButton);
   return wrapper;
@@ -713,10 +718,67 @@ function renderVerbMap(): HTMLElement {
   }
   wrapper.append(map);
   const selected = getVerbForm(selectedVerbFormTense) ?? verbJourneyPack.dutchForms[0];
-  const practiceButton = button("Practise VTT · 5 questions →", "button primary-button");
+  const comparisonButton = button("Compare 12 English forms →", "button secondary-button");
+  comparisonButton.addEventListener("click", () => { verbEnglishComparisonOrigin = "map"; screen = "verbEnglishComparison"; render(); content?.focus(); });
+  const practiceButton = button(verbPracticeActionLabel(), "button primary-button");
   practiceButton.addEventListener("click", startVerbPractice);
-  wrapper.append(renderVerbFormDetail(selected), text("Important: Dutch onvoltooid does not mean the same thing as English continuous, and voltooid is not always a direct English perfect. Context and time words still matter.", "verb-map-note"), practiceButton);
+  wrapper.append(renderVerbFormDetail(selected), text("Important: Dutch onvoltooid does not mean the same thing as English continuous, and voltooid is not always a direct English perfect. Context and time words still matter.", "verb-map-note"), comparisonButton, practiceButton);
   return wrapper;
+}
+
+function renderVerbEnglishComparison(): HTMLElement {
+  const wrapper = section("verb-english-comparison");
+  const back = button(verbEnglishComparisonOrigin === "map" ? "← Verb Map" : "← werken", "journey-back");
+  back.addEventListener("click", () => { screen = verbEnglishComparisonOrigin === "map" ? "verbMap" : "verbJourneyOverview"; render(); content?.focus(); });
+  wrapper.append(back, text("English lens · werken", "journey-meta"), eyebrow("English comparison"), heading("12 English forms → Dutch"), text("Use this as a comparison lens, not a one-to-one tense conversion. Select a pattern to inspect the natural Dutch choices.", "journey-lead"));
+  const insight = section("verb-english-insight");
+  insight.append(text("CORE INSIGHT", "verb-card-label"), text("Several English patterns collapse into a simpler Dutch form plus a time marker such as nu, al, gisteren, morgen, or tegen vrijdag.", "verb-card-copy"));
+  wrapper.append(insight);
+  const tabs = document.createElement("div"); tabs.className = "verb-english-tabs"; tabs.setAttribute("role", "tablist"); tabs.setAttribute("aria-label", "English tense groups");
+  for (const group of ["present", "past", "future"] as const) {
+    const groupRecords = verbJourneyPack.englishComparison.filter((record) => record.group === group);
+    const tab = button(`${group[0].toUpperCase()}${group.slice(1)} · ${groupRecords.length}`, `verb-english-tab${verbEnglishComparisonGroup === group ? " is-active" : ""}`);
+    tab.setAttribute("role", "tab"); tab.setAttribute("aria-selected", String(verbEnglishComparisonGroup === group)); tab.setAttribute("tabindex", verbEnglishComparisonGroup === group ? "0" : "-1");
+    tab.addEventListener("click", () => { verbEnglishComparisonGroup = group; expandedEnglishTense = groupRecords[0]?.englishTense ?? null; render(); });
+    tabs.append(tab);
+  }
+  wrapper.append(tabs);
+  const records = verbJourneyPack.englishComparison.filter((record) => record.group === verbEnglishComparisonGroup);
+  const list = section("verb-english-list"); list.setAttribute("role", "tabpanel"); list.setAttribute("aria-label", `${verbEnglishComparisonGroup} English patterns`);
+  for (const [index, record] of records.entries()) list.append(renderEnglishComparisonCard(record, index + (verbEnglishComparisonGroup === "present" ? 1 : verbEnglishComparisonGroup === "past" ? 5 : 9)));
+  wrapper.append(list);
+  const mapButton = button("Back to 8-form map", "button secondary-button"); mapButton.addEventListener("click", () => { screen = "verbMap"; verbMapOrigin = verbEnglishComparisonOrigin === "map" ? verbMapOrigin : "overview"; render(); content?.focus(); });
+  wrapper.append(mapButton);
+  return wrapper;
+}
+
+function renderEnglishComparisonCard(record: EnglishMapRecord, index: number): HTMLElement {
+  const card = button("", `verb-english-card${expandedEnglishTense === record.englishTense ? " is-expanded" : ""}`);
+  card.setAttribute("aria-expanded", String(expandedEnglishTense === record.englishTense));
+  const header = document.createElement("span"); header.className = "verb-english-card-header";
+  header.append(spanText(String(index), "verb-english-index"), spanText(record.englishTense.replaceAll("-", " "), "verb-english-name"), spanText(expandedEnglishTense === record.englishTense ? "⌃" : "⌄", "verb-english-toggle"));
+  const english = text(record.english, "verb-english-example"); english.lang = "en";
+  const dutch = section("verb-english-dutch"); dutch.append(text(record.commonEverydayDutch, "verb-english-dutch-sentence"), text(englishAnalysisLabel(record), "verb-english-form"));
+  card.append(header, english, dutch);
+  const details = section("verb-english-details"); details.hidden = expandedEnglishTense !== record.englishTense;
+  details.append(meaning("Situation", record.situation), meaning("Meaning-preserving Dutch", record.meaningPreservingDutch), meaning("Common everyday Dutch", record.commonEverydayDutch), meaning("Dutch form or construction", englishAnalysis(record)), meaning("Mismatch / usage", record.mismatchNote));
+  card.append(details);
+  card.addEventListener("click", () => { expandedEnglishTense = expandedEnglishTense === record.englishTense ? null : record.englishTense; render(); });
+  return card;
+}
+
+function englishAnalysis(record: EnglishMapRecord): string {
+  const form = record.dutchAnalysis.primaryForm;
+  const alternatives = record.dutchAnalysis.alternativeForms?.join(" / ");
+  return [form, record.dutchAnalysis.construction, alternatives ? `alternative: ${alternatives}` : null].filter(Boolean).join(" · ") || "Context-dependent construction";
+}
+
+function englishAnalysisLabel(record: EnglishMapRecord): string {
+  return record.dutchAnalysis.primaryForm ?? record.dutchAnalysis.construction ?? "Context";
+}
+
+function verbPracticeActionLabel(): string {
+  return (verbJourneyRecord?.evidenceRevision ?? 0) > 0 ? "Review VTT · 5 questions →" : "Practise VTT · 5 questions →";
 }
 
 function renderVerbFormDetail(form: VerbFormRecord): HTMLElement {

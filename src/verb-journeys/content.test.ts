@@ -7,6 +7,11 @@ describe("werken Verb Journey pack", () => {
     expect(verbJourneyPack.verb.id).toBe("verb.werken");
     expect(verbJourneyPack.dutchForms).toHaveLength(8);
     expect(new Set(verbJourneyPack.dutchForms.map((form) => form.dutchTense)).size).toBe(8);
+    expect(verbJourneyPack.englishComparison).toHaveLength(12);
+    expect(verbJourneyPack.englishComparison.filter((record) => record.group === "present")).toHaveLength(4);
+    expect(verbJourneyPack.englishComparison.filter((record) => record.group === "past")).toHaveLength(4);
+    expect(verbJourneyPack.englishComparison.filter((record) => record.group === "future")).toHaveLength(4);
+    expect(verbJourneyPack.englishComparison.every((record) => record.english && record.situation && record.meaningPreservingDutch && record.commonEverydayDutch && record.mismatchNote)).toBe(true);
     expect(verbJourneyPack.journeys.map((journey) => journey.id)).toEqual([
       "journey.werken.ott-routine",
       "journey.werken.vtt-completed",

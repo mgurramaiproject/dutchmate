@@ -343,7 +343,7 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 
 /* Feature 015 T01: the authored read-only Verb Journey route. */
 .verb-journey-panel { padding: 14px; }
-.verb-journeys-content, .verb-journey-overview, .verb-journey-story, .verb-journey-notice, .verb-map-screen { display: grid; align-content: start; gap: 10px; min-width: 0; }
+.verb-journeys-content, .verb-journey-overview, .verb-journey-story, .verb-journey-notice, .verb-map-screen, .verb-english-comparison { display: grid; align-content: start; gap: 10px; min-width: 0; }
 .journey-back { justify-self: start; min-height: 36px; padding: 0 2px; border: 0; background: transparent; color: var(--dm-ink-muted); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
 .journey-back:hover, .journey-back:focus-visible { color: var(--dm-ink-strong); text-decoration: underline; text-decoration-color: var(--dm-brand-orange); text-underline-offset: 3px; }
 .verb-journey-panel .heading { font-size: var(--dm-font-size-h1); }
@@ -409,6 +409,27 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-detail-heading, .verb-detail-example { margin: 0; }.verb-detail-example { font-family: var(--dm-font-reading); font-size: 1.02rem; font-weight: 750; }
 .verb-form-detail .meaning-row { padding-top: 7px; }.verb-form-detail .meaning-row span { font-size: .75rem; line-height: 1.3; }
 .verb-map-note { margin: 0; padding: 8px 9px; border-left: 3px solid var(--dm-line); }
+.verb-comparison-action { justify-self: stretch; }
+.verb-english-insight { display: grid; gap: 5px; padding: 10px; border-left: 4px solid var(--dm-brand-orange); background: var(--dm-paper-soft); }
+.verb-english-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.verb-english-tab { min-height: var(--dm-target-min); padding: 7px 5px; border: 1px solid var(--dm-line); border-radius: var(--dm-radius-control); background: var(--dm-paper-raised); color: var(--dm-ink-muted); font-size: .68rem; font-weight: var(--dm-weight-black); }
+.verb-english-tab:hover, .verb-english-tab:focus-visible, .verb-english-tab.is-active { border-color: var(--dm-ink-strong); background: var(--dm-ink-strong); color: var(--dm-paper-raised); }
+.verb-english-list { display: grid; gap: 7px; min-width: 0; }
+.verb-english-card { display: grid; gap: 7px; min-width: 0; padding: 9px; border: 1px solid var(--dm-line); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); color: var(--dm-ink-strong); text-align: left; }
+.verb-english-card:hover, .verb-english-card:focus-visible, .verb-english-card.is-expanded { border-color: var(--dm-ink-strong); box-shadow: inset 0 0 0 2px var(--dm-brand-orange); }
+.verb-english-card-header { display: grid; grid-template-columns: 24px minmax(0, 1fr) 20px; align-items: center; gap: 7px; min-width: 0; }
+.verb-english-index { display: grid; width: 22px; height: 22px; place-items: center; border-radius: 50%; background: var(--dm-ink-strong); color: var(--dm-paper-raised); font-size: .64rem; font-weight: var(--dm-weight-black); }
+.verb-english-name { overflow-wrap: anywhere; font-size: .78rem; font-weight: var(--dm-weight-black); text-transform: capitalize; }
+.verb-english-toggle { color: var(--dm-brand-orange-deep); font-size: 1rem; font-weight: var(--dm-weight-black); text-align: center; }
+.verb-english-example { margin: 0 0 0 31px; color: var(--dm-ink-muted); font-family: var(--dm-font-reading); font-size: .78rem; line-height: 1.35; }
+.verb-english-dutch { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; margin-left: 31px; padding: 8px; border-radius: var(--dm-radius-control); background: var(--dm-paper-soft); }
+.verb-english-dutch-sentence { min-width: 0; font-family: var(--dm-font-reading); font-size: .82rem; font-weight: 750; line-height: 1.3; overflow-wrap: anywhere; }
+.verb-english-form { align-self: start; padding: 3px 5px; border: 1px solid var(--dm-line); border-radius: 5px; color: var(--dm-brand-orange-deep); font-size: .58rem; font-weight: var(--dm-weight-black); line-height: 1.2; text-align: right; }
+.verb-english-details { display: grid; gap: 5px; margin: 0 0 0 31px; padding-top: 8px; border-top: 1px solid var(--dm-line); }
+.verb-english-details[hidden] { display: none; }
+.verb-english-details .meaning-row { padding-top: 5px; }
+.verb-english-details .meaning-row strong { font-size: .6rem; }
+.verb-english-details .meaning-row span { font-size: .72rem; line-height: 1.3; }
 .verb-practice-screen, .verb-completion-screen { display: grid; align-content: start; gap: 10px; min-width: 0; }
 .verb-practice-context { margin: 0; padding: 10px; border-left: 4px solid var(--dm-brand-orange); background: var(--dm-paper-soft); font-family: var(--dm-font-reading); font-size: .9rem; line-height: 1.35; }
 .verb-practice-controls { display: grid; gap: 8px; min-width: 0; }

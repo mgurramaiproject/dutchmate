@@ -180,18 +180,32 @@ reserved for the single Feature 015 PR.
 comparison from the `werken` destination, inspect one pattern at a time, and
 return without losing the journey position.
 
-- [ ] All twelve English tense patterns have stable authored records.
-- [ ] Each pattern includes an English example and situation, meaning-
+- [x] All twelve English tense patterns have stable authored records.
+- [x] Each pattern includes an English example and situation, meaning-
       preserving Dutch, common everyday Dutch, actual Dutch form or
       construction, and a concise mismatch note.
-- [ ] Patterns are grouped into Present, Past, and Future sections.
-- [ ] Details open and close through keyboard-operable controls without
+- [x] Patterns are grouped into Present, Past, and Future sections.
+- [x] Details open and close through keyboard-operable controls without
       overwhelming the popup width.
-- [ ] The comparison permits multiple English patterns to map to one Dutch
+- [x] The comparison permits multiple English patterns to map to one Dutch
       form plus context or a time marker where appropriate.
-- [ ] Return navigation preserves the selected journey and practice position.
-- [ ] Comparison validation, accessibility, responsive, and Dutch-review
+- [x] Return navigation preserves the selected journey and practice position.
+- [x] Comparison validation, accessibility, responsive, and Dutch-review
       checks pass.
+
+**Implementation evidence:** Added twelve bundled `werken` English mapping
+records with stable IDs, grouped into four Present, four Past, and four Future
+patterns. Each record carries situation, meaning-preserving Dutch, common
+everyday Dutch, Dutch form/construction analysis, and a mismatch note. The
+popup exposes the comparison from the `werken` destination and Verb Map, uses
+keyboard-operable buttons with `aria-expanded` detail state, and returns to the
+previous destination while preserving the selected Dutch form. No audio,
+network, runtime LLM, or typing interaction was added. Focused content/popup
+tests, the full suite, typecheck, Chrome/Firefox builds, and extension-build
+verification pass. The bounded VTT practice set remains one authored five-
+question set; repeating it is explicit review of that set, not a second hidden
+question bank. No PR is opened; this slice is reserved for the single Feature
+015 PR.
 
 ## T06 — Add conditional Saved integration
 
