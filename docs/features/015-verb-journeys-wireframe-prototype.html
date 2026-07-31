@@ -38,6 +38,7 @@
     .body-copy, .helper-copy, .local-note { margin: 0; color: var(--dm-ink-muted); font-family: var(--dm-font-reading); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
     .quiet-link { min-height: var(--dm-target-min); padding: 4px 0; border: 0; background: transparent; color: var(--dm-ink-strong); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-bold); text-align: left; text-decoration: underline; text-decoration-color: var(--dm-brand-orange); text-underline-offset: 3px; }
     .button { min-height: var(--dm-target-min); padding: 8px 10px; border: 1px solid var(--dm-ink-strong); border-radius: var(--dm-radius-control); background: var(--dm-paper-raised); color: var(--dm-ink-strong); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-bold); line-height: var(--dm-line-height-label); }
+    a.button { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
     .button.primary { background: var(--dm-brand-orange); }
     .button:hover, .button:focus-visible { background: var(--dm-paper-soft); }
     .button.primary:hover, .button.primary:focus-visible { background: var(--dm-ink-strong); color: var(--dm-paper-raised); }
@@ -213,7 +214,15 @@
       <span>Use the controls below the popup to compare information hierarchy.</span>
     </div>
     <div class="popup-stage">
-      <main id="popup" class="popup-shell" aria-label="DutchMate popup prototype"></main>
+      <main id="popup" class="popup-shell" aria-label="DutchMate popup prototype">
+        <div class="popup-content">
+          <div class="content">
+            <p class="eyebrow">Feature 015</p><h1 class="heading">Verb Journey</h1><p class="body-copy">The clickable prototype is loading. Use an entry point below if the interactive layer is unavailable.</p>
+            <section class="card"><p class="eyebrow">Review entry points</p><h2 class="subheading">Werken</h2><p class="body-copy">Lessons, Verb Journeys, the Werken overview, map, practice, and completion.</p><div class="actions"><a class="button secondary" href="?screen=lessons">Open Lessons</a><a class="button primary" href="?screen=verb-list">Open Verb Journeys</a></div></section>
+          </div>
+        </div>
+        <nav class="tabs" aria-label="Learning areas"><a class="tab is-active" href="?screen=today">Today</a><a class="tab" href="?screen=lessons">Lessons</a><a class="tab" href="?screen=saved">Saved</a></nav>
+      </main>
     </div>
     <div class="prototype-bottom" aria-label="Prototype variants">
       <button id="variantPrevious" type="button" aria-label="Previous mockup variant">←</button>
@@ -391,22 +400,36 @@
       const review = document.createElement("section"); review.className = "next-action"; review.innerHTML = `<p class="eyebrow">Review contrast next</p><h2 class="subheading">VTT completed fact vs OVT past habit</h2><p class="body-copy"><strong>Ik heb gisteren gewerkt.</strong><br><span>versus</span><br><strong>Vroeger werkte ik thuis.</strong></p>`; review.append(actions(iconButton("arrow-right", "Do 2 contrast questions", () => { state.practiceIndex = 0; resetQuestion(); setScreen("practice"); }, "button primary"))); body.append(review);
       const mastery = card("Verb progress", "2 of 8 forms practised", "VTT is learning now. Advanced forms remain reference content rather than beginner requirements."); mastery.innerHTML += `<div class="progress"><span style="display:block;width:25%;height:100%;background:var(--dm-brand-orange)"></span></div><p class="local-note">Pattern progress and journey completion remain separate.</p>`; body.append(mastery); content.append(body); return content;
     }
+    function renderFallback() {
+      const content = baseContent(); const body = document.createElement("div"); body.className = "content"; body.append(...contentHeader("Feature 015", "Verb Journey", "Choose a screen to review the clickable prototype.").children);
+      const fallback = card("Prototype recovery", "The journey is ready to review", "Use these entry points to open the handoff-inspired flow."); fallback.append(actions(button("Open Lessons", () => setScreen("lessons"), "button secondary"), button("Open Verb Journeys", () => setScreen("verb-list"), "button primary"))); body.append(fallback); content.append(body); return content;
+    }
+    function renderScreen() {
+      if (state.screen === "today") return renderToday();
+      if (state.screen === "lessons") return renderLessons();
+      if (state.screen === "saved") return renderSaved();
+      if (state.screen === "verb-list") return renderVerbList();
+      if (state.screen === "werken") return renderWerken();
+      if (state.screen === "story") return renderStory();
+      if (state.screen === "notice") return renderNotice();
+      if (state.screen === "dutch-map") return renderDutchMap();
+      if (state.screen === "english-map") return renderEnglishMap();
+      if (state.screen === "practice") return renderPractice();
+      return renderComplete();
+    }
     function render() {
-      popup.replaceChildren(topHeader());
-      if (state.screen === "today") popup.append(renderToday());
-      else if (state.screen === "lessons") popup.append(renderLessons());
-      else if (state.screen === "saved") popup.append(renderSaved());
-      else if (state.screen === "verb-list") popup.append(renderVerbList());
-      else if (state.screen === "werken") popup.append(renderWerken());
-      else if (state.screen === "story") popup.append(renderStory());
-      else if (state.screen === "notice") popup.append(renderNotice());
-      else if (state.screen === "dutch-map") popup.append(renderDutchMap());
-      else if (state.screen === "english-map") popup.append(renderEnglishMap());
-      else if (state.screen === "practice") popup.append(renderPractice());
-      else popup.append(renderComplete());
-      popup.append(tabs());
-      document.getElementById("variantLabel").textContent = `${currentVariant().name} · ${currentVariant().description}`;
-      loadFeedback();
+      try {
+        const header = topHeader();
+        const screenContent = renderScreen();
+        const bottomTabs = tabs();
+        popup.replaceChildren(header, screenContent, bottomTabs);
+        document.getElementById("variantLabel").textContent = `${currentVariant().name} · ${currentVariant().description}`;
+        loadFeedback();
+      } catch (error) {
+        console.error("[PROTOTYPE_RENDER]", error);
+        popup.replaceChildren(topHeader(), renderFallback(), tabs());
+        showToast("The prototype recovered to its review menu.");
+      }
     }
     function loadFeedback() { feedbackText.value = notes[state.screen] || ""; feedbackState.textContent = ""; }
     function saveFeedback() { const value = feedbackText.value.trim(); if (value) notes[state.screen] = value; else delete notes[state.screen]; }
