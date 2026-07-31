@@ -46,6 +46,11 @@ describe("popup layout", () => {
     expect(styles).toContain(".tab:not(.is-active):not(:disabled):hover");
     expect(styles).toContain(".saved-quiz-entry");
     expect(styles).toContain(".saved-quiz-error");
+    expect(styles).toContain(".lesson-category-groups { display: grid;");
+    expect(styles).toContain(".verb-notice-highlight");
+    expect(styles).toContain(".verb-map-label-sub");
+    expect(styles).toContain(".verb-form-status");
+    expect(styles).toContain(".verb-form-card.selected { border-color: var(--dm-ink-strong);");
     expect(styles).toContain(".due-badge[hidden] { display: none; }");
     expect(styles).toContain(".practice-card { display: grid; gap: 12px; min-width: 0;");
     expect(styles).toContain(".practice-card .heading { min-width: 0; overflow-wrap: anywhere;");
