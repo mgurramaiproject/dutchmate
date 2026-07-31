@@ -28,6 +28,7 @@ import {
   LEARNING_CONTRAST_RESULT_MESSAGE,
   LEARNING_VERB_JOURNEY_MESSAGE,
   LEARNING_VERB_JOURNEY_RESULT_MESSAGE,
+  LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
 import { createBackgroundMessageHandler } from "./message-handler";
@@ -191,6 +192,16 @@ describe("createBackgroundMessageHandler", () => {
     const payload = { verbId: "verb.werken" as const, formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", contentVersion: "015-1" as const, result: "correct" as const, expectedEvidenceRevision: 0 };
     await expect(send(handleMessage, { type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload })).resolves.toMatchObject({ ok: true, result: { verbJourneys: { evidenceRevision: 1 } } });
     await expect(send(handleMessage, { type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload })).resolves.toEqual({ ok: false, error: "This verb journey result was already recorded." });
+  });
+
+  it("routes a Verb Journey Daily Five result through the shared snapshot boundary", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({ learningRecords: records, refreshBadge: async () => undefined });
+    await send(handleMessage, { type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload: { verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "incorrect", expectedEvidenceRevision: 0 } });
+    const snapshot = await records.getDailyFive();
+    const task = snapshot.tasks.find((candidate) => "kind" in candidate && candidate.kind === "verb");
+    await expect(send(handleMessage, { type: LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE, payload: { task: task!, result: "correct", expectedEvidenceRevision: 1 } })).resolves.toMatchObject({ ok: true, result: { snapshot: { goalCompleted: true }, verbJourneys: { evidenceRevision: 2 } } });
   });
 
   it("returns an immediate repair offer only for the allowlisted controlled misconception", async () => {

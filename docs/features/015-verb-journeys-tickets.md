@@ -145,17 +145,30 @@ pass. No PR is opened; this slice is reserved for the single Feature 015 PR.
 Today/Daily Five grammar review path without creating a second queue,
 scheduler, or learner-facing mastery system.
 
-- [ ] Due-first selection, vocabulary protection, recent-task safety, and the
+- [x] Due-first selection, vocabulary protection, recent-task safety, and the
       existing grammar cap remain unchanged.
-- [ ] Eligible Verb Journey skills produce a deterministic authored review
+- [x] Eligible Verb Journey skills produce a deterministic authored review
       task through the existing grammar-task pool.
-- [ ] Today shows a compact verb/form or skill action without previewing an
+- [x] Today shows a compact verb/form or skill action without previewing an
       unfinished exercise sentence.
-- [ ] Review results return through the same evidence owner and scheduling
+- [x] Review results return through the same evidence owner and scheduling
       boundary as direct practice.
-- [ ] Existing Daily Five, Today, heatmap, lesson, and Saved behavior remains
+- [x] Existing Daily Five, Today, heatmap, lesson, and Saved behavior remains
       compatible.
-- [ ] Review-selection, popup, persistence, and regression checks pass.
+- [x] Review-selection, popup, persistence, and regression checks pass.
+
+**Implementation evidence:** Due or weak `werken` skills now produce one
+deterministic authored Verb Journey task inside the existing Daily Five
+practice-task pool. Selection skips the most recently used authored family,
+protects vocabulary positions, preserves the existing two-position grammar
+cap, and orders eligible verb work by due time and stable skill order. Today
+identifies the compact `werken · VTT` review without previewing an unfinished
+sentence. The popup uses the existing review route and records results through
+the revision-checked `LearningRecordStore` boundary, atomically completing the
+Daily Five snapshot. Focused popup, selection, persistence, and typed-boundary
+checks pass; full suite, typecheck, Chrome/Firefox builds, and extension-build
+verification are recorded before commit. No PR is opened; this slice is
+reserved for the single Feature 015 PR.
 
 ## T05 — Add the twelve-pattern English comparison
 

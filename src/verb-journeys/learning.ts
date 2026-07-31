@@ -20,6 +20,7 @@ export type VerbJourneySkillEvidence = {
   status: VerbJourneySkillStatus;
   exerciseFamilies: Record<string, VerbJourneyFamilyEvidence>;
   delayedOrRecombinedEvidence: boolean;
+  dueAt: number;
   evidenceRevision: number;
   updatedAt: number;
 };
@@ -80,6 +81,7 @@ export function recordVerbJourneyEvidence(record: VerbJourneyRecord, input: Reco
     status,
     exerciseFamilies: families,
     delayedOrRecombinedEvidence: existingSkill?.delayedOrRecombinedEvidence === true || input.delayedOrRecombined === true,
+    dueAt: input.result === "incorrect" ? now : now + 86_400_000,
     evidenceRevision: (existingSkill?.evidenceRevision ?? 0) + 1,
     updatedAt: now,
   };
@@ -103,7 +105,7 @@ function parseSkill(value: unknown): VerbJourneySkillEvidence | null {
     if (!isRecord(candidate) || candidate.id !== verbJourneyEvidenceId(value.verbId, value.formOrSkillId, key) || candidate.exerciseFamily !== key || !Array.isArray(candidate.exerciseIds) || !candidate.exerciseIds.every((id) => typeof id === "string") || !nonNegativeInteger(candidate.attemptCount) || !nonNegativeInteger(candidate.successfulAttemptCount) || (candidate.lastResult !== "correct" && candidate.lastResult !== "incorrect") || !finite(candidate.lastAttemptAt)) continue;
     exerciseFamilies[key] = { id: candidate.id, exerciseFamily: key, exerciseIds: [...new Set(candidate.exerciseIds)].slice(-8), attemptCount: candidate.attemptCount, successfulAttemptCount: Math.min(candidate.attemptCount, candidate.successfulAttemptCount), lastResult: candidate.lastResult, lastAttemptAt: candidate.lastAttemptAt };
   }
-  return { id: value.id, verbId: value.verbId, formOrSkillId: value.formOrSkillId, status: value.status as VerbJourneySkillStatus, exerciseFamilies, delayedOrRecombinedEvidence: value.delayedOrRecombinedEvidence, evidenceRevision: value.evidenceRevision, updatedAt: value.updatedAt };
+  return { id: value.id, verbId: value.verbId, formOrSkillId: value.formOrSkillId, status: value.status as VerbJourneySkillStatus, exerciseFamilies, delayedOrRecombinedEvidence: value.delayedOrRecombinedEvidence, dueAt: finite(value.dueAt) ? value.dueAt : value.updatedAt, evidenceRevision: value.evidenceRevision, updatedAt: value.updatedAt };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null; }

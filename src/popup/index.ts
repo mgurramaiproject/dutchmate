@@ -4,7 +4,7 @@ import { createSettingsClient } from "./settings-client";
 import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import { getSavedContextViews, getSavedShelfView, type SavedContextView, type SavedShelfSort } from "./saved-shelf-view";
 import { getPopupTabForKey } from "./tab-navigation";
-import type { ContrastDailyFiveTask, DailyFiveSnapshot, GrammarDailyFiveTask } from "../vocabulary/daily-five";
+import type { ContrastDailyFiveTask, DailyFiveSnapshot, GrammarDailyFiveTask, VerbJourneyDailyFiveTask } from "../vocabulary/daily-five";
 import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningContext, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
@@ -21,7 +21,7 @@ import { contrastPack, type ContrastExercise, type ContrastPackId } from "../gra
 import { contrastResultMessage, type ContrastRecord, type ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
 import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
 import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type JourneyRecord, type VerbFormRecord } from "../verb-journeys/content";
-import { advanceVerbPractice, checkVerbPracticeAnswer, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
+import { advanceVerbPractice, checkVerbPracticeAnswer, checkVerbPracticeQuestion, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
 import type { VerbJourneyRecord } from "../verb-journeys/learning";
 import "./styles.css";
 
@@ -82,6 +82,11 @@ let verbBoundaryMessage: string | null = null;
 let verbPracticeSession: VerbPracticeSession | null = null;
 let verbJourneyRecord: VerbJourneyRecord | null = null;
 let verbJourneySaveChain: Promise<void> = Promise.resolve();
+let activeVerbDailyFiveTask: VerbJourneyDailyFiveTask | null = null;
+let verbDailyFiveAnswer: VerbPracticeAnswer | null = null;
+let verbDailyFiveFeedback: { correct: boolean; message: string } | null = null;
+let verbDailyFiveChecked = false;
+let verbDailyFiveRetrying = false;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
@@ -353,12 +358,15 @@ function renderToday(): HTMLElement {
   const reviewsCompletedToday = todayActivity?.reviews ?? null;
   const lessonsCompletedToday = todayActivity?.lessons ?? todayActivity?.lessonAdditions ?? null;
   const grammarCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "grammar").length;
+  const verbCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "verb").length;
   const nextAction = section("next-action");
   const actionCopy = completed
     ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy")
     : text(total === 0
       ? "Choose a short practical story. DutchMate will never start one automatically."
-      : grammarCount > 0
+      : verbCount > 0
+        ? "Review one weak verb skill in context, alongside your useful words."
+        : grammarCount > 0
         ? "Practise useful words and use one grammar pattern in context."
         : "Practise five useful words. Start now.");
   nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
@@ -371,9 +379,10 @@ function renderToday(): HTMLElement {
     action.disabled = pending;
     action.addEventListener("click", () => {
       if (completed) void startContinuation();
-      else { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; activeGrammarTask = null; activeContrastTask = null; render(); content?.focus(); }
+      else { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; activeGrammarTask = null; activeContrastTask = null; activeVerbDailyFiveTask = null; verbDailyFiveAnswer = null; verbDailyFiveFeedback = null; verbDailyFiveChecked = false; verbDailyFiveRetrying = false; render(); content?.focus(); }
     });
     nextAction.append(action);
+    if (verbCount > 0) nextAction.append(text("Verb review · werken · VTT", "action-meta"));
     if (completed && reviewsCompletedToday !== null) nextAction.append(text(`${reviewsCompletedToday} item${reviewsCompletedToday === 1 ? "" : "s"} reviewed today`, "review-completion-meta"));
   }
   if (total === 0 || !completed) nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
@@ -1265,7 +1274,8 @@ function renderReview(): HTMLElement {
   const task = reviewView?.task;
   if (activeGrammarTask) return renderGrammarReview(activeGrammarTask);
   if (activeContrastTask) return renderContrastDailyFiveReview(activeContrastTask);
-  if (task && "kind" in task) { if (task.kind === "contrast") { activeContrastTask = task; return renderContrastDailyFiveReview(task); } activeGrammarTask = task; return renderGrammarReview(task); }
+  if (activeVerbDailyFiveTask) return renderVerbJourneyDailyFiveReview(activeVerbDailyFiveTask);
+  if (task && "kind" in task) { if (task.kind === "contrast") { activeContrastTask = task; return renderContrastDailyFiveReview(task); } if (task.kind === "verb") { activeVerbDailyFiveTask = task; return renderVerbJourneyDailyFiveReview(task); } activeGrammarTask = task; return renderGrammarReview(task); }
   const item = task ? items.find((candidate) => candidate.id === task.itemId) : undefined;
   if (!snapshot || !task || !item) { screen = focusedOrigin ?? "today"; focusedOrigin = null; return screen === "today" ? renderToday() : renderLessons(); }
   const exit = button("Exit review", "exit-button");
@@ -1284,6 +1294,64 @@ function renderReview(): HTMLElement {
   }
   wrapper.append(exit, progress, card, localNote());
   return wrapper;
+}
+
+function renderVerbJourneyDailyFiveReview(task: VerbJourneyDailyFiveTask): HTMLElement {
+  const question = getVerbPracticeQuestion(task.exerciseId);
+  const wrapper = section("practice-content focused-content verb-daily-five-review");
+  if (!question || question.exerciseFamily !== task.exerciseFamily) { wrapper.append(button("Exit review", "exit-button"), heading("Verb Journey review is unavailable.")); return wrapper; }
+  const exit = button("Exit review", "exit-button"); exit.addEventListener("click", () => { activeVerbDailyFiveTask = null; screen = focusedOrigin ?? "today"; focusedOrigin = null; render(); });
+  wrapper.append(exit, eyebrow("Daily Five · Verb Journey"), heading("werken · VTT"), text("Review one weak skill with a short authored decision.", "grammar-capability"), text(question.prompt, "verb-practice-context"), text(question.context, "story-dutch"));
+  const controls = section("verb-daily-five-controls");
+  const selected = verbDailyFiveAnswer;
+  if (question.kind === "token-slots" || question.kind === "token-order") {
+    const selectedTokens = Array.isArray(selected) ? selected : selected ? selected.split(" ") : [];
+    const answer = section("verb-answer-slots");
+    if (selectedTokens.length === 0) answer.append(text("Choose words in order.", "verb-answer-placeholder"));
+    for (const [index, token] of selectedTokens.entries()) { const remove = button(token, "verb-token-selected"); remove.disabled = verbDailyFiveChecked || pending; remove.addEventListener("click", () => { verbDailyFiveAnswer = selectedTokens.filter((_candidate, tokenIndex) => tokenIndex !== index); render(); }); answer.append(remove); }
+    const available = section("verb-token-choices");
+    for (const token of question.tokens ?? []) { const used = selectedTokens.includes(token); const action = button(token, `button verb-token-choice${used ? " is-used" : ""}`); action.disabled = used || verbDailyFiveChecked || pending; action.addEventListener("click", () => { verbDailyFiveAnswer = [...selectedTokens, token]; render(); }); available.append(action); }
+    const reset = button("Reset", "button secondary-button verb-reset"); reset.disabled = verbDailyFiveChecked || pending || selectedTokens.length === 0; reset.addEventListener("click", () => { verbDailyFiveAnswer = []; render(); });
+    controls.append(answer, available, reset);
+  } else {
+    const choices = section(`verb-practice-choices ${question.kind === "map-placement" ? "map-placement-choices" : ""}`);
+    for (const choice of question.choices ?? []) { const action = button(choice, `button${selected === choice ? " is-selected" : ""}`); action.disabled = verbDailyFiveChecked || pending; action.setAttribute("aria-pressed", String(selected === choice)); action.addEventListener("click", () => { verbDailyFiveAnswer = choice; render(); }); choices.append(action); }
+    controls.append(choices);
+  }
+  wrapper.append(controls);
+  if (verbDailyFiveFeedback) { const status = text(verbDailyFiveFeedback.message, `verb-practice-feedback ${verbDailyFiveFeedback.correct ? "correct" : "incorrect"}`); status.setAttribute("role", "status"); wrapper.append(status); }
+  const answer = verbDailyFiveAnswer;
+  const hasAnswer = Array.isArray(answer) ? answer.length > 0 : Boolean(answer);
+  if (!verbDailyFiveChecked) { const check = button("Check answer", "button primary-button"); check.disabled = !hasAnswer || pending; check.addEventListener("click", () => void checkVerbJourneyDailyFiveAnswer(task, question)); wrapper.append(check); }
+  else {
+    if (verbDailyFiveFeedback && !verbDailyFiveFeedback.correct) { const retry = button("Try again", "button"); retry.disabled = pending; retry.addEventListener("click", () => { verbDailyFiveRetrying = true; verbDailyFiveAnswer = null; verbDailyFiveFeedback = null; verbDailyFiveChecked = false; render(); }); wrapper.append(retry); }
+    const next = button("Continue", "button primary-button"); next.disabled = pending; next.addEventListener("click", continueVerbJourneyDailyFiveReview); wrapper.append(next);
+  }
+  return wrapper;
+}
+
+async function checkVerbJourneyDailyFiveAnswer(task: VerbJourneyDailyFiveTask, question: VerbPracticeQuestion & { phase: "core" | "repair" }): Promise<void> {
+  if (verbDailyFiveAnswer === null || verbDailyFiveChecked || pending) return;
+  const result = checkVerbPracticeQuestion(question, verbDailyFiveAnswer);
+  verbDailyFiveFeedback = { correct: result.correct, message: result.feedback };
+  verbDailyFiveChecked = true;
+  pending = true;
+  render();
+  try {
+    if (!verbDailyFiveRetrying) {
+      const saved = await learningClient.recordVerbJourneyDailyFiveResult(task, result.correct ? "correct" : "incorrect", verbJourneyRecord?.evidenceRevision ?? 0);
+      verbJourneyRecord = saved.verbJourneys;
+      snapshot = saved.snapshot;
+    }
+  } catch (error) {
+    verbDailyFiveFeedback = { correct: false, message: error instanceof Error ? error.message : "Verb Journey result could not be saved." };
+  } finally { pending = false; render(); }
+}
+
+function continueVerbJourneyDailyFiveReview(): void {
+  activeVerbDailyFiveTask = null; verbDailyFiveAnswer = null; verbDailyFiveFeedback = null; verbDailyFiveChecked = false; verbDailyFiveRetrying = false;
+  if (!snapshot || snapshot.goalCompleted) { screen = focusedOrigin ?? "today"; focusedOrigin = null; }
+  render();
 }
 
 function renderSavedQuiz(): HTMLElement {

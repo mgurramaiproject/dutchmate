@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isLearningMessage, LEARNING_CONTRAST_RESULT_MESSAGE } from "./messages";
+import { isLearningMessage, LEARNING_CONTRAST_RESULT_MESSAGE, LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE } from "./messages";
 
 describe("contrast learning messages", () => {
   it("accepts a typed controlled result with its reviewed misconception code", () => {
@@ -23,5 +23,12 @@ describe("contrast learning messages", () => {
     expect(isLearningMessage({ ...valid, payload: { ...valid.payload, contentVersion: 2 } })).toBe(false);
     expect(isLearningMessage({ ...valid, payload: { ...valid.payload, outcome: "maybe" } })).toBe(false);
     expect(isLearningMessage({ ...valid, payload: { ...valid.payload, expectedEvidenceRevision: -1 } })).toBe(false);
+  });
+
+  it("accepts only the authored Verb Journey Daily Five task shape", () => {
+    const valid = { type: LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE, payload: { task: { kind: "verb", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning" }, result: "correct", expectedEvidenceRevision: 0 } };
+    expect(isLearningMessage(valid)).toBe(true);
+    expect(isLearningMessage({ ...valid, payload: { ...valid.payload, result: "maybe" } })).toBe(false);
+    expect(isLearningMessage({ ...valid, payload: { ...valid.payload, task: { ...valid.payload.task, kind: "grammar" } } })).toBe(false);
   });
 });

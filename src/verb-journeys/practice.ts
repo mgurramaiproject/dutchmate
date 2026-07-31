@@ -95,10 +95,8 @@ export function getVerbPracticeQuestion(id: string): (VerbPracticeQuestion & { p
 export function checkVerbPracticeAnswer(session: VerbPracticeSession, answer: VerbPracticeAnswer): { session: VerbPracticeSession; result: VerbPracticeResult } {
   const question = getCurrentVerbPracticeQuestion(session);
   if (!question) return { session, result: { correct: false, feedback: "This practice run is complete.", answer: "" } };
-  const normalizedAnswer = Array.isArray(answer) ? answer.join(" ") : answer;
-  const correct = question.accepted.includes(normalizedAnswer);
-  const result = { correct, feedback: correct ? question.feedback : question.incorrectFeedback, answer: normalizedAnswer };
-  const repairQueue = !correct && question.phase === "core" ? [...session.repairQueue, ...(question.repairIds ?? [])].slice(0, 2) : session.repairQueue;
+  const result = checkVerbPracticeQuestion(question, answer);
+  const repairQueue = !result.correct && question.phase === "core" ? [...session.repairQueue, ...(question.repairIds ?? [])].slice(0, 2) : session.repairQueue;
   return {
     session: {
       ...session,
@@ -106,10 +104,16 @@ export function checkVerbPracticeAnswer(session: VerbPracticeSession, answer: Ve
       checked: true,
       lastResult: result,
       repairQueue,
-      attempts: [...session.attempts, { questionId: question.id, phase: question.phase, correct, feedback: result.feedback }],
+      attempts: [...session.attempts, { questionId: question.id, phase: question.phase, correct: result.correct, feedback: result.feedback }],
     },
     result,
   };
+}
+
+export function checkVerbPracticeQuestion(question: VerbPracticeQuestion, answer: VerbPracticeAnswer): VerbPracticeResult {
+  const normalizedAnswer = Array.isArray(answer) ? answer.join(" ") : answer;
+  const correct = question.accepted.includes(normalizedAnswer);
+  return { correct, feedback: correct ? question.feedback : question.incorrectFeedback, answer: normalizedAnswer };
 }
 
 export function advanceVerbPractice(session: VerbPracticeSession): VerbPracticeSession {

@@ -54,7 +54,8 @@ describe("lesson popup", () => {
       if (message.type === "dutchmate.learning.rhythm") return { ok: true, result: { rhythm: rhythmResponse } };
       if (message.type === "dutchmate.learning.dailyFive") {
         const emptyContinuation = message.payload?.continueAfterCompletion === true && (learningItems.length === 0 || forceEmptyDailyFive);
-        return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: emptyContinuation ? [] : [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [], goalCompleted: false } } };
+        const verbContinuation = message.payload?.continueAfterCompletion === true && verbJourneyRevision > 0;
+        return { ok: true, result: { snapshot: { createdAt: 1, dayStartAt: 0, tasks: emptyContinuation ? [] : verbContinuation ? [{ kind: "verb", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning" }] : [{ itemId: dailyItem.id, dimension: "recognition" }], completedTaskIds: [], goalCompleted: false } } };
       }
       if (message.type === "dutchmate.learning.dailyFive.result") {
         const item = learningItems.find((candidate) => candidate.id === message.payload?.itemId)!;
@@ -70,6 +71,7 @@ describe("lesson popup", () => {
       if (message.type === "dutchmate.learning.contrast.result") return { ok: true, result: { contrast: { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], recentExerciseIds: [String(message.payload?.exerciseId)], misconceptionCounts: message.payload?.answer === "ik werk" || message.payload?.answer === "Morgen ik werk thuis." ? { MAIN_CLAUSE_NO_INVERSION: 1 } : {}, evidenceRevision: 1, updatedAt: 1 }, repairOffer: message.payload?.answer === "ik werk" || message.payload?.answer === "Morgen ik werk thuis." ? { code: "MAIN_CLAUSE_NO_INVERSION", packId: "contrast.main_clause_inversion", contentVersion: 1, label: "Practise this contrast (1 min)" } : null } };
       if (message.type === "dutchmate.learning.verbJourney") return { ok: true, result: { verbJourneys: { contentVersion: "015-1", evidenceRevision: verbJourneyRevision, skills: {} } } };
       if (message.type === "dutchmate.learning.verbJourney.result") return { ok: true, result: { verbJourneys: { contentVersion: "015-1", evidenceRevision: ++verbJourneyRevision, skills: {} } } };
+      if (message.type === "dutchmate.learning.verbJourney.dailyFive.result") return { ok: true, result: { verbJourneys: { contentVersion: "015-1", evidenceRevision: ++verbJourneyRevision, skills: {} }, snapshot: { createdAt: 1, dayStartAt: 0, tasks: [message.payload?.task], completedTaskIds: ["verb-task"], goalCompleted: true } } };
       if (message.type === "dutchmate.learning.recordMissionResult") {
         if (quizFails) return { ok: false, error: "Quiz result could not be saved." };
         const item = learningItems.find((candidate) => candidate.id === message.payload?.itemId)!;
@@ -1025,6 +1027,24 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("Review the VTT · OVT contrast");
     button("Review the VTT · OVT contrast →").click();
     await vi.waitFor(() => expect(content().textContent).toContain("VALUABLE CONTRAST"));
+  });
+
+  it("surfaces a weak verb skill through the existing Daily Five review flow", async () => {
+    button("Start Daily Five").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    button("Show answer").click();
+    button("Got it").click();
+    await vi.waitFor(() => expect(button("Review 5 more")).toBeTruthy());
+    await runtime.sendMessage({ type: "dutchmate.learning.verbJourney.result", payload: { verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "incorrect", expectedEvidenceRevision: 0 } });
+    button("Review 5 more").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Daily Five · Verb Journey"));
+    expect(content().textContent).toContain("werken · VTT");
+    content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")[1].click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(content().querySelector("[role='status']")?.textContent).toContain("Correct"));
+    await vi.waitFor(() => expect(button("Continue").disabled).toBe(false));
+    button("Continue").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Five small wins."));
   });
 
   it("caps an incorrect VTT path at two authored repairs and exposes reset", async () => {

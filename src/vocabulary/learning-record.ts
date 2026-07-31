@@ -3,7 +3,7 @@ import type { SavedVocabularyEntry, SavedVocabularyStorage } from "./saved-vocab
 import type { ReviewCard, ReviewRating } from "./review-cards";
 import { parseVocabularyBackup, type VocabularyBackup } from "./vocabulary-backup";
 import { normalizeSavedVocabularyText } from "./saved-vocabulary";
-import { applyDailyFiveResult, createDailyFiveSnapshot, getLocalDayStart, selectGrammarDailyFiveTasks, type ContrastDailyFiveTask, type DailyFiveDimension, type DailyFiveResult, type DailyFiveSnapshot, type DailyFiveTask } from "./daily-five";
+import { applyDailyFiveResult, createDailyFiveSnapshot, getLocalDayStart, selectGrammarDailyFiveTasks, selectVerbJourneyDailyFiveTasks, type ContrastDailyFiveTask, type DailyFiveDimension, type DailyFiveResult, type DailyFiveSnapshot, type DailyFiveTask, type VerbJourneyDailyFiveTask } from "./daily-five";
 import { getLearningRhythm, type LearningRhythm } from "./learning-rhythm";
 import { lessonCatalog, type GrammarPatternId } from "../lessons/catalog";
 import { applyGrammarCheck, applyGrammarOutcome, introduceGrammar, type GrammarOutcome, type GrammarRecord } from "../grammar/learning";
@@ -14,7 +14,7 @@ import type { ContrastMisconceptionCode } from "../grammar/contrast";
 import { getMisconceptionDefinition } from "../grammar/misconceptions";
 import { createVerbJourneyRecord, parseVerbJourneyRecord, recordVerbJourneyEvidence, type RecordVerbJourneyEvidenceInput, type VerbJourneyRecord } from "../verb-journeys/learning";
 import { isVerbJourneyContentAvailable } from "../verb-journeys/content";
-import { getVerbPracticeQuestion } from "../verb-journeys/practice";
+import { getVerbPracticeQuestion, getVerbPracticeQuestions } from "../verb-journeys/practice";
 
 export const LEARNING_RECORD_STORAGE_KEY = "dutchmate.learningRecord.v2";
 export const LEARNING_BACKUP_FORMAT = "dutchmate-learning-backup";
@@ -279,8 +279,15 @@ export class LearningRecordStore {
       }), now, contrastExercise ? 1 : 2)
       : [];
     const contrastTasks: ContrastDailyFiveTask[] = contrastExercise ? [{ kind: "contrast", packId: CONTRAST_PACK_ID, contentVersion: CONTRAST_CONTENT_VERSION, exerciseId: contrastExercise.id }] : [];
+    const verbTasks = isVerbJourneyContentAvailable()
+      ? selectVerbJourneyDailyFiveTasks(Object.values(record.verbJourneys.skills).flatMap((skill, skillOrder) => {
+        const question = getVerbPracticeQuestions().find((candidate) => candidate.formOrSkillId === skill.formOrSkillId && !skill.exerciseFamilies[candidate.exerciseFamily]?.exerciseIds.includes(candidate.id)) ?? getVerbPracticeQuestions().find((candidate) => candidate.formOrSkillId === skill.formOrSkillId);
+        if (!question) return [];
+        return [{ task: { kind: "verb" as const, verbId: question.verbId, formOrSkillId: question.formOrSkillId, contentVersion: "015-1" as const, exerciseFamily: question.exerciseFamily, exerciseId: question.id }, skill, dueAt: skill.status === "needs-practice" ? now : skill.dueAt, skillOrder }];
+      }), now)
+      : [];
     if (contrastExercise && record.contrast[CONTRAST_PACK_ID]) record.contrast[CONTRAST_PACK_ID] = markContrastRepairOffered(record.contrast[CONTRAST_PACK_ID], contrastExercise.id, now);
-    const snapshot = createDailyFiveSnapshot(Object.values(record.items), now, lastDirection, [...grammarTasks, ...contrastTasks]);
+    const snapshot = createDailyFiveSnapshot(Object.values(record.items), now, lastDirection, [...grammarTasks, ...contrastTasks, ...verbTasks]);
     record.rhythm = { ...record.rhythm, dailyFive: snapshot };
     await this.write(record);
     return snapshot;
@@ -327,6 +334,23 @@ export class LearningRecordStore {
     record.rhythm = { ...record.rhythm, dailyFive: nextSnapshot, ...withActivity(record.rhythm, this.now(), { reviews: 1 }), ...(nextSnapshot.goalCompleted ? withActiveDay(record.rhythm, this.now(), "dailyFiveCompletions", { snapshotCreatedAt: snapshot.createdAt }) : {}) };
     await this.write(record);
     return { grammar: updated, snapshot: nextSnapshot };
+  }
+
+  async recordVerbJourneyDailyFiveResult(input: { task: VerbJourneyDailyFiveTask; result: "correct" | "incorrect"; expectedEvidenceRevision: number }): Promise<{ verbJourneys: VerbJourneyRecord; snapshot: DailyFiveSnapshot }> {
+    const record = await this.readMigrated();
+    const snapshot = parseDailyFiveSnapshot(record.rhythm.dailyFive);
+    const task = snapshot?.tasks.find((candidate): candidate is VerbJourneyDailyFiveTask => isVerbJourneyTask(candidate) && taskId(candidate) === taskId(input.task));
+    const exercise = getVerbPracticeQuestion(input.task.exerciseId);
+    if (!isVerbJourneyContentAvailable() || !snapshot || !task || !exercise || exercise.verbId !== input.task.verbId || exercise.formOrSkillId !== input.task.formOrSkillId || exercise.exerciseFamily !== input.task.exerciseFamily || exercise.id !== input.task.exerciseId) throw new Error("This Verb Journey task is unavailable.");
+    if (snapshot.completedTaskIds.includes(taskId(task))) return { verbJourneys: record.verbJourneys, snapshot };
+    if (record.verbJourneys.evidenceRevision !== input.expectedEvidenceRevision) return { verbJourneys: record.verbJourneys, snapshot };
+    const timestamp = this.now();
+    record.verbJourneys = recordVerbJourneyEvidence(record.verbJourneys, { ...input.task, result: input.result, expectedEvidenceRevision: input.expectedEvidenceRevision }, timestamp);
+    const completedTaskIds = [...snapshot.completedTaskIds, taskId(task)];
+    const nextSnapshot = { ...snapshot, completedTaskIds, goalCompleted: completedTaskIds.length === snapshot.tasks.length };
+    record.rhythm = { ...record.rhythm, dailyFive: nextSnapshot, ...withActivity(record.rhythm, timestamp, { reviews: 1 }), ...(nextSnapshot.goalCompleted ? withActiveDay(record.rhythm, timestamp, "dailyFiveCompletions", { snapshotCreatedAt: snapshot.createdAt }) : {}) };
+    await this.write(record);
+    return { verbJourneys: record.verbJourneys, snapshot: nextSnapshot };
   }
 
   async recordContrastDailyFiveResult(input: { packId: ContrastPackId; contentVersion: 1; exerciseId: string; outcome: ContrastOutcome; expectedEvidenceRevision: number }): Promise<{ contrast: ContrastRecord; snapshot: DailyFiveSnapshot }> {
@@ -526,6 +550,7 @@ function mergeVerbJourneyRecords(local: VerbJourneyRecord, imported: VerbJourney
       ...existing,
       exerciseFamilies,
       delayedOrRecombinedEvidence: existing.delayedOrRecombinedEvidence || incoming.delayedOrRecombinedEvidence,
+      dueAt: Math.min(existing.dueAt, incoming.dueAt),
       status: lastFamily?.lastResult === "incorrect" ? "needs-practice" : successfulFamilies.length >= 2 && (existing.delayedOrRecombinedEvidence || incoming.delayedOrRecombinedEvidence) ? "demonstrated" : "practising",
       evidenceRevision: Math.max(existing.evidenceRevision, incoming.evidenceRevision),
       updatedAt: Math.max(existing.updatedAt, incoming.updatedAt),
@@ -618,11 +643,11 @@ function parseLearningItem(value: unknown): LearningItem {
 }
 function parseDailyFiveSnapshot(value: unknown): DailyFiveSnapshot | null {
   if (!isRecord(value) || !finite(value.createdAt) || !finite(value.dayStartAt) || !Array.isArray(value.tasks) || !Array.isArray(value.completedTaskIds) || typeof value.goalCompleted !== "boolean") return null;
-  const tasks = value.tasks.filter((task): task is DailyFiveTask => isVocabularyTask(task) || isGrammarTask(task) || isContrastTask(task));
+  const tasks = value.tasks.filter((task): task is DailyFiveTask => isVocabularyTask(task) || isGrammarTask(task) || isContrastTask(task) || isVerbJourneyTask(task));
   if (tasks.length !== value.tasks.length || tasks.length > 5 || new Set(tasks.map(taskId)).size !== tasks.length || !value.completedTaskIds.every((id) => typeof id === "string" && tasks.some((task) => taskId(task) === id))) return null;
   return { createdAt: value.createdAt, dayStartAt: value.dayStartAt, tasks, completedTaskIds: value.completedTaskIds as string[], goalCompleted: value.goalCompleted };
 }
-function taskId(task: DailyFiveTask): string { return isVocabularyTask(task) ? `${task.itemId}\u001f${task.dimension}` : "patternId" in task ? `${task.patternId}\u001f${task.exerciseId}` : `${task.packId}\u001f${task.exerciseId}`; }
+function taskId(task: DailyFiveTask): string { return isVocabularyTask(task) ? `${task.itemId}\u001f${task.dimension}` : isVerbJourneyTask(task) ? `${task.verbId}\u001f${task.formOrSkillId}\u001f${task.exerciseFamily}\u001f${task.exerciseId}` : "patternId" in task ? `${task.patternId}\u001f${task.exerciseId}` : `${task.packId}\u001f${task.exerciseId}`; }
 function isVocabularyTask(value: unknown): value is { itemId: string; dimension: DailyFiveDimension } { return isRecord(value) && typeof value.itemId === "string" && (value.dimension === "recognition" || value.dimension === "recall"); }
 function isGrammarTask(value: unknown): value is Extract<DailyFiveTask, { kind: "grammar" }> {
   if (!isRecord(value) || value.kind !== "grammar" || value.contentVersion !== 1 || typeof value.patternId !== "string" || typeof value.exerciseId !== "string") return false;
@@ -630,6 +655,7 @@ function isGrammarTask(value: unknown): value is Extract<DailyFiveTask, { kind: 
   return pattern !== undefined && pattern.exercises.some((exercise) => exercise.id === value.exerciseId);
 }
 function isContrastTask(value: unknown): value is Extract<DailyFiveTask, { kind: "contrast" }> { return isRecord(value) && value.kind === "contrast" && value.packId === CONTRAST_PACK_ID && value.contentVersion === CONTRAST_CONTENT_VERSION && typeof value.exerciseId === "string" && contrastPack.exercises.some((exercise) => exercise.id === value.exerciseId); }
+function isVerbJourneyTask(value: unknown): value is VerbJourneyDailyFiveTask { if (!isRecord(value) || value.kind !== "verb" || value.verbId !== "verb.werken" || value.contentVersion !== "015-1" || typeof value.formOrSkillId !== "string" || typeof value.exerciseFamily !== "string" || typeof value.exerciseId !== "string") return false; const exercise = getVerbPracticeQuestion(value.exerciseId); return isVerbJourneyContentAvailable() && exercise?.verbId === value.verbId && exercise.formOrSkillId === value.formOrSkillId && exercise.exerciseFamily === value.exerciseFamily; }
 function parseGrammarRecords(value: unknown): Record<string, GrammarRecord> { if (!isRecord(value)) return {}; const result: Record<string, GrammarRecord> = {}; for (const [key, candidate] of Object.entries(value)) { const parsed = parseGrammarRecord(candidate); if (parsed && key === parsed.patternId) result[key] = parsed; } return result; }
 function parseGrammarRecordsStrict(value: unknown, durable: boolean): Record<string, GrammarRecord> {
   if (value === undefined && !durable) return {};
