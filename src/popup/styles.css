@@ -384,25 +384,26 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .journey-status-label { padding: 4px 6px; border: 1px solid var(--dm-line); border-radius: 5px; white-space: nowrap; }
 .journey-status-label.learning { border-color: var(--dm-brand-orange); background: var(--dm-paper-soft); color: var(--dm-ink-strong); }
 .journey-status-label.reference { color: var(--dm-ink-muted); }
-.verb-mastery-card { display: grid; gap: 8px; min-width: 0; padding: 11px; border: 0; border-radius: var(--dm-radius-card); background: var(--dm-ink-strong); color: var(--dm-paper-raised); text-align: left; box-shadow: var(--dm-shadow-low); }
+.verb-mastery-card { display: grid; gap: 8px; min-width: 0; padding: 11px; border: 1px solid var(--dm-line); border-left: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-soft); color: var(--dm-ink-strong); text-align: left; box-shadow: var(--dm-shadow-low); }
 .verb-progress-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; min-width: 0; }
 .verb-progress-copy { display: grid; min-width: 0; gap: 3px; }
 .verb-progress-copy .eyebrow { margin: 0; }
 .verb-progress-title { font-family: var(--dm-font-reading); font-size: var(--dm-font-size-h2); font-weight: var(--dm-weight-black); line-height: 1.05; }
 .verb-progress-count, .verb-mastery-count { color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
-.verb-mastery-map-label { color: var(--dm-paper-raised); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
+.verb-mastery-map-label { color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
 .verb-progress-summary, .verb-mastery-note { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 .verb-progress-footer { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .verb-progress-track { width: 100%; height: 6px; overflow: hidden; border-radius: var(--dm-radius-round); background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-soft)); }
-.verb-progress-track.light { background: rgb(255 255 255 / 24%); }
+.verb-progress-track.light { background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-raised)); }
 .verb-progress-fill { display: block; height: 100%; border-radius: inherit; background: var(--dm-brand-orange); }
-.verb-progress-track.light .verb-progress-fill { background: var(--dm-paper-raised); }
-.verb-mastery-card .eyebrow, .verb-mastery-card .verb-mastery-count, .verb-mastery-card .verb-mastery-note { color: var(--dm-paper-raised); }
-.verb-mastery-icon { width: 22px; height: 22px; flex: 0 0 auto; color: var(--dm-paper-raised); }
+.verb-progress-track.light .verb-progress-fill { background: var(--dm-brand-orange); }
+.verb-mastery-card .eyebrow, .verb-mastery-card .verb-mastery-count { color: var(--dm-brand-orange-deep); }
+.verb-mastery-card .verb-mastery-note { color: var(--dm-ink-muted); }
+.verb-mastery-icon { width: 22px; height: 22px; flex: 0 0 auto; color: var(--dm-brand-orange-deep); }
 .verb-mastery-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .verb-mastery-actions .button { min-height: 38px; padding: 6px 7px; font-size: var(--dm-font-size-small); }
-.verb-mastery-card .secondary-button { border-color: rgb(255 255 255 / 70%); background: transparent !important; color: var(--dm-paper-raised); }
-.verb-mastery-card .secondary-button:hover, .verb-mastery-card .secondary-button:focus-visible { background: rgb(255 255 255 / 14%) !important; color: var(--dm-paper-raised); }
+.verb-mastery-card .secondary-button { border-color: var(--dm-ink-strong); background: var(--dm-paper-raised) !important; color: var(--dm-ink-strong); }
+.verb-mastery-card .secondary-button:hover, .verb-mastery-card .secondary-button:focus-visible { background: var(--dm-paper-soft) !important; color: var(--dm-ink-strong); }
 .journey-boundary { margin: 0; padding: 9px 10px; border-left: 3px solid var(--dm-brand-orange); background: var(--dm-paper-soft); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 .verb-story-card { display: grid; gap: 0; padding: 4px 12px; border: 1px solid var(--dm-ink-strong); border-top: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); box-shadow: var(--dm-shadow-low); }
 .verb-story-line { display: grid; gap: 4px; padding: 10px 0; border-bottom: 1px solid var(--dm-line); }
