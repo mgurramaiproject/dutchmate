@@ -234,6 +234,7 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .settings-notice { padding: 10px 12px; border-left: 3px solid var(--orange); border-radius: 8px; background: rgba(255, 111, 0, 0.08); }
 .settings-notice.error { border-left-color: var(--black); }
 .error-state { display: grid; align-content: start; gap: 12px; }
+.render-recovery { display: grid; align-content: start; gap: 12px; padding: 16px; }
 .lesson-library { display: grid; gap: 0; }
 .lesson-filters { display: grid; gap: 5px; padding: 6px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .lesson-filter-group { display: flex; flex-wrap: wrap; gap: 3px; }

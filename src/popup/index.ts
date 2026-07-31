@@ -24,6 +24,7 @@ import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/pr
 import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type VerbFormRecord } from "../verb-journeys/content";
 import { advanceVerbPractice, checkVerbPracticeAnswer, checkVerbPracticeQuestion, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
 import type { VerbJourneyRecord } from "../verb-journeys/learning";
+import { renderWithRecovery } from "./render-recovery";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
@@ -170,7 +171,15 @@ function render(): void {
   }
   content?.setAttribute("aria-labelledby", `${activeTab}-tab`);
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : screen === "verbJourneys" ? renderVerbJourneys() : screen === "verbJourneyOverview" ? renderVerbJourneyOverview() : screen === "verbJourneyStory" ? renderVerbJourneyStory() : screen === "verbJourneyNotice" ? renderVerbJourneyNotice() : screen === "verbMap" ? renderVerbMap() : screen === "verbEnglishComparison" ? renderVerbEnglishComparison() : screen === "verbPractice" ? renderVerbPractice() : screen === "verbCompletion" ? renderVerbCompletion() : renderSettings());
+  renderWithRecovery(content, () => screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : screen === "verbJourneys" ? renderVerbJourneys() : screen === "verbJourneyOverview" ? renderVerbJourneyOverview() : screen === "verbJourneyStory" ? renderVerbJourneyStory() : screen === "verbJourneyNotice" ? renderVerbJourneyNotice() : screen === "verbMap" ? renderVerbMap() : screen === "verbEnglishComparison" ? renderVerbEnglishComparison() : screen === "verbPractice" ? renderVerbPractice() : screen === "verbCompletion" ? renderVerbCompletion() : renderSettings(), renderRecovery);
+}
+
+function renderRecovery(): HTMLElement {
+  const wrapper = section("render-recovery");
+  const returnToToday = button("Return to Today", "button primary-button");
+  returnToToday.addEventListener("click", () => { screen = "today"; render(); content?.focus(); });
+  wrapper.append(eyebrow("Popup content unavailable"), heading("Your learning is still safe."), text("This screen could not be rendered. Return to Today and continue from your local progress."), returnToToday);
+  return wrapper;
 }
 
 function renderSaved(): HTMLElement {

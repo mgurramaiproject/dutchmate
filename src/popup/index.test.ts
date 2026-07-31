@@ -1031,6 +1031,31 @@ describe("lesson popup", () => {
     expect(document.querySelector<HTMLButtonElement>("#lessons-tab")?.getAttribute("aria-selected")).toBe("true");
   });
 
+  it("takes the OTT and OVT core journeys through story, Notice, and their map forms", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+
+    for (const journey of [
+      { title: "What I normally do", tense: "OTT" },
+      { title: "How I worked before", tense: "OVT" },
+    ]) {
+      [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes(journey.title))!.click();
+      await vi.waitFor(() => expect(content().textContent).toContain(journey.title));
+      button("Notice the pattern →").click();
+      await vi.waitFor(() => expect(content().textContent).toContain("VALUABLE CONTRAST"));
+      button("Place it on the 8-form map →").click();
+      await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+      expect(content().querySelector<HTMLElement>(".verb-form-card.selected")?.getAttribute("aria-label")).toMatch(new RegExp(`^${journey.tense}:`));
+      button("← Notice").click();
+      button("← Story").click();
+      button(`← ${journey.title}`).click();
+      await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    }
+  });
+
   it("runs the five bounded VTT decisions and shows completion with a contrast review", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());

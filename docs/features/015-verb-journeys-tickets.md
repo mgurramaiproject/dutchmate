@@ -252,17 +252,29 @@ slice is reserved for the single Feature 015 PR.
 with the approved popup interaction contract and all existing DutchMate
 quality boundaries.
 
-- [ ] The complete route is verifiable from Lessons through overview, story,
+- [x] The complete route is verifiable from Lessons through overview, story,
       Notice, map, English comparison, practice, completion, review, and
-      return to Today.
-- [ ] Persistent bottom tabs, icon affordances, fixed verb numbering, keyboard
+      return to Today through the existing Daily Five review owner. Evidence:
+      `docs/features/015-verb-journeys-qualification.md` and the focused popup
+      route tests.
+- [x] Persistent bottom tabs, icon affordances, fixed verb numbering, keyboard
       operation, focus behavior, narrow-popup containment, and renderer
-      non-empty recovery are verified.
-- [ ] No audio, listening, speech, runtime LLM, network-dependent grading, or
+      non-empty recovery are verified by popup and qualification tests.
+- [x] No audio, listening, speech, runtime LLM, network-dependent grading, or
       second queue exists in the feature journey.
-- [ ] Full authored-content validation and independent fluent-Dutch review
-      pass with provenance.
-- [ ] Relevant unit, integration, migration, accessibility, build, packaging,
-      offline, and provider-isolation checks pass.
-- [ ] Documentation, issue state, and delivery evidence are reconciled before
-      implementation handoff.
+- [x] Full authored-content structural validation passes.
+- [ ] Independent fluent-Dutch review passes with provenance.
+- [x] Relevant unit, integration, migration, build, packaging, offline, and
+      provider-isolation checks pass in the automated verification record.
+- [ ] Manual accessibility and visual popup QA are recorded.
+- [x] Documentation, issue state, and delivery evidence are reconciled for
+      implementation handoff; the issue remains open for the two human gates.
+
+**Implementation evidence:** Added the renderer recovery boundary and release
+qualification tests. OTT, VTT, and OVT core read paths are covered through
+story, Notice, and the selected eight-form map; VTT continues through its five
+bounded decisions, completion, and contrast review, while the existing Daily
+Five owner returns the learner to Today. The qualification record separates
+automated evidence from the required independent fluent-Dutch and manual
+popup reviews. No PR is opened; this slice remains reserved for the single
+Feature 015 PR.
