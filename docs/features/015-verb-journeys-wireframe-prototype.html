@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>015 Verb Journeys — Wireframe Prototype</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #242424; background: #e9e9e9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #e9e9e9; }
+    button, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .prototype-banner { padding: 10px 18px; border-bottom: 2px solid #242424; background: #fff; font-size: 12px; }
+    .prototype-banner strong { letter-spacing: .08em; text-transform: uppercase; }
+    .prototype-banner span { color: #666; margin-left: 10px; }
+    .app { min-height: calc(100vh - 46px); display: grid; grid-template-columns: 220px minmax(0, 1fr); }
+    .rail { border-right: 2px solid #242424; background: #f7f7f7; padding: 18px 12px 100px; }
+    .rail h1 { font-size: 17px; margin: 0 8px 4px; }
+    .rail p { font-size: 11px; color: #666; margin: 0 8px 18px; }
+    .rail button { width: 100%; padding: 9px 10px; margin: 3px 0; text-align: left; border: 1px solid #aaa; background: #fff; border-radius: 4px; color: #242424; }
+    .rail button.active { border: 2px solid #242424; background: #e5e5e5; font-weight: 700; }
+    .rail .group-label { margin: 17px 8px 5px; color: #666; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .workspace { padding: 22px 24px 110px; min-width: 0; }
+    .screen-header { display: flex; align-items: start; justify-content: space-between; gap: 18px; border-bottom: 2px solid #242424; padding-bottom: 12px; margin-bottom: 18px; }
+    .screen-header h2 { margin: 0; font-size: 25px; }
+    .screen-header p { margin: 5px 0 0; color: #666; font-size: 13px; }
+    .wire-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #666; }
+    .status-line { border: 1px dashed #777; background: #fff; padding: 8px 10px; margin-bottom: 16px; font: 11px ui-monospace, monospace; overflow-wrap: anywhere; }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 16px; align-items: start; }
+    .stage-layout .content-grid { grid-template-columns: 180px minmax(0, 1fr); }
+    .reference-layout .content-grid { grid-template-columns: 280px minmax(0, 1fr); }
+    .card, .panel, .stage-list, .map-panel { border: 1px solid #777; background: #fff; padding: 15px; }
+    .card + .card, .panel + .panel { margin-top: 12px; }
+    .card h3, .panel h3 { margin: 0 0 7px; font-size: 16px; }
+    .card p, .panel p { font-size: 13px; line-height: 1.5; margin: 7px 0; }
+    .muted { color: #666; }
+    .small { font-size: 11px; }
+    .eyebrow { color: #666; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+    .actions button, .primary, .secondary { border: 1px solid #242424; padding: 9px 12px; background: #fff; border-radius: 4px; }
+    .actions .primary, .primary { background: #242424; color: #fff; }
+    .actions .secondary, .secondary { background: #e7e7e7; }
+    .choice-list { display: grid; gap: 8px; margin-top: 12px; }
+    .choice-list button { border: 1px solid #777; background: #fff; padding: 10px; text-align: left; border-radius: 3px; }
+    .choice-list button.selected { outline: 3px solid #242424; outline-offset: 1px; }
+    .choice-list button.correct { background: #dfeee1; border-color: #397144; }
+    .choice-list button.wrong { background: #f4dfdf; border-color: #903b3b; }
+    .story-line { padding: 9px 0; border-bottom: 1px solid #ddd; font-size: 16px; line-height: 1.5; }
+    .story-line:last-child { border-bottom: 0; }
+    .target { background: #ddd; border: 1px solid #777; padding: 1px 3px; }
+    .journey-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 11px 0; border-bottom: 1px solid #ddd; }
+    .journey-row:last-child { border-bottom: 0; }
+    .status-dot { width: 24px; height: 24px; border: 1px solid #555; display: grid; place-items: center; border-radius: 50%; font-size: 11px; }
+    .tag { display: inline-block; border: 1px solid #777; padding: 3px 6px; font-size: 10px; border-radius: 3px; white-space: nowrap; }
+    .progress { height: 9px; border: 1px solid #555; background: #fff; margin: 8px 0; }
+    .progress span { display: block; height: 100%; background: #555; }
+    .map-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .map-cell { min-height: 96px; border: 1px solid #777; padding: 10px; background: #fafafa; text-align: left; }
+    .map-cell.current { border: 3px solid #242424; background: #e6e6e6; }
+    .map-cell.reference { border-style: dashed; color: #666; }
+    .map-cell strong, .map-cell span { display: block; }
+    .map-cell .form { font-size: 18px; font-weight: 800; margin-top: 5px; }
+    .map-cell .example { font-size: 11px; margin-top: 8px; }
+    .comparison-group { border: 1px solid #777; margin: 8px 0; background: #fff; }
+    .comparison-group > button { border: 0; border-bottom: 1px solid #aaa; background: #eee; padding: 10px; width: 100%; text-align: left; font-weight: 700; }
+    .comparison-group article { padding: 10px; border-bottom: 1px solid #ddd; }
+    .comparison-group article:last-child { border-bottom: 0; }
+    .comparison-group article button { border: 0; background: transparent; padding: 0; text-align: left; width: 100%; }
+    .comparison-detail { margin-top: 7px; padding: 8px; border-left: 3px solid #555; background: #f2f2f2; font-size: 12px; line-height: 1.45; }
+    .stage-list button { display: block; width: 100%; border: 0; background: transparent; text-align: left; padding: 9px 4px; border-bottom: 1px solid #ddd; }
+    .stage-list button.active { font-weight: 800; background: #e5e5e5; }
+    .stage-list button:last-child { border-bottom: 0; }
+    .state-panel dl { display: grid; grid-template-columns: 1fr; gap: 7px; margin: 0; }
+    .state-panel dt { color: #666; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+    .state-panel dd { margin: -4px 0 3px; font: 11px ui-monospace, monospace; overflow-wrap: anywhere; }
+    .mini-map { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 10px; }
+    .mini-map div { border: 1px solid #999; padding: 7px 5px; font-size: 10px; background: #fafafa; }
+    .mini-map div.current { border: 2px solid #242424; background: #e5e5e5; }
+    .feedback-toggle { position: fixed; right: 18px; bottom: 18px; z-index: 4; border: 2px solid #242424; background: #fff; padding: 10px 13px; box-shadow: 3px 3px 0 #242424; }
+    .feedback-drawer { position: fixed; right: 18px; bottom: 68px; z-index: 3; width: min(360px, calc(100vw - 36px)); border: 2px solid #242424; background: #fff; padding: 14px; display: none; box-shadow: 5px 5px 0 rgba(0,0,0,.25); }
+    .feedback-drawer.open { display: block; }
+    .feedback-drawer h3 { margin: 0 0 5px; }
+    .feedback-drawer textarea { width: 100%; min-height: 120px; resize: vertical; border: 1px solid #777; padding: 8px; margin: 8px 0; }
+    .feedback-drawer .actions { margin-top: 6px; }
+    .variant-switcher { position: fixed; z-index: 5; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 2px solid #242424; background: #fff; box-shadow: 4px 4px 0 #242424; }
+    .variant-switcher button { border: 1px solid #555; background: #eee; padding: 6px 9px; }
+    .variant-switcher .label { min-width: 178px; text-align: center; font-size: 11px; }
+    .screen-note { border-left: 4px solid #555; background: #f1f1f1; padding: 9px 11px; font-size: 12px; margin-top: 13px; }
+    .slot-row { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 14px 0; font-size: 16px; }
+    .slot { min-width: 70px; min-height: 34px; border: 2px dashed #777; background: #fafafa; padding: 6px 8px; }
+    .slot.filled { border-style: solid; background: #e8e8e8; }
+    .token-bank { display: flex; flex-wrap: wrap; gap: 7px; }
+    .token-bank button { border: 1px solid #555; background: #fff; padding: 8px 10px; }
+    .token-bank button.used { opacity: .35; }
+    .order-zone { min-height: 48px; border: 2px dashed #777; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+    .order-zone button { border: 1px solid #555; background: #e8e8e8; padding: 7px; }
+    .notice { padding: 9px 11px; border: 1px dashed #777; background: #f8f8f8; font-size: 12px; line-height: 1.45; }
+    @media (max-width: 820px) {
+      .app { grid-template-columns: 1fr; }
+      .rail { border-right: 0; border-bottom: 2px solid #242424; padding: 12px 12px 8px; display: flex; gap: 6px; overflow-x: auto; }
+      .rail h1, .rail p, .rail .group-label { display: none; }
+      .rail button { width: auto; min-width: max-content; margin: 0; }
+      .workspace { padding: 16px 12px 110px; }
+      .content-grid, .stage-layout .content-grid, .reference-layout .content-grid { grid-template-columns: 1fr; }
+      .state-panel, .stage-list { order: -1; }
+      .variant-switcher .label { min-width: 130px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="prototype-banner">
+    <strong>Throwaway wireframe prototype · Feature 015</strong>
+    <span>Question: which screens, hierarchy, and flow should survive into the plan/spec?</span>
+  </div>
+  <main id="app" class="app"></main>
+
+  <button id="feedbackToggle" class="feedback-toggle" type="button">Give feedback</button>
+  <section id="feedbackDrawer" class="feedback-drawer" aria-label="Prototype feedback">
+    <h3>Feedback for this screen</h3>
+    <p class="small muted">Notes stay in memory until you copy them. This prototype does not write to DutchMate data.</p>
+    <textarea id="feedbackText" placeholder="What feels wrong, missing, too dense, or in the wrong place?"></textarea>
+    <div class="actions">
+      <button id="clearFeedback" type="button">Clear screen note</button>
+      <button id="copyFeedback" class="primary" type="button">Copy all feedback</button>
+    </div>
+    <p id="feedbackState" class="small muted" aria-live="polite"></p>
+  </section>
+
+  <nav class="variant-switcher" aria-label="Prototype variants">
+    <button id="variantPrevious" type="button" aria-label="Previous wireframe">←</button>
+    <span id="variantLabel" class="label"></span>
+    <button id="variantNext" type="button" aria-label="Next wireframe">→</button>
+  </nav>
+
+  <script>
+    // Three wireframe variants of the existing Lessons/Today host flow, switchable via ?variant=linear|stages|reference.
+    const variants = [
+      { key: "linear", name: "A · Flow rail", description: "Screen-by-screen path with a visible state inspector." },
+      { key: "stages", name: "B · Stage board", description: "Journey stages stay visible while one screen is explored." },
+      { key: "reference", name: "C · Map-first", description: "The Verb Map stays present as a persistent reference." },
+    ];
+    const screens = ["today", "lessons", "verb-list", "werken", "story", "notice", "dutch-map", "english-map", "practice", "complete"];
+    const screenNames = {
+      today: "Today", lessons: "Lessons hub", "verb-list": "Verb Journeys", werken: "Werken overview",
+      story: "Story", notice: "Notice", "dutch-map": "8-form Verb Map", "english-map": "12 English forms",
+      practice: "Click-only practice", complete: "Completion",
+    };
+    const state = { variant: "linear", screen: "today", stage: "today", practiceIndex: 0, checked: false, selected: null, slots: [], order: [] };
+    const notes = {};
+    const app = document.getElementById("app");
+    const feedbackText = document.getElementById("feedbackText");
+    const feedbackDrawer = document.getElementById("feedbackDrawer");
+    const feedbackState = document.getElementById("feedbackState");
+
+    const mapForms = [
+      ["OTT", "onvoltooid tegenwoordige tijd", "Ik werk thuis.", "core"],
+      ["VTT", "voltooid tegenwoordige tijd", "Ik heb thuis gewerkt.", "current"],
+      ["OVT", "onvoltooid verleden tijd", "Ik werkte thuis.", "core"],
+      ["VVT", "voltooid verleden tijd", "Ik had thuis gewerkt.", "later"],
+      ["OTTT", "onvoltooid tegenwoordige toekomende tijd", "Ik zal thuis werken.", "later"],
+      ["VTTT", "voltooid tegenwoordige toekomende tijd", "Ik zal thuis gewerkt hebben.", "reference"],
+      ["OVTT", "onvoltooid verleden toekomende tijd", "Ik zou thuis werken.", "later"],
+      ["VVTT", "voltooid verleden toekomende tijd", "Ik zou thuis gewerkt hebben.", "reference"],
+    ];
+    const questions = [
+      { type: "choice", title: "Meaning", prompt: "What does Ik heb gisteren thuis gewerkt report?", options: ["A weekly routine", "One completed event from yesterday", "A possible future plan"], answer: 1, good: "VTT commonly reports a completed conversational fact.", bad: "Look at gisteren and heb gewerkt: this reports a completed event." },
+      { type: "slots", title: "Build the form", prompt: "Tap the two missing parts", prefix: "Ik", between: "gisteren thuis", suffix: ".", tokens: ["heb", "ben", "werk", "werkte", "gewerkt"], answer: ["heb", "gewerkt"], good: "Build the completed event with heb + gewerkt.", bad: "Use the auxiliary heb and the participle gewerkt." },
+      { type: "choice", title: "Natural Dutch", prompt: "A colleague asks what you did yesterday. Choose the best Dutch answer.", options: ["Ik werk gisteren thuis.", "Ik heb gisteren thuis gewerkt.", "Ik had gisteren thuis werken."], answer: 1, good: "In this conversational context, VTT is the natural choice.", bad: "Choose Ik heb gisteren thuis gewerkt for this standalone completed event." },
+      { type: "choice", title: "Map placement", prompt: "Where does Ik heb gisteren thuis gewerkt belong?", options: ["OTT · present", "VTT · completed present", "OVT · past routine", "VVT · earlier past"], answer: 1, good: "heb + gewerkt is VTT.", bad: "The present auxiliary heb plus participle gewerkt forms VTT." },
+      { type: "order", title: "Word order", prompt: "Yesterday I worked at home.", tokens: ["Gisteren", "heb", "ik", "thuis", "gewerkt."], answer: ["Gisteren", "heb", "ik", "thuis", "gewerkt."], good: "After Gisteren in first position, the finite verb heb comes next.", bad: "Start with Gisteren, then place heb before ik." },
+    ];
+
+    function getVariantFromUrl() {
+      const key = new URLSearchParams(window.location.search).get("variant");
+      return variants.some((variant) => variant.key === key) ? key : "linear";
+    }
+    function setVariant(key) {
+      state.variant = key;
+      const url = new URL(window.location.href);
+      url.searchParams.set("variant", key);
+      window.history.replaceState({}, "", url);
+      render();
+    }
+    function setScreen(screen) {
+      if (!screens.includes(screen)) return;
+      state.screen = screen;
+      state.stage = screen;
+      if (screen === "practice") resetQuestion();
+      render();
+    }
+    function currentVariant() { return variants.find((variant) => variant.key === state.variant); }
+    function statusLine() {
+      const question = state.screen === "practice" ? `${state.practiceIndex + 1}/5` : "n/a";
+      return `state: variant=${state.variant} · screen=${state.screen} · stage=${state.stage} · practice=${question} · note=${notes[state.screen] ? "present" : "empty"}`;
+    }
+    function button(label, action, className = "") {
+      const element = document.createElement("button");
+      element.type = "button"; element.textContent = label; element.className = className;
+      element.addEventListener("click", action); return element;
+    }
+    function escapeHtml(value) { return String(value).replace(/[&<>\"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[char])); }
+    function screenHeader(title, subtitle) {
+      const header = document.createElement("header"); header.className = "screen-header";
+      header.innerHTML = `<div><div class="wire-label">${escapeHtml(currentVariant().name)}</div><h2>${escapeHtml(title)}</h2><p>${escapeHtml(subtitle)}</p></div><div class="tag">wireframe only</div>`;
+      return header;
+    }
+    function actions(...items) { const row = document.createElement("div"); row.className = "actions"; items.forEach((item) => row.append(item)); return row; }
+    function nav() {
+      const rail = document.createElement("aside"); rail.className = "rail";
+      rail.innerHTML = `<h1>Verb Journeys</h1><p>Existing Lessons host</p><div class="group-label">Main</div>`;
+      ["today", "lessons"].forEach((key) => rail.append(button(screenNames[key], () => setScreen(key), state.screen === key ? "active" : "")));
+      const label = document.createElement("div"); label.className = "group-label"; label.textContent = "Werken flow"; rail.append(label);
+      ["verb-list", "werken", "story", "notice", "dutch-map", "english-map", "practice", "complete"].forEach((key) => rail.append(button(screenNames[key], () => setScreen(key), state.screen === key ? "active" : "")));
+      return rail;
+    }
+    function statePanel() {
+      const panel = document.createElement("aside"); panel.className = "panel state-panel";
+      panel.innerHTML = `<div class="wire-label">Visible state</div><h3>Prototype inspector</h3><dl><dt>Variant</dt><dd>${state.variant}</dd><dt>Screen</dt><dd>${state.screen}</dd><dt>Current journey</dt><dd>werken.vtt-completed-event</dd><dt>Current form</dt><dd>VTT</dd><dt>Journey progress</dt><dd>2 / 8 forms · VTT learning</dd><dt>Review</dt><dd>VTT vs OVT contrast · offered</dd></dl><div class="screen-note">This inspector is deliberately exposed so feedback can refer to a state, not just a visual impression.</div></aside>`;
+      return panel;
+    }
+    function stageList() {
+      const panel = document.createElement("nav"); panel.className = "stage-list"; panel.setAttribute("aria-label", "Journey stages");
+      ["story", "notice", "dutch-map", "english-map", "practice", "complete"].forEach((key, index) => {
+        const item = button(`${index + 1}. ${screenNames[key]}`, () => setScreen(key), state.screen === key ? "active" : "");
+        panel.append(item);
+      });
+      return panel;
+    }
+    function miniMap() {
+      const panel = document.createElement("aside"); panel.className = "map-panel";
+      panel.innerHTML = `<div class="wire-label">Persistent reference</div><h3>Werken Verb Map</h3><p class="small muted">The map stays available while the learner moves through the flow.</p>`;
+      const grid = document.createElement("div"); grid.className = "mini-map";
+      mapForms.forEach(([code, , example, priority]) => { const cell = document.createElement("div"); cell.className = priority === "current" ? "current" : ""; cell.innerHTML = `<strong>${code}</strong><span>${escapeHtml(example)}</span>`; grid.append(cell); });
+      panel.append(grid, actions(button("Open full map", () => setScreen("dutch-map"), "secondary"))); return panel;
+    }
+    function shell(title, subtitle, body) {
+      app.replaceChildren(nav());
+      const workspace = document.createElement("section"); workspace.className = `${state.variant}-layout workspace`;
+      workspace.append(screenHeader(title, subtitle));
+      const status = document.createElement("div"); status.className = "status-line"; status.textContent = statusLine(); workspace.append(status);
+      const grid = document.createElement("div"); grid.className = "content-grid";
+      if (state.variant === "linear") { grid.append(body, statePanel()); }
+      if (state.variant === "stages") { grid.append(stageList(), body); }
+      if (state.variant === "reference") { grid.append(miniMap(), body); }
+      workspace.append(grid); app.append(workspace);
+    }
+    function renderToday() {
+      const body = document.createElement("div");
+      body.append(card("Today", "One small meaningful session", "Existing heatmap remains above or beside the new action. The action names the verb and skill but does not preview an unfinished sentence.", actions(button("Practise werken · VTT review", () => setScreen("practice"), "primary"), button("Go to Lessons", () => setScreen("lessons"), "secondary"))));
+      body.append(card("Resume question", "Does Today need to resume a verb activity, or only offer a review action?", "The prototype keeps this choice visible without implementing universal Continue.", null));
+      shell("Today", "Existing Today surface with a compact Verb Journey entry", body);
+    }
+    function renderLessons() {
+      const body = document.createElement("div");
+      body.append(card("Continue Learning", "One existing action", "Current lesson-specific Continue behavior remains stable in this first slice.", actions(button("Continue current activity", () => setScreen("story"), "primary"))));
+      body.append(card("Lesson categories", "Verb Journeys sits alongside Practical Stories and Grammar Packs.", "This is the proposed information-architecture boundary: a category inside Lessons, not a new popup tab.", actions(button("Open Verb Journeys", () => setScreen("verb-list"), "primary"))));
+      shell("Lessons hub", "Existing Lessons host · category entry", body);
+    }
+    function renderVerbList() {
+      const body = document.createElement("div");
+      body.append(card("Verb Journeys", "Build usable verbs through stories, a shared map, and click-only practice.", "The first pack is werken. Other verbs are visible only as future scope, not as implementation requirements.", actions(button("Open werken", () => setScreen("werken"), "primary"))));
+      body.append(card("werken", "to work · A1 core · regular weak verb", "Progress: 2 of 8 forms practised · VTT learning now", actions(button("Open overview", () => setScreen("werken"), "primary"))));
+      body.append(card("Future verbs", "zijn · hebben · gaan · doen · wonen · komen · willen", "Wireframe placeholder only. Do not infer that the first slice must ship these.", null));
+      shell("Verb Journeys", "A Lessons category, not a new top-level destination", body);
+    }
+    function renderWerken() {
+      const body = document.createElement("div");
+      const overview = card("werken", "to work · A1 core · auxiliary: hebben", "One canonical destination with three core journeys and reference forms.", null);
+      const progress = document.createElement("div"); progress.className = "card"; progress.innerHTML = `<div class="wire-label">Verb status</div><h3>2 of 8 forms practised</h3><div class="progress"><span style="width:25%"></span></div><p class="small muted">VTT learning now · VTT/OVT contrast offered next</p>`;
+      const journeys = document.createElement("div"); journeys.className = "card"; journeys.innerHTML = `<div class="wire-label">Journeys</div><h3>Choose a meaning path</h3>`;
+      [["What I normally do", "OTT · present and routine", "Mastered"], ["What I completed", "VTT · completed events", "Continue"], ["How I worked before", "OVT · habits and stories", "Next"], ["Plans and possibilities", "OTTT + OVTT", "Later"], ["Completed future and unreal past", "VTTT + VVTT", "Reference"]].forEach(([title, detail, status], index) => {
+        const row = document.createElement("div"); row.className = "journey-row"; row.innerHTML = `<span class="status-dot">${index + 1}</span><span><strong>${title}</strong><span class="small muted">${detail}</span></span><span class="tag">${status}</span>`;
+        if (index === 1) row.addEventListener("click", () => setScreen("story")); journeys.append(row);
+      });
+      overview.append(progress, journeys, actions(button("Open 8-form map", () => setScreen("dutch-map"), "secondary"), button("Open 12 English forms", () => setScreen("english-map"), "secondary"), button("Continue VTT journey", () => setScreen("story"), "primary")));
+      body.append(overview); shell("Werken overview", "One verb destination · unequal emphasis across eight forms", body);
+    }
+    function renderStory() {
+      const body = document.createElement("div");
+      const story = card("What I completed", "Goal: report a completed conversational event", "The mockup's story stage is short, first-person, and followed by one noticing decision.", null);
+      story.innerHTML += `<div class="story-line">Gisteren heb ik op kantoor <span class="target">gewerkt</span>.</div><div class="story-line">Ik heb met mijn collega Sara <span class="target">gewerkt</span>.</div><div class="story-line">Na het werk ben ik naar huis gegaan.</div><div class="story-line muted">English/Telugu help appears through the existing lesson support pattern.</div>`;
+      const check = document.createElement("div"); check.className = "card"; check.innerHTML = `<div class="wire-label">Quick check</div><h3>What do the highlighted forms describe?</h3>`;
+      const choices = ["A routine that happens every week", "Completed events from yesterday", "A possible future plan"];
+      const list = document.createElement("div"); list.className = "choice-list"; choices.forEach((choice, index) => list.append(button(choice, () => { list.querySelectorAll("button").forEach((item) => item.classList.remove("selected")); list.children[index].classList.add("selected"); }, ""))); check.append(list);
+      body.append(story, check, actions(button("Back to overview", () => setScreen("werken"), "secondary"), button("Notice the form", () => setScreen("notice"), "primary")));
+      shell("Story", "Werken · Journey 2 · before practice", body);
+    }
+    function renderNotice() {
+      const body = document.createElement("div");
+      body.append(card("Notice the pattern", "Compare a routine with a completed fact", `<div class="card"><span class="tag">OTT</span><p><strong>Ik werk</strong> meestal thuis.</p><p class="small muted">routine / present situation</p></div><div class="card"><span class="tag">VTT</span><p><strong>Ik heb</strong> gisteren thuis <strong>gewerkt</strong>.</p><p class="small muted">completed conversational event</p></div><div class="notice">The learner should notice meaning and form before seeing the complete map.</div>`, actions(button("Back to story", () => setScreen("story"), "secondary"), button("Place on 8-form map", () => setScreen("dutch-map"), "primary"))));
+      shell("Notice", "A small contrast before the reference map", body);
+    }
+    function renderDutchMap() {
+      const body = document.createElement("div");
+      const map = document.createElement("div"); map.className = "card"; map.innerHTML = `<div class="wire-label">Canonical reference</div><h3>Werken Verb Map</h3><p class="small muted">Tap a form to inspect meaning, pattern, everyday usage, and priority.</p>`;
+      const grid = document.createElement("div"); grid.className = "map-grid";
+      mapForms.forEach(([code, full, example, priority]) => {
+        const cell = button("", () => { grid.querySelectorAll("button").forEach((item) => item.classList.remove("current")); cell.classList.add("current"); }, `map-cell ${priority === "current" ? "current" : ""} ${priority === "reference" ? "reference" : ""}`);
+        cell.innerHTML = `<span class="wire-label">${code}</span><strong>${full}</strong><span class="form">${code === "VTT" ? "heb + gewerkt" : code}</span><span class="example">${example}</span>`; grid.append(cell);
+      });
+      map.append(grid, actions(button("Open English comparison", () => setScreen("english-map"), "secondary"), button("Practise VTT", () => setScreen("practice"), "primary"))); body.append(map);
+      shell("8-form Verb Map", "One stable map reused by every journey", body);
+    }
+    function renderEnglishMap() {
+      const body = document.createElement("div");
+      const intro = card("12 English forms → Dutch", "Comparison lens, not one-to-one tense conversion", "Tap a row to reveal meaning-preserving Dutch, common everyday Dutch, analysis, and mismatch notes.", null); body.append(intro);
+      [["Present", ["Present simple", "Present continuous", "Present perfect", "Present perfect continuous"]], ["Past", ["Past simple", "Past continuous", "Past perfect", "Past perfect continuous"]], ["Future", ["Future simple", "Future continuous", "Future perfect", "Future perfect continuous"]]].forEach(([group, names]) => {
+        const section = document.createElement("section"); section.className = "comparison-group"; section.innerHTML = `<button type="button">${group} · 4 patterns</button>`;
+        names.forEach((name, index) => { const article = document.createElement("article"); const row = button(`${index + 1}. ${name}`, () => { const detail = article.querySelector(".comparison-detail"); detail.hidden = !detail.hidden; }, ""); const detail = document.createElement("div"); detail.className = "comparison-detail"; detail.hidden = true; detail.innerHTML = `<strong>Meaning-preserving Dutch:</strong> authored example<br><strong>Common everyday Dutch:</strong> natural context version<br><strong>Why:</strong> several English patterns may use Dutch form plus context or a time marker.`; article.append(row, detail); section.append(article); }); body.append(section);
+      });
+      body.append(actions(button("Back to Verb Map", () => setScreen("dutch-map"), "secondary"), button("Practise VTT", () => setScreen("practice"), "primary")));
+      shell("12 English forms", "Grouped comparison with expandable detail", body);
+    }
+    function resetQuestion() { state.checked = false; state.selected = null; state.slots = []; state.order = []; }
+    function renderPractice() {
+      const body = document.createElement("div"); const question = questions[state.practiceIndex];
+      const cardNode = document.createElement("div"); cardNode.className = "card"; cardNode.innerHTML = `<div class="wire-label">Question ${state.practiceIndex + 1} of 5 · ${question.title}</div><h3>${question.prompt}</h3>`;
+      if (question.type === "choice") {
+        const list = document.createElement("div"); list.className = "choice-list"; question.options.forEach((option, index) => { const choice = button(option, () => { if (state.checked) return; state.selected = index; list.querySelectorAll("button").forEach((item) => item.classList.remove("selected")); choice.classList.add("selected"); }); if (state.checked) choice.classList.add(index === question.answer ? "correct" : index === state.selected ? "wrong" : ""); list.append(choice); }); cardNode.append(list);
+      }
+      if (question.type === "slots") {
+        const sentence = document.createElement("div"); sentence.className = "slot-row"; sentence.append(document.createTextNode(`${question.prefix} `)); [0, 1].forEach((index) => { const slot = document.createElement("button"); slot.type = "button"; slot.className = `slot ${state.slots[index] ? "filled" : ""}`; slot.textContent = state.slots[index] || "tap a word"; slot.addEventListener("click", () => { if (state.checked) return; state.slots.splice(index, 1); render(); }); sentence.append(slot); sentence.append(document.createTextNode(index === 0 ? ` ${question.between} ` : ` ${question.suffix}`)); }); cardNode.append(sentence); const bank = document.createElement("div"); bank.className = "token-bank"; question.tokens.forEach((token) => { const item = button(token, () => { if (state.checked || state.slots.length >= 2 || state.slots.includes(token)) return; state.slots.push(token); render(); }); item.classList.toggle("used", state.slots.includes(token)); bank.append(item); }); cardNode.append(bank);
+      }
+      if (question.type === "order") {
+        const zone = document.createElement("div"); zone.className = "order-zone"; state.order.forEach((token, index) => zone.append(button(token, () => { if (state.checked) return; state.order.splice(index, 1); render(); }))); cardNode.append(zone); const bank = document.createElement("div"); bank.className = "token-bank"; question.tokens.forEach((token) => { const item = button(token, () => { if (state.checked || state.order.includes(token)) return; state.order.push(token); render(); }); item.classList.toggle("used", state.order.includes(token)); bank.append(item); }); cardNode.append(bank);
+      }
+      if (state.checked) { const correct = isQuestionCorrect(question); const result = document.createElement("div"); result.className = `screen-note ${correct ? "" : ""}`; result.textContent = correct ? question.good : question.bad; cardNode.append(result); }
+      const check = button(state.checked ? "Next question" : "Check answer", () => { if (!state.checked) state.checked = true; else if (state.practiceIndex < questions.length - 1) { state.practiceIndex += 1; resetQuestion(); } else setScreen("complete"); render(); }, "primary");
+      body.append(cardNode, actions(button("Reset", () => { resetQuestion(); render(); }, "secondary"), check), card("Repair boundary", "After a wrong answer, offer one or two authored repair questions for the detected skill. Never create an unbounded adaptive loop.", "The prototype does not implement the repair branch; it makes the boundary visible for feedback.", null));
+      shell("Click-only practice", "Five core decisions · no typing · bounded repair", body);
+    }
+    function isQuestionCorrect(question) { return question.type === "choice" ? state.selected === question.answer : question.type === "slots" ? JSON.stringify(state.slots) === JSON.stringify(question.answer) : JSON.stringify(state.order) === JSON.stringify(question.answer); }
+    function renderComplete() {
+      const body = document.createElement("div");
+      body.append(card("Journey complete", "VTT practised as a completed event", "The completion state should report demonstrated and weak skills, then offer the next useful review without claiming full verb mastery.", null));
+      body.append(card("Evidence summary", "Demonstrated: recognize completed event · build heb + gewerkt · choose natural context", "Needs practice: VTT vs OVT contrast · review offered through Today/Daily Five", null));
+      body.append(card("Next action", "Review contrast or return to Today", "The mockup's review concept is an authored follow-up, not a second queue.", actions(button("Review VTT vs OVT", () => setScreen("practice"), "primary"), button("Return to Today", () => setScreen("today"), "secondary"))));
+      shell("Completion", "A bounded result, not a mastery badge", body);
+    }
+    function card(label, title, copy, content) {
+      const element = document.createElement("section"); element.className = "card"; element.innerHTML = `<div class="wire-label">${escapeHtml(label)}</div><h3>${escapeHtml(title)}</h3><p>${typeof copy === "string" && copy.startsWith("<") ? copy : escapeHtml(copy)}</p>`; if (content) element.append(content); return element;
+    }
+    function render() {
+      if (state.screen === "today") renderToday();
+      else if (state.screen === "lessons") renderLessons();
+      else if (state.screen === "verb-list") renderVerbList();
+      else if (state.screen === "werken") renderWerken();
+      else if (state.screen === "story") renderStory();
+      else if (state.screen === "notice") renderNotice();
+      else if (state.screen === "dutch-map") renderDutchMap();
+      else if (state.screen === "english-map") renderEnglishMap();
+      else if (state.screen === "practice") renderPractice();
+      else renderComplete();
+      document.getElementById("variantLabel").textContent = `${currentVariant().name} · ${currentVariant().description}`;
+      loadFeedback();
+    }
+    function loadFeedback() { feedbackText.value = notes[state.screen] || ""; feedbackState.textContent = ""; }
+    function saveFeedback() { const value = feedbackText.value.trim(); if (value) notes[state.screen] = value; else delete notes[state.screen]; }
+    document.getElementById("feedbackToggle").addEventListener("click", () => { saveFeedback(); feedbackDrawer.classList.toggle("open"); loadFeedback(); });
+    document.getElementById("clearFeedback").addEventListener("click", () => { delete notes[state.screen]; feedbackText.value = ""; feedbackState.textContent = "Screen note cleared."; });
+    document.getElementById("copyFeedback").addEventListener("click", async () => { saveFeedback(); const text = Object.entries(notes).map(([screen, note]) => `## ${screenNames[screen]}\n${note}`).join("\n\n") || "No feedback recorded."; try { await navigator.clipboard.writeText(`Feature 015 wireframe feedback\n\n${text}`); feedbackState.textContent = "Copied feedback."; } catch { feedbackText.value = text; feedbackState.textContent = "Clipboard unavailable; feedback prepared here."; } });
+    document.getElementById("variantPrevious").addEventListener("click", () => { const index = variants.findIndex((variant) => variant.key === state.variant); setVariant(variants[(index + variants.length - 1) % variants.length].key); });
+    document.getElementById("variantNext").addEventListener("click", () => { const index = variants.findIndex((variant) => variant.key === state.variant); setVariant(variants[(index + 1) % variants.length].key); });
+    document.addEventListener("keydown", (event) => { if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) return; if (event.key === "ArrowLeft") document.getElementById("variantPrevious").click(); if (event.key === "ArrowRight") document.getElementById("variantNext").click(); });
+    state.variant = getVariantFromUrl();
+    render();
+  </script>
+</body>
+</html>
