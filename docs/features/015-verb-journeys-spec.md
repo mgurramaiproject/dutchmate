@@ -57,6 +57,12 @@ deterministic, bundled, and provider-free. The revised clickable `werken`
 mockup informs behavior and information architecture only. DutchMate's current
 UI and design system remain the visual source of truth.
 
+The approved prototype also establishes the interaction contract for the
+popup: use the existing standard popup proportions, keep the content compact
+at the top of each screen, retain Today, Lessons, and Saved as persistent
+icon-labeled bottom tabs, and make every primary journey surface directly
+clickable. The prototype contains no audio or listening control anywhere.
+
 ## User Stories
 
 1. As a DutchMate learner, I want to find Verb Journeys inside Lessons, so that I can learn a verb without navigating to a new top-level product area.
@@ -149,6 +155,12 @@ UI and design system remain the visual source of truth.
 88. As a product owner, I want expansion to `zijn`, `hebben`, `gaan`, `doen`, `wonen`, `komen`, and `willen` to wait until the `werken` slice is accepted, so that irregular and auxiliary verbs receive tailored treatment rather than cloned assumptions.
 89. As a product owner, I want the feature to stay within the A0/Pre-A1 through A2 foundation progression, so that Verb Journeys do not expand DutchMate's current product promise.
 90. As a product owner, I want the feature to improve real-world transfer rather than reward completion alone, so that the new surface supports DutchMate's browsing-to-fluency loop.
+91. As a learner, I want Today, Lessons, and Saved to remain persistent bottom tabs, so that the popup retains a familiar mobile-app navigation model while I move through a Verb Journey.
+92. As a learner, I want the popup to use the standard compact extension dimensions and reduced top spacing, so that the complete journey remains reviewable at popup width without unnecessary empty space.
+93. As a learner, I want the Lessons, Verb Journeys, and `werken` overview screens to expose obvious card actions, so that I can understand what is clickable without guessing.
+94. As a learner, I want every verb in the Verb Journeys list to have a stable visible number, so that I can refer to a verb consistently while reviewing the list.
+95. As a learner, I want the journey to remain useful without audio, so that every task can be completed through text, icons, and click, tap, or keyboard controls.
+96. As a learner, I want a rendering failure to leave a visible recovery entry point rather than an empty popup, so that I can still inspect the approved prototype and report feedback.
 
 ## Implementation Decisions
 
@@ -206,6 +218,25 @@ UI and design system remain the visual source of truth.
 - Existing lesson-specific Continue remains unchanged in the first slice.
   Cross-activity universal Continue is a separate future boundary requiring a
   safe shared resume descriptor.
+- The popup layout keeps the existing standard width and height tokens and uses
+  a compact mobile-style composition: brand header, scrollable screen content,
+  and persistent Today/Lessons/Saved bottom navigation with icons. This is a
+  behavioral and information-architecture decision from the approved
+  prototype, not a replacement design system.
+- Lessons, Verb Journeys, and the `werken` overview use explicit, keyboard-
+  operable controls for primary cards and actions. Visible prototype controls
+  must either navigate, update the visible state, or explain their boundary;
+  they must not be silent no-ops.
+- Verb Journey list entries use stable display ordering and fixed visible
+  numbers. The first slice lists `werken` as `01` and keeps future verb
+  placeholders numbered without implying that those verbs are implemented.
+- Audio, speech, listening, and audio-curriculum controls are excluded from
+  this feature and must not appear in the extension or popup journey.
+- The renderer must build a screen before replacing the current popup content.
+  If a browser-only rendering error occurs, it must show a visible clickable
+  recovery menu rather than leaving the popup empty. This recovery behavior
+  was proven in the approved throwaway prototype and should be represented by
+  a renderer-level regression check where the production seam permits it.
 - Content availability is determined by the existing validation/reporting
   convention. Invalid or incomplete `werken` content is unavailable to the
   learner; no user-facing feature toggle, new permission, or remote rollout
@@ -254,7 +285,8 @@ The primary seams are:
 4. Existing popup and Lessons integration. It verifies entry and return paths,
    story and notice progression, Verb Map and English comparison access,
    feedback announcement, keyboard operation, focus order, narrow-popup
-   containment, completion summary, and Today entry.
+   containment, persistent bottom-tab navigation, visible card affordances,
+   completion summary, Today entry, and non-empty renderer recovery.
 
 Prior art includes the existing grammar content validator/report, deterministic
 grammar evaluator and progress tests, Contrast Repair content and learning
@@ -271,7 +303,8 @@ feedback scope, vocabulary level, and Telugu support where authored.
 Accessibility QA must cover keyboard-only completion, visible and programmatic
 focus, non-color status cues, feedback announcements, expandable English
 groups, map-cell headings, token removal/reordering alternatives, reduced
-motion, and actual supported popup widths.
+motion, persistent bottom-tab navigation, semantic controls for clickable
+cards, and actual supported popup widths.
 
 ## Out of Scope
 
@@ -291,6 +324,8 @@ motion, and actual supported popup widths.
 - Runtime LLM calls, network-dependent correctness, generated content,
   generated distractors, runtime translation, remote content delivery, or new
   extension permissions without a separately approved decision.
+- Audio playback, speech controls, listening exercises, speech grading, or an
+  audio curriculum anywhere in the feature or extension journey.
 - Replacing the current Today, Lessons, Saved, Options, heatmaps, navigation,
   design tokens, typography, spacing, colors, icons, or component family.
 - Treating the mockup's CSS or visual styling as production UI.
@@ -312,7 +347,8 @@ motion, and actual supported popup widths.
   Lessons category entry, compact Today action without unfinished sentence
   preview, story → notice → map → comparison → practice → completion flow,
   collapsible English groups, map detail inspection, five click-only questions,
-  bounded repair, and return to Today.
+  bounded repair, persistent mobile-style bottom tabs, numbered verb entries,
+  no-audio interaction, and return to Today.
 - The existing DutchMate UI is authoritative wherever the mockup and shipped
   behavior differ. No mockup CSS or replacement visual system is part of this
   spec.

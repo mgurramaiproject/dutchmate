@@ -6,7 +6,7 @@
 
 **Branch:** `015-verb-journeys`
 
-**Status:** Specification drafted and committed; GitHub parent-issue publication was attempted but is blocked by API connectivity. Tickets are not yet approved or created.
+**Status:** Prototype approved; specification reconciled and committed; GitHub parent-issue publication remains blocked by API connectivity. Tickets are not yet approved or created.
 
 **Source handoff:** [Verb Journeys Codex CLI handoff](./todos/verb-journeys-codex-handoff/README.md)
 
@@ -70,6 +70,16 @@ DutchMate or introducing a second learning product.
 - Runtime correctness is deterministic and provider-free. There are no typed
   answers, runtime LLM calls, network-dependent grading, arbitrary parsing,
   or broad UI restyles.
+- The approved popup direction keeps the standard compact extension size,
+  reduces top whitespace, and uses persistent icon-labeled Today, Lessons, and
+  Saved tabs at the bottom of the popup.
+- Lessons, Verb Journeys, and the `werken` overview use explicit clickable
+  controls with visible affordances; fixed verb numbers begin with `01`
+  `werken`, followed by numbered future placeholders.
+- Audio, listening, speech, and audio curriculum are out of scope everywhere
+  in the feature and extension journey.
+- Prototype rendering must not leave an empty popup. The renderer builds a
+  screen before replacement and provides a clickable recovery menu on failure.
 
 ## Proposed verification seams
 
