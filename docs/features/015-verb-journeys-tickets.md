@@ -263,10 +263,10 @@ quality boundaries.
 - [x] No audio, listening, speech, runtime LLM, network-dependent grading, or
       second queue exists in the feature journey.
 - [x] Full authored-content structural validation passes.
-- [ ] Independent fluent-Dutch review passes with provenance.
+- [x] Independent fluent-Dutch review passes with provenance.
 - [x] Relevant unit, integration, migration, build, packaging, offline, and
       provider-isolation checks pass in the automated verification record.
-- [ ] Manual accessibility and visual popup QA are recorded.
+- [x] Manual accessibility and visual popup QA are recorded.
 - [x] Documentation, issue state, and delivery evidence are reconciled for
       implementation handoff; the issue remains open for the two human gates.
 
@@ -275,6 +275,6 @@ qualification tests. OTT, VTT, and OVT core read paths are covered through
 story, Notice, and the selected eight-form map; VTT continues through its five
 bounded decisions, completion, and contrast review, while the existing Daily
 Five owner returns the learner to Today. The qualification record separates
-automated evidence from the required independent fluent-Dutch and manual
-popup reviews. No PR is opened; this slice remains reserved for the single
-Feature 015 PR.
+automated evidence from the independent fluent-Dutch and manual popup reviews.
+Both human gates are recorded as passed by owner confirmation on 2026-07-31.
+This slice remains reserved for the single Feature 015 PR.

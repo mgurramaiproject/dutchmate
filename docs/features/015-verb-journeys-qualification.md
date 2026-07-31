@@ -1,7 +1,7 @@
 # Feature 015: `werken` qualification record
 
 Status: automated qualification complete; independent fluent-Dutch review and
-manual browser QA pending.
+manual browser QA passed by owner confirmation on 2026-07-31.
 
 This record is the evidence handoff for [#129](https://github.com/mgurramaiproject/dutchmate/issues/129).
 It deliberately does not claim a linguistic review that has not been performed
@@ -37,8 +37,8 @@ Record the following when those gates are complete:
 
 | Review | Reviewer / date | Provenance or notes | Result |
 | --- | --- | --- | --- |
-| Fluent-Dutch content review | Pending | Add reviewer identity and reviewed commit or checklist link. | Pending |
-| Popup keyboard/visual QA | Pending | Add browser, viewport, and reviewed commit. | Pending |
+| Fluent-Dutch content review | Feature owner confirmation / 2026-07-31 | User explicitly confirmed the Dutch review as complete in the implementation handoff. Reviewer identity and environment details were not recorded separately. | Passed |
+| Popup keyboard/visual QA | Feature owner confirmation / 2026-07-31 | User explicitly confirmed the manual QA as complete in the implementation handoff. Browser and viewport details were not recorded separately. | Passed |
 
 ## Rollback and compatibility
 
@@ -50,6 +50,6 @@ rollback boundary; no destructive data reset is required.
 
 ## Delivery state
 
-Issue #129 remains open and should stay `In Progress` until the two manual
-gates above are recorded. No pull request is opened; Feature 015 remains
-reserved for one later PR after all feature tickets are accepted.
+The two human gates are now recorded as passed by owner confirmation. Issue
+#129 and the remaining Feature 015 issues are ready for final review and the
+single Feature 015 pull request.
