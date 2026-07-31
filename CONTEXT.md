@@ -40,6 +40,18 @@ _Avoid_: Course completion level, certified CEFR level, engagement score
 A pattern-first A0-A2 grammar sequence threaded through the existing practical mini-lessons and Lessons library, not a separate learner-facing library or navigation area. High-utility Dutch verbs make conjugation and sentence structure concrete through explanation, guided construction, retrieval, and contextual application, while conjugation tables remain supporting references.
 _Avoid_: 100-verb catalog, conjugation-table course, tense encyclopedia
 
+**Verb Journey**:
+A short, staged learning path for one high-utility Dutch verb inside the existing Lesson library. It connects a first-person context, a noticed form, the shared Verb Map, controlled practice, and later review without making the verb a single completed lesson or a separate learner-facing destination.
+_Avoid_: Verb course, verb destination tab, completed verb badge
+
+**Verb Map**:
+The stable eight-form Dutch reference for one verb, pairing onvoltooid and voltooid viewpoints across present, past, future, and future-from-past. It is a supporting reference that highlights the current journey form; advanced forms remain reference material rather than beginner mastery requirements.
+_Avoid_: Tense timeline, conjugation quiz, formal proficiency map
+
+**Verb skill evidence**:
+Bounded local evidence for a learner's recognition or controlled application of one verb form or usage skill through authored exercise families. It supports honest review status and does not claim independent production, full verb mastery, or formal CEFR attainment.
+_Avoid_: Verb completion, fluency score, free-writing diagnosis
+
 **Click-only grammar practice**:
 The exercise contract in which learners choose forms, transform prompts, and reconstruct Dutch with tap-, click-, or keyboard-operated controls without entering text. Its results are evidence of supported recognition and controlled application, not independent written production.
 _Avoid_: Typed answer, free-form response, uncued-production claim
