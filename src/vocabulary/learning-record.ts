@@ -14,7 +14,7 @@ import type { ContrastMisconceptionCode } from "../grammar/contrast";
 import { getMisconceptionDefinition } from "../grammar/misconceptions";
 import { createVerbJourneyRecord, parseVerbJourneyRecord, recordVerbJourneyEvidence, type RecordVerbJourneyEvidenceInput, type VerbJourneyRecord } from "../verb-journeys/learning";
 import { isVerbJourneyContentAvailable } from "../verb-journeys/content";
-import { getVerbPracticeQuestion, getVerbPracticeQuestions } from "../verb-journeys/practice";
+import { getVerbPracticeQuestion, getVerbPracticeQuestionsForSkill } from "../verb-journeys/practice";
 
 export const LEARNING_RECORD_STORAGE_KEY = "dutchmate.learningRecord.v2";
 export const LEARNING_BACKUP_FORMAT = "dutchmate-learning-backup";
@@ -281,7 +281,8 @@ export class LearningRecordStore {
     const contrastTasks: ContrastDailyFiveTask[] = contrastExercise ? [{ kind: "contrast", packId: CONTRAST_PACK_ID, contentVersion: CONTRAST_CONTENT_VERSION, exerciseId: contrastExercise.id }] : [];
     const verbTasks = isVerbJourneyContentAvailable()
       ? selectVerbJourneyDailyFiveTasks(Object.values(record.verbJourneys.skills).flatMap((skill, skillOrder) => {
-        const question = getVerbPracticeQuestions().find((candidate) => candidate.formOrSkillId === skill.formOrSkillId && !skill.exerciseFamilies[candidate.exerciseFamily]?.exerciseIds.includes(candidate.id)) ?? getVerbPracticeQuestions().find((candidate) => candidate.formOrSkillId === skill.formOrSkillId);
+        const questions = getVerbPracticeQuestionsForSkill(skill.formOrSkillId);
+        const question = questions.find((candidate) => !skill.exerciseFamilies[candidate.exerciseFamily]?.exerciseIds.includes(candidate.id)) ?? questions[0];
         if (!question) return [];
         return [{ task: { kind: "verb" as const, verbId: question.verbId, formOrSkillId: question.formOrSkillId, contentVersion: "015-1" as const, exerciseFamily: question.exerciseFamily, exerciseId: question.id }, skill, dueAt: skill.status === "needs-practice" ? now : skill.dueAt, skillOrder }];
       }), now)

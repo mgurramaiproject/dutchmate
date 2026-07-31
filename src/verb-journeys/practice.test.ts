@@ -62,4 +62,21 @@ describe("werken VTT practice", () => {
     expect(first.result.correct).toBe(false);
     expect(first.result.feedback).toContain("completed");
   });
+
+  it("keeps each core journey on its own authored exercise pack", () => {
+    const packs = [
+      ["journey.werken.ott-routine", "OTT", "Ik werk meestal thuis."],
+      ["journey.werken.vtt-completed", "VTT", "Ik heb gisteren thuis gewerkt."],
+      ["journey.werken.ovt-background", "OVT", "Vroeger werkte ik vaak in een café."],
+    ] as const;
+
+    for (const [journeyId, tense, context] of packs) {
+      const questions = getVerbPracticeQuestions(journeyId);
+      expect(questions).toHaveLength(5);
+      expect(questions.every((question) => question.journeyId === journeyId)).toBe(true);
+      expect(questions[0].context).toBe(context);
+      expect(questions[3].accepted[0]).toContain(`${tense} ·`);
+      expect(questions.every((question) => question.id.includes(`.${tense.toLowerCase()}.`))).toBe(true);
+    }
+  });
 });

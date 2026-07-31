@@ -347,11 +347,11 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .lesson-content .story-line .helper-copy { margin: 0; color: var(--dm-ink-muted); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 
 /* Feature 015 T01: the authored read-only Verb Journey route. */
-.verb-journey-panel { padding: 14px; }
-.verb-journeys-content, .verb-journey-overview, .verb-journey-story, .verb-journey-notice, .verb-map-screen, .verb-english-comparison { display: grid; align-content: start; gap: 10px; min-width: 0; }
-.journey-back { justify-self: start; min-height: 36px; padding: 0 2px; border: 0; background: transparent; color: var(--dm-ink-muted); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
+.verb-journey-panel { padding: 8px 12px 14px; }
+.verb-journeys-content, .verb-journey-overview, .verb-journey-story, .verb-journey-notice, .verb-map-screen, .verb-english-comparison { display: grid; align-content: start; gap: 7px; min-width: 0; }
+.journey-back { justify-self: start; min-height: var(--dm-target-min); padding: 0 2px; border: 0; background: transparent; color: var(--dm-ink-muted); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
 .journey-back:hover, .journey-back:focus-visible { color: var(--dm-ink-strong); text-decoration: underline; text-decoration-color: var(--dm-brand-orange); text-underline-offset: 3px; }
-.verb-journey-panel .heading { font-size: var(--dm-font-size-h1); }
+.verb-journey-panel .heading { font-size: 1.35rem; line-height: 1.04; }
 .verb-entry-kicker, .map-summary-kicker, .verb-card-label, .journey-section-label, .verb-detail-heading { color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); letter-spacing: .04em; text-transform: uppercase; }
 .verb-entry-copy, .map-summary-copy, .verb-card-copy, .journey-lead, .journey-helper, .verb-map-note, .verb-pattern-meaning, .verb-story-translation { color: var(--dm-ink-muted); font-family: var(--dm-font-reading); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 .verb-entry-action, .map-summary-action { color: var(--dm-ink-strong); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
@@ -370,7 +370,7 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-directory-copy small, .verb-directory-action, .journey-meta { color: var(--dm-ink-muted); font-size: var(--dm-font-size-small); }
 .verb-directory-action { font-weight: var(--dm-weight-black); }
 .journey-list { display: grid; border: 1px solid var(--dm-line); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); overflow: hidden; }
-.journey-list-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-width: 0; min-height: var(--dm-target-min); padding: 8px; border: 0; border-bottom: 1px solid var(--dm-line); background: var(--dm-paper-raised); color: var(--dm-ink-strong); text-align: left; }
+.journey-list-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-width: 0; min-height: var(--dm-target-min); padding: 6px 8px; border: 0; border-bottom: 1px solid var(--dm-line); background: var(--dm-paper-raised); color: var(--dm-ink-strong); text-align: left; }
 .journey-list-row:last-child { border-bottom: 0; }
 .journey-list-row:hover, .journey-list-row:focus-visible { background: var(--dm-paper-soft); box-shadow: inset 4px 0 var(--dm-brand-orange); }
 .journey-list-copy { display: grid; min-width: 0; gap: 2px; }
@@ -393,10 +393,11 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-mastery-map-label { color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
 .verb-progress-summary, .verb-mastery-note { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 .verb-progress-footer { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.verb-progress-track { width: 100%; height: 6px; overflow: hidden; border-radius: var(--dm-radius-round); background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-soft)); }
+.verb-progress-track { display: block; width: 100%; height: 6px; overflow: hidden; border-radius: var(--dm-radius-round); background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-soft)); }
 .verb-progress-track.light { background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-raised)); }
 .verb-progress-fill { display: block; height: 100%; border-radius: inherit; background: var(--dm-brand-orange); }
 .verb-progress-track.light .verb-progress-fill { background: var(--dm-brand-orange); }
+.verb-mastery-card .verb-progress-track.light { height: 9px; border: 1px solid var(--dm-ink-muted); background: var(--dm-line); }
 .verb-mastery-card .eyebrow, .verb-mastery-card .verb-mastery-count { color: var(--dm-brand-orange-deep); }
 .verb-mastery-card .verb-mastery-note { color: var(--dm-ink-muted); }
 .verb-mastery-icon { width: 22px; height: 22px; flex: 0 0 auto; color: var(--dm-brand-orange-deep); }
