@@ -3,6 +3,7 @@ import { createLearningClient } from "./learning-client";
 import { createSettingsClient } from "./settings-client";
 import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import { getSavedContextViews, getSavedShelfView, type SavedContextView, type SavedShelfSort } from "./saved-shelf-view";
+import type { SavedVerbJourneyLink } from "../verb-journeys/saved-link";
 import { getPopupTabForKey } from "./tab-navigation";
 import type { ContrastDailyFiveTask, DailyFiveSnapshot, GrammarDailyFiveTask, VerbJourneyDailyFiveTask } from "../vocabulary/daily-five";
 import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningContext, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
@@ -77,7 +78,7 @@ let lessonLevelFilter: LessonFilterLevel = "all";
 let focusedOrigin: "today" | "lessons" | "saved" | null = null;
 let activeVerbJourneyId = "journey.werken.vtt-completed";
 let selectedVerbFormTense: DutchTense = "VTT";
-let verbMapOrigin: "overview" | "notice" = "overview";
+let verbMapOrigin: "overview" | "notice" | "saved" = "overview";
 let verbEnglishComparisonOrigin: "overview" | "map" = "overview";
 let verbEnglishComparisonGroup: "present" | "past" | "future" = "present";
 let expandedEnglishTense: EnglishTense | null = "present-simple";
@@ -245,6 +246,16 @@ function renderSaved(): HTMLElement {
       const sourceContexts = [...(sourceItem?.contexts ?? [])].sort((first, second) => second.addedAt - first.addedAt).slice(0, 3);
       for (const [index, context] of item.details.contexts.entries()) detail.append(renderSavedContext(context, item.dutch, item.id, sourceContexts[index]));
       if (item.details.contexts.length === 0) detail.append(text("No saved page context.", "saved-no-context"));
+      if (item.verbJourney) {
+        const verbActions = section("saved-verb-journey");
+        verbActions.append(text(`Resolved werken form · ${item.verbJourney.form}`, "saved-verb-journey-label"), text("This link uses bundled form evidence only.", "saved-verb-journey-note"));
+        const actions = document.createElement("div"); actions.className = "saved-verb-journey-actions";
+        const openMap = button("Open Verb Map", "button secondary-button");
+        openMap.addEventListener("click", () => openSavedVerbMap(item.verbJourney!));
+        const practise = button("Practise VTT · 5 questions", "button primary-button");
+        practise.addEventListener("click", () => startSavedVerbPractice(item.verbJourney!));
+        actions.append(openMap, practise); verbActions.append(actions); detail.append(verbActions);
+      }
       const mission = sourceItem ? createSavedContextMission(sourceItem) : null;
       if (mission) {
         const practise = button("Practise context", "button primary-button saved-context-practice");
@@ -696,8 +707,9 @@ function renderVerbJourneyNotice(): HTMLElement {
 
 function renderVerbMap(): HTMLElement {
   const wrapper = section("verb-map-screen");
-  const back = button(verbMapOrigin === "notice" ? "← Notice" : "← werken", "journey-back");
-  back.addEventListener("click", () => { screen = verbMapOrigin === "notice" ? "verbJourneyNotice" : "verbJourneyOverview"; render(); });
+  const backLabel = verbMapOrigin === "notice" ? "← Notice" : verbMapOrigin === "saved" ? "← Saved" : "← werken";
+  const back = button(backLabel, "journey-back");
+  back.addEventListener("click", () => { screen = verbMapOrigin === "notice" ? "verbJourneyNotice" : verbMapOrigin === "saved" ? "saved" : "verbJourneyOverview"; render(); });
   wrapper.append(back, text("Canonical map · werken", "journey-meta"), eyebrow("Eight Dutch forms"), heading("Werken Verb Map"), text("One stable map for every werken journey. Select a form to inspect it.", "journey-lead"));
   const legend = document.createElement("div"); legend.className = "verb-map-legend";
   for (const status of ["mastered", "learning", "later", "reference"] as const) { const item = document.createElement("span"); item.textContent = status === "mastered" ? "Mastered" : status === "learning" ? "Learning now" : status[0].toUpperCase() + status.slice(1); item.className = `map-legend-item ${status}`; legend.append(item); }
@@ -795,6 +807,20 @@ function startVerbPractice(): void {
   content?.focus();
 }
 
+function openSavedVerbMap(link: SavedVerbJourneyLink): void {
+  selectedVerbFormTense = link.form;
+  verbMapOrigin = "saved";
+  screen = "verbMap";
+  render();
+  content?.focus();
+}
+
+function startSavedVerbPractice(link: SavedVerbJourneyLink): void {
+  selectedVerbFormTense = link.form;
+  verbMapOrigin = "saved";
+  startVerbPractice();
+}
+
 function renderVerbPractice(): HTMLElement {
   const wrapper = section("verb-practice-screen");
   const session = verbPracticeSession ?? createVerbPracticeSession();
@@ -803,7 +829,7 @@ function renderVerbPractice(): HTMLElement {
   if (!question) { screen = "verbCompletion"; return renderVerbCompletion(); }
   const isRepair = question.phase === "repair";
   const back = button("← Verb Map", "journey-back");
-  back.addEventListener("click", () => { screen = "verbMap"; verbMapOrigin = "overview"; render(); });
+  back.addEventListener("click", () => { screen = "verbMap"; render(); });
   const coreNumber = Math.min(session.coreIndex + 1, getVerbPracticeQuestions().length);
   wrapper.append(back, text(isRepair ? "Repair · up to 2 questions" : `VTT practice · decision ${coreNumber} of 5`, "journey-meta"), eyebrow(isRepair ? "Targeted repair" : "Five-question practice"), heading(question.prompt), text(question.context, "verb-practice-context"));
   wrapper.append(renderVerbPracticeControls(question, session));
@@ -896,7 +922,7 @@ function queueVerbJourneyResult(question: VerbPracticeQuestion & { phase: "core"
 function renderVerbCompletion(): HTMLElement {
   const wrapper = section("verb-completion-screen");
   const session = verbPracticeSession ?? createVerbPracticeSession();
-  const back = button("← werken", "journey-back"); back.addEventListener("click", () => { screen = "verbJourneyOverview"; render(); });
+  const back = button(verbMapOrigin === "saved" ? "← Saved" : "← werken", "journey-back"); back.addEventListener("click", () => { screen = verbMapOrigin === "saved" ? "saved" : "verbJourneyOverview"; render(); });
   wrapper.append(back, eyebrow("VTT practised"), heading("You used werken as a completed event."), text("This session reports demonstrated decisions; it does not claim full verb mastery.", "journey-lead"));
   const decisions = section("verb-completion-decisions");
   const latest = new Map(session.attempts.filter((attempt) => attempt.phase === "core").map((attempt) => [attempt.questionId, attempt]));

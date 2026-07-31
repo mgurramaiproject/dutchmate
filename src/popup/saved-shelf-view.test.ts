@@ -100,6 +100,15 @@ describe("getSavedShelfView", () => {
     expect(view.items[0].details?.contexts[0].text).toHaveLength(240);
   });
 
+  it("exposes a safe authored Verb Journey link only for a resolved werken form", () => {
+    const resolved = getSavedShelfView([item("werk", 50)]);
+    const unresolved = getSavedShelfView([item("werking", 50)]);
+
+    if (resolved.status !== "ready" || unresolved.status !== "ready") throw new Error("Expected saved items.");
+    expect(resolved.items[0].verbJourney).toEqual({ verbId: "verb.werken", lemma: "werken", form: "OTT", journeyId: null });
+    expect(unresolved.items[0].verbJourney).toBeUndefined();
+  });
+
   it("models loading, recoverable error, and an actionable empty collection", () => {
     expect(getSavedShelfView([], { loading: true })).toMatchObject({ status: "loading" });
     expect(getSavedShelfView([], { error: "Local read failed" })).toMatchObject({ status: "error", message: "Local read failed" });

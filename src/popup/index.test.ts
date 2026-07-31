@@ -619,6 +619,41 @@ describe("lesson popup", () => {
     expect(content().querySelector(".saved-detail")).toBeNull();
   });
 
+  it("offers conditional werken map and practice actions from a reliably resolved Saved form", async () => {
+    learningItems = [
+      learningItems[0],
+      { ...learningItems[1], id: "werk-item", normalizedDutch: "werk", dutch: "werk", createdAt: 3, updatedAt: 3 },
+      { ...learningItems[1], id: "unresolved-item", normalizedDutch: "werking", dutch: "werking", createdAt: 4, updatedAt: 4 },
+    ];
+    for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");
+    button("Saved").click();
+    await vi.waitFor(() => expect(content().querySelectorAll<HTMLButtonElement>(".saved-row")).toHaveLength(3));
+
+    const resolvedRow = [...content().querySelectorAll<HTMLButtonElement>(".saved-row")].find((row) => row.querySelector("h2")?.textContent === "werk")!;
+    resolvedRow.click();
+    await vi.waitFor(() => expect(button("Open Verb Map")).toBeTruthy());
+    expect(content().textContent).toContain("Resolved werken form · OTT");
+    button("Open Verb Map").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    expect(content().querySelector(".verb-detail-heading")?.textContent).toContain("OTT");
+    button("← Saved").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Saved"));
+
+    [...content().querySelectorAll<HTMLButtonElement>(".saved-row")].find((row) => row.querySelector("h2")?.textContent === "werk")!.click();
+    await vi.waitFor(() => expect(button("Practise VTT · 5 questions")).toBeTruthy());
+    button("Practise VTT · 5 questions").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("VTT practice · decision 1 of 5"));
+    button("← Verb Map").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    button("← Saved").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Saved"));
+
+    [...content().querySelectorAll<HTMLButtonElement>(".saved-row")].find((row) => row.textContent?.includes("werking"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("werking"));
+    expect(button("Open Verb Map")).toBeFalsy();
+    expect(button("Practise VTT · 5 questions")).toBeFalsy();
+  });
+
   it("removes one Saved context with an accessible control while keeping the item", async () => {
     learningItems = [learningItems[0], { ...learningItems[1], contexts: [{ text: "De zebra staat bij de ingang.", addedAt: 2 }, { text: "Zebra loopt naar huis.", addedAt: 3, sourceLanguage: "nl" }] }];
     for (const listener of storageChangeListeners) listener({ "dutchmate.learningRecord.v2": {} }, "local");

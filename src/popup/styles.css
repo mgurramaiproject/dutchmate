@@ -201,6 +201,10 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .saved-phonetics { flex-basis: 100%; color: var(--muted); font-size: .62rem; line-height: 1.25; }
 .saved-mastery { align-self: start; padding: 4px 6px; border: 1px solid var(--line); border-radius: 5px; color: var(--muted); font-size: .58rem; font-weight: 850; white-space: nowrap; }
 .saved-detail { display: grid; gap: 8px; padding-top: 9px; border-top: 1px solid var(--line); }
+.saved-verb-journey { display: grid; gap: 6px; padding: 9px; border-left: 4px solid var(--dm-brand-orange); background: var(--dm-paper-soft); }
+.saved-verb-journey-label { font-size: .72rem; font-weight: var(--dm-weight-black); }
+.saved-verb-journey-note { color: var(--dm-ink-muted); font-size: .64rem; line-height: 1.3; }
+.saved-verb-journey-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .saved-source { margin: 0; font-size: .64rem; font-weight: 850; }
 .saved-context { margin: 0; color: var(--muted); font-family: var(--serif); font-size: .8rem; font-style: italic; line-height: 1.4; }
 .saved-context-highlight { padding: 1px 3px; border-radius: 3px; background: var(--orange-soft); box-shadow: inset 0 -2px var(--orange); color: var(--black); font-style: normal; }

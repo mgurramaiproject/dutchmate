@@ -217,18 +217,30 @@ question bank. No PR is opened; this slice is reserved for the single Feature
 Verb Map and practice destinations while keeping unresolved Saved entries safe
 and unchanged.
 
-- [ ] A reliably resolved saved form identifies its lemma and form before
+- [x] A reliably resolved saved form identifies its lemma and form before
       opening a Verb Journey destination.
-- [ ] The Saved view offers explicit Open Verb Map and Practise actions using
+- [x] The Saved view offers explicit Open Verb Map and Practise actions using
       the existing navigation and focus conventions.
-- [ ] Map and practice actions preserve the learner's current journey state
+- [x] Map and practice actions preserve the learner's current journey state
       and evidence boundaries.
-- [ ] Unresolved or malformed Saved data does not invent a lemma, crash, or
+- [x] Unresolved or malformed Saved data does not invent a lemma, crash, or
       require external NLP or a network service.
-- [ ] Existing Saved review, export/import, migration, and clear-data behavior
+- [x] Existing Saved review, export/import, migration, and clear-data behavior
       remains compatible.
-- [ ] Saved integration, popup, accessibility, and provider-isolation checks
+- [x] Saved integration, popup, accessibility, and provider-isolation checks
       pass.
+
+**Implementation evidence:** Added a local authored resolver for exact `werken`
+forms and constructions only. It verifies the stored normalized text before
+linking a Saved item to `verb.werken` and one of the eight Dutch forms; it does
+not infer from unsupported words, malformed records, or external services. A
+resolved Saved item exposes Open Verb Map and an explicit VTT practice action,
+preserving the selected form on return and recording practice only through the
+existing bounded VTT evidence path. Existing Saved context, review,
+export/import, migration, and clear-data paths remain unchanged. Focused
+resolver, shelf, and popup tests pass; full suite, typecheck, builds, and
+extension-build verification are recorded before commit. No PR is opened; this
+slice is reserved for the single Feature 015 PR.
 
 ## T07 — Qualify the complete `werken` slice
 
