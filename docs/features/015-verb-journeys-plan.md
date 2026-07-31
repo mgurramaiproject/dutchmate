@@ -6,11 +6,13 @@
 
 **Branch:** `015-verb-journeys`
 
-**Status:** Grilled plan; specification and tickets are not yet approved or created.
+**Status:** Specification drafted and committed; GitHub parent-issue publication was attempted but is blocked by API connectivity. Tickets are not yet approved or created.
 
 **Source handoff:** [Verb Journeys Codex CLI handoff](./todos/verb-journeys-codex-handoff/README.md)
 
 **Architecture decision:** [ADR 0008](../adr/0008-015-verb-journeys-use-an-additive-pack-and-skill-record.md)
+
+**Specification:** [015-verb-journeys-spec.md](./015-verb-journeys-spec.md); GitHub publication is pending restored API access.
 
 ## Product goal
 
