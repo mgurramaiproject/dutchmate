@@ -627,7 +627,7 @@ function renderLesson(): HTMLElement {
 
 function renderLessonStory(session: LessonSession, allowHelp: boolean): HTMLElement {
   const story = section("lesson-story"); story.append(eyebrow(session.stage === "read" ? "Read the situation" : "Replay"), heading(session.lesson.title));
-  session.lesson.lines.forEach((line, index) => { const row = section("story-line"); row.append(text(line.dutch, "story-dutch")); if (allowHelp && session.revealedLineIndexes.includes(index)) row.append(text(`English: ${line.english}`), text(`Telugu: ${line.telugu}`, "helper-copy")); else if (allowHelp) { const help = button("Show line help", "line-help"); help.addEventListener("click", () => { lessonSession = revealLessonLine(session, index); render(); }); row.append(help); } story.append(row); });
+  session.lesson.lines.forEach((line, index) => { const row = section("story-line"); row.append(text(line.dutch, "story-dutch")); if (allowHelp && session.revealedLineIndexes.includes(index)) row.append(text(`English: ${line.english}`, "helper-copy"), text(`Telugu: ${line.telugu}`, "helper-copy")); else if (allowHelp) { const help = button("Show line help", "line-help"); help.addEventListener("click", () => { lessonSession = revealLessonLine(session, index); render(); }); row.append(help); } story.append(row); });
   if (session.stage === "replay" && session.lesson.practiceEnvelope) { story.append(renderLessonTransfer(session)); return story; }
   const next = button(session.stage === "read" ? "Notice the pattern" : "Choose what to keep", "button primary-button"); next.addEventListener("click", () => void advanceLesson(session)); story.append(next); return story;
 }

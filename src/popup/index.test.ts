@@ -121,6 +121,7 @@ describe("lesson popup", () => {
 
     button("Show line help").click();
     await vi.waitFor(() => expect(content().textContent).toContain("English: Receptionist: Good morning. How can I help you?"));
+    expect(content().querySelectorAll(".story-line .helper-copy")).toHaveLength(2);
     button("Notice the pattern").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Morgen werk ik thuis."));
     button("werk").click();
