@@ -24,6 +24,7 @@ describe("popup layout", () => {
     expect(styles).not.toContain(".heatmap .rhythm-day.high { background: var(--black); }");
     expect(styles).toContain(".activity-total { font-family: var(--serif);");
     expect(styles).toContain(".popup-content.today-panel { display: flex; align-items: stretch; overflow-y: auto; padding: 12px; }");
+    expect(styles).toContain(".popup-content.lesson-panel { padding: 0; }");
     expect(styles).toContain(".brief-today.today-week { display: flex; flex: 1 1 auto; flex-direction: column; justify-content: space-between; min-height: 100%; }");
     expect(styles).toContain(".calendar-focus { display: flex; flex: 0 0 100%; flex-direction: column; justify-content: space-between; width: 100%; min-height: 100%; }");
     expect(styles).toContain(".today-week .learning-rhythm { min-width: 0; }");
@@ -49,6 +50,15 @@ describe("popup layout", () => {
     expect(styles).toContain(".practice-card { display: grid; gap: 12px; min-width: 0;");
     expect(styles).toContain(".practice-card .heading { min-width: 0; overflow-wrap: anywhere;");
     expect(styles).toContain(".meaning-row span { min-width: 0; overflow-wrap: anywhere;");
+    expect(styles).toContain(".lesson-content .practice-card .heading,\n.lesson-content .lesson-transfer .heading { font-size: var(--dm-font-size-h2); line-height: var(--dm-line-height-h2); }");
+    expect(styles).toContain(".lesson-content .lesson-transfer { display: grid; gap: 8px; }");
+    expect(styles).toContain(".lesson-content .practice-card .button,\n.lesson-content .lesson-transfer .button { min-height: var(--dm-target-min);");
+    expect(styles).toContain(".lesson-content .practice-card .grammar-feedback,\n.lesson-content .lesson-transfer .grammar-feedback { margin: 0; font-size: var(--dm-font-size-small);");
+    expect(styles).toContain(".lesson-content.focused-content { gap: 0; padding: 2px 16px 16px; }");
+    expect(styles).toContain(".lesson-content.focused-content > .exit-button { justify-self: center;");
+    expect(styles).toContain(".lesson-content .lesson-rail { gap: 0; margin-bottom: 12px; }");
+    expect(styles).toContain(".lesson-content .lesson-stage { display: grid; min-height: var(--dm-target-min); place-items: center;");
+    expect(styles).toContain(".lesson-content .story-line .helper-copy { margin: 0; color: var(--dm-ink-muted); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }");
     expect(styles).toContain(".year-month-labels span { min-width: 0; white-space: nowrap; }");
   });
 });

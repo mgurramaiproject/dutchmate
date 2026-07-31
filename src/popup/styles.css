@@ -51,6 +51,7 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .tab:not(.is-active):not(:disabled):hover { background: rgba(255, 111, 0, 0.08); }
 .popup-content { display: grid; flex: 1 1 auto; min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; padding: 16px; }
 .popup-content.today-panel { display: flex; align-items: stretch; overflow-y: auto; padding: 12px; }
+.popup-content.lesson-panel { padding: 0; }
 .today-content, .brief-today { display: grid; min-width: 0; align-content: start; gap: 8px; }
 .brief-today.today-week { display: flex; flex: 1 1 auto; flex-direction: column; justify-content: space-between; min-height: 100%; }
 .calendar-focus { display: flex; flex: 0 0 100%; flex-direction: column; justify-content: space-between; width: 100%; min-height: 100%; }
@@ -254,7 +255,7 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .grammar-celebration { margin: 0; padding: 8px; border-left: 3px solid var(--orange); background: var(--orange-soft); font-size: .76rem; font-weight: 750; }
 .story-line { display: grid; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--soft-line); }
 .story-dutch { margin: 0; font-family: var(--serif); font-size: 1rem; line-height: 1.35; }
-.helper-copy { color: var(--muted); }
+.helper-copy { margin: 0; color: var(--muted); }
 .line-help { justify-self: start; min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--black); font-size: 0.7rem; font-weight: 850; text-decoration: underline; }
 .pattern-highlight { background: var(--orange); color: var(--black); }
 .candidate-choice { display: flex; align-items: center; gap: 8px; min-height: 44px; border-bottom: 1px solid var(--soft-line); font-family: var(--serif); }
@@ -310,6 +311,33 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .setting-control input, .direction-setting input { accent-color: var(--dm-brand-orange); }
 .pattern-highlight { background: var(--dm-brand-orange); }
 .popup-content :is(button, a, input, select) { touch-action: manipulation; }
+
+/* Lesson practice follows the compact 390 × 600 reference: H2 prompts,
+   readable supporting copy, and full-size touch targets without incidental scroll. */
+.lesson-content .practice-card,
+.lesson-content .lesson-transfer { display: grid; gap: 8px; }
+.lesson-content .practice-card { padding: 12px; }
+.lesson-content .practice-card .heading,
+.lesson-content .lesson-transfer .heading { font-size: var(--dm-font-size-h2); line-height: var(--dm-line-height-h2); }
+.lesson-content .practice-card .story-dutch,
+.lesson-content .lesson-transfer .story-dutch { font-size: .86rem; line-height: 1.35; }
+.lesson-content .practice-card .meaning-row { gap: 2px; padding-top: 8px; }
+.lesson-content .practice-card .meaning-row span { font-size: .82rem; line-height: 1.25; }
+.lesson-content .practice-card .meaning-row small { font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
+.lesson-content .practice-card .grammar-order-answer,
+.lesson-content .lesson-transfer .grammar-order-answer { min-height: var(--dm-target-min); padding: 8px 10px; font-size: .9rem; }
+.lesson-content .practice-card .grammar-choices,
+.lesson-content .lesson-transfer .grammar-choices { gap: 6px; }
+.lesson-content .practice-card .button,
+.lesson-content .lesson-transfer .button { min-height: var(--dm-target-min); padding: 7px 8px; font-size: var(--dm-font-size-label); line-height: var(--dm-line-height-label); overflow-wrap: anywhere; }
+.lesson-content .practice-card .grammar-feedback,
+.lesson-content .lesson-transfer .grammar-feedback { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
+.lesson-content.focused-content { gap: 0; padding: 2px 16px 16px; }
+.lesson-content.focused-content > .exit-button { justify-self: center; padding: 0 8px; text-align: center; }
+.lesson-content .lesson-rail { gap: 0; margin-bottom: 12px; }
+.lesson-content .lesson-stage { display: grid; min-height: var(--dm-target-min); place-items: center; padding: 0 2px; line-height: var(--dm-line-height-small); }
+.lesson-content .story-line { gap: 4px; }
+.lesson-content .story-line .helper-copy { margin: 0; color: var(--dm-ink-muted); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 
 @media (max-width: 360px) {
   .popup-content { padding-inline: 16px; }

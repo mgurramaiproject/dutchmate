@@ -1,7 +1,146 @@
 import { describe, expect, it } from "vitest";
-import { appointmentLesson, hebbenLesson, inversionLesson, lessonCatalog, regularLesson, validateLessonCatalog } from "./catalog";
+import { appointmentLesson, availabilityLesson, brokenThingLesson, bringLesson, cardPaymentLesson, cafeOrderLesson, delayedTrainLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, letterLesson, regularLesson, repetitionLesson, symptomsLesson, transferLesson, validateLessonCatalog } from "./catalog";
 
 describe("lesson catalog", () => {
+  it("requires the A0 tracer to declare outcome coverage, transfer, and review metadata", () => {
+    expect(introductionLesson.practiceEnvelope).toMatchObject({
+      contentVersion: 1,
+      outcome: { primary: "Introduce yourself and say where you live." },
+      support: "guided",
+      coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+      transfer: { primitive: "choose-meaning", candidateId: "ik-ben", accepted: ["ik ben"] },
+    });
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons[0].practiceEnvelope!.transfer.feedback = "";
+    expect(validateLessonCatalog(invalid)).toContain("a0-hallo-ik-ben.practiceEnvelope.transfer: expected reviewed transfer task");
+
+    const unsafe = structuredClone(lessonCatalog);
+    unsafe.lessons[0].practiceEnvelope!.transfer.distractors[0].misconception = "";
+    expect(validateLessonCatalog(unsafe)).toContain("a0-hallo-ik-ben.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
+  it("backfills the remaining A0 lessons with behavior-complete envelopes", () => {
+    const remainingA0 = [hebbenLesson, regularLesson, inversionLesson];
+
+    expect(remainingA0.every((lesson) => lesson.practiceEnvelope)).toBe(true);
+    expect(remainingA0.map((lesson) => lesson.practiceEnvelope?.coverage)).toEqual([
+      { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+      { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+      { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+    ]);
+    expect(remainingA0.every((lesson) => lesson.practiceEnvelope?.support === "guided")).toBe(true);
+    expect(remainingA0.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["ik-heb-dit-nodig", "ik-woon-hier", "woon-je-hier"]);
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === inversionLesson.id)!.practiceEnvelope!.transfer.accepted = ["unknown-answer"];
+    expect(validateLessonCatalog(invalid)).toContain("a0-woon-je-hier.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
+  it("backfills the A1 conversation and cafe lessons with reduced-support transfer", () => {
+    const a1Lessons = [repetitionLesson, cafeOrderLesson, cardPaymentLesson];
+
+    expect(a1Lessons.every((lesson) => lesson.practiceEnvelope?.support === "reduced")).toBe(true);
+    expect(a1Lessons.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["kunt-u-dat-herhalen", "ik-wil-graag", "met-pin-betalen"]);
+    expect(a1Lessons.every((lesson) => lesson.practice.some((prompt) => prompt.dimension === "recall"))).toBe(true);
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === cafeOrderLesson.id)!.practiceEnvelope!.support = "guided";
+    expect(validateLessonCatalog(invalid)).toContain("a1-ik-wil-graag-bestellen.practiceEnvelope.support: expected reduced support or supported version");
+  });
+
+  it("backfills the A1 transport lessons with reviewed reduced-support transfer", () => {
+    const transportLessons = [transferLesson, delayedTrainLesson];
+
+    expect(transportLessons.every((lesson) => lesson.practiceEnvelope?.support === "reduced")).toBe(true);
+    expect(transportLessons.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["waar-moet-ik-overstappen", "mijn-trein-is-vertraagd"]);
+    expect(transportLessons.every((lesson) => lesson.practiceEnvelope?.coverage.safeApplication)).toBe(true);
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === delayedTrainLesson.id)!.practiceEnvelope!.transfer.accepted = ["unknown-answer"];
+    expect(validateLessonCatalog(invalid)).toContain("a1-mijn-trein-is-vertraagd.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
+  it("backfills appointment and healthcare lessons without replacing the appointment contrast companion", () => {
+    const healthcareLessons = [appointmentLesson, symptomsLesson];
+
+    expect(healthcareLessons.every((lesson) => lesson.practiceEnvelope?.support === "reduced")).toBe(true);
+    expect(healthcareLessons.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["ik-wil-graag", "ik-heb-last-van"]);
+    expect(appointmentLesson.contrastCompanion).toEqual({ id: "contrast.main_clause_inversion", contentVersion: 1 });
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === symptomsLesson.id)!.practiceEnvelope!.transfer.distractors[0].misconception = "";
+    expect(validateLessonCatalog(invalid)).toContain("a1-ik-heb-last-van.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
+  it("backfills the A1 home, work, and study lessons with reduced-support transfer", () => {
+    const everydayLessons = [brokenThingLesson, availabilityLesson, bringLesson];
+
+    expect(everydayLessons.every((lesson) => lesson.practiceEnvelope?.support === "reduced")).toBe(true);
+    expect(everydayLessons.map((lesson) => lesson.practiceEnvelope?.transfer.candidateId)).toEqual(["er-is-iets-kapot", "ik-ben-beschikbaar", "wat-moet-ik-meenemen"]);
+    expect(everydayLessons.every((lesson) => lesson.practice.some((prompt) => prompt.dimension === "recall"))).toBe(true);
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === bringLesson.id)!.practiceEnvelope!.transfer.choices = ["wat moet ik meenemen"];
+    expect(validateLessonCatalog(invalid)).toContain("a1-wat-moet-ik-meenemen.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
+  it("backfills the A2 official-life lesson with reduced-support letter transfer", () => {
+    expect(letterLesson.practiceEnvelope).toMatchObject({
+      contentVersion: 1,
+      support: "reduced",
+      coverage: { understand: true, guidedAction: true, reducedSupportRetrieval: true, safeApplication: true },
+      transfer: { primitive: "choose-meaning", candidateId: "wat-staat-er-in-deze-brief", accepted: ["wat staat er in deze brief"] },
+    });
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const invalid = structuredClone(lessonCatalog);
+    invalid.lessons.find((lesson) => lesson.id === letterLesson.id)!.practiceEnvelope!.transfer.accepted = ["unknown-answer"];
+    expect(validateLessonCatalog(invalid)).toContain("a2-wat-staat-er-in-deze-brief.practiceEnvelope.transfer: expected reviewed transfer task");
+  });
+
+  it("qualifies every bundled lesson and rejects incomplete future-authoring release metadata", () => {
+    expect(lessonCatalog.lessons).toHaveLength(15);
+    expect(lessonCatalog.lessons.every((lesson) => lesson.practiceEnvelope)).toBe(true);
+    expect(lessonCatalog.lessons.every((lesson) => lesson.practiceEnvelope?.accessibility.narrowPopup && lesson.practiceEnvelope.migration.policy === "compatible-additive")).toBe(true);
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const missingEnvelope = structuredClone(lessonCatalog);
+    missingEnvelope.lessons[0].practiceEnvelope = undefined;
+    expect(validateLessonCatalog(missingEnvelope)).toContain("a0-hallo-ik-ben.practiceEnvelope: required reviewed release envelope");
+
+    const missingAccessibility = structuredClone(lessonCatalog);
+    missingAccessibility.lessons[0].practiceEnvelope!.accessibility.keyboard = false as never;
+    expect(validateLessonCatalog(missingAccessibility)).toContain("a0-hallo-ik-ben.practiceEnvelope: expected accessibility and migration declarations");
+
+    const missingMigration = structuredClone(lessonCatalog);
+    missingMigration.lessons[0].practiceEnvelope!.migration.policy = "explicit" as never;
+    expect(validateLessonCatalog(missingMigration)).toContain("a0-hallo-ik-ben.practiceEnvelope: expected accessibility and migration declarations");
+  });
+
+  it("requires three additional authored exercise types for every lesson", () => {
+    expect(lessonCatalog.lessons.every((lesson) => lesson.practiceExercises.length === 3)).toBe(true);
+    expect(lessonCatalog.lessons.every((lesson) => new Set(lesson.practiceExercises.map((exercise) => exercise.primitive)).size === 3)).toBe(true);
+    expect(lessonCatalog.lessons.every((lesson) => lesson.practiceExercises.every((exercise) => exercise.review.reviewState === "second-review-complete"))).toBe(true);
+    expect(lessonCatalog.lessons.every((lesson) => lesson.practice.length > 0 && lesson.practiceEnvelope)).toBe(true);
+    expect(appointmentLesson.contrastCompanion).toEqual({ id: "contrast.main_clause_inversion", contentVersion: 1 });
+    expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
+
+    const missing = structuredClone(lessonCatalog);
+    missing.lessons[0].practiceExercises = missing.lessons[0].practiceExercises.slice(0, 2);
+    expect(validateLessonCatalog(missing)).toContain("a0-hallo-ik-ben.practiceExercises: expected three reviewed additional exercise types");
+
+    const unsafe = structuredClone(lessonCatalog);
+    unsafe.lessons[0].practiceExercises[2].accepted = ["not the authored answer"];
+    expect(validateLessonCatalog(unsafe)).toContain("a0-hallo-ik-ben.practiceExercises: expected three reviewed additional exercise types");
+  });
+
   it("validates the reviewed appointment micro-story", () => {
     expect(validateLessonCatalog(lessonCatalog)).toEqual([]);
     expect(appointmentLesson.title).toBe("A1 · Een afspraak maken");

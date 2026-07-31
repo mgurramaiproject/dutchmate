@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { advanceLessonPractice, advanceLessonStage, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, toggleLessonCandidate } from "./lesson-session";
-import { appointmentLesson, lessonCatalog } from "../lessons/catalog";
+import { advanceLessonPractice, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken } from "./lesson-session";
+import { appointmentLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, regularLesson } from "../lessons/catalog";
 
 describe("lesson session", () => {
   it("moves through Read, Notice, Practise, Replay, and Keep while retaining candidate choice", () => {
@@ -17,7 +17,7 @@ describe("lesson session", () => {
   });
 
   it("restores incomplete work, replays completed lessons, labels canonical saves, and exposes a retryable lesson error", () => {
-    expect(resumeLessonSession(appointmentLesson, { lessonId: appointmentLesson.id, contentVersion: 1, stage: "replay", completedAt: null, keptCandidateIds: [], updatedAt: 1 })).toMatchObject({ stage: "replay" });
+    expect(resumeLessonSession(appointmentLesson, { lessonId: appointmentLesson.id, contentVersion: 1, stage: "replay", completedAt: null, keptCandidateIds: [], updatedAt: 1 })).toMatchObject({ stage: "practise", authoredExerciseIndex: 0 });
     expect(resumeLessonSession(appointmentLesson, { lessonId: appointmentLesson.id, contentVersion: 1, stage: "keep", completedAt: 2, keptCandidateIds: [], updatedAt: 2 })).toMatchObject({ stage: "read" });
     expect(resumeLessonSession(appointmentLesson, { lessonId: appointmentLesson.id, contentVersion: 1, stage: "keep", completedAt: 0, keptCandidateIds: [], updatedAt: 0 })).toMatchObject({ stage: "read" });
     expect(getLessonCandidateChoices(createLessonSession(appointmentLesson), [{ id: "nl\u001feen afspraak maken" } as never])).toEqual(expect.arrayContaining([expect.objectContaining({ id: "afspraak-maken", alreadySaved: true })]));
@@ -51,18 +51,71 @@ describe("lesson session", () => {
     const revealedFirstPractice = revealLessonPractice(practise);
     const secondPractice = advanceLessonPractice(revealedFirstPractice, "got-it");
     const thirdPractice = advanceLessonPractice(revealLessonPractice(secondPractice), "again");
-    const replay = advanceLessonPractice(revealLessonPractice(thirdPractice), "got-it");
+    const practiceComplete = advanceLessonPractice(revealLessonPractice(thirdPractice), "got-it");
+    const replay = advanceLessonStage(practiceComplete);
     const keep = advanceLessonStage(replay);
 
     expect(read.revealedLineIndexes).toEqual([0]);
     expect(notice.stage).toBe("notice");
     expect(practise).toMatchObject({ stage: "practise", practiceRevealed: false });
     expect(revealedFirstPractice.practiceRevealed).toBe(true);
-    expect(replay).toMatchObject({ stage: "replay", practiceEvidence: [
+    expect(practiceComplete).toMatchObject({ stage: "practise", practiceIndex: appointmentLesson.practice.length, practiceEvidence: [
       { candidateId: "ik-wil-graag", dimension: "recognition", result: "got-it" },
       { candidateId: "afspraak-maken", dimension: "recall", result: "again" },
       { candidateId: "als-het-kan", dimension: "recognition", result: "got-it" },
     ] });
     expect(getLessonCandidateChoices(keep, []).map((candidate) => candidate.checked)).toEqual([true, true, true, true]);
+  });
+
+  it("requires the tracer transfer check before moving from Replay to Keep", () => {
+    const replay = createLessonSession(introductionLesson, "replay");
+    const selected = selectLessonTransferAnswer(replay, "ik ben");
+    const checked = checkLessonTransfer(selected);
+
+    expect(checked.transferResult).toBe("correct");
+    expect(advanceLessonTransfer(checked).stage).toBe("keep");
+    expect(advanceLessonTransfer(replay)).toEqual(replay);
+  });
+
+  it("requires transfer checks for every remaining A0 lesson before Keep", () => {
+    for (const lesson of [hebbenLesson, regularLesson, inversionLesson]) {
+      const replay = createLessonSession(lesson, "replay");
+      const transfer = lesson.practiceEnvelope!.transfer;
+      const checked = checkLessonTransfer(selectLessonTransferAnswer(replay, transfer.accepted[0]));
+
+      expect(checked.transferResult).toBe("correct");
+      expect(advanceLessonTransfer(checked).stage).toBe("keep");
+    }
+  });
+
+  it("runs the three additional authored exercise types before the existing transfer", () => {
+    let session = createLessonSession(appointmentLesson, "practise");
+    for (const result of ["got-it", "again", "got-it"] as const) {
+      session = advanceLessonPractice({ ...session, practiceRevealed: true }, result);
+    }
+    expect(session.stage).toBe("practise");
+    expect(session.practiceIndex).toBe(appointmentLesson.practice.length);
+    expect(session.authoredExerciseIndex).toBe(0);
+
+    const first = session.lesson.practiceExercises[0];
+    session = checkLessonPracticeExercise(selectLessonPracticeExerciseAnswer(session, first.accepted[0]));
+    expect(session.authoredResult).toBe("correct");
+    session = advanceLessonPracticeExercise(session);
+
+    const second = session.lesson.practiceExercises[1];
+    session = checkLessonPracticeExercise(selectLessonPracticeExerciseAnswer(session, second.accepted[0]));
+    session = advanceLessonPracticeExercise(session);
+
+    const third = session.lesson.practiceExercises[2];
+    for (const token of third.tokens!) session = toggleLessonPracticeExerciseToken(session, token);
+    session = checkLessonPracticeExercise(session);
+    expect(session.authoredResult).toBe("correct");
+    session = advanceLessonPracticeExercise(session);
+    expect(session).toMatchObject({ stage: "replay", authoredExerciseIndex: 3, practiceEvidence: expect.arrayContaining([
+      { candidateId: "ik-wil-graag", dimension: "recognition", result: "got-it" },
+    ]) });
+    const transfer = appointmentLesson.practiceEnvelope!.transfer;
+    const checkedTransfer = checkLessonTransfer(selectLessonTransferAnswer(session, transfer.accepted[0]));
+    expect(advanceLessonTransfer(checkedTransfer).stage).toBe("keep");
   });
 });
