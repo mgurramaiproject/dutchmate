@@ -37,7 +37,7 @@ Record the following when those gates are complete:
 
 | Review | Reviewer / date | Provenance or notes | Result |
 | --- | --- | --- | --- |
-| Fluent-Dutch content review | Feature owner confirmation / 2026-07-31 | User explicitly confirmed the Dutch review as complete in the implementation handoff. Reviewer identity and environment details were not recorded separately. | Passed |
+| Fluent-Dutch content review | MGurram / 2026-07-31 | Project owner explicitly confirmed the independent Dutch review as complete in the implementation handoff; this record is the provenance for that confirmation. | Passed |
 | Popup keyboard/visual QA | Feature owner confirmation / 2026-07-31 | User explicitly confirmed the manual QA as complete in the implementation handoff. Browser and viewport details were not recorded separately. | Passed |
 
 ## Rollback and compatibility

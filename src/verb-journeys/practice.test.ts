@@ -39,6 +39,20 @@ describe("werken VTT practice", () => {
     expect(session.attempts.filter((attempt) => attempt.phase === "repair").length).toBeLessThanOrEqual(2);
   });
 
+  it("keeps the two-repair cap across later incorrect core answers", () => {
+    let session = createVerbPracticeSession();
+    const first = getCurrentVerbPracticeQuestion(session)!;
+    session = advanceVerbPractice(checkVerbPracticeAnswer(session, first.choices?.[0] ?? "wrong").session);
+    for (let index = 0; index < 2; index += 1) {
+      const repair = getCurrentVerbPracticeQuestion(session)!;
+      session = advanceVerbPractice(checkVerbPracticeAnswer(session, repair.accepted[0]).session);
+    }
+    const secondCore = getCurrentVerbPracticeQuestion(session)!;
+    const afterSecondError = checkVerbPracticeAnswer(session, secondCore.choices?.[0] ?? "wrong").session;
+    expect(afterSecondError.repairQueue).toEqual([]);
+    expect(afterSecondError.repairCount).toBe(2);
+  });
+
   it("keeps incorrect feedback authored and repeatable", () => {
     const session = createVerbPracticeSession();
     const question = getCurrentVerbPracticeQuestion(session)!;

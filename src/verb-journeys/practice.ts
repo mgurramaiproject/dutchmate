@@ -26,6 +26,7 @@ export type VerbPracticeSession = {
   coreIndex: number;
   currentRepairId: string | null;
   repairQueue: string[];
+  repairCount: number;
   selectedAnswer: VerbPracticeAnswer | null;
   checked: boolean;
   lastResult: VerbPracticeResult | null;
@@ -100,7 +101,7 @@ export function getVerbPracticeQuestions(): VerbPracticeQuestion[] {
 }
 
 export function createVerbPracticeSession(): VerbPracticeSession {
-  return { coreIndex: 0, currentRepairId: null, repairQueue: [], selectedAnswer: null, checked: false, lastResult: null, attempts: [], completed: false };
+  return { coreIndex: 0, currentRepairId: null, repairQueue: [], repairCount: 0, selectedAnswer: null, checked: false, lastResult: null, attempts: [], completed: false };
 }
 
 export function getCurrentVerbPracticeQuestion(session: VerbPracticeSession): (VerbPracticeQuestion & { phase: VerbPracticePhase }) | null {
@@ -118,7 +119,9 @@ export function checkVerbPracticeAnswer(session: VerbPracticeSession, answer: Ve
   const question = getCurrentVerbPracticeQuestion(session);
   if (!question) return { session, result: { correct: false, feedback: "This practice run is complete.", answer: "" } };
   const result = checkVerbPracticeQuestion(question, answer);
-  const repairQueue = !result.correct && question.phase === "core" ? [...session.repairQueue, ...(question.repairIds ?? [])].slice(0, 2) : session.repairQueue;
+  const availableRepairs = Math.max(0, 2 - session.repairCount - session.repairQueue.length);
+  const newRepairs = !result.correct && question.phase === "core" ? (question.repairIds ?? []).slice(0, availableRepairs) : [];
+  const repairQueue = [...session.repairQueue, ...newRepairs];
   return {
     session: {
       ...session,
@@ -126,6 +129,7 @@ export function checkVerbPracticeAnswer(session: VerbPracticeSession, answer: Ve
       checked: true,
       lastResult: result,
       repairQueue,
+      repairCount: session.repairCount + newRepairs.length,
       attempts: [...session.attempts, { questionId: question.id, phase: question.phase, correct: result.correct, feedback: result.feedback }],
     },
     result,
