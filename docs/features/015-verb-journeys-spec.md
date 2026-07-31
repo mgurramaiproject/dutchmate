@@ -355,6 +355,7 @@ cards, and actual supported popup widths.
 - The work proceeds through one complete `werken` slice before broader verb
   expansion. Each implementation phase must report changed behavior, evidence,
   checks, remaining risks, and one recommended next action.
-- This specification is the parent work definition. Ticket publication and
-  implementation remain gated on explicit user approval of this document and
-  of the later vertical ticket breakdown.
+- This specification is the parent work definition. The vertical ticket
+  breakdown is approved and checked in; GitHub ticket publication remains
+  blocked by API connectivity. Implementation remains gated on the published
+  ticket state and normal delivery workflow.
