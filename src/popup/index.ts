@@ -534,15 +534,26 @@ function activityTotalValue(activity: LearningRhythm["activity"][number] | undef
 function renderLessons(): HTMLElement {
   const wrapper = section("lessons-content");
   wrapper.append(eyebrow(`Lesson library · ${lessonCatalog.lessons.length} small practical stories`), heading("Lesson library"), text("Choose a situation. Each lesson is 3–5 minutes."));
+  const categoryGroups = section("lesson-category-groups");
+  const verbGroup = section("lesson-category-group verb-journeys-group");
+  verbGroup.append(renderLessonCategoryHeader("Verb Journeys", "One verb across useful forms", "route"));
   const verbEntry = button("", "verb-journey-entry");
+  verbEntry.classList.add("lesson-category-card");
   verbEntry.setAttribute("aria-label", "Open Verb Journeys");
   const entryText = (value: string, className: string): HTMLElement => { const node = document.createElement("span"); node.className = className; node.textContent = value; return node; };
-  verbEntry.append(entryText("Verb Journeys", "verb-entry-kicker"), entryText("Follow one useful verb from a real context to its complete Dutch map.", "verb-entry-copy"), entryText("Open journeys →", "verb-entry-action"));
+  const verbCopy = document.createElement("span"); verbCopy.className = "lesson-category-card-copy";
+  verbCopy.append(entryText("Follow one useful verb from a real context to its complete Dutch map.", "verb-entry-copy"), entryText("Open journeys →", "verb-entry-action"));
+  verbEntry.append(svgIcon("route"), verbCopy, svgIcon("chevron-right"));
   verbEntry.addEventListener("click", () => { screen = "verbJourneys"; render(); content?.focus(); });
-  wrapper.append(verbEntry);
-  wrapper.append(renderLessonFilters());
+  verbGroup.append(verbEntry);
+  categoryGroups.append(verbGroup);
+  const practicalGroup = section("lesson-category-group practical-stories-group");
+  practicalGroup.append(renderLessonCategoryHeader("Practical Stories", "Everyday Dutch situations", "book-open"));
+  categoryGroups.append(practicalGroup);
+  wrapper.append(categoryGroups);
+  practicalGroup.append(renderLessonFilters());
   const availability = getLessonsAvailabilityView(lessonsError);
-  if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
+  if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); practicalGroup.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
   const library = section("lesson-library");
   const visibleLessons = filterLessons(lessonCatalog.lessons, lessonProgressById, lessonStatusFilter, lessonLevelFilter);
   const nextFoundationPattern = getNextFoundationPattern(grammarPatterns, grammarRecords);
@@ -570,9 +581,25 @@ function renderLessons(): HTMLElement {
     lesson.addEventListener("click", () => void startLesson(lessonDefinition));
     library.append(lesson);
   }
-  wrapper.append(library);
-  if (visibleLessons.length === 0) wrapper.append(text("No lessons match these filters.", "empty-state"));
-  wrapper.append(localNote()); return wrapper;
+  practicalGroup.append(library);
+  if (visibleLessons.length === 0) practicalGroup.append(text("No lessons match these filters.", "empty-state"));
+  practicalGroup.append(localNote()); return wrapper;
+}
+
+function renderLessonCategoryHeader(title: string, description: string, iconName: IconName): HTMLElement {
+  const header = document.createElement("div");
+  header.className = "lesson-category-header";
+  header.append(svgIcon(iconName, "lesson-category-icon"));
+  const copy = document.createElement("span");
+  copy.className = "lesson-category-header-copy";
+  const titleNode = document.createElement("strong");
+  titleNode.className = "lesson-category-title";
+  titleNode.textContent = title;
+  const descriptionNode = document.createElement("small");
+  descriptionNode.textContent = description;
+  copy.append(titleNode, descriptionNode);
+  header.append(copy);
+  return header;
 }
 
 function renderVerbJourneys(): HTMLElement {
@@ -582,7 +609,7 @@ function renderVerbJourneys(): HTMLElement {
     const back = button("Back to Lessons", "button primary-button"); back.addEventListener("click", () => { screen = "lessons"; render(); }); wrapper.append(back);
     return wrapper;
   }
-  const back = button("← Lessons", "journey-back");
+  const back = journeyBack("Lessons");
   back.addEventListener("click", () => { screen = "lessons"; render(); });
   wrapper.append(back, eyebrow("Lessons · Verb Journeys"), heading("Verb Journeys"), text("Choose one useful Dutch verb and follow its staged forms from context to reference."));
   const list = section("verb-directory");
@@ -613,7 +640,7 @@ function renderVerbJourneys(): HTMLElement {
 function renderVerbJourneyOverview(): HTMLElement {
   const wrapper = section("verb-journey-overview");
   const pack = verbJourneyPack;
-  const back = button("← Verb Journeys", "journey-back");
+  const back = journeyBack("Verb Journeys");
   back.addEventListener("click", () => { screen = "verbJourneys"; render(); });
   wrapper.append(back, eyebrow("A1 core verb"), heading(pack.verb.lemma), text(`${pack.verb.english} · regular weak verb · auxiliary: ${pack.verb.auxiliary}`, "journey-lead"));
   const mapAction = button("", "verb-map-summary");
@@ -660,7 +687,7 @@ function openVerbJourney(journey: JourneyRecord): void {
 function renderVerbJourneyStory(): HTMLElement {
   const wrapper = section("verb-journey-story");
   const journey = getVerbJourney(activeVerbJourneyId) ?? verbJourneyPack.journeys[1];
-  const back = button(`← ${journey.title}`, "journey-back");
+  const back = journeyBack(journey.title);
   back.addEventListener("click", () => { screen = "verbJourneyOverview"; render(); });
   wrapper.append(back, text(`${journey.subtitle} · Story`, "journey-meta"), eyebrow(journey.title), heading(journey.storyTitle ?? journey.title));
   const story = section("verb-story-card");
@@ -694,19 +721,24 @@ function renderVerbJourneyNotice(): HTMLElement {
   const wrapper = section("verb-journey-notice");
   const journey = getVerbJourney(activeVerbJourneyId) ?? verbJourneyPack.journeys[1];
   const notice = journey.notice ?? verbJourneyPack.journeys[1].notice!;
-  const back = button("← Story", "journey-back");
+  const back = journeyBack("Story");
   back.addEventListener("click", () => { screen = "verbJourneyStory"; render(); });
   wrapper.append(back, text(`${journey.subtitle} · Notice`, "journey-meta"), eyebrow("Notice the pattern"), heading(notice.title), text(notice.subtitle, "journey-lead"));
   const comparison = section("verb-pattern-stack");
   for (const item of notice.comparison) {
     const card = section("verb-pattern-card");
-    card.append(text(item.label, `verb-pattern-tag ${item.tense === journey.targetForms[0] ? "current" : "contrast"}`), text(item.sentence, "verb-pattern-sentence"), text(item.meaning, "verb-pattern-meaning"));
+    const isCurrent = item.tense === journey.targetForms[0];
+    const chip = spanText(item.label, `verb-pattern-tag verb-notice-chip ${isCurrent ? "current" : "contrast"}`);
+    card.append(chip, renderVerbNoticeSentence(item.sentence, item.tense), text(item.meaning, "verb-pattern-meaning"));
     comparison.append(card);
   }
   const formula = section("verb-formula-card");
-  formula.append(text("FORMULA", "verb-card-label"), text(notice.formula, "verb-formula"), text(notice.formulaNote, "verb-card-copy"));
+  formula.append(text("FORMULA", "verb-card-label"), renderVerbNoticeFormula(notice.formula), text(notice.formulaNote, "verb-card-copy"));
   const contrast = section("verb-contrast-card");
-  contrast.append(text("VALUABLE CONTRAST", "verb-card-label"), text(notice.valuableContrast, "verb-card-copy"));
+  const contrastTags = document.createElement("div");
+  contrastTags.className = "verb-notice-chip-row";
+  contrastTags.append(spanText("VTT · completed fact", "verb-notice-chip current"), spanText("OVT · past habit", "verb-notice-chip contrast"));
+  contrast.append(text("VALUABLE CONTRAST", "verb-card-label"), contrastTags, text(notice.valuableContrast, "verb-card-copy"));
   wrapper.append(comparison, formula, contrast);
   const next = button("Place it on the 8-form map →", "button primary-button");
   next.addEventListener("click", () => { selectedVerbFormTense = journey.targetForms[0] ?? "VTT"; verbMapOrigin = "notice"; screen = "verbMap"; render(); content?.focus(); });
@@ -716,23 +748,34 @@ function renderVerbJourneyNotice(): HTMLElement {
 
 function renderVerbMap(): HTMLElement {
   const wrapper = section("verb-map-screen");
-  const backLabel = verbMapOrigin === "notice" ? "← Notice" : verbMapOrigin === "saved" ? "← Saved" : "← werken";
-  const back = button(backLabel, "journey-back");
+  const backLabel = verbMapOrigin === "notice" ? "Notice" : verbMapOrigin === "saved" ? "Saved" : "werken";
+  const back = journeyBack(backLabel);
   back.addEventListener("click", () => { screen = verbMapOrigin === "notice" ? "verbJourneyNotice" : verbMapOrigin === "saved" ? "saved" : "verbJourneyOverview"; render(); });
   wrapper.append(back, text("Canonical map · werken", "journey-meta"), eyebrow("Eight Dutch forms"), heading("Werken Verb Map"), text("One stable map for every werken journey. Select a form to inspect it.", "journey-lead"));
   const legend = document.createElement("div"); legend.className = "verb-map-legend";
-  for (const status of ["mastered", "learning", "later", "reference"] as const) { const item = document.createElement("span"); item.textContent = status === "mastered" ? "Mastered" : status === "learning" ? "Learning now" : status[0].toUpperCase() + status.slice(1); item.className = `map-legend-item ${status}`; legend.append(item); }
+  legend.append(text("FORM STATUS", "verb-map-legend-title"));
+  for (const status of ["mastered", "learning", "later", "reference"] as const) {
+    const item = document.createElement("span"); item.className = `map-legend-item ${status}`;
+    const meta = verbFormStatusMeta(status);
+    item.append(svgIcon(meta.icon, "verb-status-icon"), spanText(meta.label, "verb-status-label"), spanText(meta.detail, "verb-status-detail"));
+    legend.append(item);
+  }
   wrapper.append(legend);
   const map = document.createElement("div"); map.className = "verb-map-grid"; map.setAttribute("role", "grid"); map.setAttribute("aria-label", "Eight Dutch forms for werken");
-  const corner = document.createElement("div"); corner.className = "verb-map-corner"; corner.textContent = "VIEWPOINT"; map.append(corner);
-  for (const headingValue of ["Onvoltooid", "Voltooid"]) { const header = document.createElement("div"); header.className = "verb-map-column"; header.textContent = headingValue; map.append(header); }
+  const corner = document.createElement("div"); corner.className = "verb-map-corner"; corner.append(spanText("VIEWPOINT", "verb-map-label-main"), spanText("Tijd & aspect", "verb-map-label-sub")); map.append(corner);
+  for (const headingValue of [["Onvoltooid", "Not completed"], ["Voltooid", "Completed"]] as const) { const header = document.createElement("div"); header.className = "verb-map-column"; header.append(spanText(headingValue[0], "verb-map-label-main"), spanText(headingValue[1], "verb-map-label-sub")); map.append(header); }
   for (const viewpoint of ["present", "past", "future", "future-from-past"] as const) {
-    const rowLabel = document.createElement("div"); rowLabel.className = "verb-map-row-label"; rowLabel.textContent = viewpoint === "future-from-past" ? "Future from past" : viewpoint[0].toUpperCase() + viewpoint.slice(1); map.append(rowLabel);
+    const rowLabel = document.createElement("div"); rowLabel.className = "verb-map-row-label";
+    const rowMeta = verbMapViewpointMeta(viewpoint);
+    rowLabel.append(spanText(rowMeta.english, "verb-map-label-main"), spanText(rowMeta.dutch, "verb-map-label-sub"), spanText("2 forms", "verb-map-row-count"));
+    map.append(rowLabel);
     for (const completion of ["onvoltooid", "voltooid"] as const) {
       const form = verbJourneyPack.dutchForms.find((candidate) => candidate.viewpoint === viewpoint && candidate.completion === completion)!;
       const card = button("", `verb-form-card ${form.status}${form.dutchTense === selectedVerbFormTense ? " selected" : ""}`);
-      card.setAttribute("role", "gridcell"); card.setAttribute("aria-label", `${form.dutchTense}: ${form.fullNameNl}`); card.setAttribute("aria-pressed", String(form.dutchTense === selectedVerbFormTense));
-      card.append(spanText(form.dutchTense, "verb-form-code"), spanText(form.fullNameNl, "verb-form-full"), spanText(form.sentence, "verb-form-example"));
+      const statusMeta = verbFormStatusMeta(form.status);
+      card.setAttribute("role", "gridcell"); card.setAttribute("aria-label", `${form.dutchTense}: ${form.fullNameNl} · ${statusMeta.label}`); card.setAttribute("aria-pressed", String(form.dutchTense === selectedVerbFormTense));
+      const status = document.createElement("span"); status.className = `verb-form-status ${form.status}`; status.append(svgIcon(statusMeta.icon, "verb-status-icon"), spanText(statusMeta.label, "verb-status-label"));
+      card.append(status, spanText(form.dutchTense, "verb-form-code"), spanText(form.fullNameNl, "verb-form-full"), spanText(form.sentence, "verb-form-example"));
       card.addEventListener("click", () => { selectedVerbFormTense = form.dutchTense; render(); });
       map.append(card);
     }
@@ -749,7 +792,7 @@ function renderVerbMap(): HTMLElement {
 
 function renderVerbEnglishComparison(): HTMLElement {
   const wrapper = section("verb-english-comparison");
-  const back = button(verbEnglishComparisonOrigin === "map" ? "← Verb Map" : "← werken", "journey-back");
+  const back = journeyBack(verbEnglishComparisonOrigin === "map" ? "Verb Map" : "werken");
   back.addEventListener("click", () => { screen = verbEnglishComparisonOrigin === "map" ? "verbMap" : "verbJourneyOverview"; render(); content?.focus(); });
   wrapper.append(back, text("English lens · werken", "journey-meta"), eyebrow("English comparison"), heading("12 English forms → Dutch"), text("Use this as a comparison lens, not a one-to-one tense conversion. Select a pattern to inspect the natural Dutch choices.", "journey-lead"));
   const insight = section("verb-english-insight");
@@ -837,7 +880,7 @@ function renderVerbPractice(): HTMLElement {
   const question = getCurrentVerbPracticeQuestion(session);
   if (!question) { screen = "verbCompletion"; return renderVerbCompletion(); }
   const isRepair = question.phase === "repair";
-  const back = button("← Verb Map", "journey-back");
+  const back = journeyBack("Verb Map");
   back.addEventListener("click", () => { screen = "verbMap"; render(); });
   const coreNumber = Math.min(session.coreIndex + 1, getVerbPracticeQuestions().length);
   wrapper.append(back, text(isRepair ? "Repair · up to 2 questions" : `VTT practice · decision ${coreNumber} of 5`, "journey-meta"), eyebrow(isRepair ? "Targeted repair" : "Five-question practice"), heading(question.prompt), text(question.context, "verb-practice-context"));
@@ -931,7 +974,7 @@ function queueVerbJourneyResult(question: VerbPracticeQuestion & { phase: "core"
 function renderVerbCompletion(): HTMLElement {
   const wrapper = section("verb-completion-screen");
   const session = verbPracticeSession ?? createVerbPracticeSession();
-  const back = button(verbMapOrigin === "saved" ? "← Saved" : "← werken", "journey-back"); back.addEventListener("click", () => { screen = verbMapOrigin === "saved" ? "saved" : "verbJourneyOverview"; render(); });
+  const back = journeyBack(verbMapOrigin === "saved" ? "Saved" : "werken"); back.addEventListener("click", () => { screen = verbMapOrigin === "saved" ? "saved" : "verbJourneyOverview"; render(); });
   wrapper.append(back, eyebrow("VTT practised"), heading("You used werken as a completed event."), text("This session reports demonstrated decisions; it does not claim full verb mastery.", "journey-lead"));
   const decisions = section("verb-completion-decisions");
   const latest = new Map(session.attempts.filter((attempt) => attempt.phase === "core").map((attempt) => [attempt.questionId, attempt]));
@@ -1680,6 +1723,38 @@ function updateBadge(): void {
   dueBadge.title = label;
 }
 function renderError(message: string): void { if (!content) return; content.replaceChildren(eyebrow("Today unavailable"), heading("Your practice could not load."), text(message), localNote()); }
+type IconName = "arrow-left" | "book-open" | "check-circle" | "chevron-right" | "clock" | "dot" | "reference" | "route";
+
+const iconPaths: Record<IconName, string> = {
+  "arrow-left": "M19 12H5m6 6-6-6 6-6",
+  "book-open": "M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5Zm0 0V19",
+  "check-circle": "m8 12 2.5 2.5L16 9m5 3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+  "chevron-right": "m9 5 7 7-7 7",
+  clock: "M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+  dot: "M12 12h.01",
+  reference: "M6 4.5A2.5 2.5 0 0 1 8.5 2H18v19l-5-3-5 3V4.5Z",
+  route: "M5 5h4v4H5zM15 15h4v4h-4zM9 7h5a3 3 0 0 1 3 3v5M15 17h-5a3 3 0 0 1-3-3V9",
+};
+
+function svgIcon(name: IconName, className = "icon"): SVGSVGElement {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.classList.add(className);
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", iconPaths[name]);
+  svg.append(path);
+  return svg;
+}
+
+function journeyBack(label: string): HTMLButtonElement {
+  const back = button(label, "journey-back");
+  back.setAttribute("aria-label", `Back to ${label}`);
+  back.prepend(svgIcon("arrow-left", "journey-back-icon"));
+  return back;
+}
+
 function section(className: string): HTMLElement { const element = document.createElement("section"); element.className = className; return element; }
 function button(label: string, className: string): HTMLButtonElement { const element = document.createElement("button"); element.type = "button"; element.className = className; element.textContent = label; return element; }
 function eyebrow(value: string): HTMLElement { return text(value, "eyebrow"); }
@@ -1739,6 +1814,66 @@ function renderSavedContext(context: SavedContextView, savedDutch: string, itemI
   return card;
 }
 function highlightedSavedContext(context: string, savedDutch: string): HTMLElement { const paragraph = document.createElement("p"); paragraph.className = "saved-context"; const contextLower = context.toLocaleLowerCase(); const savedLower = savedDutch.toLocaleLowerCase(); const start = contextLower.indexOf(savedLower); if (start < 0 || savedLower.length === 0) { paragraph.textContent = context; return paragraph; } paragraph.append(document.createTextNode(context.slice(0, start))); const mark = document.createElement("mark"); mark.className = "saved-context-highlight"; mark.textContent = context.slice(start, start + savedDutch.length); paragraph.append(mark, document.createTextNode(context.slice(start + savedDutch.length))); return paragraph; }
+function renderVerbNoticeSentence(sentence: string, tense: DutchTense): HTMLElement {
+  const element = text("", "verb-pattern-sentence");
+  element.lang = "nl";
+  appendVerbNoticeHighlights(element, sentence, verbNoticeTokens(tense));
+  return element;
+}
+
+function renderVerbNoticeFormula(formula: string): HTMLElement {
+  const element = text("", "verb-formula");
+  appendVerbNoticeHighlights(element, formula, ["gewerkt", "werkte", "werken", "hebben", "werk", "gewerkt", "heb", "had", "zal", "zou"]);
+  return element;
+}
+
+function appendVerbNoticeHighlights(parent: HTMLElement, value: string, tokens: string[]): void {
+  const orderedTokens = [...new Set(tokens)].sort((first, second) => second.length - first.length);
+  let cursor = 0;
+  while (cursor < value.length) {
+    const match = orderedTokens
+      .map((token) => ({ token, index: value.indexOf(token, cursor) }))
+      .filter((candidate) => candidate.index >= cursor)
+      .sort((first, second) => first.index - second.index || second.token.length - first.token.length)[0];
+    if (!match) { parent.append(value.slice(cursor)); break; }
+    parent.append(value.slice(cursor, match.index));
+    const highlight = document.createElement("mark");
+    highlight.className = "verb-notice-highlight";
+    highlight.textContent = match.token;
+    parent.append(highlight);
+    cursor = match.index + match.token.length;
+  }
+}
+
+function verbNoticeTokens(tense: DutchTense): string[] {
+  return {
+    OTT: ["werk"],
+    OVT: ["werkte"],
+    VTT: ["heb", "gewerkt"],
+    VVT: ["had", "gewerkt"],
+    OTTT: ["zal", "werken"],
+    OVTT: ["zou", "werken"],
+    VTTT: ["zal", "gewerkt", "hebben"],
+    VVTT: ["zou", "gewerkt", "hebben"],
+  }[tense];
+}
+
+function verbFormStatusMeta(status: VerbFormRecord["status"] | "later"): { label: string; detail: string; icon: IconName } {
+  if (status === "mastered") return { label: "Mastered", detail: "ready to use", icon: "check-circle" };
+  if (status === "learning") return { label: "Learning now", detail: "current focus", icon: "dot" };
+  if (status === "reference") return { label: "Reference", detail: "look up when useful", icon: "reference" };
+  return { label: "Later", detail: "future journey", icon: "clock" };
+}
+
+function verbMapViewpointMeta(viewpoint: "present" | "past" | "future" | "future-from-past"): { english: string; dutch: string } {
+  return {
+    present: { english: "Present", dutch: "tegenwoordige tijd" },
+    past: { english: "Past", dutch: "verleden tijd" },
+    future: { english: "Future", dutch: "toekomende tijd" },
+    "future-from-past": { english: "Future from past", dutch: "verleden toekomende tijd" },
+  }[viewpoint];
+}
+
 function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }
 function toggle(labelText: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement { const label = document.createElement("label"); label.className = "setting-control"; const textNode = document.createElement("strong"); textNode.textContent = labelText; const input = document.createElement("input"); input.type = "checkbox"; input.checked = checked; input.addEventListener("change", () => onChange(input.checked)); label.append(textNode, input); return label; }
 function localNote(): HTMLElement { return text("Local learning only. No account required.", "local-note"); }
