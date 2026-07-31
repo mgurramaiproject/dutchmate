@@ -18,8 +18,7 @@ assigns a priority. Lower numbers are higher priority.
 
 | Priority order | Idea | What is preserved | Why parked now | Revisit signal |
 |---:|---|---|---|---|
-| 1 | Broader lesson-integrated practice coverage | Revisit the A1-A2 Lessons catalog and add reviewed, lesson-appropriate Verb Gym/Sentence Forge-style exercises, Sentence Trainer connections where the saved-context contract fits, and additional Contrast Packs mapped to explicit misconceptions; assess any separate progress visualization such as Verb Timeline without creating duplicate queues. | Feature 013 validated one narrow contrast pilot only. Broad coverage needs a new curriculum/content map, lesson-by-lesson accepted answers and distractors, scheduling limits, independent Dutch review, and evidence that the existing popup remains understandable. | The Contrast Repair pilot is merged and its learner-value and browser gates are complete; a reviewed A1/A2 coverage map identifies specific lesson gaps worth filling. |
-| 2 | Verb Timeline visualization | Show a learner-facing overview of pattern progress using the existing progression evidence, without adding a second queue or progress record. | Feature 014 is focused on improving lesson practice coverage; a new visualization would add surface complexity before the shared practice envelope is proven. | The A0-A2 practice loop is stable, learners ask for a clearer overview, and the visualization can reuse existing evidence without pseudo-precise claims. |
+| 1 | Verb Timeline visualization | Show a learner-facing overview of pattern progress using the existing progression evidence, without adding a second queue or progress record. | A new visualization would add surface complexity before learner demand and the reuse of existing evidence are demonstrated. | The A0-A2 practice loop is stable, learners ask for a clearer overview, and the visualization can reuse existing evidence without pseudo-precise claims. |
 
 ## Parked ideas
 
@@ -55,6 +54,7 @@ These ideas are no longer parked in their earlier broad form. The linked active 
 
 | Earlier idea | Current disposition | Origin and activation reference |
 | --- | --- | --- |
+| Broader lesson-integrated practice coverage | Activated as Feature 014, `lesson-practice-loop`, and delivered through merged PR #122. All fifteen A0-A2 lessons now use the shared practice envelope, additive authored exercise packs, compatible history behavior, and the future-authoring validation gate. | `014` · 2026-07-31; [Feature 014 plan](./014-lesson-practice-loop-plan.md), [specification](./014-lesson-practice-loop-spec.md), and [ADR 0007](../adr/0007-014-lesson-practice-uses-shared-envelope-and-evidence.md) |
 | Sentence coach / Pattern Lab | Partially activated as deterministic grammar-powered Lessons, click-only grammar exercise primitives, and bounded Encounter Coaching. Arbitrary-page analysis and an isolated explanation mode remain excluded. | `002` · 2026-07-19 and `004` · 2026-07-22; activated by [009 plan](./009-proficiency-path-plan.md) on 2026-07-26/27 |
 
 ## Explicitly rejected for `009-proficiency-path`
