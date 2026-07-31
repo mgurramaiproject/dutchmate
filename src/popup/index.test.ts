@@ -1110,6 +1110,26 @@ describe("lesson popup", () => {
     }
   });
 
+  it("opens the later and reference journeys as complete guided lessons", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Learning journeys"));
+
+    for (const journey of [
+      { title: "What had already happened", story: "Voordat de vergadering begon" },
+      { title: "Plans and possibilities", story: "Een plan voor morgen" },
+      { title: "Completed future and unreal past", story: "Voor het einde van de dag" },
+    ]) {
+      [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes(journey.title))!.click();
+      await vi.waitFor(() => expect(content().textContent).toContain(journey.story));
+      expect(button("Notice the pattern →")).toBeTruthy();
+      button(journey.title).click();
+      await vi.waitFor(() => expect(content().textContent).toContain("Learning journeys"));
+    }
+  });
+
   it("shows the compact werken mastery card with both reference map actions", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());

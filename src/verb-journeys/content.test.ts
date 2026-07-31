@@ -20,6 +20,7 @@ describe("werken Verb Journey pack", () => {
       "journey.werken.future-possibility",
       "journey.werken.reference-completed-future",
     ]);
+    expect(verbJourneyPack.journeys.every((journey) => journey.story.length > 0 && journey.notice)).toBe(true);
   });
 
   it("rejects duplicate identifiers and dangling target forms", () => {

@@ -6,7 +6,7 @@ export type VerbPracticeQuestion = {
   id: string;
   verbId: "verb.werken";
   journeyId: VerbPracticeJourneyId;
-  formOrSkillId: "skill.werken.ott-routine" | "skill.werken.vtt-completed" | "skill.werken.ovt-background";
+  formOrSkillId: "skill.werken.ott-routine" | "skill.werken.vtt-completed" | "skill.werken.ovt-background" | "skill.werken.vvt-earlier-past" | "skill.werken.future-possibility" | "skill.werken.reference-completed-future";
   exerciseFamily: string;
   delayedOrRecombined?: boolean;
   kind: VerbPracticeKind;
@@ -36,7 +36,7 @@ export type VerbPracticeSession = {
   completed: boolean;
 };
 
-export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background";
+export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future";
 const defaultJourneyId: VerbPracticeJourneyId = "journey.werken.vtt-completed";
 
 type AuthoredVerbPracticeQuestion = Omit<VerbPracticeQuestion, "journeyId">;
@@ -145,6 +145,78 @@ const ovtRepairs: AuthoredVerbPracticeQuestion[] = [
   { id: "exercise.werken.ovt.repair-order", verbId: "verb.werken", formOrSkillId: "skill.werken.ovt-background", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the word order after a time phrase.", context: "Vroeger …", tokens: ["Vroeger", "werkte", "ik", "daar."], accepted: ["Vroeger werkte ik daar."], feedback: "Correct. Dutch keeps the finite verb in second position.", incorrectFeedback: "After Vroeger, put werkte before ik: Vroeger werkte ik daar." },
 ];
 
+const vvtQuestions: AuthoredVerbPracticeQuestion[] = [
+  {
+    id: "exercise.werken.vvt.meaning", verbId: "verb.werken", formOrSkillId: "skill.werken.vvt-earlier-past", exerciseFamily: "meaning", kind: "choice", prompt: "What does this sentence show?", context: "Ik had al thuis gewerkt voordat de vergadering begon.",
+    choices: ["An earlier completed event before another past event", "A present work routine", "A future possibility"], accepted: ["An earlier completed event before another past event"], feedback: "Correct. VVT places the completed work before another past reference point.", incorrectFeedback: "Voordat and had gewerkt show that the work happened earlier in the past.", repairIds: ["exercise.werken.vvt.repair-auxiliary", "exercise.werken.vvt.repair-order"],
+  },
+  {
+    id: "exercise.werken.vvt.construct", verbId: "verb.werken", formOrSkillId: "skill.werken.vvt-earlier-past", exerciseFamily: "construction", kind: "token-slots", prompt: "Build the earlier-past phrase with taps.", context: "Complete: Ik ___ al thuis ___.", tokens: ["had", "gewerkt"], accepted: ["had gewerkt"], feedback: "Correct. VVT uses had plus gewerkt.", incorrectFeedback: "Use the past auxiliary had before the participle gewerkt.",
+  },
+  {
+    id: "exercise.werken.vvt.natural-translation", verbId: "verb.werken", formOrSkillId: "skill.werken.vvt-earlier-past", exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the sentence that means: I had already worked at home before the meeting began.", context: "A past story has two events.", choices: ["Ik had al thuis gewerkt voordat de vergadering begon.", "Ik heb gisteren thuis gewerkt.", "Ik werkte vroeger thuis."], accepted: ["Ik had al thuis gewerkt voordat de vergadering begon."], feedback: "Correct. The earlier event uses VVT.", incorrectFeedback: "For the event that happened before another past event, choose Ik had al thuis gewerkt voordat de vergadering begon.",
+  },
+  {
+    id: "exercise.werken.vvt.map-placement", verbId: "verb.werken", formOrSkillId: "skill.werken.vvt-earlier-past", exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this sentence belong?", context: "Ik had al thuis gewerkt voordat de vergadering begon.", choices: ["VVT · voltooid verleden tijd", "VTT · voltooid tegenwoordige tijd", "OVT · onvoltooid verleden tijd", "OTT · onvoltooid tegenwoordige tijd"], accepted: ["VVT · voltooid verleden tijd"], feedback: "Correct. Had gewerkt is VVT: voltooid verleden tijd.", incorrectFeedback: "Had gewerkt is VVT: voltooid verleden tijd.",
+  },
+  {
+    id: "exercise.werken.vvt.word-order", verbId: "verb.werken", formOrSkillId: "skill.werken.vvt-earlier-past", exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the words in the correct order.", context: "Start with the earlier event: Voordat de vergadering begon, …", tokens: ["Voordat", "de", "vergadering", "begon,", "had", "ik", "al", "thuis", "gewerkt."], accepted: ["Voordat de vergadering begon, had ik al thuis gewerkt."], feedback: "Correct. After the subordinate clause, had comes before ik.", incorrectFeedback: "After Voordat de vergadering begon, put had before ik: Voordat de vergadering begon, had ik al thuis gewerkt.",
+  },
+];
+
+const vvtRepairs: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.werken.vvt.repair-auxiliary", verbId: "verb.werken", formOrSkillId: "skill.werken.vvt-earlier-past", exerciseFamily: "repair-auxiliary", kind: "choice", prompt: "Repair the earlier-past phrase.", context: "Ik ___ al gewerkt voordat zij belde.", choices: ["had", "heb", "zal"], accepted: ["had"], feedback: "Correct. Use had for an earlier past reference point.", incorrectFeedback: "Use had before gewerkt when the reference point is in the past." },
+  { id: "exercise.werken.vvt.repair-order", verbId: "verb.werken", formOrSkillId: "skill.werken.vvt-earlier-past", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the word order after a past clause.", context: "Voordat zij belde, …", tokens: ["Voordat", "zij", "belde,", "had", "ik", "gewerkt."], accepted: ["Voordat zij belde, had ik gewerkt."], feedback: "Correct. Dutch keeps the finite verb before the subject after the opening clause.", incorrectFeedback: "After Voordat zij belde, put had before ik: Voordat zij belde, had ik gewerkt." },
+];
+
+const futurePossibilityQuestions: AuthoredVerbPracticeQuestion[] = [
+  {
+    id: "exercise.werken.future.meaning", verbId: "verb.werken", formOrSkillId: "skill.werken.future-possibility", exerciseFamily: "meaning", kind: "choice", prompt: "What does this sentence express?", context: "Als het regent, zou ik thuis werken.",
+    choices: ["A conditional possibility", "An earlier completed event", "A past habit"], accepted: ["A conditional possibility"], feedback: "Correct. Zou frames the work as conditional or hypothetical.", incorrectFeedback: "Als and zou signal a condition: this is a possible situation, not a completed event.", repairIds: ["exercise.werken.future.repair-auxiliary", "exercise.werken.future.repair-order"],
+  },
+  {
+    id: "exercise.werken.future.construct", verbId: "verb.werken", formOrSkillId: "skill.werken.future-possibility", exerciseFamily: "construction", kind: "token-slots", prompt: "Build the explicit future phrase with taps.", context: "Complete: Morgen ___ ik thuis ___.", tokens: ["zal", "zou", "werken"], accepted: ["zal werken"], feedback: "Correct. Zal plus werken marks an explicit future plan.", incorrectFeedback: "For an explicit future plan, use zal before werken.",
+  },
+  {
+    id: "exercise.werken.future.natural-translation", verbId: "verb.werken", formOrSkillId: "skill.werken.future-possibility", exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the explicit future plan.", context: "A colleague asks about tomorrow.", choices: ["Morgen zal ik thuis werken.", "Als het regent, zou ik thuis werken.", "Vroeger werkte ik thuis."], accepted: ["Morgen zal ik thuis werken."], feedback: "Correct. Zal makes the future plan explicit.", incorrectFeedback: "For a clear plan about tomorrow, choose Morgen zal ik thuis werken.",
+  },
+  {
+    id: "exercise.werken.future.map-placement", verbId: "verb.werken", formOrSkillId: "skill.werken.future-possibility", exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this conditional sentence belong?", context: "Als het regent, zou ik thuis werken.", choices: ["OVTT · onvoltooid verleden toekomende tijd", "OTTT · onvoltooid tegenwoordige toekomende tijd", "VTTT · voltooid tegenwoordige toekomende tijd", "VVTT · voltooid verleden toekomende tijd"], accepted: ["OVTT · onvoltooid verleden toekomende tijd"], feedback: "Correct. Zou werken is OVTT: an uncompleted conditional future-from-past form.", incorrectFeedback: "Zou werken is OVTT: onvoltooid verleden toekomende tijd.",
+  },
+  {
+    id: "exercise.werken.future.word-order", verbId: "verb.werken", formOrSkillId: "skill.werken.future-possibility", exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the words in the correct order.", context: "Start with the condition: Als het regent, …", tokens: ["Als", "het", "regent,", "zou", "ik", "thuis", "werken."], accepted: ["Als het regent, zou ik thuis werken."], feedback: "Correct. After the condition, zou comes before ik.", incorrectFeedback: "After Als het regent, put zou before ik: Als het regent, zou ik thuis werken.",
+  },
+];
+
+const futurePossibilityRepairs: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.werken.future.repair-auxiliary", verbId: "verb.werken", formOrSkillId: "skill.werken.future-possibility", exerciseFamily: "repair-auxiliary", kind: "choice", prompt: "Repair the conditional phrase.", context: "Als het regent, ___ ik thuis werken.", choices: ["zou", "zal", "had"], accepted: ["zou"], feedback: "Correct. Use zou for a conditional possibility.", incorrectFeedback: "With Als het regent, use zou to express the possibility." },
+  { id: "exercise.werken.future.repair-order", verbId: "verb.werken", formOrSkillId: "skill.werken.future-possibility", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the word order after a condition.", context: "Als het regent, …", tokens: ["Als", "het", "regent,", "zou", "ik", "werken."], accepted: ["Als het regent, zou ik werken."], feedback: "Correct. Put zou before ik after the opening condition.", incorrectFeedback: "After Als het regent, put zou before ik: Als het regent, zou ik werken." },
+];
+
+const completedFutureQuestions: AuthoredVerbPracticeQuestion[] = [
+  {
+    id: "exercise.werken.completed-future.meaning", verbId: "verb.werken", formOrSkillId: "skill.werken.reference-completed-future", exerciseFamily: "meaning", kind: "choice", prompt: "What does this sentence show?", context: "Voor het einde van de dag zal ik acht uur gewerkt hebben.",
+    choices: ["Work completed before a future point", "A current work routine", "A conditional possibility"], accepted: ["Work completed before a future point"], feedback: "Correct. Zal ... gewerkt hebben looks forward to a completed result.", incorrectFeedback: "Voor het einde van de dag sets a future reference point; zal ... gewerkt hebben shows completion before it.", repairIds: ["exercise.werken.completed-future.repair-auxiliary", "exercise.werken.completed-future.repair-order"],
+  },
+  {
+    id: "exercise.werken.completed-future.construct", verbId: "verb.werken", formOrSkillId: "skill.werken.reference-completed-future", exerciseFamily: "construction", kind: "token-slots", prompt: "Build the completed-future phrase with taps.", context: "Complete: Ik ___ acht uur ___ ___.", tokens: ["zal", "gewerkt", "hebben"], accepted: ["zal gewerkt hebben"], feedback: "Correct. VTTT uses zal plus gewerkt hebben.", incorrectFeedback: "Use zal before gewerkt hebben to place completion before a future point.",
+  },
+  {
+    id: "exercise.werken.completed-future.natural-translation", verbId: "verb.werken", formOrSkillId: "skill.werken.reference-completed-future", exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the completed-future sentence.", context: "By Friday, I will have worked forty hours.", choices: ["Tegen vrijdag zal ik veertig uur gewerkt hebben.", "Tegen vrijdag werk ik veertig uur.", "Als ik tijd had, zou ik langer werken."], accepted: ["Tegen vrijdag zal ik veertig uur gewerkt hebben."], feedback: "Correct. The sentence marks completion before Friday.", incorrectFeedback: "For ‘will have worked’, choose Tegen vrijdag zal ik veertig uur gewerkt hebben.",
+  },
+  {
+    id: "exercise.werken.completed-future.map-placement", verbId: "verb.werken", formOrSkillId: "skill.werken.reference-completed-future", exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this sentence belong?", context: "Voor het einde van de dag zal ik acht uur gewerkt hebben.", choices: ["VTTT · voltooid tegenwoordige toekomende tijd", "VVTT · voltooid verleden toekomende tijd", "VTT · voltooid tegenwoordige tijd", "OTTT · onvoltooid tegenwoordige toekomende tijd"], accepted: ["VTTT · voltooid tegenwoordige toekomende tijd"], feedback: "Correct. Zal ... gewerkt hebben is VTTT.", incorrectFeedback: "Zal ... gewerkt hebben is VTTT: voltooid tegenwoordige toekomende tijd.",
+  },
+  {
+    id: "exercise.werken.completed-future.word-order", verbId: "verb.werken", formOrSkillId: "skill.werken.reference-completed-future", exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the words in the correct order.", context: "Start with the condition: Als ik meer tijd had gehad, …", tokens: ["Als", "ik", "meer", "tijd", "had", "gehad,", "zou", "ik", "langer", "gewerkt", "hebben."], accepted: ["Als ik meer tijd had gehad, zou ik langer gewerkt hebben."], feedback: "Correct. Zou comes before the subject in the main clause, with gewerkt hebben at the end.", incorrectFeedback: "After Als ik meer tijd had gehad, use zou ik langer gewerkt hebben.",
+  },
+];
+
+const completedFutureRepairs: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.werken.completed-future.repair-auxiliary", verbId: "verb.werken", formOrSkillId: "skill.werken.reference-completed-future", exerciseFamily: "repair-auxiliary", kind: "choice", prompt: "Repair the completed-future phrase.", context: "Tegen vrijdag ___ ik veertig uur gewerkt hebben.", choices: ["zal", "zou", "had"], accepted: ["zal"], feedback: "Correct. Use zal for completion before a future point.", incorrectFeedback: "For ‘will have worked’, use zal before gewerkt hebben." },
+  { id: "exercise.werken.completed-future.repair-order", verbId: "verb.werken", formOrSkillId: "skill.werken.reference-completed-future", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the completed-future word order.", context: "Tegen vrijdag …", tokens: ["Tegen", "vrijdag", "zal", "ik", "gewerkt", "hebben."], accepted: ["Tegen vrijdag zal ik gewerkt hebben."], feedback: "Correct. The finite auxiliary zal stays before ik.", incorrectFeedback: "After Tegen vrijdag, put zal before ik: Tegen vrijdag zal ik gewerkt hebben." },
+];
+
 function assignJourneyId(journeyId: VerbPracticeJourneyId, pack: AuthoredVerbPracticePack): VerbPracticePack {
   return { questions: pack.questions.map((question) => ({ ...question, journeyId })), repairs: pack.repairs.map((question) => ({ ...question, journeyId })) };
 }
@@ -153,6 +225,9 @@ const practicePacks: Record<VerbPracticeJourneyId, VerbPracticePack> = {
   "journey.werken.ott-routine": assignJourneyId("journey.werken.ott-routine", { questions: ottQuestions, repairs: ottRepairs }),
   "journey.werken.vtt-completed": assignJourneyId("journey.werken.vtt-completed", { questions: vttQuestions, repairs: vttRepairs }),
   "journey.werken.ovt-background": assignJourneyId("journey.werken.ovt-background", { questions: ovtQuestions, repairs: ovtRepairs }),
+  "journey.werken.vvt-earlier-past": assignJourneyId("journey.werken.vvt-earlier-past", { questions: vvtQuestions, repairs: vvtRepairs }),
+  "journey.werken.future-possibility": assignJourneyId("journey.werken.future-possibility", { questions: futurePossibilityQuestions, repairs: futurePossibilityRepairs }),
+  "journey.werken.reference-completed-future": assignJourneyId("journey.werken.reference-completed-future", { questions: completedFutureQuestions, repairs: completedFutureRepairs }),
 };
 const allPracticeQuestions = Object.values(practicePacks).flatMap((pack) => [...pack.questions, ...pack.repairs]);
 const questionById = new Map(allPracticeQuestions.map((question) => [question.id, question]));

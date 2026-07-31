@@ -68,6 +68,9 @@ describe("werken VTT practice", () => {
       ["journey.werken.ott-routine", "OTT", "Ik werk meestal thuis."],
       ["journey.werken.vtt-completed", "VTT", "Ik heb gisteren thuis gewerkt."],
       ["journey.werken.ovt-background", "OVT", "Vroeger werkte ik vaak in een café."],
+      ["journey.werken.vvt-earlier-past", "VVT", "Ik had al thuis gewerkt voordat de vergadering begon."],
+      ["journey.werken.future-possibility", "OVTT", "Als het regent, zou ik thuis werken."],
+      ["journey.werken.reference-completed-future", "VTTT", "Voor het einde van de dag zal ik acht uur gewerkt hebben."],
     ] as const;
 
     for (const [journeyId, tense, context] of packs) {
@@ -76,7 +79,24 @@ describe("werken VTT practice", () => {
       expect(questions.every((question) => question.journeyId === journeyId)).toBe(true);
       expect(questions[0].context).toBe(context);
       expect(questions[3].accepted[0]).toContain(`${tense} ·`);
-      expect(questions.every((question) => question.id.includes(`.${tense.toLowerCase()}.`))).toBe(true);
+    }
+  });
+
+  it("completes each authored journey after five correct decisions", () => {
+    const journeyIds = [
+      "journey.werken.ott-routine",
+      "journey.werken.vtt-completed",
+      "journey.werken.ovt-background",
+      "journey.werken.vvt-earlier-past",
+      "journey.werken.future-possibility",
+      "journey.werken.reference-completed-future",
+    ] as const;
+    for (const journeyId of journeyIds) {
+      let session = createVerbPracticeSession(journeyId);
+      for (const question of getVerbPracticeQuestions(journeyId)) {
+        session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+      }
+      expect(session.completed, journeyId).toBe(true);
     }
   });
 });

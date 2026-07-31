@@ -21,7 +21,7 @@ import type { GrammarRecord } from "../grammar/learning";
 import { contrastPack, type ContrastExercise, type ContrastPackId } from "../grammar/contrast";
 import { contrastResultMessage, type ContrastRecord, type ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
 import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
-import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type JourneyStatus, type VerbFormRecord } from "../verb-journeys/content";
+import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, isVerbJourneyPlayable, verbJourneyPack, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type JourneyStatus, type VerbFormRecord } from "../verb-journeys/content";
 import { advanceVerbPractice, checkVerbPracticeAnswer, checkVerbPracticeQuestion, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeJourneyId, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
 import type { VerbJourneyRecord } from "../verb-journeys/learning";
 import { renderWithRecovery } from "./render-recovery";
@@ -671,20 +671,22 @@ function getVerbFormEvidence(form: VerbFormRecord): VerbJourneyRecord["skills"][
 }
 
 function getVerbJourneyDisplayStatus(journey: JourneyRecord): JourneyStatus {
-  if (journey.kind === "reference") return "reference";
-  if (journey.kind === "later") return "later";
   const evidence = journey.targetSkills.flatMap((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId));
   if (evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated")) return "mastered";
   if (evidence.length > 0) return "learning";
+  if (journey.kind === "reference") return "reference";
+  if (journey.kind === "later") return "later";
   const firstUnmasteredCore = verbJourneyPack.journeys.find((candidate) => candidate.kind === "core" && getVerbJourneyDisplayStatusWithoutRecursion(candidate) !== "mastered");
   return firstUnmasteredCore?.id === journey.id ? "next" : "later";
 }
 
 function getVerbJourneyDisplayStatusWithoutRecursion(journey: JourneyRecord): JourneyStatus {
+  const evidence = journey.targetSkills.flatMap((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId));
+  if (evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated")) return "mastered";
+  if (evidence.length > 0) return "learning";
   if (journey.kind === "reference") return "reference";
   if (journey.kind === "later") return "later";
-  const evidence = journey.targetSkills.flatMap((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId));
-  return evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated") ? "mastered" : "next";
+  return "next";
 }
 
 function getVerbFormDisplayStatus(form: VerbFormRecord): JourneyStatus {
@@ -766,8 +768,8 @@ function renderVerbJourneyOverview(): HTMLElement {
 function openVerbJourney(journey: JourneyRecord): void {
   activeVerbJourneyId = journey.id;
   verbBoundaryMessage = null;
-  if (journey.kind === "core" && journey.story.length > 0) { screen = "verbJourneyStory"; render(); content?.focus(); return; }
-  verbBoundaryMessage = `${journey.title} is reference material in this first slice. The complete map remains available without a beginner gate.`;
+  if (isVerbJourneyPlayable(journey)) { screen = "verbJourneyStory"; render(); content?.focus(); return; }
+  verbBoundaryMessage = `${journey.title} is currently available as reference material. Open the 8-form map to inspect it.`;
   screen = "verbJourneyOverview";
   render();
 }
@@ -828,7 +830,7 @@ function renderVerbJourneyNotice(): HTMLElement {
   const contrast = section("verb-contrast-card");
   const contrastTags = document.createElement("div");
   contrastTags.className = "verb-notice-chip-row";
-  contrastTags.append(spanText("VTT · completed fact", "verb-notice-chip current"), spanText("OVT · past habit", "verb-notice-chip contrast"));
+  contrastTags.append(...notice.comparison.map((item) => spanText(`${item.tense} · ${item.label}`, `verb-notice-chip ${journey.targetForms.includes(item.tense) ? "current" : "contrast"}`)));
   contrast.append(text("VALUABLE CONTRAST", "verb-card-label"), contrastTags, text(notice.valuableContrast, "verb-card-copy"));
   const targetTense = journey.targetForms[0] ?? "VTT";
   const interaction = section("verb-notice-interaction");
@@ -953,7 +955,7 @@ function englishAnalysisLabel(record: EnglishMapRecord): string {
 
 function verbPracticeActionLabel(): string {
   const journey = getPracticeJourney();
-  const tense = journey?.targetForms[0] ?? "VTT";
+  const tense = journey?.targetForms.join(" + ") ?? "VTT";
   const hasEvidence = journey?.targetSkills.some((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).some((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId)) ?? false;
   return `${hasEvidence ? "Review" : "Practise"} ${tense} · 5 questions →`;
 }
@@ -965,7 +967,7 @@ function getVerbReviewTense(task: VerbJourneyDailyFiveTask): DutchTense {
 
 function getPracticeJourney(): JourneyRecord | null {
   const journey = getVerbJourney(activeVerbJourneyId);
-  return journey?.kind === "core" ? journey : null;
+  return journey && isVerbJourneyPlayable(journey) ? journey : null;
 }
 
 function getActiveVerbPracticeJourneyId(): VerbPracticeJourneyId {
