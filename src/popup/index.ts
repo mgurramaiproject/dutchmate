@@ -776,7 +776,7 @@ function renderVerbJourneyStory(): HTMLElement {
   const journey = getVerbJourney(activeVerbJourneyId) ?? verbJourneyPack.journeys[1];
   const back = journeyBack(journey.title);
   back.addEventListener("click", () => { screen = "verbJourneyOverview"; render(); });
-  wrapper.append(back, text(`${journey.subtitle} · Story`, "journey-meta"), eyebrow(journey.title), heading(journey.storyTitle ?? journey.title));
+  wrapper.append(back, text(`${journey.subtitle} · Story`, "journey-meta"), eyebrow(journey.title), heading(journey.storyTitle ?? journey.title), text(journey.learningGoal, "journey-goal"));
   const story = section("verb-story-card");
   for (const line of journey.story) {
     const row = document.createElement("div"); row.className = "verb-story-line";

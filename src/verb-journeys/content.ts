@@ -190,15 +190,15 @@ export const verbJourneyPack: VerbJourneyPack = {
       story: [
         { id: "story.werken.ott.1", nl: "Ik werk meestal thuis.", english: "I usually work at home.", telugu: "నేను సాధారణంగా ఇంటి నుండి పని చేస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
         { id: "story.werken.ott.2", nl: "Op maandag werk ik op kantoor.", english: "On Mondays I work at the office.", telugu: "సోమవారాల్లో నేను కార్యాలయంలో పని చేస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
-        { id: "story.werken.ott.3", nl: "Mijn collega Sara werkt in Groningen.", english: "My colleague Sara works in Groningen.", telugu: "నా సహోద్యోగి సారా గ్రోనింగెన్‌లో పని చేస్తుంది.", targets: [{ text: "werkt", skillIds: ["skill.werken.ott-routine"] }] },
+        { id: "story.werken.ott.3", nl: "Ik werk in Groningen.", english: "I work in Groningen.", telugu: "నేను గ్రోనింగెన్‌లో పని చేస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
       ], notice: ottNotice,
     },
     {
       id: "journey.werken.vtt-completed", verbId: "verb.werken", title: "What I completed", subtitle: "VTT · completed events", level: "A1", kind: "core", status: "learning", targetForms: ["VTT"], targetSkills: ["skill.werken.vtt-completed", "skill.werken.construct-phrase"], learningGoal: "Report one completed work event from a recent situation.", estimatedMinutes: 3, storyTitle: "Een drukke werkdag",
       story: [
         { id: "story.werken.vtt.1", nl: "Gisteren heb ik op kantoor gewerkt.", english: "Yesterday I worked at the office.", telugu: "నిన్న నేను కార్యాలయంలో పని చేశాను.", targets: [{ text: "heb ik", skillIds: ["skill.werken.vtt-completed"] }, { text: "gewerkt", skillIds: ["skill.werken.vtt-completed", "skill.werken.construct-phrase"] }] },
-        { id: "story.werken.vtt.2", nl: "Ik heb met mijn collega Sara gewerkt.", english: "I worked with my colleague Sara.", telugu: "నేను నా సహోద్యోగి సారాతో కలిసి పని చేశాను.", targets: [{ text: "Ik heb", skillIds: ["skill.werken.vtt-completed"] }, { text: "gewerkt", skillIds: ["skill.werken.vtt-completed", "skill.werken.construct-phrase"] }] },
-        { id: "story.werken.vtt.3", nl: "We hebben aan een nieuw project gewerkt.", english: "We worked on a new project.", telugu: "మేము ఒక కొత్త ప్రాజెక్ట్‌పై పని చేశాము.", targets: [{ text: "gewerkt", skillIds: ["skill.werken.vtt-completed"] }] },
+        { id: "story.werken.vtt.2", nl: "Ik heb met mijn team gewerkt.", english: "I worked with my team.", telugu: "నేను నా బృందంతో కలిసి పని చేశాను.", targets: [{ text: "Ik heb", skillIds: ["skill.werken.vtt-completed"] }, { text: "gewerkt", skillIds: ["skill.werken.vtt-completed", "skill.werken.construct-phrase"] }] },
+        { id: "story.werken.vtt.3", nl: "Ik heb aan een nieuw project gewerkt.", english: "I worked on a new project.", telugu: "నేను ఒక కొత్త ప్రాజెక్ట్‌పై పని చేశాను.", targets: [{ text: "gewerkt", skillIds: ["skill.werken.vtt-completed"] }] },
         { id: "story.werken.vtt.4", nl: "Na het werk ben ik naar huis gegaan.", english: "After work, I went home.", telugu: "పని తర్వాత నేను ఇంటికి వెళ్లాను.", targets: [] },
       ], notice: vttNotice,
     },
@@ -207,7 +207,7 @@ export const verbJourneyPack: VerbJourneyPack = {
       story: [
         { id: "story.werken.ovt.1", nl: "Vroeger werkte ik vaak in een café.", english: "I used to work in a café.", telugu: "గతంలో నేను తరచుగా ఒక కేఫేలో పని చేసేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
         { id: "story.werken.ovt.2", nl: "Ik werkte daar elke zaterdag.", english: "I worked there every Saturday.", telugu: "నేను అక్కడ ప్రతి శనివారం పని చేసేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
-        { id: "story.werken.ovt.3", nl: "Mijn broer werkte naast mij.", english: "My brother worked next to me.", telugu: "నా సోదరుడు నా పక్కన పని చేసేవాడు.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
+        { id: "story.werken.ovt.3", nl: "Ik werkte naast mijn broer.", english: "I worked next to my brother.", telugu: "నేను నా సోదరుడి పక్కన పని చేసేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
       ], notice: ovtNotice,
     },
     { id: "journey.werken.vvt-earlier-past", verbId: "verb.werken", title: "What had already happened", subtitle: "VVT · earlier past", level: "A2", kind: "later", status: "later", targetForms: ["VVT"], targetSkills: ["skill.werken.vvt-earlier-past"], learningGoal: "Recognise an earlier completed event in a past story.", estimatedMinutes: 2, story: [] },
