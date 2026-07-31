@@ -627,7 +627,6 @@ function renderVerbJourneys(): HTMLElement {
   const back = journeyBack("Lessons");
   back.addEventListener("click", () => { screen = "lessons"; render(); });
   wrapper.append(back, eyebrow("Lessons · Verb Journeys"), heading("Verb Journeys"), text("Choose one useful Dutch verb and follow its staged forms from context to reference."));
-  wrapper.append(renderVerbJourneyProgressCard());
   const list = section("verb-directory");
   const entries = [
     { number: "01", lemma: "werken", detail: "to work · A1 core verb", enabled: true },
@@ -646,6 +645,11 @@ function renderVerbJourneys(): HTMLElement {
     copy.append(lemma, detail);
     const action = document.createElement("span"); action.className = "verb-directory-action"; action.textContent = entry.enabled ? "Open →" : "Later";
     row.append(number, copy, action);
+    if (entry.enabled) {
+      const progress = getVerbJourneyProgress();
+      row.classList.add("has-progress");
+      row.append(spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-directory-progress-summary"), renderVerbProgressTrack(progress));
+    }
     if (entry.enabled) row.addEventListener("click", () => { screen = "verbJourneyOverview"; render(); content?.focus(); });
     list.append(row);
   }
@@ -660,7 +664,7 @@ function getVerbJourneyProgress(): { completedForms: number; totalForms: number;
 }
 
 function renderVerbProgressTrack(progress: ReturnType<typeof getVerbJourneyProgress>, className = ""): HTMLElement {
-  const track = document.createElement("div");
+  const track = document.createElement("span");
   track.className = `verb-progress-track${className ? ` ${className}` : ""}`;
   track.setAttribute("role", "progressbar");
   track.setAttribute("aria-valuemin", "0");
@@ -672,24 +676,6 @@ function renderVerbProgressTrack(progress: ReturnType<typeof getVerbJourneyProgr
   fill.style.width = `${progress.percentage}%`;
   track.append(fill);
   return track;
-}
-
-function renderVerbJourneyProgressCard(): HTMLButtonElement {
-  const progress = getVerbJourneyProgress();
-  const card = button("", "verb-journey-progress");
-  card.setAttribute("aria-label", `Continue werken Verb Journey, ${progress.completedForms} of ${progress.totalForms} forms practised`);
-  const header = document.createElement("div");
-  header.className = "verb-progress-header";
-  const copy = document.createElement("span");
-  copy.className = "verb-progress-copy";
-  copy.append(eyebrow("Continue"), spanText("werken", "verb-progress-title"), text("to work · A1 core verb", "verb-entry-copy"));
-  header.append(copy, spanText(`${progress.completedForms} / ${progress.totalForms}`, "verb-progress-count"));
-  const footer = document.createElement("div");
-  footer.className = "verb-progress-footer";
-  footer.append(text("VTT learning now", "verb-entry-copy"), spanText("Open →", "verb-entry-action"));
-  card.append(header, text(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-progress-summary"), renderVerbProgressTrack(progress), footer);
-  card.addEventListener("click", () => { activeVerbJourneyId = "journey.werken.vtt-completed"; screen = "verbJourneyOverview"; render(); content?.focus(); });
-  return card;
 }
 
 function renderVerbJourneyOverview(): HTMLElement {

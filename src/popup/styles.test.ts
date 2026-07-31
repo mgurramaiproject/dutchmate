@@ -50,6 +50,7 @@ describe("popup layout", () => {
     expect(styles).toContain(".verb-notice-highlight");
     expect(styles).toContain(".verb-map-label-sub");
     expect(styles).toContain(".verb-form-status");
+    expect(styles).not.toContain("var(--dm-success)");
     expect(styles).toContain(".verb-form-card.selected { border-color: var(--dm-ink-strong);");
     expect(styles).toContain(".due-badge[hidden] { display: none; }");
     expect(styles).toContain(".practice-card { display: grid; gap: 12px; min-width: 0;");

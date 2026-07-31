@@ -1025,8 +1025,10 @@ describe("lesson popup", () => {
     entry.click();
     await vi.waitFor(() => expect(content().textContent).toContain("Verb Journeys"));
     expect(content().textContent).toContain("2 of 8 forms practised");
-    expect(content().querySelector(".verb-journey-progress .verb-progress-track")).toBeTruthy();
-    expect(content().querySelector<HTMLElement>(".verb-journey-progress .verb-progress-fill")?.style.width).toBe("25%");
+    expect(content().querySelector(".verb-journey-progress")).toBeNull();
+    const werkenEntry = content().querySelector<HTMLElement>(".verb-directory-row.is-openable")!;
+    expect(werkenEntry.querySelector(".verb-progress-track")).toBeTruthy();
+    expect(werkenEntry.querySelector<HTMLElement>(".verb-progress-fill")?.style.width).toBe("25%");
     expect([...content().querySelectorAll<HTMLElement>(".verb-directory-number")].map((number) => number.textContent)).toEqual(["01", "02", "03", "04"]);
     content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
     await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
