@@ -1,5 +1,6 @@
 import { getOverallMastery } from "../vocabulary/daily-five";
 import type { LearningItem, MasteryState } from "../vocabulary/learning-record";
+import { resolveSavedVerbJourney, type SavedVerbJourneyLink } from "../verb-journeys/saved-link";
 
 export type SavedShelfSort = "newest" | "alphabetical";
 export type SavedShelfItem = {
@@ -10,6 +11,7 @@ export type SavedShelfItem = {
   mastery: "New" | "Learning" | "Familiar" | "Secure";
   shelfNumber: number;
   expanded: boolean;
+  verbJourney?: SavedVerbJourneyLink;
   details?: { source: "Saved from webpage" | "From lesson" | null; contexts: SavedContextView[] };
 };
 export type SavedContextView = {
@@ -56,6 +58,7 @@ export function getSavedShelfView(items: LearningItem[], state: { sort?: SavedSh
     count: items.length,
     items: ordered.map((item) => {
       const expanded = item.id === state.expandedItemId;
+      const verbJourney = resolveSavedVerbJourney(item);
       return {
         id: item.id,
         dutch: item.dutch,
@@ -64,6 +67,7 @@ export function getSavedShelfView(items: LearningItem[], state: { sort?: SavedSh
         mastery: masteryLabel[getOverallMastery(item)],
         shelfNumber: shelfNumberById.get(item.id)!,
         expanded,
+        ...(verbJourney ? { verbJourney } : {}),
         ...(expanded ? { details: getSafeDetails(item) } : {}),
       };
     }),

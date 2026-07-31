@@ -24,6 +24,9 @@ import {
   LEARNING_CONTRAST_MESSAGE,
   LEARNING_CONTRAST_INTRODUCE_MESSAGE,
   LEARNING_CONTRAST_RESULT_MESSAGE,
+  LEARNING_VERB_JOURNEY_MESSAGE,
+  LEARNING_VERB_JOURNEY_RESULT_MESSAGE,
+  LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE,
 } from "./messages";
 import { lessonCatalog, validateLessonCatalog } from "../lessons/catalog";
 import { isGrammarContentAvailable } from "../grammar/content";
@@ -35,6 +38,15 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
     if (grammarMessage && !isGrammarContentAvailable()) return { ok: false, error: "Grammar practice is unavailable until bundled content is fixed." };
     const contrastMessage = message.type === LEARNING_CONTRAST_MESSAGE || message.type === LEARNING_CONTRAST_INTRODUCE_MESSAGE || message.type === LEARNING_CONTRAST_RESULT_MESSAGE;
     if (contrastMessage && !isContrastContentAvailable()) return { ok: false, error: "Contrast practice is unavailable until bundled content is fixed." };
+    if (message.type === LEARNING_VERB_JOURNEY_MESSAGE) return { ok: true, result: { verbJourneys: await store.getVerbJourneyRecord() } };
+    if (message.type === LEARNING_VERB_JOURNEY_RESULT_MESSAGE) {
+      const result = await store.recordVerbJourneyResult(message.payload);
+      return result.recorded ? { ok: true, result: { verbJourneys: result.verbJourneys } } : { ok: false, error: "This verb journey result was already recorded." };
+    }
+    if (message.type === LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE) {
+      const result = await store.recordVerbJourneyDailyFiveResult(message.payload);
+      return { ok: true, result: { verbJourneys: result.verbJourneys, snapshot: result.snapshot } };
+    }
     if (message.type === LEARNING_GRAMMAR_MESSAGE) return { ok: true, result: { grammar: await store.getGrammar(message.payload?.patternId) } };
     if (message.type === LEARNING_GRAMMAR_INTRODUCE_MESSAGE) return { ok: true, result: { grammar: await store.introduceGrammar(message.payload?.patternId) } };
     if (message.type === LEARNING_GRAMMAR_RESULT_MESSAGE) {

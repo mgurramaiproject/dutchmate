@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyDailyFiveResult, createDailyFiveSnapshot, getOverallMastery, getWeakerMasteryDimension, selectGrammarDailyFiveTasks } from "./daily-five";
+import { applyDailyFiveResult, createDailyFiveSnapshot, getOverallMastery, getWeakerMasteryDimension, selectGrammarDailyFiveTasks, selectVerbJourneyDailyFiveTasks } from "./daily-five";
 import { createNewMastery, type LearningItem } from "./learning-record";
 
 const day = 24 * 60 * 60 * 1_000;
@@ -115,6 +115,15 @@ describe("Daily Five scheduling", () => {
     ];
     expect(selectGrammarDailyFiveTasks(candidates, 10 * day, 2).map((task) => task.patternId)).toEqual(["a0-zijn-present", "a0-hebben-present"]);
     expect(selectGrammarDailyFiveTasks(candidates.slice(2), 10 * day, 2).map((task) => task.patternId)).toEqual(["a0-regular-present", "a0-yes-no-inversion"]);
+  });
+
+  it("selects one due or weak Verb Journey task deterministically", () => {
+    const task = (exerciseId: string, formOrSkillId: string) => ({ kind: "verb" as const, verbId: "verb.werken" as const, formOrSkillId, contentVersion: "015-1" as const, exerciseFamily: "meaning", exerciseId });
+    const skill = (id: string, status: "needs-practice" | "practising", dueAt: number) => ({ id, verbId: "verb.werken", formOrSkillId: id.split("\u001f")[1], status, exerciseFamilies: {}, delayedOrRecombinedEvidence: false, dueAt, evidenceRevision: 1, updatedAt: 1 });
+    expect(selectVerbJourneyDailyFiveTasks([
+      { task: task("later", "skill.werken.vtt-completed"), skill: skill("verb.werken\u001fskill.werken.vtt-completed", "practising", 12 * day), dueAt: 12 * day, skillOrder: 1 },
+      { task: task("weak", "skill.werken.vtt-completed"), skill: skill("verb.werken\u001fskill.werken.vtt-completed", "needs-practice", 20 * day), dueAt: 20 * day, skillOrder: 0 },
+    ], 10 * day)).toEqual([task("weak", "skill.werken.vtt-completed")]);
   });
 });
 

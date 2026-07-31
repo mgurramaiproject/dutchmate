@@ -3,8 +3,9 @@ import { createLearningClient } from "./learning-client";
 import { createSettingsClient } from "./settings-client";
 import { getDailyFiveReviewView, getDailyFiveView } from "./daily-five-view";
 import { getSavedContextViews, getSavedShelfView, type SavedContextView, type SavedShelfSort } from "./saved-shelf-view";
+import type { SavedVerbJourneyLink } from "../verb-journeys/saved-link";
 import { getPopupTabForKey } from "./tab-navigation";
-import type { ContrastDailyFiveTask, DailyFiveSnapshot, GrammarDailyFiveTask } from "../vocabulary/daily-five";
+import type { ContrastDailyFiveTask, DailyFiveSnapshot, GrammarDailyFiveTask, VerbJourneyDailyFiveTask } from "../vocabulary/daily-five";
 import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningContext, type LearningItem, type LessonProgress } from "../vocabulary/learning-record";
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
@@ -20,6 +21,10 @@ import type { GrammarRecord } from "../grammar/learning";
 import { contrastPack, type ContrastExercise, type ContrastPackId } from "../grammar/contrast";
 import { contrastResultMessage, type ContrastRecord, type ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
 import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
+import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type JourneyStatus, type VerbFormRecord } from "../verb-journeys/content";
+import { advanceVerbPractice, checkVerbPracticeAnswer, checkVerbPracticeQuestion, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
+import type { VerbJourneyRecord } from "../verb-journeys/learning";
+import { renderWithRecovery } from "./render-recovery";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
@@ -35,7 +40,7 @@ let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "savedContextMission" | "settings" = "today";
+let screen: "today" | "lessons" | "practicalStories" | "saved" | "lesson" | "review" | "savedQuiz" | "savedContextMission" | "settings" | "verbJourneys" | "verbJourneyOverview" | "verbJourneyStory" | "verbJourneyNotice" | "verbMap" | "verbEnglishComparison" | "verbPractice" | "verbCompletion" = "today";
 let lessonSession: LessonSession | null = null;
 let grammarRecord: GrammarRecord | null = null;
 let grammarRecords: Partial<Record<GrammarPatternId, GrammarRecord>> = {};
@@ -71,7 +76,23 @@ let savedContextMissionError: string | null = null;
 let savedContextMissionRetry: "again" | "got-it" | null = null;
 let lessonStatusFilter: LessonFilterStatus = "all";
 let lessonLevelFilter: LessonFilterLevel = "all";
-let focusedOrigin: "today" | "lessons" | "saved" | null = null;
+let focusedOrigin: "today" | "lessons" | "practicalStories" | "saved" | null = null;
+let activeVerbJourneyId = "journey.werken.vtt-completed";
+let selectedVerbFormTense: DutchTense = "VTT";
+let verbMapOrigin: "overview" | "notice" | "saved" = "overview";
+let verbEnglishComparisonOrigin: "overview" | "map" = "overview";
+let verbEnglishComparisonGroup: "present" | "past" | "future" = "present";
+let expandedEnglishTense: EnglishTense | null = "present-simple";
+let verbBoundaryMessage: string | null = null;
+let verbNoticeDecision: DutchTense | null = null;
+let verbPracticeSession: VerbPracticeSession | null = null;
+let verbJourneyRecord: VerbJourneyRecord | null = null;
+let verbJourneySaveChain: Promise<void> = Promise.resolve();
+let activeVerbDailyFiveTask: VerbJourneyDailyFiveTask | null = null;
+let verbDailyFiveAnswer: VerbPracticeAnswer | null = null;
+let verbDailyFiveFeedback: { correct: boolean; message: string } | null = null;
+let verbDailyFiveChecked = false;
+let verbDailyFiveRetrying = false;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
@@ -101,6 +122,7 @@ async function load(continueAfterCompletion = false): Promise<void> {
       grammarRecord = grammarRecords["a0-zijn-present"] ?? null;
     } catch { grammarRecords = {}; grammarRecord = null; }
     try { contrastRecord = await learningClient.getContrast(); } catch { contrastRecord = null; }
+    try { verbJourneyRecord = await learningClient.getVerbJourneyRecord(); } catch { verbJourneyRecord = null; }
     try {
       lessonProgressById = Object.fromEntries(await Promise.all(lessonCatalog.lessons.map(async (lesson) => [lesson.id, await learningClient.getLessonProgress(lesson.id)] as const)));
       lessonsError = null;
@@ -132,12 +154,13 @@ function render(): void {
   if (screen !== "saved") expandedSavedItemId = null;
   const focused = screen === "review" || screen === "lesson" || screen === "savedQuiz" || screen === "savedContextMission";
   const activeTab = focused
-    ? focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" || screen === "savedContextMission" ? "saved" : "today")
-    : screen === "lesson" || screen === "lessons" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
+    ? focusedOrigin === "practicalStories" ? "lessons" : focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" || screen === "savedContextMission" ? "saved" : "today")
+    : screen === "lesson" || screen === "lessons" || screen === "practicalStories" || screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" || screen === "verbEnglishComparison" || screen === "verbPractice" || screen === "verbCompletion" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.toggleAttribute("hidden", screen === "lesson");
   primaryNavigation?.classList.toggle("is-locked", focused);
   content.classList.toggle("lesson-panel", screen === "lesson");
+  content.classList.toggle("verb-journey-panel", screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" || screen === "verbEnglishComparison" || screen === "verbPractice" || screen === "verbCompletion");
   content.classList.toggle("today-panel", screen === "today");
   for (const [tab, key] of [[todayTab, "today"], [lessonsTab, "lessons"], [savedTab, "saved"]] as const) {
     const selected = activeTab === key;
@@ -149,7 +172,15 @@ function render(): void {
   }
   content?.setAttribute("aria-labelledby", `${activeTab}-tab`);
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : renderSettings());
+  renderWithRecovery(content, () => screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "practicalStories" ? renderPracticalStories() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : screen === "verbJourneys" ? renderVerbJourneys() : screen === "verbJourneyOverview" ? renderVerbJourneyOverview() : screen === "verbJourneyStory" ? renderVerbJourneyStory() : screen === "verbJourneyNotice" ? renderVerbJourneyNotice() : screen === "verbMap" ? renderVerbMap() : screen === "verbEnglishComparison" ? renderVerbEnglishComparison() : screen === "verbPractice" ? renderVerbPractice() : screen === "verbCompletion" ? renderVerbCompletion() : renderSettings(), renderRecovery);
+}
+
+function renderRecovery(): HTMLElement {
+  const wrapper = section("render-recovery");
+  const returnToToday = button("Return to Today", "button primary-button");
+  returnToToday.addEventListener("click", () => { screen = "today"; render(); content?.focus(); });
+  wrapper.append(eyebrow("Popup content unavailable"), heading("Your learning is still safe."), text("This screen could not be rendered. Return to Today and continue from your local progress."), returnToToday);
+  return wrapper;
 }
 
 function renderSaved(): HTMLElement {
@@ -225,6 +256,16 @@ function renderSaved(): HTMLElement {
       const sourceContexts = [...(sourceItem?.contexts ?? [])].sort((first, second) => second.addedAt - first.addedAt).slice(0, 3);
       for (const [index, context] of item.details.contexts.entries()) detail.append(renderSavedContext(context, item.dutch, item.id, sourceContexts[index]));
       if (item.details.contexts.length === 0) detail.append(text("No saved page context.", "saved-no-context"));
+      if (item.verbJourney) {
+        const verbActions = section("saved-verb-journey");
+        verbActions.append(text(`Resolved werken form · ${item.verbJourney.form}`, "saved-verb-journey-label"), text("This link uses bundled form evidence only.", "saved-verb-journey-note"));
+        const actions = document.createElement("div"); actions.className = "saved-verb-journey-actions";
+        const openMap = button("Open Verb Map", "button secondary-button");
+        openMap.addEventListener("click", () => openSavedVerbMap(item.verbJourney!));
+        const practise = button("Practise VTT · 5 questions", "button primary-button");
+        practise.addEventListener("click", () => startSavedVerbPractice(item.verbJourney!));
+        actions.append(openMap, practise); verbActions.append(actions); detail.append(verbActions);
+      }
       const mission = sourceItem ? createSavedContextMission(sourceItem) : null;
       if (mission) {
         const practise = button("Practise context", "button primary-button saved-context-practice");
@@ -341,12 +382,15 @@ function renderToday(): HTMLElement {
   const reviewsCompletedToday = todayActivity?.reviews ?? null;
   const lessonsCompletedToday = todayActivity?.lessons ?? todayActivity?.lessonAdditions ?? null;
   const grammarCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "grammar").length;
+  const verbCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "verb").length;
   const nextAction = section("next-action");
   const actionCopy = completed
     ? text("Your Daily Five is complete. Keep going only if you want to.", "body-copy completion-copy")
     : text(total === 0
       ? "Choose a short practical story. DutchMate will never start one automatically."
-      : grammarCount > 0
+      : verbCount > 0
+        ? "Review one weak verb skill in context, alongside your useful words."
+        : grammarCount > 0
         ? "Practise useful words and use one grammar pattern in context."
         : "Practise five useful words. Start now.");
   nextAction.append(eyebrow(total === 0 ? "Ready when you are" : `Ready now · about ${Math.max(1, total - done) * 1} min`), heading(completed ? "Five small wins." : total === 0 ? "A lesson is ready." : "Start your Daily Five."), actionCopy);
@@ -359,9 +403,10 @@ function renderToday(): HTMLElement {
     action.disabled = pending;
     action.addEventListener("click", () => {
       if (completed) void startContinuation();
-      else { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; activeGrammarTask = null; activeContrastTask = null; render(); content?.focus(); }
+      else { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; activeGrammarTask = null; activeContrastTask = null; activeVerbDailyFiveTask = null; verbDailyFiveAnswer = null; verbDailyFiveFeedback = null; verbDailyFiveChecked = false; verbDailyFiveRetrying = false; render(); content?.focus(); }
     });
     nextAction.append(action);
+    if (verbCount > 0) nextAction.append(text("Verb review · werken · VTT", "action-meta"));
     if (completed && reviewsCompletedToday !== null) nextAction.append(text(`${reviewsCompletedToday} item${reviewsCompletedToday === 1 ? "" : "s"} reviewed today`, "review-completion-meta"));
   }
   if (total === 0 || !completed) nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
@@ -489,7 +534,39 @@ function activityTotalValue(activity: LearningRhythm["activity"][number] | undef
 
 function renderLessons(): HTMLElement {
   const wrapper = section("lessons-content");
-  wrapper.append(eyebrow(`Lesson library · ${lessonCatalog.lessons.length} small practical stories`), heading("Lesson library"), text("Choose a situation. Each lesson is 3–5 minutes."));
+  wrapper.append(eyebrow("Lesson library"), heading("Learn in context"), text("Choose a lesson type, then continue at your own pace."));
+  const categoryGroups = section("lesson-category-groups");
+  const verbGroup = section("lesson-category-group verb-journeys-group");
+  verbGroup.append(renderLessonCategoryHeader("Verb Journeys", "One verb across useful forms", "route"));
+  const verbEntry = button("", "verb-journey-entry");
+  verbEntry.classList.add("lesson-category-card");
+  verbEntry.setAttribute("aria-label", "Open Verb Journeys");
+  const entryText = (value: string, className: string): HTMLElement => { const node = document.createElement("span"); node.className = className; node.textContent = value; return node; };
+  const verbCopy = document.createElement("span"); verbCopy.className = "lesson-category-card-copy";
+  verbCopy.append(entryText("Follow one useful verb from a real context to its complete Dutch map.", "verb-entry-copy"), entryText("Open journeys →", "verb-entry-action"));
+  verbEntry.append(svgIcon("route"), verbCopy, svgIcon("chevron-right"));
+  verbEntry.addEventListener("click", () => { screen = "verbJourneys"; render(); content?.focus(); });
+  verbGroup.append(verbEntry);
+  categoryGroups.append(verbGroup);
+  const practicalGroup = section("lesson-category-group practical-stories-group");
+  practicalGroup.append(renderLessonCategoryHeader("Practical Stories", "Everyday Dutch situations", "book-open"));
+  const practicalEntry = button("", "lesson-category-card practical-stories-entry");
+  practicalEntry.setAttribute("aria-label", "Open Practical Stories");
+  const practicalCopy = document.createElement("span"); practicalCopy.className = "lesson-category-card-copy";
+  practicalCopy.append(entryText("Follow a short everyday situation from read to review.", "verb-entry-copy"), entryText("Open stories →", "verb-entry-action"));
+  practicalEntry.append(svgIcon("book-open"), practicalCopy, svgIcon("chevron-right"));
+  practicalEntry.addEventListener("click", () => { screen = "practicalStories"; render(); content?.focus(); });
+  practicalGroup.append(practicalEntry);
+  categoryGroups.append(practicalGroup);
+  wrapper.append(categoryGroups);
+  return wrapper;
+}
+
+function renderPracticalStories(): HTMLElement {
+  const wrapper = section("lessons-content practical-stories-content");
+  const back = journeyBack("Lessons");
+  back.addEventListener("click", () => { screen = "lessons"; render(); content?.focus(); });
+  wrapper.append(back, eyebrow(`Lesson library · ${lessonCatalog.lessons.length} small practical stories`), heading("Practical Stories"), text("Choose a situation. Each lesson is 3–5 minutes."));
   wrapper.append(renderLessonFilters());
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
@@ -523,6 +600,510 @@ function renderLessons(): HTMLElement {
   wrapper.append(library);
   if (visibleLessons.length === 0) wrapper.append(text("No lessons match these filters.", "empty-state"));
   wrapper.append(localNote()); return wrapper;
+}
+
+function renderLessonCategoryHeader(title: string, description: string, iconName: IconName): HTMLElement {
+  const header = document.createElement("div");
+  header.className = "lesson-category-header";
+  header.append(svgIcon(iconName, "lesson-category-icon"));
+  const copy = document.createElement("span");
+  copy.className = "lesson-category-header-copy";
+  const titleNode = document.createElement("strong");
+  titleNode.className = "lesson-category-title";
+  titleNode.textContent = title;
+  const descriptionNode = document.createElement("small");
+  descriptionNode.textContent = description;
+  copy.append(titleNode, descriptionNode);
+  header.append(copy);
+  return header;
+}
+
+function renderVerbJourneys(): HTMLElement {
+  const wrapper = section("verb-journeys-content");
+  if (!isVerbJourneyContentAvailable()) {
+    wrapper.append(eyebrow("Verb Journeys unavailable"), heading("This content needs an update."), text("The reviewed werken pack could not be loaded safely."));
+    const back = button("Back to Lessons", "button primary-button"); back.addEventListener("click", () => { screen = "lessons"; render(); }); wrapper.append(back);
+    return wrapper;
+  }
+  const back = journeyBack("Lessons");
+  back.addEventListener("click", () => { screen = "lessons"; render(); });
+  wrapper.append(back, eyebrow("Lessons · Verb Journeys"), heading("Verb Journeys"), text("Choose one useful Dutch verb and follow its staged forms from context to reference."));
+  const list = section("verb-directory");
+  const entries = [
+    { number: "01", lemma: "werken", detail: "to work · A1 core verb", enabled: true },
+    { number: "02", lemma: "zijn", detail: "to be · coming later", enabled: false },
+    { number: "03", lemma: "hebben", detail: "to have · coming later", enabled: false },
+    { number: "04", lemma: "gaan", detail: "to go · coming later", enabled: false },
+  ];
+  for (const entry of entries) {
+    const row = entry.enabled ? button("", "verb-directory-row") : document.createElement("div");
+    row.className = `verb-directory-row${entry.enabled ? " is-openable" : " is-placeholder"}`;
+    row.setAttribute("aria-label", entry.enabled ? `Open ${entry.lemma} Verb Journey` : `${entry.lemma} Verb Journey coming later`);
+    const number = document.createElement("span"); number.className = "verb-directory-number"; number.textContent = entry.number;
+    const copy = document.createElement("span"); copy.className = "verb-directory-copy";
+    const lemma = document.createElement("strong"); lemma.textContent = entry.lemma;
+    const detail = document.createElement("small"); detail.textContent = entry.detail;
+    copy.append(lemma, detail);
+    const action = document.createElement("span"); action.className = "verb-directory-action"; action.textContent = entry.enabled ? "Open →" : "Later";
+    row.append(number, copy, action);
+    if (entry.enabled) {
+      const progress = getVerbJourneyProgress();
+      row.classList.add("has-progress");
+      row.append(spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-directory-progress-summary"), renderVerbProgressTrack(progress));
+    }
+    if (entry.enabled) row.addEventListener("click", () => { screen = "verbJourneyOverview"; render(); content?.focus(); });
+    list.append(row);
+  }
+  wrapper.append(list, text("Numbers reserve a stable place for future verb journeys; they do not lock your learning path.", "local-note"));
+  return wrapper;
+}
+
+function getVerbJourneyProgress(): { completedForms: number; totalForms: number; percentage: number } {
+  const completedForms = verbJourneyPack.dutchForms.filter((form) => getVerbFormEvidence(form).length > 0).length;
+  const totalForms = verbJourneyPack.dutchForms.length;
+  return { completedForms, totalForms, percentage: totalForms === 0 ? 0 : Math.round((completedForms / totalForms) * 100) };
+}
+
+function getVerbFormEvidence(form: VerbFormRecord): VerbJourneyRecord["skills"][string][] {
+  const skillIds = new Set(verbJourneyPack.journeys.filter((journey) => journey.targetForms.includes(form.dutchTense)).flatMap((journey) => journey.targetSkills));
+  return Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === verbJourneyPack.verb.id && skillIds.has(skill.formOrSkillId));
+}
+
+function getVerbJourneyDisplayStatus(journey: JourneyRecord): JourneyStatus {
+  if (journey.kind === "reference") return "reference";
+  if (journey.kind === "later") return "later";
+  const evidence = journey.targetSkills.flatMap((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId));
+  if (evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated")) return "mastered";
+  if (evidence.length > 0) return "learning";
+  const firstUnmasteredCore = verbJourneyPack.journeys.find((candidate) => candidate.kind === "core" && getVerbJourneyDisplayStatusWithoutRecursion(candidate) !== "mastered");
+  return firstUnmasteredCore?.id === journey.id ? "next" : "later";
+}
+
+function getVerbJourneyDisplayStatusWithoutRecursion(journey: JourneyRecord): JourneyStatus {
+  if (journey.kind === "reference") return "reference";
+  if (journey.kind === "later") return "later";
+  const evidence = journey.targetSkills.flatMap((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId));
+  return evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated") ? "mastered" : "next";
+}
+
+function getVerbFormDisplayStatus(form: VerbFormRecord): JourneyStatus {
+  const evidence = getVerbFormEvidence(form);
+  if (evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated")) return "mastered";
+  if (evidence.length > 0) return "learning";
+  if (form.teachingPriority === "reference") return "reference";
+  if (form.teachingPriority === "later") return "later";
+  return "next";
+}
+
+function renderVerbProgressTrack(progress: ReturnType<typeof getVerbJourneyProgress>, className = ""): HTMLElement {
+  const track = document.createElement("span");
+  track.className = `verb-progress-track${className ? ` ${className}` : ""}`;
+  track.setAttribute("role", "progressbar");
+  track.setAttribute("aria-valuemin", "0");
+  track.setAttribute("aria-valuemax", String(progress.totalForms));
+  track.setAttribute("aria-valuenow", String(progress.completedForms));
+  track.setAttribute("aria-label", `${progress.completedForms} of ${progress.totalForms} Dutch forms practised`);
+  const fill = document.createElement("span");
+  fill.className = "verb-progress-fill";
+  fill.style.width = `${progress.percentage}%`;
+  track.append(fill);
+  return track;
+}
+
+function renderVerbJourneyOverview(): HTMLElement {
+  const wrapper = section("verb-journey-overview");
+  const pack = verbJourneyPack;
+  const back = journeyBack("Verb Journeys");
+  back.addEventListener("click", () => { screen = "verbJourneys"; render(); });
+  wrapper.append(back, eyebrow("A1 core verb"), heading(pack.verb.lemma), text(`${pack.verb.english} · regular weak verb · auxiliary: ${pack.verb.auxiliary}`, "journey-lead"));
+  const progress = getVerbJourneyProgress();
+  const mastery = section("verb-mastery-card");
+  const masteryHeader = document.createElement("div");
+  masteryHeader.className = "verb-progress-header";
+  const masteryCopy = document.createElement("span");
+  masteryCopy.className = "verb-progress-copy";
+  masteryCopy.append(eyebrow("Your Verb Journey"), spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-mastery-count"), text("Practice evidence grows here; completion does not imply mastery.", "verb-mastery-note"));
+  masteryHeader.append(masteryCopy, svgIcon("route", "verb-mastery-icon"));
+  const mapAction = button("8 Dutch forms", "button primary-button");
+  mapAction.addEventListener("click", () => { selectedVerbFormTense = "VTT"; verbMapOrigin = "overview"; screen = "verbMap"; render(); content?.focus(); });
+  const comparisonAction = button("12 English forms", "button secondary-button");
+  comparisonAction.addEventListener("click", () => { verbEnglishComparisonOrigin = "overview"; screen = "verbEnglishComparison"; render(); content?.focus(); });
+  const actions = document.createElement("div");
+  actions.className = "verb-mastery-actions";
+  actions.append(mapAction, comparisonAction);
+  mastery.append(masteryHeader, spanText("Eight Dutch forms", "verb-mastery-map-label"), renderVerbProgressTrack(progress, "light"), actions);
+  wrapper.append(mastery, text("Learning journeys", "journey-section-label"));
+  const journeyList = section("journey-list");
+  for (const [index, journey] of pack.journeys.entries()) {
+    const row = button("", "journey-list-row");
+    const journeyNumber = String(index + 1).padStart(2, "0");
+    const displayStatus = getVerbJourneyDisplayStatus(journey);
+    row.setAttribute("aria-label", `Journey ${journeyNumber}: ${journey.title}, ${journey.subtitle}, ${displayStatus}`);
+    const status = document.createElement("span"); status.className = `journey-status ${displayStatus}`;
+    status.append(spanText(journeyNumber, "journey-status-number"));
+    if (displayStatus === "mastered") { const completion = spanText("✓", "journey-completion-mark"); completion.setAttribute("aria-label", "Completed"); completion.title = "Completed"; status.append(completion); }
+    const copy = document.createElement("span"); copy.className = "journey-list-copy";
+    const title = document.createElement("strong"); title.textContent = journey.title;
+    const subtitle = document.createElement("small"); subtitle.textContent = journey.subtitle;
+    copy.append(title, subtitle);
+    const badge = document.createElement("span"); badge.className = `journey-status-label ${displayStatus}`; badge.textContent = displayStatus === "mastered" ? "Mastered" : displayStatus === "learning" ? "Continue" : displayStatus === "next" ? "Next" : displayStatus === "reference" ? "Reference" : "Later";
+    row.append(status, copy, badge);
+    row.addEventListener("click", () => openVerbJourney(journey));
+    journeyList.append(row);
+  }
+  wrapper.append(journeyList);
+  if (verbBoundaryMessage) { const status = text(verbBoundaryMessage, "journey-boundary"); status.setAttribute("role", "status"); wrapper.append(status); }
+  const current = getVerbJourney(activeVerbJourneyId) ?? pack.journeys[1];
+  const continueButton = button(`Continue ${current.title} →`, "button primary-button");
+  continueButton.addEventListener("click", () => openVerbJourney(current));
+  const practiceButton = button(verbPracticeActionLabel(), "button secondary-button");
+  practiceButton.addEventListener("click", startVerbPractice);
+  wrapper.append(continueButton, practiceButton);
+  return wrapper;
+}
+
+function openVerbJourney(journey: JourneyRecord): void {
+  activeVerbJourneyId = journey.id;
+  verbBoundaryMessage = null;
+  if (journey.kind === "core" && journey.story.length > 0) { screen = "verbJourneyStory"; render(); content?.focus(); return; }
+  verbBoundaryMessage = `${journey.title} is reference material in this first slice. The complete map remains available without a beginner gate.`;
+  screen = "verbJourneyOverview";
+  render();
+}
+
+function renderVerbJourneyStory(): HTMLElement {
+  const wrapper = section("verb-journey-story");
+  const journey = getVerbJourney(activeVerbJourneyId) ?? verbJourneyPack.journeys[1];
+  const back = journeyBack(journey.title);
+  back.addEventListener("click", () => { screen = "verbJourneyOverview"; render(); });
+  wrapper.append(back, text(`${journey.subtitle} · Story`, "journey-meta"), eyebrow(journey.title), heading(journey.storyTitle ?? journey.title), text(journey.learningGoal, "journey-goal"));
+  const story = section("verb-story-card");
+  for (const line of journey.story) {
+    const row = document.createElement("div"); row.className = "verb-story-line";
+    const translation = text(line.english, "verb-story-translation");
+    const telugu = text(line.telugu, "verb-story-telugu");
+    telugu.lang = "te";
+    row.append(renderStoryLine(line), translation, telugu);
+    story.append(row);
+  }
+  wrapper.append(story, text("Read the highlighted form in context, then notice what changes.", "journey-helper"));
+  const next = button("Notice the pattern →", "button primary-button");
+  next.addEventListener("click", () => { verbNoticeDecision = null; screen = "verbJourneyNotice"; render(); content?.focus(); });
+  wrapper.append(next);
+  return wrapper;
+}
+
+function renderStoryLine(line: { nl: string; targets: Array<{ text: string }> }): HTMLElement {
+  const element = document.createElement("p"); element.className = "verb-story-dutch"; element.lang = "nl";
+  let cursor = 0;
+  const targets = [...line.targets].sort((first, second) => line.nl.indexOf(first.text) - line.nl.indexOf(second.text));
+  for (const target of targets) {
+    const start = line.nl.indexOf(target.text, cursor);
+    if (start < cursor) continue;
+    element.append(line.nl.slice(cursor, start), highlightedPattern(target.text));
+    cursor = start + target.text.length;
+  }
+  element.append(line.nl.slice(cursor));
+  return element;
+}
+
+function renderVerbJourneyNotice(): HTMLElement {
+  const wrapper = section("verb-journey-notice");
+  const journey = getVerbJourney(activeVerbJourneyId) ?? verbJourneyPack.journeys[1];
+  const notice = journey.notice ?? verbJourneyPack.journeys[1].notice!;
+  const back = journeyBack("Story");
+  back.addEventListener("click", () => { screen = "verbJourneyStory"; render(); });
+  wrapper.append(back, text(`${journey.subtitle} · Notice`, "journey-meta"), eyebrow("Notice the pattern"), heading(notice.title), text(notice.subtitle, "journey-lead"));
+  const comparison = section("verb-pattern-stack");
+  for (const item of notice.comparison) {
+    const card = section("verb-pattern-card");
+    const isCurrent = item.tense === journey.targetForms[0];
+    const chip = spanText(item.label, `verb-pattern-tag verb-notice-chip ${isCurrent ? "current" : "contrast"}`);
+    card.append(chip, renderVerbNoticeSentence(item.sentence, item.tense), text(item.meaning, "verb-pattern-meaning"));
+    comparison.append(card);
+  }
+  const formula = section("verb-formula-card");
+  formula.append(text("FORMULA", "verb-card-label"), renderVerbNoticeFormula(notice.formula), text(notice.formulaNote, "verb-card-copy"));
+  const contrast = section("verb-contrast-card");
+  const contrastTags = document.createElement("div");
+  contrastTags.className = "verb-notice-chip-row";
+  contrastTags.append(spanText("VTT · completed fact", "verb-notice-chip current"), spanText("OVT · past habit", "verb-notice-chip contrast"));
+  contrast.append(text("VALUABLE CONTRAST", "verb-card-label"), contrastTags, text(notice.valuableContrast, "verb-card-copy"));
+  const targetTense = journey.targetForms[0] ?? "VTT";
+  const interaction = section("verb-notice-interaction");
+  interaction.append(text("NOTICE", "verb-card-label"), text(targetTense === "VTT" ? "Which sentence reports one completed event?" : targetTense === "OVT" ? "Which sentence describes a past habit or story background?" : "Which sentence matches this journey's focus?", "verb-card-copy"));
+  const choices = section("verb-notice-choices");
+  for (const item of notice.comparison) {
+    const choice = button("", `button verb-notice-choice${verbNoticeDecision === item.tense ? " is-selected" : ""}`);
+    choice.setAttribute("aria-pressed", String(verbNoticeDecision === item.tense));
+    choice.append(renderVerbNoticeSentence(item.sentence, item.tense), text(item.meaning, "verb-pattern-meaning"));
+    choice.addEventListener("click", () => { verbNoticeDecision = item.tense; render(); });
+    choices.append(choice);
+  }
+  interaction.append(choices);
+  if (verbNoticeDecision) {
+    const feedback = text(verbNoticeDecision === targetTense ? `Correct. ${notice.valuableContrast}` : `Not quite. ${notice.valuableContrast}`, `verb-notice-feedback ${verbNoticeDecision === targetTense ? "correct" : "needs-review"}`);
+    feedback.setAttribute("role", "status");
+    interaction.append(feedback);
+  }
+  wrapper.append(comparison, formula, contrast, interaction);
+  const next = button("Place it on the 8-form map →", "button primary-button");
+  next.disabled = verbNoticeDecision === null;
+  next.addEventListener("click", () => { selectedVerbFormTense = journey.targetForms[0] ?? "VTT"; verbMapOrigin = "notice"; screen = "verbMap"; render(); content?.focus(); });
+  wrapper.append(next);
+  return wrapper;
+}
+
+function renderVerbMap(): HTMLElement {
+  const wrapper = section("verb-map-screen");
+  const backLabel = verbMapOrigin === "notice" ? "Notice" : verbMapOrigin === "saved" ? "Saved" : "werken";
+  const back = journeyBack(backLabel);
+  back.addEventListener("click", () => { screen = verbMapOrigin === "notice" ? "verbJourneyNotice" : verbMapOrigin === "saved" ? "saved" : "verbJourneyOverview"; render(); });
+  wrapper.append(back, text("Canonical map · werken", "journey-meta"), eyebrow("Eight Dutch forms"), heading("Werken Verb Map"), text("One stable map for every werken journey. Select a form to inspect it.", "journey-lead"));
+  const legend = document.createElement("div"); legend.className = "verb-map-legend";
+  legend.append(text("FORM STATUS", "verb-map-legend-title"));
+  for (const status of ["mastered", "learning", "later", "reference"] as const) {
+    const item = document.createElement("span"); item.className = `map-legend-item ${status}`;
+    const meta = verbFormStatusMeta(status);
+    item.append(svgIcon(meta.icon, "verb-status-icon"), spanText(meta.label, "verb-status-label"), spanText(meta.detail, "verb-status-detail"));
+    legend.append(item);
+  }
+  wrapper.append(legend);
+  const map = document.createElement("div"); map.className = "verb-map-grid"; map.setAttribute("role", "grid"); map.setAttribute("aria-label", "Eight Dutch forms for werken");
+  const corner = document.createElement("div"); corner.className = "verb-map-corner"; corner.append(spanText("VIEWPOINT", "verb-map-label-main"), spanText("Tijd & aspect", "verb-map-label-sub")); map.append(corner);
+  for (const headingValue of [["Onvoltooid", "Not completed"], ["Voltooid", "Completed"]] as const) { const header = document.createElement("div"); header.className = "verb-map-column"; header.append(spanText(headingValue[0], "verb-map-label-main"), spanText(headingValue[1], "verb-map-label-sub")); map.append(header); }
+  for (const viewpoint of ["present", "past", "future", "future-from-past"] as const) {
+    const rowLabel = document.createElement("div"); rowLabel.className = "verb-map-row-label";
+    const rowMeta = verbMapViewpointMeta(viewpoint);
+    rowLabel.append(spanText(rowMeta.english, "verb-map-label-main"), spanText(rowMeta.dutch, "verb-map-label-sub"), spanText("2 forms", "verb-map-row-count"));
+    map.append(rowLabel);
+    for (const completion of ["onvoltooid", "voltooid"] as const) {
+      const form = verbJourneyPack.dutchForms.find((candidate) => candidate.viewpoint === viewpoint && candidate.completion === completion)!;
+      const displayStatus = getVerbFormDisplayStatus(form);
+      const card = button("", `verb-form-card ${displayStatus}${form.dutchTense === selectedVerbFormTense ? " selected" : ""}`);
+      const statusMeta = verbFormStatusMeta(displayStatus);
+      card.setAttribute("role", "gridcell"); card.setAttribute("aria-label", `${form.dutchTense}: ${form.fullNameNl} · ${statusMeta.label}`); card.setAttribute("aria-pressed", String(form.dutchTense === selectedVerbFormTense));
+      const status = document.createElement("span"); status.className = `verb-form-status ${displayStatus}`; status.append(svgIcon(statusMeta.icon, "verb-status-icon"), spanText(statusMeta.label, "verb-status-label"));
+      card.append(status, spanText(form.dutchTense, "verb-form-code"), spanText(form.fullNameNl, "verb-form-full"), spanText(form.sentence, "verb-form-example"));
+      card.addEventListener("click", () => { selectedVerbFormTense = form.dutchTense; render(); });
+      map.append(card);
+    }
+  }
+  wrapper.append(map);
+  const selected = getVerbForm(selectedVerbFormTense) ?? verbJourneyPack.dutchForms[0];
+  const comparisonButton = button("Compare 12 English forms →", "button secondary-button");
+  comparisonButton.addEventListener("click", () => { verbEnglishComparisonOrigin = "map"; screen = "verbEnglishComparison"; render(); content?.focus(); });
+  const practiceButton = button(verbPracticeActionLabel(), "button primary-button");
+  practiceButton.addEventListener("click", startVerbPractice);
+  wrapper.append(renderVerbFormDetail(selected), text("Important: Dutch onvoltooid does not mean the same thing as English continuous, and voltooid is not always a direct English perfect. Context and time words still matter.", "verb-map-note"), comparisonButton, practiceButton);
+  return wrapper;
+}
+
+function renderVerbEnglishComparison(): HTMLElement {
+  const wrapper = section("verb-english-comparison");
+  const back = journeyBack(verbEnglishComparisonOrigin === "map" ? "Verb Map" : "werken");
+  back.addEventListener("click", () => { screen = verbEnglishComparisonOrigin === "map" ? "verbMap" : "verbJourneyOverview"; render(); content?.focus(); });
+  wrapper.append(back, text("English lens · werken", "journey-meta"), eyebrow("English comparison"), heading("12 English forms → Dutch"), text("Use this as a comparison lens, not a one-to-one tense conversion. Select a pattern to inspect the natural Dutch choices.", "journey-lead"));
+  const insight = section("verb-english-insight");
+  insight.append(text("CORE INSIGHT", "verb-card-label"), text("Several English patterns collapse into a simpler Dutch form plus a time marker such as nu, al, gisteren, morgen, or tegen vrijdag.", "verb-card-copy"));
+  wrapper.append(insight);
+  const tabs = document.createElement("div"); tabs.className = "verb-english-tabs"; tabs.setAttribute("role", "tablist"); tabs.setAttribute("aria-label", "English tense groups");
+  for (const group of ["present", "past", "future"] as const) {
+    const groupRecords = verbJourneyPack.englishComparison.filter((record) => record.group === group);
+    const tab = button(`${group[0].toUpperCase()}${group.slice(1)} · ${groupRecords.length}`, `verb-english-tab${verbEnglishComparisonGroup === group ? " is-active" : ""}`);
+    tab.setAttribute("role", "tab"); tab.setAttribute("aria-selected", String(verbEnglishComparisonGroup === group)); tab.setAttribute("tabindex", verbEnglishComparisonGroup === group ? "0" : "-1");
+    tab.addEventListener("click", () => { verbEnglishComparisonGroup = group; expandedEnglishTense = groupRecords[0]?.englishTense ?? null; render(); });
+    tabs.append(tab);
+  }
+  wrapper.append(tabs);
+  const records = verbJourneyPack.englishComparison.filter((record) => record.group === verbEnglishComparisonGroup);
+  const list = section("verb-english-list"); list.setAttribute("role", "tabpanel"); list.setAttribute("aria-label", `${verbEnglishComparisonGroup} English patterns`);
+  for (const [index, record] of records.entries()) list.append(renderEnglishComparisonCard(record, index + (verbEnglishComparisonGroup === "present" ? 1 : verbEnglishComparisonGroup === "past" ? 5 : 9)));
+  wrapper.append(list);
+  const mapButton = button("Back to 8-form map", "button secondary-button"); mapButton.addEventListener("click", () => { screen = "verbMap"; verbMapOrigin = verbEnglishComparisonOrigin === "map" ? verbMapOrigin : "overview"; render(); content?.focus(); });
+  wrapper.append(mapButton);
+  return wrapper;
+}
+
+function renderEnglishComparisonCard(record: EnglishMapRecord, index: number): HTMLElement {
+  const card = button("", `verb-english-card${expandedEnglishTense === record.englishTense ? " is-expanded" : ""}`);
+  card.setAttribute("aria-expanded", String(expandedEnglishTense === record.englishTense));
+  const header = document.createElement("span"); header.className = "verb-english-card-header";
+  header.append(spanText(String(index), "verb-english-index"), spanText(record.englishTense.replaceAll("-", " "), "verb-english-name"), spanText(expandedEnglishTense === record.englishTense ? "⌃" : "⌄", "verb-english-toggle"));
+  const english = text(record.english, "verb-english-example"); english.lang = "en";
+  const dutch = section("verb-english-dutch"); dutch.append(text(record.commonEverydayDutch, "verb-english-dutch-sentence"), text(englishAnalysisLabel(record), "verb-english-form"));
+  card.append(header, english, dutch);
+  const details = section("verb-english-details"); details.hidden = expandedEnglishTense !== record.englishTense;
+  details.append(meaning("Situation", record.situation), meaning("Meaning-preserving Dutch", record.meaningPreservingDutch), meaning("Common everyday Dutch", record.commonEverydayDutch), meaning("Dutch form or construction", englishAnalysis(record)), meaning("Mismatch / usage", record.mismatchNote));
+  card.append(details);
+  card.addEventListener("click", () => { expandedEnglishTense = expandedEnglishTense === record.englishTense ? null : record.englishTense; render(); });
+  return card;
+}
+
+function englishAnalysis(record: EnglishMapRecord): string {
+  const form = record.dutchAnalysis.primaryForm;
+  const alternatives = record.dutchAnalysis.alternativeForms?.join(" / ");
+  return [form, record.dutchAnalysis.construction, alternatives ? `alternative: ${alternatives}` : null].filter(Boolean).join(" · ") || "Context-dependent construction";
+}
+
+function englishAnalysisLabel(record: EnglishMapRecord): string {
+  return record.dutchAnalysis.primaryForm ?? record.dutchAnalysis.construction ?? "Context";
+}
+
+function verbPracticeActionLabel(): string {
+  return (verbJourneyRecord?.evidenceRevision ?? 0) > 0 ? "Review VTT · 5 questions →" : "Practise VTT · 5 questions →";
+}
+
+function renderVerbFormDetail(form: VerbFormRecord): HTMLElement {
+  const detail = section("verb-form-detail");
+  detail.append(text(`${form.dutchTense} · ${form.fullNameNl}`, "verb-detail-heading"), text(form.sentence, "verb-detail-example"), meaning("Practical meaning", form.usageMeaning), meaning("Formula", form.formula), meaning("Common usage", form.commonUsage), meaning("Learning priority", `${form.cefrLevel} · ${form.teachingPriority}`));
+  return detail;
+}
+
+function startVerbPractice(): void {
+  activeVerbJourneyId = "journey.werken.vtt-completed";
+  verbPracticeSession = createVerbPracticeSession();
+  screen = "verbPractice";
+  render();
+  content?.focus();
+}
+
+function openSavedVerbMap(link: SavedVerbJourneyLink): void {
+  selectedVerbFormTense = link.form;
+  verbMapOrigin = "saved";
+  screen = "verbMap";
+  render();
+  content?.focus();
+}
+
+function startSavedVerbPractice(link: SavedVerbJourneyLink): void {
+  selectedVerbFormTense = link.form;
+  verbMapOrigin = "saved";
+  startVerbPractice();
+}
+
+function renderVerbPractice(): HTMLElement {
+  const wrapper = section("verb-practice-screen");
+  const session = verbPracticeSession ?? createVerbPracticeSession();
+  verbPracticeSession = session;
+  const question = getCurrentVerbPracticeQuestion(session);
+  if (!question) { screen = "verbCompletion"; return renderVerbCompletion(); }
+  const isRepair = question.phase === "repair";
+  const back = journeyBack("Verb Map");
+  back.addEventListener("click", () => { screen = "verbMap"; render(); });
+  const coreNumber = Math.min(session.coreIndex + 1, getVerbPracticeQuestions().length);
+  wrapper.append(back, text(isRepair ? "Repair · up to 2 questions" : `VTT practice · decision ${coreNumber} of 5`, "journey-meta"), eyebrow(isRepair ? "Targeted repair" : "Five-question practice"), heading(question.prompt), text(question.context, "verb-practice-context"));
+  wrapper.append(renderVerbPracticeControls(question, session));
+  if (session.checked && session.lastResult) {
+    const status = text(session.lastResult.correct ? `Correct. ${session.lastResult.feedback}` : `Try again. ${session.lastResult.feedback}`, `verb-practice-feedback ${session.lastResult.correct ? "correct" : "incorrect"}`);
+    status.setAttribute("role", "status");
+    wrapper.append(status);
+    if (!session.lastResult.correct) {
+      const retry = button("Try again", "button secondary-button");
+      retry.addEventListener("click", () => {
+        const emptyAnswer: VerbPracticeAnswer = question.kind === "token-slots" || question.kind === "token-order" ? [] : "";
+        verbPracticeSession = { ...session, selectedAnswer: emptyAnswer, checked: false, lastResult: null };
+        render();
+        content?.focus();
+      });
+      wrapper.append(retry);
+    }
+    const lastCoreQuestion = session.coreIndex === getVerbPracticeQuestions().length - 1 && question.phase === "core";
+    const next = button(session.lastResult.correct && lastCoreQuestion ? "See completion" : "Continue", "button primary-button");
+    next.addEventListener("click", () => {
+      verbPracticeSession = advanceVerbPractice(session);
+      if (verbPracticeSession.completed) screen = "verbCompletion";
+      render();
+      content?.focus();
+    });
+    wrapper.append(next);
+  }
+  return wrapper;
+}
+
+function renderVerbPracticeControls(question: VerbPracticeQuestion & { phase: "core" | "repair" }, session: VerbPracticeSession): HTMLElement {
+  const wrapper = section("verb-practice-controls");
+  const selected = session.selectedAnswer;
+  if (question.kind === "token-slots" || question.kind === "token-order") {
+    const selectedTokens = Array.isArray(selected) ? selected : selected ? selected.split(" ") : [];
+    const answer = section("verb-answer-slots"); answer.setAttribute("aria-live", "polite");
+    if (selectedTokens.length === 0) answer.append(text("Choose words in order.", "verb-answer-placeholder"));
+    for (const [index, token] of selectedTokens.entries()) {
+      const remove = button(token, "verb-token-selected"); remove.setAttribute("aria-label", `Remove ${token} from answer`); remove.addEventListener("click", () => { const next = selectedTokens.filter((_candidate, tokenIndex) => tokenIndex !== index); verbPracticeSession = { ...session, selectedAnswer: next, checked: false, lastResult: null }; render(); }); answer.append(remove);
+    }
+    const available = section("verb-token-choices"); available.setAttribute("aria-label", "Available words");
+    for (const token of question.tokens ?? []) {
+      const used = selectedTokens.includes(token);
+      const choice = button(token, `button verb-token-choice${used ? " is-used" : ""}`); choice.disabled = used || session.checked; choice.setAttribute("aria-pressed", String(used));
+      choice.addEventListener("click", () => { const next = [...selectedTokens, token]; verbPracticeSession = { ...session, selectedAnswer: next, checked: false, lastResult: null }; render(); }); available.append(choice);
+    }
+    const reset = button("Reset", "button secondary-button verb-reset"); reset.disabled = session.checked || selectedTokens.length === 0; reset.addEventListener("click", () => { verbPracticeSession = { ...session, selectedAnswer: [], checked: false, lastResult: null }; render(); });
+    wrapper.append(answer, available, reset);
+  } else {
+    const choices = section(`verb-practice-choices ${question.kind === "map-placement" ? "map-placement-choices" : ""}`);
+    for (const choice of question.choices ?? []) {
+      const action = button(choice, `button${selected === choice ? " is-selected" : ""}`); action.setAttribute("aria-pressed", String(selected === choice)); action.disabled = session.checked;
+      action.addEventListener("click", () => { verbPracticeSession = { ...session, selectedAnswer: choice, checked: false, lastResult: null }; render(); }); choices.append(action);
+    }
+    wrapper.append(choices);
+  }
+  const answer = session.selectedAnswer;
+  const hasAnswer = Array.isArray(answer) ? answer.length > 0 : Boolean(answer);
+  const check = button("Check answer", "button primary-button"); check.disabled = session.checked || !hasAnswer;
+  check.addEventListener("click", () => {
+    if (session.selectedAnswer === null) return;
+    const checked = checkVerbPracticeAnswer(session, session.selectedAnswer);
+    verbPracticeSession = checked.session;
+    queueVerbJourneyResult(question, checked.result.correct);
+    render();
+  });
+  wrapper.append(check);
+  return wrapper;
+}
+
+function queueVerbJourneyResult(question: VerbPracticeQuestion & { phase: "core" | "repair" }, correct: boolean): void {
+  verbJourneySaveChain = verbJourneySaveChain.then(async () => {
+    try {
+      verbJourneyRecord = await learningClient.recordVerbJourneyResult({
+        verbId: question.verbId,
+        formOrSkillId: question.formOrSkillId,
+        exerciseFamily: question.exerciseFamily,
+        exerciseId: question.id,
+        contentVersion: "015-1",
+        result: correct ? "correct" : "incorrect",
+        ...(question.delayedOrRecombined ? { delayedOrRecombined: true } : {}),
+        expectedEvidenceRevision: verbJourneyRecord?.evidenceRevision ?? 0,
+      });
+    } catch {
+      // Practice feedback remains usable when persistence is unavailable.
+    }
+  }).catch(() => undefined);
+}
+
+function renderVerbCompletion(): HTMLElement {
+  const wrapper = section("verb-completion-screen");
+  const session = verbPracticeSession ?? createVerbPracticeSession();
+  const back = journeyBack(verbMapOrigin === "saved" ? "Saved" : "werken"); back.addEventListener("click", () => { screen = verbMapOrigin === "saved" ? "saved" : "verbJourneyOverview"; render(); });
+  wrapper.append(back, eyebrow("VTT practised"), heading("You used werken as a completed event."), text("This session reports demonstrated decisions; it does not claim full verb mastery.", "journey-lead"));
+  const decisions = section("verb-completion-decisions");
+  const latest = new Map(session.attempts.filter((attempt) => attempt.phase === "core").map((attempt) => [attempt.questionId, attempt]));
+  for (const question of getVerbPracticeQuestions()) {
+    const result = latest.get(question.id);
+    const row = document.createElement("div"); row.className = `verb-completion-row ${result?.correct ? "correct" : "needs-review"}`;
+    const mark = document.createElement("span"); mark.className = "verb-completion-mark"; mark.textContent = result?.correct ? "✓" : "!";
+    const copy = document.createElement("span"); copy.textContent = question.prompt;
+    row.append(mark, copy); decisions.append(row);
+  }
+  wrapper.append(decisions);
+  const needsReview = [...latest.values()].some((attempt) => !attempt.correct) || session.attempts.some((attempt) => attempt.phase === "repair" && !attempt.correct);
+  const review = section("verb-next-review");
+  review.append(text(needsReview ? "Review needs remain separate from journey completion." : "Five controlled decisions completed. Review status remains separate from journey completion.", "verb-card-copy"), text("VTT completed fact vs OVT past habit / story background", "verb-review-contrast"));
+  const contrast = button("Review the VTT · OVT contrast →", "button primary-button"); contrast.addEventListener("click", () => { activeVerbJourneyId = "journey.werken.vtt-completed"; verbNoticeDecision = null; screen = "verbJourneyNotice"; render(); });
+  review.append(contrast); wrapper.append(review);
+  const returnToJourneys = button("Back to werken journeys", "button secondary-button");
+  returnToJourneys.addEventListener("click", () => { activeVerbJourneyId = "journey.werken.vtt-completed"; screen = "verbJourneyOverview"; render(); content?.focus(); });
+  wrapper.append(returnToJourneys);
+  return wrapper;
 }
 
 function renderLessonFilters(): HTMLElement {
@@ -859,7 +1440,7 @@ async function persistGrammarDailyFiveOutcome(patternId: GrammarPatternId, exerc
 }
 function renderLessonPractice(session: LessonSession): HTMLElement { const prompt = session.lesson.practice[session.practiceIndex]; const candidate = session.lesson.candidates.find((item) => item.id === prompt.candidateId)!; const panel = section("practice-card"); panel.append(eyebrow(session.practiceRevealed ? "Answer" : prompt.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.practiceRevealed ? candidate.dutch : prompt.dimension === "recognition" ? candidate.dutch : candidate.english)); if (!session.practiceRevealed) { const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { lessonSession = revealLessonPractice(session); render(); }); panel.append(reveal, phoneticHint()); } else { panel.append(meaning("Dutch", candidate.dutch), meaning("English", candidate.english), teluguMeaning(candidate.telugu)); const actions = document.createElement("div"); actions.className = "rating-actions"; for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.addEventListener("click", () => void saveLessonPractice(session, result)); actions.append(action); } panel.append(actions); } return panel; }
 function renderLessonKeep(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Keep"), heading("Choose what to keep for review.")); for (const candidate of getLessonCandidateChoices(session, items)) { const label = document.createElement("label"); label.className = "candidate-choice"; const checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = candidate.checked; checkbox.addEventListener("change", () => { lessonSession = toggleLessonCandidate(session, candidate.id); render(); }); label.append(checkbox, text(candidate.dutch)); if (candidate.alreadySaved) label.append(text("Already saved", "already-saved")); panel.append(label); } const keep = button(`Keep ${session.selectedCandidateIds.length} for review`, "button primary-button"); keep.disabled = pending; keep.addEventListener("click", () => void keepLessonCandidates(session)); panel.append(keep); return panel; }
-async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); grammarRecord = null; grammarPatternId = lesson.grammarCompanion?.patternId ?? null; contrastRecord = null; contrastExerciseIndex = 0; contrastOffer = null; activeGrammarTask = null; activeContrastTask = null; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : "lessons"; render(); } }
+async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : screen === "practicalStories" ? "practicalStories" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); grammarRecord = null; grammarPatternId = lesson.grammarCompanion?.patternId ?? null; contrastRecord = null; contrastExerciseIndex = 0; contrastOffer = null; activeGrammarTask = null; activeContrastTask = null; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : origin === "practicalStories" ? "practicalStories" : "lessons"; render(); } }
 async function advanceLesson(session: LessonSession): Promise<void> { const next = session.stage === "replay" && session.lesson.practiceEnvelope ? advanceLessonTransfer(session) : advanceLessonStage(session); if (next === session) return; pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function advanceLessonAuthoredExercise(session: LessonSession): Promise<void> { const next = advanceLessonPracticeExercise(session); if (next === session) return; if (next.stage === "practise") { lessonSession = next; render(); return; } pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
 async function saveLessonPractice(session: LessonSession, result: "again" | "got-it"): Promise<void> { const next = advanceLessonPracticeState(session, result); if (next.stage !== "replay") { lessonSession = next; render(); return; } pending = true; render(); try { const lessonProgress = await learningClient.saveLessonProgress(next.lesson.id, next.stage); lessonProgressById = { ...lessonProgressById, [next.lesson.id]: lessonProgress }; lessonSession = next; } catch (error) { renderError(error instanceof Error ? error.message : "Lesson progress could not be saved."); } finally { pending = false; render(); } }
@@ -945,7 +1526,8 @@ function renderReview(): HTMLElement {
   const task = reviewView?.task;
   if (activeGrammarTask) return renderGrammarReview(activeGrammarTask);
   if (activeContrastTask) return renderContrastDailyFiveReview(activeContrastTask);
-  if (task && "kind" in task) { if (task.kind === "contrast") { activeContrastTask = task; return renderContrastDailyFiveReview(task); } activeGrammarTask = task; return renderGrammarReview(task); }
+  if (activeVerbDailyFiveTask) return renderVerbJourneyDailyFiveReview(activeVerbDailyFiveTask);
+  if (task && "kind" in task) { if (task.kind === "contrast") { activeContrastTask = task; return renderContrastDailyFiveReview(task); } if (task.kind === "verb") { activeVerbDailyFiveTask = task; return renderVerbJourneyDailyFiveReview(task); } activeGrammarTask = task; return renderGrammarReview(task); }
   const item = task ? items.find((candidate) => candidate.id === task.itemId) : undefined;
   if (!snapshot || !task || !item) { screen = focusedOrigin ?? "today"; focusedOrigin = null; return screen === "today" ? renderToday() : renderLessons(); }
   const exit = button("Exit review", "exit-button");
@@ -964,6 +1546,64 @@ function renderReview(): HTMLElement {
   }
   wrapper.append(exit, progress, card, localNote());
   return wrapper;
+}
+
+function renderVerbJourneyDailyFiveReview(task: VerbJourneyDailyFiveTask): HTMLElement {
+  const question = getVerbPracticeQuestion(task.exerciseId);
+  const wrapper = section("practice-content focused-content verb-daily-five-review");
+  if (!question || question.exerciseFamily !== task.exerciseFamily) { wrapper.append(button("Exit review", "exit-button"), heading("Verb Journey review is unavailable.")); return wrapper; }
+  const exit = button("Exit review", "exit-button"); exit.addEventListener("click", () => { activeVerbDailyFiveTask = null; screen = focusedOrigin ?? "today"; focusedOrigin = null; render(); });
+  wrapper.append(exit, eyebrow("Daily Five · Verb Journey"), heading("werken · VTT"), text("Review one weak skill with a short authored decision.", "grammar-capability"), text(question.prompt, "verb-practice-context"), text(question.context, "story-dutch"));
+  const controls = section("verb-daily-five-controls");
+  const selected = verbDailyFiveAnswer;
+  if (question.kind === "token-slots" || question.kind === "token-order") {
+    const selectedTokens = Array.isArray(selected) ? selected : selected ? selected.split(" ") : [];
+    const answer = section("verb-answer-slots");
+    if (selectedTokens.length === 0) answer.append(text("Choose words in order.", "verb-answer-placeholder"));
+    for (const [index, token] of selectedTokens.entries()) { const remove = button(token, "verb-token-selected"); remove.disabled = verbDailyFiveChecked || pending; remove.addEventListener("click", () => { verbDailyFiveAnswer = selectedTokens.filter((_candidate, tokenIndex) => tokenIndex !== index); render(); }); answer.append(remove); }
+    const available = section("verb-token-choices");
+    for (const token of question.tokens ?? []) { const used = selectedTokens.includes(token); const action = button(token, `button verb-token-choice${used ? " is-used" : ""}`); action.disabled = used || verbDailyFiveChecked || pending; action.addEventListener("click", () => { verbDailyFiveAnswer = [...selectedTokens, token]; render(); }); available.append(action); }
+    const reset = button("Reset", "button secondary-button verb-reset"); reset.disabled = verbDailyFiveChecked || pending || selectedTokens.length === 0; reset.addEventListener("click", () => { verbDailyFiveAnswer = []; render(); });
+    controls.append(answer, available, reset);
+  } else {
+    const choices = section(`verb-practice-choices ${question.kind === "map-placement" ? "map-placement-choices" : ""}`);
+    for (const choice of question.choices ?? []) { const action = button(choice, `button${selected === choice ? " is-selected" : ""}`); action.disabled = verbDailyFiveChecked || pending; action.setAttribute("aria-pressed", String(selected === choice)); action.addEventListener("click", () => { verbDailyFiveAnswer = choice; render(); }); choices.append(action); }
+    controls.append(choices);
+  }
+  wrapper.append(controls);
+  if (verbDailyFiveFeedback) { const status = text(verbDailyFiveFeedback.message, `verb-practice-feedback ${verbDailyFiveFeedback.correct ? "correct" : "incorrect"}`); status.setAttribute("role", "status"); wrapper.append(status); }
+  const answer = verbDailyFiveAnswer;
+  const hasAnswer = Array.isArray(answer) ? answer.length > 0 : Boolean(answer);
+  if (!verbDailyFiveChecked) { const check = button("Check answer", "button primary-button"); check.disabled = !hasAnswer || pending; check.addEventListener("click", () => void checkVerbJourneyDailyFiveAnswer(task, question)); wrapper.append(check); }
+  else {
+    if (verbDailyFiveFeedback && !verbDailyFiveFeedback.correct) { const retry = button("Try again", "button"); retry.disabled = pending; retry.addEventListener("click", () => { verbDailyFiveRetrying = true; verbDailyFiveAnswer = null; verbDailyFiveFeedback = null; verbDailyFiveChecked = false; render(); }); wrapper.append(retry); }
+    const next = button("Continue", "button primary-button"); next.disabled = pending; next.addEventListener("click", continueVerbJourneyDailyFiveReview); wrapper.append(next);
+  }
+  return wrapper;
+}
+
+async function checkVerbJourneyDailyFiveAnswer(task: VerbJourneyDailyFiveTask, question: VerbPracticeQuestion & { phase: "core" | "repair" }): Promise<void> {
+  if (verbDailyFiveAnswer === null || verbDailyFiveChecked || pending) return;
+  const result = checkVerbPracticeQuestion(question, verbDailyFiveAnswer);
+  verbDailyFiveFeedback = { correct: result.correct, message: result.feedback };
+  verbDailyFiveChecked = true;
+  pending = true;
+  render();
+  try {
+    if (!verbDailyFiveRetrying) {
+      const saved = await learningClient.recordVerbJourneyDailyFiveResult(task, result.correct ? "correct" : "incorrect", verbJourneyRecord?.evidenceRevision ?? 0);
+      verbJourneyRecord = saved.verbJourneys;
+      snapshot = saved.snapshot;
+    }
+  } catch (error) {
+    verbDailyFiveFeedback = { correct: false, message: error instanceof Error ? error.message : "Verb Journey result could not be saved." };
+  } finally { pending = false; render(); }
+}
+
+function continueVerbJourneyDailyFiveReview(): void {
+  activeVerbDailyFiveTask = null; verbDailyFiveAnswer = null; verbDailyFiveFeedback = null; verbDailyFiveChecked = false; verbDailyFiveRetrying = false;
+  if (!snapshot || snapshot.goalCompleted) { screen = focusedOrigin ?? "today"; focusedOrigin = null; }
+  render();
 }
 
 function renderSavedQuiz(): HTMLElement {
@@ -1195,11 +1835,44 @@ function updateBadge(): void {
   dueBadge.title = label;
 }
 function renderError(message: string): void { if (!content) return; content.replaceChildren(eyebrow("Today unavailable"), heading("Your practice could not load."), text(message), localNote()); }
+type IconName = "arrow-left" | "book-open" | "check-circle" | "chevron-right" | "clock" | "dot" | "reference" | "route";
+
+const iconPaths: Record<IconName, string> = {
+  "arrow-left": "M19 12H5m6 6-6-6 6-6",
+  "book-open": "M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5Zm0 0V19",
+  "check-circle": "m8 12 2.5 2.5L16 9m5 3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+  "chevron-right": "m9 5 7 7-7 7",
+  clock: "M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+  dot: "M12 12h.01",
+  reference: "M6 4.5A2.5 2.5 0 0 1 8.5 2H18v19l-5-3-5 3V4.5Z",
+  route: "M5 5h4v4H5zM15 15h4v4h-4zM9 7h5a3 3 0 0 1 3 3v5M15 17h-5a3 3 0 0 1-3-3V9",
+};
+
+function svgIcon(name: IconName, className = "icon"): SVGSVGElement {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.classList.add(className);
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", iconPaths[name]);
+  svg.append(path);
+  return svg;
+}
+
+function journeyBack(label: string): HTMLButtonElement {
+  const back = button(label, "journey-back");
+  back.setAttribute("aria-label", `Back to ${label}`);
+  back.prepend(svgIcon("arrow-left", "journey-back-icon"));
+  return back;
+}
+
 function section(className: string): HTMLElement { const element = document.createElement("section"); element.className = className; return element; }
 function button(label: string, className: string): HTMLButtonElement { const element = document.createElement("button"); element.type = "button"; element.className = className; element.textContent = label; return element; }
 function eyebrow(value: string): HTMLElement { return text(value, "eyebrow"); }
 function heading(value: string): HTMLElement { const element = document.createElement("h1"); element.className = "heading"; element.textContent = value; return element; }
 function text(value: string, className = "body-copy"): HTMLElement { const element = document.createElement("p"); element.className = className; element.textContent = value; return element; }
+function spanText(value: string, className: string): HTMLElement { const element = document.createElement("span"); element.className = className; element.textContent = value; return element; }
 function helperMeaning(label: string, value: string): HTMLElement { const helper = document.createElement("span"); const name = document.createElement("b"); name.textContent = label; const meaning = document.createElement("span"); meaning.textContent = value; if (value === "unavailable") meaning.className = "meaning-unavailable"; helper.append(name, meaning); return helper; }
 
 function helperMeaningWithPhonetics(label: string, value: string, phonetics: string | null): HTMLElement {
@@ -1253,6 +1926,67 @@ function renderSavedContext(context: SavedContextView, savedDutch: string, itemI
   return card;
 }
 function highlightedSavedContext(context: string, savedDutch: string): HTMLElement { const paragraph = document.createElement("p"); paragraph.className = "saved-context"; const contextLower = context.toLocaleLowerCase(); const savedLower = savedDutch.toLocaleLowerCase(); const start = contextLower.indexOf(savedLower); if (start < 0 || savedLower.length === 0) { paragraph.textContent = context; return paragraph; } paragraph.append(document.createTextNode(context.slice(0, start))); const mark = document.createElement("mark"); mark.className = "saved-context-highlight"; mark.textContent = context.slice(start, start + savedDutch.length); paragraph.append(mark, document.createTextNode(context.slice(start + savedDutch.length))); return paragraph; }
+function renderVerbNoticeSentence(sentence: string, tense: DutchTense): HTMLElement {
+  const element = text("", "verb-pattern-sentence");
+  element.lang = "nl";
+  appendVerbNoticeHighlights(element, sentence, verbNoticeTokens(tense));
+  return element;
+}
+
+function renderVerbNoticeFormula(formula: string): HTMLElement {
+  const element = text("", "verb-formula");
+  appendVerbNoticeHighlights(element, formula, ["gewerkt", "werkte", "werken", "hebben", "werk", "gewerkt", "heb", "had", "zal", "zou"]);
+  return element;
+}
+
+function appendVerbNoticeHighlights(parent: HTMLElement, value: string, tokens: string[]): void {
+  const orderedTokens = [...new Set(tokens)].sort((first, second) => second.length - first.length);
+  let cursor = 0;
+  while (cursor < value.length) {
+    const match = orderedTokens
+      .map((token) => ({ token, index: value.indexOf(token, cursor) }))
+      .filter((candidate) => candidate.index >= cursor)
+      .sort((first, second) => first.index - second.index || second.token.length - first.token.length)[0];
+    if (!match) { parent.append(value.slice(cursor)); break; }
+    parent.append(value.slice(cursor, match.index));
+    const highlight = document.createElement("mark");
+    highlight.className = "verb-notice-highlight";
+    highlight.textContent = match.token;
+    parent.append(highlight);
+    cursor = match.index + match.token.length;
+  }
+}
+
+function verbNoticeTokens(tense: DutchTense): string[] {
+  return {
+    OTT: ["werk"],
+    OVT: ["werkte"],
+    VTT: ["heb", "gewerkt"],
+    VVT: ["had", "gewerkt"],
+    OTTT: ["zal", "werken"],
+    OVTT: ["zou", "werken"],
+    VTTT: ["zal", "gewerkt", "hebben"],
+    VVTT: ["zou", "gewerkt", "hebben"],
+  }[tense];
+}
+
+function verbFormStatusMeta(status: JourneyStatus): { label: string; detail: string; icon: IconName } {
+  if (status === "mastered") return { label: "Mastered", detail: "ready to use", icon: "check-circle" };
+  if (status === "learning") return { label: "Learning now", detail: "current focus", icon: "dot" };
+  if (status === "reference") return { label: "Reference", detail: "look up when useful", icon: "reference" };
+  if (status === "next") return { label: "Next", detail: "next useful form", icon: "chevron-right" };
+  return { label: "Later", detail: "future journey", icon: "clock" };
+}
+
+function verbMapViewpointMeta(viewpoint: "present" | "past" | "future" | "future-from-past"): { english: string; dutch: string } {
+  return {
+    present: { english: "Present", dutch: "tegenwoordige tijd" },
+    past: { english: "Past", dutch: "verleden tijd" },
+    future: { english: "Future", dutch: "toekomende tijd" },
+    "future-from-past": { english: "Future from past", dutch: "verleden toekomende tijd" },
+  }[viewpoint];
+}
+
 function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }
 function toggle(labelText: string, checked: boolean, onChange: (checked: boolean) => void): HTMLElement { const label = document.createElement("label"); label.className = "setting-control"; const textNode = document.createElement("strong"); textNode.textContent = labelText; const input = document.createElement("input"); input.type = "checkbox"; input.checked = checked; input.addEventListener("change", () => onChange(input.checked)); label.append(textNode, input); return label; }
 function localNote(): HTMLElement { return text("Local learning only. No account required.", "local-note"); }

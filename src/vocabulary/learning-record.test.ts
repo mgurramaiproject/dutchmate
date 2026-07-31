@@ -584,6 +584,39 @@ describe("LearningRecordStore", () => {
     delete (invalid.grammar["a0-zijn-present"] as unknown as Record<string, unknown>).successfulExerciseIds;
     expect(() => parseLearningBackup(invalid)).toThrow("invalid grammar evidence");
   });
+
+  it("records additive verb journey evidence, rejects stale writes, and restores it through backup", async () => {
+    const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    const input = { verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1" as const, exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "correct" as const, expectedEvidenceRevision: 0 };
+    await expect(source.recordVerbJourneyResult(input)).resolves.toMatchObject({ recorded: true, verbJourneys: { evidenceRevision: 1 } });
+    await expect(source.recordVerbJourneyResult(input)).resolves.toMatchObject({ recorded: false, verbJourneys: { evidenceRevision: 1 } });
+    const backup = await source.exportBackup();
+    expect(backup.verbJourneys.skills["verb.werken\u001fskill.werken.vtt-completed"].exerciseFamilies.meaning.id).toBe("verb.werken\u001fskill.werken.vtt-completed\u001fmeaning");
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    await restored.importBackup(backup);
+    await expect(restored.getVerbJourneyRecord()).resolves.toEqual(backup.verbJourneys);
+  });
+
+  it("offers weak Verb Journey skills through Daily Five and records the task atomically", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "incorrect", expectedEvidenceRevision: 0 });
+    const snapshot = await records.getDailyFive();
+    const task = snapshot.tasks.find((candidate) => "kind" in candidate && candidate.kind === "verb");
+    expect(task).toMatchObject({ kind: "verb", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "construction", exerciseId: "exercise.werken.vtt.construct" });
+    const result = await records.recordVerbJourneyDailyFiveResult({ task: task!, result: "correct", expectedEvidenceRevision: 1 });
+    expect(result.snapshot.completedTaskIds).toEqual(["verb.werken\u001fskill.werken.vtt-completed\u001fconstruction\u001fexercise.werken.vtt.construct"]);
+    expect(result.verbJourneys.evidenceRevision).toBe(2);
+    await expect(records.recordVerbJourneyDailyFiveResult({ task: task!, result: "correct", expectedEvidenceRevision: 1 })).resolves.toEqual(result);
+  });
+
+  it("keeps at least four vocabulary positions when one Verb Journey task is eligible", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    for (const dutch of ["een", "twee", "drie", "vier", "vijf"]) await records.createOrMerge({ dutch });
+    await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "incorrect", expectedEvidenceRevision: 0 });
+    const snapshot = await records.getDailyFive();
+    expect(snapshot.tasks.filter((candidate) => !(("kind" in candidate)))).toHaveLength(4);
+    expect(snapshot.tasks.filter((candidate) => "kind" in candidate && candidate.kind === "verb")).toHaveLength(1);
+  });
 });
 
 function entry(targetLanguage: "en" | "te", translatedText: string) { return { id: `nl\u001fhuis\u001f${targetLanguage}`, text: "huis", normalizedText: "huis", sourceLanguage: "auto" as const, detectedSourceLanguage: "nl" as const, targetLanguage, translatedText, providerName: "test", createdAt: 1_000, updatedAt: 2_000, pageContext: "Een huis staat daar." }; }

@@ -1,6 +1,7 @@
 import type { LearningItem, LearningMastery, MasteryState } from "./learning-record";
 import type { GrammarPatternId } from "../lessons/catalog";
 import type { ContrastPackId } from "../grammar/contrast";
+import type { VerbJourneySkillEvidence } from "../verb-journeys/learning";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
 const stateRank: Record<MasteryState, number> = { new: 0, learning: 1, familiar: 2, strong: 3 };
@@ -10,7 +11,9 @@ export type DailyFiveResult = "again" | "got-it";
 export type GrammarDailyFiveTask = { kind: "grammar"; patternId: GrammarPatternId; contentVersion: 1; exerciseId: string };
 export type GrammarDailyFiveCandidate = { task: GrammarDailyFiveTask; dueAt: number; patternOrder: number };
 export type ContrastDailyFiveTask = { kind: "contrast"; packId: ContrastPackId; contentVersion: 1; exerciseId: string };
-export type DailyFivePracticeTask = GrammarDailyFiveTask | ContrastDailyFiveTask;
+export type VerbJourneyDailyFiveTask = { kind: "verb"; verbId: "verb.werken"; formOrSkillId: string; contentVersion: "015-1"; exerciseFamily: string; exerciseId: string };
+export type DailyFivePracticeTask = GrammarDailyFiveTask | ContrastDailyFiveTask | VerbJourneyDailyFiveTask;
+export type VerbJourneyDailyFiveCandidate = { task: VerbJourneyDailyFiveTask; skill: VerbJourneySkillEvidence; dueAt: number; skillOrder: number };
 export type DailyFiveTask = { itemId: string; dimension: DailyFiveDimension } | DailyFivePracticeTask;
 export type DailyFiveSnapshot = { createdAt: number; dayStartAt: number; tasks: DailyFiveTask[]; completedTaskIds: string[]; goalCompleted: boolean };
 
@@ -38,6 +41,14 @@ export function selectGrammarDailyFiveTasks(candidates: readonly GrammarDailyFiv
       const secondOverdueDays = Math.max(0, Math.floor((getLocalDayStart(now) - getLocalDayStart(second.dueAt)) / DAY_MS));
       return secondOverdueDays - firstOverdueDays || first.dueAt - second.dueAt || first.patternOrder - second.patternOrder || first.task.patternId.localeCompare(second.task.patternId);
     })
+    .slice(0, limit)
+    .map(({ task }) => task);
+}
+
+export function selectVerbJourneyDailyFiveTasks(candidates: readonly VerbJourneyDailyFiveCandidate[], now: number, limit = 1): VerbJourneyDailyFiveTask[] {
+  return [...candidates]
+    .filter(({ skill }) => skill.status === "needs-practice" || skill.dueAt <= now)
+    .sort((first, second) => first.dueAt - second.dueAt || first.skillOrder - second.skillOrder || first.task.formOrSkillId.localeCompare(second.task.formOrSkillId))
     .slice(0, limit)
     .map(({ task }) => task);
 }
