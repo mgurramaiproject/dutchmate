@@ -471,7 +471,9 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .lesson-category-header-copy { display: grid; min-width: 0; gap: 1px; }
 .lesson-category-title { color: var(--dm-ink-strong); font-size: var(--dm-font-size-label); }
 .lesson-category-header-copy small { color: var(--dm-ink-muted); font-family: var(--dm-font-reading); font-size: var(--dm-font-size-small); line-height: 1.25; }
-.verb-journey-entry.lesson-category-card { grid-template-columns: 24px minmax(0, 1fr) 18px; align-items: center; gap: 8px; border-left: 1px solid var(--dm-ink-strong); }
+.lesson-category-card { display: grid; grid-template-columns: 24px minmax(0, 1fr) 18px; align-items: center; gap: 8px; width: 100%; padding: 12px; border: 1px solid var(--dm-ink-strong); border-left: 1px solid var(--dm-ink-strong); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); color: var(--dm-ink-strong); text-align: left; box-shadow: var(--dm-shadow-low); }
+.lesson-category-card:hover, .lesson-category-card:focus-visible { background: var(--dm-paper-soft); }
+.practical-stories-entry { border-left-color: var(--dm-brand-orange); }
 .lesson-category-card > .icon { width: 20px; height: 20px; color: var(--dm-brand-orange-deep); }
 .lesson-category-card-copy { display: grid; min-width: 0; gap: 4px; }
 .lesson-category-card-copy .verb-entry-copy { margin: 0; }

@@ -111,7 +111,7 @@ describe("lesson popup", () => {
   });
 
   it("renders the appointment lesson through read, notice, practise, replay, selection, keep, and exit", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
 
     lessonCard("A1 · Een afspraak maken").click();
@@ -184,7 +184,7 @@ describe("lesson popup", () => {
   });
 
   it("gives the A1 healthcare symptom lesson reduced-support transfer", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
     lessonCard("A1 · Ik heb last van…").click();
     await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
@@ -210,7 +210,7 @@ describe("lesson popup", () => {
   });
 
   it("gives the A1 home, work, and study lessons reduced-support transfer", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
     for (const lesson of [
       { title: "A1 · Er is iets kapot", answer: "er is iets kapot" },
@@ -242,7 +242,7 @@ describe("lesson popup", () => {
   });
 
   it("gives the A2 official-life lesson reduced-support transfer", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
     lessonCard("A2 · Wat staat er in deze brief?").click();
     await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
@@ -268,7 +268,7 @@ describe("lesson popup", () => {
   });
 
   it("offers immediate repair only for the controlled misconception and keeps Accept and Dismiss explicit", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     lessonCard("A1 · Een afspraak maken").click();
     await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
@@ -298,7 +298,7 @@ describe("lesson popup", () => {
   });
 
   it("takes the hebben companion through Notice with visible Reveal and Skip controls", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Ik heb dit nodig"));
     lessonCard("A0 · Ik heb dit nodig").click();
     await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
@@ -319,7 +319,7 @@ describe("lesson popup", () => {
 
   it("does not introduce grammar before a resumed lesson reaches its encounter", async () => {
     progressByLesson["a0-ik-heb-dit-nodig"] = { lessonId: "a0-ik-heb-dit-nodig", contentVersion: 1, stage: "notice", completedAt: null, keptCandidateIds: [], updatedAt: 1 };
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Ik heb dit nodig"));
     const introductionsBeforeResume = runtime.sendMessage.mock.calls.filter(([message]) => message.type === "dutchmate.learning.grammar.introduce").length;
     lessonCard("A0 · Ik heb dit nodig").click();
@@ -328,7 +328,7 @@ describe("lesson popup", () => {
   });
 
   it("takes the regular-present companion into subject-first Notice practice", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Ik woon en werk hier"));
     lessonCard("A0 · Ik woon en werk hier").click();
     await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
@@ -339,7 +339,7 @@ describe("lesson popup", () => {
   });
 
   it("takes the inversion companion through keyboard-operable token ordering and correction before Check", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Woon je hier?"));
     lessonCard("A0 · Woon je hier?").click();
     await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
@@ -368,7 +368,7 @@ describe("lesson popup", () => {
   });
 
   it("allows a grammar retry without submitting a second result", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Ik heb dit nodig"));
     lessonCard("A0 · Ik heb dit nodig").click();
     await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
@@ -799,7 +799,7 @@ describe("lesson popup", () => {
   });
 
   it("keeps the Today lesson resume action centered and consistently styled", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     lessonCard("A0 · Hallo, ik ben").click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
@@ -813,7 +813,7 @@ describe("lesson popup", () => {
   });
 
   it("offers another lesson and shows today's completed lesson count", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Hallo, ik ben"));
     lessonCard("A0 · Hallo, ik ben").click();
     await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
@@ -848,7 +848,7 @@ describe("lesson popup", () => {
   });
 
   it("gives each remaining A0 lesson a controlled grammar path and in-lesson transfer", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
     for (const lesson of [
       { title: "A0 · Ik heb dit nodig", answer: "heb" },
@@ -904,7 +904,7 @@ describe("lesson popup", () => {
   });
 
   it("gives the A1 conversation and cafe lessons reduced-support transfer", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
     for (const lesson of [
       { title: "A1 · Kunt u dat herhalen?", answer: "kunt u dat herhalen" },
@@ -936,7 +936,7 @@ describe("lesson popup", () => {
   });
 
   it("gives the A1 transport lessons reduced-support transfer", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
     for (const lesson of [
       { title: "A1 · Waar moet ik overstappen?", answer: "waar moet ik overstappen" },
@@ -969,7 +969,7 @@ describe("lesson popup", () => {
   it("moves the three top-level tabs with arrow keys", async () => {
     const navigation = document.querySelector<HTMLElement>("#primary-navigation")!;
     navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
-    await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Learn in context"));
     expect(document.activeElement).toBe(document.querySelector("#lessons-tab"));
     navigation.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
     await vi.waitFor(() => expect(content().textContent).toContain("2 saved items"));
@@ -992,23 +992,29 @@ describe("lesson popup", () => {
     }
   });
 
-  it("renders Lessons as the compact numbered library from the approved mockup", async () => {
+  it("opens the numbered Practical Stories sub-page from the compact Lessons landing", async () => {
     button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".practical-stories-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".practical-stories-entry")!.click();
     await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
-    expect(content().querySelector(".lessons-content .heading")?.textContent).toBe("Lesson library");
+    expect(content().querySelector(".lessons-content .heading")?.textContent).toBe("Practical Stories");
     expect(content().textContent).toContain("Choose a situation. Each lesson is 3–5 minutes.");
     expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15);
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
     expect([...content().querySelectorAll<HTMLElement>(".lesson-number")].map((number) => number.textContent)).toEqual(Array.from({ length: 15 }, (_, index) => String(index + 1).padStart(2, "0")));
   });
 
-  it("groups Lessons into Verb Journeys and Practical Stories with clear icons", async () => {
+  it("keeps Lessons as a compact landing page with sub-pages for each lesson type", async () => {
     button("Lessons").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-category-group")).toHaveLength(2));
+    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-category-card")).toHaveLength(2));
+    expect(content().querySelector(".lesson-library")).toBeNull();
     expect([...content().querySelectorAll<HTMLElement>(".lesson-category-title")].map((title) => title.textContent)).toEqual(["Verb Journeys", "Practical Stories"]);
     expect(content().querySelector(".verb-journey-entry.lesson-category-card svg")).toBeTruthy();
     expect(content().querySelector(".practical-stories-group svg.lesson-category-icon")).toBeTruthy();
     expect(content().querySelector(".verb-journey-entry")?.getAttribute("aria-label")).toBe("Open Verb Journeys");
+    expect(content().querySelector(".practical-stories-entry")?.getAttribute("aria-label")).toBe("Open Practical Stories");
+    content().querySelector<HTMLButtonElement>(".practical-stories-entry")!.click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15));
   });
 
   it("opens the numbered werken read path through story, Notice, and the complete Verb Map", async () => {
@@ -1074,7 +1080,7 @@ describe("lesson popup", () => {
     }
   });
 
-  it("runs the five bounded VTT decisions and shows completion with a contrast review", async () => {
+  it("runs the five bounded VTT decisions, shows completion, and returns to the verb journeys", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
@@ -1103,8 +1109,12 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("You used werken as a completed event."));
     expect(content().querySelectorAll(".verb-completion-row.correct")).toHaveLength(5);
     expect(content().textContent).toContain("Review the VTT · OVT contrast");
-    button("Review the VTT · OVT contrast →").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("VALUABLE CONTRAST"));
+    const completionActions = content().querySelectorAll<HTMLButtonElement>(".verb-completion-screen button");
+    const finalCompletionAction = completionActions[completionActions.length - 1];
+    expect(finalCompletionAction?.textContent).toBe("Back to werken journeys");
+    finalCompletionAction!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    expect(content().textContent).toContain("Learning journeys");
   });
 
   it("opens all twelve English mappings and returns to the selected Verb Map form", async () => {
@@ -1188,7 +1198,7 @@ describe("lesson popup", () => {
   });
 
   it("keeps unstarted A0 patterns quiet without crowding Today", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));
     expect(content().textContent).not.toContain("Pattern: Not started");
     expect(content().textContent).toContain("Next A0 pattern");
@@ -1200,7 +1210,7 @@ describe("lesson popup", () => {
   });
 
   it("filters Lessons by readiness and CEFR level and labels resumable stages", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15));
     expect(content().querySelectorAll(".lesson-filter")).toHaveLength(8);
 
@@ -1238,7 +1248,7 @@ describe("lesson popup", () => {
   });
 
   it("retains Today orientation when continuing a lesson from Today", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     lessonCard("A0 · Hallo, ik ben").click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
@@ -1259,7 +1269,7 @@ describe("lesson popup", () => {
   });
 
   it("keeps Today focused after Daily Five completes", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     lessonCard("A1 · Een afspraak maken").click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
@@ -1308,7 +1318,7 @@ describe("lesson popup", () => {
     button("Today").click();
     expect(content().querySelector(".secondary-actions")).toBeFalsy();
     button("Choose a lesson").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Learn in context"));
   });
 
   it("does not tell learners with saved vocabulary to save more when no review is available", async () => {
@@ -1327,7 +1337,7 @@ describe("lesson popup", () => {
 
   it("keeps the learner in an understandable error state when keeping candidates fails", async () => {
     keepFails = true;
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
     lessonCard("A1 · Een afspraak maken").click();
     await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
@@ -1368,7 +1378,7 @@ describe("lesson popup", () => {
   });
 
   it("lists the fifteen bundled lessons in order and opens the published lessons with help and trilingual practice", async () => {
-    button("Lessons").click();
+    openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Ik heb last van…"));
     expect([...content().querySelectorAll<HTMLElement>(".lesson-card .lesson-copy strong")].map((heading) => heading.textContent)).toEqual([
       "Hallo, ik ben…",
@@ -1449,6 +1459,11 @@ function content(): HTMLElement {
 
 function button(label: string): HTMLButtonElement {
   return [...document.querySelectorAll<HTMLButtonElement>("button")].find((element) => element.textContent === label)!;
+}
+
+function openPracticalStories(): void {
+  button("Lessons").click();
+  content().querySelector<HTMLButtonElement>(".practical-stories-entry")!.click();
 }
 
 async function completeAdditionalLessonExercises(): Promise<void> {
