@@ -10,11 +10,6 @@ export type SavedVerbJourneyLink = {
 };
 
 const authoredWerkenForms: Record<string, DutchTense> = {
-  werk: "OTT",
-  werkt: "OTT",
-  werken: "OTT",
-  werkte: "OVT",
-  werkten: "OVT",
   "heb gewerkt": "VTT",
   "heeft gewerkt": "VTT",
   "hebben gewerkt": "VTT",

@@ -73,6 +73,28 @@ const repairs: VerbPracticeQuestion[] = [
 
 const questionById = new Map([...questions, ...repairs].map((question) => [question.id, question]));
 
+export function validateVerbPracticeContent(): string[] {
+  const errors: string[] = [];
+  const all = [...questions, ...repairs];
+  const ids = new Set<string>();
+  if (questions.length !== 5) errors.push("practice: expected five core questions");
+  if (repairs.length > 2) errors.push("practice: expected no more than two authored repairs");
+  for (const question of all) {
+    if (!/^exercise\.[a-z0-9.-]+$/u.test(question.id)) errors.push(`${question.id}: invalid exercise identifier`);
+    if (ids.has(question.id)) errors.push(`${question.id}: duplicate exercise identifier`);
+    ids.add(question.id);
+    if (!question.prompt || !question.context || !question.exerciseFamily || !question.feedback || !question.incorrectFeedback || question.accepted.length === 0) errors.push(`${question.id}: incomplete authored exercise`);
+    if (question.kind === "choice" || question.kind === "map-placement") {
+      if (!question.choices || question.choices.length < 2 || question.accepted.some((answer) => !question.choices?.includes(answer))) errors.push(`${question.id}: accepted answers must be enumerated in choices`);
+    }
+    if (question.kind === "token-slots" || question.kind === "token-order") {
+      if (!question.tokens || question.tokens.length < 2 || question.accepted.some((answer) => answer.split(" ").some((token) => !question.tokens?.includes(token)))) errors.push(`${question.id}: accepted token answers must use enumerated tokens`);
+    }
+    for (const repairId of question.repairIds ?? []) if (!repairs.some((repair) => repair.id === repairId)) errors.push(`${question.id}: repair ${repairId} is not authored`);
+  }
+  return errors;
+}
+
 export function getVerbPracticeQuestions(): VerbPracticeQuestion[] {
   return questions.map((question) => ({ ...question, phase: "core" }));
 }

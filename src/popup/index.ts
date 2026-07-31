@@ -21,7 +21,7 @@ import type { GrammarRecord } from "../grammar/learning";
 import { contrastPack, type ContrastExercise, type ContrastPackId } from "../grammar/contrast";
 import { contrastResultMessage, type ContrastRecord, type ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
 import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
-import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type VerbFormRecord } from "../verb-journeys/content";
+import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type JourneyStatus, type VerbFormRecord } from "../verb-journeys/content";
 import { advanceVerbPractice, checkVerbPracticeAnswer, checkVerbPracticeQuestion, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
 import type { VerbJourneyRecord } from "../verb-journeys/learning";
 import { renderWithRecovery } from "./render-recovery";
@@ -84,6 +84,7 @@ let verbEnglishComparisonOrigin: "overview" | "map" = "overview";
 let verbEnglishComparisonGroup: "present" | "past" | "future" = "present";
 let expandedEnglishTense: EnglishTense | null = "present-simple";
 let verbBoundaryMessage: string | null = null;
+let verbNoticeDecision: DutchTense | null = null;
 let verbPracticeSession: VerbPracticeSession | null = null;
 let verbJourneyRecord: VerbJourneyRecord | null = null;
 let verbJourneySaveChain: Promise<void> = Promise.resolve();
@@ -658,9 +659,40 @@ function renderVerbJourneys(): HTMLElement {
 }
 
 function getVerbJourneyProgress(): { completedForms: number; totalForms: number; percentage: number } {
-  const completedForms = verbJourneyPack.dutchForms.filter((form) => form.status === "mastered" || form.status === "learning").length;
+  const completedForms = verbJourneyPack.dutchForms.filter((form) => getVerbFormEvidence(form).length > 0).length;
   const totalForms = verbJourneyPack.dutchForms.length;
   return { completedForms, totalForms, percentage: totalForms === 0 ? 0 : Math.round((completedForms / totalForms) * 100) };
+}
+
+function getVerbFormEvidence(form: VerbFormRecord): VerbJourneyRecord["skills"][string][] {
+  const skillIds = new Set(verbJourneyPack.journeys.filter((journey) => journey.targetForms.includes(form.dutchTense)).flatMap((journey) => journey.targetSkills));
+  return Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === verbJourneyPack.verb.id && skillIds.has(skill.formOrSkillId));
+}
+
+function getVerbJourneyDisplayStatus(journey: JourneyRecord): JourneyStatus {
+  if (journey.kind === "reference") return "reference";
+  if (journey.kind === "later") return "later";
+  const evidence = journey.targetSkills.flatMap((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId));
+  if (evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated")) return "mastered";
+  if (evidence.length > 0) return "learning";
+  const firstUnmasteredCore = verbJourneyPack.journeys.find((candidate) => candidate.kind === "core" && getVerbJourneyDisplayStatusWithoutRecursion(candidate) !== "mastered");
+  return firstUnmasteredCore?.id === journey.id ? "next" : "later";
+}
+
+function getVerbJourneyDisplayStatusWithoutRecursion(journey: JourneyRecord): JourneyStatus {
+  if (journey.kind === "reference") return "reference";
+  if (journey.kind === "later") return "later";
+  const evidence = journey.targetSkills.flatMap((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId));
+  return evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated") ? "mastered" : "next";
+}
+
+function getVerbFormDisplayStatus(form: VerbFormRecord): JourneyStatus {
+  const evidence = getVerbFormEvidence(form);
+  if (evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated")) return "mastered";
+  if (evidence.length > 0) return "learning";
+  if (form.teachingPriority === "reference") return "reference";
+  if (form.teachingPriority === "later") return "later";
+  return "next";
 }
 
 function renderVerbProgressTrack(progress: ReturnType<typeof getVerbJourneyProgress>, className = ""): HTMLElement {
@@ -690,7 +722,7 @@ function renderVerbJourneyOverview(): HTMLElement {
   masteryHeader.className = "verb-progress-header";
   const masteryCopy = document.createElement("span");
   masteryCopy.className = "verb-progress-copy";
-  masteryCopy.append(eyebrow("Your Verb Journey"), spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-mastery-count"), text("VTT learning now · VTT vs OVT contrast offered next", "verb-mastery-note"));
+  masteryCopy.append(eyebrow("Your Verb Journey"), spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-mastery-count"), text("Practice evidence grows here; completion does not imply mastery.", "verb-mastery-note"));
   masteryHeader.append(masteryCopy, svgIcon("route", "verb-mastery-icon"));
   const mapAction = button("8 Dutch forms", "button primary-button");
   mapAction.addEventListener("click", () => { selectedVerbFormTense = "VTT"; verbMapOrigin = "overview"; screen = "verbMap"; render(); content?.focus(); });
@@ -705,15 +737,16 @@ function renderVerbJourneyOverview(): HTMLElement {
   for (const [index, journey] of pack.journeys.entries()) {
     const row = button("", "journey-list-row");
     const journeyNumber = String(index + 1).padStart(2, "0");
-    row.setAttribute("aria-label", `Journey ${journeyNumber}: ${journey.title}, ${journey.subtitle}, ${journey.status}`);
-    const status = document.createElement("span"); status.className = `journey-status ${journey.status}`;
+    const displayStatus = getVerbJourneyDisplayStatus(journey);
+    row.setAttribute("aria-label", `Journey ${journeyNumber}: ${journey.title}, ${journey.subtitle}, ${displayStatus}`);
+    const status = document.createElement("span"); status.className = `journey-status ${displayStatus}`;
     status.append(spanText(journeyNumber, "journey-status-number"));
-    if (journey.status === "mastered") { const completion = spanText("✓", "journey-completion-mark"); completion.setAttribute("aria-label", "Completed"); completion.title = "Completed"; status.append(completion); }
+    if (displayStatus === "mastered") { const completion = spanText("✓", "journey-completion-mark"); completion.setAttribute("aria-label", "Completed"); completion.title = "Completed"; status.append(completion); }
     const copy = document.createElement("span"); copy.className = "journey-list-copy";
     const title = document.createElement("strong"); title.textContent = journey.title;
     const subtitle = document.createElement("small"); subtitle.textContent = journey.subtitle;
     copy.append(title, subtitle);
-    const badge = document.createElement("span"); badge.className = `journey-status-label ${journey.status}`; badge.textContent = journey.status === "mastered" ? "Mastered" : journey.status === "learning" ? "Continue" : journey.status === "next" ? "Next" : journey.status === "reference" ? "Reference" : "Later";
+    const badge = document.createElement("span"); badge.className = `journey-status-label ${displayStatus}`; badge.textContent = displayStatus === "mastered" ? "Mastered" : displayStatus === "learning" ? "Continue" : displayStatus === "next" ? "Next" : displayStatus === "reference" ? "Reference" : "Later";
     row.append(status, copy, badge);
     row.addEventListener("click", () => openVerbJourney(journey));
     journeyList.append(row);
@@ -747,12 +780,15 @@ function renderVerbJourneyStory(): HTMLElement {
   const story = section("verb-story-card");
   for (const line of journey.story) {
     const row = document.createElement("div"); row.className = "verb-story-line";
-    row.append(renderStoryLine(line), text(line.english, "verb-story-translation"));
+    const translation = text(line.english, "verb-story-translation");
+    const telugu = text(line.telugu, "verb-story-telugu");
+    telugu.lang = "te";
+    row.append(renderStoryLine(line), translation, telugu);
     story.append(row);
   }
   wrapper.append(story, text("Read the highlighted form in context, then notice what changes.", "journey-helper"));
   const next = button("Notice the pattern →", "button primary-button");
-  next.addEventListener("click", () => { screen = "verbJourneyNotice"; render(); content?.focus(); });
+  next.addEventListener("click", () => { verbNoticeDecision = null; screen = "verbJourneyNotice"; render(); content?.focus(); });
   wrapper.append(next);
   return wrapper;
 }
@@ -793,8 +829,26 @@ function renderVerbJourneyNotice(): HTMLElement {
   contrastTags.className = "verb-notice-chip-row";
   contrastTags.append(spanText("VTT · completed fact", "verb-notice-chip current"), spanText("OVT · past habit", "verb-notice-chip contrast"));
   contrast.append(text("VALUABLE CONTRAST", "verb-card-label"), contrastTags, text(notice.valuableContrast, "verb-card-copy"));
-  wrapper.append(comparison, formula, contrast);
+  const targetTense = journey.targetForms[0] ?? "VTT";
+  const interaction = section("verb-notice-interaction");
+  interaction.append(text("NOTICE", "verb-card-label"), text(targetTense === "VTT" ? "Which sentence reports one completed event?" : targetTense === "OVT" ? "Which sentence describes a past habit or story background?" : "Which sentence matches this journey's focus?", "verb-card-copy"));
+  const choices = section("verb-notice-choices");
+  for (const item of notice.comparison) {
+    const choice = button("", `button verb-notice-choice${verbNoticeDecision === item.tense ? " is-selected" : ""}`);
+    choice.setAttribute("aria-pressed", String(verbNoticeDecision === item.tense));
+    choice.append(renderVerbNoticeSentence(item.sentence, item.tense), text(item.meaning, "verb-pattern-meaning"));
+    choice.addEventListener("click", () => { verbNoticeDecision = item.tense; render(); });
+    choices.append(choice);
+  }
+  interaction.append(choices);
+  if (verbNoticeDecision) {
+    const feedback = text(verbNoticeDecision === targetTense ? `Correct. ${notice.valuableContrast}` : `Not quite. ${notice.valuableContrast}`, `verb-notice-feedback ${verbNoticeDecision === targetTense ? "correct" : "needs-review"}`);
+    feedback.setAttribute("role", "status");
+    interaction.append(feedback);
+  }
+  wrapper.append(comparison, formula, contrast, interaction);
   const next = button("Place it on the 8-form map →", "button primary-button");
+  next.disabled = verbNoticeDecision === null;
   next.addEventListener("click", () => { selectedVerbFormTense = journey.targetForms[0] ?? "VTT"; verbMapOrigin = "notice"; screen = "verbMap"; render(); content?.focus(); });
   wrapper.append(next);
   return wrapper;
@@ -825,10 +879,11 @@ function renderVerbMap(): HTMLElement {
     map.append(rowLabel);
     for (const completion of ["onvoltooid", "voltooid"] as const) {
       const form = verbJourneyPack.dutchForms.find((candidate) => candidate.viewpoint === viewpoint && candidate.completion === completion)!;
-      const card = button("", `verb-form-card ${form.status}${form.dutchTense === selectedVerbFormTense ? " selected" : ""}`);
-      const statusMeta = verbFormStatusMeta(form.status);
+      const displayStatus = getVerbFormDisplayStatus(form);
+      const card = button("", `verb-form-card ${displayStatus}${form.dutchTense === selectedVerbFormTense ? " selected" : ""}`);
+      const statusMeta = verbFormStatusMeta(displayStatus);
       card.setAttribute("role", "gridcell"); card.setAttribute("aria-label", `${form.dutchTense}: ${form.fullNameNl} · ${statusMeta.label}`); card.setAttribute("aria-pressed", String(form.dutchTense === selectedVerbFormTense));
-      const status = document.createElement("span"); status.className = `verb-form-status ${form.status}`; status.append(svgIcon(statusMeta.icon, "verb-status-icon"), spanText(statusMeta.label, "verb-status-label"));
+      const status = document.createElement("span"); status.className = `verb-form-status ${displayStatus}`; status.append(svgIcon(statusMeta.icon, "verb-status-icon"), spanText(statusMeta.label, "verb-status-label"));
       card.append(status, spanText(form.dutchTense, "verb-form-code"), spanText(form.fullNameNl, "verb-form-full"), spanText(form.sentence, "verb-form-example"));
       card.addEventListener("click", () => { selectedVerbFormTense = form.dutchTense; render(); });
       map.append(card);
@@ -1043,7 +1098,7 @@ function renderVerbCompletion(): HTMLElement {
   const needsReview = [...latest.values()].some((attempt) => !attempt.correct) || session.attempts.some((attempt) => attempt.phase === "repair" && !attempt.correct);
   const review = section("verb-next-review");
   review.append(text(needsReview ? "Review needs remain separate from journey completion." : "Five controlled decisions completed. Review status remains separate from journey completion.", "verb-card-copy"), text("VTT completed fact vs OVT past habit / story background", "verb-review-contrast"));
-  const contrast = button("Review the VTT · OVT contrast →", "button primary-button"); contrast.addEventListener("click", () => { activeVerbJourneyId = "journey.werken.vtt-completed"; screen = "verbJourneyNotice"; render(); });
+  const contrast = button("Review the VTT · OVT contrast →", "button primary-button"); contrast.addEventListener("click", () => { activeVerbJourneyId = "journey.werken.vtt-completed"; verbNoticeDecision = null; screen = "verbJourneyNotice"; render(); });
   review.append(contrast); wrapper.append(review);
   const returnToJourneys = button("Back to werken journeys", "button secondary-button");
   returnToJourneys.addEventListener("click", () => { activeVerbJourneyId = "journey.werken.vtt-completed"; screen = "verbJourneyOverview"; render(); content?.focus(); });
@@ -1915,10 +1970,11 @@ function verbNoticeTokens(tense: DutchTense): string[] {
   }[tense];
 }
 
-function verbFormStatusMeta(status: VerbFormRecord["status"] | "later"): { label: string; detail: string; icon: IconName } {
+function verbFormStatusMeta(status: JourneyStatus): { label: string; detail: string; icon: IconName } {
   if (status === "mastered") return { label: "Mastered", detail: "ready to use", icon: "check-circle" };
   if (status === "learning") return { label: "Learning now", detail: "current focus", icon: "dot" };
   if (status === "reference") return { label: "Reference", detail: "look up when useful", icon: "reference" };
+  if (status === "next") return { label: "Next", detail: "next useful form", icon: "chevron-right" };
   return { label: "Later", detail: "future journey", icon: "clock" };
 }
 

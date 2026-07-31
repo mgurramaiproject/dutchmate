@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 import { verbJourneyPack, validateVerbJourneyPack } from "./content";
-import { getVerbPracticeQuestions, getVerbPracticeQuestion } from "./practice";
+import { getVerbPracticeQuestions, getVerbPracticeQuestion, validateVerbPracticeContent } from "./practice";
 
 const featureSources = [
   path.join(import.meta.dirname, "content.ts"),
@@ -26,6 +26,7 @@ describe("Feature 015 release qualification", () => {
   });
 
   it("keeps the practice contract at five core questions and two repairs", () => {
+    expect(validateVerbPracticeContent()).toEqual([]);
     const questions = getVerbPracticeQuestions();
     const repairIds = new Set(questions.flatMap((question) => question.repairIds ?? []));
 

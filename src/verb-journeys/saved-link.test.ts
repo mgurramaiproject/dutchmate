@@ -21,12 +21,12 @@ const item = (dutch: string, normalizedDutch = dutch): LearningItem => ({
 
 describe("Saved Verb Journey linking", () => {
   it("resolves only authored werken forms to a stable verb and Dutch form", () => {
-    expect(resolveSavedVerbJourney(item("werk"))).toMatchObject({ verbId: "verb.werken", lemma: "werken", form: "OTT" });
-    expect(resolveSavedVerbJourney(item("werkte"))).toMatchObject({ form: "OVT" });
     expect(resolveSavedVerbJourney(item("heb gewerkt"))).toMatchObject({ form: "VTT", journeyId: "journey.werken.vtt-completed" });
   });
 
   it("does not invent a lemma for unsupported or inconsistent saved text", () => {
+    expect(resolveSavedVerbJourney(item("werk"))).toBeNull();
+    expect(resolveSavedVerbJourney(item("werkte"))).toBeNull();
     expect(resolveSavedVerbJourney(item("werking"))).toBeNull();
     expect(resolveSavedVerbJourney(item("werk", "niet-werk"))).toBeNull();
   });
