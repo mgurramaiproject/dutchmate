@@ -28,6 +28,7 @@ import {
   LEARNING_CONTRAST_RESULT_MESSAGE,
   LEARNING_VERB_JOURNEY_MESSAGE,
   LEARNING_VERB_JOURNEY_RESULT_MESSAGE,
+  LEARNING_VERB_JOURNEY_COMPLETION_MESSAGE,
   LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE,
   type BackgroundMessageResponse,
 } from "./messages";
@@ -192,6 +193,9 @@ describe("createBackgroundMessageHandler", () => {
     const payload = { verbId: "verb.werken" as const, formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", contentVersion: "015-1" as const, result: "correct" as const, expectedEvidenceRevision: 0 };
     await expect(send(handleMessage, { type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload })).resolves.toMatchObject({ ok: true, result: { verbJourneys: { evidenceRevision: 1 } } });
     await expect(send(handleMessage, { type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload })).resolves.toEqual({ ok: false, error: "This verb journey result was already recorded." });
+    const completion = await send(handleMessage, { type: LEARNING_VERB_JOURNEY_COMPLETION_MESSAGE, payload: { journeyId: "journey.werken.vtt-completed" } });
+    expect(completion).toMatchObject({ ok: true });
+    expect(completion.ok && "rhythm" in completion.result ? completion.result.rhythm.activity[0]?.lessons : null).toBe(1);
   });
 
   it("routes a Verb Journey Daily Five result through the shared snapshot boundary", async () => {

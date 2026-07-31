@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isLearningMessage, LEARNING_CONTRAST_RESULT_MESSAGE, LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE } from "./messages";
+import { isLearningMessage, LEARNING_CONTRAST_RESULT_MESSAGE, LEARNING_VERB_JOURNEY_COMPLETION_MESSAGE, LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE } from "./messages";
 
 describe("contrast learning messages", () => {
   it("accepts a typed controlled result with its reviewed misconception code", () => {
@@ -13,6 +13,11 @@ describe("contrast learning messages", () => {
     expect(isLearningMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", answer: "Morgen maak ik een afspraak.", expectedEvidenceRevision: 2, dailyFive: true } })).toBe(true);
     expect(isLearningMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", outcome: "skip", expectedEvidenceRevision: 2, dailyFive: true } })).toBe(true);
     expect(isLearningMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId: "contrast.main_clause_inversion", contentVersion: 1, exerciseId: "contrast-rebuild-appointment", outcome: "skip", expectedEvidenceRevision: 2 } })).toBe(false);
+  });
+
+  it("accepts a Verb Journey completion event with a journey identity", () => {
+    expect(isLearningMessage({ type: LEARNING_VERB_JOURNEY_COMPLETION_MESSAGE, payload: { journeyId: "journey.werken.vtt-completed" } })).toBe(true);
+    expect(isLearningMessage({ type: LEARNING_VERB_JOURNEY_COMPLETION_MESSAGE, payload: { journeyId: 123 } })).toBe(false);
   });
 
   it("rejects unknown codes, packs, exercises, versions, outcomes, and revisions", () => {

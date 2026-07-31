@@ -20,6 +20,7 @@ import {
   LEARNING_CONTRAST_RESULT_MESSAGE,
   LEARNING_VERB_JOURNEY_MESSAGE,
   LEARNING_VERB_JOURNEY_RESULT_MESSAGE,
+  LEARNING_VERB_JOURNEY_COMPLETION_MESSAGE,
   LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE,
   type LearningMessage,
   type LearningMessageResponse,
@@ -59,6 +60,7 @@ export type LearningClient = {
   recordContrastDailyFiveResult(packId: ContrastPackId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip"): Promise<{ contrast: ContrastRecord; snapshot: DailyFiveSnapshot }>;
   getVerbJourneyRecord(): Promise<VerbJourneyRecord>;
   recordVerbJourneyResult(input: Omit<RecordVerbJourneyEvidenceInput, "expectedEvidenceRevision"> & { expectedEvidenceRevision: number }): Promise<VerbJourneyRecord>;
+  recordVerbJourneyCompletion(journeyId: string): Promise<LearningRhythm>;
   recordVerbJourneyDailyFiveResult(task: VerbJourneyDailyFiveTask, result: "correct" | "incorrect", expectedEvidenceRevision: number): Promise<{ verbJourneys: VerbJourneyRecord; snapshot: DailyFiveSnapshot }>;
 };
 
@@ -126,6 +128,7 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
     async recordContrastDailyFiveResult(packId, contentVersion, exerciseId, answer, expectedEvidenceRevision, outcome) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_CONTRAST_RESULT_MESSAGE, payload: { packId, contentVersion, exerciseId, expectedEvidenceRevision, dailyFive: true, ...(outcome ? { outcome } : { answer: answer ?? undefined }) } }); if (response.ok && "contrast" in response.result && response.result.contrast && "snapshot" in response.result) return response.result; throw new Error(response.ok ? "Contrast result could not be saved." : response.error); },
     async getVerbJourneyRecord() { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_VERB_JOURNEY_MESSAGE }); if (response.ok && "verbJourneys" in response.result) return response.result.verbJourneys; throw new Error(response.ok ? "Verb journey evidence is unavailable." : response.error); },
     async recordVerbJourneyResult(input) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload: input }); if (response.ok && "verbJourneys" in response.result) return response.result.verbJourneys; throw new Error(response.ok ? "Verb journey result could not be saved." : response.error); },
+    async recordVerbJourneyCompletion(journeyId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_VERB_JOURNEY_COMPLETION_MESSAGE, payload: { journeyId } }); if (response.ok && "rhythm" in response.result) return response.result.rhythm; throw new Error(response.ok ? "Verb journey completion could not be saved." : response.error); },
     async recordVerbJourneyDailyFiveResult(task, result, expectedEvidenceRevision) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE, payload: { task, result, expectedEvidenceRevision } }); if (response.ok && "verbJourneys" in response.result && "snapshot" in response.result) return response.result; throw new Error(response.ok ? "Verb Journey review result could not be saved." : response.error); },
   };
 }

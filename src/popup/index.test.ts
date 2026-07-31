@@ -88,6 +88,11 @@ describe("lesson popup", () => {
         verbJourneyRevision = verbJourneyRecordFixture.evidenceRevision;
         return { ok: true, result: { verbJourneys: verbJourneyRecordFixture } };
       }
+      if (message.type === "dutchmate.learning.verbJourney.complete") {
+        const current = rhythmResponse.activity[0];
+        rhythmResponse.activity[0] = { ...current, lessons: (current.lessons ?? current.lessonAdditions ?? 0) + 1, lessonAdditions: undefined };
+        return { ok: true, result: { rhythm: rhythmResponse } };
+      }
       if (message.type === "dutchmate.learning.verbJourney.dailyFive.result") return { ok: true, result: { verbJourneys: { contentVersion: "015-1", evidenceRevision: ++verbJourneyRevision, skills: {} }, snapshot: { createdAt: 1, dayStartAt: 0, tasks: [message.payload?.task], completedTaskIds: ["verb-task"], goalCompleted: true } } };
       if (message.type === "dutchmate.learning.recordMissionResult") {
         if (quizFails) return { ok: false, error: "Quiz result could not be saved." };
@@ -1142,6 +1147,12 @@ describe("lesson popup", () => {
     expect(button("12 English forms")).toBeTruthy();
     button("8 Dutch forms").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    button("Compare 12 English forms →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("12 English forms → Dutch"));
+    expect(content().querySelector<HTMLElement>(".verb-english-tab.is-active")?.textContent).toBe("Present · 4");
+    expect(content().querySelector<HTMLElement>(".verb-english-card.is-expanded .verb-english-name")?.textContent).toBe("present perfect");
+    button("Back to 8-form map").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
     button("werken").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
     button("12 English forms").click();
@@ -1264,6 +1275,8 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
     expect(content().textContent).toContain("Learning journeys");
     expect([...content().querySelectorAll<HTMLElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I completed"))?.textContent).toContain("Mastered");
+    button("Today").click();
+    await vi.waitFor(() => expect(content().querySelector(".lesson-completion-meta")?.textContent).toBe("2 lessons completed today"));
   });
 
   it("opens all twelve English mappings and returns to the selected Verb Map form", async () => {

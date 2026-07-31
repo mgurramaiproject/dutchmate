@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { LEARNING_RECORD_STORAGE_KEY, LearningRecordStore, parseLearningBackup } from "./learning-record";
 import type { SavedVocabularyStorage } from "./saved-vocabulary";
+import { getLocalDayStart } from "./daily-five";
 
 describe("LearningRecordStore", () => {
   it("migrates legacy Dutch meanings and review history once without duplicates", async () => {
@@ -595,6 +596,15 @@ describe("LearningRecordStore", () => {
     const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
     await restored.importBackup(backup);
     await expect(restored.getVerbJourneyRecord()).resolves.toEqual(backup.verbJourneys);
+  });
+
+  it("records a completed Verb Journey as today's lesson activity", async () => {
+    const now = new Date(2026, 0, 1, 9).getTime();
+    const records = new LearningRecordStore(new MemoryStorage(), () => now);
+    const first = await records.recordVerbJourneyCompletion("journey.werken.vtt-completed");
+    expect(first.activity.find((day) => day.dayStartAt === getLocalDayStart(now))?.lessons).toBe(1);
+    const second = await records.recordVerbJourneyCompletion("journey.werken.vtt-completed");
+    expect(second.activity.find((day) => day.dayStartAt === getLocalDayStart(now))?.lessons).toBe(2);
   });
 
   it("offers weak Verb Journey skills through Daily Five and records the task atomically", async () => {

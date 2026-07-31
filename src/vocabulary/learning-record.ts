@@ -13,7 +13,7 @@ import { applyContrastOutcome, applyContrastRepairOutcome, getContrastRepairExer
 import type { ContrastMisconceptionCode } from "../grammar/contrast";
 import { getMisconceptionDefinition } from "../grammar/misconceptions";
 import { createVerbJourneyRecord, parseVerbJourneyRecord, recordVerbJourneyEvidence, type RecordVerbJourneyEvidenceInput, type VerbJourneyRecord } from "../verb-journeys/learning";
-import { isVerbJourneyContentAvailable } from "../verb-journeys/content";
+import { getVerbJourney, isVerbJourneyContentAvailable, isVerbJourneyPlayable } from "../verb-journeys/content";
 import { getVerbPracticeQuestion, getVerbPracticeQuestionsForSkill } from "../verb-journeys/practice";
 
 export const LEARNING_RECORD_STORAGE_KEY = "dutchmate.learningRecord.v2";
@@ -164,6 +164,16 @@ export class LearningRecordStore {
     record.verbJourneys = recordVerbJourneyEvidence(record.verbJourneys, input, this.now());
     await this.write(record);
     return { verbJourneys: record.verbJourneys, recorded: true };
+  }
+
+  async recordVerbJourneyCompletion(journeyId: string): Promise<LearningRhythm> {
+    const record = await this.readMigrated();
+    const journey = getVerbJourney(journeyId);
+    if (!isVerbJourneyContentAvailable() || !journey || !isVerbJourneyPlayable(journey)) throw new Error("This verb journey is unavailable.");
+    const timestamp = this.now();
+    record.rhythm = { ...record.rhythm, ...withActiveDay(record.rhythm, timestamp, "lessonCompletions"), ...withActivity(record.rhythm, timestamp, { lessons: 1 }) };
+    await this.write(record);
+    return getLearningRhythm(Object.values(record.items), record.lessonProgress, record.rhythm, timestamp, lessonCatalog.lessons);
   }
 
   async introduceContrast(packId: ContrastPackId = CONTRAST_PACK_ID): Promise<ContrastRecord> {

@@ -377,10 +377,10 @@ function renderToday(): HTMLElement {
     const progress = lessonProgressById[lesson.id];
     return progress && progress.completedAt === null;
   });
-  const hasCompletedLesson = lessonCatalog.lessons.some((lesson) => lessonProgressById[lesson.id]?.completedAt !== null && lessonProgressById[lesson.id]?.completedAt !== undefined);
   const todayActivity = rhythm?.activity.find((day) => isLocalToday(day.dayStartAt));
   const reviewsCompletedToday = todayActivity?.reviews ?? null;
   const lessonsCompletedToday = todayActivity?.lessons ?? todayActivity?.lessonAdditions ?? null;
+  const hasCompletedLesson = lessonCatalog.lessons.some((lesson) => lessonProgressById[lesson.id]?.completedAt !== null && lessonProgressById[lesson.id]?.completedAt !== undefined) || (lessonsCompletedToday !== null && lessonsCompletedToday > 0);
   const grammarCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "grammar").length;
   const verbCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "verb").length;
   const nextAction = section("next-action");
@@ -895,7 +895,7 @@ function renderVerbMap(): HTMLElement {
   wrapper.append(map);
   const selected = getVerbForm(selectedVerbFormTense) ?? verbJourneyPack.dutchForms[0];
   const comparisonButton = button("Compare 12 English forms →", "button secondary-button");
-  comparisonButton.addEventListener("click", () => { verbEnglishComparisonOrigin = "map"; screen = "verbEnglishComparison"; render(); content?.focus(); });
+  comparisonButton.addEventListener("click", () => { focusEnglishComparisonForForm(selected.dutchTense); verbEnglishComparisonOrigin = "map"; screen = "verbEnglishComparison"; render(); content?.focus(); });
   const practiceButton = button(verbPracticeActionLabel(), "button primary-button");
   practiceButton.addEventListener("click", () => startVerbPractice());
   wrapper.append(renderVerbFormDetail(selected), text("Important: Dutch onvoltooid does not mean the same thing as English continuous, and voltooid is not always a direct English perfect. Context and time words still matter.", "verb-map-note"), comparisonButton, practiceButton);
@@ -926,6 +926,23 @@ function renderVerbEnglishComparison(): HTMLElement {
   const mapButton = button("Back to 8-form map", "button secondary-button"); mapButton.addEventListener("click", () => { screen = "verbMap"; verbMapOrigin = verbEnglishComparisonOrigin === "map" ? verbMapOrigin : "overview"; render(); content?.focus(); });
   wrapper.append(mapButton);
   return wrapper;
+}
+
+function focusEnglishComparisonForForm(tense: DutchTense): void {
+  const preferredEnglishTense: Record<DutchTense, EnglishTense> = {
+    OTT: "present-simple",
+    VTT: "present-perfect",
+    OVT: "past-simple",
+    VVT: "past-perfect",
+    OTTT: "future-simple",
+    OVTT: "future-simple",
+    VTTT: "future-perfect",
+    VVTT: "future-perfect",
+  };
+  const record = verbJourneyPack.englishComparison.find((candidate) => candidate.englishTense === preferredEnglishTense[tense]);
+  if (!record) return;
+  verbEnglishComparisonGroup = record.group;
+  expandedEnglishTense = record.englishTense;
 }
 
 function renderEnglishComparisonCard(record: EnglishMapRecord, index: number): HTMLElement {
@@ -1138,6 +1155,7 @@ async function returnFromVerbCompletion(): Promise<void> {
   pending = true;
   render();
   await verbJourneySaveChain;
+  try { rhythm = await learningClient.recordVerbJourneyCompletion((verbPracticeSession ?? createVerbPracticeSession()).journeyId); } catch { /* Completion remains usable when persistence is unavailable. */ }
   screen = "verbJourneyOverview";
   pending = false;
   render();
