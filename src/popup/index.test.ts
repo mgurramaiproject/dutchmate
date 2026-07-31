@@ -990,6 +990,58 @@ describe("lesson popup", () => {
     expect(document.querySelector<HTMLButtonElement>("#lessons-tab")?.getAttribute("aria-selected")).toBe("true");
   });
 
+  it("runs the five bounded VTT decisions and shows completion with a contrast review", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    button("Practise VTT · 5 questions →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("decision 1 of 5"));
+
+    content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")[1].click();
+    button("Check answer").click();
+    expect(content().querySelector("[role='status']")?.textContent).toContain("Correct");
+    button("Continue").click();
+
+    for (const token of ["ik", "heb", "gewerkt"]) [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].find((candidate) => candidate.textContent === token && !candidate.disabled)!.click();
+    button("Check answer").click();
+    expect(content().textContent).toContain("Correct. Build VTT");
+    button("Continue").click();
+
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((candidate) => candidate.textContent === "Ik heb gisteren thuis gewerkt.")!.click();
+    button("Check answer").click(); button("Continue").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((candidate) => candidate.textContent?.startsWith("VTT ·"))!.click();
+    button("Check answer").click(); button("Continue").click();
+
+    for (const token of ["Gisteren", "heb", "ik", "thuis", "gewerkt."]) [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].find((candidate) => candidate.textContent === token && !candidate.disabled)!.click();
+    button("Check answer").click();
+    button("See completion").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("You used werken as a completed event."));
+    expect(content().querySelectorAll(".verb-completion-row.correct")).toHaveLength(5);
+    expect(content().textContent).toContain("Review the VTT · OVT contrast");
+    button("Review the VTT · OVT contrast →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("VALUABLE CONTRAST"));
+  });
+
+  it("caps an incorrect VTT path at two authored repairs and exposes reset", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    button("Practise VTT · 5 questions →").click();
+    const firstChoices = content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button");
+    firstChoices[0].click(); button("Check answer").click(); button("Continue").click();
+    expect(content().textContent).toContain("Repair");
+    const repairChoice = content().querySelector<HTMLButtonElement>(".verb-practice-choices .button")!;
+    repairChoice.click(); button("Check answer").click(); button("Continue").click();
+    expect(content().textContent).toContain("Repair");
+    const repairTokens = content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button");
+    expect(repairTokens.length).toBeGreaterThan(0);
+    expect(content().querySelector<HTMLButtonElement>(".verb-reset")).toBeTruthy();
+    button("Reset").click();
+    expect(content().textContent).toContain("Choose words in order.");
+  });
+
   it("keeps unstarted A0 patterns quiet without crowding Today", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Lesson library"));

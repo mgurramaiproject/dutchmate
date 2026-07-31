@@ -21,6 +21,7 @@ import { contrastPack, type ContrastExercise, type ContrastPackId } from "../gra
 import { contrastResultMessage, type ContrastRecord, type ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
 import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
 import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type JourneyRecord, type VerbFormRecord } from "../verb-journeys/content";
+import { advanceVerbPractice, checkVerbPracticeAnswer, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
 import "./styles.css";
 
 const content = document.querySelector<HTMLElement>("#popup-content");
@@ -36,7 +37,7 @@ let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "savedContextMission" | "settings" | "verbJourneys" | "verbJourneyOverview" | "verbJourneyStory" | "verbJourneyNotice" | "verbMap" = "today";
+let screen: "today" | "lessons" | "saved" | "lesson" | "review" | "savedQuiz" | "savedContextMission" | "settings" | "verbJourneys" | "verbJourneyOverview" | "verbJourneyStory" | "verbJourneyNotice" | "verbMap" | "verbPractice" | "verbCompletion" = "today";
 let lessonSession: LessonSession | null = null;
 let grammarRecord: GrammarRecord | null = null;
 let grammarRecords: Partial<Record<GrammarPatternId, GrammarRecord>> = {};
@@ -77,6 +78,7 @@ let activeVerbJourneyId = "journey.werken.vtt-completed";
 let selectedVerbFormTense: DutchTense = "VTT";
 let verbMapOrigin: "overview" | "notice" = "overview";
 let verbBoundaryMessage: string | null = null;
+let verbPracticeSession: VerbPracticeSession | null = null;
 
 settingsButton?.addEventListener("click", () => { screen = screen === "settings" ? "today" : "settings"; render(); });
 todayTab?.addEventListener("click", () => { screen = "today"; render(); });
@@ -138,12 +140,12 @@ function render(): void {
   const focused = screen === "review" || screen === "lesson" || screen === "savedQuiz" || screen === "savedContextMission";
   const activeTab = focused
     ? focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" || screen === "savedContextMission" ? "saved" : "today")
-    : screen === "lesson" || screen === "lessons" || screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
+    : screen === "lesson" || screen === "lessons" || screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" || screen === "verbPractice" || screen === "verbCompletion" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.toggleAttribute("hidden", screen === "lesson");
   primaryNavigation?.classList.toggle("is-locked", focused);
   content.classList.toggle("lesson-panel", screen === "lesson");
-  content.classList.toggle("verb-journey-panel", screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap");
+  content.classList.toggle("verb-journey-panel", screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" || screen === "verbPractice" || screen === "verbCompletion");
   content.classList.toggle("today-panel", screen === "today");
   for (const [tab, key] of [[todayTab, "today"], [lessonsTab, "lessons"], [savedTab, "saved"]] as const) {
     const selected = activeTab === key;
@@ -155,7 +157,7 @@ function render(): void {
   }
   content?.setAttribute("aria-labelledby", `${activeTab}-tab`);
   updateBadge();
-  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : screen === "verbJourneys" ? renderVerbJourneys() : screen === "verbJourneyOverview" ? renderVerbJourneyOverview() : screen === "verbJourneyStory" ? renderVerbJourneyStory() : screen === "verbJourneyNotice" ? renderVerbJourneyNotice() : screen === "verbMap" ? renderVerbMap() : renderSettings());
+  content.replaceChildren(screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : screen === "verbJourneys" ? renderVerbJourneys() : screen === "verbJourneyOverview" ? renderVerbJourneyOverview() : screen === "verbJourneyStory" ? renderVerbJourneyStory() : screen === "verbJourneyNotice" ? renderVerbJourneyNotice() : screen === "verbMap" ? renderVerbMap() : screen === "verbPractice" ? renderVerbPractice() : screen === "verbCompletion" ? renderVerbCompletion() : renderSettings());
 }
 
 function renderSaved(): HTMLElement {
@@ -602,7 +604,9 @@ function renderVerbJourneyOverview(): HTMLElement {
   const current = getVerbJourney(activeVerbJourneyId) ?? pack.journeys[1];
   const continueButton = button(`Continue ${current.title} →`, "button primary-button");
   continueButton.addEventListener("click", () => openVerbJourney(current));
-  wrapper.append(continueButton);
+  const practiceButton = button("Practise VTT · 5 questions →", "button secondary-button");
+  practiceButton.addEventListener("click", startVerbPractice);
+  wrapper.append(continueButton, practiceButton);
   return wrapper;
 }
 
@@ -696,7 +700,9 @@ function renderVerbMap(): HTMLElement {
   }
   wrapper.append(map);
   const selected = getVerbForm(selectedVerbFormTense) ?? verbJourneyPack.dutchForms[0];
-  wrapper.append(renderVerbFormDetail(selected), text("Important: Dutch onvoltooid does not mean the same thing as English continuous, and voltooid is not always a direct English perfect. Context and time words still matter.", "verb-map-note"));
+  const practiceButton = button("Practise VTT · 5 questions →", "button primary-button");
+  practiceButton.addEventListener("click", startVerbPractice);
+  wrapper.append(renderVerbFormDetail(selected), text("Important: Dutch onvoltooid does not mean the same thing as English continuous, and voltooid is not always a direct English perfect. Context and time words still matter.", "verb-map-note"), practiceButton);
   return wrapper;
 }
 
@@ -704,6 +710,100 @@ function renderVerbFormDetail(form: VerbFormRecord): HTMLElement {
   const detail = section("verb-form-detail");
   detail.append(text(`${form.dutchTense} · ${form.fullNameNl}`, "verb-detail-heading"), text(form.sentence, "verb-detail-example"), meaning("Practical meaning", form.usageMeaning), meaning("Formula", form.formula), meaning("Common usage", form.commonUsage), meaning("Learning priority", `${form.cefrLevel} · ${form.teachingPriority}`));
   return detail;
+}
+
+function startVerbPractice(): void {
+  activeVerbJourneyId = "journey.werken.vtt-completed";
+  verbPracticeSession = createVerbPracticeSession();
+  screen = "verbPractice";
+  render();
+  content?.focus();
+}
+
+function renderVerbPractice(): HTMLElement {
+  const wrapper = section("verb-practice-screen");
+  const session = verbPracticeSession ?? createVerbPracticeSession();
+  verbPracticeSession = session;
+  const question = getCurrentVerbPracticeQuestion(session);
+  if (!question) { screen = "verbCompletion"; return renderVerbCompletion(); }
+  const isRepair = question.phase === "repair";
+  const back = button("← Verb Map", "journey-back");
+  back.addEventListener("click", () => { screen = "verbMap"; verbMapOrigin = "overview"; render(); });
+  const coreNumber = Math.min(session.coreIndex + 1, getVerbPracticeQuestions().length);
+  wrapper.append(back, text(isRepair ? "Repair · up to 2 questions" : `VTT practice · decision ${coreNumber} of 5`, "journey-meta"), eyebrow(isRepair ? "Targeted repair" : "Five-question practice"), heading(question.prompt), text(question.context, "verb-practice-context"));
+  wrapper.append(renderVerbPracticeControls(question, session));
+  if (session.checked && session.lastResult) {
+    const status = text(session.lastResult.correct ? `Correct. ${session.lastResult.feedback}` : `Try again. ${session.lastResult.feedback}`, `verb-practice-feedback ${session.lastResult.correct ? "correct" : "incorrect"}`);
+    status.setAttribute("role", "status");
+    wrapper.append(status);
+    const lastCoreQuestion = session.coreIndex === getVerbPracticeQuestions().length - 1 && question.phase === "core";
+    const next = button(session.lastResult.correct && lastCoreQuestion ? "See completion" : "Continue", "button primary-button");
+    next.addEventListener("click", () => {
+      verbPracticeSession = advanceVerbPractice(session);
+      if (verbPracticeSession.completed) screen = "verbCompletion";
+      render();
+      content?.focus();
+    });
+    wrapper.append(next);
+  }
+  return wrapper;
+}
+
+function renderVerbPracticeControls(question: VerbPracticeQuestion & { phase: "core" | "repair" }, session: VerbPracticeSession): HTMLElement {
+  const wrapper = section("verb-practice-controls");
+  const selected = session.selectedAnswer;
+  if (question.kind === "token-slots" || question.kind === "token-order") {
+    const selectedTokens = Array.isArray(selected) ? selected : selected ? selected.split(" ") : [];
+    const answer = section("verb-answer-slots"); answer.setAttribute("aria-live", "polite");
+    if (selectedTokens.length === 0) answer.append(text("Choose words in order.", "verb-answer-placeholder"));
+    for (const [index, token] of selectedTokens.entries()) {
+      const remove = button(token, "verb-token-selected"); remove.setAttribute("aria-label", `Remove ${token} from answer`); remove.addEventListener("click", () => { const next = selectedTokens.filter((_candidate, tokenIndex) => tokenIndex !== index); verbPracticeSession = { ...session, selectedAnswer: next, checked: false, lastResult: null }; render(); }); answer.append(remove);
+    }
+    const available = section("verb-token-choices"); available.setAttribute("aria-label", "Available words");
+    for (const token of question.tokens ?? []) {
+      const used = selectedTokens.includes(token);
+      const choice = button(token, `button verb-token-choice${used ? " is-used" : ""}`); choice.disabled = used || session.checked; choice.setAttribute("aria-pressed", String(used));
+      choice.addEventListener("click", () => { const next = [...selectedTokens, token]; verbPracticeSession = { ...session, selectedAnswer: next, checked: false, lastResult: null }; render(); }); available.append(choice);
+    }
+    const reset = button("Reset", "button secondary-button verb-reset"); reset.disabled = session.checked || selectedTokens.length === 0; reset.addEventListener("click", () => { verbPracticeSession = { ...session, selectedAnswer: [], checked: false, lastResult: null }; render(); });
+    wrapper.append(answer, available, reset);
+  } else {
+    const choices = section(`verb-practice-choices ${question.kind === "map-placement" ? "map-placement-choices" : ""}`);
+    for (const choice of question.choices ?? []) {
+      const action = button(choice, `button${selected === choice ? " is-selected" : ""}`); action.setAttribute("aria-pressed", String(selected === choice)); action.disabled = session.checked;
+      action.addEventListener("click", () => { verbPracticeSession = { ...session, selectedAnswer: choice, checked: false, lastResult: null }; render(); }); choices.append(action);
+    }
+    wrapper.append(choices);
+  }
+  const answer = session.selectedAnswer;
+  const hasAnswer = Array.isArray(answer) ? answer.length > 0 : Boolean(answer);
+  const check = button("Check answer", "button primary-button"); check.disabled = session.checked || !hasAnswer;
+  check.addEventListener("click", () => { if (session.selectedAnswer === null) return; verbPracticeSession = checkVerbPracticeAnswer(session, session.selectedAnswer).session; render(); });
+  wrapper.append(check);
+  return wrapper;
+}
+
+function renderVerbCompletion(): HTMLElement {
+  const wrapper = section("verb-completion-screen");
+  const session = verbPracticeSession ?? createVerbPracticeSession();
+  const back = button("← werken", "journey-back"); back.addEventListener("click", () => { screen = "verbJourneyOverview"; render(); });
+  wrapper.append(back, eyebrow("VTT practised"), heading("You used werken as a completed event."), text("This session reports demonstrated decisions; it does not claim full verb mastery.", "journey-lead"));
+  const decisions = section("verb-completion-decisions");
+  const latest = new Map(session.attempts.filter((attempt) => attempt.phase === "core").map((attempt) => [attempt.questionId, attempt]));
+  for (const question of getVerbPracticeQuestions()) {
+    const result = latest.get(question.id);
+    const row = document.createElement("div"); row.className = `verb-completion-row ${result?.correct ? "correct" : "needs-review"}`;
+    const mark = document.createElement("span"); mark.className = "verb-completion-mark"; mark.textContent = result?.correct ? "✓" : "!";
+    const copy = document.createElement("span"); copy.textContent = question.prompt;
+    row.append(mark, copy); decisions.append(row);
+  }
+  wrapper.append(decisions);
+  const needsReview = [...latest.values()].some((attempt) => !attempt.correct) || session.attempts.some((attempt) => attempt.phase === "repair" && !attempt.correct);
+  const review = section("verb-next-review");
+  review.append(text(needsReview ? "Review needs remain separate from journey completion." : "Five controlled decisions completed. Review status remains separate from journey completion.", "verb-card-copy"), text("VTT completed fact vs OVT past habit / story background", "verb-review-contrast"));
+  const contrast = button("Review the VTT · OVT contrast →", "button primary-button"); contrast.addEventListener("click", () => { activeVerbJourneyId = "journey.werken.vtt-completed"; screen = "verbJourneyNotice"; render(); });
+  review.append(contrast); wrapper.append(review);
+  return wrapper;
 }
 
 function renderLessonFilters(): HTMLElement {

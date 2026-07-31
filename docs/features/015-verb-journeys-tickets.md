@@ -78,18 +78,25 @@ at most the authored repair questions after a supported mistake, and reach a
 completion view that reports demonstrated decisions without claiming full
 verb mastery.
 
-- [ ] The five questions cover meaning, form construction, natural
+- [x] The five questions cover meaning, form construction, natural
       translation, Verb Map placement, and word order.
-- [ ] Choice, token-slot, token-order, map-placement, reset, check, and next
+- [x] Choice, token-slot, token-order, map-placement, reset, check, and next
       controls are keyboard-operable and visibly actionable.
-- [ ] Correct and incorrect answers produce authored deterministic feedback.
-- [ ] Supported mistakes route to at most two bounded authored repair
+- [x] Correct and incorrect answers produce authored deterministic feedback.
+- [x] Supported mistakes route to at most two bounded authored repair
       questions and cannot create an unbounded loop.
-- [ ] Completion reports the five demonstrated decisions, separates review
+- [x] Completion reports the five demonstrated decisions, separates review
       needs from journey completion, and offers the next contrast review.
-- [ ] No typed answers, speech, audio, runtime translation, runtime LLM, or
+- [x] No typed answers, speech, audio, runtime translation, runtime LLM, or
       network-dependent grading is introduced.
-- [ ] Practice, completion, accessibility, and provider-isolation checks pass.
+- [x] Practice, completion, accessibility, and provider-isolation checks pass.
+
+**Implementation evidence:** `src/verb-journeys/practice.ts` provides five
+authored deterministic VTT questions and a two-repair session cap;
+`src/popup/index.ts` provides the click/tap/keyboard practice and completion
+route without persistence or network grading. Focused tests and typechecking
+pass; full-suite and Chrome/Firefox build verification are recorded before
+commit. No PR is opened; this slice is reserved for the single Feature 015 PR.
 
 ## T03 — Persist Verb skill evidence safely
 
