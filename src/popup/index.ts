@@ -1155,8 +1155,13 @@ function queueVerbJourneyResult(question: VerbPracticeQuestion & { phase: "core"
       });
     } catch {
       // Practice feedback remains usable when persistence is unavailable.
+      await refreshVerbJourneyRecord();
     }
   }).catch(() => undefined);
+}
+
+async function refreshVerbJourneyRecord(): Promise<void> {
+  try { verbJourneyRecord = await learningClient.getVerbJourneyRecord(); } catch { /* The existing in-memory record remains usable. */ }
 }
 
 function renderVerbCompletion(): HTMLElement {
@@ -1197,6 +1202,7 @@ async function returnFromVerbCompletion(): Promise<void> {
   pending = true;
   render();
   await verbJourneySaveChain;
+  await refreshVerbJourneyRecord();
   try { rhythm = await learningClient.recordVerbJourneyCompletion((verbPracticeSession ?? createVerbPracticeSession()).journeyId); } catch { /* Completion remains usable when persistence is unavailable. */ }
   screen = "verbJourneyOverview";
   pending = false;

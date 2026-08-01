@@ -18,6 +18,7 @@ describe("lesson popup", () => {
   let exportFails: boolean;
   let quizFails: boolean;
   let forceEmptyDailyFive: boolean;
+  let verbJourneyRecordReads: number;
   let popupSettings: typeof defaultSettings;
   let learningItems: Array<Record<string, unknown>>;
   let verbJourneyRevision: number;
@@ -34,6 +35,7 @@ describe("lesson popup", () => {
     exportFails = false;
     quizFails = false;
     forceEmptyDailyFive = false;
+    verbJourneyRecordReads = 0;
     popupSettings = { ...defaultSettings };
     rhythmResponse = rhythmFixture();
     const dailyItem = { id: "daily-item", learningLanguage: "nl", normalizedDutch: "huis", dutch: "huis", kind: "word", english: "house", telugu: null, sources: [], contexts: [], encounters: { count: 0, lastEncounterAt: null }, recognition: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, recall: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, createdAt: 1, updatedAt: 1 };
@@ -72,7 +74,7 @@ describe("lesson popup", () => {
       if (message.type === "dutchmate.learning.grammar.result") return { ok: true, result: { grammar: { patternId: String(message.payload?.patternId), contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, dueAt: 2, intervalDays: 1, successfulEvidenceCount: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], primitives: ["choose-form"], contextTags: ["needs"], recentExerciseIds: [String(message.payload?.exerciseId)], recentSuccessfulDays: [1], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 1, updatedAt: 1 } } };
       if (message.type === "dutchmate.learning.contrast" || message.type === "dutchmate.learning.contrast.introduce") return { ok: true, result: { contrast: message.type.endsWith("introduce") ? { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, successfulExerciseIds: [], recentExerciseIds: [], misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 } : null } };
       if (message.type === "dutchmate.learning.contrast.result") return { ok: true, result: { contrast: { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], recentExerciseIds: [String(message.payload?.exerciseId)], misconceptionCounts: message.payload?.answer === "ik werk" || message.payload?.answer === "Morgen ik werk thuis." ? { MAIN_CLAUSE_NO_INVERSION: 1 } : {}, evidenceRevision: 1, updatedAt: 1 }, repairOffer: message.payload?.answer === "ik werk" || message.payload?.answer === "Morgen ik werk thuis." ? { code: "MAIN_CLAUSE_NO_INVERSION", packId: "contrast.main_clause_inversion", contentVersion: 1, label: "Practise this contrast (1 min)" } : null } };
-      if (message.type === "dutchmate.learning.verbJourney") return { ok: true, result: { verbJourneys: verbJourneyRecordFixture } };
+      if (message.type === "dutchmate.learning.verbJourney") { verbJourneyRecordReads += 1; return { ok: true, result: { verbJourneys: verbJourneyRecordFixture } }; }
       if (message.type === "dutchmate.learning.verbJourney.result") {
         const payload = message.payload ?? {};
         verbJourneyRecordFixture = recordVerbJourneyEvidence(verbJourneyRecordFixture, {
@@ -1217,7 +1219,7 @@ describe("lesson popup", () => {
     expect(content().querySelector(".journey-list-row:first-child .journey-completion-mark")).toBeNull();
   });
 
-  it("keeps OTT practice on the first journey and marks it after returning", async () => {
+  it("updates the overview and directory after completing two journeys", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
@@ -1257,6 +1259,34 @@ describe("lesson popup", () => {
     const directoryRows = content().querySelectorAll<HTMLElement>(".verb-directory-row.is-openable");
     expect(directoryRows[0].querySelector<HTMLElement>(".verb-directory-progress-summary")?.textContent).toBe("1 of 8 forms practised");
     expect(directoryRows[1].querySelector<HTMLElement>(".verb-directory-progress-summary")?.textContent).toBe("0 of 8 forms practised");
+
+    (directoryRows[0] as HTMLButtonElement).click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Learning journeys"));
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I completed"))!.click();
+    button("Notice the pattern →").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")].find((choice) => choice.textContent?.includes("Ik heb gisteren"))!.click();
+    button("Place it on the 8-form map →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    button("Practise VTT · 5 questions →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("VTT practice · decision 1 of 5"));
+    content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")[1].click();
+    button("Check answer").click(); button("Continue").click();
+    for (const token of ["ik", "heb", "gewerkt"]) [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].find((candidate) => candidate.textContent === token && !candidate.disabled)!.click();
+    button("Check answer").click(); button("Continue").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((choice) => choice.textContent === "Ik heb gisteren thuis gewerkt.")!.click();
+    button("Check answer").click(); button("Continue").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((choice) => choice.textContent?.startsWith("VTT ·"))!.click();
+    button("Check answer").click(); button("Continue").click();
+    for (const token of ["Gisteren", "heb", "ik", "thuis", "gewerkt."]) [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].find((candidate) => candidate.textContent === token && !candidate.disabled)!.click();
+    button("Check answer").click(); button("See completion").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("You used werken as a completed event."));
+    button("Back to werken journeys").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
+    expect(content().querySelector<HTMLElement>(".verb-mastery-card .verb-mastery-count")?.textContent).toBe("2 of 8 forms practised");
+    expect(verbJourneyRecordReads).toBeGreaterThan(1);
+    button("Verb Journeys").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(2));
+    expect(content().querySelector<HTMLElement>(".verb-directory-row.is-openable .verb-directory-progress-summary")?.textContent).toBe("2 of 8 forms practised");
   });
 
   it("keeps OVT practice on the third journey and marks it after returning", async () => {
