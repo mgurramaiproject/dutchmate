@@ -6,11 +6,16 @@
 
 **Branch:** `017-hebben-journeys`, created from the clean `main` branch.
 
-**Status:** Grill and specification complete; `$to-tickets` remains
-approval-gated.
+**Status:** Grill, specification, and ticket breakdown complete; implementation
+is pending.
 
 **Specification:** [017-hebben-journeys-spec.md](./017-hebben-journeys-spec.md);
 published as [GitHub issue #140](https://github.com/mgurramaiproject/dutchmate/issues/140)
+with `ready-for-agent`.
+
+**Tickets:** [017-hebben-journeys-tickets.md](./017-hebben-journeys-tickets.md);
+published as child GitHub issues [#141](https://github.com/mgurramaiproject/dutchmate/issues/141)
+through [#146](https://github.com/mgurramaiproject/dutchmate/issues/146), all
 with `ready-for-agent`.
 
 ## Goal
@@ -138,9 +143,9 @@ Extend existing tests at these seams; do not create parallel infrastructure.
    `ready-for-agent`.
 3. Review the specification and its proposed seams with the user; the plan's
    approved seams are carried into the specification.
-4. Ask for explicit approval to invoke `$to-tickets`. Only after approval
-   create and publish `docs/features/017-hebben-journeys-tickets.md` and the
-   approved GitHub issue tree.
+4. Ask for explicit approval to invoke `$to-tickets`. **Completed:** the
+   approved breakdown is checked in and published as child issues #141–#146,
+   labeled `ready-for-agent` and dependency-ordered under parent #140.
 5. Implement tickets strictly against the checked-in specification, using the
    `author-verb-journeys` contract and the existing additive multi-pack seam.
 6. Run content qualification, Dutch review, focused tests, typecheck, the full
