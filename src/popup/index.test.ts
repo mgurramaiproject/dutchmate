@@ -1162,6 +1162,9 @@ describe("lesson popup", () => {
     content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")[0].click();
     button("Place it on the 8-form map →").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Zijn Verb Map"));
+    expect(content().querySelectorAll(".verb-form-card")).toHaveLength(8);
+    expect(content().querySelectorAll(".verb-form-example-en")).toHaveLength(8);
+    expect(content().querySelectorAll(".verb-form-example-te")).toHaveLength(8);
     expect(content().querySelector<HTMLElement>(".verb-form-card.selected")?.getAttribute("aria-label")).toMatch(/^OTT:/);
     button("Notice").click();
     button("Story").click();
@@ -1193,6 +1196,9 @@ describe("lesson popup", () => {
     content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")[0].click();
     button("Place it on the 8-form map →").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Hebben Verb Map"));
+    expect(content().querySelectorAll(".verb-form-card")).toHaveLength(8);
+    expect(content().querySelectorAll(".verb-form-example-en")).toHaveLength(8);
+    expect(content().querySelectorAll(".verb-form-example-te")).toHaveLength(8);
   });
 
   it("routes the hebben expression and past-possession journeys independently", async () => {

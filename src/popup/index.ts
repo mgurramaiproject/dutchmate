@@ -918,7 +918,7 @@ function renderVerbMap(): HTMLElement {
       const statusMeta = verbFormStatusMeta(displayStatus);
       card.setAttribute("role", "gridcell"); card.setAttribute("aria-label", `${form.dutchTense}: ${form.learnerLabelEn ?? form.fullNameNl} · ${form.fullNameNl} · ${statusMeta.label}`); card.setAttribute("aria-pressed", String(form.dutchTense === selectedVerbFormTense));
       const status = document.createElement("span"); status.className = `verb-form-status ${displayStatus}`; status.setAttribute("aria-label", `${statusMeta.label}: ${statusMeta.detail}`); status.append(spanText(statusMeta.symbol, "verb-status-symbol"));
-      const canonical = form.canonicalExample ?? { nl: form.sentence, en: form.naturalEnglish, te: form.sentence };
+      const canonical = form.canonicalExample;
       card.append(status, spanText(form.dutchTense, "verb-form-code"), spanText(canonical.nl, "verb-form-example"), spanText(canonical.en, "verb-form-example-en"), spanText(canonical.te, "verb-form-example-te"));
       card.addEventListener("click", () => { selectedVerbFormTense = form.dutchTense; render(); content?.querySelector<HTMLElement>(".verb-form-card.selected")?.scrollIntoView?.({ block: "nearest", inline: "nearest" }); });
       map.append(card);
@@ -1026,8 +1026,8 @@ function getActiveVerbPracticeJourneyId(): VerbPracticeJourneyId {
 
 function renderVerbFormDetail(form: VerbFormRecord): HTMLElement {
   const detail = section("verb-form-detail");
-  const canonical = form.canonicalExample ?? { nl: form.sentence, en: form.naturalEnglish, te: form.sentence };
-  const commonUse = form.commonUsageExample ?? { nl: form.commonUsage, en: form.naturalEnglish, te: form.sentence };
+  const canonical = form.canonicalExample;
+  const commonUse = form.commonUsageExample;
   detail.append(text(`${form.dutchTense} · ${verbFormStatusMeta(getVerbFormDisplayStatus(form)).label}`, "verb-detail-heading"), text(form.learnerLabelEn ?? form.fullNameNl, "verb-detail-label"), text(form.fullNameNl, "verb-detail-dutch-name"), text(canonical.nl, "verb-detail-example"), text(canonical.en, "verb-detail-canonical-en"), text(canonical.te, "verb-detail-canonical-te"), meaning("MEANING", form.usageMeaning), meaning("PATTERN", form.formula), meaning("COMMON USE · NL", commonUse.nl), meaning("COMMON USE · EN", commonUse.en), meaning("COMMON USE · TE", commonUse.te));
   return detail;
 }

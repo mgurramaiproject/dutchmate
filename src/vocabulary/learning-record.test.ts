@@ -588,7 +588,7 @@ describe("LearningRecordStore", () => {
 
   it("records additive verb journey evidence, rejects stale writes, and restores it through backup", async () => {
     const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
-    const input = { verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1" as const, exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "correct" as const, expectedEvidenceRevision: 0 };
+    const input = { verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-2" as const, exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "correct" as const, expectedEvidenceRevision: 0 };
     await expect(source.recordVerbJourneyResult(input)).resolves.toMatchObject({ recorded: true, verbJourneys: { evidenceRevision: 1 } });
     await expect(source.recordVerbJourneyResult(input)).resolves.toMatchObject({ recorded: false, verbJourneys: { evidenceRevision: 1 } });
     const backup = await source.exportBackup();
@@ -598,13 +598,32 @@ describe("LearningRecordStore", () => {
     await expect(restored.getVerbJourneyRecord()).resolves.toEqual(backup.verbJourneys);
   });
 
+  it("keeps legacy verb evidence when importing into the multilingual content version", async () => {
+    const legacySource = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await legacySource.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-2", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "correct", expectedEvidenceRevision: 0 });
+    const legacyBackup = await legacySource.exportBackup();
+    legacyBackup.verbJourneys.contentVersion = "015-1" as never;
+
+    const current = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    await current.recordVerbJourneyResult({ verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "016-2", exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning", result: "correct", expectedEvidenceRevision: 0 });
+    await current.importBackup(legacyBackup);
+
+    await expect(current.getVerbJourneyRecord()).resolves.toMatchObject({
+      contentVersion: "016-2",
+      skills: expect.objectContaining({
+        "verb.werken\u001fskill.werken.vtt-completed": expect.any(Object),
+        "verb.zijn\u001fskill.zijn.ott-identity": expect.any(Object),
+      }),
+    });
+  });
+
   it("records zijn evidence and keeps its content version through Daily Five", async () => {
     const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
-    const input = { verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "016-1" as const, exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning", result: "incorrect" as const, expectedEvidenceRevision: 0 };
+    const input = { verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "016-2" as const, exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning", result: "incorrect" as const, expectedEvidenceRevision: 0 };
     await expect(records.recordVerbJourneyResult(input)).resolves.toMatchObject({ recorded: true, verbJourneys: { evidenceRevision: 1 } });
     const snapshot = await records.getDailyFive();
     const task = snapshot.tasks.find((candidate) => "kind" in candidate && candidate.kind === "verb");
-    expect(task).toMatchObject({ kind: "verb", verbId: "verb.zijn", contentVersion: "016-1", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "construction", exerciseId: "exercise.zijn.ott-identity.construct" });
+    expect(task).toMatchObject({ kind: "verb", verbId: "verb.zijn", contentVersion: "016-2", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "construction", exerciseId: "exercise.zijn.ott-identity.construct" });
     const result = await records.recordVerbJourneyDailyFiveResult({ task: task!, result: "correct", expectedEvidenceRevision: 1 });
     expect(result.verbJourneys.evidenceRevision).toBe(2);
     expect(result.snapshot.completedTaskIds).toContain("verb.zijn\u001fskill.zijn.ott-identity\u001fconstruction\u001fexercise.zijn.ott-identity.construct");
@@ -612,10 +631,10 @@ describe("LearningRecordStore", () => {
 
   it("routes weak hebben evidence through Daily Five with its additive content version", async () => {
     const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
-    await records.recordVerbJourneyResult({ verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", contentVersion: "017-1", exerciseFamily: "meaning", exerciseId: "exercise.hebben.ott-possession.meaning", result: "incorrect", expectedEvidenceRevision: 0 });
+    await records.recordVerbJourneyResult({ verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", contentVersion: "017-2", exerciseFamily: "meaning", exerciseId: "exercise.hebben.ott-possession.meaning", result: "incorrect", expectedEvidenceRevision: 0 });
     const snapshot = await records.getDailyFive();
     const task = snapshot.tasks.find((candidate) => "kind" in candidate && candidate.kind === "verb");
-    expect(task).toMatchObject({ kind: "verb", verbId: "verb.hebben", contentVersion: "017-1", formOrSkillId: "skill.hebben.ott-possession", exerciseFamily: "construction", exerciseId: "exercise.hebben.ott-possession.construct" });
+    expect(task).toMatchObject({ kind: "verb", verbId: "verb.hebben", contentVersion: "017-2", formOrSkillId: "skill.hebben.ott-possession", exerciseFamily: "construction", exerciseId: "exercise.hebben.ott-possession.construct" });
     const result = await records.recordVerbJourneyDailyFiveResult({ task: task!, result: "correct", expectedEvidenceRevision: 1 });
     expect(result.snapshot.completedTaskIds).toContain("verb.hebben\u001fskill.hebben.ott-possession\u001fconstruction\u001fexercise.hebben.ott-possession.construct");
   });
@@ -623,28 +642,28 @@ describe("LearningRecordStore", () => {
   it("merges werken and zijn evidence additively across backups", async () => {
     const werken = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     const zijn = new LearningRecordStore(new MemoryStorage(), () => 1_000);
-    await werken.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "correct", expectedEvidenceRevision: 0 });
-    await zijn.recordVerbJourneyResult({ verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "016-1", exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning", result: "correct", expectedEvidenceRevision: 0 });
+    await werken.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-2", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "correct", expectedEvidenceRevision: 0 });
+    await zijn.recordVerbJourneyResult({ verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "016-2", exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning", result: "correct", expectedEvidenceRevision: 0 });
     const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
     await restored.importBackup(await werken.exportBackup());
     await restored.importBackup(await zijn.exportBackup());
     const record = await restored.getVerbJourneyRecord();
     expect(record.skills).toHaveProperty("verb.werken\u001fskill.werken.vtt-completed");
     expect(record.skills).toHaveProperty("verb.zijn\u001fskill.zijn.ott-identity");
-    expect(record.contentVersion).toBe("016-1");
+    expect(record.contentVersion).toBe("016-2");
   });
 
   it("merges werken, zijn, and hebben evidence without replacing earlier packs", async () => {
     const stores = [
-      { verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1" as const, exerciseId: "exercise.werken.vtt.meaning" },
-      { verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "016-1" as const, exerciseId: "exercise.zijn.ott-identity.meaning" },
-      { verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", contentVersion: "017-1" as const, exerciseId: "exercise.hebben.ott-possession.meaning" },
+      { verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-2" as const, exerciseId: "exercise.werken.vtt.meaning" },
+      { verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "016-2" as const, exerciseId: "exercise.zijn.ott-identity.meaning" },
+      { verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", contentVersion: "017-2" as const, exerciseId: "exercise.hebben.ott-possession.meaning" },
     ].map((input) => ({ input, store: new LearningRecordStore(new MemoryStorage(), () => 1_000) }));
     for (const { input, store } of stores) await store.recordVerbJourneyResult({ ...input, exerciseFamily: "meaning", result: "correct", expectedEvidenceRevision: 0 });
     const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
     for (const { store } of stores) await restored.importBackup(await store.exportBackup());
     const record = await restored.getVerbJourneyRecord();
-    expect(record.contentVersion).toBe("017-1");
+    expect(record.contentVersion).toBe("017-2");
     expect(Object.keys(record.skills)).toEqual(expect.arrayContaining([
       "verb.werken\u001fskill.werken.vtt-completed",
       "verb.zijn\u001fskill.zijn.ott-identity",
@@ -654,7 +673,7 @@ describe("LearningRecordStore", () => {
 
   it("rejects a zijn result with the werken content version", async () => {
     const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
-    await expect(records.recordVerbJourneyResult({ verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning", result: "correct", expectedEvidenceRevision: 0 })).rejects.toThrow("unavailable");
+    await expect(records.recordVerbJourneyResult({ verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "015-2", exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning", result: "correct", expectedEvidenceRevision: 0 })).rejects.toThrow("unavailable");
   });
 
   it("records a completed Verb Journey as today's lesson activity", async () => {
@@ -668,7 +687,7 @@ describe("LearningRecordStore", () => {
 
   it("offers weak Verb Journey skills through Daily Five and records the task atomically", async () => {
     const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
-    await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "incorrect", expectedEvidenceRevision: 0 });
+    await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-2", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "incorrect", expectedEvidenceRevision: 0 });
     const snapshot = await records.getDailyFive();
     const task = snapshot.tasks.find((candidate) => "kind" in candidate && candidate.kind === "verb");
     expect(task).toMatchObject({ kind: "verb", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", exerciseFamily: "construction", exerciseId: "exercise.werken.vtt.construct" });
@@ -684,7 +703,7 @@ describe("LearningRecordStore", () => {
       ["skill.werken.ovt-background", "exercise.werken.ovt.meaning", "exercise.werken.ovt.construct"],
     ] as const) {
       const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
-      await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId, contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: meaningId, result: "incorrect", expectedEvidenceRevision: 0 });
+      await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId, contentVersion: "015-2", exerciseFamily: "meaning", exerciseId: meaningId, result: "incorrect", expectedEvidenceRevision: 0 });
       expect((await records.getDailyFive()).tasks).toContainEqual(expect.objectContaining({ kind: "verb", formOrSkillId, exerciseId: constructionId }));
     }
   });
@@ -692,7 +711,7 @@ describe("LearningRecordStore", () => {
   it("keeps at least four vocabulary positions when one Verb Journey task is eligible", async () => {
     const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     for (const dutch of ["een", "twee", "drie", "vier", "vijf"]) await records.createOrMerge({ dutch });
-    await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "incorrect", expectedEvidenceRevision: 0 });
+    await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-2", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "incorrect", expectedEvidenceRevision: 0 });
     const snapshot = await records.getDailyFive();
     expect(snapshot.tasks.filter((candidate) => !(("kind" in candidate)))).toHaveLength(4);
     expect(snapshot.tasks.filter((candidate) => "kind" in candidate && candidate.kind === "verb")).toHaveLength(1);

@@ -77,15 +77,16 @@ accessibility, layout, browser boundaries, learner history, and language review.
 
 ### Acceptance criteria
 
-- Both remaining packs provide eight localized canonical and eight localized
+- [x] Both remaining packs provide eight localized canonical and eight localized
   common-use records with stable identities.
-- All three packs render the same card order, symbols, legend, labels, detail,
+- [x] All three packs render the same card order, symbols, legend, labels, detail,
   accessibility, and nearest-scroll behaviour.
-- Cross-pack tests prove 24 complete form records, 24 complete common-use
+- [x] Cross-pack tests prove 24 complete form records, 24 complete common-use
   records, stable evidence/history, and preserved actions.
 - Manual QA passes default, 110%, and 125% zoom in Firefox and supported
   Chromium, including long Telugu content and no clipping or horizontal scroll.
 - English/Telugu clarity, literal alignment, and independent fluent-Dutch
   review are recorded with reviewer, date, and sources.
-- Full relevant tests, typecheck, build, and whitespace checks pass; the parent
-  issue checklist and Delivery state are reconciled.
+- [x] Full relevant tests, typecheck, build, and whitespace checks pass.
+- [ ] Parent issue checklist and Delivery state are reconciled after the single
+  feature review/PR handoff.

@@ -21,9 +21,9 @@ describe("contrast learning messages", () => {
   });
 
   it("accepts authored zijn results and rejects a cross-pack version", () => {
-    const valid = { type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload: { verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning", contentVersion: "016-1", result: "correct", expectedEvidenceRevision: 0 } };
+    const valid = { type: LEARNING_VERB_JOURNEY_RESULT_MESSAGE, payload: { verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning", contentVersion: "016-2", result: "correct", expectedEvidenceRevision: 0 } };
     expect(isLearningMessage(valid)).toBe(true);
-    expect(isLearningMessage({ ...valid, payload: { ...valid.payload, contentVersion: "015-1" } })).toBe(false);
+    expect(isLearningMessage({ ...valid, payload: { ...valid.payload, contentVersion: "015-2" } })).toBe(false);
   });
 
   it("rejects unknown codes, packs, exercises, versions, outcomes, and revisions", () => {
@@ -37,10 +37,10 @@ describe("contrast learning messages", () => {
   });
 
   it("accepts only the authored Verb Journey Daily Five task shape", () => {
-    const valid = { type: LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE, payload: { task: { kind: "verb", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning" }, result: "correct", expectedEvidenceRevision: 0 } };
+    const valid = { type: LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE, payload: { task: { kind: "verb", verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-2", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning" }, result: "correct", expectedEvidenceRevision: 0 } };
     expect(isLearningMessage(valid)).toBe(true);
     expect(isLearningMessage({ ...valid, payload: { ...valid.payload, result: "maybe" } })).toBe(false);
     expect(isLearningMessage({ ...valid, payload: { ...valid.payload, task: { ...valid.payload.task, kind: "grammar" } } })).toBe(false);
-    expect(isLearningMessage({ ...valid, payload: { ...valid.payload, task: { kind: "verb", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "016-1", exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning" } } })).toBe(true);
+    expect(isLearningMessage({ ...valid, payload: { ...valid.payload, task: { kind: "verb", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", contentVersion: "016-2", exerciseFamily: "meaning", exerciseId: "exercise.zijn.ott-identity.meaning" } } })).toBe(true);
   });
 });
