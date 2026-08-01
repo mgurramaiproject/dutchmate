@@ -83,9 +83,9 @@ accessibility, layout, browser boundaries, learner history, and language review.
   accessibility, and nearest-scroll behaviour.
 - [x] Cross-pack tests prove 24 complete form records, 24 complete common-use
   records, stable evidence/history, and preserved actions.
-- Manual QA passes default, 110%, and 125% zoom in Firefox and supported
+- [x] Manual QA passes default, 110%, and 125% zoom in Firefox and supported
   Chromium, including long Telugu content and no clipping or horizontal scroll.
-- English/Telugu clarity, literal alignment, and independent fluent-Dutch
+- [x] English/Telugu clarity, literal alignment, and independent fluent-Dutch
   review are recorded with reviewer, date, and sources.
 - [x] Full relevant tests, typecheck, build, and whitespace checks pass.
 - [ ] Parent issue checklist and Delivery state are reconciled after the single

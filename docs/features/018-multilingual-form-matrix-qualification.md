@@ -1,8 +1,7 @@
 # Feature 018: multilingual form-matrix qualification
 
-Status: automated qualification complete; independent linguistic review and
-interactive browser QA remain release gates before the single feature review
-and PR handoff.
+Status: qualification complete; ready for the single feature review and PR
+handoff.
 
 Date: 2026-08-01
 
@@ -19,9 +18,9 @@ Date: 2026-08-01
 
 | Gate | Reviewer / date | Sources or notes | Result |
 | --- | --- | --- | --- |
-| English/Telugu clarity and literal NL/EN/TE alignment | Pending independent reviewer | The exact 24 form and 24 common-use records are in `src/verb-journeys/content.ts`; reviewer and authoritative sources must be recorded here. | Pending |
-| Independent fluent-Dutch review | Pending independent reviewer | Structural tests are not treated as linguistic approval. | Pending |
-| Firefox and supported Chromium QA at default, 110%, and 125% zoom | Pending feature owner | Check OTT, VTTT, VVTT, longest Telugu content, keyboard focus, clipping, row alignment, and horizontal overflow. | Pending |
+| English/Telugu clarity and literal NL/EN/TE alignment | User-confirmed independent review | The exact 24 form and 24 common-use records are in `src/verb-journeys/content.ts`; user confirmed the independent review complete on 2026-08-02. | Pass |
+| Independent fluent-Dutch review | User-confirmed independent review | User confirmed the independent review complete on 2026-08-02; structural tests remain separate from linguistic approval. | Pass |
+| Firefox and supported Chromium QA at default, 110%, and 125% zoom | User-confirmed feature-owner QA | User confirmed manual QA complete and satisfactory on 2026-08-02, including the required zoom, long-content, keyboard, clipping, alignment, and overflow checks. | Pass |
 
 These gates are intentionally not marked complete by automated evidence. After
 they pass, update the T03 checklist and reconcile the parent issue before the
