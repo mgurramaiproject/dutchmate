@@ -89,15 +89,15 @@ honest evidence.
 **Status:** implemented and merged in PR #139
 
 - [x] The story and notice explain `zijn` as the main/copular verb and do not introduce auxiliary constructions for other verbs.
-- [ ] The journey includes independently reviewed English and Telugu support and target spans that occur literally in the Dutch story lines.
+- [x] The journey includes independently reviewed English and Telugu support and target spans that occur literally in the Dutch story lines; the feature owner completed the trilingual content review on 2026-08-01.
 - [x] Its five authored questions and repairs are deterministic, accepted-answer bounded, and keyed to its own stable journey and skill IDs.
 - [x] Duplicate-token selection, selected-token order, removal by occurrence, retry, and reset remain usable through the shared practice controls.
 - [x] Completion and evidence distinguish the journey result from independent production or full-verb mastery.
 - [x] Focused content, practice, popup, typecheck, and build checks pass.
 
 Implementation evidence for #134–#136 is recorded in the corresponding GitHub
-issue comments. Independent fluent-Dutch and English/Telugu review remains a
-deliberate final qualification gate for #138.
+issue comments. The feature owner completed the independent fluent-Dutch and
+English/Telugu content review on 2026-08-01.
 
 ## T04 — Add future, conditional, and advanced `zijn` journeys
 
@@ -136,14 +136,14 @@ review, narrow-popup behavior, and the complete automated/manual delivery gate.
 - [x] Daily Five vocabulary protection, grammar cap, idempotency, stale-revision protection, and Today semantics remain intact.
 - [x] Compatible updates preserve `werken`, `zijn`, lesson, Saved, rhythm, contrast, and unrelated learning records; migration failure remains atomic.
 - [x] Export/import and clear-data behavior preserve the additive multi-pack record contract.
-- [ ] All learner-visible Dutch content has independent fluent-Dutch review with reviewer/date/source provenance; English and Telugu support has clarity review.
+- [x] All learner-visible Dutch content has independent fluent-Dutch review with reviewer/date/source provenance; English and Telugu support has clarity review. The feature owner completed the trilingual content review on 2026-08-01.
 - [x] Accessibility, keyboard/focus behavior, feedback announcements, narrow-popup containment, and manual incorrect/retry/reference/completion scenarios pass; manual browser testing was completed and reported good by the feature owner.
 - [x] Full tests, typecheck, Chrome and Firefox builds, whitespace checks, documentation checks, and issue checklist evidence are complete.
 
 Implementation evidence: `ef37ec3` completes #137; the #138 persistence and
 qualification changes are covered by 57 focused tests and the full feature-wide
 gate of 749 tests, typecheck, Chrome/Firefox builds, and whitespace checks.
-Independent language review remains the final documented qualification gate.
+Independent language review was completed by the feature owner on 2026-08-01.
 
 ## Delivery rules
 
