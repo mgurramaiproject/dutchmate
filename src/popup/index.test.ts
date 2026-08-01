@@ -1053,7 +1053,7 @@ describe("lesson popup", () => {
     expect(werkenEntry.querySelector<HTMLElement>(".verb-progress-fill")?.style.width).toBe("0%");
     expect([...content().querySelectorAll<HTMLElement>(".verb-directory-number")].map((number) => number.textContent)).toEqual(["01", "02", "03", "04"]);
     content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
     expect(content().querySelector(".journey-back-icon")).toBeTruthy();
     expect(content().textContent).toContain("What I completed");
     [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I completed"))!.click();
@@ -1094,7 +1094,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
     content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
 
     for (const journey of [
       { title: "What I normally do", tense: "OTT" },
@@ -1112,7 +1112,7 @@ describe("lesson popup", () => {
       button("Notice").click();
       button("Story").click();
       button(journey.title).click();
-      await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+      await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
     }
   });
 
@@ -1185,7 +1185,9 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
     expect(content().querySelector(".verb-mastery-card .verb-progress-track")).toBeTruthy();
     expect(content().querySelector<HTMLElement>(".verb-mastery-card .verb-progress-fill")?.style.width).toBe("0%");
-    expect(content().querySelector<HTMLElement>(".verb-mastery-map-label")?.textContent).toBe("Eight Dutch forms");
+    expect(content().querySelector(".verb-mastery-note")).toBeNull();
+    expect(content().querySelector(".verb-mastery-map-label")).toBeNull();
+    expect(content().querySelector<HTMLElement>(".verb-mastery-count")?.textContent).toBe("0 of 8 forms practised");
     expect(button("8 Dutch forms")).toBeTruthy();
     expect(button("12 English forms")).toBeTruthy();
     button("8 Dutch forms").click();
@@ -1244,7 +1246,7 @@ describe("lesson popup", () => {
     button("Check answer").click(); button("See completion").click();
     await vi.waitFor(() => expect(content().textContent).toContain("You used werken with OTT."));
     button("Back to werken journeys").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
     const firstJourney = content().querySelector<HTMLButtonElement>(".journey-list-row:first-child")!;
     expect(firstJourney.textContent).toContain("Mastered");
     expect(firstJourney.querySelector(".journey-status-number")?.textContent).toBe("01");
@@ -1283,7 +1285,7 @@ describe("lesson popup", () => {
     button("Check answer").click(); button("See completion").click();
     await vi.waitFor(() => expect(content().textContent).toContain("You used werken with OVT."));
     button("Back to werken journeys").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
     const thirdJourney = content().querySelector<HTMLButtonElement>(".journey-list-row:nth-child(3)")!;
     expect(thirdJourney.textContent).toContain("Mastered");
     expect(thirdJourney.querySelector(".journey-status-number")?.textContent).toBe("03");
@@ -1327,7 +1329,7 @@ describe("lesson popup", () => {
     const finalCompletionAction = completionActions[completionActions.length - 1];
     expect(finalCompletionAction?.textContent).toBe("Back to werken journeys");
     finalCompletionAction!.click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
     expect(content().textContent).toContain("Learning journeys");
     expect([...content().querySelectorAll<HTMLElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I completed"))?.textContent).toContain("Mastered");
     button("Today").click();
@@ -1379,7 +1381,7 @@ describe("lesson popup", () => {
     expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4);
     expect(content().textContent).toContain("I worked at home yesterday.");
     button("werken").click();
-    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
     button("8 Dutch forms").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
     content().querySelector<HTMLButtonElement>(".verb-form-card[aria-label^='OVT']")!.click();

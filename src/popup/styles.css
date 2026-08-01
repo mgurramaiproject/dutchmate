@@ -390,7 +390,7 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-progress-copy .eyebrow { margin: 0; }
 .verb-progress-title { font-family: var(--dm-font-reading); font-size: var(--dm-font-size-h2); font-weight: var(--dm-weight-black); line-height: 1.05; }
 .verb-progress-count, .verb-mastery-count { color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
-.verb-progress-summary, .verb-mastery-note { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
+.verb-progress-summary { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 .verb-progress-footer { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .verb-progress-track { display: block; width: 100%; height: 6px; overflow: hidden; border-radius: var(--dm-radius-round); background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-soft)); }
 .verb-progress-track.light { background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-raised)); }
@@ -398,7 +398,6 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-progress-track.light .verb-progress-fill { background: var(--dm-brand-orange); }
 .verb-mastery-card .verb-progress-track.light { height: 9px; border: 1px solid var(--dm-ink-muted); background: var(--dm-line); }
 .verb-mastery-card .eyebrow, .verb-mastery-card .verb-mastery-count { color: var(--dm-brand-orange-deep); }
-.verb-mastery-card .verb-mastery-note { color: var(--dm-ink-muted); }
 .verb-mastery-icon { width: 22px; height: 22px; flex: 0 0 auto; color: var(--dm-brand-orange-deep); }
 .verb-mastery-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .verb-mastery-actions .button { min-height: 38px; padding: 6px 7px; font-size: var(--dm-font-size-small); }

@@ -747,7 +747,7 @@ function renderVerbJourneyOverview(): HTMLElement {
   masteryHeader.className = "verb-progress-header";
   const masteryCopy = document.createElement("span");
   masteryCopy.className = "verb-progress-copy";
-  masteryCopy.append(eyebrow("Your Verb Journey"), spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-mastery-count"), text("Practice evidence · not mastery", "verb-mastery-note"));
+  masteryCopy.append(eyebrow("Your Verb Journey"), spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-mastery-count"));
   masteryHeader.append(masteryCopy, svgIcon("route", "verb-mastery-icon"));
   const mapAction = button("8 Dutch forms", "button primary-button");
   mapAction.addEventListener("click", () => { selectedVerbFormTense = "VTT"; verbMapOrigin = "overview"; screen = "verbMap"; render(); content?.focus(); });
@@ -756,7 +756,7 @@ function renderVerbJourneyOverview(): HTMLElement {
   const actions = document.createElement("div");
   actions.className = "verb-mastery-actions";
   actions.append(mapAction, comparisonAction);
-  mastery.append(masteryHeader, spanText("Eight Dutch forms", "verb-mastery-map-label"), renderVerbProgressTrack(progress, "light"), actions);
+  mastery.append(masteryHeader, renderVerbProgressTrack(progress, "light"), actions);
   wrapper.append(mastery, text("Learning journeys", "journey-section-label"));
   const journeyList = section("journey-list");
   for (const [index, journey] of pack.journeys.entries()) {
