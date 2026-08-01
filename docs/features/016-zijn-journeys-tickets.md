@@ -137,14 +137,13 @@ review, narrow-popup behavior, and the complete automated/manual delivery gate.
 - [x] Compatible updates preserve `werken`, `zijn`, lesson, Saved, rhythm, contrast, and unrelated learning records; migration failure remains atomic.
 - [x] Export/import and clear-data behavior preserve the additive multi-pack record contract.
 - [ ] All learner-visible Dutch content has independent fluent-Dutch review with reviewer/date/source provenance; English and Telugu support has clarity review.
-- [ ] Accessibility, keyboard/focus behavior, feedback announcements, narrow-popup containment, and manual incorrect/retry/reference/completion scenarios pass.
+- [x] Accessibility, keyboard/focus behavior, feedback announcements, narrow-popup containment, and manual incorrect/retry/reference/completion scenarios pass; manual browser testing was completed and reported good by the feature owner.
 - [x] Full tests, typecheck, Chrome and Firefox builds, whitespace checks, documentation checks, and issue checklist evidence are complete.
 
 Implementation evidence: `ef37ec3` completes #137; the #138 persistence and
-qualification changes are covered by 54 focused tests and the full feature-wide
-gate of 746 tests, typecheck, Chrome/Firefox builds, and whitespace checks.
-Independent language review and manual browser/accessibility QA remain the final
-feature-level qualification gates.
+qualification changes are covered by 57 focused tests and the full feature-wide
+gate of 749 tests, typecheck, Chrome/Firefox builds, and whitespace checks.
+Independent language review remains the final documented qualification gate.
 
 ## Delivery rules
 
