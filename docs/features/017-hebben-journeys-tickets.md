@@ -64,12 +64,12 @@ journey is complete with its own authored practice and evidence.
 
 **Blocked by:** T01 — Add additive `hebben` pack and first possession journey.
 
-- [ ] The present-expression journey teaches high-value `hebben` expressions and bounded forms such as `heb je?` and `heeft hij?` through authored situations.
-- [ ] The past-possession journey teaches `had` and `hadden` at the approved A1/A2 boundary.
-- [ ] Both journeys have five story lines, Dutch/English/Telugu support, valid target highlights, complete notices, five authored questions, and repairs capped at two.
-- [ ] Each journey routes to its own question set and records evidence against its own stable skills and exercise families.
-- [ ] Shared person-scope, token, retry/reset, map/comparison, completion, and return behavior remains deterministic and accessible.
-- [ ] Focused content, practice, popup, learning, typecheck, and build checks pass without regressions to T01, `werken`, or `zijn`.
+- [x] The present-expression journey teaches high-value `hebben` expressions and bounded forms such as `heb je?` and `heeft hij?` through authored situations.
+- [x] The past-possession journey teaches `had` and `hadden` at the approved A1/A2 boundary.
+- [x] Both journeys have five story lines, Dutch/English/Telugu support, valid target highlights, complete notices, five authored questions, and repairs capped at two.
+- [x] Each journey routes to its own question set and records evidence against its own stable skills and exercise families.
+- [x] Shared person-scope, token, retry/reset, map/comparison, completion, and return behavior remains deterministic and accessible.
+- [x] Focused content, practice, popup, learning, typecheck, and build checks pass without regressions to T01, `werken`, or `zijn`.
 
 ## T03 — Add lexical completed-experience journey
 

@@ -459,6 +459,34 @@ const hebbenPack: VerbJourneyPack = {
       { label: "hij/zij", tense: "OTT", sentence: "Mijn broer heeft een nieuwe fiets.", meaning: "my brother has a new bicycle" },
       { label: "wij", tense: "OTT", sentence: "Wij hebben thuis een rustige plek.", meaning: "we have a quiet place at home" },
     ], formula: "ik heb · jij hebt · hij/zij heeft · wij hebben", formulaNote: "The present form changes with the subject. In a question, the finite verb can come first: Heb jij tijd?", valuableContrast: "Ik heb, jij hebt, hij heeft, and wij hebben all describe present possession or availability; the subject decides the form." },
+  }, {
+    id: "journey.hebben.ott-expressions", verbId: "verb.hebben", title: "What I feel, need, and have time for", subtitle: "OTT · common expressions and questions", level: "A1", kind: "core", status: "next", targetForms: ["OTT"], targetSkills: ["skill.hebben.ott-expressions"], learningGoal: "Use common present hebben expressions and questions for feelings, needs, and available time.", estimatedMinutes: 3, storyTitle: "Een korte pauze",
+    story: [
+      { id: "story.hebben.ott-expressions.1", nl: "Ik heb honger na mijn werk.", english: "I am hungry after my work.", telugu: "నా పని తర్వాత నాకు ఆకలిగా ఉంది.", targets: [{ text: "heb", skillIds: ["skill.hebben.ott-expressions"] }] },
+      { id: "story.hebben.ott-expressions.2", nl: "Heb jij tijd voor een korte wandeling?", english: "Do you have time for a short walk?", telugu: "చిన్న నడకకు నీకు సమయం ఉందా?", targets: [{ text: "Heb", skillIds: ["skill.hebben.ott-expressions"] }] },
+      { id: "story.hebben.ott-expressions.3", nl: "Mijn zus heeft zin in koffie.", english: "My sister feels like having coffee.", telugu: "నా సోదరికి కాఫీ తాగాలని ఉంది.", targets: [{ text: "heeft", skillIds: ["skill.hebben.ott-expressions"] }] },
+      { id: "story.hebben.ott-expressions.4", nl: "Wij hebben vandaag weinig tijd.", english: "We have little time today.", telugu: "ఈ రోజు మాకు తక్కువ సమయం ఉంది.", targets: [{ text: "hebben", skillIds: ["skill.hebben.ott-expressions"] }] },
+      { id: "story.hebben.ott-expressions.5", nl: "Ik heb geen last van de regen.", english: "The rain does not bother me.", telugu: "వర్షం వల్ల నాకు ఇబ్బంది లేదు.", targets: [{ text: "heb", skillIds: ["skill.hebben.ott-expressions"] }] },
+    ],
+    notice: { id: "notice.hebben.ott-expressions", title: "Present hebben expressions", subtitle: "Common feelings and needs use hebben in the present.", comparison: [
+      { label: "statement", tense: "OTT", sentence: "Ik heb honger na mijn werk.", meaning: "a current feeling" },
+      { label: "question", tense: "OTT", sentence: "Heb jij tijd voor een korte wandeling?", meaning: "a question about available time" },
+      { label: "third person", tense: "OTT", sentence: "Mijn zus heeft zin in koffie.", meaning: "a current desire" },
+    ], formula: "ik heb · jij hebt · hij/zij heeft · wij hebben", formulaNote: "Fixed everyday expressions still use the subject's present form. In a question, Heb or Heeft comes before the subject.", valuableContrast: "Ik heb honger and Mijn zus heeft zin in koffie describe current states; Heb jij tijd? asks whether time is available now." },
+  }, {
+    id: "journey.hebben.ovt-possession", verbId: "verb.hebben", title: "What I had", subtitle: "OVT · past possession and background", level: "A2", kind: "core", status: "later", targetForms: ["OVT"], targetSkills: ["skill.hebben.ovt-possession"], learningGoal: "Describe past possession, availability, and background states with had and hadden.", estimatedMinutes: 3, storyTitle: "Een eerdere dag",
+    story: [
+      { id: "story.hebben.ovt-possession.1", nl: "Gisteren had ik meer tijd.", english: "Yesterday I had more time.", telugu: "నిన్న నాకు ఎక్కువ సమయం ఉంది.", targets: [{ text: "had", skillIds: ["skill.hebben.ovt-possession"] }] },
+      { id: "story.hebben.ovt-possession.2", nl: "Vroeger had mijn vader een kleine winkel.", english: "My father used to have a small shop.", telugu: "గతంలో నా తండ్రికి ఒక చిన్న దుకాణం ఉండేది.", targets: [{ text: "had", skillIds: ["skill.hebben.ovt-possession"] }] },
+      { id: "story.hebben.ovt-possession.3", nl: "Ik had toen geen fiets.", english: "I did not have a bicycle then.", telugu: "అప్పుడు నా దగ్గర సైకిల్ లేదు.", targets: [{ text: "had", skillIds: ["skill.hebben.ovt-possession"] }] },
+      { id: "story.hebben.ovt-possession.4", nl: "Had jij vroeger een hond?", english: "Did you use to have a dog?", telugu: "గతంలో నీకు కుక్క ఉండేదా?", targets: [{ text: "Had", skillIds: ["skill.hebben.ovt-possession"] }] },
+      { id: "story.hebben.ovt-possession.5", nl: "We hadden thuis een grote tafel.", english: "We had a large table at home.", telugu: "మా ఇంట్లో ఒక పెద్ద బల్ల ఉండేది.", targets: [{ text: "hadden", skillIds: ["skill.hebben.ovt-possession"] }] },
+    ],
+    notice: { id: "notice.hebben.ovt-possession", title: "Looking back with had", subtitle: "Had and hadden place possession or a state in the past.", comparison: [
+      { label: "past singular", tense: "OVT", sentence: "Gisteren had ik meer tijd.", meaning: "a past state with ik" },
+      { label: "past question", tense: "OVT", sentence: "Had jij vroeger een hond?", meaning: "a past question with jij" },
+      { label: "past plural", tense: "OVT", sentence: "We hadden thuis een grote tafel.", meaning: "a past state with we" },
+    ], formula: "ik had · jij had · hij/zij had · wij hadden", formulaNote: "The past singular is had; the plural form is hadden. A question can begin with Had: Had jij vroeger een hond?", valuableContrast: "Gisteren had ik meer tijd looks back to a past state. We hadden uses the plural form, while present possession uses heb or hebben." },
   }],
 };
 

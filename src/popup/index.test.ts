@@ -1177,6 +1177,26 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Hebben Verb Map"));
   });
 
+  it("routes the hebben expression and past-possession journeys independently", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable")[2].click();
+    await vi.waitFor(() => expect(content().textContent).toContain("What I feel, need, and have time for"));
+    const expressions = [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I feel, need, and have time for"))!;
+    expressions.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Heb jij tijd voor een korte wandeling?"));
+    button("Notice the pattern →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Present hebben expressions"));
+    button("Story").click();
+    button("What I feel, need, and have time for").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Learning journeys"));
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I had"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Gisteren had ik meer tijd."));
+    button("Notice the pattern →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Looking back with had"));
+  });
+
   it("counts two mastered zijn journeys even when both use the OTT map form", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());

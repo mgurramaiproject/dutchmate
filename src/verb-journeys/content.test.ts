@@ -74,7 +74,11 @@ describe("werken Verb Journey pack", () => {
     expect(hebben!.verb).toMatchObject({ id: "verb.hebben", lemma: "hebben", english: "to have", auxiliary: "hebben" });
     expect(hebben!.dutchForms).toHaveLength(8);
     expect(hebben!.englishComparison).toHaveLength(12);
-    expect(hebben!.journeys.map((journey) => journey.id)).toEqual(["journey.hebben.ott-possession"]);
+    expect(hebben!.journeys.map((journey) => journey.id)).toEqual([
+      "journey.hebben.ott-possession",
+      "journey.hebben.ott-expressions",
+      "journey.hebben.ovt-possession",
+    ]);
     expect(hebben!.journeys[0].story).toHaveLength(5);
     expect(hebben!.journeys[0].story.every((line) => line.targets.every((target) => line.nl.includes(target.text)))).toBe(true);
     expect(isVerbJourneyContentAvailable("verb.hebben")).toBe(true);
