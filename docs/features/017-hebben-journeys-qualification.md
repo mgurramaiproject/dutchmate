@@ -13,12 +13,12 @@ or Telugu string has passed human review.
 
 | Journey | Stable journey / skill | Target forms | Bounded person or construction scope | Practice / evidence | Review status |
 | --- | --- | --- | --- | --- | --- |
-| What I have and what is available | `journey.hebben.ott-possession` / `skill.hebben.ott-possession` | OTT | `heb`, `heeft`, `Heb`, `hebben`; possession and availability | five families; two repairs; additive skill evidence | structural; human review pending |
-| What I feel, need, and have time for | `journey.hebben.ott-expressions` / `skill.hebben.ott-expressions` | OTT | feelings, needs, time, and bounded question inversion | five families; two repairs; separate skill evidence | structural; human review pending |
-| What I had | `journey.hebben.ovt-possession` / `skill.hebben.ovt-possession` | OVT | `had` / `hadden` for past possession and background | five families; two repairs; separate skill evidence | structural; human review pending |
-| What I have had | `journey.hebben.vtt-experience` / `skill.hebben.vtt-experience` | VTT | lexical `heb/heeft gehad`; present-linked completed experience | five families; two repairs; delayed evidence | structural; human review pending |
-| What I have done | `journey.hebben.vtt-auxiliary` / `skill.hebben.vtt-auxiliary` | VTT | authored auxiliary `hebben` examples with selected `zijn` contrast | five families; two repairs; auxiliary skill evidence | structural; human review pending |
-| What I will and would have | `journey.hebben.future-reference` / `skill.hebben.future-reference` | OTTT, OVTT, VTTT, VVTT | `zal hebben`, `zou hebben`, and labelled perfect variants | five families; two repairs; multi-form target contribution | structural; human review pending |
+| What I have and what is available | `journey.hebben.ott-possession` / `skill.hebben.ott-possession` | OTT | `heb`, `heeft`, `Heb`, `hebben`; possession and availability | five families; two repairs; additive skill evidence | reviewed; passed |
+| What I feel, need, and have time for | `journey.hebben.ott-expressions` / `skill.hebben.ott-expressions` | OTT | feelings, needs, time, and bounded question inversion | five families; two repairs; separate skill evidence | reviewed; passed |
+| What I had | `journey.hebben.ovt-possession` / `skill.hebben.ovt-possession` | OVT | `had` / `hadden` for past possession and background | five families; two repairs; separate skill evidence | reviewed; passed |
+| What I have had | `journey.hebben.vtt-experience` / `skill.hebben.vtt-experience` | VTT | lexical `heb/heeft gehad`; present-linked completed experience | five families; two repairs; delayed evidence | reviewed; passed |
+| What I have done | `journey.hebben.vtt-auxiliary` / `skill.hebben.vtt-auxiliary` | VTT | authored auxiliary `hebben` examples with selected `zijn` contrast | five families; two repairs; auxiliary skill evidence | reviewed; passed |
+| What I will and would have | `journey.hebben.future-reference` / `skill.hebben.future-reference` | OTTT, OVTT, VTTT, VVTT | `zal hebben`, `zou hebben`, and labelled perfect variants | five families; two repairs; multi-form target contribution | reviewed; passed |
 
 The pack also contains exactly eight canonical Dutch forms and twelve English
 comparison records. Journey completion remains separate from form progress;

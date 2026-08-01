@@ -82,7 +82,7 @@ describe("lesson popup", () => {
           formOrSkillId: String(payload.formOrSkillId),
           exerciseFamily: String(payload.exerciseFamily),
           exerciseId: String(payload.exerciseId),
-          contentVersion: String(payload.contentVersion) as "015-1" | "016-1",
+          contentVersion: String(payload.contentVersion) as "015-1" | "016-1" | "017-1",
           result: payload.result === "correct" ? "correct" : "incorrect",
           delayedOrRecombined: payload.delayedOrRecombined === true,
           expectedEvidenceRevision: verbJourneyRecordFixture.evidenceRevision,
@@ -1231,6 +1231,39 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Morgen zal ik meer tijd hebben."));
     button("Notice the pattern →").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Looking ahead with hebben"));
+  });
+
+  it("completes the hebben possession journey and refreshes Today", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable")[2].click();
+    await vi.waitFor(() => expect(content().textContent).toContain("What I have and what is available"));
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I have and what is available"))!.click();
+    button("Notice the pattern →").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")].find((choice) => choice.textContent?.includes("Ik heb vandaag genoeg tijd."))!.click();
+    button("Place it on the 8-form map →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Hebben Verb Map"));
+    button("Practise OTT · 5 questions →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("OTT practice · decision 1 of 5"));
+
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((choice) => choice.textContent === "I have enough time today.")!.click();
+    button("Check answer").click(); button("Continue").click();
+    for (const token of ["ik", "heb", "vandaag", "genoeg", "tijd."]) [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].find((choice) => choice.textContent === token && !choice.disabled)!.click();
+    button("Check answer").click(); button("Continue").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((choice) => choice.textContent === "Ik heb een moment voor je.")!.click();
+    button("Check answer").click(); button("Continue").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((choice) => choice.textContent?.startsWith("OTT ·"))!.click();
+    button("Check answer").click(); button("Continue").click();
+    for (const token of ["Vandaag", "heb", "ik", "genoeg", "tijd."]) [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].find((choice) => choice.textContent === token && !choice.disabled)!.click();
+    button("Check answer").click(); button("See completion").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("You used hebben with OTT."));
+    expect(content().querySelectorAll(".verb-completion-row.correct")).toHaveLength(5);
+    button("Back to hebben journeys").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
+    expect(content().querySelector<HTMLElement>(".journey-list-row:first-child")?.textContent).toContain("Mastered");
+    button("Today").click();
+    await vi.waitFor(() => expect(content().querySelector(".lesson-completion-meta")?.textContent).toBe("2 lessons completed today"));
   });
 
   it("counts two mastered zijn journeys even when both use the OTT map form", async () => {

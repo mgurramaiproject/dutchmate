@@ -6,8 +6,8 @@
 
 **Branch:** `017-hebben-journeys`, created from the clean `main` branch.
 
-**Status:** Grill, specification, and ticket breakdown complete; implementation
-is pending.
+**Status:** Implementation and release qualification complete; feature-wide
+code review and PR remain pending.
 
 **Specification:** [017-hebben-journeys-spec.md](./017-hebben-journeys-spec.md);
 published as [GitHub issue #140](https://github.com/mgurramaiproject/dutchmate/issues/140)
