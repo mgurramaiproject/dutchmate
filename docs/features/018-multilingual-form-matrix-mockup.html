@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DutchMate · Feature 018 design mockup</title>
+  <style>
+    :root {
+      --orange: #ff6b00;
+      --orange-deep: #9c3900;
+      --ink: #1b1714;
+      --muted: #675c54;
+      --paper: #fff9f2;
+      --white: #ffffff;
+      --soft: #f8eee4;
+      --line: #d8cabe;
+      --shadow: 0 1px 2px rgb(27 23 20 / 8%), 0 5px 16px rgb(27 23 20 / 6%);
+      --reading: "Noto Sans", Inter, system-ui, sans-serif;
+      --ui: "Nunito Sans", ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+      --telugu: "Noto Sans Telugu", "Nirmala UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { background: #eee8e2; }
+    body { margin: 0; min-height: 100vh; background: #eee8e2; color: var(--ink); font-family: var(--ui); }
+    button { font: inherit; cursor: pointer; }
+    button:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+    .review-canvas { min-height: 100vh; padding: 20px 16px 92px; }
+    .review-head, .review-foot { width: min(950px, 100%); margin: 0 auto 14px; }
+    .review-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+    .review-head h1 { margin: 0; font: 900 1.25rem / 1.1 var(--reading); }
+    .review-head p, .review-foot { margin: 4px 0 0; color: var(--muted); font-size: .72rem; line-height: 1.35; }
+    .review-head strong { display: block; color: var(--orange-deep); font-size: .65rem; letter-spacing: .05em; text-transform: uppercase; }
+    .review-note { max-width: 360px; text-align: right; }
+    .popup-stage { display: grid; place-items: start center; }
+    .popup-shell { display: flex; flex-direction: column; width: 390px; height: 600px; overflow: hidden; background: var(--paper); box-shadow: 0 18px 60px rgb(27 23 20 / 18%); }
+    .popup-header { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--white); }
+    .brand { display: flex; align-items: center; gap: 9px; font-weight: 900; letter-spacing: -.02em; }
+    .brand-mark { display: grid; width: 29px; height: 29px; place-items: center; border-radius: 6px; background: var(--ink); color: var(--orange); font-size: .95rem; font-weight: 900; }
+    .header-actions { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: .68rem; font-weight: 800; }
+    .header-action { border: 0; background: transparent; color: inherit; font: inherit; }
+    .due-badge { display: inline-grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--orange); color: var(--ink); font-size: .72rem; font-weight: 900; }
+    .popup-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 13px 14px 16px; }
+    .content { display: grid; align-content: start; gap: 10px; }
+    .eyebrow, .label { margin: 0; color: var(--orange-deep); font-size: .65rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+    .heading { margin: 0; font: 900 1.55rem / 1.05 var(--reading); }
+    .subheading { margin: 0; font: 900 1rem / 1.1 var(--reading); }
+    .body-copy, .helper-copy { margin: 0; color: var(--muted); font: 400 .7rem / 1.35 var(--reading); }
+    .quiet-link { display: inline-flex; align-items: center; gap: 5px; width: fit-content; min-height: 32px; padding: 3px 0; border: 0; background: transparent; color: var(--ink); font-size: .68rem; font-weight: 800; text-decoration: underline; text-decoration-color: var(--orange); text-underline-offset: 3px; }
+    .back-icon { font-size: .95rem; line-height: 1; }
+    .tabs { display: grid; flex: 0 0 auto; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ink); background: var(--white); }
+    .tab { display: grid; grid-template-rows: 17px auto; min-height: 58px; place-items: center; gap: 2px; border: 0; border-right: 1px solid var(--ink); background: var(--white); color: var(--ink); font-size: .6rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+    .tab:last-child { border-right: 0; }
+    .tab.active { background: var(--ink); color: var(--white); }
+    .tab-icon { font-size: .85rem; line-height: 1; }
+    .legend { display: flex; flex-wrap: wrap; gap: 5px 10px; color: var(--muted); font-size: .6rem; font-weight: 800; }
+    .legend-item { display: inline-flex; align-items: center; gap: 4px; }
+    .legend-symbol { display: inline-grid; width: 16px; height: 16px; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: var(--white); color: var(--ink); font-size: .7rem; font-weight: 900; }
+    .legend-symbol.mastered { border-color: var(--orange); background: var(--soft); }
+    .legend-symbol.current { border-color: var(--ink); background: var(--ink); color: var(--white); }
+    .map-grid { display: grid; grid-template-columns: 72px minmax(0, 1fr) minmax(0, 1fr); gap: 4px; min-width: 0; }
+    .map-corner, .map-heading, .row-heading { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 6px 5px; }
+    .map-corner { justify-content: end; color: var(--muted); font-size: .55rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+    .map-heading { min-height: 41px; border-bottom: 3px solid var(--ink); background: var(--soft); text-align: center; }
+    .map-heading strong { font-size: .61rem; }
+    .map-heading small, .row-heading small { margin-top: 2px; color: var(--muted); font: 400 .53rem / 1.15 var(--reading); }
+    .row-heading { min-height: 124px; border: 1px solid var(--line); background: var(--soft); }
+    .row-heading strong { font-size: .62rem; line-height: 1.15; }
+    .row-heading small { margin-top: auto; }
+    .form-card { display: grid; align-content: start; gap: 3px; min-width: 0; min-height: 124px; padding: 7px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); color: var(--ink); text-align: left; box-shadow: var(--shadow); }
+    .form-card:hover { background: var(--soft); }
+    .form-card.selected { border: 2px solid var(--ink); padding: 6px; background: var(--soft); box-shadow: inset 0 4px 0 var(--orange); }
+    .form-top { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+    .form-code { font: 900 .72rem / 1 var(--reading); }
+    .status-symbol { display: inline-grid; width: 16px; height: 16px; place-items: center; border-radius: 50%; background: var(--soft); color: var(--ink); font-size: .72rem; font-weight: 900; }
+    .status-symbol.current { background: var(--ink); color: var(--white); }
+    .status-symbol.mastered { box-shadow: inset 0 0 0 1px var(--orange); }
+    .sentence-nl { margin: 5px 0 0; font: 700 .69rem / 1.2 var(--reading); }
+    .translation { display: block; margin: 1px 0 0; color: var(--muted); font: 400 .55rem / 1.2 var(--reading); overflow-wrap: anywhere; }
+    .translation.te { font-family: var(--telugu); line-height: 1.35; }
+    .translation b { color: var(--ink); font: 900 .48rem / 1 var(--ui); letter-spacing: .03em; }
+    .detail { display: grid; gap: 7px; padding: 10px; border: 1px solid var(--ink); border-left: 5px solid var(--orange); border-radius: 8px; background: var(--white); }
+    .detail-head { display: flex; align-items: start; justify-content: space-between; gap: 8px; }
+    .detail-head h2 { margin: 0; font: 900 .96rem / 1.1 var(--reading); }
+    .detail-status { color: var(--muted); font-size: .56rem; font-weight: 900; text-align: right; text-transform: uppercase; }
+    .detail-title { margin: -2px 0 0; color: var(--muted); font: 700 .73rem / 1.2 var(--reading); }
+    .detail-example { display: grid; gap: 3px; padding: 6px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .detail-example p { margin: 0; font: 700 .72rem / 1.25 var(--reading); }
+    .detail-example p.helper { color: var(--muted); font-size: .63rem; font-weight: 400; }
+    .detail-example p.te { font-family: var(--telugu); line-height: 1.35; }
+    .meaning { display: grid; gap: 2px; padding-top: 5px; border-top: 1px solid var(--line); }
+    .meaning strong { color: var(--muted); font-size: .55rem; letter-spacing: .05em; text-transform: uppercase; }
+    .meaning span { font: 400 .66rem / 1.3 var(--reading); }
+    .detail-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 1px; }
+    .button { min-height: 40px; padding: 6px 8px; border: 1px solid var(--ink); border-radius: 8px; background: var(--white); color: var(--ink); font-size: .62rem; font-weight: 900; }
+    .button.primary { background: var(--orange); }
+    .button:hover, .button:focus-visible { background: var(--soft); }
+    .button.primary:hover, .button.primary:focus-visible { background: var(--ink); color: var(--white); }
+    .map-note { padding: 8px 9px; border-left: 3px solid var(--orange); background: var(--soft); color: var(--muted); font: 400 .62rem / 1.3 var(--reading); }
+    .row-band { display: grid; gap: 5px; padding-top: 8px; border-top: 1px solid var(--line); }
+    .row-band:first-child { padding-top: 0; border-top: 0; }
+    .row-band-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+    .row-band-head strong { font: 900 .73rem / 1.1 var(--reading); }
+    .row-band-head span { color: var(--muted); font: 400 .56rem / 1.1 var(--reading); }
+    .row-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+    .row-cards .form-card { min-height: 117px; }
+    .band-column-labels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; color: var(--muted); font-size: .52rem; font-weight: 900; letter-spacing: .04em; text-align: center; text-transform: uppercase; }
+    .focus-intro { display: grid; gap: 4px; padding: 9px; border-left: 5px solid var(--orange); background: var(--soft); }
+    .focus-intro strong { font: 900 .9rem / 1.1 var(--reading); }
+    .focus-intro span { color: var(--muted); font: 400 .65rem / 1.3 var(--reading); }
+    .compact-grid { display: grid; grid-template-columns: 58px repeat(2, minmax(0, 1fr)); gap: 4px; }
+    .compact-grid .row-heading { min-height: 120px; padding-inline: 4px; }
+    .compact-grid .form-card { min-height: 120px; padding: 6px; }
+    .compact-grid .form-card.selected { padding: 5px; }
+    .compact-grid .translation { font-size: .52rem; }
+    .compact-grid .sentence-nl { font-size: .67rem; }
+    .focus-detail { margin-top: 1px; }
+    .variant-switcher { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 14px auto 0; }
+    .variant-switcher button { min-height: 36px; padding: 4px 10px; border: 1px solid var(--ink); border-radius: 8px; background: var(--white); color: var(--ink); font-size: .65rem; font-weight: 900; }
+    .variant-switcher button:hover, .variant-switcher button:focus-visible { background: var(--orange); }
+    .variant-label { min-width: 210px; color: var(--muted); font-size: .68rem; text-align: center; }
+    .review-foot { margin-top: 12px; text-align: center; }
+    .toast { position: fixed; right: 16px; bottom: 16px; max-width: 300px; padding: 9px 11px; border: 1px solid var(--ink); border-radius: 8px; background: var(--ink); color: var(--white); font-size: .68rem; line-height: 1.3; box-shadow: 0 18px 60px rgb(27 23 20 / 18%); }
+    @media (max-width: 520px) {
+      .review-canvas { padding: 0 0 78px; }
+      .review-head { display: block; padding: 10px 12px; background: var(--white); }
+      .review-note { max-width: none; margin-top: 6px; text-align: left; }
+      .popup-shell { width: 100%; height: min(600px, calc(100vh - 72px)); min-height: 520px; }
+      .variant-switcher { margin-top: 9px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="review-canvas">
+    <header class="review-head">
+      <div>
+        <strong>Feature 018 · design review</strong>
+        <h1>Multilingual 8-form matrix</h1>
+      </div>
+      <p class="review-note">Three information hierarchies on the agreed 390 × 600 popup shell. This is a read-only mockup, not production UI.</p>
+    </header>
+
+    <div class="popup-stage">
+      <main id="popup" class="popup-shell" aria-label="DutchMate Feature 018 design mockup"></main>
+    </div>
+
+    <nav class="variant-switcher" aria-label="Design variants">
+      <button id="previous" type="button" aria-label="Previous design variant">←</button>
+      <span id="variant-label" class="variant-label"></span>
+      <button id="next" type="button" aria-label="Next design variant">→</button>
+    </nav>
+    <p class="review-foot">Use <code>?variant=a</code>, <code>?variant=b</code>, or <code>?variant=c</code> for a shareable state. Click a form to inspect its detail panel.</p>
+  </div>
+  <div id="toast" class="toast" hidden role="status"></div>
+
+  <script>
+    const forms = [
+      { code: "OTT", row: "present", status: "mastered", nl: "Ik werk vandaag thuis.", en: "I am working at home today.", te: "నేను ఈరోజు ఇంటి నుంచి పని చేస్తున్నాను.", label: "Present", name: "onvoltooid tegenwoordige tijd", meaning: "A current, habitual, or generally true situation.", pattern: "present finite verb", common: { nl: "Ik werk elke maandag thuis.", en: "I work at home every Monday.", te: "నేను ప్రతి సోమవారం ఇంటి నుంచి పని చేస్తాను." } },
+      { code: "VTT", row: "present", status: "current", nl: "Ik heb vandaag thuis gewerkt.", en: "I have worked at home today.", te: "నేను ఈరోజు ఇంటి నుంచి పని చేశాను.", label: "Completed present / perfect", name: "voltooid tegenwoordige tijd", meaning: "A completed event presented as relevant now or as a completed conversational fact.", pattern: "hebben/zijn in OTT + past participle", common: { nl: "Ik heb vandaag thuis gewerkt.", en: "I have worked at home today.", te: "నేను ఈరోజు ఇంటి నుంచి పని చేశాను." } },
+      { code: "OVT", row: "past", status: "current", nl: "Ik werkte gisteren thuis.", en: "I worked at home yesterday.", te: "నేను నిన్న ఇంటి నుంచి పని చేశాను.", label: "Past", name: "onvoltooid verleden tijd", meaning: "A past event, state, habit, or narrative background.", pattern: "past finite verb", common: { nl: "Vroeger werkte ik thuis.", en: "I used to work at home.", te: "గతంలో నేను ఇంటి నుంచి పని చేసేవాడిని." } },
+      { code: "VVT", row: "past", status: "later", nl: "Ik had al thuis gewerkt.", en: "I had already worked at home.", te: "నేను అప్పటికే ఇంటి నుంచి పని చేసి ఉన్నాను.", label: "Completed past", name: "voltooid verleden tijd", meaning: "An event completed before another past reference point.", pattern: "hebben/zijn in OVT + past participle", common: { nl: "Ik had al thuis gewerkt voordat de vergadering begon.", en: "I had already worked at home before the meeting started.", te: "సమావేశం ప్రారంభమయ్యే ముందు నేను అప్పటికే ఇంటి నుంచి పని చేశాను." } },
+      { code: "OTTT", row: "future", status: "later", nl: "Ik zal morgen thuis werken.", en: "I will work at home tomorrow.", te: "నేను రేపు ఇంటి నుంచి పని చేస్తాను.", label: "Future viewed from the present", name: "onvoltooid tegenwoordige toekomende tijd", meaning: "An uncompleted future action viewed from now.", pattern: "zal/zullen + infinitive", common: { nl: "Ik zal morgen thuis werken.", en: "I will work at home tomorrow.", te: "నేను రేపు ఇంటి నుంచి పని చేస్తాను." } },
+      { code: "VTTT", row: "future", status: "reference", nl: "Ik zal tegen die tijd thuis gewerkt hebben.", en: "I will have worked at home by then.", te: "అప్పటికి నేను ఇంటి నుంచి పని చేసి ఉంటాను.", label: "Completed future viewed from the present", name: "voltooid tegenwoordige toekomende tijd", meaning: "An action expected to be completed by a future point.", pattern: "zal/zullen + past participle + hebben/zijn", common: { nl: "Tegen vrijdag zal ik thuis gewerkt hebben.", en: "By Friday, I will have worked at home.", te: "శుక్రవారం నాటికి నేను ఇంటి నుంచి పని చేసి ఉంటాను." } },
+      { code: "OVTT", row: "future-from-past", status: "later", nl: "Ik zou thuis werken.", en: "I would work at home.", te: "నేను ఇంటి నుంచి పని చేసేవాడిని.", label: "Future viewed from the past / conditional", name: "onvoltooid verleden toekomende tijd", meaning: "A future action viewed from a past point or a hypothetical action.", pattern: "zou/zouden + infinitive", common: { nl: "Ik zou thuis werken als dat kon.", en: "I would work at home if that were possible.", te: "అది సాధ్యమైతే, నేను ఇంటి నుంచి పని చేసేవాడిని." } },
+      { code: "VVTT", row: "future-from-past", status: "reference", nl: "Ik zou thuis gewerkt hebben.", en: "I would have worked at home.", te: "నేను ఇంటి నుంచి పని చేసి ఉండేవాడిని.", label: "Completed future viewed from the past / conditional perfect", name: "voltooid verleden toekomende tijd", meaning: "A completed result viewed from the past, often hypothetical or unrealised.", pattern: "zou/zouden + past participle + hebben/zijn", common: { nl: "Ik zou thuis gewerkt hebben als dat mogelijk was.", en: "I would have worked at home if that had been possible.", te: "అది సాధ్యమై ఉంటే, నేను ఇంటి నుంచి పని చేసి ఉండేవాడిని." } }
+    ];
+    const rows = [
+      { key: "present", en: "Present", nl: "tegenwoordige tijd" },
+      { key: "past", en: "Past", nl: "verleden tijd" },
+      { key: "future", en: "Future from present", nl: "tegenwoordige toekomende tijd" },
+      { key: "future-from-past", en: "Future from past", nl: "verleden toekomende tijd" }
+    ];
+    const variants = [
+      { key: "a", name: "A · Map first", note: "Closest to the approved 4 × 2 map: the learner scans the whole grid before reading detail." },
+      { key: "b", name: "B · Row bands", note: "The four viewpoint rows become readable bands; each pair keeps the completion contrast together." },
+      { key: "c", name: "C · Focus selected", note: "The map stays compact, but the selected form gets a stronger reading moment below it." }
+    ];
+    let variant = new URLSearchParams(window.location.search).get("variant") || "a";
+    let selectedCode = "VVTT";
+    let detailOpen = true;
+    let toastTimer;
+    const popup = document.getElementById("popup");
+    const variantLabel = document.getElementById("variant-label");
+    const toast = document.getElementById("toast");
+
+    function selectedForm() {
+      return forms.find((form) => form.code === selectedCode) || forms[0];
+    }
+    function statusSymbol(status) {
+      return status === "mastered" ? "✓" : status === "current" ? "›" : "○";
+    }
+    function statusLabel(status) {
+      return status === "mastered" ? "Mastered" : status === "current" ? "Current or next" : "Later or reference";
+    }
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+    }
+    function card(form, extraClass) {
+      const selected = form.code === selectedCode;
+      return '<button class="form-card ' + (selected ? "selected " : "") + (extraClass || "") + '" type="button" data-code="' + form.code + '" aria-pressed="' + selected + '" aria-label="' + escapeHtml(form.code + ": " + form.label + ". " + statusLabel(form.status)) + '">' +
+        '<span class="form-top"><span class="form-code">' + form.code + '</span><span class="status-symbol ' + (form.status === "mastered" ? "mastered" : form.status === "current" ? "current" : "") + '" aria-hidden="true">' + statusSymbol(form.status) + '</span></span>' +
+        '<span class="sentence-nl" lang="nl">' + escapeHtml(form.nl) + '</span>' +
+        '<span class="translation" lang="en"><b>EN</b> ' + escapeHtml(form.en) + '</span>' +
+        '<span class="translation te" lang="te"><b>TE</b> ' + escapeHtml(form.te) + '</span>' +
+        '</button>';
+    }
+    function legend() {
+      return '<div class="legend" aria-label="Form status legend">' +
+        '<span class="legend-item"><span class="legend-symbol mastered" aria-hidden="true">✓</span>Mastered</span>' +
+        '<span class="legend-item"><span class="legend-symbol current" aria-hidden="true">›</span>Current / next</span>' +
+        '<span class="legend-item"><span class="legend-symbol" aria-hidden="true">○</span>Later / reference</span>' +
+        '</div>';
+    }
+    function detail() {
+      const form = selectedForm();
+      if (!detailOpen) return '<button class="quiet-link" type="button" data-action="toggle-detail">＋ Open ' + form.code + ' detail</button>';
+      return '<section class="detail" aria-label="' + escapeHtml(form.code + " detail") + '">' +
+        '<div class="detail-head"><h2>' + form.code + '</h2><span class="detail-status">' + statusSymbol(form.status) + ' ' + statusLabel(form.status) + '</span></div>' +
+        '<p class="detail-title">' + escapeHtml(form.label) + '<br><span>' + escapeHtml(form.name) + '</span></p>' +
+        '<div class="detail-example"><p lang="nl"><b>NL</b> ' + escapeHtml(form.nl) + '</p><p class="helper" lang="en"><b>EN</b> ' + escapeHtml(form.en) + '</p><p class="helper te" lang="te"><b>TE</b> ' + escapeHtml(form.te) + '</p></div>' +
+        '<div class="meaning"><strong>Meaning</strong><span>' + escapeHtml(form.meaning) + '</span></div>' +
+        '<div class="meaning"><strong>Pattern</strong><span>' + escapeHtml(form.pattern) + '</span></div>' +
+        '<div class="meaning"><strong>Common use</strong><span lang="nl"><b>NL</b> ' + escapeHtml(form.common.nl) + '</span><span class="helper" lang="en"><b>EN</b> ' + escapeHtml(form.common.en) + '</span><span class="helper te" lang="te"><b>TE</b> ' + escapeHtml(form.common.te) + '</span></div>' +
+        '<div class="detail-actions"><button class="button" type="button" data-action="compare">Compare forms</button><button class="button primary" type="button" data-action="practice">Practise ' + form.code + '</button></div>' +
+        '</section>';
+    }
+    function header() {
+      return '<header class="popup-header"><div class="brand"><span class="brand-mark" aria-hidden="true">D</span><span>DutchMate</span></div><div class="header-actions"><span class="due-badge" aria-label="2 items due">2</span><button class="header-action" type="button" data-action="settings">⚙</button></div></header>';
+    }
+    function tabs() {
+      return '<nav class="tabs" aria-label="Learning areas"><button class="tab" type="button"><span class="tab-icon">◷</span><span>Today</span></button><button class="tab active" type="button"><span class="tab-icon">▣</span><span>Lessons</span></button><button class="tab" type="button"><span class="tab-icon">▱</span><span>Saved</span></button></nav>';
+    }
+    function title() {
+      return '<button class="quiet-link" type="button" data-action="back"><span class="back-icon" aria-hidden="true">←</span> Werken</button><p class="eyebrow">Eight Dutch forms</p><h1 class="heading">Werken Verb Map</h1><p class="body-copy">One stable map for every journey. Select a form to inspect it.</p>';
+    }
+    function variantA() {
+      let map = '<div class="map-grid" role="grid" aria-label="Eight Dutch forms"><div class="map-corner">Viewpoint</div><div class="map-heading"><strong>Onvoltooid</strong><small>Not completed</small></div><div class="map-heading"><strong>Voltooid</strong><small>Completed</small></div>';
+      rows.forEach((row) => {
+        map += '<div class="row-heading"><strong>' + row.en + '</strong><small>' + row.nl + '</small></div>';
+        map += forms.filter((form) => form.row === row.key).map((form) => card(form)).join("");
+      });
+      return '<div class="content">' + title() + legend() + map + detail() + '<div class="map-note">Dutch onvoltooid and voltooid are not one-to-one copies of English tense labels. Context and time words matter.</div></div>';
+    }
+    function variantB() {
+      let bands = '<div class="band-column-labels"><span>Onvoltooid · not completed</span><span>Voltooid · completed</span></div>';
+      rows.forEach((row) => {
+        bands += '<section class="row-band"><div class="row-band-head"><strong>' + row.en + '</strong><span>' + row.nl + '</span></div><div class="row-cards">' + forms.filter((form) => form.row === row.key).map((form) => card(form)).join("") + '</div></section>';
+      });
+      return '<div class="content">' + title() + '<div class="focus-intro"><strong>Choose a viewpoint first.</strong><span>The paired cards below keep the completion contrast in one reading line.</span></div>' + legend() + bands + detail() + '</div>';
+    }
+    function variantC() {
+      let map = '<div class="compact-grid" role="grid" aria-label="Eight Dutch forms"><div class="map-corner">Viewpoint</div><div class="map-heading"><strong>Onvoltooid</strong><small>Not completed</small></div><div class="map-heading"><strong>Voltooid</strong><small>Completed</small></div>';
+      rows.forEach((row) => {
+        map += '<div class="row-heading"><strong>' + row.en + '</strong><small>' + row.nl + '</small></div>';
+        map += forms.filter((form) => form.row === row.key).map((form) => card(form)).join("");
+      });
+      return '<div class="content">' + title() + '<div class="focus-intro"><p class="label">Selected form</p><strong>' + selectedForm().code + ' · ' + escapeHtml(selectedForm().label) + '</strong><span>Tap any card to move this reading focus.</span></div>' + legend() + map + '<div class="focus-detail">' + detail() + '</div></div>';
+    }
+    function render() {
+      const current = variants.find((item) => item.key === variant) || variants[0];
+      variant = current.key;
+      window.history.replaceState({}, "", "?variant=" + variant);
+      variantLabel.textContent = current.name + " — " + current.note;
+      popup.innerHTML = header() + '<div class="popup-content">' + (variant === "a" ? variantA() : variant === "b" ? variantB() : variantC()) + '</div>' + tabs();
+      popup.querySelectorAll("[data-code]").forEach((button) => button.addEventListener("click", () => { selectedCode = button.dataset.code; detailOpen = true; render(); }));
+      popup.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => {
+        const action = button.dataset.action;
+        if (action === "toggle-detail") { detailOpen = true; render(); }
+        else if (action === "compare") showToast("The existing 12 English forms comparison remains connected here.");
+        else if (action === "practice") showToast("Practice remains the existing five-question journey action.");
+        else if (action === "back") showToast("Back returns to the existing werken journey overview.");
+        else if (action === "settings") showToast("Settings remains outside this design slice.");
+      }));
+    }
+    function setVariant(next) {
+      variant = next;
+      render();
+    }
+    function cycle(direction) {
+      const index = variants.findIndex((item) => item.key === variant);
+      setVariant(variants[(index + direction + variants.length) % variants.length].key);
+    }
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.hidden = false;
+      toastTimer = window.setTimeout(() => { toast.hidden = true; }, 2400);
+    }
+    document.getElementById("previous").addEventListener("click", () => cycle(-1));
+    document.getElementById("next").addEventListener("click", () => cycle(1));
+    document.addEventListener("keydown", (event) => {
+      if (event.target.matches("input, textarea, [contenteditable]")) return;
+      if (event.key === "ArrowLeft") cycle(-1);
+      if (event.key === "ArrowRight") cycle(1);
+    });
+    render();
+  </script>
+</body>
+</html>
