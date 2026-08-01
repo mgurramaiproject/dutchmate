@@ -138,3 +138,19 @@ describe("zijn question and past-state practice", () => {
     expect(session.completed).toBe(true);
   });
 });
+
+describe("zijn past-experience practice", () => {
+  it("keeps the completed experience journey deterministic and bounded", () => {
+    const questions = getVerbPracticeQuestions("journey.zijn.vtt-experience");
+    expect(questions).toHaveLength(5);
+    expect(questions.every((question) => question.verbId === "verb.zijn" && question.journeyId === "journey.zijn.vtt-experience")).toBe(true);
+    expect(questions[4].delayedOrRecombined).toBe(true);
+  });
+
+  it("records a delayed decision as part of the existing practice session", () => {
+    let session = createVerbPracticeSession("journey.zijn.vtt-experience");
+    for (const question of getVerbPracticeQuestions("journey.zijn.vtt-experience")) session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+    expect(session.completed).toBe(true);
+    expect(session.attempts.some((attempt) => attempt.questionId.endsWith("word-order") && attempt.correct)).toBe(true);
+  });
+});

@@ -36,7 +36,7 @@ export type VerbPracticeSession = {
   completed: boolean;
 };
 
-export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity" | "journey.zijn.ott-questions" | "journey.zijn.ovt-state";
+export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity" | "journey.zijn.ott-questions" | "journey.zijn.ovt-state" | "journey.zijn.vtt-experience";
 const defaultJourneyId: VerbPracticeJourneyId = "journey.werken.vtt-completed";
 
 type AuthoredVerbPracticeQuestion = Omit<VerbPracticeQuestion, "journeyId">;
@@ -266,6 +266,19 @@ const zijnPastStateRepairs: AuthoredVerbPracticeQuestion[] = [
   { id: "exercise.zijn.ovt-state.repair-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ovt-state", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the past word order.", context: "Gisteren …", tokens: ["Gisteren", "was", "ik", "thuis."], accepted: ["Gisteren was ik thuis."], feedback: "Correct. Was comes before ik after Gisteren.", incorrectFeedback: "Use Gisteren was ik thuis." },
 ];
 
+const zijnPastExperienceQuestions: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.zijn.vtt-experience.meaning", verbId: "verb.zijn", formOrSkillId: "skill.zijn.vtt-experience", exerciseFamily: "meaning", kind: "choice", prompt: "What does this sentence report?", context: "Ik ben al eens in dit museum geweest.", choices: ["A completed experience", "A current location", "A future plan"], accepted: ["A completed experience"], feedback: "Correct. Ben geweest reports an experience from the present viewpoint.", incorrectFeedback: "Al eens and geweest point to a completed experience.", repairIds: ["exercise.zijn.vtt-experience.repair-auxiliary", "exercise.zijn.vtt-experience.repair-order"] },
+  { id: "exercise.zijn.vtt-experience.construct", verbId: "verb.zijn", formOrSkillId: "skill.zijn.vtt-experience", exerciseFamily: "construction", kind: "token-slots", prompt: "Build the completed-experience phrase.", context: "Ik ___ al eens hier ___.", tokens: ["ben", "is", "geweest"], accepted: ["ben geweest"], feedback: "Correct. Ik uses ben plus geweest.", incorrectFeedback: "Use ben before geweest with ik: Ik ben hier geweest." },
+  { id: "exercise.zijn.vtt-experience.natural-translation", verbId: "verb.zijn", formOrSkillId: "skill.zijn.vtt-experience", exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the natural experience sentence.", context: "I have been there twice already.", choices: ["Ik ben daar al twee keer geweest.", "Ik was daar gisteren.", "Ik ben daar nu."], accepted: ["Ik ben daar al twee keer geweest."], feedback: "Correct. The VTT phrase reports the completed experience.", incorrectFeedback: "For ‘have been there’, choose Ik ben daar al twee keer geweest." },
+  { id: "exercise.zijn.vtt-experience.map-placement", verbId: "verb.zijn", formOrSkillId: "skill.zijn.vtt-experience", exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this sentence belong?", context: "Ik ben al eens in dit museum geweest.", choices: ["VTT · voltooid tegenwoordige tijd", "OTT · onvoltooid tegenwoordige tijd", "OVT · onvoltooid verleden tijd", "VVT · voltooid verleden tijd"], accepted: ["VTT · voltooid tegenwoordige tijd"], feedback: "Correct. Ben geweest is VTT.", incorrectFeedback: "Ben geweest is voltooid tegenwoordige tijd: VTT." },
+  { id: "exercise.zijn.vtt-experience.word-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.vtt-experience", exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the experience sentence in order.", context: "Start with the place: In dit museum …", tokens: ["In", "dit", "museum", "ben", "ik", "al", "eens", "geweest."], accepted: ["In dit museum ben ik al eens geweest."], feedback: "Correct. After the opening phrase, ben comes before ik and geweest closes the phrase.", incorrectFeedback: "Use In dit museum ben ik al eens geweest." },
+];
+
+const zijnPastExperienceRepairs: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.zijn.vtt-experience.repair-auxiliary", verbId: "verb.zijn", formOrSkillId: "skill.zijn.vtt-experience", exerciseFamily: "repair-auxiliary", kind: "choice", prompt: "Repair the experience phrase.", context: "Ik ___ daar al geweest.", choices: ["ben", "was", "zal"], accepted: ["ben"], feedback: "Correct. Ik uses ben in this VTT phrase.", incorrectFeedback: "For Ik ... geweest, use ben to report the experience now." },
+  { id: "exercise.zijn.vtt-experience.repair-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.vtt-experience", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the phrase order.", context: "In dit museum …", tokens: ["ben", "ik", "geweest."], accepted: ["ben ik geweest."], feedback: "Correct. After the opening phrase, ben comes before ik.", incorrectFeedback: "Use In dit museum ben ik geweest." },
+];
+
 function assignJourneyId(journeyId: VerbPracticeJourneyId, pack: AuthoredVerbPracticePack): VerbPracticePack {
   return { questions: pack.questions.map((question) => ({ ...question, journeyId })), repairs: pack.repairs.map((question) => ({ ...question, journeyId })) };
 }
@@ -280,6 +293,7 @@ const practicePacks: Record<VerbPracticeJourneyId, VerbPracticePack> = {
   "journey.zijn.ott-identity": assignJourneyId("journey.zijn.ott-identity", { questions: zijnIdentityQuestions, repairs: zijnIdentityRepairs }),
   "journey.zijn.ott-questions": assignJourneyId("journey.zijn.ott-questions", { questions: zijnQuestionQuestions, repairs: zijnQuestionRepairs }),
   "journey.zijn.ovt-state": assignJourneyId("journey.zijn.ovt-state", { questions: zijnPastStateQuestions, repairs: zijnPastStateRepairs }),
+  "journey.zijn.vtt-experience": assignJourneyId("journey.zijn.vtt-experience", { questions: zijnPastExperienceQuestions, repairs: zijnPastExperienceRepairs }),
 };
 const allPracticeQuestions = Object.values(practicePacks).flatMap((pack) => [...pack.questions, ...pack.repairs]);
 const questionById = new Map(allPracticeQuestions.map((question) => [question.id, question]));

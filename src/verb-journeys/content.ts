@@ -369,6 +369,20 @@ const zijnPack: VerbJourneyPack = {
       { label: "plural", tense: "OVT", sentence: "Wij waren gisteren thuis.", meaning: "waren follows wij" },
       { label: "present contrast", tense: "OTT", sentence: "Ik ben vandaag thuis.", meaning: "ben keeps the state in the present" },
     ], formula: "ik was · jij was · hij was · wij waren", formulaNote: "Was is used with singular subjects in this bounded contrast; waren is used with wij and other plural subjects.", valuableContrast: "Ik was gisteren thuis looks back to yesterday. Ik ben vandaag thuis stays in the present, while wij waren uses the plural past form." },
+  }, {
+    id: "journey.zijn.vtt-experience", verbId: "verb.zijn", title: "Places I have been", subtitle: "VTT · past experience and being somewhere", level: "A2", kind: "core", status: "later", targetForms: ["VTT"], targetSkills: ["skill.zijn.vtt-experience"], learningGoal: "Use ben geweest and is geweest to talk about a completed experience or being somewhere.", estimatedMinutes: 3, storyTitle: "Een bezoek aan het museum",
+    story: [
+      { id: "story.zijn.vtt.1", nl: "Ik ben al eens in dit museum geweest.", english: "I have been in this museum once before.", telugu: "నేను ఇంతకుముందు ఈ మ్యూజియంలో ఒకసారి ఉన్నాను.", targets: [{ text: "ben", skillIds: ["skill.zijn.vtt-experience"] }, { text: "geweest", skillIds: ["skill.zijn.vtt-experience"] }] },
+      { id: "story.zijn.vtt.2", nl: "Ik ben hier met mijn broer geweest.", english: "I have been here with my brother.", telugu: "నేను నా సోదరుడితో ఇక్కడ ఉన్నాను.", targets: [{ text: "ben", skillIds: ["skill.zijn.vtt-experience"] }, { text: "geweest", skillIds: ["skill.zijn.vtt-experience"] }] },
+      { id: "story.zijn.vtt.3", nl: "Ik ben vorige maand in Utrecht geweest.", english: "I was in Utrecht last month.", telugu: "నేను గత నెలలో ఉట్రెక్ట్‌లో ఉన్నాను.", targets: [{ text: "ben", skillIds: ["skill.zijn.vtt-experience"] }, { text: "geweest", skillIds: ["skill.zijn.vtt-experience"] }] },
+      { id: "story.zijn.vtt.4", nl: "Ik ben daar al twee keer geweest.", english: "I have been there twice already.", telugu: "నేను ఇప్పటికే అక్కడ రెండుసార్లు ఉన్నాను.", targets: [{ text: "ben", skillIds: ["skill.zijn.vtt-experience"] }, { text: "geweest", skillIds: ["skill.zijn.vtt-experience"] }] },
+      { id: "story.zijn.vtt.5", nl: "Mijn broer is er nog nooit geweest.", english: "My brother has never been there.", telugu: "నా సోదరుడు ఎప్పుడూ అక్కడ ఉండలేదు.", targets: [{ text: "is", skillIds: ["skill.zijn.vtt-experience"] }, { text: "geweest", skillIds: ["skill.zijn.vtt-experience"] }] },
+    ],
+    notice: { id: "notice.zijn.vtt-experience", title: "Being somewhere as a completed experience", subtitle: "Ben geweest and is geweest connect a past experience to the present viewpoint.", comparison: [
+      { label: "experience", tense: "VTT", sentence: "Ik ben al eens in dit museum geweest.", meaning: "a completed experience" },
+      { label: "past state", tense: "OVT", sentence: "Ik was gisteren in het museum.", meaning: "a past state or location" },
+      { label: "present state", tense: "OTT", sentence: "Ik ben nu in het museum.", meaning: "a current location" },
+    ], formula: "ik ben geweest · hij is geweest", formulaNote: "With zijn, VTT uses the present auxiliary ben or is plus geweest. This journey keeps the focus on being or having been, not on auxiliary constructions for another verb.", valuableContrast: "Ik ben in het museum geweest reports an experience. Ik was gisteren in het museum describes a past situation, while Ik ben nu in het museum describes the current location." },
   }],
 };
 
