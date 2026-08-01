@@ -31,17 +31,25 @@ notice the target meaning and form, inspect the canonical eight-form Verb Map,
 compare all twelve English tense patterns with natural Dutch equivalents, and
 complete a bounded set of click-, tap-, or keyboard-operated exercises.
 
-The first slice contains three core journeys:
+The first slice contains six authored journeys: three core journeys and three
+later/reference journeys:
 
 - What I normally do — OTT, present situations and routines.
 - What I completed — VTT, completed conversational events and results.
 - How I worked before — OVT, past habits, story background, and connected
   past sequences.
+- What had already happened — VVT, an earlier completed event before another
+  past reference point.
+- Plans and possibilities — OTTT and OVTT, explicit future plans and
+  conditional possibilities.
+- Completed future and unreal past — VTTT and VVTT, advanced completed
+  results viewed from a future or hypothetical point.
 
 The same `werken` destination displays all eight Dutch forms and all twelve
-English comparison patterns. VVT, OTTT, OVTT, VTTT, and VVTT remain visible as
-later or reference material according to their teaching priority; they do not
-become beginner mastery gates.
+English comparison patterns. VVT, OTTT, OVTT, VTTT, and VVTT remain labeled as
+later or reference material according to their teaching priority and do not
+become beginner mastery gates, but each now has the same guided story, notice,
+map, five-question practice, and completion flow as the core journeys.
 
 Verb Journey progress is additive within DutchMate's existing local learning
 record and is keyed by verb, form or skill, and exercise family. It does not
@@ -172,7 +180,8 @@ clickable. The prototype contains no audio or listening control anywhere.
   twelve-pattern English comparison. It is not a new top-level popup tab.
 - The first content pack contains one verb, `werken`, with regular weak verb
   metadata, auxiliary `hebben`, all eight Dutch form records, all twelve
-  English comparison records, and the OTT, VTT, and OVT journeys.
+  English comparison records, and six authored journeys covering OTT, VTT,
+  OVT, VVT, OTTT/OVTT, and VTTT/VVTT.
 - All eight Dutch forms are represented as present, past, future, and
   future-from-past onvoltooid/voltooid pairs. Each record includes a canonical
   example, natural English meaning, practical usage meaning, time markers when
@@ -182,9 +191,9 @@ clickable. The prototype contains no audio or listening control anywhere.
   situation, meaning-preserving Dutch, common everyday Dutch, actual Dutch
   form or construction, mismatch note, level, and teaching priority. A Dutch
   construction may be used instead of an inaccurate eight-form label.
-- Core journeys contain a goal, short first-person story, noticing decision,
-  highlighted target, canonical map reference, five core practice questions,
-  bounded repair mapping, completion summary, and review eligibility.
+- Every guided journey contains a goal, short first-person story, noticing
+  decision, highlighted target, canonical map reference, five core practice
+  questions, bounded repair mapping, completion summary, and review eligibility.
 - The five pedagogical exercise families are meaning recognition, controlled
   form construction, contextual English-to-Dutch choice, sentence ordering or
   repair, and form contrast or Verb Map placement. The smallest necessary

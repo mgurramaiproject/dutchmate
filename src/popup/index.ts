@@ -21,8 +21,8 @@ import type { GrammarRecord } from "../grammar/learning";
 import { contrastPack, type ContrastExercise, type ContrastPackId } from "../grammar/contrast";
 import { contrastResultMessage, type ContrastRecord, type ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
 import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
-import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, verbJourneyPack, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type JourneyStatus, type VerbFormRecord } from "../verb-journeys/content";
-import { advanceVerbPractice, checkVerbPracticeAnswer, checkVerbPracticeQuestion, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
+import { getVerbForm, getVerbJourney, isVerbJourneyContentAvailable, isVerbJourneyPlayable, verbJourneyPack, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type JourneyStatus, type VerbFormRecord } from "../verb-journeys/content";
+import { advanceVerbPractice, checkVerbPracticeAnswer, checkVerbPracticeQuestion, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeJourneyId, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
 import type { VerbJourneyRecord } from "../verb-journeys/learning";
 import { renderWithRecovery } from "./render-recovery";
 import "./styles.css";
@@ -377,10 +377,10 @@ function renderToday(): HTMLElement {
     const progress = lessonProgressById[lesson.id];
     return progress && progress.completedAt === null;
   });
-  const hasCompletedLesson = lessonCatalog.lessons.some((lesson) => lessonProgressById[lesson.id]?.completedAt !== null && lessonProgressById[lesson.id]?.completedAt !== undefined);
   const todayActivity = rhythm?.activity.find((day) => isLocalToday(day.dayStartAt));
   const reviewsCompletedToday = todayActivity?.reviews ?? null;
   const lessonsCompletedToday = todayActivity?.lessons ?? todayActivity?.lessonAdditions ?? null;
+  const hasCompletedLesson = lessonCatalog.lessons.some((lesson) => lessonProgressById[lesson.id]?.completedAt !== null && lessonProgressById[lesson.id]?.completedAt !== undefined) || (lessonsCompletedToday !== null && lessonsCompletedToday > 0);
   const grammarCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "grammar").length;
   const verbCount = snapshot.tasks.filter((task) => "kind" in task && task.kind === "verb").length;
   const nextAction = section("next-action");
@@ -406,7 +406,8 @@ function renderToday(): HTMLElement {
       else { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; activeGrammarTask = null; activeContrastTask = null; activeVerbDailyFiveTask = null; verbDailyFiveAnswer = null; verbDailyFiveFeedback = null; verbDailyFiveChecked = false; verbDailyFiveRetrying = false; render(); content?.focus(); }
     });
     nextAction.append(action);
-    if (verbCount > 0) nextAction.append(text("Verb review · werken · VTT", "action-meta"));
+    const verbTask = snapshot.tasks.find((task): task is VerbJourneyDailyFiveTask => "kind" in task && task.kind === "verb");
+    if (verbTask) nextAction.append(text(`Verb review · werken · ${getVerbReviewTense(verbTask)}`, "action-meta"));
     if (completed && reviewsCompletedToday !== null) nextAction.append(text(`${reviewsCompletedToday} item${reviewsCompletedToday === 1 ? "" : "s"} reviewed today`, "review-completion-meta"));
   }
   if (total === 0 || !completed) nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
@@ -670,20 +671,40 @@ function getVerbFormEvidence(form: VerbFormRecord): VerbJourneyRecord["skills"][
 }
 
 function getVerbJourneyDisplayStatus(journey: JourneyRecord): JourneyStatus {
-  if (journey.kind === "reference") return "reference";
-  if (journey.kind === "later") return "later";
   const evidence = journey.targetSkills.flatMap((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId));
   if (evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated")) return "mastered";
   if (evidence.length > 0) return "learning";
+  if (journey.kind === "reference") return "reference";
+  if (journey.kind === "later") return "later";
   const firstUnmasteredCore = verbJourneyPack.journeys.find((candidate) => candidate.kind === "core" && getVerbJourneyDisplayStatusWithoutRecursion(candidate) !== "mastered");
   return firstUnmasteredCore?.id === journey.id ? "next" : "later";
 }
 
 function getVerbJourneyDisplayStatusWithoutRecursion(journey: JourneyRecord): JourneyStatus {
+  const evidence = journey.targetSkills.flatMap((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId));
+  if (evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated")) return "mastered";
+  if (evidence.length > 0) return "learning";
   if (journey.kind === "reference") return "reference";
   if (journey.kind === "later") return "later";
-  const evidence = journey.targetSkills.flatMap((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId));
-  return evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated") ? "mastered" : "next";
+  return "next";
+}
+
+function getVerbJourneyActionTarget(): { journey: JourneyRecord; allMastered: boolean } {
+  const statuses = verbJourneyPack.journeys.map((journey) => getVerbJourneyDisplayStatus(journey));
+  const allMastered = statuses.every((status) => status === "mastered");
+  if (allMastered) return { journey: verbJourneyPack.journeys[0], allMastered: true };
+  const active = getVerbJourney(activeVerbJourneyId);
+  if (active && getVerbJourneyDisplayStatus(active) === "learning") return { journey: active, allMastered: false };
+  const next = verbJourneyPack.journeys.find((_journey, index) => statuses[index] === "next");
+  if (next) return { journey: next, allMastered: false };
+  const unfinished = verbJourneyPack.journeys.find((_journey, index) => statuses[index] !== "mastered");
+  return { journey: unfinished ?? active ?? verbJourneyPack.journeys[0], allMastered: false };
+}
+
+function getVerbJourneyActionLabel(journey: JourneyRecord, allMastered: boolean): string {
+  if (allMastered) return "Review a journey →";
+  const status = getVerbJourneyDisplayStatus(journey);
+  return `${status === "learning" ? "Continue" : status === "mastered" ? "Review" : "Start"} ${journey.title} →`;
 }
 
 function getVerbFormDisplayStatus(form: VerbFormRecord): JourneyStatus {
@@ -753,11 +774,11 @@ function renderVerbJourneyOverview(): HTMLElement {
   }
   wrapper.append(journeyList);
   if (verbBoundaryMessage) { const status = text(verbBoundaryMessage, "journey-boundary"); status.setAttribute("role", "status"); wrapper.append(status); }
-  const current = getVerbJourney(activeVerbJourneyId) ?? pack.journeys[1];
-  const continueButton = button(`Continue ${current.title} →`, "button primary-button");
-  continueButton.addEventListener("click", () => openVerbJourney(current));
-  const practiceButton = button(verbPracticeActionLabel(), "button secondary-button");
-  practiceButton.addEventListener("click", startVerbPractice);
+  const actionTarget = getVerbJourneyActionTarget();
+  const continueButton = button(getVerbJourneyActionLabel(actionTarget.journey, actionTarget.allMastered), "button primary-button");
+  continueButton.addEventListener("click", () => openVerbJourney(actionTarget.journey));
+  const practiceButton = button(actionTarget.allMastered ? "Practise a journey · 5 questions →" : verbPracticeActionLabel(actionTarget.journey.id as VerbPracticeJourneyId), "button secondary-button");
+  practiceButton.addEventListener("click", () => startVerbPractice(actionTarget.journey.id as VerbPracticeJourneyId));
   wrapper.append(continueButton, practiceButton);
   return wrapper;
 }
@@ -765,8 +786,8 @@ function renderVerbJourneyOverview(): HTMLElement {
 function openVerbJourney(journey: JourneyRecord): void {
   activeVerbJourneyId = journey.id;
   verbBoundaryMessage = null;
-  if (journey.kind === "core" && journey.story.length > 0) { screen = "verbJourneyStory"; render(); content?.focus(); return; }
-  verbBoundaryMessage = `${journey.title} is reference material in this first slice. The complete map remains available without a beginner gate.`;
+  if (isVerbJourneyPlayable(journey)) { screen = "verbJourneyStory"; render(); content?.focus(); return; }
+  verbBoundaryMessage = `${journey.title} is currently available as reference material. Open the 8-form map to inspect it.`;
   screen = "verbJourneyOverview";
   render();
 }
@@ -827,7 +848,7 @@ function renderVerbJourneyNotice(): HTMLElement {
   const contrast = section("verb-contrast-card");
   const contrastTags = document.createElement("div");
   contrastTags.className = "verb-notice-chip-row";
-  contrastTags.append(spanText("VTT · completed fact", "verb-notice-chip current"), spanText("OVT · past habit", "verb-notice-chip contrast"));
+  contrastTags.append(...notice.comparison.map((item) => spanText(`${item.tense} · ${item.label}`, `verb-notice-chip ${journey.targetForms.includes(item.tense) ? "current" : "contrast"}`)));
   contrast.append(text("VALUABLE CONTRAST", "verb-card-label"), contrastTags, text(notice.valuableContrast, "verb-card-copy"));
   const targetTense = journey.targetForms[0] ?? "VTT";
   const interaction = section("verb-notice-interaction");
@@ -892,9 +913,9 @@ function renderVerbMap(): HTMLElement {
   wrapper.append(map);
   const selected = getVerbForm(selectedVerbFormTense) ?? verbJourneyPack.dutchForms[0];
   const comparisonButton = button("Compare 12 English forms →", "button secondary-button");
-  comparisonButton.addEventListener("click", () => { verbEnglishComparisonOrigin = "map"; screen = "verbEnglishComparison"; render(); content?.focus(); });
+  comparisonButton.addEventListener("click", () => { focusEnglishComparisonForForm(selected.dutchTense); verbEnglishComparisonOrigin = "map"; screen = "verbEnglishComparison"; render(); content?.focus(); });
   const practiceButton = button(verbPracticeActionLabel(), "button primary-button");
-  practiceButton.addEventListener("click", startVerbPractice);
+  practiceButton.addEventListener("click", () => startVerbPractice());
   wrapper.append(renderVerbFormDetail(selected), text("Important: Dutch onvoltooid does not mean the same thing as English continuous, and voltooid is not always a direct English perfect. Context and time words still matter.", "verb-map-note"), comparisonButton, practiceButton);
   return wrapper;
 }
@@ -925,6 +946,23 @@ function renderVerbEnglishComparison(): HTMLElement {
   return wrapper;
 }
 
+function focusEnglishComparisonForForm(tense: DutchTense): void {
+  const preferredEnglishTense: Record<DutchTense, EnglishTense> = {
+    OTT: "present-simple",
+    VTT: "present-perfect",
+    OVT: "past-simple",
+    VVT: "past-perfect",
+    OTTT: "future-simple",
+    OVTT: "future-simple",
+    VTTT: "future-perfect",
+    VVTT: "future-perfect",
+  };
+  const record = verbJourneyPack.englishComparison.find((candidate) => candidate.englishTense === preferredEnglishTense[tense]);
+  if (!record) return;
+  verbEnglishComparisonGroup = record.group;
+  expandedEnglishTense = record.englishTense;
+}
+
 function renderEnglishComparisonCard(record: EnglishMapRecord, index: number): HTMLElement {
   const card = button("", `verb-english-card${expandedEnglishTense === record.englishTense ? " is-expanded" : ""}`);
   card.setAttribute("aria-expanded", String(expandedEnglishTense === record.englishTense));
@@ -950,8 +988,25 @@ function englishAnalysisLabel(record: EnglishMapRecord): string {
   return record.dutchAnalysis.primaryForm ?? record.dutchAnalysis.construction ?? "Context";
 }
 
-function verbPracticeActionLabel(): string {
-  return (verbJourneyRecord?.evidenceRevision ?? 0) > 0 ? "Review VTT · 5 questions →" : "Practise VTT · 5 questions →";
+function verbPracticeActionLabel(journeyId: VerbPracticeJourneyId = getActiveVerbPracticeJourneyId()): string {
+  const journey = getPracticeJourney(journeyId);
+  const tense = journey?.targetForms.join(" + ") ?? "VTT";
+  const hasEvidence = journey?.targetSkills.some((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).some((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId)) ?? false;
+  return `${hasEvidence ? "Review" : "Practise"} ${tense} · 5 questions →`;
+}
+
+function getVerbReviewTense(task: VerbJourneyDailyFiveTask): DutchTense {
+  const question = getVerbPracticeQuestion(task.exerciseId);
+  return question ? getVerbJourney(question.journeyId)?.targetForms[0] ?? "VTT" : "VTT";
+}
+
+function getPracticeJourney(journeyId: string = activeVerbJourneyId): JourneyRecord | null {
+  const journey = getVerbJourney(journeyId);
+  return journey && isVerbJourneyPlayable(journey) ? journey : null;
+}
+
+function getActiveVerbPracticeJourneyId(): VerbPracticeJourneyId {
+  return getPracticeJourney()?.id as VerbPracticeJourneyId ?? "journey.werken.vtt-completed";
 }
 
 function renderVerbFormDetail(form: VerbFormRecord): HTMLElement {
@@ -960,9 +1015,9 @@ function renderVerbFormDetail(form: VerbFormRecord): HTMLElement {
   return detail;
 }
 
-function startVerbPractice(): void {
-  activeVerbJourneyId = "journey.werken.vtt-completed";
-  verbPracticeSession = createVerbPracticeSession();
+function startVerbPractice(journeyId: VerbPracticeJourneyId = getActiveVerbPracticeJourneyId()): void {
+  activeVerbJourneyId = journeyId;
+  verbPracticeSession = createVerbPracticeSession(journeyId);
   screen = "verbPractice";
   render();
   content?.focus();
@@ -979,7 +1034,7 @@ function openSavedVerbMap(link: SavedVerbJourneyLink): void {
 function startSavedVerbPractice(link: SavedVerbJourneyLink): void {
   selectedVerbFormTense = link.form;
   verbMapOrigin = "saved";
-  startVerbPractice();
+  startVerbPractice("journey.werken.vtt-completed");
 }
 
 function renderVerbPractice(): HTMLElement {
@@ -991,8 +1046,10 @@ function renderVerbPractice(): HTMLElement {
   const isRepair = question.phase === "repair";
   const back = journeyBack("Verb Map");
   back.addEventListener("click", () => { screen = "verbMap"; render(); });
-  const coreNumber = Math.min(session.coreIndex + 1, getVerbPracticeQuestions().length);
-  wrapper.append(back, text(isRepair ? "Repair · up to 2 questions" : `VTT practice · decision ${coreNumber} of 5`, "journey-meta"), eyebrow(isRepair ? "Targeted repair" : "Five-question practice"), heading(question.prompt), text(question.context, "verb-practice-context"));
+  const questions = getVerbPracticeQuestions(session.journeyId);
+  const tense = getVerbJourney(session.journeyId)?.targetForms[0] ?? "VTT";
+  const coreNumber = Math.min(session.coreIndex + 1, questions.length);
+  wrapper.append(back, text(isRepair ? "Repair · up to 2 questions" : `${tense} practice · decision ${coreNumber} of ${questions.length}`, "journey-meta"), eyebrow(isRepair ? "Targeted repair" : "Five-question practice"), heading(question.prompt), text(question.context, "verb-practice-context"));
   wrapper.append(renderVerbPracticeControls(question, session));
   if (session.checked && session.lastResult) {
     const status = text(session.lastResult.correct ? `Correct. ${session.lastResult.feedback}` : `Try again. ${session.lastResult.feedback}`, `verb-practice-feedback ${session.lastResult.correct ? "correct" : "incorrect"}`);
@@ -1008,7 +1065,7 @@ function renderVerbPractice(): HTMLElement {
       });
       wrapper.append(retry);
     }
-    const lastCoreQuestion = session.coreIndex === getVerbPracticeQuestions().length - 1 && question.phase === "core";
+    const lastCoreQuestion = session.coreIndex === questions.length - 1 && question.phase === "core";
     const next = button(session.lastResult.correct && lastCoreQuestion ? "See completion" : "Continue", "button primary-button");
     next.addEventListener("click", () => {
       verbPracticeSession = advanceVerbPractice(session);
@@ -1033,7 +1090,7 @@ function renderVerbPracticeControls(question: VerbPracticeQuestion & { phase: "c
     }
     const available = section("verb-token-choices"); available.setAttribute("aria-label", "Available words");
     for (const token of question.tokens ?? []) {
-      const used = selectedTokens.includes(token);
+      const used = areAllTokenCopiesSelected(selectedTokens, question.tokens ?? [], token);
       const choice = button(token, `button verb-token-choice${used ? " is-used" : ""}`); choice.disabled = used || session.checked; choice.setAttribute("aria-pressed", String(used));
       choice.addEventListener("click", () => { const next = [...selectedTokens, token]; verbPracticeSession = { ...session, selectedAnswer: next, checked: false, lastResult: null }; render(); }); available.append(choice);
     }
@@ -1061,6 +1118,12 @@ function renderVerbPracticeControls(question: VerbPracticeQuestion & { phase: "c
   return wrapper;
 }
 
+function areAllTokenCopiesSelected(selectedTokens: string[], availableTokens: string[], token: string): boolean {
+  const selectedCount = selectedTokens.filter((candidate) => candidate === token).length;
+  const availableCount = availableTokens.filter((candidate) => candidate === token).length;
+  return selectedCount >= availableCount;
+}
+
 function queueVerbJourneyResult(question: VerbPracticeQuestion & { phase: "core" | "repair" }, correct: boolean): void {
   verbJourneySaveChain = verbJourneySaveChain.then(async () => {
     try {
@@ -1084,10 +1147,12 @@ function renderVerbCompletion(): HTMLElement {
   const wrapper = section("verb-completion-screen");
   const session = verbPracticeSession ?? createVerbPracticeSession();
   const back = journeyBack(verbMapOrigin === "saved" ? "Saved" : "werken"); back.addEventListener("click", () => { screen = verbMapOrigin === "saved" ? "saved" : "verbJourneyOverview"; render(); });
-  wrapper.append(back, eyebrow("VTT practised"), heading("You used werken as a completed event."), text("This session reports demonstrated decisions; it does not claim full verb mastery.", "journey-lead"));
+  const journey = getVerbJourney(session.journeyId);
+  const tense = journey?.targetForms[0] ?? "VTT";
+  wrapper.append(back, eyebrow(`${tense} practised`), heading(tense === "VTT" ? "You used werken as a completed event." : `You used werken with ${tense}.`), text("This session reports demonstrated decisions; it does not claim full verb mastery.", "journey-lead"));
   const decisions = section("verb-completion-decisions");
   const latest = new Map(session.attempts.filter((attempt) => attempt.phase === "core").map((attempt) => [attempt.questionId, attempt]));
-  for (const question of getVerbPracticeQuestions()) {
+  for (const question of getVerbPracticeQuestions(session.journeyId)) {
     const result = latest.get(question.id);
     const row = document.createElement("div"); row.className = `verb-completion-row ${result?.correct ? "correct" : "needs-review"}`;
     const mark = document.createElement("span"); mark.className = "verb-completion-mark"; mark.textContent = result?.correct ? "✓" : "!";
@@ -1097,13 +1162,28 @@ function renderVerbCompletion(): HTMLElement {
   wrapper.append(decisions);
   const needsReview = [...latest.values()].some((attempt) => !attempt.correct) || session.attempts.some((attempt) => attempt.phase === "repair" && !attempt.correct);
   const review = section("verb-next-review");
-  review.append(text(needsReview ? "Review needs remain separate from journey completion." : "Five controlled decisions completed. Review status remains separate from journey completion.", "verb-card-copy"), text("VTT completed fact vs OVT past habit / story background", "verb-review-contrast"));
-  const contrast = button("Review the VTT · OVT contrast →", "button primary-button"); contrast.addEventListener("click", () => { activeVerbJourneyId = "journey.werken.vtt-completed"; verbNoticeDecision = null; screen = "verbJourneyNotice"; render(); });
-  review.append(contrast); wrapper.append(review);
+  review.append(text(needsReview ? "Review needs remain separate from journey completion." : "Five controlled decisions completed. Review status remains separate from journey completion.", "verb-card-copy"), text("Keep the form connected to its own journey context.", "verb-review-contrast"));
+  if (tense === "VTT") {
+    const contrast = button("Review the VTT · OVT contrast →", "button primary-button"); contrast.addEventListener("click", () => { verbNoticeDecision = null; screen = "verbJourneyNotice"; render(); });
+    review.append(contrast);
+  }
+  wrapper.append(review);
   const returnToJourneys = button("Back to werken journeys", "button secondary-button");
-  returnToJourneys.addEventListener("click", () => { activeVerbJourneyId = "journey.werken.vtt-completed"; screen = "verbJourneyOverview"; render(); content?.focus(); });
+  returnToJourneys.disabled = pending;
+  returnToJourneys.addEventListener("click", () => void returnFromVerbCompletion());
   wrapper.append(returnToJourneys);
   return wrapper;
+}
+
+async function returnFromVerbCompletion(): Promise<void> {
+  pending = true;
+  render();
+  await verbJourneySaveChain;
+  try { rhythm = await learningClient.recordVerbJourneyCompletion((verbPracticeSession ?? createVerbPracticeSession()).journeyId); } catch { /* Completion remains usable when persistence is unavailable. */ }
+  screen = "verbJourneyOverview";
+  pending = false;
+  render();
+  content?.focus();
 }
 
 function renderLessonFilters(): HTMLElement {
@@ -1553,7 +1633,7 @@ function renderVerbJourneyDailyFiveReview(task: VerbJourneyDailyFiveTask): HTMLE
   const wrapper = section("practice-content focused-content verb-daily-five-review");
   if (!question || question.exerciseFamily !== task.exerciseFamily) { wrapper.append(button("Exit review", "exit-button"), heading("Verb Journey review is unavailable.")); return wrapper; }
   const exit = button("Exit review", "exit-button"); exit.addEventListener("click", () => { activeVerbDailyFiveTask = null; screen = focusedOrigin ?? "today"; focusedOrigin = null; render(); });
-  wrapper.append(exit, eyebrow("Daily Five · Verb Journey"), heading("werken · VTT"), text("Review one weak skill with a short authored decision.", "grammar-capability"), text(question.prompt, "verb-practice-context"), text(question.context, "story-dutch"));
+  wrapper.append(exit, eyebrow("Daily Five · Verb Journey"), heading(`werken · ${getVerbReviewTense(task)}`), text("Review one weak skill with a short authored decision.", "grammar-capability"), text(question.prompt, "verb-practice-context"), text(question.context, "story-dutch"));
   const controls = section("verb-daily-five-controls");
   const selected = verbDailyFiveAnswer;
   if (question.kind === "token-slots" || question.kind === "token-order") {
@@ -1562,7 +1642,7 @@ function renderVerbJourneyDailyFiveReview(task: VerbJourneyDailyFiveTask): HTMLE
     if (selectedTokens.length === 0) answer.append(text("Choose words in order.", "verb-answer-placeholder"));
     for (const [index, token] of selectedTokens.entries()) { const remove = button(token, "verb-token-selected"); remove.disabled = verbDailyFiveChecked || pending; remove.addEventListener("click", () => { verbDailyFiveAnswer = selectedTokens.filter((_candidate, tokenIndex) => tokenIndex !== index); render(); }); answer.append(remove); }
     const available = section("verb-token-choices");
-    for (const token of question.tokens ?? []) { const used = selectedTokens.includes(token); const action = button(token, `button verb-token-choice${used ? " is-used" : ""}`); action.disabled = used || verbDailyFiveChecked || pending; action.addEventListener("click", () => { verbDailyFiveAnswer = [...selectedTokens, token]; render(); }); available.append(action); }
+    for (const token of question.tokens ?? []) { const used = areAllTokenCopiesSelected(selectedTokens, question.tokens ?? [], token); const action = button(token, `button verb-token-choice${used ? " is-used" : ""}`); action.disabled = used || verbDailyFiveChecked || pending; action.addEventListener("click", () => { verbDailyFiveAnswer = [...selectedTokens, token]; render(); }); available.append(action); }
     const reset = button("Reset", "button secondary-button verb-reset"); reset.disabled = verbDailyFiveChecked || pending || selectedTokens.length === 0; reset.addEventListener("click", () => { verbDailyFiveAnswer = []; render(); });
     controls.append(answer, available, reset);
   } else {
@@ -1838,7 +1918,7 @@ function renderError(message: string): void { if (!content) return; content.repl
 type IconName = "arrow-left" | "book-open" | "check-circle" | "chevron-right" | "clock" | "dot" | "reference" | "route";
 
 const iconPaths: Record<IconName, string> = {
-  "arrow-left": "M19 12H5m6 6-6-6 6-6",
+  "arrow-left": "M5 12h14M5 12l6-6M5 12l6 6",
   "book-open": "M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5Zm0 0V19",
   "check-circle": "m8 12 2.5 2.5L16 9m5 3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
   "chevron-right": "m9 5 7 7-7 7",
@@ -1850,7 +1930,7 @@ const iconPaths: Record<IconName, string> = {
 
 function svgIcon(name: IconName, className = "icon"): SVGSVGElement {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.classList.add(className);
+  svg.classList.add(className, "icon");
   svg.setAttribute("viewBox", "0 0 24 24");
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("focusable", "false");

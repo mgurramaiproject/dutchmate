@@ -20,6 +20,11 @@ describe("werken Verb Journey pack", () => {
       "journey.werken.future-possibility",
       "journey.werken.reference-completed-future",
     ]);
+    expect(verbJourneyPack.journeys.every((journey) => journey.story.length > 0 && journey.notice)).toBe(true);
+    expect(verbJourneyPack.journeys.map((journey) => journey.story.length)).toEqual([5, 5, 5, 5, 5, 5]);
+    const storyLines = verbJourneyPack.journeys.flatMap((journey) => journey.story);
+    expect(storyLines.some((line) => /Groningen/u.test(line.nl))).toBe(false);
+    expect(storyLines.every((line) => /\bik\b/iu.test(line.nl))).toBe(true);
   });
 
   it("rejects duplicate identifiers and dangling target forms", () => {

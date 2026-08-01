@@ -2,6 +2,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultSettings } from "../shared/settings";
+import { createVerbJourneyRecord, recordVerbJourneyEvidence, type VerbJourneyRecord } from "../verb-journeys/learning";
 
 const { runtime, storageChangeListeners } = vi.hoisted(() => ({ runtime: { sendMessage: vi.fn(), openOptionsPage: vi.fn() }, storageChangeListeners: new Set<(changes: Record<string, unknown>, areaName: string) => void>() }));
 
@@ -20,6 +21,7 @@ describe("lesson popup", () => {
   let popupSettings: typeof defaultSettings;
   let learningItems: Array<Record<string, unknown>>;
   let verbJourneyRevision: number;
+  let verbJourneyRecordFixture: VerbJourneyRecord;
   let rhythmResponse: { week: Array<{ dayStartAt: number; status: "active" | "grace" | "idle" }>; activity: Array<{ dayStartAt: number; reviews: number | null; saved: number | null; lessons: number | null; lessonAdditions?: number }>; resetCopy: string | null; milestones: Array<{ id: string; label: string }> };
 
   beforeEach(async () => {
@@ -37,6 +39,7 @@ describe("lesson popup", () => {
     const dailyItem = { id: "daily-item", learningLanguage: "nl", normalizedDutch: "huis", dutch: "huis", kind: "word", english: "house", telugu: null, sources: [], contexts: [], encounters: { count: 0, lastEncounterAt: null }, recognition: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, recall: { state: "new", dueAt: null, intervalDays: 0, attemptCount: 0, successfulStreak: 0, lastPractisedAt: null }, createdAt: 1, updatedAt: 1 };
     learningItems = [dailyItem, { ...dailyItem, id: "saved-item", normalizedDutch: "zebra", dutch: "zebra", english: null, telugu: "జీబ్రా", sources: [{ type: "webpage", addedAt: 2 }], contexts: [{ text: "De zebra staat bij de ingang.", addedAt: 2 }], createdAt: 2, updatedAt: 2, recognition: { ...dailyItem.recognition, state: "strong", attemptCount: 3 }, recall: { ...dailyItem.recall, state: "familiar", attemptCount: 2 } }];
     verbJourneyRevision = 0;
+    verbJourneyRecordFixture = createVerbJourneyRecord();
     runtime.sendMessage.mockImplementation(async (message: { type: string; payload?: Record<string, unknown> }) => {
       if (message.type === "dutchmate.learning.list") return listFails ? { ok: false, error: "Local read failed" } : { ok: true, result: { items: learningItems } };
       if (message.type === "dutchmate.learning.export") return exportFails ? { ok: false, error: "Local export failed." } : { ok: true, result: { backup: { format: "dutchmate-learning-backup", version: 2, exportedAt: 1, learningItems, lessonProgress: {}, rhythm: {} } } };
@@ -69,8 +72,27 @@ describe("lesson popup", () => {
       if (message.type === "dutchmate.learning.grammar.result") return { ok: true, result: { grammar: { patternId: String(message.payload?.patternId), contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, dueAt: 2, intervalDays: 1, successfulEvidenceCount: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], primitives: ["choose-form"], contextTags: ["needs"], recentExerciseIds: [String(message.payload?.exerciseId)], recentSuccessfulDays: [1], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 1, updatedAt: 1 } } };
       if (message.type === "dutchmate.learning.contrast" || message.type === "dutchmate.learning.contrast.introduce") return { ok: true, result: { contrast: message.type.endsWith("introduce") ? { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, successfulExerciseIds: [], recentExerciseIds: [], misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 } : null } };
       if (message.type === "dutchmate.learning.contrast.result") return { ok: true, result: { contrast: { packId: "contrast.main_clause_inversion", contentVersion: 1, state: "practising", introducedAt: 1, lastPractisedAt: 1, successfulExerciseIds: [String(message.payload?.exerciseId)], recentExerciseIds: [String(message.payload?.exerciseId)], misconceptionCounts: message.payload?.answer === "ik werk" || message.payload?.answer === "Morgen ik werk thuis." ? { MAIN_CLAUSE_NO_INVERSION: 1 } : {}, evidenceRevision: 1, updatedAt: 1 }, repairOffer: message.payload?.answer === "ik werk" || message.payload?.answer === "Morgen ik werk thuis." ? { code: "MAIN_CLAUSE_NO_INVERSION", packId: "contrast.main_clause_inversion", contentVersion: 1, label: "Practise this contrast (1 min)" } : null } };
-      if (message.type === "dutchmate.learning.verbJourney") return { ok: true, result: { verbJourneys: { contentVersion: "015-1", evidenceRevision: verbJourneyRevision, skills: {} } } };
-      if (message.type === "dutchmate.learning.verbJourney.result") return { ok: true, result: { verbJourneys: { contentVersion: "015-1", evidenceRevision: ++verbJourneyRevision, skills: {} } } };
+      if (message.type === "dutchmate.learning.verbJourney") return { ok: true, result: { verbJourneys: verbJourneyRecordFixture } };
+      if (message.type === "dutchmate.learning.verbJourney.result") {
+        const payload = message.payload ?? {};
+        verbJourneyRecordFixture = recordVerbJourneyEvidence(verbJourneyRecordFixture, {
+          verbId: String(payload.verbId) as "verb.werken",
+          formOrSkillId: String(payload.formOrSkillId) as "skill.werken.ott-routine" | "skill.werken.vtt-completed" | "skill.werken.ovt-background",
+          exerciseFamily: String(payload.exerciseFamily),
+          exerciseId: String(payload.exerciseId),
+          contentVersion: "015-1",
+          result: payload.result === "correct" ? "correct" : "incorrect",
+          delayedOrRecombined: payload.delayedOrRecombined === true,
+          expectedEvidenceRevision: verbJourneyRecordFixture.evidenceRevision,
+        }, Date.now());
+        verbJourneyRevision = verbJourneyRecordFixture.evidenceRevision;
+        return { ok: true, result: { verbJourneys: verbJourneyRecordFixture } };
+      }
+      if (message.type === "dutchmate.learning.verbJourney.complete") {
+        const current = rhythmResponse.activity[0];
+        rhythmResponse.activity[0] = { ...current, lessons: (current.lessons ?? current.lessonAdditions ?? 0) + 1, lessonAdditions: undefined };
+        return { ok: true, result: { rhythm: rhythmResponse } };
+      }
       if (message.type === "dutchmate.learning.verbJourney.dailyFive.result") return { ok: true, result: { verbJourneys: { contentVersion: "015-1", evidenceRevision: ++verbJourneyRevision, skills: {} }, snapshot: { createdAt: 1, dayStartAt: 0, tasks: [message.payload?.task], completedTaskIds: ["verb-task"], goalCompleted: true } } };
       if (message.type === "dutchmate.learning.recordMissionResult") {
         if (quizFails) return { ok: false, error: "Quiz result could not be saved." };
@@ -1093,6 +1115,26 @@ describe("lesson popup", () => {
     }
   });
 
+  it("opens the later and reference journeys as complete guided lessons", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Learning journeys"));
+
+    for (const journey of [
+      { title: "What had already happened", story: "Voordat de vergadering begon" },
+      { title: "Plans and possibilities", story: "Een plan voor morgen" },
+      { title: "Completed future and unreal past", story: "Voor het einde van de dag" },
+    ]) {
+      [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes(journey.title))!.click();
+      await vi.waitFor(() => expect(content().textContent).toContain(journey.story));
+      expect(button("Notice the pattern →")).toBeTruthy();
+      button(journey.title).click();
+      await vi.waitFor(() => expect(content().textContent).toContain("Learning journeys"));
+    }
+  });
+
   it("shows the compact werken mastery card with both reference map actions", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
@@ -1104,6 +1146,12 @@ describe("lesson popup", () => {
     expect(button("8 Dutch forms")).toBeTruthy();
     expect(button("12 English forms")).toBeTruthy();
     button("8 Dutch forms").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    button("Compare 12 English forms →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("12 English forms → Dutch"));
+    expect(content().querySelector<HTMLElement>(".verb-english-tab.is-active")?.textContent).toBe("Present · 4");
+    expect(content().querySelector<HTMLElement>(".verb-english-card.is-expanded .verb-english-name")?.textContent).toBe("present perfect");
+    button("Back to 8-form map").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
     button("werken").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
@@ -1117,9 +1165,80 @@ describe("lesson popup", () => {
     content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
     content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
     await vi.waitFor(() => expect(content().textContent).toContain("Learning journeys"));
+    expect(button("Start What I normally do →")).toBeTruthy();
+    expect(button("Practise OTT · 5 questions →")).toBeTruthy();
     expect([...content().querySelectorAll<HTMLElement>(".journey-list-row .journey-status-number")].map((marker) => marker.textContent)).toEqual(["01", "02", "03", "04", "05", "06"]);
     expect(content().querySelector<HTMLElement>(".journey-list-row:first-child .journey-status")?.classList.contains("next")).toBe(true);
     expect(content().querySelector(".journey-list-row:first-child .journey-completion-mark")).toBeNull();
+  });
+
+  it("keeps OTT practice on the first journey and marks it after returning", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Learning journeys"));
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I normally do"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("What I normally do"));
+    button("Notice the pattern →").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")].find((choice) => choice.textContent?.includes("Ik werk"))!.click();
+    button("Place it on the 8-form map →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    expect(content().textContent).toContain("Practise OTT · 5 questions →");
+    button("Practise OTT · 5 questions →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("OTT practice · decision 1 of 5"));
+    expect(content().textContent).not.toContain("Ik heb gisteren thuis gewerkt.");
+
+    content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")[0].click();
+    button("Check answer").click(); button("Continue").click();
+    for (const token of ["ik", "werk", "thuis"]) [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].find((candidate) => candidate.textContent === token && !candidate.disabled)!.click();
+    button("Check answer").click(); button("Continue").click();
+    content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")[0].click();
+    button("Check answer").click(); button("Continue").click();
+    content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")[0].click();
+    button("Check answer").click(); button("Continue").click();
+    for (const token of ["Op", "maandag", "werk", "ik", "op", "kantoor."]) [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].find((candidate) => candidate.textContent === token && !candidate.disabled)!.click();
+    button("Check answer").click(); button("See completion").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("You used werken with OTT."));
+    button("Back to werken journeys").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    const firstJourney = content().querySelector<HTMLButtonElement>(".journey-list-row:first-child")!;
+    expect(firstJourney.textContent).toContain("Mastered");
+    expect(firstJourney.querySelector(".journey-status-number")?.textContent).toBe("01");
+    expect(firstJourney.querySelector(".journey-completion-mark")).toBeTruthy();
+    expect(content().querySelector<HTMLElement>(".verb-mastery-card .verb-mastery-count")?.textContent).toBe("1 of 8 forms practised");
+  });
+
+  it("keeps OVT practice on the third journey and marks it after returning", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("How I worked before"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("How I worked before"));
+    button("Notice the pattern →").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")].find((choice) => choice.textContent?.includes("Ik werkte"))!.click();
+    button("Place it on the 8-form map →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    button("Practise OVT · 5 questions →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("OVT practice · decision 1 of 5"));
+
+    content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")[0].click();
+    button("Check answer").click(); button("Continue").click();
+    content().querySelector<HTMLButtonElement>(".verb-token-choices .button")!.click();
+    button("Check answer").click(); button("Continue").click();
+    content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")[0].click();
+    button("Check answer").click(); button("Continue").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((choice) => choice.textContent?.startsWith("OVT ·"))!.click();
+    button("Check answer").click(); button("Continue").click();
+    for (const token of ["Vroeger", "werkte", "ik", "naast", "mijn", "broer."]) [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].find((candidate) => candidate.textContent === token && !candidate.disabled)!.click();
+    button("Check answer").click(); button("See completion").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("You used werken with OVT."));
+    button("Back to werken journeys").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
+    const thirdJourney = content().querySelector<HTMLButtonElement>(".journey-list-row:nth-child(3)")!;
+    expect(thirdJourney.textContent).toContain("Mastered");
+    expect(thirdJourney.querySelector(".journey-status-number")?.textContent).toBe("03");
   });
 
   it("runs the five bounded VTT decisions, shows completion, and returns to the verb journeys", async () => {
@@ -1127,6 +1246,11 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
     content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I completed"))!.click();
+    button("Notice the pattern →").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")].find((choice) => choice.textContent?.includes("Ik heb gisteren"))!.click();
+    button("Place it on the 8-form map →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
     button("Practise VTT · 5 questions →").click();
     await vi.waitFor(() => expect(content().textContent).toContain("decision 1 of 5"));
 
@@ -1157,6 +1281,36 @@ describe("lesson popup", () => {
     finalCompletionAction!.click();
     await vi.waitFor(() => expect(content().textContent).toContain("Eight Dutch forms"));
     expect(content().textContent).toContain("Learning journeys");
+    expect([...content().querySelectorAll<HTMLElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I completed"))?.textContent).toContain("Mastered");
+    button("Today").click();
+    await vi.waitFor(() => expect(content().querySelector(".lesson-completion-meta")?.textContent).toBe("2 lessons completed today"));
+  });
+
+  it("keeps duplicate practice tokens independently selectable", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("Completed future and unreal past"))!.click();
+    button("Notice the pattern →").click();
+    content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")[0].click();
+    button("Place it on the 8-form map →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
+    button("Practise VTTT + VVTT · 5 questions →").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((choice) => choice.textContent?.includes("completed before a future point"))!.click();
+    button("Check answer").click(); button("Continue").click();
+    for (const token of ["zal", "gewerkt", "hebben"]) [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].find((candidate) => candidate.textContent === token && !candidate.disabled)!.click();
+    button("Check answer").click(); button("Continue").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((choice) => choice.textContent === "Tegen vrijdag zal ik veertig uur gewerkt hebben.")!.click();
+    button("Check answer").click(); button("Continue").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")].find((choice) => choice.textContent?.startsWith("VTTT ·"))!.click();
+    button("Check answer").click(); button("Continue").click();
+    const availableIk = () => [...content().querySelectorAll<HTMLButtonElement>(".verb-token-choices .button")].filter((candidate) => candidate.textContent === "ik");
+    expect(availableIk()).toHaveLength(2);
+    availableIk()[0].click();
+    expect(availableIk().filter((candidate) => !candidate.disabled)).toHaveLength(2);
+    availableIk().find((candidate) => !candidate.disabled)!.click();
+    expect(availableIk().filter((candidate) => !candidate.disabled)).toHaveLength(0);
   });
 
   it("opens all twelve English mappings and returns to the selected Verb Map form", async () => {
@@ -1211,6 +1365,11 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
     content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I completed"))!.click();
+    button("Notice the pattern →").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")].find((choice) => choice.textContent?.includes("Ik heb gisteren"))!.click();
+    button("Place it on the 8-form map →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
     button("Practise VTT · 5 questions →").click();
     const firstChoices = content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button");
     firstChoices[0].click(); button("Check answer").click(); button("Continue").click();
@@ -1230,6 +1389,11 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
     content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I completed"))!.click();
+    button("Notice the pattern →").click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")].find((choice) => choice.textContent?.includes("Ik heb gisteren"))!.click();
+    button("Place it on the 8-form map →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
     button("Practise VTT · 5 questions →").click();
     content().querySelectorAll<HTMLButtonElement>(".verb-practice-choices .button")[0].click();
     button("Check answer").click();

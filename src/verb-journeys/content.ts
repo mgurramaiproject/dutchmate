@@ -130,6 +130,48 @@ const ovtNotice: NoticeContent = {
   valuableContrast: "Ik werkte vroeger thuis sets the background or describes a habit. Ik heb gisteren gewerkt reports a completed fact.",
 };
 
+const vvtNotice: NoticeContent = {
+  id: "notice.werken.vvt-earlier-past",
+  title: "The earlier past",
+  subtitle: "Notice how VVT places one completed event before another past event.",
+  comparison: [
+    { label: "VVT", tense: "VVT", sentence: "Ik had al thuis gewerkt voordat de vergadering begon.", meaning: "earlier completed event" },
+    { label: "VTT", tense: "VTT", sentence: "Ik heb gisteren thuis gewerkt.", meaning: "completed fact from the present viewpoint" },
+    { label: "OVT", tense: "OVT", sentence: "Ik werkte vroeger thuis.", meaning: "past habit / story background" },
+  ],
+  formula: "ik + had + … + gewerkt",
+  formulaNote: "VVT uses the past auxiliary had plus gewerkt to show an earlier completed event.",
+  valuableContrast: "Ik had al thuis gewerkt voordat de vergadering begon places one completed action before another past event. Ik heb gisteren gewerkt reports a completed fact from the present viewpoint.",
+};
+
+const futurePossibilityNotice: NoticeContent = {
+  id: "notice.werken.future-possibility",
+  title: "Plans and possibilities",
+  subtitle: "Compare a future plan with a conditional possibility.",
+  comparison: [
+    { label: "OTTT", tense: "OTTT", sentence: "Morgen zal ik thuis werken.", meaning: "future plan or prediction" },
+    { label: "OVTT", tense: "OVTT", sentence: "Als het regent, zou ik thuis werken.", meaning: "conditional possibility" },
+    { label: "OTT", tense: "OTT", sentence: "Morgen werk ik thuis.", meaning: "ordinary everyday future" },
+  ],
+  formula: "ik + zal / zou + … + werken",
+  formulaNote: "Zal marks an explicit future; zou frames the action as conditional or hypothetical.",
+  valuableContrast: "Morgen zal ik thuis werken makes the future explicit. Als het regent, zou ik thuis werken depends on a condition; everyday Dutch often uses OTT for a straightforward future plan.",
+};
+
+const completedFutureNotice: NoticeContent = {
+  id: "notice.werken.reference-completed-future",
+  title: "Completion from another viewpoint",
+  subtitle: "Notice how the same completed action can be viewed from the future or a hypothetical past.",
+  comparison: [
+    { label: "VTTT", tense: "VTTT", sentence: "Voor het einde van de dag zal ik acht uur gewerkt hebben.", meaning: "completed before a future point" },
+    { label: "VVTT", tense: "VVTT", sentence: "Als ik meer tijd had gehad, zou ik langer gewerkt hebben.", meaning: "unreal completed result" },
+    { label: "VTT", tense: "VTT", sentence: "Ik heb vandaag acht uur gewerkt.", meaning: "completed fact from the present viewpoint" },
+  ],
+  formula: "ik + zal / zou + … + gewerkt hebben",
+  formulaNote: "The auxiliary pair zal hebben or zou hebben frames gewerkt as completed from another viewpoint.",
+  valuableContrast: "VTTT looks forward to a completed result before a future point. VVTT imagines a completed result that did not happen; everyday Dutch often chooses a simpler construction instead.",
+};
+
 const englishComparison: EnglishMapRecord[] = [
   {
     id: "english.werken.present-simple", englishTense: "present-simple", group: "present", english: "I work at home every Monday.", situation: "A repeated routine or fact.", meaningPreservingDutch: "Ik werk elke maandag thuis.", commonEverydayDutch: "Ik werk elke maandag thuis.", dutchAnalysis: { primaryForm: "OTT" }, mismatchNote: "This is a direct mapping for routines, facts, and repeated actions.", cefrLevel: "A1", teachingPriority: "core",
@@ -188,31 +230,63 @@ export const verbJourneyPack: VerbJourneyPack = {
     {
       id: "journey.werken.ott-routine", verbId: "verb.werken", title: "What I normally do", subtitle: "OTT · present and routine", level: "A1", kind: "core", status: "mastered", targetForms: ["OTT"], targetSkills: ["skill.werken.ott-routine"], learningGoal: "Describe a routine or present work situation.", estimatedMinutes: 3,
       story: [
-        { id: "story.werken.ott.1", nl: "Ik werk meestal thuis.", english: "I usually work at home.", telugu: "నేను సాధారణంగా ఇంటి నుండి పని చేస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
-        { id: "story.werken.ott.2", nl: "Op maandag werk ik op kantoor.", english: "On Mondays I work at the office.", telugu: "సోమవారాల్లో నేను కార్యాలయంలో పని చేస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
-        { id: "story.werken.ott.3", nl: "Ik werk in Groningen.", english: "I work in Groningen.", telugu: "నేను గ్రోనింగెన్‌లో పని చేస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
+        { id: "story.werken.ott.1", nl: "Ik werk meestal samen op kantoor.", english: "I usually work together with others at the office.", telugu: "నేను సాధారణంగా కార్యాలయంలో ఇతరులతో కలిసి పని చేస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
+        { id: "story.werken.ott.2", nl: "Op maandag werk ik aan een nieuw plan.", english: "On Mondays I work on a new plan.", telugu: "సోమవారాల్లో నేను ఒక కొత్త ప్రణాళికపై పని చేస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
+        { id: "story.werken.ott.3", nl: "In de ochtend werk ik rustig.", english: "In the morning I work calmly.", telugu: "ఉదయం నేను ప్రశాంతంగా పని చేస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
+        { id: "story.werken.ott.4", nl: "Na de lunch werk ik verder aan het project.", english: "After lunch I continue working on the project.", telugu: "మధ్యాహ్న భోజనం తర్వాత నేను ప్రాజెక్ట్‌పై పని కొనసాగిస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
+        { id: "story.werken.ott.5", nl: "Aan het einde van de dag werk ik aan de laatste punten.", english: "At the end of the day I work on the final points.", telugu: "రోజు చివర్లో నేను చివరి అంశాలపై పని చేస్తాను.", targets: [{ text: "werk", skillIds: ["skill.werken.ott-routine"] }] },
       ], notice: ottNotice,
     },
     {
-      id: "journey.werken.vtt-completed", verbId: "verb.werken", title: "What I completed", subtitle: "VTT · completed events", level: "A1", kind: "core", status: "learning", targetForms: ["VTT"], targetSkills: ["skill.werken.vtt-completed", "skill.werken.construct-phrase"], learningGoal: "Report one completed work event from a recent situation.", estimatedMinutes: 3, storyTitle: "Een drukke werkdag",
+      id: "journey.werken.vtt-completed", verbId: "verb.werken", title: "What I completed", subtitle: "VTT · completed events", level: "A1", kind: "core", status: "learning", targetForms: ["VTT"], targetSkills: ["skill.werken.vtt-completed"], learningGoal: "Report one completed work event from a recent situation.", estimatedMinutes: 3, storyTitle: "Een drukke werkdag",
       story: [
         { id: "story.werken.vtt.1", nl: "Gisteren heb ik op kantoor gewerkt.", english: "Yesterday I worked at the office.", telugu: "నిన్న నేను కార్యాలయంలో పని చేశాను.", targets: [{ text: "heb ik", skillIds: ["skill.werken.vtt-completed"] }, { text: "gewerkt", skillIds: ["skill.werken.vtt-completed", "skill.werken.construct-phrase"] }] },
-        { id: "story.werken.vtt.2", nl: "Ik heb met mijn team gewerkt.", english: "I worked with my team.", telugu: "నేను నా బృందంతో కలిసి పని చేశాను.", targets: [{ text: "Ik heb", skillIds: ["skill.werken.vtt-completed"] }, { text: "gewerkt", skillIds: ["skill.werken.vtt-completed", "skill.werken.construct-phrase"] }] },
-        { id: "story.werken.vtt.3", nl: "Ik heb aan een nieuw project gewerkt.", english: "I worked on a new project.", telugu: "నేను ఒక కొత్త ప్రాజెక్ట్‌పై పని చేశాను.", targets: [{ text: "gewerkt", skillIds: ["skill.werken.vtt-completed"] }] },
-        { id: "story.werken.vtt.4", nl: "Na het werk ben ik naar huis gegaan.", english: "After work, I went home.", telugu: "పని తర్వాత నేను ఇంటికి వెళ్లాను.", targets: [] },
+        { id: "story.werken.vtt.2", nl: "Ik heb met een nieuw team gewerkt.", english: "I worked with a new team.", telugu: "నేను ఒక కొత్త బృందంతో కలిసి పని చేశాను.", targets: [{ text: "Ik heb", skillIds: ["skill.werken.vtt-completed"] }, { text: "gewerkt", skillIds: ["skill.werken.vtt-completed", "skill.werken.construct-phrase"] }] },
+        { id: "story.werken.vtt.3", nl: "Ik heb aan een nieuw project gewerkt.", english: "I worked on a new project.", telugu: "నేను ఒక కొత్త ప్రాజెక్ట్‌పై పని చేశాను.", targets: [{ text: "Ik heb", skillIds: ["skill.werken.vtt-completed"] }, { text: "gewerkt", skillIds: ["skill.werken.vtt-completed"] }] },
+        { id: "story.werken.vtt.4", nl: "Na de lunch heb ik nog twee uur gewerkt.", english: "After lunch I worked for another two hours.", telugu: "మధ్యాహ్న భోజనం తర్వాత నేను మరో రెండు గంటలు పని చేశాను.", targets: [{ text: "heb ik", skillIds: ["skill.werken.vtt-completed"] }, { text: "gewerkt", skillIds: ["skill.werken.vtt-completed"] }] },
+        { id: "story.werken.vtt.5", nl: "Aan het einde heb ik nog een uur gewerkt.", english: "At the end I worked for another hour.", telugu: "చివర్లో నేను మరో గంట పని చేశాను.", targets: [{ text: "heb ik", skillIds: ["skill.werken.vtt-completed"] }, { text: "gewerkt", skillIds: ["skill.werken.vtt-completed"] }] },
       ], notice: vttNotice,
     },
     {
       id: "journey.werken.ovt-background", verbId: "verb.werken", title: "How I worked before", subtitle: "OVT · habits and stories", level: "A2", kind: "core", status: "next", targetForms: ["OVT"], targetSkills: ["skill.werken.ovt-background"], learningGoal: "Describe a past habit or story background.", estimatedMinutes: 3,
       story: [
-        { id: "story.werken.ovt.1", nl: "Vroeger werkte ik vaak in een café.", english: "I used to work in a café.", telugu: "గతంలో నేను తరచుగా ఒక కేఫేలో పని చేసేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
-        { id: "story.werken.ovt.2", nl: "Ik werkte daar elke zaterdag.", english: "I worked there every Saturday.", telugu: "నేను అక్కడ ప్రతి శనివారం పని చేసేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
-        { id: "story.werken.ovt.3", nl: "Ik werkte naast mijn broer.", english: "I worked next to my brother.", telugu: "నేను నా సోదరుడి పక్కన పని చేసేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
+        { id: "story.werken.ovt.1", nl: "Vroeger werkte ik vaak in een kleine ruimte.", english: "I used to work in a small room.", telugu: "గతంలో నేను తరచుగా ఒక చిన్న గదిలో పని చేసేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
+        { id: "story.werken.ovt.2", nl: "Elke zaterdag werkte ik samen.", english: "I worked together with others every Saturday.", telugu: "ప్రతి శనివారం నేను ఇతరులతో కలిసి పని చేసేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
+        { id: "story.werken.ovt.3", nl: "Tijdens de winter werkte ik rustig binnen.", english: "During the winter I worked quietly indoors.", telugu: "చలికాలంలో నేను ఇంటి లోపల ప్రశాంతంగా పని చేసేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
+        { id: "story.werken.ovt.4", nl: "In die periode werkte ik aan hetzelfde plan.", english: "During that period I worked on the same plan.", telugu: "ఆ కాలంలో నేను అదే ప్రణాళికపై పని చేసేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
+        { id: "story.werken.ovt.5", nl: "Na de lunch werkte ik verder.", english: "After lunch I continued working.", telugu: "మధ్యాహ్న భోజనం తర్వాత నేను పని కొనసాగించేవాడిని.", targets: [{ text: "werkte", skillIds: ["skill.werken.ovt-background"] }] },
       ], notice: ovtNotice,
     },
-    { id: "journey.werken.vvt-earlier-past", verbId: "verb.werken", title: "What had already happened", subtitle: "VVT · earlier past", level: "A2", kind: "later", status: "later", targetForms: ["VVT"], targetSkills: ["skill.werken.vvt-earlier-past"], learningGoal: "Recognise an earlier completed event in a past story.", estimatedMinutes: 2, story: [] },
-    { id: "journey.werken.future-possibility", verbId: "verb.werken", title: "Plans and possibilities", subtitle: "OTTT + OVTT", level: "reference", kind: "later", status: "later", targetForms: ["OTTT", "OVTT"], targetSkills: ["skill.werken.future-possibility"], learningGoal: "Recognise future and conditional constructions as later reference material.", estimatedMinutes: 2, story: [] },
-    { id: "journey.werken.reference-completed-future", verbId: "verb.werken", title: "Completed future and unreal past", subtitle: "VTTT + VVTT", level: "reference", kind: "reference", status: "reference", targetForms: ["VTTT", "VVTT"], targetSkills: ["skill.werken.reference-completed-future"], learningGoal: "Recognise advanced completed future and unreal past constructions.", estimatedMinutes: 2, story: [] },
+    {
+      id: "journey.werken.vvt-earlier-past", verbId: "verb.werken", title: "What had already happened", subtitle: "VVT · earlier past", level: "A2", kind: "later", status: "later", targetForms: ["VVT"], targetSkills: ["skill.werken.vvt-earlier-past"], learningGoal: "Place an earlier completed event before another past event.", estimatedMinutes: 3, storyTitle: "Voordat de vergadering begon",
+      story: [
+        { id: "story.werken.vvt.1", nl: "Ik had al gewerkt voordat de vergadering begon.", english: "I had already worked before the meeting began.", telugu: "సమావేశం ప్రారంభమయ్యే ముందు నేను ఇప్పటికే పని చేశాను.", targets: [{ text: "had", skillIds: ["skill.werken.vvt-earlier-past"] }, { text: "gewerkt", skillIds: ["skill.werken.vvt-earlier-past"] }] },
+        { id: "story.werken.vvt.2", nl: "Voordat ik naar kantoor ging, had ik rustig gewerkt.", english: "Before I went to the office, I had worked quietly.", telugu: "నేను కార్యాలయానికి వెళ్లే ముందు ప్రశాంతంగా పని చేశాను.", targets: [{ text: "had", skillIds: ["skill.werken.vvt-earlier-past"] }, { text: "gewerkt", skillIds: ["skill.werken.vvt-earlier-past"] }] },
+        { id: "story.werken.vvt.3", nl: "Toen de bel ging, had ik al twee uur gewerkt.", english: "When the bell rang, I had already worked for two hours.", telugu: "గంట మోగినప్పుడు నేను ఇప్పటికే రెండు గంటలు పని చేశాను.", targets: [{ text: "had", skillIds: ["skill.werken.vvt-earlier-past"] }, { text: "gewerkt", skillIds: ["skill.werken.vvt-earlier-past"] }] },
+        { id: "story.werken.vvt.4", nl: "Ik had thuis gewerkt voordat het kantoor openging.", english: "I had worked at home before the office opened.", telugu: "కార్యాలయం తెరవకముందు నేను ఇంటి వద్ద పని చేశాను.", targets: [{ text: "had", skillIds: ["skill.werken.vvt-earlier-past"] }, { text: "gewerkt", skillIds: ["skill.werken.vvt-earlier-past"] }] },
+        { id: "story.werken.vvt.5", nl: "Voordat de deadline kwam, had ik aan het project gewerkt.", english: "Before the deadline arrived, I had worked on the project.", telugu: "గడువు రాకముందు నేను ప్రాజెక్ట్‌పై పని చేశాను.", targets: [{ text: "had", skillIds: ["skill.werken.vvt-earlier-past"] }, { text: "gewerkt", skillIds: ["skill.werken.vvt-earlier-past"] }] },
+      ], notice: vvtNotice,
+    },
+    {
+      id: "journey.werken.future-possibility", verbId: "verb.werken", title: "Plans and possibilities", subtitle: "OTTT + OVTT · future and conditional", level: "reference", kind: "later", status: "later", targetForms: ["OTTT", "OVTT"], targetSkills: ["skill.werken.future-possibility"], learningGoal: "Distinguish an explicit future plan from a conditional possibility.", estimatedMinutes: 3, storyTitle: "Een plan voor morgen",
+      story: [
+        { id: "story.werken.future.1", nl: "Morgen zal ik thuis werken.", english: "Tomorrow I will work at home.", telugu: "రేపు నేను ఇంటి వద్ద పని చేస్తాను.", targets: [{ text: "zal", skillIds: ["skill.werken.future-possibility"] }, { text: "werken", skillIds: ["skill.werken.future-possibility"] }] },
+        { id: "story.werken.future.2", nl: "Als het regent, zou ik thuis werken.", english: "If it rains, I would work at home.", telugu: "వర్షం పడితే, నేను ఇంటి వద్ద పని చేస్తాను.", targets: [{ text: "zou", skillIds: ["skill.werken.future-possibility"] }, { text: "werken", skillIds: ["skill.werken.future-possibility"] }] },
+        { id: "story.werken.future.3", nl: "Na de lunch zal ik aan het project werken.", english: "After lunch I will work on the project.", telugu: "మధ్యాహ్న భోజనం తర్వాత నేను ప్రాజెక్ట్‌పై పని చేస్తాను.", targets: [{ text: "zal", skillIds: ["skill.werken.future-possibility"] }, { text: "werken", skillIds: ["skill.werken.future-possibility"] }] },
+        { id: "story.werken.future.4", nl: "Volgende week zal ik met een nieuwe planning werken.", english: "Next week I will work with a new schedule.", telugu: "వచ్చే వారం నేను కొత్త షెడ్యూల్‌తో పని చేస్తాను.", targets: [{ text: "zal", skillIds: ["skill.werken.future-possibility"] }, { text: "werken", skillIds: ["skill.werken.future-possibility"] }] },
+        { id: "story.werken.future.5", nl: "Bij slecht weer zou ik in een rustige ruimte werken.", english: "In bad weather I would work in a quiet room.", telugu: "చెడు వాతావరణంలో నేను ప్రశాంతమైన గదిలో పని చేస్తాను.", targets: [{ text: "zou", skillIds: ["skill.werken.future-possibility"] }, { text: "werken", skillIds: ["skill.werken.future-possibility"] }] },
+      ], notice: futurePossibilityNotice,
+    },
+    {
+      id: "journey.werken.reference-completed-future", verbId: "verb.werken", title: "Completed future and unreal past", subtitle: "VTTT + VVTT · advanced completion", level: "reference", kind: "reference", status: "reference", targetForms: ["VTTT", "VVTT"], targetSkills: ["skill.werken.reference-completed-future"], learningGoal: "Recognise a completed result viewed from a future or hypothetical point.", estimatedMinutes: 3, storyTitle: "Voor het einde van de dag",
+      story: [
+        { id: "story.werken.completed-future.1", nl: "Voor het einde van de dag zal ik acht uur gewerkt hebben.", english: "By the end of the day, I will have worked for eight hours.", telugu: "రోజు ముగిసే సమయానికి నేను ఎనిమిది గంటలు పని చేసి ఉంటాను.", targets: [{ text: "zal", skillIds: ["skill.werken.reference-completed-future"] }, { text: "gewerkt hebben", skillIds: ["skill.werken.reference-completed-future"] }] },
+        { id: "story.werken.completed-future.2", nl: "Als ik meer tijd had gehad, zou ik langer gewerkt hebben.", english: "If I had had more time, I would have worked longer.", telugu: "నాకు మరింత సమయం ఉండి ఉంటే, నేను ఎక్కువసేపు పని చేసి ఉండేవాడిని.", targets: [{ text: "zou", skillIds: ["skill.werken.reference-completed-future"] }, { text: "gewerkt hebben", skillIds: ["skill.werken.reference-completed-future"] }] },
+        { id: "story.werken.completed-future.3", nl: "Om vijf uur zal ik al acht uur gewerkt hebben.", english: "At five o'clock, I will already have worked for eight hours.", telugu: "ఐదు గంటలకు నేను ఇప్పటికే ఎనిమిది గంటలు పని చేసి ఉంటాను.", targets: [{ text: "zal", skillIds: ["skill.werken.reference-completed-future"] }, { text: "gewerkt hebben", skillIds: ["skill.werken.reference-completed-future"] }] },
+        { id: "story.werken.completed-future.4", nl: "Voor de deadline zal ik aan het project gewerkt hebben.", english: "Before the deadline, I will have worked on the project.", telugu: "గడువుకు ముందు నేను ప్రాజెక్ట్‌పై పని చేసి ఉంటాను.", targets: [{ text: "zal", skillIds: ["skill.werken.reference-completed-future"] }, { text: "gewerkt hebben", skillIds: ["skill.werken.reference-completed-future"] }] },
+        { id: "story.werken.completed-future.5", nl: "Als de planning anders was geweest, zou ik langer gewerkt hebben.", english: "If the schedule had been different, I would have worked longer.", telugu: "షెడ్యూల్ భిన్నంగా ఉండి ఉంటే, నేను ఎక్కువసేపు పని చేసి ఉండేవాడిని.", targets: [{ text: "zou", skillIds: ["skill.werken.reference-completed-future"] }, { text: "gewerkt hebben", skillIds: ["skill.werken.reference-completed-future"] }] },
+      ], notice: completedFutureNotice,
+    },
   ],
 };
 
@@ -265,7 +339,7 @@ export function validateVerbJourneyPack(pack: VerbJourneyPack): string[] {
     if (journey.verbId !== pack.verb.id) errors.push(`${journey.id}.verbId: unknown verb`);
     for (const target of journey.targetForms) if (!forms.has(target)) errors.push(`${journey.id}.targetForms: unknown form ${target}`);
     for (const skill of journey.targetSkills) { if (!stableId.test(skill)) errors.push(`${journey.id}.targetSkills: invalid skill identifier`); skills.add(skill); }
-    if (journey.kind === "core" && (!journey.story.length || !journey.notice)) errors.push(`${journey.id}: core journey requires story and notice content`);
+    if (!journey.story.length || !journey.notice) errors.push(`${journey.id}: playable journey requires story and notice content`);
     for (const [lineIndex, line] of journey.story.entries()) {
       addId(line.id, `${journey.id}.story[${lineIndex}].id`);
       if (!line.nl || !line.english || !line.telugu) errors.push(`${journey.id}.story[${lineIndex}]: missing story support`);
@@ -294,4 +368,8 @@ export function getVerbJourney(id: string): JourneyRecord | null {
 
 export function getVerbForm(tense: DutchTense): VerbFormRecord | null {
   return verbJourneyPack.dutchForms.find((form) => form.dutchTense === tense) ?? null;
+}
+
+export function isVerbJourneyPlayable(journey: JourneyRecord): boolean {
+  return journey.story.length > 0 && Boolean(journey.notice);
 }

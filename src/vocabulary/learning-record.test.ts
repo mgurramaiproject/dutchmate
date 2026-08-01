@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { LEARNING_RECORD_STORAGE_KEY, LearningRecordStore, parseLearningBackup } from "./learning-record";
 import type { SavedVocabularyStorage } from "./saved-vocabulary";
+import { getLocalDayStart } from "./daily-five";
 
 describe("LearningRecordStore", () => {
   it("migrates legacy Dutch meanings and review history once without duplicates", async () => {
@@ -597,6 +598,15 @@ describe("LearningRecordStore", () => {
     await expect(restored.getVerbJourneyRecord()).resolves.toEqual(backup.verbJourneys);
   });
 
+  it("records a completed Verb Journey as today's lesson activity", async () => {
+    const now = new Date(2026, 0, 1, 9).getTime();
+    const records = new LearningRecordStore(new MemoryStorage(), () => now);
+    const first = await records.recordVerbJourneyCompletion("journey.werken.vtt-completed");
+    expect(first.activity.find((day) => day.dayStartAt === getLocalDayStart(now))?.lessons).toBe(1);
+    const second = await records.recordVerbJourneyCompletion("journey.werken.vtt-completed");
+    expect(second.activity.find((day) => day.dayStartAt === getLocalDayStart(now))?.lessons).toBe(2);
+  });
+
   it("offers weak Verb Journey skills through Daily Five and records the task atomically", async () => {
     const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "incorrect", expectedEvidenceRevision: 0 });
@@ -607,6 +617,17 @@ describe("LearningRecordStore", () => {
     expect(result.snapshot.completedTaskIds).toEqual(["verb.werken\u001fskill.werken.vtt-completed\u001fconstruction\u001fexercise.werken.vtt.construct"]);
     expect(result.verbJourneys.evidenceRevision).toBe(2);
     await expect(records.recordVerbJourneyDailyFiveResult({ task: task!, result: "correct", expectedEvidenceRevision: 1 })).resolves.toEqual(result);
+  });
+
+  it("keeps OTT and OVT weak-skill reviews on their own authored packs", async () => {
+    for (const [formOrSkillId, meaningId, constructionId] of [
+      ["skill.werken.ott-routine", "exercise.werken.ott.meaning", "exercise.werken.ott.construct"],
+      ["skill.werken.ovt-background", "exercise.werken.ovt.meaning", "exercise.werken.ovt.construct"],
+    ] as const) {
+      const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+      await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId, contentVersion: "015-1", exerciseFamily: "meaning", exerciseId: meaningId, result: "incorrect", expectedEvidenceRevision: 0 });
+      expect((await records.getDailyFive()).tasks).toContainEqual(expect.objectContaining({ kind: "verb", formOrSkillId, exerciseId: constructionId }));
+    }
   });
 
   it("keeps at least four vocabulary positions when one Verb Journey task is eligible", async () => {

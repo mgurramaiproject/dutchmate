@@ -26,6 +26,7 @@ import {
   LEARNING_CONTRAST_RESULT_MESSAGE,
   LEARNING_VERB_JOURNEY_MESSAGE,
   LEARNING_VERB_JOURNEY_RESULT_MESSAGE,
+  LEARNING_VERB_JOURNEY_COMPLETION_MESSAGE,
   LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE,
 } from "./messages";
 import { lessonCatalog, validateLessonCatalog } from "../lessons/catalog";
@@ -43,6 +44,7 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
       const result = await store.recordVerbJourneyResult(message.payload);
       return result.recorded ? { ok: true, result: { verbJourneys: result.verbJourneys } } : { ok: false, error: "This verb journey result was already recorded." };
     }
+    if (message.type === LEARNING_VERB_JOURNEY_COMPLETION_MESSAGE) return { ok: true, result: { rhythm: await store.recordVerbJourneyCompletion(message.payload.journeyId) } };
     if (message.type === LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE) {
       const result = await store.recordVerbJourneyDailyFiveResult(message.payload);
       return { ok: true, result: { verbJourneys: result.verbJourneys, snapshot: result.snapshot } };

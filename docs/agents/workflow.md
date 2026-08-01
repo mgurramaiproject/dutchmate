@@ -83,6 +83,28 @@ When implementing an issue:
 - Use commit subjects in the form `<type>: <ticket-id> <branch-codename>: <summary>`; for example, `feat: T03 learnloop: record deliberate encounters`.
 - Finish with a clean worktree and report any checks or external actions that could not be completed.
 
+## Prototype Contract
+
+When a feature includes a UI or interaction prototype:
+
+- Make it a self-contained, clickable artifact with a valid initial screen; an empty renderer is a failed prototype.
+- Cover the complete proposed path, including navigation, back actions, primary decisions, error/retry states, completion, and return to the originating screen.
+- Reuse the current product's design system and information architecture. A handoff mockup may define flow and content structure, but it does not authorize copying its CSS or replacing existing product UI.
+- Verify the artifact manually before using it for product decisions. Check that every visible action has a meaningful result and that narrow/mobile-sized layouts remain readable.
+- Treat prototype feedback as a product decision. If it changes scope, data, or behavior, update the plan/spec before creating or revising tickets when the workflow has that approval gate.
+
+## QA Feedback To Regression Test
+
+When manual QA identifies a defect:
+
+1. Reproduce the exact state and trace the shared flow to its source rather than patching only the visible symptom.
+2. Clarify the smallest intended behavior. Do not infer a broader content or pedagogical change from ambiguous wording; preserve explicit scope decisions such as learner perspective, supported forms, or excluded media.
+3. Add the smallest focused regression test that fails before the fix and protects the corrected seam afterward.
+4. Implement the narrow fix, rerun the focused test, typecheck, the relevant suite, and required build checks.
+5. Repeat the manual scenario, include adjacent states that share the flow, and record language/content review separately from technical QA.
+
+For content-heavy features, use the reusable [content and interactive-feature QA checklist](./content-interactive-feature-qa-checklist.md).
+
 ## Handoff
 
 Every handoff must recommend one concrete next action and name the relevant agent skill or skills to use. If no skill applies, say so explicitly. Base the recommendation on the checked-in specification, tracker state, and verification evidence rather than an assumed plan.
