@@ -46,6 +46,7 @@ describe("werken Verb Journey pack", () => {
   it("requires complete localized form records for the multilingual content version", () => {
     const invalid = structuredClone(verbJourneyPack);
     invalid.contentVersion = "015-2" as never;
+    invalid.dutchForms = invalid.dutchForms.map(({ learnerLabelEn, canonicalExample, commonUsageExample, ...form }) => form);
 
     expect(validateVerbJourneyPack(invalid)).toEqual(expect.arrayContaining([
       expect.stringContaining("learnerLabelEn"),

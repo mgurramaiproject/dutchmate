@@ -52,17 +52,17 @@ accessibility, and preserved comparison/practice/navigation actions.
 
 ### Acceptance criteria
 
-- Every `werken` card shows code, symbol, NL example, full EN translation, and
+- [x] Every `werken` card shows code, symbol, NL example, full EN translation, and
   full TE translation; visible redundant names/status words and `2 forms` are
   removed.
-- The existing 4 × 2 map structure and explicit future viewpoint labels remain.
-- The legend uses exactly `✓`, `›`, and `○`, while precise internal status and
+- [x] The existing 4 × 2 map structure and explicit future viewpoint labels remain.
+- [x] The legend uses exactly `✓`, `›`, and `○`, while precise internal status and
   accessible meaning remain intact.
-- Detail shows learner label, full Dutch name, NL/EN/TE canonical example,
+- [x] Detail shows learner label, full Dutch name, NL/EN/TE canonical example,
   meaning, pattern, one localized common-use example, and existing actions.
-- Keyboard activation, accessible labels, selected state, nearest scrolling,
+- [x] Keyboard activation, accessible labels, selected state, nearest scrolling,
   comparison, practice, and navigation work through the popup seam.
-- Focused content/popup tests, typecheck, and whitespace checks pass.
+- [x] Focused content/popup tests, typecheck, and whitespace checks pass.
 
 ## T03 — Complete cross-pack coverage and qualification
 
