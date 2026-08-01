@@ -139,11 +139,11 @@ automated delivery checks.
 
 **Blocked by:** T05 — Add future, conditional, and advanced perfect variants.
 
-- [ ] Due or weak `hebben` skills enter the existing Daily Five review pool without a second queue, scheduler, mastery model, or grammar destination.
-- [ ] Daily Five vocabulary protection, grammar caps, idempotency, stale-revision protection, and Today summary refresh remain intact.
-- [ ] Compatible updates preserve `werken`, `zijn`, lesson, Saved, rhythm, contrast, and unrelated learning records; incompatible migration failure remains atomic.
-- [ ] Form progress counts target-form slots from canonical pack forms, keeps repeated target forms independent, and remains separate from journey completion.
-- [ ] Export/import and clear-data behavior preserve the additive multi-pack learning-record contract.
+- [x] Due or weak `hebben` skills enter the existing Daily Five review pool without a second queue, scheduler, mastery model, or grammar destination.
+- [x] Daily Five vocabulary protection, grammar caps, idempotency, stale-revision protection, and Today summary refresh remain intact.
+- [x] Compatible updates preserve `werken`, `zijn`, lesson, Saved, rhythm, contrast, and unrelated learning records; incompatible migration failure remains atomic.
+- [x] Form progress counts target-form slots from canonical pack forms, keeps repeated target forms independent, and remains separate from journey completion.
+- [x] Export/import and clear-data behavior preserve the additive multi-pack learning-record contract.
 - [ ] The authoring matrix and qualification record are complete, with fluent-Dutch review provenance and English/Telugu meaning and clarity review.
 - [ ] Accessibility, keyboard/focus behavior, narrow-popup containment, and manual incorrect/retry/reference/completion scenarios pass.
 - [ ] Focused tests, popup suite, typecheck, full tests, build/package checks, documentation checks, and whitespace checks pass.

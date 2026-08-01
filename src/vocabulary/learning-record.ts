@@ -545,7 +545,7 @@ function mergeContrastRecords(local: Record<string, ContrastRecord>, imported: R
 
 function mergeVerbJourneyRecords(local: VerbJourneyRecord, imported: VerbJourneyRecord | undefined): VerbJourneyRecord {
   if (!imported) return local;
-  const contentVersion = (local.contentVersion === "016-1" || imported.contentVersion === "016-1" ? "016-1" : "015-1") as "015-1" | "016-1";
+  const contentVersion = (local.contentVersion === "017-1" || imported.contentVersion === "017-1" ? "017-1" : local.contentVersion === "016-1" || imported.contentVersion === "016-1" ? "016-1" : "015-1") as "015-1" | "016-1" | "017-1";
   const result = { ...local, contentVersion, skills: { ...local.skills }, evidenceRevision: Math.max(local.evidenceRevision, imported.evidenceRevision) };
   for (const [skillId, incoming] of Object.entries(imported.skills)) {
     const existing = result.skills[skillId];
