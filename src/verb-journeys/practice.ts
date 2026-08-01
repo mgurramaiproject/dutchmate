@@ -36,7 +36,7 @@ export type VerbPracticeSession = {
   completed: boolean;
 };
 
-export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity";
+export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity" | "journey.zijn.ott-questions" | "journey.zijn.ovt-state";
 const defaultJourneyId: VerbPracticeJourneyId = "journey.werken.vtt-completed";
 
 type AuthoredVerbPracticeQuestion = Omit<VerbPracticeQuestion, "journeyId">;
@@ -240,6 +240,32 @@ const zijnIdentityRepairs: AuthoredVerbPracticeQuestion[] = [
   { id: "exercise.zijn.ott-identity.repair-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the word order.", context: "Vandaag …", tokens: ["Vandaag", "ben", "ik", "hier."], accepted: ["Vandaag ben ik hier."], feedback: "Correct. Ben stays before ik after Vandaag.", incorrectFeedback: "Use second-position word order: Vandaag ben ik hier." },
 ];
 
+const zijnQuestionQuestions: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.zijn.ott-questions.meaning", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-questions", exerciseFamily: "meaning", kind: "choice", prompt: "What does this question ask?", context: "Ben je vandaag thuis?", choices: ["Whether someone is at home today", "Whether someone was at home yesterday", "Whether someone has been at home before"], accepted: ["Whether someone is at home today"], feedback: "Correct. Ben je asks about a present state with jij.", incorrectFeedback: "Vandaag and ben je make this a present question.", repairIds: ["exercise.zijn.ott-questions.repair-form", "exercise.zijn.ott-questions.repair-order"] },
+  { id: "exercise.zijn.ott-questions.construct", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-questions", exerciseFamily: "construction", kind: "token-slots", prompt: "Build the question with taps.", context: "Complete: ___ vandaag thuis?", tokens: ["ben", "je", "vandaag", "thuis?"], accepted: ["ben je vandaag thuis?"], feedback: "Correct. Ben comes before je in a direct question.", incorrectFeedback: "Put ben before je: Ben je vandaag thuis?" },
+  { id: "exercise.zijn.ott-questions.natural-translation", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-questions", exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the natural present question.", context: "Are you ready today?", choices: ["Ben je vandaag klaar?", "Was je gisteren klaar?", "Ben je klaar geweest?"], accepted: ["Ben je vandaag klaar?"], feedback: "Correct. Ben je asks about the present.", incorrectFeedback: "For a present question, choose Ben je vandaag klaar?" },
+  { id: "exercise.zijn.ott-questions.map-placement", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-questions", exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this question belong?", context: "Ben je vandaag thuis?", choices: ["OTT · onvoltooid tegenwoordige tijd", "OVT · onvoltooid verleden tijd", "VTT · voltooid tegenwoordige tijd", "OTTT · onvoltooid tegenwoordige toekomende tijd"], accepted: ["OTT · onvoltooid tegenwoordige tijd"], feedback: "Correct. Ben je asks about a present state.", incorrectFeedback: "Ben je vandaag thuis? belongs to OTT." },
+  { id: "exercise.zijn.ott-questions.word-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-questions", exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the question in the correct order.", context: "Ask about today: …", tokens: ["Ben", "je", "vandaag", "thuis?"], accepted: ["Ben je vandaag thuis?"], feedback: "Correct. The finite verb comes before the subject in a direct question.", incorrectFeedback: "Start with Ben, then je: Ben je vandaag thuis?" },
+];
+
+const zijnQuestionRepairs: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.zijn.ott-questions.repair-form", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-questions", exerciseFamily: "repair-form", kind: "choice", prompt: "Repair the question form.", context: "___ je vandaag thuis?", choices: ["Ben", "Was", "Zijn"], accepted: ["Ben"], feedback: "Correct. Ben je is the present question with jij.", incorrectFeedback: "Use Ben for a present question with je." },
+  { id: "exercise.zijn.ott-questions.repair-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-questions", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the question order.", context: "Ask about today: …", tokens: ["Ben", "je", "thuis?"], accepted: ["Ben je thuis?"], feedback: "Correct. Put Ben before je.", incorrectFeedback: "In a direct question, use Ben je thuis?" },
+];
+
+const zijnPastStateQuestions: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.zijn.ovt-state.meaning", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ovt-state", exerciseFamily: "meaning", kind: "choice", prompt: "What does this sentence describe?", context: "Ik was gisteren thuis.", choices: ["A past location", "A present location", "A future plan"], accepted: ["A past location"], feedback: "Correct. Was places the state in the past.", incorrectFeedback: "Gisteren and was show a past location." },
+  { id: "exercise.zijn.ovt-state.construct", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ovt-state", exerciseFamily: "construction", kind: "token-slots", prompt: "Build the past-state phrase.", context: "Ik ___ gisteren thuis.", tokens: ["was", "waren", "gisteren", "thuis"], accepted: ["was"], feedback: "Correct. Ik takes was in this past-state sentence.", incorrectFeedback: "With ik in the past, use was: Ik was gisteren thuis." },
+  { id: "exercise.zijn.ovt-state.natural-translation", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ovt-state", exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the natural past sentence.", context: "We were tired yesterday.", choices: ["Wij waren gisteren moe.", "Wij zijn vandaag moe.", "Wij zullen morgen moe zijn."], accepted: ["Wij waren gisteren moe."], feedback: "Correct. Waren is the plural past form.", incorrectFeedback: "For we were, choose Wij waren gisteren moe." },
+  { id: "exercise.zijn.ovt-state.map-placement", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ovt-state", exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this sentence belong?", context: "Ik was gisteren thuis.", choices: ["OVT · onvoltooid verleden tijd", "OTT · onvoltooid tegenwoordige tijd", "VTT · voltooid tegenwoordige tijd", "VVT · voltooid verleden tijd"], accepted: ["OVT · onvoltooid verleden tijd"], feedback: "Correct. Was is the OVT form here.", incorrectFeedback: "Ik was gisteren thuis describes a past state: OVT." },
+  { id: "exercise.zijn.ovt-state.word-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ovt-state", exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the past sentence in order.", context: "Start with the time phrase: Gisteren …", tokens: ["Gisteren", "was", "ik", "thuis."], accepted: ["Gisteren was ik thuis."], feedback: "Correct. Was stays before ik after Gisteren.", incorrectFeedback: "Keep the finite verb in second position: Gisteren was ik thuis." },
+];
+
+const zijnPastStateRepairs: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.zijn.ovt-state.repair-form", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ovt-state", exerciseFamily: "repair-form", kind: "choice", prompt: "Repair the past form.", context: "Ik ___ gisteren thuis.", choices: ["was", "ben", "waren"], accepted: ["was"], feedback: "Correct. Ik was is the singular past form.", incorrectFeedback: "Use was after ik for a past state." },
+  { id: "exercise.zijn.ovt-state.repair-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ovt-state", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the past word order.", context: "Gisteren …", tokens: ["Gisteren", "was", "ik", "thuis."], accepted: ["Gisteren was ik thuis."], feedback: "Correct. Was comes before ik after Gisteren.", incorrectFeedback: "Use Gisteren was ik thuis." },
+];
+
 function assignJourneyId(journeyId: VerbPracticeJourneyId, pack: AuthoredVerbPracticePack): VerbPracticePack {
   return { questions: pack.questions.map((question) => ({ ...question, journeyId })), repairs: pack.repairs.map((question) => ({ ...question, journeyId })) };
 }
@@ -252,6 +278,8 @@ const practicePacks: Record<VerbPracticeJourneyId, VerbPracticePack> = {
   "journey.werken.future-possibility": assignJourneyId("journey.werken.future-possibility", { questions: futurePossibilityQuestions, repairs: futurePossibilityRepairs }),
   "journey.werken.reference-completed-future": assignJourneyId("journey.werken.reference-completed-future", { questions: completedFutureQuestions, repairs: completedFutureRepairs }),
   "journey.zijn.ott-identity": assignJourneyId("journey.zijn.ott-identity", { questions: zijnIdentityQuestions, repairs: zijnIdentityRepairs }),
+  "journey.zijn.ott-questions": assignJourneyId("journey.zijn.ott-questions", { questions: zijnQuestionQuestions, repairs: zijnQuestionRepairs }),
+  "journey.zijn.ovt-state": assignJourneyId("journey.zijn.ovt-state", { questions: zijnPastStateQuestions, repairs: zijnPastStateRepairs }),
 };
 const allPracticeQuestions = Object.values(practicePacks).flatMap((pack) => [...pack.questions, ...pack.repairs]);
 const questionById = new Map(allPracticeQuestions.map((question) => [question.id, question]));

@@ -341,6 +341,34 @@ const zijnPack: VerbJourneyPack = {
       { label: "hij / het", tense: "OTT", sentence: "Hij is vandaag rustig.", meaning: "is follows hij or het" },
       { label: "wij", tense: "OTT", sentence: "Wij zijn vandaag rustig.", meaning: "zijn follows wij" },
     ], formula: "ik ben · jij bent · hij/het is · wij zijn", formulaNote: "Learn this as a bounded present-tense contrast. This journey does not claim full unconstrained production.", valuableContrast: "Ben, bent, is, and zijn are all present forms of zijn. Choose the form from the subject: ik ben, jij bent, hij is, wij zijn." },
+  }, {
+    id: "journey.zijn.ott-questions", verbId: "verb.zijn", title: "Questions I ask", subtitle: "OTT · questions and inversion", level: "A1", kind: "core", status: "later", targetForms: ["OTT"], targetSkills: ["skill.zijn.ott-questions"], learningGoal: "Recognise ben je?, is het?, and zijn we? in present-tense questions.", estimatedMinutes: 3, storyTitle: "Een vraag voor vandaag",
+    story: [
+      { id: "story.zijn.questions.1", nl: "Ben je vandaag thuis?", english: "Are you at home today?", telugu: "ఈ రోజు నువ్వు ఇంట్లో ఉన్నావా?", targets: [{ text: "Ben je", skillIds: ["skill.zijn.ott-questions"] }] },
+      { id: "story.zijn.questions.2", nl: "Is het hier rustig?", english: "Is it quiet here?", telugu: "ఇక్కడ ప్రశాంతంగా ఉందా?", targets: [{ text: "Is het", skillIds: ["skill.zijn.ott-questions"] }] },
+      { id: "story.zijn.questions.3", nl: "Zijn we op tijd?", english: "Are we on time?", telugu: "మనం సమయానికి ఉన్నామా?", targets: [{ text: "Zijn we", skillIds: ["skill.zijn.ott-questions"] }] },
+      { id: "story.zijn.questions.4", nl: "Ik vraag of ik klaar ben.", english: "I ask whether I am ready.", telugu: "నేను సిద్ధంగా ఉన్నానా అని అడుగుతున్నాను.", targets: [{ text: "ben", skillIds: ["skill.zijn.ott-questions"] }] },
+      { id: "story.zijn.questions.5", nl: "Ik wil weten of mijn vrienden hier zijn.", english: "I want to know whether my friends are here.", telugu: "నా స్నేహితులు ఇక్కడ ఉన్నారా అని నేను తెలుసుకోవాలనుకుంటున్నాను.", targets: [{ text: "zijn", skillIds: ["skill.zijn.ott-questions"] }] },
+    ],
+    notice: { id: "notice.zijn.ott-questions", title: "Questions turn the order around", subtitle: "In a direct yes/no question, the finite form comes before the subject.", comparison: [
+      { label: "question", tense: "OTT", sentence: "Ben je vandaag thuis?", meaning: "ben comes before je in the question" },
+      { label: "past contrast", tense: "OVT", sentence: "Was je gisteren thuis?", meaning: "was places the state in the past" },
+      { label: "experience contrast", tense: "VTT", sentence: "Ben je al thuis geweest?", meaning: "ben geweest describes a completed experience" },
+    ], formula: "Ben je? · Is het? · Zijn we?", formulaNote: "The finite form moves before the subject in a direct question: Ben je thuis? The embedded question Ik vraag of ik klaar ben keeps ordinary clause order.", valuableContrast: "Ben je vandaag thuis? is a present direct question. Was je gisteren thuis? changes the time to the past, while ben je al thuis geweest? asks about a completed experience." },
+  }, {
+    id: "journey.zijn.ovt-state", verbId: "verb.zijn", title: "Where I was", subtitle: "OVT · past states and locations", level: "A2", kind: "core", status: "later", targetForms: ["OVT"], targetSkills: ["skill.zijn.ovt-state"], learningGoal: "Use was and waren for a past state, identity, or location.", estimatedMinutes: 3, storyTitle: "Gisteren in de stad",
+    story: [
+      { id: "story.zijn.ovt.1", nl: "Ik was gisteren rustig.", english: "I was calm yesterday.", telugu: "నిన్న నేను ప్రశాంతంగా ఉన్నాను.", targets: [{ text: "was", skillIds: ["skill.zijn.ovt-state"] }] },
+      { id: "story.zijn.ovt.2", nl: "Ik was de hele ochtend thuis.", english: "I was at home all morning.", telugu: "ఉదయం మొత్తం నేను ఇంట్లో ఉన్నాను.", targets: [{ text: "was", skillIds: ["skill.zijn.ovt-state"] }] },
+      { id: "story.zijn.ovt.3", nl: "Na de lunch was ik in de stad.", english: "After lunch I was in the city.", telugu: "భోజనం తర్వాత నేను నగరంలో ఉన్నాను.", targets: [{ text: "was", skillIds: ["skill.zijn.ovt-state"] }] },
+      { id: "story.zijn.ovt.4", nl: "Mijn vrienden waren ook in de stad.", english: "My friends were also in the city.", telugu: "నా స్నేహితులు కూడా నగరంలో ఉన్నారు.", targets: [{ text: "waren", skillIds: ["skill.zijn.ovt-state"] }] },
+      { id: "story.zijn.ovt.5", nl: "Aan het einde waren we moe maar blij.", english: "At the end we were tired but happy.", telugu: "చివరికి మేము అలసిపోయినా సంతోషంగా ఉన్నాము.", targets: [{ text: "waren", skillIds: ["skill.zijn.ovt-state"] }] },
+    ],
+    notice: { id: "notice.zijn.ovt-state", title: "Was and waren look back", subtitle: "The past forms describe a state or location from a past viewpoint.", comparison: [
+      { label: "singular", tense: "OVT", sentence: "Ik was gisteren thuis.", meaning: "was follows ik" },
+      { label: "plural", tense: "OVT", sentence: "Wij waren gisteren thuis.", meaning: "waren follows wij" },
+      { label: "present contrast", tense: "OTT", sentence: "Ik ben vandaag thuis.", meaning: "ben keeps the state in the present" },
+    ], formula: "ik was · jij was · hij was · wij waren", formulaNote: "Was is used with singular subjects in this bounded contrast; waren is used with wij and other plural subjects.", valuableContrast: "Ik was gisteren thuis looks back to yesterday. Ik ben vandaag thuis stays in the present, while wij waren uses the plural past form." },
   }],
 };
 
