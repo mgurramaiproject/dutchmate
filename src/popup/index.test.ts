@@ -1089,12 +1089,14 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("Next / current");
     expect(content().textContent).toContain("Later / locked");
     expect([...content().querySelectorAll<HTMLElement>(".map-legend-item")].map((item) => item.textContent?.trim())).toEqual(expect.arrayContaining(["✓Mastered", "›Next / current", "○Later / locked"]));
+    expect([...content().querySelectorAll<HTMLElement>(".map-legend-item")].every((item) => item.getAttribute("role") === "img" && item.getAttribute("aria-label"))).toBe(true);
     expect(content().querySelectorAll(".verb-form-example-en")).toHaveLength(8);
     expect(content().querySelectorAll(".verb-form-example-te")).toHaveLength(8);
     expect(content().querySelectorAll(".verb-form-full")).toHaveLength(0);
     expect(content().querySelectorAll(".verb-form-status")).toHaveLength(8);
     expect(content().querySelector(".verb-form-status svg")).toBeNull();
     const ott = content().querySelector<HTMLButtonElement>(".verb-form-card[aria-label^='OTT']")!;
+    expect(ott.getAttribute("role")).toBeNull();
     expect(ott.querySelector(".verb-form-card-header")?.firstElementChild?.textContent).toBe("OTT");
     expect(ott.querySelector(".verb-form-card-header")?.lastElementChild?.textContent).toBe("›");
     expect(ott.querySelector(".verb-form-example")?.textContent).toBe("NL · Ik werk vandaag thuis.");

@@ -898,8 +898,10 @@ function renderVerbMap(): HTMLElement {
   for (const [status, label, detail] of [["mastered", "Mastered", "ready to use"], ["learning", "Next / current", "learning now or next"], ["later", "Later / locked", "later or reference"]] as const) {
     const item = document.createElement("span"); item.className = `map-legend-item ${status}`;
     const meta = verbFormStatusMeta(status);
+    item.setAttribute("role", "img");
     item.setAttribute("aria-label", `${label}: ${detail}`);
-    item.append(spanText(meta.symbol, "verb-status-symbol"), spanText(label, "verb-status-label"));
+    const symbol = spanText(meta.symbol, "verb-status-symbol"); symbol.setAttribute("aria-hidden", "true");
+    item.append(symbol, spanText(label, "verb-status-label"));
     legend.append(item);
   }
   wrapper.append(legend);
@@ -916,7 +918,7 @@ function renderVerbMap(): HTMLElement {
       const displayStatus = getVerbFormDisplayStatus(form);
       const card = button("", `verb-form-card ${displayStatus}${form.dutchTense === selectedVerbFormTense ? " selected" : ""}`);
       const statusMeta = verbFormStatusMeta(displayStatus);
-      card.setAttribute("role", "gridcell"); card.setAttribute("aria-label", `${form.dutchTense}: ${form.learnerLabelEn} · ${form.fullNameNl} · ${statusMeta.label}`); card.setAttribute("aria-pressed", String(form.dutchTense === selectedVerbFormTense)); card.setAttribute("aria-selected", String(form.dutchTense === selectedVerbFormTense));
+      card.setAttribute("aria-label", `${form.dutchTense}: ${form.learnerLabelEn} · ${form.fullNameNl} · ${statusMeta.label}: ${statusMeta.detail}`); card.setAttribute("aria-pressed", String(form.dutchTense === selectedVerbFormTense)); card.setAttribute("aria-selected", String(form.dutchTense === selectedVerbFormTense));
       const status = document.createElement("span"); status.className = `verb-form-status ${displayStatus}`; status.setAttribute("aria-label", `${statusMeta.label}: ${statusMeta.detail}`); status.append(spanText(statusMeta.symbol, "verb-status-symbol"));
       const canonical = form.canonicalExample;
       const cardHeader = document.createElement("span"); cardHeader.className = "verb-form-card-header"; cardHeader.append(spanText(form.dutchTense, "verb-form-code"), status);

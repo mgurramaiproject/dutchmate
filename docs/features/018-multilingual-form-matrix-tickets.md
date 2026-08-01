@@ -18,7 +18,7 @@ Issues as its tracker and does not require a separate local issue queue.
 
 ## T01 — Expand multilingual form-record contract
 
-**Issue:** [#149](https://github.com/mgurramaiproject/dutchmate/issues/149)  
+**Issue:** [#149](https://github.com/mgurramaiproject/dutchmate/issues/149)
 **Blocked by:** None — can start immediately
 
 ### What it delivers
@@ -40,7 +40,7 @@ learner history, and consumers remain compatible during the expand phase.
 
 ## T02 — Ship Map-first `werken` Verb Map
 
-**Issue:** [#150](https://github.com/mgurramaiproject/dutchmate/issues/150)  
+**Issue:** [#150](https://github.com/mgurramaiproject/dutchmate/issues/150)
 **Blocked by:** [#149](https://github.com/mgurramaiproject/dutchmate/issues/149)
 
 ### What it delivers
@@ -66,7 +66,7 @@ accessibility, and preserved comparison/practice/navigation actions.
 
 ## T03 — Complete cross-pack coverage and qualification
 
-**Issue:** [#151](https://github.com/mgurramaiproject/dutchmate/issues/151)  
+**Issue:** [#151](https://github.com/mgurramaiproject/dutchmate/issues/151)
 **Blocked by:** [#150](https://github.com/mgurramaiproject/dutchmate/issues/150)
 
 ### What it delivers
