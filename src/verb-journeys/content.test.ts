@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { verbJourneyPack, validateVerbJourneyPack } from "./content";
+import { getVerbJourneyPack, isVerbJourneyContentAvailable, verbJourneyPack, validateVerbJourneyPack } from "./content";
 
 describe("werken Verb Journey pack", () => {
   it("provides the complete stable read-only map and staged journeys", () => {
@@ -41,5 +41,28 @@ describe("werken Verb Journey pack", () => {
     const invalid = structuredClone(verbJourneyPack);
     invalid.journeys[1].story[0].targets[0].text = "ontbreekt";
     expect(validateVerbJourneyPack(invalid)).toContain("journey.werken.vtt-completed.story[0].targets[0]: target text is not present in line");
+  });
+
+  it("adds a validated zijn pack without changing werken identity", () => {
+    const zijn = getVerbJourneyPack("verb.zijn");
+    expect(zijn).not.toBeNull();
+    expect(validateVerbJourneyPack(zijn!)).toEqual([]);
+    expect(zijn!.contentVersion).toBe("016-1");
+    expect(zijn!.verb).toMatchObject({ id: "verb.zijn", lemma: "zijn", auxiliary: "zijn" });
+    expect(zijn!.dutchForms).toHaveLength(8);
+    expect(zijn!.englishComparison).toHaveLength(12);
+    expect(zijn!.journeys).toHaveLength(6);
+    expect(zijn!.journeys.map((journey) => journey.id)).toEqual([
+      "journey.zijn.ott-identity",
+      "journey.zijn.ott-questions",
+      "journey.zijn.ovt-state",
+      "journey.zijn.vtt-experience",
+      "journey.zijn.future-conditional",
+      "journey.zijn.reference-completed",
+    ]);
+    expect(zijn!.journeys[0].story).toHaveLength(5);
+    expect(zijn!.journeys[0].story.every((line) => line.targets.every((target) => line.nl.includes(target.text)))).toBe(true);
+    expect(isVerbJourneyContentAvailable("verb.zijn")).toBe(true);
+    expect(verbJourneyPack.verb.id).toBe("verb.werken");
   });
 });

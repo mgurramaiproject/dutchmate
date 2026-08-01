@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
-import { verbJourneyPack, validateVerbJourneyPack } from "./content";
+import { verbJourneyPack, verbJourneyPacks, validateVerbJourneyPack, validateVerbJourneyRegistry } from "./content";
 import { getVerbPracticeQuestions, getVerbPracticeQuestion, validateVerbPracticeContent } from "./practice";
 
 const featureSources = [
@@ -23,6 +23,15 @@ describe("Feature 015 release qualification", () => {
     expect(verbJourneyPack.englishComparison).toHaveLength(12);
     expect(verbJourneyPack.journeys.filter((journey) => journey.kind === "core")).toHaveLength(3);
     expect(verbJourneyPack.journeys.filter((journey) => journey.kind === "core").every((journey) => journey.story.length > 0 && journey.notice)).toBe(true);
+  });
+
+  it("qualifies every authored pack and every zijn journey as playable", () => {
+    expect(validateVerbJourneyRegistry()).toEqual([]);
+    const zijn = verbJourneyPacks.find((pack) => pack.verb.id === "verb.zijn");
+    expect(zijn?.journeys).toHaveLength(6);
+    expect(zijn?.journeys.every((journey) => journey.story.length === 5 && journey.notice && journey.targetSkills.length > 0)).toBe(true);
+    const coreQuestionCounts = zijn?.journeys.map((journey) => getVerbPracticeQuestions(journey.id as never).filter((question) => question.phase !== "repair").length) ?? [];
+    expect(coreQuestionCounts).toEqual([5, 5, 5, 5, 5, 5]);
   });
 
   it("keeps the practice contract at five core questions and two repairs", () => {

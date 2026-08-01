@@ -100,3 +100,72 @@ describe("werken VTT practice", () => {
     }
   });
 });
+
+describe("zijn identity practice", () => {
+  it("provides its own five-family question set", () => {
+    const questions = getVerbPracticeQuestions("journey.zijn.ott-identity");
+    expect(questions).toHaveLength(5);
+    expect(questions.every((question) => question.verbId === "verb.zijn")).toBe(true);
+    expect(questions.map((question) => question.kind)).toEqual([
+      "choice",
+      "token-slots",
+      "choice",
+      "map-placement",
+      "token-order",
+    ]);
+  });
+
+  it("completes the zijn identity journey with controlled answers", () => {
+    let session = createVerbPracticeSession("journey.zijn.ott-identity");
+    for (const question of getVerbPracticeQuestions("journey.zijn.ott-identity")) {
+      session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+    }
+    expect(session.completed).toBe(true);
+  });
+});
+
+describe("zijn question and past-state practice", () => {
+  it.each(["journey.zijn.ott-questions", "journey.zijn.ovt-state"] as const)("keeps %s on its own five-family bank", (journeyId) => {
+    const questions = getVerbPracticeQuestions(journeyId);
+    expect(questions).toHaveLength(5);
+    expect(questions.every((question) => question.verbId === "verb.zijn" && question.journeyId === journeyId)).toBe(true);
+    expect(new Set(questions.map((question) => question.exerciseFamily))).toHaveLength(5);
+  });
+
+  it.each(["journey.zijn.ott-questions", "journey.zijn.ovt-state"] as const)("completes %s with controlled answers", (journeyId) => {
+    let session = createVerbPracticeSession(journeyId);
+    for (const question of getVerbPracticeQuestions(journeyId)) session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+    expect(session.completed).toBe(true);
+  });
+});
+
+describe("zijn past-experience practice", () => {
+  it("keeps the completed experience journey deterministic and bounded", () => {
+    const questions = getVerbPracticeQuestions("journey.zijn.vtt-experience");
+    expect(questions).toHaveLength(5);
+    expect(questions.every((question) => question.verbId === "verb.zijn" && question.journeyId === "journey.zijn.vtt-experience")).toBe(true);
+    expect(questions[4].delayedOrRecombined).toBe(true);
+  });
+
+  it("records a delayed decision as part of the existing practice session", () => {
+    let session = createVerbPracticeSession("journey.zijn.vtt-experience");
+    for (const question of getVerbPracticeQuestions("journey.zijn.vtt-experience")) session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+    expect(session.completed).toBe(true);
+    expect(session.attempts.some((attempt) => attempt.questionId.endsWith("word-order") && attempt.correct)).toBe(true);
+  });
+});
+
+describe("zijn later and reference practice", () => {
+  it.each(["journey.zijn.future-conditional", "journey.zijn.reference-completed"] as const)("keeps %s complete and playable", (journeyId) => {
+    const questions = getVerbPracticeQuestions(journeyId);
+    expect(questions).toHaveLength(5);
+    expect(questions.every((question) => question.verbId === "verb.zijn" && question.journeyId === journeyId)).toBe(true);
+    expect(new Set(questions.map((question) => question.exerciseFamily))).toHaveLength(5);
+  });
+
+  it.each(["journey.zijn.future-conditional", "journey.zijn.reference-completed"] as const)("completes %s without a placeholder path", (journeyId) => {
+    let session = createVerbPracticeSession(journeyId);
+    for (const question of getVerbPracticeQuestions(journeyId)) session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+    expect(session.completed).toBe(true);
+  });
+});

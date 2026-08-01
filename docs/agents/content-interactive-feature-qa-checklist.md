@@ -26,15 +26,21 @@ Use this checklist for a feature that combines authored content with a user flow
 - [ ] The primary flow works end to end, including back, completion, and return navigation.
 - [ ] Each content unit routes to its own exercises or detail state.
 - [ ] Start, continue, review, completed, and unavailable states use truthful labels.
+- [ ] Progress names one explicit unit and denominator: do not mix journey count, unique map-form count, and target-form-slot count.
+- [ ] Progress is derived from pack metadata rather than hardcoded journey/form totals; duplicate-target and multi-target journeys have explicit expected contributions.
 - [ ] Incorrect answers have a real retry/reset path and do not create false completion.
 - [ ] Repeated tokens/options are treated as distinct occurrences.
 - [ ] Completion and mastery/evidence remain separate concepts.
+- [ ] After queued evidence writes or stale-write recovery, the canonical persisted record is refreshed before overview, directory, Today, or Daily Five summaries render.
+- [ ] Multi-pack progress is calculated independently for every verb; evidence from one pack cannot change another pack's progress.
+- [ ] Notice comparisons identify the current journey and nearby contrast in both visual treatment and learner-facing language; important grammar structures are highlighted consistently.
 - [ ] Existing navigation, design tokens, accessibility, and narrow layouts remain intact.
 
 ## Verification evidence
 
 - [ ] Content/schema tests cover counts, IDs, references, targets, required translations, and forbidden content.
 - [ ] Pure logic tests cover answer checking, question routing, repair limits, and evidence/status transitions.
+- [ ] Pure progress tests cover repeated map forms, multi-form journeys, empty evidence, and future-pack metadata without assuming the `werken` journey count.
 - [ ] Integration tests cover the user flow, state labels, persistence/activity updates, and cross-screen return paths.
 - [ ] Focused tests pass.
 - [ ] Typecheck passes.

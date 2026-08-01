@@ -384,14 +384,13 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .journey-status-label { padding: 4px 6px; border: 1px solid var(--dm-line); border-radius: 5px; white-space: nowrap; }
 .journey-status-label.learning { border-color: var(--dm-brand-orange); background: var(--dm-paper-soft); color: var(--dm-ink-strong); }
 .journey-status-label.reference { color: var(--dm-ink-muted); }
-.verb-mastery-card { display: grid; gap: 8px; min-width: 0; padding: 11px; border: 1px solid var(--dm-line); border-left: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-soft); color: var(--dm-ink-strong); text-align: left; box-shadow: var(--dm-shadow-low); }
+.verb-mastery-card { display: grid; gap: 6px; min-width: 0; padding: 9px 10px; border: 1px solid var(--dm-line); border-left: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-soft); color: var(--dm-ink-strong); text-align: left; box-shadow: var(--dm-shadow-low); }
 .verb-progress-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; min-width: 0; }
 .verb-progress-copy { display: grid; min-width: 0; gap: 3px; }
 .verb-progress-copy .eyebrow { margin: 0; }
 .verb-progress-title { font-family: var(--dm-font-reading); font-size: var(--dm-font-size-h2); font-weight: var(--dm-weight-black); line-height: 1.05; }
 .verb-progress-count, .verb-mastery-count { color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
-.verb-mastery-map-label { color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
-.verb-progress-summary, .verb-mastery-note { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
+.verb-progress-summary { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 .verb-progress-footer { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .verb-progress-track { display: block; width: 100%; height: 6px; overflow: hidden; border-radius: var(--dm-radius-round); background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-soft)); }
 .verb-progress-track.light { background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-raised)); }
@@ -399,7 +398,6 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-progress-track.light .verb-progress-fill { background: var(--dm-brand-orange); }
 .verb-mastery-card .verb-progress-track.light { height: 9px; border: 1px solid var(--dm-ink-muted); background: var(--dm-line); }
 .verb-mastery-card .eyebrow, .verb-mastery-card .verb-mastery-count { color: var(--dm-brand-orange-deep); }
-.verb-mastery-card .verb-mastery-note { color: var(--dm-ink-muted); }
 .verb-mastery-icon { width: 22px; height: 22px; flex: 0 0 auto; color: var(--dm-brand-orange-deep); }
 .verb-mastery-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .verb-mastery-actions .button { min-height: 38px; padding: 6px 7px; font-size: var(--dm-font-size-small); }
@@ -424,6 +422,13 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-formula { margin: 0; font-family: var(--dm-font-reading); font-size: 1.02rem; font-weight: 750; }
 .verb-contrast-card { border-left: 4px solid var(--dm-brand-orange); background: var(--dm-paper-soft); }
 .verb-card-copy { margin: 0; color: var(--dm-ink-strong); }
+.verb-contrast-guide { margin: 0; color: var(--dm-ink-muted); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
+.verb-contrast-list { display: grid; gap: 5px; }
+.verb-contrast-option { display: flex; align-items: center; gap: 7px; min-width: 0; margin: 0; padding: 6px 7px; border: 1px solid var(--dm-line); border-radius: var(--dm-radius-control); background: var(--dm-paper-raised); }
+.verb-contrast-option.current { border-color: var(--dm-brand-orange); background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-raised)); }
+.verb-contrast-label { flex: 0 0 auto; padding: 3px 5px; border-radius: var(--dm-radius-round); background: var(--dm-line); color: var(--dm-ink-muted); font-size: .58rem; font-weight: var(--dm-weight-black); }
+.verb-contrast-option.current .verb-contrast-label { background: var(--dm-brand-orange); color: var(--dm-ink-strong); }
+.verb-contrast-title { min-width: 0; color: var(--dm-ink-strong); font-size: .68rem; font-weight: var(--dm-weight-black); line-height: 1.2; }
 .verb-map-legend { display: flex; flex-wrap: wrap; gap: 5px 10px; color: var(--dm-ink-muted); font-size: .61rem; font-weight: var(--dm-weight-black); }
 .map-legend-item::before { display: inline-block; width: 7px; height: 7px; margin-right: 4px; border-radius: 50%; background: var(--dm-line); content: ""; }
 .map-legend-item.mastered::before { background: var(--dm-brand-orange); }.map-legend-item.learning::before { background: var(--dm-ink-strong); }.map-legend-item.reference::before { border: 1px solid var(--dm-ink-muted); background: transparent; }
