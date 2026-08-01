@@ -6,8 +6,12 @@
 
 **Branch:** `017-hebben-journeys`, created from the clean `main` branch.
 
-**Status:** Grill and shared understanding complete; `$to-spec` and
-`$to-tickets` remain approval-gated.
+**Status:** Grill and specification complete; `$to-tickets` remains
+approval-gated.
+
+**Specification:** [017-hebben-journeys-spec.md](./017-hebben-journeys-spec.md);
+published as [GitHub issue #140](https://github.com/mgurramaiproject/dutchmate/issues/140)
+with `ready-for-agent`.
 
 ## Goal
 
@@ -129,9 +133,11 @@ Extend existing tests at these seams; do not create parallel infrastructure.
 ## Approval gates and delivery order
 
 1. Commit this plan and the `017` parking-lot update.
-2. Ask for explicit approval to invoke `$to-spec`. Only after approval create
-   and publish `docs/features/017-hebben-journeys-spec.md`.
-3. Review the specification and its proposed seams with the user.
+2. Ask for explicit approval to invoke `$to-spec`. **Completed:** the
+   specification is checked in and published as issue #140 with
+   `ready-for-agent`.
+3. Review the specification and its proposed seams with the user; the plan's
+   approved seams are carried into the specification.
 4. Ask for explicit approval to invoke `$to-tickets`. Only after approval
    create and publish `docs/features/017-hebben-journeys-tickets.md` and the
    approved GitHub issue tree.
