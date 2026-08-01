@@ -23,4 +23,9 @@ describe("verb journey evidence", () => {
     const parsed = parseVerbJourneyRecord({ contentVersion: "017-1", evidenceRevision: 0, skills: {} });
     expect(parsed).toEqual({ contentVersion: "017-1", evidenceRevision: 0, skills: {} });
   });
+
+  it("accepts a multilingual content version so existing evidence remains readable", () => {
+    const parsed = parseVerbJourneyRecord({ contentVersion: "015-2", evidenceRevision: 3, skills: {} });
+    expect(parsed).toEqual({ contentVersion: "015-2", evidenceRevision: 3, skills: {} });
+  });
 });

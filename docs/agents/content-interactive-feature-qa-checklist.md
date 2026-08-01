@@ -36,6 +36,17 @@ Use this checklist for a feature that combines authored content with a user flow
 - [ ] Notice comparisons identify the current journey and nearby contrast in both visual treatment and learner-facing language; important grammar structures are highlighted consistently.
 - [ ] Existing navigation, design tokens, accessibility, and narrow layouts remain intact.
 
+### Multilingual map surfaces
+
+For an authored map with localized form examples:
+
+- [ ] Canonical and common-use NL/EN/TE records are single sources shared by cards and detail surfaces; no runtime translation or fallback copy is shipped.
+- [ ] Cards show visible language prefixes, complete sentences, and a smaller but readable secondary treatment for EN/TE without routine ellipsis.
+- [ ] The detail surface preserves the approved content order, keeps one localized common-use section, and scrolls into view with nearest-only behavior after selection.
+- [ ] Internal status semantics remain intact behind the visual symbol mapping; the legend has visible names and symbols have precise accessible labels.
+- [ ] Selected state is visible and exposed accessibly; the contract is checked across every registered verb pack, not only the newly authored verb.
+- [ ] Long future/conditional and Telugu strings are checked in Chromium and Firefox at normal and 125% zoom with no clipping, horizontal overflow, or fixed-navigation obstruction.
+
 ## Verification evidence
 
 - [ ] Content/schema tests cover counts, IDs, references, targets, required translations, and forbidden content.

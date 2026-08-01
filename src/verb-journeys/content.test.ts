@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getVerbJourneyPack, isVerbJourneyContentAvailable, verbJourneyPack, validateVerbJourneyPack } from "./content";
+import { getVerbJourneyPack, isVerbJourneyContentAvailable, verbJourneyPack, verbJourneyPacks, validateVerbJourneyPack, validateVerbJourneyRegistry } from "./content";
 
 describe("werken Verb Journey pack", () => {
   it("provides the complete stable read-only map and staged journeys", () => {
@@ -43,11 +43,37 @@ describe("werken Verb Journey pack", () => {
     expect(validateVerbJourneyPack(invalid)).toContain("journey.werken.vtt-completed.story[0].targets[0]: target text is not present in line");
   });
 
+  it("requires complete localized form records for the multilingual content version", () => {
+    const invalid = structuredClone(verbJourneyPack);
+    invalid.contentVersion = "015-2" as never;
+    invalid.dutchForms = invalid.dutchForms.map(({ learnerLabelEn, canonicalExample, commonUsageExample, ...form }) => form) as never;
+
+    expect(validateVerbJourneyPack(invalid)).toEqual(expect.arrayContaining([
+      expect.stringContaining("learnerLabelEn"),
+      expect.stringContaining("canonicalExample"),
+      expect.stringContaining("commonUsageExample"),
+    ]));
+  });
+
+  it("accepts a migrated localized form record without changing its stable identity", () => {
+    const migrated = structuredClone(verbJourneyPack);
+    migrated.contentVersion = "015-2" as never;
+    migrated.dutchForms = migrated.dutchForms.map((form) => ({
+      ...form,
+      learnerLabelEn: form.fullNameNl,
+      canonicalExample: { nl: form.sentence, en: form.naturalEnglish, te: form.sentence },
+      commonUsageExample: { nl: form.commonUsage, en: form.naturalEnglish, te: form.sentence },
+    }));
+
+    expect(validateVerbJourneyPack(migrated)).toEqual([]);
+    expect(migrated.dutchForms.map((form) => form.id)).toEqual(verbJourneyPack.dutchForms.map((form) => form.id));
+  });
+
   it("adds a validated zijn pack without changing werken identity", () => {
     const zijn = getVerbJourneyPack("verb.zijn");
     expect(zijn).not.toBeNull();
     expect(validateVerbJourneyPack(zijn!)).toEqual([]);
-    expect(zijn!.contentVersion).toBe("016-1");
+    expect(zijn!.contentVersion).toBe("016-2");
     expect(zijn!.verb).toMatchObject({ id: "verb.zijn", lemma: "zijn", auxiliary: "zijn" });
     expect(zijn!.dutchForms).toHaveLength(8);
     expect(zijn!.englishComparison).toHaveLength(12);
@@ -70,7 +96,7 @@ describe("werken Verb Journey pack", () => {
     const hebben = getVerbJourneyPack("verb.hebben");
     expect(hebben).not.toBeNull();
     expect(validateVerbJourneyPack(hebben!)).toEqual([]);
-    expect(hebben!.contentVersion).toBe("017-1");
+    expect(hebben!.contentVersion).toBe("017-2");
     expect(hebben!.verb).toMatchObject({ id: "verb.hebben", lemma: "hebben", english: "to have", auxiliary: "hebben" });
     expect(hebben!.dutchForms).toHaveLength(8);
     expect(hebben!.englishComparison).toHaveLength(12);
@@ -90,5 +116,14 @@ describe("werken Verb Journey pack", () => {
     expect(hebben!.journeys[0].story.every((line) => line.targets.every((target) => line.nl.includes(target.text)))).toBe(true);
     expect(isVerbJourneyContentAvailable("verb.hebben")).toBe(true);
     expect(verbJourneyPack.verb.id).toBe("verb.werken");
+  });
+
+  it("qualifies all active packs with complete localized form and common-use records", () => {
+    expect(validateVerbJourneyRegistry()).toEqual([]);
+    const forms = verbJourneyPacks.flatMap((pack) => pack.dutchForms);
+    expect(forms).toHaveLength(24);
+    expect(forms.every((form) => form.learnerLabelEn && form.canonicalExample?.nl && form.canonicalExample.en && form.canonicalExample.te && form.commonUsageExample?.nl && form.commonUsageExample.en && form.commonUsageExample.te)).toBe(true);
+    expect(forms.flatMap((form) => [form.canonicalExample!.nl, form.canonicalExample!.en, form.canonicalExample!.te, form.commonUsageExample!.nl, form.commonUsageExample!.en, form.commonUsageExample!.te])).not.toContain("Unavailable");
+    expect(new Set(forms.map((form) => form.id)).size).toBe(24);
   });
 });

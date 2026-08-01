@@ -45,8 +45,12 @@ A short, staged learning path for one high-utility Dutch verb inside the existin
 _Avoid_: Verb course, verb destination tab, completed verb badge
 
 **Verb Map**:
-The stable eight-form Dutch reference for one verb, pairing onvoltooid and voltooid viewpoints across present, past, future, and future-from-past. It is a supporting reference that highlights the current journey form; advanced forms remain reference material rather than beginner mastery requirements.
+The stable eight-form Dutch reference for one verb, pairing onvoltooid and voltooid viewpoints across present, past, future, and future-from-past. Each form has reviewed Dutch, English, and Telugu example content, while the map remains a supporting reference that highlights the current journey form; advanced forms remain reference material rather than beginner mastery requirements.
 _Avoid_: Tense timeline, conjugation quiz, formal proficiency map
+
+**Multilingual form record**:
+The one reviewed Dutch, English, and Telugu canonical or common-use example attached to a Verb Map form. The same record supports the compact map card and its detail panel; it is content support for Dutch learning, not a separate translation or language-learning mode.
+_Avoid_: Translation fallback, language switch, Telugu course content
 
 **Verb skill evidence**:
 Bounded local evidence for a learner's recognition or controlled application of one verb form or usage skill through authored exercise families. It supports honest review status and does not claim independent production, full verb mastery, or formal CEFR attainment.

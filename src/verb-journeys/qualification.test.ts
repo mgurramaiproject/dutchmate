@@ -38,7 +38,7 @@ describe("Feature 015 release qualification", () => {
     const hebben = verbJourneyPacks.find((pack) => pack.verb.id === "verb.hebben");
     expect(hebben).toBeTruthy();
     expect(validateVerbJourneyRegistry()).toEqual([]);
-    expect(hebben?.contentVersion).toBe("017-1");
+    expect(hebben?.contentVersion).toBe("017-2");
     expect(hebben?.dutchForms).toHaveLength(8);
     expect(hebben?.englishComparison).toHaveLength(12);
     expect(hebben?.journeys).toHaveLength(6);
