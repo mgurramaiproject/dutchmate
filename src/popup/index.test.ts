@@ -1188,6 +1188,9 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Heb jij tijd voor een korte wandeling?"));
     button("Notice the pattern →").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Present hebben expressions"));
+    expect(content().querySelectorAll(".verb-notice-highlight").length).toBeGreaterThanOrEqual(4);
+    expect([...content().querySelectorAll<HTMLElement>(".verb-notice-highlight")].map((highlight) => highlight.textContent)).toContain("heeft");
+    expect(content().querySelectorAll(".verb-formula .verb-notice-highlight").length).toBeGreaterThan(0);
     button("Story").click();
     button("What I feel, need, and have time for").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Learning journeys"));

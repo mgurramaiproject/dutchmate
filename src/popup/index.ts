@@ -2040,7 +2040,12 @@ function renderVerbNoticeSentence(sentence: string, tense: DutchTense, verbId = 
 function renderVerbNoticeFormula(formula: string, verbId = "verb.werken"): HTMLElement {
   const element = text("", "verb-formula");
   const pack = getVerbJourneyPack(verbId) ?? verbJourneyPack;
-  appendVerbNoticeHighlights(element, formula, verbNoticeTokens("VTT", verbId).concat(pack.verb.id === "verb.zijn" ? ["was", "waren", "bent", "zijn", "geweest"] : ["werkte", "werken", "gewerkt", "hebben", "werk", "had", "heb", "zal", "zou"]));
+  const additionalTokens = pack.verb.id === "verb.zijn"
+    ? ["was", "waren", "bent", "zijn", "geweest"]
+    : pack.verb.id === "verb.hebben"
+      ? ["heb", "hebt", "heeft", "hebben", "had", "hadden", "gehad", "zal", "zou"]
+      : ["werkte", "werken", "gewerkt", "hebben", "werk", "had", "heb", "zal", "zou"];
+  appendVerbNoticeHighlights(element, formula, verbNoticeTokens("VTT", verbId).concat(additionalTokens));
   return element;
 }
 
@@ -2087,6 +2092,18 @@ function verbNoticeTokens(tense: DutchTense, verbId = "verb.werken"): string[] {
       OVTT: ["zou", "zijn"],
       VTTT: ["zal", "geweest", "zijn"],
       VVTT: ["zou", "geweest", "zijn"],
+    }[tense];
+  }
+  if (verbId === "verb.hebben") {
+    return {
+      OTT: ["heb", "hebt", "heeft", "hebben"],
+      OVT: ["had", "hadden"],
+      VTT: ["heb", "hebt", "heeft", "hebben", "gehad"],
+      VVT: ["had", "hadden", "gehad"],
+      OTTT: ["zal", "hebben"],
+      OVTT: ["zou", "hebben"],
+      VTTT: ["zal", "gehad", "hebben"],
+      VVTT: ["zou", "gehad", "hebben"],
     }[tense];
   }
   return {

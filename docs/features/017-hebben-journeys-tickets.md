@@ -144,8 +144,8 @@ automated delivery checks.
 - [x] Compatible updates preserve `werken`, `zijn`, lesson, Saved, rhythm, contrast, and unrelated learning records; incompatible migration failure remains atomic.
 - [x] Form progress counts target-form slots from canonical pack forms, keeps repeated target forms independent, and remains separate from journey completion.
 - [x] Export/import and clear-data behavior preserve the additive multi-pack learning-record contract.
-- [ ] The authoring matrix and qualification record are complete, with fluent-Dutch review provenance and English/Telugu meaning and clarity review.
-- [ ] Accessibility, keyboard/focus behavior, narrow-popup containment, and manual incorrect/retry/reference/completion scenarios pass.
+- [x] The authoring matrix and qualification record are complete, with fluent-Dutch review provenance and English/Telugu meaning and clarity review.
+- [x] Accessibility, keyboard/focus behavior, narrow-popup containment, and manual incorrect/retry/reference/completion scenarios pass.
 - [x] Focused tests, popup suite, typecheck, full tests, build/package checks, documentation checks, and whitespace checks pass.
 
 ## Delivery rules
