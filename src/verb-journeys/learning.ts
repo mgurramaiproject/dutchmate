@@ -1,4 +1,4 @@
-import { VERB_JOURNEY_CONTENT_VERSION } from "./content";
+import { VERB_JOURNEY_CONTENT_VERSION, type VerbJourneyContentVersion } from "./content";
 
 export type VerbJourneySkillStatus = "needs-practice" | "practising" | "demonstrated";
 export type VerbJourneyOutcome = "correct" | "incorrect";
@@ -26,7 +26,7 @@ export type VerbJourneySkillEvidence = {
 };
 
 export type VerbJourneyRecord = {
-  contentVersion: typeof VERB_JOURNEY_CONTENT_VERSION;
+  contentVersion: VerbJourneyContentVersion;
   evidenceRevision: number;
   skills: Record<string, VerbJourneySkillEvidence>;
 };
@@ -36,7 +36,7 @@ export type RecordVerbJourneyEvidenceInput = {
   formOrSkillId: string;
   exerciseFamily: string;
   exerciseId: string;
-  contentVersion: typeof VERB_JOURNEY_CONTENT_VERSION;
+  contentVersion: VerbJourneyContentVersion;
   result: VerbJourneyOutcome;
   delayedOrRecombined?: boolean;
   expectedEvidenceRevision: number;
@@ -85,17 +85,17 @@ export function recordVerbJourneyEvidence(record: VerbJourneyRecord, input: Reco
     evidenceRevision: (existingSkill?.evidenceRevision ?? 0) + 1,
     updatedAt: now,
   };
-  return { ...record, evidenceRevision: record.evidenceRevision + 1, skills: { ...record.skills, [skillId]: skill } };
+  return { ...record, contentVersion: input.contentVersion, evidenceRevision: record.evidenceRevision + 1, skills: { ...record.skills, [skillId]: skill } };
 }
 
 export function parseVerbJourneyRecord(value: unknown): VerbJourneyRecord | null {
-  if (!isRecord(value) || value.contentVersion !== VERB_JOURNEY_CONTENT_VERSION || !nonNegativeInteger(value.evidenceRevision) || !isRecord(value.skills)) return null;
+  if (!isRecord(value) || (value.contentVersion !== VERB_JOURNEY_CONTENT_VERSION && value.contentVersion !== "016-1") || !nonNegativeInteger(value.evidenceRevision) || !isRecord(value.skills)) return null;
   const skills: Record<string, VerbJourneySkillEvidence> = {};
   for (const [key, candidate] of Object.entries(value.skills)) {
     const parsed = parseSkill(candidate);
     if (parsed && parsed.id === key) skills[key] = parsed;
   }
-  return { contentVersion: VERB_JOURNEY_CONTENT_VERSION, evidenceRevision: value.evidenceRevision, skills };
+  return { contentVersion: value.contentVersion, evidenceRevision: value.evidenceRevision, skills };
 }
 
 function parseSkill(value: unknown): VerbJourneySkillEvidence | null {

@@ -2,6 +2,7 @@ import type { LearningItem, LearningMastery, MasteryState } from "./learning-rec
 import type { GrammarPatternId } from "../lessons/catalog";
 import type { ContrastPackId } from "../grammar/contrast";
 import type { VerbJourneySkillEvidence } from "../verb-journeys/learning";
+import type { VerbJourneyContentVersion } from "../verb-journeys/content";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
 const stateRank: Record<MasteryState, number> = { new: 0, learning: 1, familiar: 2, strong: 3 };
@@ -11,7 +12,7 @@ export type DailyFiveResult = "again" | "got-it";
 export type GrammarDailyFiveTask = { kind: "grammar"; patternId: GrammarPatternId; contentVersion: 1; exerciseId: string };
 export type GrammarDailyFiveCandidate = { task: GrammarDailyFiveTask; dueAt: number; patternOrder: number };
 export type ContrastDailyFiveTask = { kind: "contrast"; packId: ContrastPackId; contentVersion: 1; exerciseId: string };
-export type VerbJourneyDailyFiveTask = { kind: "verb"; verbId: "verb.werken"; formOrSkillId: string; contentVersion: "015-1"; exerciseFamily: string; exerciseId: string };
+export type VerbJourneyDailyFiveTask = { kind: "verb"; verbId: string; formOrSkillId: string; contentVersion: VerbJourneyContentVersion; exerciseFamily: string; exerciseId: string };
 export type DailyFivePracticeTask = GrammarDailyFiveTask | ContrastDailyFiveTask | VerbJourneyDailyFiveTask;
 export type VerbJourneyDailyFiveCandidate = { task: VerbJourneyDailyFiveTask; skill: VerbJourneySkillEvidence; dueAt: number; skillOrder: number };
 export type DailyFiveTask = { itemId: string; dimension: DailyFiveDimension } | DailyFivePracticeTask;

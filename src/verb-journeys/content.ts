@@ -1,5 +1,7 @@
 export const VERB_JOURNEY_SCHEMA_VERSION = 1;
 export const VERB_JOURNEY_CONTENT_VERSION = "015-1";
+export const ZIJN_VERB_JOURNEY_CONTENT_VERSION = "016-1";
+export type VerbJourneyContentVersion = typeof VERB_JOURNEY_CONTENT_VERSION | typeof ZIJN_VERB_JOURNEY_CONTENT_VERSION;
 
 export type DutchTense = "OTT" | "OVT" | "VTT" | "VVT" | "OTTT" | "OVTT" | "VTTT" | "VVTT";
 export type TeachingPriority = "core" | "later" | "reference";
@@ -84,8 +86,8 @@ export type JourneyRecord = {
 
 export type VerbJourneyPack = {
   schemaVersion: typeof VERB_JOURNEY_SCHEMA_VERSION;
-  contentVersion: typeof VERB_JOURNEY_CONTENT_VERSION;
-  verb: { id: string; lemma: string; english: string; level: "A1"; tags: string[]; auxiliary: "hebben" };
+  contentVersion: VerbJourneyContentVersion;
+  verb: { id: string; lemma: string; english: string; level: "A1"; tags: string[]; auxiliary: "hebben" | "zijn" };
   dutchForms: VerbFormRecord[];
   englishComparison: EnglishMapRecord[];
   journeys: JourneyRecord[];
@@ -294,11 +296,79 @@ const tenseValues = new Set<DutchTense>(["OTT", "OVT", "VTT", "VVT", "OTTT", "OV
 const englishTenseValues = new Set<EnglishTense>(["present-simple", "present-continuous", "present-perfect", "present-perfect-continuous", "past-simple", "past-continuous", "past-perfect", "past-perfect-continuous", "future-simple", "future-continuous", "future-perfect", "future-perfect-continuous"]);
 const stableId = /^[a-z0-9]+(?:[.-][a-z0-9]+)*$/u;
 
+const zijnEnglishComparison: EnglishMapRecord[] = [
+  { id: "english.zijn.present-simple", englishTense: "present-simple", group: "present", english: "I am at home today.", situation: "A present state or location.", meaningPreservingDutch: "Ik ben vandaag thuis.", commonEverydayDutch: "Ik ben vandaag thuis.", dutchAnalysis: { primaryForm: "OTT" }, mismatchNote: "Dutch uses the present form ben for a current state or location.", cefrLevel: "A1", teachingPriority: "core" },
+  { id: "english.zijn.present-continuous", englishTense: "present-continuous", group: "present", english: "I am being patient right now.", situation: "A quality or state at this moment.", meaningPreservingDutch: "Ik ben nu geduldig.", commonEverydayDutch: "Ik ben nu geduldig.", dutchAnalysis: { primaryForm: "OTT" }, mismatchNote: "English continuous be does not create a separate Dutch tense for a state.", cefrLevel: "A1", teachingPriority: "core" },
+  { id: "english.zijn.present-perfect", englishTense: "present-perfect", group: "present", english: "I have been at home today.", situation: "A completed or experienced state connected to now.", meaningPreservingDutch: "Ik ben vandaag thuis geweest.", commonEverydayDutch: "Ik ben vandaag thuis geweest.", dutchAnalysis: { primaryForm: "VTT" }, mismatchNote: "Zijn forms its perfect with zijn: ben geweest.", cefrLevel: "A2", teachingPriority: "core" },
+  { id: "english.zijn.present-perfect-continuous", englishTense: "present-perfect-continuous", group: "present", english: "I have been tired all morning.", situation: "A state continuing through the current period.", meaningPreservingDutch: "Ik ben de hele ochtend moe geweest.", commonEverydayDutch: "Ik ben de hele ochtend moe.", dutchAnalysis: { primaryForm: "OTT", alternativeForms: ["VTT"] }, mismatchNote: "Dutch often uses OTT for a current state; VTT is possible when the period is presented as completed.", cefrLevel: "A2", teachingPriority: "core" },
+  { id: "english.zijn.past-simple", englishTense: "past-simple", group: "past", english: "I was at home yesterday.", situation: "A past state or location.", meaningPreservingDutch: "Ik was gisteren thuis.", commonEverydayDutch: "Ik was gisteren thuis.", dutchAnalysis: { primaryForm: "OVT" }, mismatchNote: "Was is the singular past form of zijn for a past state or location.", cefrLevel: "A1", teachingPriority: "core" },
+  { id: "english.zijn.past-continuous", englishTense: "past-continuous", group: "past", english: "I was being careful.", situation: "A quality or state in a past situation.", meaningPreservingDutch: "Ik was voorzichtig.", commonEverydayDutch: "Ik was voorzichtig.", dutchAnalysis: { primaryForm: "OVT" }, mismatchNote: "Dutch normally uses the simple past form was for this state.", cefrLevel: "A2", teachingPriority: "core" },
+  { id: "english.zijn.past-perfect", englishTense: "past-perfect", group: "past", english: "I had been at home before noon.", situation: "An earlier past state or location.", meaningPreservingDutch: "Ik was voor de middag thuis geweest.", commonEverydayDutch: "Ik was voor de middag thuis geweest.", dutchAnalysis: { primaryForm: "VVT" }, mismatchNote: "Was geweest places the completed state before another past reference point.", cefrLevel: "A2", teachingPriority: "later" },
+  { id: "english.zijn.past-perfect-continuous", englishTense: "past-perfect-continuous", group: "past", english: "I had been tired for hours.", situation: "A continuing past state measured to a past point.", meaningPreservingDutch: "Ik was al uren moe.", commonEverydayDutch: "Ik was al uren moe.", dutchAnalysis: { primaryForm: "OVT", construction: "OVT + al + duration" }, mismatchNote: "Dutch commonly expresses the continuing state with was and a duration instead of VVT.", cefrLevel: "reference", teachingPriority: "reference" },
+  { id: "english.zijn.future-simple", englishTense: "future-simple", group: "future", english: "I will be at home tomorrow.", situation: "A future state or location.", meaningPreservingDutch: "Ik zal morgen thuis zijn.", commonEverydayDutch: "Morgen ben ik thuis.", dutchAnalysis: { primaryForm: "OTT", construction: "future time + OTT", alternativeForms: ["OTTT"] }, mismatchNote: "Dutch often uses OTT with a future time word; zal zijn makes the future explicit.", cefrLevel: "A2", teachingPriority: "later" },
+  { id: "english.zijn.future-continuous", englishTense: "future-continuous", group: "future", english: "Tomorrow at eight, I will be at home.", situation: "A state or location at a future time.", meaningPreservingDutch: "Morgen om acht uur zal ik thuis zijn.", commonEverydayDutch: "Morgen om acht uur ben ik thuis.", dutchAnalysis: { primaryForm: "OTT", construction: "future time + OTT", alternativeForms: ["OTTT"] }, mismatchNote: "The future time phrase carries much of the future meaning in everyday Dutch.", cefrLevel: "reference", teachingPriority: "reference" },
+  { id: "english.zijn.future-perfect", englishTense: "future-perfect", group: "future", english: "By Friday, I will have been at home for a week.", situation: "A completed period of being somewhere before a future point.", meaningPreservingDutch: "Vrijdag zal ik een week thuis geweest zijn.", commonEverydayDutch: "Vrijdag ben ik een week thuis geweest.", dutchAnalysis: { primaryForm: "VTTT", alternativeForms: ["VTT"] }, mismatchNote: "VTTT is explicit and formal; everyday Dutch often uses VTT with the deadline as context.", cefrLevel: "reference", teachingPriority: "reference" },
+  { id: "english.zijn.future-perfect-continuous", englishTense: "future-perfect-continuous", group: "future", english: "By Friday, I will have been tired for a week.", situation: "A continuing state measured at a future point.", meaningPreservingDutch: "Vrijdag ben ik al een week moe.", commonEverydayDutch: "Vrijdag ben ik al een week moe.", dutchAnalysis: { primaryForm: "OTT", construction: "future time + al + duration", alternativeForms: ["VTTT"] }, mismatchNote: "Dutch normally keeps the state in OTT and uses a duration rather than a separate perfect continuous tense.", cefrLevel: "reference", teachingPriority: "reference" },
+];
+
+const zijnPack: VerbJourneyPack = {
+  schemaVersion: VERB_JOURNEY_SCHEMA_VERSION,
+  contentVersion: ZIJN_VERB_JOURNEY_CONTENT_VERSION,
+  verb: { id: "verb.zijn", lemma: "zijn", english: "to be", level: "A1", tags: ["irregular", "copular"], auxiliary: "zijn" },
+  dutchForms: [
+    { id: "form.zijn.ott", dutchTense: "OTT", viewpoint: "present", completion: "onvoltooid", fullNameNl: "onvoltooid tegenwoordige tijd", sentence: "Ik ben thuis.", naturalEnglish: "I am at home.", usageMeaning: "identity, state, location, or description now", formula: "ik ben / jij bent / hij is / wij zijn", commonUsage: "Ik ben thuis. / Wij zijn klaar.", cefrLevel: "A1", teachingPriority: "core", status: "learning" },
+    { id: "form.zijn.vtt", dutchTense: "VTT", viewpoint: "present", completion: "voltooid", fullNameNl: "voltooid tegenwoordige tijd", sentence: "Ik ben thuis geweest.", naturalEnglish: "I have been at home.", usageMeaning: "a completed experience or state viewed from now", formula: "ik ben + … + geweest", commonUsage: "Ik ben daar al geweest.", cefrLevel: "A2", teachingPriority: "core", status: "next" },
+    { id: "form.zijn.ovt", dutchTense: "OVT", viewpoint: "past", completion: "onvoltooid", fullNameNl: "onvoltooid verleden tijd", sentence: "Ik was thuis.", naturalEnglish: "I was at home.", usageMeaning: "a past state, identity, or location", formula: "ik was / wij waren", commonUsage: "Ik was gisteren thuis.", cefrLevel: "A1", teachingPriority: "core", status: "later" },
+    { id: "form.zijn.vvt", dutchTense: "VVT", viewpoint: "past", completion: "voltooid", fullNameNl: "voltooid verleden tijd", sentence: "Ik was thuis geweest.", naturalEnglish: "I had been at home.", usageMeaning: "a completed state before another past reference point", formula: "ik was + … + geweest", commonUsage: "Ik was al thuis geweest voordat zij belde.", cefrLevel: "A2", teachingPriority: "later", status: "later" },
+    { id: "form.zijn.ottt", dutchTense: "OTTT", viewpoint: "future", completion: "onvoltooid", fullNameNl: "onvoltooid tegenwoordige toekomende tijd", sentence: "Ik zal thuis zijn.", naturalEnglish: "I will be at home.", usageMeaning: "an explicit future state, promise, or prediction", formula: "ik zal + … + zijn", commonUsage: "Morgen zal ik thuis zijn.", cefrLevel: "A2", teachingPriority: "later", status: "later" },
+    { id: "form.zijn.vttt", dutchTense: "VTTT", viewpoint: "future", completion: "voltooid", fullNameNl: "voltooid tegenwoordige toekomende tijd", sentence: "Ik zal thuis geweest zijn.", naturalEnglish: "I will have been at home.", usageMeaning: "a completed state before a future reference point", formula: "ik zal + … + geweest zijn", commonUsage: "Voor de lunch zal ik thuis geweest zijn.", cefrLevel: "reference", teachingPriority: "reference", status: "reference" },
+    { id: "form.zijn.ovtt", dutchTense: "OVTT", viewpoint: "future-from-past", completion: "onvoltooid", fullNameNl: "onvoltooid verleden toekomende tijd", sentence: "Ik zou thuis zijn.", naturalEnglish: "I would be at home.", usageMeaning: "a conditional or hypothetical future state", formula: "ik zou + … + zijn", commonUsage: "Als ik vrij was, zou ik thuis zijn.", cefrLevel: "A2", teachingPriority: "later", status: "later" },
+    { id: "form.zijn.vvtt", dutchTense: "VVTT", viewpoint: "future-from-past", completion: "voltooid", fullNameNl: "voltooid verleden toekomende tijd", sentence: "Ik zou thuis geweest zijn.", naturalEnglish: "I would have been at home.", usageMeaning: "an unreal or hypothetical completed state", formula: "ik zou + … + geweest zijn", commonUsage: "Als ik kon, zou ik thuis geweest zijn.", cefrLevel: "reference", teachingPriority: "reference", status: "reference" },
+  ],
+  englishComparison: zijnEnglishComparison,
+  journeys: [{
+    id: "journey.zijn.ott-identity", verbId: "verb.zijn", title: "Who I am today", subtitle: "OTT · identity, state, and description", level: "A1", kind: "core", status: "next", targetForms: ["OTT"], targetSkills: ["skill.zijn.ott-identity"], learningGoal: "Use ben, bent, is, and zijn for a present identity, state, or description.", estimatedMinutes: 3, storyTitle: "Een rustige dag",
+    story: [
+      { id: "story.zijn.ott.1", nl: "Ik ben vandaag rustig.", english: "I am calm today.", telugu: "ఈ రోజు నేను ప్రశాంతంగా ఉన్నాను.", targets: [{ text: "ben", skillIds: ["skill.zijn.ott-identity"] }] },
+      { id: "story.zijn.ott.2", nl: "Ik ben thuis en ik ben klaar.", english: "I am at home and I am ready.", telugu: "నేను ఇంట్లో ఉన్నాను మరియు సిద్ధంగా ఉన్నాను.", targets: [{ text: "ben", skillIds: ["skill.zijn.ott-identity"] }] },
+      { id: "story.zijn.ott.3", nl: "Ik ben blij met mijn nieuwe kamer.", english: "I am happy with my new room.", telugu: "నా కొత్త గది నాకు సంతోషంగా ఉంది.", targets: [{ text: "ben", skillIds: ["skill.zijn.ott-identity"] }] },
+      { id: "story.zijn.ott.4", nl: "Vandaag ben ik hier.", english: "Today I am here.", telugu: "ఈ రోజు నేను ఇక్కడ ఉన్నాను.", targets: [{ text: "ben", skillIds: ["skill.zijn.ott-identity"] }] },
+      { id: "story.zijn.ott.5", nl: "Ik ben niet alleen; mijn vrienden zijn hier.", english: "I am not alone; my friends are here.", telugu: "నేను ఒంటరిగా లేను; నా స్నేహితులు ఇక్కడ ఉన్నారు.", targets: [{ text: "ben", skillIds: ["skill.zijn.ott-identity"] }, { text: "zijn", skillIds: ["skill.zijn.ott-identity"] }] },
+    ],
+    notice: { id: "notice.zijn.ott-identity", title: "The present forms of zijn", subtitle: "The subject decides which present form belongs in the sentence.", comparison: [
+      { label: "ik", tense: "OTT", sentence: "Ik ben vandaag rustig.", meaning: "ben follows ik" },
+      { label: "jij", tense: "OTT", sentence: "Jij bent vandaag rustig.", meaning: "bent follows jij" },
+      { label: "hij / het", tense: "OTT", sentence: "Hij is vandaag rustig.", meaning: "is follows hij or het" },
+      { label: "wij", tense: "OTT", sentence: "Wij zijn vandaag rustig.", meaning: "zijn follows wij" },
+    ], formula: "ik ben · jij bent · hij/het is · wij zijn", formulaNote: "Learn this as a bounded present-tense contrast. This journey does not claim full unconstrained production.", valuableContrast: "Ben, bent, is, and zijn are all present forms of zijn. Choose the form from the subject: ik ben, jij bent, hij is, wij zijn." },
+  }],
+};
+
+export const verbJourneyPacks: VerbJourneyPack[] = [verbJourneyPack, zijnPack];
+
+export function getVerbJourneyPack(verbId: string): VerbJourneyPack | null {
+  return verbJourneyPacks.find((pack) => pack.verb.id === verbId) ?? null;
+}
+
+export function getVerbJourneyContentVersion(verbId: string): VerbJourneyContentVersion | null {
+  return getVerbJourneyPack(verbId)?.contentVersion ?? null;
+}
+
+export function validateVerbJourneyRegistry(packs: readonly VerbJourneyPack[] = verbJourneyPacks): string[] {
+  const errors = packs.flatMap((pack) => validateVerbJourneyPack(pack).map((error) => `${pack.verb.id}: ${error}`));
+  const ids = new Set<string>();
+  for (const pack of packs) for (const journey of pack.journeys) {
+    if (ids.has(journey.id)) errors.push(`${journey.id}: duplicate registry identifier`);
+    ids.add(journey.id);
+  }
+  return errors;
+}
+
 export function validateVerbJourneyPack(pack: VerbJourneyPack): string[] {
   const errors: string[] = [];
   if (pack.schemaVersion !== VERB_JOURNEY_SCHEMA_VERSION) errors.push("schemaVersion: unsupported version");
-  if (pack.contentVersion !== VERB_JOURNEY_CONTENT_VERSION) errors.push("contentVersion: unsupported version");
-  if (pack.verb.id !== "verb.werken" || pack.verb.lemma !== "werken" || pack.verb.auxiliary !== "hebben") errors.push("verb: expected the reviewed werken record");
+  if (pack.contentVersion !== VERB_JOURNEY_CONTENT_VERSION && pack.contentVersion !== ZIJN_VERB_JOURNEY_CONTENT_VERSION) errors.push("contentVersion: unsupported version");
+  if (!stableId.test(pack.verb.id) || !pack.verb.lemma || !pack.verb.english || !pack.verb.tags.length || !["hebben", "zijn"].includes(pack.verb.auxiliary)) errors.push("verb: incomplete verb record");
   const ids = new Set<string>();
   const addId = (id: string, field: string) => {
     if (!stableId.test(id)) errors.push(`${field}: expected a stable identifier`);
@@ -353,21 +423,21 @@ export function validateVerbJourneyPack(pack: VerbJourneyPack): string[] {
       if (!journey.notice.title || !journey.notice.subtitle || !journey.notice.formula || !journey.notice.formulaNote || !journey.notice.valuableContrast) errors.push(`${journey.id}.notice: incomplete notice content`);
     }
   }
-  if (pack.journeys.length < 6) errors.push("journeys: expected core and later/reference coverage");
   if (skills.size === 0) errors.push("journeys: expected stable skill identifiers");
   return errors;
 }
 
-export function isVerbJourneyContentAvailable(): boolean {
-  return validateVerbJourneyPack(verbJourneyPack).length === 0;
+export function isVerbJourneyContentAvailable(verbId = "verb.werken"): boolean {
+  const pack = getVerbJourneyPack(verbId);
+  return pack !== null && validateVerbJourneyPack(pack).length === 0;
 }
 
 export function getVerbJourney(id: string): JourneyRecord | null {
-  return verbJourneyPack.journeys.find((journey) => journey.id === id) ?? null;
+  return verbJourneyPacks.flatMap((pack) => pack.journeys).find((journey) => journey.id === id) ?? null;
 }
 
-export function getVerbForm(tense: DutchTense): VerbFormRecord | null {
-  return verbJourneyPack.dutchForms.find((form) => form.dutchTense === tense) ?? null;
+export function getVerbForm(tense: DutchTense, verbId = "verb.werken"): VerbFormRecord | null {
+  return getVerbJourneyPack(verbId)?.dutchForms.find((form) => form.dutchTense === tense) ?? null;
 }
 
 export function isVerbJourneyPlayable(journey: JourneyRecord): boolean {

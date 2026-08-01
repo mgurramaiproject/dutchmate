@@ -100,3 +100,26 @@ describe("werken VTT practice", () => {
     }
   });
 });
+
+describe("zijn identity practice", () => {
+  it("provides its own five-family question set", () => {
+    const questions = getVerbPracticeQuestions("journey.zijn.ott-identity");
+    expect(questions).toHaveLength(5);
+    expect(questions.every((question) => question.verbId === "verb.zijn")).toBe(true);
+    expect(questions.map((question) => question.kind)).toEqual([
+      "choice",
+      "token-slots",
+      "choice",
+      "map-placement",
+      "token-order",
+    ]);
+  });
+
+  it("completes the zijn identity journey with controlled answers", () => {
+    let session = createVerbPracticeSession("journey.zijn.ott-identity");
+    for (const question of getVerbPracticeQuestions("journey.zijn.ott-identity")) {
+      session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+    }
+    expect(session.completed).toBe(true);
+  });
+});

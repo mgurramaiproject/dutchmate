@@ -4,9 +4,9 @@ export type VerbPracticeAnswer = string | string[];
 
 export type VerbPracticeQuestion = {
   id: string;
-  verbId: "verb.werken";
+  verbId: string;
   journeyId: VerbPracticeJourneyId;
-  formOrSkillId: "skill.werken.ott-routine" | "skill.werken.vtt-completed" | "skill.werken.ovt-background" | "skill.werken.vvt-earlier-past" | "skill.werken.future-possibility" | "skill.werken.reference-completed-future";
+  formOrSkillId: string;
   exerciseFamily: string;
   delayedOrRecombined?: boolean;
   kind: VerbPracticeKind;
@@ -36,7 +36,7 @@ export type VerbPracticeSession = {
   completed: boolean;
 };
 
-export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future";
+export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity";
 const defaultJourneyId: VerbPracticeJourneyId = "journey.werken.vtt-completed";
 
 type AuthoredVerbPracticeQuestion = Omit<VerbPracticeQuestion, "journeyId">;
@@ -217,6 +217,29 @@ const completedFutureRepairs: AuthoredVerbPracticeQuestion[] = [
   { id: "exercise.werken.completed-future.repair-order", verbId: "verb.werken", formOrSkillId: "skill.werken.reference-completed-future", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the completed-future word order.", context: "Tegen vrijdag …", tokens: ["Tegen", "vrijdag", "zal", "ik", "gewerkt", "hebben."], accepted: ["Tegen vrijdag zal ik gewerkt hebben."], feedback: "Correct. The finite auxiliary zal stays before ik.", incorrectFeedback: "After Tegen vrijdag, put zal before ik: Tegen vrijdag zal ik gewerkt hebben." },
 ];
 
+const zijnIdentityQuestions: AuthoredVerbPracticeQuestion[] = [
+  {
+    id: "exercise.zijn.ott-identity.meaning", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "meaning", kind: "choice", prompt: "What does this sentence describe?", context: "Ik ben vandaag rustig.", choices: ["A present state", "A completed past experience", "A conditional possibility"], accepted: ["A present state"], feedback: "Correct. Ben describes a present state with ik.", incorrectFeedback: "Vandaag and ben show a present state: Ik ben vandaag rustig.", repairIds: ["exercise.zijn.ott-identity.repair-person", "exercise.zijn.ott-identity.repair-order"],
+  },
+  {
+    id: "exercise.zijn.ott-identity.construct", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "construction", kind: "token-slots", prompt: "Build the present phrase with taps.", context: "Complete: Ik ___ vandaag rustig.", tokens: ["ben", "bent", "is"], accepted: ["ben"], feedback: "Correct. Ik takes ben.", incorrectFeedback: "With ik, use ben: Ik ben vandaag rustig.",
+  },
+  {
+    id: "exercise.zijn.ott-identity.natural-translation", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the best everyday answer.", context: "A friend asks how you feel today.", choices: ["Ik ben vandaag rustig.", "Ik was gisteren rustig.", "Ik zou rustig zijn."], accepted: ["Ik ben vandaag rustig."], feedback: "Correct. The present form ben fits today’s state.", incorrectFeedback: "For a state today, choose Ik ben vandaag rustig.",
+  },
+  {
+    id: "exercise.zijn.ott-identity.map-placement", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this sentence belong?", context: "Ik ben vandaag rustig.", choices: ["OTT · onvoltooid tegenwoordige tijd", "OVT · onvoltooid verleden tijd", "VTT · voltooid tegenwoordige tijd", "OTTT · onvoltooid tegenwoordige toekomende tijd"], accepted: ["OTT · onvoltooid tegenwoordige tijd"], feedback: "Correct. Ben is the present form in this sentence.", incorrectFeedback: "Ik ben vandaag rustig is OTT: a present state.",
+  },
+  {
+    id: "exercise.zijn.ott-identity.word-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the words in the correct order.", context: "Start with the time phrase: Vandaag …", tokens: ["Vandaag", "ben", "ik", "hier."], accepted: ["Vandaag ben ik hier."], feedback: "Correct. After Vandaag, ben comes before ik.", incorrectFeedback: "Keep the finite verb in second position: Vandaag ben ik hier.",
+  },
+];
+
+const zijnIdentityRepairs: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.zijn.ott-identity.repair-person", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "repair-person", kind: "choice", prompt: "Repair the present form.", context: "Ik ___ vandaag rustig.", choices: ["ben", "bent", "is"], accepted: ["ben"], feedback: "Correct. Ik takes ben.", incorrectFeedback: "The present form after ik is ben." },
+  { id: "exercise.zijn.ott-identity.repair-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.ott-identity", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the word order.", context: "Vandaag …", tokens: ["Vandaag", "ben", "ik", "hier."], accepted: ["Vandaag ben ik hier."], feedback: "Correct. Ben stays before ik after Vandaag.", incorrectFeedback: "Use second-position word order: Vandaag ben ik hier." },
+];
+
 function assignJourneyId(journeyId: VerbPracticeJourneyId, pack: AuthoredVerbPracticePack): VerbPracticePack {
   return { questions: pack.questions.map((question) => ({ ...question, journeyId })), repairs: pack.repairs.map((question) => ({ ...question, journeyId })) };
 }
@@ -228,6 +251,7 @@ const practicePacks: Record<VerbPracticeJourneyId, VerbPracticePack> = {
   "journey.werken.vvt-earlier-past": assignJourneyId("journey.werken.vvt-earlier-past", { questions: vvtQuestions, repairs: vvtRepairs }),
   "journey.werken.future-possibility": assignJourneyId("journey.werken.future-possibility", { questions: futurePossibilityQuestions, repairs: futurePossibilityRepairs }),
   "journey.werken.reference-completed-future": assignJourneyId("journey.werken.reference-completed-future", { questions: completedFutureQuestions, repairs: completedFutureRepairs }),
+  "journey.zijn.ott-identity": assignJourneyId("journey.zijn.ott-identity", { questions: zijnIdentityQuestions, repairs: zijnIdentityRepairs }),
 };
 const allPracticeQuestions = Object.values(practicePacks).flatMap((pack) => [...pack.questions, ...pack.repairs]);
 const questionById = new Map(allPracticeQuestions.map((question) => [question.id, question]));
