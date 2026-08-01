@@ -120,12 +120,12 @@ but never creates a placeholder, lock, or misleading beginner-gate message.
 
 **Blocked by:** T04 — Add bounded auxiliary-perfect journey.
 
-- [ ] The journey distinguishes future plans or predictions from conditional possibilities using authored situations for `zal hebben` and `zou hebben`.
-- [ ] Advanced VTTT and VVTT variants are complete, clearly labelled, and connected to the eight-form map and twelve-pattern comparison.
-- [ ] The journey has five authored questions, bounded repairs, evidence, completion, and return behavior.
-- [ ] The complete `hebben` pack contains six complete journeys, eight Dutch map forms, twelve English comparisons, stable references, and no placeholder content.
-- [ ] All six journeys route to their own question sets and share deterministic map/comparison, accessibility, and progress behavior.
-- [ ] Focused qualification, content, practice, popup, typecheck, and build checks pass without regressions to T04 or earlier verb packs.
+- [x] The journey distinguishes future plans or predictions from conditional possibilities using authored situations for `zal hebben` and `zou hebben`.
+- [x] Advanced VTTT and VVTT variants are complete, clearly labelled, and connected to the eight-form map and twelve-pattern comparison.
+- [x] The journey has five authored questions, bounded repairs, evidence, completion, and return behavior.
+- [x] The complete `hebben` pack contains six complete journeys, eight Dutch map forms, twelve English comparisons, stable references, and no placeholder content.
+- [x] All six journeys route to their own question sets and share deterministic map/comparison, accessibility, and progress behavior.
+- [x] Focused qualification, content, practice, popup, typecheck, and build checks pass without regressions to T04 or earlier verb packs.
 
 ## T06 — Connect review and qualify the complete package
 

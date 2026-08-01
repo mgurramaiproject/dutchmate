@@ -1219,6 +1219,17 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Choosing the practical auxiliary"));
   });
 
+  it("routes the complete hebben future-reference journey without a placeholder state", async () => {
+    button("Lessons").click();
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable")][2].click();
+    await vi.waitFor(() => expect(content().textContent).toContain("What I will and would have"));
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((entry) => entry.textContent?.includes("What I will and would have"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Morgen zal ik meer tijd hebben."));
+    button("Notice the pattern →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Looking ahead with hebben"));
+  });
+
   it("counts two mastered zijn journeys even when both use the OTT map form", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());

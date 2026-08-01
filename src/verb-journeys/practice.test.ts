@@ -192,6 +192,21 @@ describe("hebben auxiliary-perfect practice", () => {
   });
 });
 
+describe("hebben future-reference practice", () => {
+  it("keeps future, conditional, and advanced perfect variants on one complete bank", () => {
+    const questions = getVerbPracticeQuestions("journey.hebben.future-reference");
+    expect(questions).toHaveLength(5);
+    expect(questions.every((question) => question.verbId === "verb.hebben" && question.journeyId === "journey.hebben.future-reference")).toBe(true);
+    expect(questions[4].delayedOrRecombined).toBe(true);
+  });
+
+  it("completes the future-reference journey with controlled answers", () => {
+    let session = createVerbPracticeSession("journey.hebben.future-reference");
+    for (const question of getVerbPracticeQuestions("journey.hebben.future-reference")) session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+    expect(session.completed).toBe(true);
+  });
+});
+
 describe("zijn question and past-state practice", () => {
   it.each(["journey.zijn.ott-questions", "journey.zijn.ovt-state"] as const)("keeps %s on its own five-family bank", (journeyId) => {
     const questions = getVerbPracticeQuestions(journeyId);
