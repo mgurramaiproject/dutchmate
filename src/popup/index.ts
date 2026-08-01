@@ -2039,14 +2039,13 @@ function renderVerbNoticeSentence(sentence: string, tense: DutchTense, verbId = 
 
 function renderVerbNoticeFormula(formula: string, verbId = "verb.werken"): HTMLElement {
   const element = text("", "verb-formula");
-  const pack = getVerbJourneyPack(verbId) ?? verbJourneyPack;
-  const additionalTokens = pack.verb.id === "verb.zijn"
-    ? ["was", "waren", "bent", "zijn", "geweest"]
-    : pack.verb.id === "verb.hebben"
-      ? ["heb", "hebt", "heeft", "hebben", "had", "hadden", "gehad", "zal", "zou"]
-      : ["werkte", "werken", "gewerkt", "hebben", "werk", "had", "heb", "zal", "zou"];
-  appendVerbNoticeHighlights(element, formula, verbNoticeTokens("VTT", verbId).concat(additionalTokens));
+  appendVerbNoticeHighlights(element, formula, verbNoticeFormulaTokens(verbId));
   return element;
+}
+
+function verbNoticeFormulaTokens(verbId = "verb.werken"): string[] {
+  const pack = getVerbJourneyPack(verbId) ?? verbJourneyPack;
+  return [...new Set(pack.dutchForms.flatMap(({ dutchTense }) => verbNoticeTokens(dutchTense, verbId)))];
 }
 
 function appendVerbNoticeHighlights(parent: HTMLElement, value: string, tokens: string[]): void {

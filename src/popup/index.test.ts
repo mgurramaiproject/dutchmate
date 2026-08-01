@@ -1198,6 +1198,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Gisteren had ik meer tijd."));
     button("Notice the pattern →").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Looking back with had"));
+    expect([...content().querySelectorAll<HTMLElement>(".verb-formula .verb-notice-highlight")].map((highlight) => highlight.textContent)).toContain("hadden");
   });
 
   it("routes the hebben completed-experience journey through its own story and notice", async () => {
