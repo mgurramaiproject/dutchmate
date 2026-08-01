@@ -13,7 +13,7 @@ import { applyContrastOutcome, applyContrastRepairOutcome, getContrastRepairExer
 import type { ContrastMisconceptionCode } from "../grammar/contrast";
 import { getMisconceptionDefinition } from "../grammar/misconceptions";
 import { createVerbJourneyRecord, parseVerbJourneyRecord, recordVerbJourneyEvidence, type RecordVerbJourneyEvidenceInput, type VerbJourneyRecord } from "../verb-journeys/learning";
-import { getVerbJourney, getVerbJourneyContentVersion, isVerbJourneyContentAvailable, isVerbJourneyPlayable } from "../verb-journeys/content";
+import { getVerbJourney, getVerbJourneyContentVersion, isVerbJourneyContentAvailable, isVerbJourneyPlayable, verbJourneyPacks } from "../verb-journeys/content";
 import { getVerbPracticeQuestion, getVerbPracticeQuestionsForSkill } from "../verb-journeys/practice";
 
 export const LEARNING_RECORD_STORAGE_KEY = "dutchmate.learningRecord.v2";
@@ -159,7 +159,7 @@ export class LearningRecordStore {
   async recordVerbJourneyResult(input: RecordVerbJourneyEvidenceInput): Promise<{ verbJourneys: VerbJourneyRecord; recorded: boolean }> {
     const record = await this.readMigrated();
     const exercise = getVerbPracticeQuestion(input.exerciseId);
-    if (!isVerbJourneyContentAvailable() || input.contentVersion !== "015-1" || !exercise || exercise.verbId !== input.verbId || exercise.formOrSkillId !== input.formOrSkillId || exercise.exerciseFamily !== input.exerciseFamily) throw new Error("This verb journey exercise is unavailable.");
+    if (!isVerbJourneyContentAvailable(input.verbId) || input.contentVersion !== getVerbJourneyContentVersion(input.verbId) || !exercise || exercise.verbId !== input.verbId || exercise.formOrSkillId !== input.formOrSkillId || exercise.exerciseFamily !== input.exerciseFamily) throw new Error("This verb journey exercise is unavailable.");
     if (record.verbJourneys.evidenceRevision !== input.expectedEvidenceRevision) return { verbJourneys: record.verbJourneys, recorded: false };
     record.verbJourneys = recordVerbJourneyEvidence(record.verbJourneys, input, this.now());
     await this.write(record);
@@ -169,7 +169,7 @@ export class LearningRecordStore {
   async recordVerbJourneyCompletion(journeyId: string): Promise<LearningRhythm> {
     const record = await this.readMigrated();
     const journey = getVerbJourney(journeyId);
-    if (!isVerbJourneyContentAvailable() || !journey || !isVerbJourneyPlayable(journey)) throw new Error("This verb journey is unavailable.");
+    if (!journey || !isVerbJourneyContentAvailable(journey.verbId) || !isVerbJourneyPlayable(journey)) throw new Error("This verb journey is unavailable.");
     const timestamp = this.now();
     record.rhythm = { ...record.rhythm, ...withActiveDay(record.rhythm, timestamp, "lessonCompletions"), ...withActivity(record.rhythm, timestamp, { lessons: 1 }) };
     await this.write(record);
@@ -289,7 +289,7 @@ export class LearningRecordStore {
       }), now, contrastExercise ? 1 : 2)
       : [];
     const contrastTasks: ContrastDailyFiveTask[] = contrastExercise ? [{ kind: "contrast", packId: CONTRAST_PACK_ID, contentVersion: CONTRAST_CONTENT_VERSION, exerciseId: contrastExercise.id }] : [];
-    const verbTasks = isVerbJourneyContentAvailable()
+    const verbTasks = verbJourneyPacks.some((pack) => isVerbJourneyContentAvailable(pack.verb.id))
       ? selectVerbJourneyDailyFiveTasks(Object.values(record.verbJourneys.skills).flatMap((skill, skillOrder) => {
         const questions = getVerbPracticeQuestionsForSkill(skill.formOrSkillId);
         const question = questions.find((candidate) => !skill.exerciseFamilies[candidate.exerciseFamily]?.exerciseIds.includes(candidate.id)) ?? questions[0];
@@ -353,7 +353,7 @@ export class LearningRecordStore {
     const snapshot = parseDailyFiveSnapshot(record.rhythm.dailyFive);
     const task = snapshot?.tasks.find((candidate): candidate is VerbJourneyDailyFiveTask => isVerbJourneyTask(candidate) && taskId(candidate) === taskId(input.task));
     const exercise = getVerbPracticeQuestion(input.task.exerciseId);
-    if (!isVerbJourneyContentAvailable() || !snapshot || !task || !exercise || exercise.verbId !== input.task.verbId || exercise.formOrSkillId !== input.task.formOrSkillId || exercise.exerciseFamily !== input.task.exerciseFamily || exercise.id !== input.task.exerciseId) throw new Error("This Verb Journey task is unavailable.");
+    if (!isVerbJourneyContentAvailable(input.task.verbId) || input.task.contentVersion !== getVerbJourneyContentVersion(input.task.verbId) || !snapshot || !task || !exercise || exercise.verbId !== input.task.verbId || exercise.formOrSkillId !== input.task.formOrSkillId || exercise.exerciseFamily !== input.task.exerciseFamily || exercise.id !== input.task.exerciseId) throw new Error("This Verb Journey task is unavailable.");
     if (snapshot.completedTaskIds.includes(taskId(task))) return { verbJourneys: record.verbJourneys, snapshot };
     if (record.verbJourneys.evidenceRevision !== input.expectedEvidenceRevision) return { verbJourneys: record.verbJourneys, snapshot };
     const timestamp = this.now();
@@ -668,7 +668,7 @@ function isGrammarTask(value: unknown): value is Extract<DailyFiveTask, { kind: 
   return pattern !== undefined && pattern.exercises.some((exercise) => exercise.id === value.exerciseId);
 }
 function isContrastTask(value: unknown): value is Extract<DailyFiveTask, { kind: "contrast" }> { return isRecord(value) && value.kind === "contrast" && value.packId === CONTRAST_PACK_ID && value.contentVersion === CONTRAST_CONTENT_VERSION && typeof value.exerciseId === "string" && contrastPack.exercises.some((exercise) => exercise.id === value.exerciseId); }
-function isVerbJourneyTask(value: unknown): value is VerbJourneyDailyFiveTask { if (!isRecord(value) || value.kind !== "verb" || typeof value.verbId !== "string" || (value.contentVersion !== "015-1" && value.contentVersion !== "016-1") || typeof value.formOrSkillId !== "string" || typeof value.exerciseFamily !== "string" || typeof value.exerciseId !== "string") return false; const exercise = getVerbPracticeQuestion(value.exerciseId); return isVerbJourneyContentAvailable(value.verbId) && exercise?.verbId === value.verbId && exercise.formOrSkillId === value.formOrSkillId && exercise.exerciseFamily === value.exerciseFamily; }
+function isVerbJourneyTask(value: unknown): value is VerbJourneyDailyFiveTask { if (!isRecord(value) || value.kind !== "verb" || typeof value.verbId !== "string" || (value.contentVersion !== "015-1" && value.contentVersion !== "016-1") || typeof value.formOrSkillId !== "string" || typeof value.exerciseFamily !== "string" || typeof value.exerciseId !== "string") return false; const exercise = getVerbPracticeQuestion(value.exerciseId); return isVerbJourneyContentAvailable(value.verbId) && value.contentVersion === getVerbJourneyContentVersion(value.verbId) && exercise?.verbId === value.verbId && exercise.formOrSkillId === value.formOrSkillId && exercise.exerciseFamily === value.exerciseFamily; }
 function parseGrammarRecords(value: unknown): Record<string, GrammarRecord> { if (!isRecord(value)) return {}; const result: Record<string, GrammarRecord> = {}; for (const [key, candidate] of Object.entries(value)) { const parsed = parseGrammarRecord(candidate); if (parsed && key === parsed.patternId) result[key] = parsed; } return result; }
 function parseGrammarRecordsStrict(value: unknown, durable: boolean): Record<string, GrammarRecord> {
   if (value === undefined && !durable) return {};
