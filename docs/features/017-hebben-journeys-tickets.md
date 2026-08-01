@@ -146,7 +146,7 @@ automated delivery checks.
 - [x] Export/import and clear-data behavior preserve the additive multi-pack learning-record contract.
 - [ ] The authoring matrix and qualification record are complete, with fluent-Dutch review provenance and English/Telugu meaning and clarity review.
 - [ ] Accessibility, keyboard/focus behavior, narrow-popup containment, and manual incorrect/retry/reference/completion scenarios pass.
-- [ ] Focused tests, popup suite, typecheck, full tests, build/package checks, documentation checks, and whitespace checks pass.
+- [x] Focused tests, popup suite, typecheck, full tests, build/package checks, documentation checks, and whitespace checks pass.
 
 ## Delivery rules
 
