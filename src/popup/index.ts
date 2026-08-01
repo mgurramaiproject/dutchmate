@@ -663,7 +663,8 @@ function renderVerbJourneys(): HTMLElement {
 function getActiveVerbJourneyPack() { return getVerbJourneyPack(activeVerbId) ?? verbJourneyPack; }
 
 function getVerbJourneyProgress(pack = getActiveVerbJourneyPack()): { completedForms: number; totalForms: number; percentage: number } {
-  const completedForms = pack.dutchForms.filter((form) => getVerbFormEvidence(form, pack).length > 0).length;
+  // Count authored journey evidence independently; two journeys can share one map tense.
+  const completedForms = pack.journeys.filter((journey) => journey.targetSkills.some((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).some((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId))).length;
   const totalForms = pack.dutchForms.length;
   return { completedForms, totalForms, percentage: totalForms === 0 ? 0 : Math.round((completedForms / totalForms) * 100) };
 }
