@@ -1,5 +1,10 @@
 # DutchMate 8-Form Matrix — Multilingual Card & Detail Panel Implementation Plan
 
+> The approved, feature-coded source of truth for this handoff is [Feature
+> 018: Multilingual 8-Form Matrix](../018-multilingual-form-matrix-plan.md).
+> This file is retained as the originating detailed handoff; update the
+> feature-coded plan before creating the spec or tickets.
+
 ## Goal
 
 Improve the existing 8-Dutch-forms matrix so that each tense card remains useful at a glance while showing:
