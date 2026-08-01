@@ -1059,7 +1059,7 @@ describe("lesson popup", () => {
     [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I completed"))!.click();
     await vi.waitFor(() => expect(content().textContent).toContain("Een drukke werkdag"));
     expect(content().textContent).toContain("Report one completed work event from a recent situation.");
-    expect(content().textContent).toContain("Gisteren heeft het team op kantoor gewerkt.");
+    expect(content().textContent).toContain("Gisteren heb ik op kantoor gewerkt.");
     expect(content().querySelectorAll(".verb-story-telugu").length).toBeGreaterThan(0);
     button("Notice the pattern →").click();
     await vi.waitFor(() => expect(content().textContent).toContain("The completed event"));
