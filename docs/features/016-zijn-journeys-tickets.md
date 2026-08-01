@@ -15,6 +15,10 @@
 [#138](https://github.com/mgurramaiproject/dutchmate/issues/138). All are
 open and labeled `ready-for-agent`.
 
+**Delivery Project:** Not reconciled in this handoff. The intended read-only
+GitHub Projects query failed because the current OAuth token lacks the
+`read:project` scope; no project mutation was attempted.
+
 ## Dependency map
 
 ```text
