@@ -555,8 +555,9 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-form-card.selected { border-color: var(--dm-ink-strong); background: var(--dm-paper-soft); box-shadow: inset 0 0 0 2px var(--dm-ink-strong); }
 .verb-form-card.reference { background: color-mix(in srgb, var(--dm-info) 5%, var(--dm-paper-raised)); }
 .verb-map-legend { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.map-legend-item { display: grid; min-height: 26px; place-items: center; padding: 3px 5px; }
+.map-legend-item { display: grid; grid-template-columns: auto minmax(0, max-content); min-height: 26px; place-items: center; justify-content: center; gap: 4px; padding: 3px 5px; }
 .verb-status-symbol { color: currentColor; font-size: .9rem; font-weight: var(--dm-weight-black); line-height: 1; }
+.verb-form-card-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px; min-width: 0; }
 .verb-form-status { display: flex; align-items: center; min-width: 0; min-height: 12px; font-size: .68rem; font-weight: var(--dm-weight-black); line-height: 1; }
 .verb-form-status .verb-status-symbol { font-size: .78rem; }
 .verb-form-example, .verb-form-example-en, .verb-form-example-te { min-width: 0; overflow-wrap: anywhere; }
@@ -566,6 +567,13 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-detail-label { color: var(--dm-ink-strong); font-size: .88rem; font-weight: var(--dm-weight-black); }
 .verb-detail-dutch-name { color: var(--dm-ink-muted); font-size: .72rem; }
 .verb-detail-canonical-en, .verb-detail-canonical-te { color: var(--dm-ink-muted); font-family: var(--dm-font-reading); font-size: .78rem; line-height: 1.25; }
+.verb-detail-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.verb-detail-code { margin: 0; color: var(--dm-ink-strong); font-size: .95rem; font-weight: var(--dm-weight-black); }
+.verb-detail-status { color: var(--dm-brand-orange-deep); font-size: .68rem; font-weight: var(--dm-weight-black); text-transform: uppercase; }
+.verb-detail-canonical, .verb-detail-common-use { display: grid; gap: 4px; min-width: 0; }
+.verb-detail-section-label { margin: 0; color: var(--dm-brand-orange-deep); font-size: .65rem; font-weight: var(--dm-weight-black); letter-spacing: .04em; text-transform: uppercase; }
+.verb-detail-localized-line { margin: 0; color: var(--dm-ink-muted); font-family: var(--dm-font-reading); font-size: .78rem; line-height: 1.25; overflow-wrap: anywhere; }
+.verb-detail-canonical .verb-detail-example { color: var(--dm-ink-strong); font-size: .92rem; font-weight: 750; }
 
 @media (max-width: 360px) {
   .popup-content { padding-inline: 16px; }

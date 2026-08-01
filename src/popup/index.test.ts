@@ -659,7 +659,7 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("Resolved werken form · VTT");
     button("Open Verb Map").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
-    expect(content().querySelector(".verb-detail-heading")?.textContent).toContain("VTT");
+    expect(content().querySelector(".verb-detail-code")?.textContent).toContain("VTT");
     button("Saved").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Saved"));
 
@@ -1085,26 +1085,39 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("tegenwoordige toekomende tijd");
     expect(content().textContent).not.toContain("2 forms");
     expect(content().querySelectorAll(".map-legend-item")).toHaveLength(3);
-    expect([...content().querySelectorAll<HTMLElement>(".map-legend-item")].map((item) => item.textContent?.trim())).toEqual(expect.arrayContaining(["✓", "›", "○"]));
+    expect(content().textContent).toContain("Mastered");
+    expect(content().textContent).toContain("Next / current");
+    expect(content().textContent).toContain("Later / locked");
+    expect([...content().querySelectorAll<HTMLElement>(".map-legend-item")].map((item) => item.textContent?.trim())).toEqual(expect.arrayContaining(["✓Mastered", "›Next / current", "○Later / locked"]));
     expect(content().querySelectorAll(".verb-form-example-en")).toHaveLength(8);
     expect(content().querySelectorAll(".verb-form-example-te")).toHaveLength(8);
     expect(content().querySelectorAll(".verb-form-full")).toHaveLength(0);
     expect(content().querySelectorAll(".verb-form-status")).toHaveLength(8);
     expect(content().querySelector(".verb-form-status svg")).toBeNull();
     const ott = content().querySelector<HTMLButtonElement>(".verb-form-card[aria-label^='OTT']")!;
+    expect(ott.querySelector(".verb-form-card-header")?.firstElementChild?.textContent).toBe("OTT");
+    expect(ott.querySelector(".verb-form-card-header")?.lastElementChild?.textContent).toBe("›");
+    expect(ott.querySelector(".verb-form-example")?.textContent).toBe("NL · Ik werk vandaag thuis.");
     const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
-    const scrollIntoView = vi.fn();
+    const scrollTargets: HTMLElement[] = [];
+    const scrollIntoView = vi.fn(function (this: HTMLElement) { scrollTargets.push(this); });
     Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: scrollIntoView });
     ott.click();
     expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest", inline: "nearest" });
+    expect(scrollTargets[0]?.classList.contains("verb-form-detail")).toBe(true);
     Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: originalScrollIntoView });
-    expect(content().querySelector(".verb-detail-example")?.textContent).toBe("Ik werk thuis.");
-    expect(content().querySelector(".verb-detail-label")?.textContent).toBe("Present routine or situation");
-    expect(content().querySelector(".verb-detail-canonical-en")?.textContent).toBe("I work at home.");
-    expect(content().querySelector(".verb-detail-canonical-te")?.textContent).toBe("నేను ఇంటి వద్ద పని చేస్తాను.");
+    expect(content().querySelector(".verb-detail-example")?.textContent).toBe("NL · Ik werk vandaag thuis.");
+    expect(content().querySelector(".verb-detail-label")?.textContent).toBe("Present");
+    expect(content().querySelector(".verb-detail-status")?.textContent).toContain("›");
+    expect(content().querySelector(".verb-detail-canonical")?.textContent).toContain("NL · Ik werk vandaag thuis.");
+    expect(content().querySelector(".verb-detail-canonical-en")?.textContent).toBe("EN · I am working at home today.");
+    expect(content().querySelector(".verb-detail-canonical-te")?.textContent).toBe("TE · నేను ఈరోజు ఇంటి నుంచి పని చేస్తున్నాను.");
     expect(content().textContent).toContain("PATTERN");
     expect(content().textContent).toContain("COMMON USE");
+    expect(content().querySelectorAll(".verb-detail-common-use")).toHaveLength(1);
+    expect(content().querySelectorAll(".verb-detail-common-use .verb-detail-localized-line")).toHaveLength(3);
     expect(content().querySelectorAll(".verb-form-card.selected")).toHaveLength(1);
+    expect(content().querySelector<HTMLElement>(".verb-form-card.selected")?.getAttribute("aria-selected")).toBe("true");
     expect(document.querySelector<HTMLButtonElement>("#today-tab")?.textContent).toContain("Today");
     expect(document.querySelector<HTMLButtonElement>("#lessons-tab")?.getAttribute("aria-selected")).toBe("true");
   });
@@ -1604,7 +1617,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("12 English forms → Dutch"));
     button("Back to 8-form map").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
-    expect(content().querySelector(".verb-detail-example")?.textContent).toBe("Ik werkte thuis.");
+    expect(content().querySelector(".verb-detail-example")?.textContent).toBe("NL · Ik werkte gisteren thuis.");
   });
 
   it("surfaces a weak verb skill through the existing Daily Five review flow", async () => {

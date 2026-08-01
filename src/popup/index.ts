@@ -895,11 +895,11 @@ function renderVerbMap(): HTMLElement {
   wrapper.append(back, text(`Canonical map · ${pack.verb.lemma}`, "journey-meta"), eyebrow("Eight Dutch forms"), heading(`${displayLemma} Verb Map`), text(`One stable map for every ${pack.verb.lemma} journey. Select a form to inspect it.`, "journey-lead"));
   const legend = document.createElement("div"); legend.className = "verb-map-legend";
   legend.append(text("FORM STATUS", "verb-map-legend-title"));
-  for (const status of ["mastered", "learning", "later"] as const) {
+  for (const [status, label, detail] of [["mastered", "Mastered", "ready to use"], ["learning", "Next / current", "learning now or next"], ["later", "Later / locked", "later or reference"]] as const) {
     const item = document.createElement("span"); item.className = `map-legend-item ${status}`;
     const meta = verbFormStatusMeta(status);
-    item.setAttribute("aria-label", `${meta.label}: ${meta.detail}`);
-    item.append(spanText(meta.symbol, "verb-status-symbol"));
+    item.setAttribute("aria-label", `${label}: ${detail}`);
+    item.append(spanText(meta.symbol, "verb-status-symbol"), spanText(label, "verb-status-label"));
     legend.append(item);
   }
   wrapper.append(legend);
@@ -916,11 +916,12 @@ function renderVerbMap(): HTMLElement {
       const displayStatus = getVerbFormDisplayStatus(form);
       const card = button("", `verb-form-card ${displayStatus}${form.dutchTense === selectedVerbFormTense ? " selected" : ""}`);
       const statusMeta = verbFormStatusMeta(displayStatus);
-      card.setAttribute("role", "gridcell"); card.setAttribute("aria-label", `${form.dutchTense}: ${form.learnerLabelEn ?? form.fullNameNl} · ${form.fullNameNl} · ${statusMeta.label}`); card.setAttribute("aria-pressed", String(form.dutchTense === selectedVerbFormTense));
+      card.setAttribute("role", "gridcell"); card.setAttribute("aria-label", `${form.dutchTense}: ${form.learnerLabelEn} · ${form.fullNameNl} · ${statusMeta.label}`); card.setAttribute("aria-pressed", String(form.dutchTense === selectedVerbFormTense)); card.setAttribute("aria-selected", String(form.dutchTense === selectedVerbFormTense));
       const status = document.createElement("span"); status.className = `verb-form-status ${displayStatus}`; status.setAttribute("aria-label", `${statusMeta.label}: ${statusMeta.detail}`); status.append(spanText(statusMeta.symbol, "verb-status-symbol"));
       const canonical = form.canonicalExample;
-      card.append(status, spanText(form.dutchTense, "verb-form-code"), spanText(canonical.nl, "verb-form-example"), spanText(canonical.en, "verb-form-example-en"), spanText(canonical.te, "verb-form-example-te"));
-      card.addEventListener("click", () => { selectedVerbFormTense = form.dutchTense; render(); content?.querySelector<HTMLElement>(".verb-form-card.selected")?.scrollIntoView?.({ block: "nearest", inline: "nearest" }); });
+      const cardHeader = document.createElement("span"); cardHeader.className = "verb-form-card-header"; cardHeader.append(spanText(form.dutchTense, "verb-form-code"), status);
+      card.append(cardHeader, spanText(`NL · ${canonical.nl}`, "verb-form-example"), spanText(`EN · ${canonical.en}`, "verb-form-example-en"), spanText(`TE · ${canonical.te}`, "verb-form-example-te"));
+      card.addEventListener("click", () => { selectedVerbFormTense = form.dutchTense; render(); content?.querySelector<HTMLElement>(".verb-form-detail")?.scrollIntoView?.({ block: "nearest", inline: "nearest" }); });
       map.append(card);
     }
   }
@@ -1028,8 +1029,17 @@ function renderVerbFormDetail(form: VerbFormRecord): HTMLElement {
   const detail = section("verb-form-detail");
   const canonical = form.canonicalExample;
   const commonUse = form.commonUsageExample;
-  detail.append(text(`${form.dutchTense} · ${verbFormStatusMeta(getVerbFormDisplayStatus(form)).label}`, "verb-detail-heading"), text(form.learnerLabelEn ?? form.fullNameNl, "verb-detail-label"), text(form.fullNameNl, "verb-detail-dutch-name"), text(canonical.nl, "verb-detail-example"), text(canonical.en, "verb-detail-canonical-en"), text(canonical.te, "verb-detail-canonical-te"), meaning("MEANING", form.usageMeaning), meaning("PATTERN", form.formula), meaning("COMMON USE · NL", commonUse.nl), meaning("COMMON USE · EN", commonUse.en), meaning("COMMON USE · TE", commonUse.te));
+  const statusMeta = verbFormStatusMeta(getVerbFormDisplayStatus(form));
+  const header = document.createElement("div"); header.className = "verb-detail-header"; header.append(text(form.dutchTense, "verb-detail-code"), spanText(`${statusMeta.symbol} ${statusMeta.label}`, "verb-detail-status"));
+  detail.append(header, text(form.learnerLabelEn, "verb-detail-label"), text(form.fullNameNl, "verb-detail-dutch-name"), localizedSentenceSection(null, canonical, "verb-detail-canonical"), meaning("MEANING", form.usageMeaning), meaning("PATTERN", form.formula), localizedSentenceSection("COMMON USE", commonUse, "verb-detail-common-use"));
   return detail;
+}
+
+function localizedSentenceSection(label: string | null, sentence: { nl: string; en: string; te: string }, className: string): HTMLElement {
+  const group = section(className);
+  if (label) group.append(text(label, "verb-detail-section-label"));
+  group.append(text(`NL · ${sentence.nl}`, "verb-detail-localized-line verb-detail-canonical-nl verb-detail-example"), text(`EN · ${sentence.en}`, "verb-detail-localized-line verb-detail-canonical-en"), text(`TE · ${sentence.te}`, "verb-detail-localized-line verb-detail-canonical-te"));
+  return group;
 }
 
 function startVerbPractice(journeyId: VerbPracticeJourneyId = getActiveVerbPracticeJourneyId()): void {
