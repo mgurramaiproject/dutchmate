@@ -6,7 +6,14 @@
 
 **Branch:** `016-zijn-journeys`
 
-**Status:** Breakdown approved; child issue publication in progress.
+**Status:** Breakdown approved and published as GitHub issues #134–#138.
+
+**Child issues:** [#134](https://github.com/mgurramaiproject/dutchmate/issues/134),
+[#135](https://github.com/mgurramaiproject/dutchmate/issues/135),
+[#136](https://github.com/mgurramaiproject/dutchmate/issues/136),
+[#137](https://github.com/mgurramaiproject/dutchmate/issues/137), and
+[#138](https://github.com/mgurramaiproject/dutchmate/issues/138). All are
+open and labeled `ready-for-agent`.
 
 ## Dependency map
 
@@ -24,7 +31,7 @@ horizontal architecture ticket from landing without a working second verb.
 
 ## T01 — Add the additive `zijn` pack and first journey end to end
 
-**GitHub:** to be published under parent #133.
+**GitHub:** [#134](https://github.com/mgurramaiproject/dutchmate/issues/134)
 
 **What to build:** Add `zijn` beside `werken` through the existing Lessons
 Verb Journey flow. The first identity/state journey must work from story,
@@ -45,7 +52,7 @@ identifiers, behavior, and learner history must remain valid.
 
 ## T02 — Add `zijn` question and past-state journeys
 
-**GitHub:** to be published under parent #133.
+**GitHub:** [#135](https://github.com/mgurramaiproject/dutchmate/issues/135)
 
 **What to build:** Extend the `zijn` package with the present-tense question /
 inversion journey and the `was`/`waren` past-state journey. Each journey is a
@@ -65,7 +72,7 @@ evidence, completion, and return behavior.
 
 ## T03 — Add the `zijn` past-experience journey
 
-**GitHub:** to be published under parent #133.
+**GitHub:** [#136](https://github.com/mgurramaiproject/dutchmate/issues/136)
 
 **What to build:** Add the complete `ben geweest` / `is geweest` journey for
 past experience or being somewhere. The learner can distinguish the meaning,
@@ -86,7 +93,7 @@ honest evidence.
 
 ## T04 — Add future, conditional, and advanced `zijn` journeys
 
-**GitHub:** to be published under parent #133.
+**GitHub:** [#137](https://github.com/mgurramaiproject/dutchmate/issues/137)
 
 **What to build:** Complete the `zal zijn` / `zou zijn` later journey and the
 advanced `was geweest` / `zal geweest zijn` / `zou geweest zijn` reference
@@ -106,7 +113,7 @@ progression priority only and never produces a placeholder or beginner lock.
 
 ## T05 — Connect `zijn` review and qualify the complete package
 
-**GitHub:** to be published under parent #133.
+**GitHub:** [#138](https://github.com/mgurramaiproject/dutchmate/issues/138)
 
 **What to build:** Make the completed `zijn` pack part of the existing Today /
 Daily Five review loop and release qualification. Verify additive persistence,

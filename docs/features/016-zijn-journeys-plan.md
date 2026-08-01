@@ -123,7 +123,8 @@ that guesses from ambiguous text.
    the approved seams are recorded in the specification.
 4. Ask for approval to invoke `$to-tickets`; only after approval create and
    publish `docs/features/016-zijn-journeys-tickets.md` and the approved
-   GitHub issue tree.
+   GitHub issue tree. **Completed:** child issues #134–#138 are open,
+   labeled `ready-for-agent`, and dependency-ordered under parent #133.
 5. Implement tickets strictly against the checked-in specification, using the
    improved installed `author-verb-journeys` skill.
 6. Run content qualification, Dutch review, automated verification, manual
