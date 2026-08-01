@@ -689,6 +689,24 @@ function getVerbJourneyDisplayStatusWithoutRecursion(journey: JourneyRecord): Jo
   return "next";
 }
 
+function getVerbJourneyActionTarget(): { journey: JourneyRecord; allMastered: boolean } {
+  const statuses = verbJourneyPack.journeys.map((journey) => getVerbJourneyDisplayStatus(journey));
+  const allMastered = statuses.every((status) => status === "mastered");
+  if (allMastered) return { journey: verbJourneyPack.journeys[0], allMastered: true };
+  const active = getVerbJourney(activeVerbJourneyId);
+  if (active && getVerbJourneyDisplayStatus(active) === "learning") return { journey: active, allMastered: false };
+  const next = verbJourneyPack.journeys.find((_journey, index) => statuses[index] === "next");
+  if (next) return { journey: next, allMastered: false };
+  const unfinished = verbJourneyPack.journeys.find((_journey, index) => statuses[index] !== "mastered");
+  return { journey: unfinished ?? active ?? verbJourneyPack.journeys[0], allMastered: false };
+}
+
+function getVerbJourneyActionLabel(journey: JourneyRecord, allMastered: boolean): string {
+  if (allMastered) return "Review a journey →";
+  const status = getVerbJourneyDisplayStatus(journey);
+  return `${status === "learning" ? "Continue" : status === "mastered" ? "Review" : "Start"} ${journey.title} →`;
+}
+
 function getVerbFormDisplayStatus(form: VerbFormRecord): JourneyStatus {
   const evidence = getVerbFormEvidence(form);
   if (evidence.length > 0 && evidence.every((skill) => skill.status === "demonstrated")) return "mastered";
@@ -756,11 +774,11 @@ function renderVerbJourneyOverview(): HTMLElement {
   }
   wrapper.append(journeyList);
   if (verbBoundaryMessage) { const status = text(verbBoundaryMessage, "journey-boundary"); status.setAttribute("role", "status"); wrapper.append(status); }
-  const current = getVerbJourney(activeVerbJourneyId) ?? pack.journeys[1];
-  const continueButton = button(`Continue ${current.title} →`, "button primary-button");
-  continueButton.addEventListener("click", () => openVerbJourney(current));
-  const practiceButton = button(verbPracticeActionLabel(), "button secondary-button");
-  practiceButton.addEventListener("click", () => startVerbPractice());
+  const actionTarget = getVerbJourneyActionTarget();
+  const continueButton = button(getVerbJourneyActionLabel(actionTarget.journey, actionTarget.allMastered), "button primary-button");
+  continueButton.addEventListener("click", () => openVerbJourney(actionTarget.journey));
+  const practiceButton = button(actionTarget.allMastered ? "Practise a journey · 5 questions →" : verbPracticeActionLabel(actionTarget.journey.id as VerbPracticeJourneyId), "button secondary-button");
+  practiceButton.addEventListener("click", () => startVerbPractice(actionTarget.journey.id as VerbPracticeJourneyId));
   wrapper.append(continueButton, practiceButton);
   return wrapper;
 }
@@ -970,8 +988,8 @@ function englishAnalysisLabel(record: EnglishMapRecord): string {
   return record.dutchAnalysis.primaryForm ?? record.dutchAnalysis.construction ?? "Context";
 }
 
-function verbPracticeActionLabel(): string {
-  const journey = getPracticeJourney();
+function verbPracticeActionLabel(journeyId: VerbPracticeJourneyId = getActiveVerbPracticeJourneyId()): string {
+  const journey = getPracticeJourney(journeyId);
   const tense = journey?.targetForms.join(" + ") ?? "VTT";
   const hasEvidence = journey?.targetSkills.some((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).some((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId)) ?? false;
   return `${hasEvidence ? "Review" : "Practise"} ${tense} · 5 questions →`;
@@ -982,8 +1000,8 @@ function getVerbReviewTense(task: VerbJourneyDailyFiveTask): DutchTense {
   return question ? getVerbJourney(question.journeyId)?.targetForms[0] ?? "VTT" : "VTT";
 }
 
-function getPracticeJourney(): JourneyRecord | null {
-  const journey = getVerbJourney(activeVerbJourneyId);
+function getPracticeJourney(journeyId: string = activeVerbJourneyId): JourneyRecord | null {
+  const journey = getVerbJourney(journeyId);
   return journey && isVerbJourneyPlayable(journey) ? journey : null;
 }
 
@@ -1072,7 +1090,7 @@ function renderVerbPracticeControls(question: VerbPracticeQuestion & { phase: "c
     }
     const available = section("verb-token-choices"); available.setAttribute("aria-label", "Available words");
     for (const token of question.tokens ?? []) {
-      const used = selectedTokens.includes(token);
+      const used = areAllTokenCopiesSelected(selectedTokens, question.tokens ?? [], token);
       const choice = button(token, `button verb-token-choice${used ? " is-used" : ""}`); choice.disabled = used || session.checked; choice.setAttribute("aria-pressed", String(used));
       choice.addEventListener("click", () => { const next = [...selectedTokens, token]; verbPracticeSession = { ...session, selectedAnswer: next, checked: false, lastResult: null }; render(); }); available.append(choice);
     }
@@ -1098,6 +1116,12 @@ function renderVerbPracticeControls(question: VerbPracticeQuestion & { phase: "c
   });
   wrapper.append(check);
   return wrapper;
+}
+
+function areAllTokenCopiesSelected(selectedTokens: string[], availableTokens: string[], token: string): boolean {
+  const selectedCount = selectedTokens.filter((candidate) => candidate === token).length;
+  const availableCount = availableTokens.filter((candidate) => candidate === token).length;
+  return selectedCount >= availableCount;
 }
 
 function queueVerbJourneyResult(question: VerbPracticeQuestion & { phase: "core" | "repair" }, correct: boolean): void {
@@ -1618,7 +1642,7 @@ function renderVerbJourneyDailyFiveReview(task: VerbJourneyDailyFiveTask): HTMLE
     if (selectedTokens.length === 0) answer.append(text("Choose words in order.", "verb-answer-placeholder"));
     for (const [index, token] of selectedTokens.entries()) { const remove = button(token, "verb-token-selected"); remove.disabled = verbDailyFiveChecked || pending; remove.addEventListener("click", () => { verbDailyFiveAnswer = selectedTokens.filter((_candidate, tokenIndex) => tokenIndex !== index); render(); }); answer.append(remove); }
     const available = section("verb-token-choices");
-    for (const token of question.tokens ?? []) { const used = selectedTokens.includes(token); const action = button(token, `button verb-token-choice${used ? " is-used" : ""}`); action.disabled = used || verbDailyFiveChecked || pending; action.addEventListener("click", () => { verbDailyFiveAnswer = [...selectedTokens, token]; render(); }); available.append(action); }
+    for (const token of question.tokens ?? []) { const used = areAllTokenCopiesSelected(selectedTokens, question.tokens ?? [], token); const action = button(token, `button verb-token-choice${used ? " is-used" : ""}`); action.disabled = used || verbDailyFiveChecked || pending; action.addEventListener("click", () => { verbDailyFiveAnswer = [...selectedTokens, token]; render(); }); available.append(action); }
     const reset = button("Reset", "button secondary-button verb-reset"); reset.disabled = verbDailyFiveChecked || pending || selectedTokens.length === 0; reset.addEventListener("click", () => { verbDailyFiveAnswer = []; render(); });
     controls.append(answer, available, reset);
   } else {
@@ -1894,7 +1918,7 @@ function renderError(message: string): void { if (!content) return; content.repl
 type IconName = "arrow-left" | "book-open" | "check-circle" | "chevron-right" | "clock" | "dot" | "reference" | "route";
 
 const iconPaths: Record<IconName, string> = {
-  "arrow-left": "M19 12H5m6 6-6-6 6-6",
+  "arrow-left": "M5 12h14M5 12l6-6M5 12l6 6",
   "book-open": "M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5Zm0 0V19",
   "check-circle": "m8 12 2.5 2.5L16 9m5 3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
   "chevron-right": "m9 5 7 7-7 7",
@@ -1906,7 +1930,7 @@ const iconPaths: Record<IconName, string> = {
 
 function svgIcon(name: IconName, className = "icon"): SVGSVGElement {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.classList.add(className);
+  svg.classList.add(className, "icon");
   svg.setAttribute("viewBox", "0 0 24 24");
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("focusable", "false");
