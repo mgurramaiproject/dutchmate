@@ -6,8 +6,12 @@
 
 **Branch:** `016-zijn-journeys`, created from the clean `main` branch.
 
-**Status:** Grill complete; shared understanding recorded. `$to-spec` and
-`$to-tickets` remain approval-gated.
+**Status:** Grill and specification complete; `$to-tickets` remains
+approval-gated.
+
+**Specification:** [016-zijn-journeys-spec.md](./016-zijn-journeys-spec.md);
+published as [GitHub issue #133](https://github.com/mgurramaiproject/dutchmate/issues/133)
+with `ready-for-agent`.
 
 ## Goal
 
@@ -113,8 +117,10 @@ that guesses from ambiguous text.
 
 1. Commit this plan, ADR, and parking-lot update.
 2. Ask for approval to invoke `$to-spec`; only after approval create and
-   publish `docs/features/016-zijn-journeys-spec.md`.
-3. Review the specification and proposed seams with the user.
+   publish `docs/features/016-zijn-journeys-spec.md`. **Completed:** issue
+   #133 is open with `ready-for-agent`.
+3. Review the specification and proposed seams with the user. **Completed:**
+   the approved seams are recorded in the specification.
 4. Ask for approval to invoke `$to-tickets`; only after approval create and
    publish `docs/features/016-zijn-journeys-tickets.md` and the approved
    GitHub issue tree.
