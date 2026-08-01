@@ -1,13 +1,23 @@
 export const VERB_JOURNEY_SCHEMA_VERSION = 1;
 export const VERB_JOURNEY_CONTENT_VERSION = "015-1";
+export const VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION = "015-2";
 export const ZIJN_VERB_JOURNEY_CONTENT_VERSION = "016-1";
+export const ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION = "016-2";
 export const HEBBEN_VERB_JOURNEY_CONTENT_VERSION = "017-1";
-export type VerbJourneyContentVersion = typeof VERB_JOURNEY_CONTENT_VERSION | typeof ZIJN_VERB_JOURNEY_CONTENT_VERSION | typeof HEBBEN_VERB_JOURNEY_CONTENT_VERSION;
+export const HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION = "017-2";
+export type VerbJourneyContentVersion =
+  | typeof VERB_JOURNEY_CONTENT_VERSION
+  | typeof VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION
+  | typeof ZIJN_VERB_JOURNEY_CONTENT_VERSION
+  | typeof ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION
+  | typeof HEBBEN_VERB_JOURNEY_CONTENT_VERSION
+  | typeof HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION;
 
 export type DutchTense = "OTT" | "OVT" | "VTT" | "VVT" | "OTTT" | "OVTT" | "VTTT" | "VVTT";
 export type TeachingPriority = "core" | "later" | "reference";
 export type JourneyStatus = "mastered" | "learning" | "next" | "later" | "reference";
 export type JourneyKind = "core" | "later" | "reference";
+export type LocalizedVerbSentence = { nl: string; en: string; te: string };
 export type EnglishTense =
   | "present-simple"
   | "present-continuous"
@@ -33,6 +43,9 @@ export type VerbFormRecord = {
   usageMeaning: string;
   formula: string;
   commonUsage: string;
+  learnerLabelEn?: string;
+  canonicalExample?: LocalizedVerbSentence;
+  commonUsageExample?: LocalizedVerbSentence;
   cefrLevel: "A1" | "A2" | "reference";
   teachingPriority: TeachingPriority;
   status: JourneyStatus;
@@ -296,6 +309,11 @@ export const verbJourneyPack: VerbJourneyPack = {
 const tenseValues = new Set<DutchTense>(["OTT", "OVT", "VTT", "VVT", "OTTT", "OVTT", "VTTT", "VVTT"]);
 const englishTenseValues = new Set<EnglishTense>(["present-simple", "present-continuous", "present-perfect", "present-perfect-continuous", "past-simple", "past-continuous", "past-perfect", "past-perfect-continuous", "future-simple", "future-continuous", "future-perfect", "future-perfect-continuous"]);
 const stableId = /^[a-z0-9]+(?:[.-][a-z0-9]+)*$/u;
+const multilingualContentVersions = new Set<VerbJourneyContentVersion>([
+  VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
+  ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
+  HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
+]);
 
 const zijnEnglishComparison: EnglishMapRecord[] = [
   { id: "english.zijn.present-simple", englishTense: "present-simple", group: "present", english: "I am at home today.", situation: "A present state or location.", meaningPreservingDutch: "Ik ben vandaag thuis.", commonEverydayDutch: "Ik ben vandaag thuis.", dutchAnalysis: { primaryForm: "OTT" }, mismatchNote: "Dutch uses the present form ben for a current state or location.", cefrLevel: "A1", teachingPriority: "core" },
@@ -556,7 +574,15 @@ export function validateVerbJourneyRegistry(packs: readonly VerbJourneyPack[] = 
 export function validateVerbJourneyPack(pack: VerbJourneyPack): string[] {
   const errors: string[] = [];
   if (pack.schemaVersion !== VERB_JOURNEY_SCHEMA_VERSION) errors.push("schemaVersion: unsupported version");
-  if (pack.contentVersion !== VERB_JOURNEY_CONTENT_VERSION && pack.contentVersion !== ZIJN_VERB_JOURNEY_CONTENT_VERSION && pack.contentVersion !== HEBBEN_VERB_JOURNEY_CONTENT_VERSION) errors.push("contentVersion: unsupported version");
+  if (!new Set<VerbJourneyContentVersion>([
+    VERB_JOURNEY_CONTENT_VERSION,
+    VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
+    ZIJN_VERB_JOURNEY_CONTENT_VERSION,
+    ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
+    HEBBEN_VERB_JOURNEY_CONTENT_VERSION,
+    HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
+  ]).has(pack.contentVersion)) errors.push("contentVersion: unsupported version");
+  const requiresMultilingualFormContent = multilingualContentVersions.has(pack.contentVersion);
   if (!stableId.test(pack.verb.id) || !pack.verb.lemma || !pack.verb.english || !pack.verb.tags.length || !["hebben", "zijn"].includes(pack.verb.auxiliary)) errors.push("verb: incomplete verb record");
   const ids = new Set<string>();
   const addId = (id: string, field: string) => {
@@ -573,6 +599,12 @@ export function validateVerbJourneyPack(pack: VerbJourneyPack): string[] {
     if (forms.has(form.dutchTense)) errors.push(`dutchForms[${index}].dutchTense: duplicate tense`);
     forms.set(form.dutchTense, form);
     if (!form.fullNameNl || !form.sentence || !form.naturalEnglish || !form.usageMeaning || !form.formula || !form.commonUsage) errors.push(`dutchForms[${index}]: missing learner-facing map detail`);
+    if (requiresMultilingualFormContent) {
+      if (!form.learnerLabelEn) errors.push(`dutchForms[${index}].learnerLabelEn: missing localized form detail`);
+      for (const [field, record] of [["canonicalExample", form.canonicalExample], ["commonUsageExample", form.commonUsageExample]] as const) {
+        if (!record || !record.nl || !record.en || !record.te) errors.push(`dutchForms[${index}].${field}: expected non-empty nl, en, and te values`);
+      }
+    }
     if (!(["core", "later", "reference"] as string[]).includes(form.teachingPriority)) errors.push(`dutchForms[${index}].teachingPriority: unknown priority`);
   }
   if (forms.size !== 8) errors.push("dutchForms: expected one record for each tense");

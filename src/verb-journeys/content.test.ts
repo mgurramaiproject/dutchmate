@@ -43,6 +43,31 @@ describe("werken Verb Journey pack", () => {
     expect(validateVerbJourneyPack(invalid)).toContain("journey.werken.vtt-completed.story[0].targets[0]: target text is not present in line");
   });
 
+  it("requires complete localized form records for the multilingual content version", () => {
+    const invalid = structuredClone(verbJourneyPack);
+    invalid.contentVersion = "015-2" as never;
+
+    expect(validateVerbJourneyPack(invalid)).toEqual(expect.arrayContaining([
+      expect.stringContaining("learnerLabelEn"),
+      expect.stringContaining("canonicalExample"),
+      expect.stringContaining("commonUsageExample"),
+    ]));
+  });
+
+  it("accepts a migrated localized form record without changing its stable identity", () => {
+    const migrated = structuredClone(verbJourneyPack);
+    migrated.contentVersion = "015-2" as never;
+    migrated.dutchForms = migrated.dutchForms.map((form) => ({
+      ...form,
+      learnerLabelEn: form.fullNameNl,
+      canonicalExample: { nl: form.sentence, en: form.naturalEnglish, te: form.sentence },
+      commonUsageExample: { nl: form.commonUsage, en: form.naturalEnglish, te: form.sentence },
+    }));
+
+    expect(validateVerbJourneyPack(migrated)).toEqual([]);
+    expect(migrated.dutchForms.map((form) => form.id)).toEqual(verbJourneyPack.dutchForms.map((form) => form.id));
+  });
+
   it("adds a validated zijn pack without changing werken identity", () => {
     const zijn = getVerbJourneyPack("verb.zijn");
     expect(zijn).not.toBeNull();

@@ -29,14 +29,14 @@ learner history, and consumers remain compatible during the expand phase.
 
 ### Acceptance criteria
 
-- Required NL, EN, and TE values are supported without runtime translation or
+- [x] Required NL, EN, and TE values are supported without runtime translation or
   missing-content fallbacks.
-- Pack validation rejects incomplete localized values, duplicate identities,
+- [x] Pack validation rejects incomplete localized values, duplicate identities,
   dangling references, and incomplete eight-form packs.
-- Content tests cover `werken`, `zijn`, and `hebben` without changing stable
+- [x] Content tests cover `werken`, `zijn`, and `hebben` without changing stable
   pack or form identities.
-- No parallel scheduler, mastery model, translation service, or map is added.
-- Focused content tests, typecheck, and whitespace checks pass.
+- [x] No parallel scheduler, mastery model, translation service, or map is added.
+- [x] Focused content tests, typecheck, and whitespace checks pass.
 
 ## T02 — Ship Map-first `werken` Verb Map
 
