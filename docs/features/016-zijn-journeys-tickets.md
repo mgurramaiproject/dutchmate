@@ -110,14 +110,14 @@ progression priority only and never produces a placeholder or beginner lock.
 
 **Blocked by:** T03 — Add the `zijn` past-experience journey.
 
-**Status:** ready-for-agent
+**Status:** implemented; feature-level review and PR pending
 
-- [ ] The future/conditional journey distinguishes an explicit future plan from a conditional possibility using reviewed situations.
-- [ ] The advanced journey provides complete authored content for its advanced completed and hypothetical forms and clearly labels its reference priority.
-- [ ] Both journeys have five authored questions, bounded repairs, evidence, completion, and return behavior.
-- [ ] The complete `zijn` pack now contains six journeys, eight Dutch map forms, twelve English comparisons, stable references, and no incomplete journey content.
-- [ ] All six journeys route to their own practice sets and share deterministic map/comparison behavior.
-- [ ] Focused qualification, content, practice, popup, typecheck, and build checks pass.
+- [x] The future/conditional journey distinguishes an explicit future plan from a conditional possibility using authored, structurally validated situations.
+- [x] The advanced journey provides complete authored content for its advanced completed and hypothetical forms and clearly labels its reference priority.
+- [x] Both journeys have five authored questions, bounded repairs, evidence, completion, and return behavior.
+- [x] The complete `zijn` pack now contains six journeys, eight Dutch map forms, twelve English comparisons, stable references, and no incomplete journey content.
+- [x] All six journeys route to their own practice sets and share deterministic map/comparison behavior.
+- [x] Focused qualification, content, practice, popup, typecheck, and build checks pass.
 
 ## T05 — Connect `zijn` review and qualify the complete package
 

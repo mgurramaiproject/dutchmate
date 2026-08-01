@@ -154,3 +154,18 @@ describe("zijn past-experience practice", () => {
     expect(session.attempts.some((attempt) => attempt.questionId.endsWith("word-order") && attempt.correct)).toBe(true);
   });
 });
+
+describe("zijn later and reference practice", () => {
+  it.each(["journey.zijn.future-conditional", "journey.zijn.reference-completed"] as const)("keeps %s complete and playable", (journeyId) => {
+    const questions = getVerbPracticeQuestions(journeyId);
+    expect(questions).toHaveLength(5);
+    expect(questions.every((question) => question.verbId === "verb.zijn" && question.journeyId === journeyId)).toBe(true);
+    expect(new Set(questions.map((question) => question.exerciseFamily))).toHaveLength(5);
+  });
+
+  it.each(["journey.zijn.future-conditional", "journey.zijn.reference-completed"] as const)("completes %s without a placeholder path", (journeyId) => {
+    let session = createVerbPracticeSession(journeyId);
+    for (const question of getVerbPracticeQuestions(journeyId)) session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+    expect(session.completed).toBe(true);
+  });
+});

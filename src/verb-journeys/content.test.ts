@@ -51,12 +51,14 @@ describe("werken Verb Journey pack", () => {
     expect(zijn!.verb).toMatchObject({ id: "verb.zijn", lemma: "zijn", auxiliary: "zijn" });
     expect(zijn!.dutchForms).toHaveLength(8);
     expect(zijn!.englishComparison).toHaveLength(12);
-    expect(zijn!.journeys).toHaveLength(4);
+    expect(zijn!.journeys).toHaveLength(6);
     expect(zijn!.journeys.map((journey) => journey.id)).toEqual([
       "journey.zijn.ott-identity",
       "journey.zijn.ott-questions",
       "journey.zijn.ovt-state",
       "journey.zijn.vtt-experience",
+      "journey.zijn.future-conditional",
+      "journey.zijn.reference-completed",
     ]);
     expect(zijn!.journeys[0].story).toHaveLength(5);
     expect(zijn!.journeys[0].story.every((line) => line.targets.every((target) => line.nl.includes(target.text)))).toBe(true);
