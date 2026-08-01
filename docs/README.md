@@ -53,3 +53,7 @@ Use this folder as the project map for DutchMate. Start with the section that ma
 - [Incremental collaboration workflow](process/incremental-collaboration-workflow.md): working style for small steps.
 - [App plumbing checklist](process/dutchmate-app-plumbing-checklist.md): implementation plumbing checklist.
 - [Post-0.1.1 version roadmap](process/version-roadmap.md): version, branch, and PR planning for future work.
+
+## Reusable agent skills
+
+- `$author-verb-journeys`: reusable workflow for authoring a complete DutchMate verb-journeys package, including content contracts, prototypes, deterministic practice, evidence-safe persistence, QA, and delivery. The source skill and `werken` reference are maintained in the shared agent-skills collection.
