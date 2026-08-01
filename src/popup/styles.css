@@ -573,6 +573,9 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-detail-canonical, .verb-detail-common-use { display: grid; gap: 4px; min-width: 0; }
 .verb-detail-section-label { margin: 0; color: var(--dm-brand-orange-deep); font-size: .65rem; font-weight: var(--dm-weight-black); letter-spacing: .04em; text-transform: uppercase; }
 .verb-detail-localized-line { margin: 0; color: var(--dm-ink-muted); font-family: var(--dm-font-reading); font-size: .78rem; line-height: 1.25; overflow-wrap: anywhere; }
+.verb-detail-canonical-en, .verb-detail-canonical-te { font-size: .72rem; }
+.verb-detail-common-use .verb-detail-canonical-nl { color: var(--dm-ink-strong); font-size: .84rem; font-weight: 650; }
+.verb-detail-common-use .verb-detail-canonical-en, .verb-detail-common-use .verb-detail-canonical-te { font-size: .72rem; }
 .verb-detail-canonical .verb-detail-example { color: var(--dm-ink-strong); font-size: .92rem; font-weight: 750; }
 
 @media (max-width: 360px) {

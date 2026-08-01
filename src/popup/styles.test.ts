@@ -54,6 +54,10 @@ describe("popup layout", () => {
     expect(styles).toContain(".verb-mastery-card { display: grid; gap: 6px; min-width: 0; padding: 9px 10px; border: 1px solid var(--dm-line); border-left: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-soft); color: var(--dm-ink-strong);");
     expect(styles).toContain(".verb-mastery-card .secondary-button { border-color: var(--dm-ink-strong); background: var(--dm-paper-raised) !important; color: var(--dm-ink-strong); }");
     expect(styles).toContain(".verb-form-card.selected { border-color: var(--dm-ink-strong);");
+    expect(styles).toContain(".verb-form-example-en, .verb-form-example-te { color: var(--dm-ink-muted); font-family: var(--dm-font-reading); font-size: .56rem;");
+    expect(styles).toContain(".verb-detail-canonical-en, .verb-detail-canonical-te { font-size: .72rem; }");
+    expect(styles).toContain(".verb-detail-common-use .verb-detail-canonical-nl { color: var(--dm-ink-strong); font-size: .84rem;");
+    expect(styles).toContain(".verb-detail-common-use .verb-detail-canonical-en, .verb-detail-common-use .verb-detail-canonical-te { font-size: .72rem; }");
     expect(styles).toContain(".verb-contrast-option.current { border-color: var(--dm-brand-orange);");
     expect(styles).toContain(".verb-contrast-label { flex: 0 0 auto;");
     expect(styles).toContain(".due-badge[hidden] { display: none; }");
