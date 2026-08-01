@@ -45,7 +45,7 @@ identifiers, behavior, and learner history must remain valid.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** implemented; feature-level review and PR pending
+**Status:** implemented and merged in PR #139
 
 - [x] The shared content and practice seams select a pack by stable verb identity while preserving the existing `werken` pack and identifiers.
 - [x] The initial `zijn` pack has stable identity, content version, validated form/comparison records, and the first complete identity/state journey.
@@ -65,7 +65,7 @@ evidence, completion, and return behavior.
 
 **Blocked by:** T01 — Add the additive `zijn` pack and first journey end to end.
 
-**Status:** implemented; feature-level review and PR pending
+**Status:** implemented and merged in PR #139
 
 - [x] The question journey teaches a bounded set of `ben je?`, `is het?`, and `zijn we?` decisions through authored context.
 - [x] The past-state journey teaches `was` and `waren` for past states or locations at the approved A1/A2 boundary.
@@ -86,7 +86,7 @@ honest evidence.
 
 **Blocked by:** T02 — Add `zijn` question and past-state journeys.
 
-**Status:** implemented; feature-level review and PR pending
+**Status:** implemented and merged in PR #139
 
 - [x] The story and notice explain `zijn` as the main/copular verb and do not introduce auxiliary constructions for other verbs.
 - [ ] The journey includes independently reviewed English and Telugu support and target spans that occur literally in the Dutch story lines.
@@ -110,7 +110,7 @@ progression priority only and never produces a placeholder or beginner lock.
 
 **Blocked by:** T03 — Add the `zijn` past-experience journey.
 
-**Status:** implemented; feature-level review and PR pending
+**Status:** implemented and merged in PR #139
 
 - [x] The future/conditional journey distinguishes an explicit future plan from a conditional possibility using authored, structurally validated situations.
 - [x] The advanced journey provides complete authored content for its advanced completed and hypothetical forms and clearly labels its reference priority.
@@ -130,7 +130,7 @@ review, narrow-popup behavior, and the complete automated/manual delivery gate.
 
 **Blocked by:** T04 — Add future, conditional, and advanced `zijn` journeys.
 
-**Status:** implemented; feature-level review and PR pending
+**Status:** implemented and merged in PR #139
 
 - [x] Due or weak `zijn` skills enter the existing Daily Five review pool without a second queue, scheduler, or grammar destination.
 - [x] Daily Five vocabulary protection, grammar cap, idempotency, stale-revision protection, and Today semantics remain intact.
