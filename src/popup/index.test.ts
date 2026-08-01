@@ -1123,7 +1123,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
     const entries = content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable");
-    expect(entries).toHaveLength(2);
+    expect(entries).toHaveLength(3);
     entries[1].click();
     await vi.waitFor(() => expect(content().textContent).toContain("Questions I ask"));
     expect(content().textContent).toContain("Questions I ask");
@@ -1157,6 +1157,24 @@ describe("lesson popup", () => {
     button("Place it on the 8-form map →").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Zijn Verb Map"));
     expect(content().querySelector<HTMLElement>(".verb-form-card.selected")?.getAttribute("aria-label")).toMatch(/^OVT:/);
+  });
+
+  it("opens the additive hebben directory entry and routes its first possession journey", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    const entries = content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable");
+    expect(entries).toHaveLength(3);
+    entries[2].click();
+    await vi.waitFor(() => expect(content().textContent).toContain("What I have and what is available"));
+    expect(content().textContent).toContain("hebben");
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("What I have and what is available"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Ik heb vandaag genoeg tijd."));
+    button("Notice the pattern →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Who has what?"));
+    content().querySelectorAll<HTMLButtonElement>(".verb-notice-choice")[0].click();
+    button("Place it on the 8-form map →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Hebben Verb Map"));
   });
 
   it("counts two mastered zijn journeys even when both use the OTT map form", async () => {
@@ -1307,10 +1325,11 @@ describe("lesson popup", () => {
     expect(firstJourney.querySelector(".journey-completion-mark")).toBeTruthy();
     expect(content().querySelector<HTMLElement>(".verb-mastery-card .verb-mastery-count")?.textContent).toBe("1 of 8 forms practised");
     button("Verb Journeys").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(2));
+    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(3));
     const directoryRows = content().querySelectorAll<HTMLElement>(".verb-directory-row.is-openable");
     expect(directoryRows[0].querySelector<HTMLElement>(".verb-directory-progress-summary")?.textContent).toBe("1 of 8 forms practised");
     expect(directoryRows[1].querySelector<HTMLElement>(".verb-directory-progress-summary")?.textContent).toBe("0 of 8 forms practised");
+    expect(directoryRows[2].querySelector<HTMLElement>(".verb-directory-progress-summary")?.textContent).toBe("0 of 8 forms practised");
 
     (directoryRows[0] as HTMLButtonElement).click();
     await vi.waitFor(() => expect(content().textContent).toContain("Learning journeys"));
@@ -1337,7 +1356,7 @@ describe("lesson popup", () => {
     expect(content().querySelector<HTMLElement>(".verb-mastery-card .verb-mastery-count")?.textContent).toBe("2 of 8 forms practised");
     expect(verbJourneyRecordReads).toBeGreaterThan(1);
     button("Verb Journeys").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(2));
+    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(3));
     expect(content().querySelector<HTMLElement>(".verb-directory-row.is-openable .verb-directory-progress-summary")?.textContent).toBe("2 of 8 forms practised");
   });
 

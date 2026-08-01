@@ -18,4 +18,9 @@ describe("verb journey evidence", () => {
     const parsed = parseVerbJourneyRecord({ contentVersion: "015-1", evidenceRevision: 2, skills: { unknown: { nope: true } } });
     expect(parsed).toEqual({ contentVersion: "015-1", evidenceRevision: 2, skills: {} });
   });
+
+  it("accepts the additive hebben content version", () => {
+    const parsed = parseVerbJourneyRecord({ contentVersion: "017-1", evidenceRevision: 0, skills: {} });
+    expect(parsed).toEqual({ contentVersion: "017-1", evidenceRevision: 0, skills: {} });
+  });
 });

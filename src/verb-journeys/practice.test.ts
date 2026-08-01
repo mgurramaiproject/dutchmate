@@ -124,6 +124,29 @@ describe("zijn identity practice", () => {
   });
 });
 
+describe("hebben possession practice", () => {
+  it("provides its own five-family question set", () => {
+    const questions = getVerbPracticeQuestions("journey.hebben.ott-possession");
+    expect(questions).toHaveLength(5);
+    expect(questions.every((question) => question.verbId === "verb.hebben" && question.journeyId === "journey.hebben.ott-possession")).toBe(true);
+    expect(questions.map((question) => question.kind)).toEqual([
+      "choice",
+      "token-slots",
+      "choice",
+      "map-placement",
+      "token-order",
+    ]);
+  });
+
+  it("completes the hebben possession journey with controlled answers", () => {
+    let session = createVerbPracticeSession("journey.hebben.ott-possession");
+    for (const question of getVerbPracticeQuestions("journey.hebben.ott-possession")) {
+      session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+    }
+    expect(session.completed).toBe(true);
+  });
+});
+
 describe("zijn question and past-state practice", () => {
   it.each(["journey.zijn.ott-questions", "journey.zijn.ovt-state"] as const)("keeps %s on its own five-family bank", (journeyId) => {
     const questions = getVerbPracticeQuestions(journeyId);

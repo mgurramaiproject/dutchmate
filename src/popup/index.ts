@@ -632,10 +632,9 @@ function renderVerbJourneys(): HTMLElement {
   back.addEventListener("click", () => { screen = "lessons"; render(); });
   wrapper.append(back, eyebrow("Lessons · Verb Journeys"), heading("Verb Journeys"), text("Choose one useful Dutch verb and follow its staged forms from context to reference."));
   const list = section("verb-directory");
-  // Stable directory positions: number: "01" is werken and number: "04" remains reserved for gaan.
+  // Stable directory positions: number: "01" is werken, "02" is zijn, and "03" is hebben.
   const entries = [
     ...verbJourneyPacks.map((pack, index) => ({ number: String(index + 1).padStart(2, "0"), verbId: pack.verb.id, lemma: pack.verb.lemma, detail: `${pack.verb.english} · ${pack.verb.tags.includes("irregular") ? "irregular" : "A1 core verb"}`, enabled: true })),
-    { number: "03", verbId: undefined, lemma: "hebben", detail: "to have · coming later", enabled: false },
     { number: "04", verbId: undefined, lemma: "gaan", detail: "to go · coming later", enabled: false },
   ];
   for (const entry of entries) {

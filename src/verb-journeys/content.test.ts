@@ -65,4 +65,19 @@ describe("werken Verb Journey pack", () => {
     expect(isVerbJourneyContentAvailable("verb.zijn")).toBe(true);
     expect(verbJourneyPack.verb.id).toBe("verb.werken");
   });
+
+  it("adds the first hebben journey through the additive registry", () => {
+    const hebben = getVerbJourneyPack("verb.hebben");
+    expect(hebben).not.toBeNull();
+    expect(validateVerbJourneyPack(hebben!)).toEqual([]);
+    expect(hebben!.contentVersion).toBe("017-1");
+    expect(hebben!.verb).toMatchObject({ id: "verb.hebben", lemma: "hebben", english: "to have", auxiliary: "hebben" });
+    expect(hebben!.dutchForms).toHaveLength(8);
+    expect(hebben!.englishComparison).toHaveLength(12);
+    expect(hebben!.journeys.map((journey) => journey.id)).toEqual(["journey.hebben.ott-possession"]);
+    expect(hebben!.journeys[0].story).toHaveLength(5);
+    expect(hebben!.journeys[0].story.every((line) => line.targets.every((target) => line.nl.includes(target.text)))).toBe(true);
+    expect(isVerbJourneyContentAvailable("verb.hebben")).toBe(true);
+    expect(verbJourneyPack.verb.id).toBe("verb.werken");
+  });
 });

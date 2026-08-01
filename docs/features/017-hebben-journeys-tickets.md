@@ -45,12 +45,12 @@ evidence, completion, and return navigation.
 
 **Blocked by:** None — can start immediately.
 
-- [ ] The additive pack registry selects `hebben` by stable verb identity while preserving `werken` and `zijn` identifiers, evidence, exports/imports, and learner history.
-- [ ] The `hebben` pack has a versioned identity, complete eight-form Dutch map, twelve English comparison records, stable lowercase IDs, and structural validation.
-- [ ] The first journey teaches `heb`, `hebt`, `heeft`, and `hebben` for possession, relationships, and availability with bounded person scope.
-- [ ] The journey has five reviewed story lines in Dutch, English, and Telugu, literal target spans, a complete notice, five authored question families, capped repairs, evidence, completion, and return behavior.
-- [ ] Existing `werken` and `zijn` content, practice, popup behavior, and learning records remain green.
-- [ ] Focused content, practice, learning, popup, typecheck, and build checks pass for this vertical slice.
+- [x] The additive pack registry selects `hebben` by stable verb identity while preserving `werken` and `zijn` identifiers, evidence, exports/imports, and learner history.
+- [x] The `hebben` pack has a versioned identity, complete eight-form Dutch map, twelve English comparison records, stable lowercase IDs, and structural validation.
+- [x] The first journey teaches `heb`, `hebt`, `heeft`, and `hebben` for possession, relationships, and availability with bounded person scope.
+- [x] The journey has five reviewed story lines in Dutch, English, and Telugu, literal target spans, a complete notice, five authored question families, capped repairs, evidence, completion, and return behavior.
+- [x] Existing `werken` and `zijn` content, practice, popup behavior, and learning records remain green.
+- [x] Focused content, practice, learning, popup, typecheck, and build checks pass for this vertical slice.
 
 ## T02 — Add present-expression and past-possession journeys
 

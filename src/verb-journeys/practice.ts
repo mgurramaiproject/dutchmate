@@ -36,7 +36,7 @@ export type VerbPracticeSession = {
   completed: boolean;
 };
 
-export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity" | "journey.zijn.ott-questions" | "journey.zijn.ovt-state" | "journey.zijn.vtt-experience" | "journey.zijn.future-conditional" | "journey.zijn.reference-completed";
+export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity" | "journey.zijn.ott-questions" | "journey.zijn.ovt-state" | "journey.zijn.vtt-experience" | "journey.zijn.future-conditional" | "journey.zijn.reference-completed" | "journey.hebben.ott-possession";
 const defaultJourneyId: VerbPracticeJourneyId = "journey.werken.vtt-completed";
 
 type AuthoredVerbPracticeQuestion = Omit<VerbPracticeQuestion, "journeyId">;
@@ -305,6 +305,19 @@ const zijnReferenceCompletedRepairs: AuthoredVerbPracticeQuestion[] = [
   { id: "exercise.zijn.reference-completed.repair-order", verbId: "verb.zijn", formOrSkillId: "skill.zijn.reference-completed", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the completed phrase order.", context: "Voor het einde van de dag …", tokens: ["zal", "ik", "geweest", "zijn."], accepted: ["zal ik geweest zijn."], feedback: "Correct. Zal comes before ik and geweest zijn stays together at the end.", incorrectFeedback: "Use zal ik geweest zijn after the time phrase." },
 ];
 
+const hebbenPossessionQuestions: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.hebben.ott-possession.meaning", verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", exerciseFamily: "meaning", kind: "choice", prompt: "What does this sentence describe?", context: "Ik heb vandaag genoeg tijd.", choices: ["I have enough time today.", "I had enough time yesterday.", "I will have enough time tomorrow."], accepted: ["I have enough time today."], feedback: "Correct. Heb describes present possession or availability.", incorrectFeedback: "Heb is present: Ik heb vandaag genoeg tijd.", repairIds: ["exercise.hebben.ott-possession.repair-form", "exercise.hebben.ott-possession.repair-order"] },
+  { id: "exercise.hebben.ott-possession.construct", verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", exerciseFamily: "construction", kind: "token-slots", prompt: "Build the present phrase with taps.", context: "Complete: ___ genoeg tijd.", tokens: ["ik", "heb", "vandaag", "genoeg", "tijd."], accepted: ["ik heb vandaag genoeg tijd."], feedback: "Correct. With ik, the present form is heb.", incorrectFeedback: "Use ik + heb for present possession: Ik heb vandaag genoeg tijd." },
+  { id: "exercise.hebben.ott-possession.natural-translation", verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the best everyday answer.", context: "A friend asks whether you can talk now.", choices: ["Ik heb een moment voor je.", "Ik had een moment voor je.", "Ik zal een moment voor je gehad hebben."], accepted: ["Ik heb een moment voor je."], feedback: "Correct. Heb is the natural present form for what you have now.", incorrectFeedback: "For a current available moment, choose Ik heb een moment voor je." },
+  { id: "exercise.hebben.ott-possession.map-placement", verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this sentence belong?", context: "Ik heb vandaag genoeg tijd.", choices: ["OTT · onvoltooid tegenwoordige tijd", "OVT · onvoltooid verleden tijd", "VTT · voltooid tegenwoordige tijd", "OTTT · onvoltooid tegenwoordige toekomende tijd"], accepted: ["OTT · onvoltooid tegenwoordige tijd"], feedback: "Correct. Heb is the present form of hebben.", incorrectFeedback: "The present form heb belongs to OTT." },
+  { id: "exercise.hebben.ott-possession.word-order", verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the words in the correct order.", context: "Start with the time phrase: Vandaag …", tokens: ["Vandaag", "heb", "ik", "genoeg", "tijd."], accepted: ["Vandaag heb ik genoeg tijd."], feedback: "Correct. After Vandaag, the finite verb heb comes before ik.", incorrectFeedback: "After Vandaag, put heb before ik: Vandaag heb ik genoeg tijd." },
+];
+
+const hebbenPossessionRepairs: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.hebben.ott-possession.repair-form", verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", exerciseFamily: "repair-form", kind: "choice", prompt: "Repair the present phrase.", context: "Ik ___ vandaag tijd.", choices: ["heb", "hebt", "heeft"], accepted: ["heb"], feedback: "Correct. With ik, use heb.", incorrectFeedback: "With ik, use heb: Ik heb vandaag tijd." },
+  { id: "exercise.hebben.ott-possession.repair-order", verbId: "verb.hebben", formOrSkillId: "skill.hebben.ott-possession", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the word order after a time phrase.", context: "Vandaag …", tokens: ["Vandaag", "heb", "ik", "tijd."], accepted: ["Vandaag heb ik tijd."], feedback: "Correct. The finite verb stays in second position.", incorrectFeedback: "After Vandaag, use Vandaag heb ik tijd." },
+];
+
 function assignJourneyId(journeyId: VerbPracticeJourneyId, pack: AuthoredVerbPracticePack): VerbPracticePack {
   return { questions: pack.questions.map((question) => ({ ...question, journeyId })), repairs: pack.repairs.map((question) => ({ ...question, journeyId })) };
 }
@@ -322,6 +335,7 @@ const practicePacks: Record<VerbPracticeJourneyId, VerbPracticePack> = {
   "journey.zijn.vtt-experience": assignJourneyId("journey.zijn.vtt-experience", { questions: zijnPastExperienceQuestions, repairs: zijnPastExperienceRepairs }),
   "journey.zijn.future-conditional": assignJourneyId("journey.zijn.future-conditional", { questions: zijnFutureConditionalQuestions, repairs: zijnFutureConditionalRepairs }),
   "journey.zijn.reference-completed": assignJourneyId("journey.zijn.reference-completed", { questions: zijnReferenceCompletedQuestions, repairs: zijnReferenceCompletedRepairs }),
+  "journey.hebben.ott-possession": assignJourneyId("journey.hebben.ott-possession", { questions: hebbenPossessionQuestions, repairs: hebbenPossessionRepairs }),
 };
 const allPracticeQuestions = Object.values(practicePacks).flatMap((pack) => [...pack.questions, ...pack.repairs]);
 const questionById = new Map(allPracticeQuestions.map((question) => [question.id, question]));
