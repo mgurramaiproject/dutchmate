@@ -15,9 +15,9 @@
 [#138](https://github.com/mgurramaiproject/dutchmate/issues/138). All are
 open and labeled `ready-for-agent`.
 
-**Delivery Project:** Not reconciled in this handoff. The intended read-only
-GitHub Projects query failed because the current OAuth token lacks the
-`read:project` scope; no project mutation was attempted.
+**Delivery Project:** Reconciled in Project 1 `Delivery`. Child issues #134–#138
+are `Execution=Agent` and custom `Delivery Status=Ready`; frontier #134 is now
+`In Progress` on branch `016-zijn-journeys`.
 
 ## Dependency map
 
