@@ -24,6 +24,7 @@ import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/pr
 import { getVerbForm, getVerbJourney, getVerbJourneyContentVersion, getVerbJourneyPack, isVerbJourneyContentAvailable, isVerbJourneyPlayable, verbJourneyPack, verbJourneyPacks, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type JourneyStatus, type VerbFormRecord } from "../verb-journeys/content";
 import { advanceVerbPractice, checkVerbPracticeAnswer, checkVerbPracticeQuestion, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeJourneyId, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
 import type { VerbJourneyRecord } from "../verb-journeys/learning";
+import { countVerbJourneyFormSlots } from "../verb-journeys/progress";
 import { renderWithRecovery } from "./render-recovery";
 import "./styles.css";
 
@@ -663,8 +664,7 @@ function renderVerbJourneys(): HTMLElement {
 function getActiveVerbJourneyPack() { return getVerbJourneyPack(activeVerbId) ?? verbJourneyPack; }
 
 function getVerbJourneyProgress(pack = getActiveVerbJourneyPack()): { completedForms: number; totalForms: number; percentage: number } {
-  // Count authored journey evidence independently; two journeys can share one map tense.
-  const completedForms = pack.journeys.filter((journey) => journey.targetSkills.some((skillId) => Object.values(verbJourneyRecord?.skills ?? {}).some((skill) => skill.verbId === journey.verbId && skill.formOrSkillId === skillId))).length;
+  const completedForms = countVerbJourneyFormSlots(pack, verbJourneyRecord);
   const totalForms = pack.dutchForms.length;
   return { completedForms, totalForms, percentage: totalForms === 0 ? 0 : Math.round((completedForms / totalForms) * 100) };
 }
