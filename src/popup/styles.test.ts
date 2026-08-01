@@ -51,9 +51,11 @@ describe("popup layout", () => {
     expect(styles).toContain(".verb-map-label-sub");
     expect(styles).toContain(".verb-form-status");
     expect(styles).not.toContain("var(--dm-success)");
-    expect(styles).toContain(".verb-mastery-card { display: grid; gap: 8px; min-width: 0; padding: 11px; border: 1px solid var(--dm-line); border-left: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-soft); color: var(--dm-ink-strong);");
+    expect(styles).toContain(".verb-mastery-card { display: grid; gap: 6px; min-width: 0; padding: 9px 10px; border: 1px solid var(--dm-line); border-left: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-soft); color: var(--dm-ink-strong);");
     expect(styles).toContain(".verb-mastery-card .secondary-button { border-color: var(--dm-ink-strong); background: var(--dm-paper-raised) !important; color: var(--dm-ink-strong); }");
     expect(styles).toContain(".verb-form-card.selected { border-color: var(--dm-ink-strong);");
+    expect(styles).toContain(".verb-contrast-option.current { border-color: var(--dm-brand-orange);");
+    expect(styles).toContain(".verb-contrast-label { flex: 0 0 auto;");
     expect(styles).toContain(".due-badge[hidden] { display: none; }");
     expect(styles).toContain(".practice-card { display: grid; gap: 12px; min-width: 0;");
     expect(styles).toContain(".practice-card .heading { min-width: 0; overflow-wrap: anywhere;");

@@ -649,7 +649,7 @@ function renderVerbJourneys(): HTMLElement {
     const action = document.createElement("span"); action.className = "verb-directory-action"; action.textContent = entry.enabled ? "Open →" : "Later";
     row.append(number, copy, action);
     if (entry.enabled) {
-      const progress = getVerbJourneyProgress();
+      const progress = getVerbJourneyProgress(getVerbJourneyPack(entry.verbId!) ?? verbJourneyPack);
       row.classList.add("has-progress");
       row.append(spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-directory-progress-summary"), renderVerbProgressTrack(progress));
     }
@@ -662,15 +662,13 @@ function renderVerbJourneys(): HTMLElement {
 
 function getActiveVerbJourneyPack() { return getVerbJourneyPack(activeVerbId) ?? verbJourneyPack; }
 
-function getVerbJourneyProgress(): { completedForms: number; totalForms: number; percentage: number } {
-  const pack = getActiveVerbJourneyPack();
-  const completedForms = pack.dutchForms.filter((form) => getVerbFormEvidence(form).length > 0).length;
+function getVerbJourneyProgress(pack = getActiveVerbJourneyPack()): { completedForms: number; totalForms: number; percentage: number } {
+  const completedForms = pack.dutchForms.filter((form) => getVerbFormEvidence(form, pack).length > 0).length;
   const totalForms = pack.dutchForms.length;
   return { completedForms, totalForms, percentage: totalForms === 0 ? 0 : Math.round((completedForms / totalForms) * 100) };
 }
 
-function getVerbFormEvidence(form: VerbFormRecord): VerbJourneyRecord["skills"][string][] {
-  const pack = getActiveVerbJourneyPack();
+function getVerbFormEvidence(form: VerbFormRecord, pack = getActiveVerbJourneyPack()): VerbJourneyRecord["skills"][string][] {
   const skillIds = new Set(pack.journeys.filter((journey) => journey.targetForms.includes(form.dutchTense)).flatMap((journey) => journey.targetSkills));
   return Object.values(verbJourneyRecord?.skills ?? {}).filter((skill) => skill.verbId === pack.verb.id && skillIds.has(skill.formOrSkillId));
 }
@@ -749,7 +747,7 @@ function renderVerbJourneyOverview(): HTMLElement {
   masteryHeader.className = "verb-progress-header";
   const masteryCopy = document.createElement("span");
   masteryCopy.className = "verb-progress-copy";
-  masteryCopy.append(eyebrow("Your Verb Journey"), spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-mastery-count"), text("Practice evidence grows here; completion does not imply mastery.", "verb-mastery-note"));
+  masteryCopy.append(eyebrow("Your Verb Journey"), spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-mastery-count"), text("Practice evidence · not mastery", "verb-mastery-note"));
   masteryHeader.append(masteryCopy, svgIcon("route", "verb-mastery-icon"));
   const mapAction = button("8 Dutch forms", "button primary-button");
   mapAction.addEventListener("click", () => { selectedVerbFormTense = "VTT"; verbMapOrigin = "overview"; screen = "verbMap"; render(); content?.focus(); });
@@ -847,16 +845,21 @@ function renderVerbJourneyNotice(): HTMLElement {
     const card = section("verb-pattern-card");
     const isCurrent = item.tense === journey.targetForms[0];
     const chip = spanText(item.label, `verb-pattern-tag verb-notice-chip ${isCurrent ? "current" : "contrast"}`);
-    card.append(chip, renderVerbNoticeSentence(item.sentence, item.tense), text(item.meaning, "verb-pattern-meaning"));
+    card.append(chip, renderVerbNoticeSentence(item.sentence, item.tense, journey.verbId), text(item.meaning, "verb-pattern-meaning"));
     comparison.append(card);
   }
   const formula = section("verb-formula-card");
-  formula.append(text("FORMULA", "verb-card-label"), renderVerbNoticeFormula(notice.formula), text(notice.formulaNote, "verb-card-copy"));
+  formula.append(text("FORMULA", "verb-card-label"), renderVerbNoticeFormula(notice.formula, journey.verbId), text(notice.formulaNote, "verb-card-copy"));
   const contrast = section("verb-contrast-card");
-  const contrastTags = document.createElement("div");
-  contrastTags.className = "verb-notice-chip-row";
-  contrastTags.append(...notice.comparison.map((item) => spanText(`${item.tense} · ${item.label}`, `verb-notice-chip ${journey.targetForms.includes(item.tense) ? "current" : "contrast"}`)));
-  contrast.append(text("VALUABLE CONTRAST", "verb-card-label"), contrastTags, text(notice.valuableContrast, "verb-card-copy"));
+  const contrastGuide = text("Orange focus = this journey · Compare = a nearby meaning", "verb-contrast-guide");
+  const contrastList = section("verb-contrast-list");
+  for (const item of notice.comparison) {
+    const isCurrent = journey.targetForms.includes(item.tense);
+    const option = section(`verb-contrast-option ${isCurrent ? "current" : "contrast"}`);
+    option.append(spanText(isCurrent ? "This journey" : "Compare", "verb-contrast-label"), spanText(`${item.tense} · ${item.label}`, "verb-contrast-title"));
+    contrastList.append(option);
+  }
+  contrast.append(text("VALUABLE CONTRAST", "verb-card-label"), contrastGuide, contrastList, text(notice.valuableContrast, "verb-card-copy"));
   const targetTense = journey.targetForms[0] ?? "VTT";
   const interaction = section("verb-notice-interaction");
   interaction.append(text("NOTICE", "verb-card-label"), text(targetTense === "VTT" ? "Which sentence reports one completed event?" : targetTense === "OVT" ? "Which sentence describes a past habit or story background?" : "Which sentence matches this journey's focus?", "verb-card-copy"));
@@ -864,7 +867,7 @@ function renderVerbJourneyNotice(): HTMLElement {
   for (const item of notice.comparison) {
     const choice = button("", `button verb-notice-choice${verbNoticeDecision === item.tense ? " is-selected" : ""}`);
     choice.setAttribute("aria-pressed", String(verbNoticeDecision === item.tense));
-    choice.append(renderVerbNoticeSentence(item.sentence, item.tense), text(item.meaning, "verb-pattern-meaning"));
+    choice.append(renderVerbNoticeSentence(item.sentence, item.tense, journey.verbId), text(item.meaning, "verb-pattern-meaning"));
     choice.addEventListener("click", () => { verbNoticeDecision = item.tense; render(); });
     choices.append(choice);
   }
@@ -2021,16 +2024,17 @@ function renderSavedContext(context: SavedContextView, savedDutch: string, itemI
   return card;
 }
 function highlightedSavedContext(context: string, savedDutch: string): HTMLElement { const paragraph = document.createElement("p"); paragraph.className = "saved-context"; const contextLower = context.toLocaleLowerCase(); const savedLower = savedDutch.toLocaleLowerCase(); const start = contextLower.indexOf(savedLower); if (start < 0 || savedLower.length === 0) { paragraph.textContent = context; return paragraph; } paragraph.append(document.createTextNode(context.slice(0, start))); const mark = document.createElement("mark"); mark.className = "saved-context-highlight"; mark.textContent = context.slice(start, start + savedDutch.length); paragraph.append(mark, document.createTextNode(context.slice(start + savedDutch.length))); return paragraph; }
-function renderVerbNoticeSentence(sentence: string, tense: DutchTense): HTMLElement {
+function renderVerbNoticeSentence(sentence: string, tense: DutchTense, verbId = "verb.werken"): HTMLElement {
   const element = text("", "verb-pattern-sentence");
   element.lang = "nl";
-  appendVerbNoticeHighlights(element, sentence, verbNoticeTokens(tense));
+  appendVerbNoticeHighlights(element, sentence, verbNoticeTokens(tense, verbId));
   return element;
 }
 
-function renderVerbNoticeFormula(formula: string): HTMLElement {
+function renderVerbNoticeFormula(formula: string, verbId = "verb.werken"): HTMLElement {
   const element = text("", "verb-formula");
-  appendVerbNoticeHighlights(element, formula, ["gewerkt", "werkte", "werken", "hebben", "werk", "gewerkt", "heb", "had", "zal", "zou"]);
+  const pack = getVerbJourneyPack(verbId) ?? verbJourneyPack;
+  appendVerbNoticeHighlights(element, formula, verbNoticeTokens("VTT", verbId).concat(pack.verb.id === "verb.zijn" ? ["was", "waren", "bent", "zijn", "geweest"] : ["werkte", "werken", "gewerkt", "hebben", "werk", "had", "heb", "zal", "zou"]));
   return element;
 }
 
@@ -2039,7 +2043,7 @@ function appendVerbNoticeHighlights(parent: HTMLElement, value: string, tokens: 
   let cursor = 0;
   while (cursor < value.length) {
     const match = orderedTokens
-      .map((token) => ({ token, index: value.indexOf(token, cursor) }))
+      .map((token) => ({ token, index: findVerbNoticeToken(value, token, cursor) }))
       .filter((candidate) => candidate.index >= cursor)
       .sort((first, second) => first.index - second.index || second.token.length - first.token.length)[0];
     if (!match) { parent.append(value.slice(cursor)); break; }
@@ -2052,7 +2056,33 @@ function appendVerbNoticeHighlights(parent: HTMLElement, value: string, tokens: 
   }
 }
 
-function verbNoticeTokens(tense: DutchTense): string[] {
+function findVerbNoticeToken(value: string, token: string, from: number): number {
+  const lowerValue = value.toLocaleLowerCase();
+  const lowerToken = token.toLocaleLowerCase();
+  let index = lowerValue.indexOf(lowerToken, from);
+  while (index >= 0) {
+    const before = value[index - 1];
+    const after = value[index + token.length];
+    const isLetter = (character: string | undefined) => character !== undefined && /\p{L}/u.test(character);
+    if (!isLetter(before) && !isLetter(after)) return index;
+    index = lowerValue.indexOf(lowerToken, index + lowerToken.length);
+  }
+  return -1;
+}
+
+function verbNoticeTokens(tense: DutchTense, verbId = "verb.werken"): string[] {
+  if (verbId === "verb.zijn") {
+    return {
+      OTT: ["ben", "bent", "is", "zijn"],
+      OVT: ["was", "waren"],
+      VTT: ["ben", "is", "geweest"],
+      VVT: ["was", "geweest"],
+      OTTT: ["zal", "zijn"],
+      OVTT: ["zou", "zijn"],
+      VTTT: ["zal", "geweest", "zijn"],
+      VVTT: ["zou", "geweest", "zijn"],
+    }[tense];
+  }
   return {
     OTT: ["werk"],
     OVT: ["werkte"],
