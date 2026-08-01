@@ -83,12 +83,12 @@ error, and finish with honest evidence.
 
 **Blocked by:** T02 — Add present-expression and past-possession journeys.
 
-- [ ] The journey teaches lexical `heb/heeft gehad` for completed experiences or states without becoming a general perfect-tense course.
-- [ ] Story, notice, and feedback distinguish lexical `hebben gehad` from nearby present and past contrasts.
-- [ ] The journey has five authored questions covering meaning, construction, natural usage, map placement, and delayed/recombined order, plus no more than two targeted repairs.
-- [ ] Accepted alternatives, duplicate-token identity, selected-token order, removal by occurrence, retry, and reset remain deterministic.
-- [ ] Completion and evidence distinguish demonstrated form/skill evidence from journey completion and uncued production.
-- [ ] Focused content, practice, popup, learning, typecheck, and build checks pass without regressions to T02 or earlier verb packs.
+- [x] The journey teaches lexical `heb/heeft gehad` for completed experiences or states without becoming a general perfect-tense course.
+- [x] Story, notice, and feedback distinguish lexical `hebben gehad` from nearby present and past contrasts.
+- [x] The journey has five authored questions covering meaning, construction, natural usage, map placement, and delayed/recombined order, plus no more than two targeted repairs.
+- [x] Accepted alternatives, duplicate-token identity, selected-token order, removal by occurrence, retry, and reset remain deterministic.
+- [x] Completion and evidence distinguish demonstrated form/skill evidence from journey completion and uncued production.
+- [x] Focused content, practice, popup, learning, typecheck, and build checks pass without regressions to T02 or earlier verb packs.
 
 ## T04 — Add bounded auxiliary-perfect journey
 

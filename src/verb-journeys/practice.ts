@@ -36,7 +36,7 @@ export type VerbPracticeSession = {
   completed: boolean;
 };
 
-export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity" | "journey.zijn.ott-questions" | "journey.zijn.ovt-state" | "journey.zijn.vtt-experience" | "journey.zijn.future-conditional" | "journey.zijn.reference-completed" | "journey.hebben.ott-possession" | "journey.hebben.ott-expressions" | "journey.hebben.ovt-possession";
+export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity" | "journey.zijn.ott-questions" | "journey.zijn.ovt-state" | "journey.zijn.vtt-experience" | "journey.zijn.future-conditional" | "journey.zijn.reference-completed" | "journey.hebben.ott-possession" | "journey.hebben.ott-expressions" | "journey.hebben.ovt-possession" | "journey.hebben.vtt-experience";
 const defaultJourneyId: VerbPracticeJourneyId = "journey.werken.vtt-completed";
 
 type AuthoredVerbPracticeQuestion = Omit<VerbPracticeQuestion, "journeyId">;
@@ -344,6 +344,19 @@ const hebbenPastPossessionRepairs: AuthoredVerbPracticeQuestion[] = [
   { id: "exercise.hebben.ovt-possession.repair-order", verbId: "verb.hebben", formOrSkillId: "skill.hebben.ovt-possession", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the past word order.", context: "Gisteren …", tokens: ["Gisteren", "had", "ik", "tijd."], accepted: ["Gisteren had ik tijd."], feedback: "Correct. Had stays before ik after Gisteren.", incorrectFeedback: "Use Gisteren had ik tijd." },
 ];
 
+const hebbenCompletedExperienceQuestions: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.hebben.vtt-experience.meaning", verbId: "verb.hebben", formOrSkillId: "skill.hebben.vtt-experience", exerciseFamily: "meaning", kind: "choice", prompt: "What does this sentence show?", context: "Ik heb vandaag genoeg tijd gehad.", choices: ["A completed experience connected to now", "A present resource only", "A past background state"], accepted: ["A completed experience connected to now"], feedback: "Correct. Heb gehad reports a completed experience in a time period that still matters.", incorrectFeedback: "Heb gehad is completed experience; Ik heb tijd is present availability and Ik had tijd is past background.", repairIds: ["exercise.hebben.vtt-experience.repair-participle", "exercise.hebben.vtt-experience.repair-contrast"] },
+  { id: "exercise.hebben.vtt-experience.construct", verbId: "verb.hebben", formOrSkillId: "skill.hebben.vtt-experience", exerciseFamily: "construction", kind: "token-slots", prompt: "Build the completed-experience phrase with taps.", context: "Complete: Ik ___ vandaag genoeg tijd ___.", tokens: ["heb", "had", "gehad"], accepted: ["heb gehad"], feedback: "Correct. VTT uses present heb plus gehad.", incorrectFeedback: "Use heb before gehad: Ik heb vandaag genoeg tijd gehad." },
+  { id: "exercise.hebben.vtt-experience.natural-translation", verbId: "verb.hebben", formOrSkillId: "skill.hebben.vtt-experience", exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the best everyday sentence.", context: "We have had a pleasant day together.", choices: ["We hebben samen een fijne dag gehad.", "We hadden samen een fijne dag.", "We hebben samen een fijne dag."], accepted: ["We hebben samen een fijne dag gehad."], feedback: "Correct. Hebben gehad marks the completed experience.", incorrectFeedback: "For ‘have had’, choose We hebben samen een fijne dag gehad." },
+  { id: "exercise.hebben.vtt-experience.map-placement", verbId: "verb.hebben", formOrSkillId: "skill.hebben.vtt-experience", exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this sentence belong?", context: "Ik heb vandaag genoeg tijd gehad.", choices: ["VTT · voltooid tegenwoordige tijd", "OTT · onvoltooid tegenwoordige tijd", "OVT · onvoltooid verleden tijd", "VVT · voltooid verleden tijd"], accepted: ["VTT · voltooid tegenwoordige tijd"], feedback: "Correct. Heb gehad is VTT: a completed present-linked experience.", incorrectFeedback: "Heb gehad is voltooid tegenwoordige tijd: VTT." },
+  { id: "exercise.hebben.vtt-experience.word-order", verbId: "verb.hebben", formOrSkillId: "skill.hebben.vtt-experience", exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the words in the correct order.", context: "Start with the time phrase: Vandaag …", tokens: ["Vandaag", "heb", "ik", "genoeg", "tijd", "gehad."], accepted: ["Vandaag heb ik genoeg tijd gehad."], feedback: "Correct. Heb comes before ik and gehad closes the phrase.", incorrectFeedback: "Use Vandaag heb ik genoeg tijd gehad." },
+];
+
+const hebbenCompletedExperienceRepairs: AuthoredVerbPracticeQuestion[] = [
+  { id: "exercise.hebben.vtt-experience.repair-participle", verbId: "verb.hebben", formOrSkillId: "skill.hebben.vtt-experience", exerciseFamily: "repair-participle", kind: "choice", prompt: "Repair the completed phrase.", context: "Ik heb genoeg tijd ___.", choices: ["gehad", "had", "hebben"], accepted: ["gehad"], feedback: "Correct. Gehad is the participle of hebben.", incorrectFeedback: "After heb, use the participle gehad: Ik heb genoeg tijd gehad." },
+  { id: "exercise.hebben.vtt-experience.repair-contrast", verbId: "verb.hebben", formOrSkillId: "skill.hebben.vtt-experience", exerciseFamily: "repair-contrast", kind: "choice", prompt: "Choose the completed experience.", context: "I have had a busy day.", choices: ["Ik heb een drukke dag gehad.", "Ik heb een drukke dag.", "Ik had een drukke dag."], accepted: ["Ik heb een drukke dag gehad."], feedback: "Correct. Heb gehad expresses the completed experience.", incorrectFeedback: "Choose Ik heb een drukke dag gehad for ‘have had’." },
+];
+
 function assignJourneyId(journeyId: VerbPracticeJourneyId, pack: AuthoredVerbPracticePack): VerbPracticePack {
   return { questions: pack.questions.map((question) => ({ ...question, journeyId })), repairs: pack.repairs.map((question) => ({ ...question, journeyId })) };
 }
@@ -364,6 +377,7 @@ const practicePacks: Record<VerbPracticeJourneyId, VerbPracticePack> = {
   "journey.hebben.ott-possession": assignJourneyId("journey.hebben.ott-possession", { questions: hebbenPossessionQuestions, repairs: hebbenPossessionRepairs }),
   "journey.hebben.ott-expressions": assignJourneyId("journey.hebben.ott-expressions", { questions: hebbenExpressionsQuestions, repairs: hebbenExpressionsRepairs }),
   "journey.hebben.ovt-possession": assignJourneyId("journey.hebben.ovt-possession", { questions: hebbenPastPossessionQuestions, repairs: hebbenPastPossessionRepairs }),
+  "journey.hebben.vtt-experience": assignJourneyId("journey.hebben.vtt-experience", { questions: hebbenCompletedExperienceQuestions, repairs: hebbenCompletedExperienceRepairs }),
 };
 const allPracticeQuestions = Object.values(practicePacks).flatMap((pack) => [...pack.questions, ...pack.repairs]);
 const questionById = new Map(allPracticeQuestions.map((question) => [question.id, question]));

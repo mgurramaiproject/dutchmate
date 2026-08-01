@@ -487,6 +487,20 @@ const hebbenPack: VerbJourneyPack = {
       { label: "past question", tense: "OVT", sentence: "Had jij vroeger een hond?", meaning: "a past question with jij" },
       { label: "past plural", tense: "OVT", sentence: "We hadden thuis een grote tafel.", meaning: "a past state with we" },
     ], formula: "ik had · jij had · hij/zij had · wij hadden", formulaNote: "The past singular is had; the plural form is hadden. A question can begin with Had: Had jij vroeger een hond?", valuableContrast: "Gisteren had ik meer tijd looks back to a past state. We hadden uses the plural form, while present possession uses heb or hebben." },
+  }, {
+    id: "journey.hebben.vtt-experience", verbId: "verb.hebben", title: "What I have had", subtitle: "VTT · completed experience and states", level: "A2", kind: "core", status: "later", targetForms: ["VTT"], targetSkills: ["skill.hebben.vtt-experience"], learningGoal: "Describe a completed experience or state with hebben gehad and distinguish it from present possession and past background.", estimatedMinutes: 3, storyTitle: "Een ervaring tot nu toe",
+    story: [
+      { id: "story.hebben.vtt-experience.1", nl: "Ik heb vandaag genoeg tijd gehad.", english: "I have had enough time today.", telugu: "ఈ రోజు నాకు తగినంత సమయం ఉంది.", targets: [{ text: "heb", skillIds: ["skill.hebben.vtt-experience"] }, { text: "gehad", skillIds: ["skill.hebben.vtt-experience"] }] },
+      { id: "story.hebben.vtt-experience.2", nl: "We hebben samen een fijne dag gehad.", english: "We have had a pleasant day together.", telugu: "మేము కలిసి ఒక మంచి రోజును గడిపాము.", targets: [{ text: "hebben", skillIds: ["skill.hebben.vtt-experience"] }, { text: "gehad", skillIds: ["skill.hebben.vtt-experience"] }] },
+      { id: "story.hebben.vtt-experience.3", nl: "Heeft zij ooit zo'n lange reis gehad?", english: "Has she ever had such a long journey?", telugu: "ఆమె ఎప్పుడైనా ఇంత పొడవైన ప్రయాణం చేసిందా?", targets: [{ text: "Heeft", skillIds: ["skill.hebben.vtt-experience"] }, { text: "gehad", skillIds: ["skill.hebben.vtt-experience"] }] },
+      { id: "story.hebben.vtt-experience.4", nl: "Ik heb een goede ervaring gehad met deze cursus.", english: "I have had a good experience with this course.", telugu: "ఈ కోర్సుతో నాకు మంచి అనుభవం ఉంది.", targets: [{ text: "heb", skillIds: ["skill.hebben.vtt-experience"] }, { text: "gehad", skillIds: ["skill.hebben.vtt-experience"] }] },
+      { id: "story.hebben.vtt-experience.5", nl: "Hij heeft vorige week een drukke dag gehad.", english: "He had a busy day last week.", telugu: "గత వారం అతనికి బిజీ రోజు ఉంది.", targets: [{ text: "heeft", skillIds: ["skill.hebben.vtt-experience"] }, { text: "gehad", skillIds: ["skill.hebben.vtt-experience"] }] },
+    ],
+    notice: { id: "notice.hebben.vtt-experience", title: "Having had the experience", subtitle: "Hebben gehad links a completed experience or state to the present.", comparison: [
+      { label: "current", tense: "OTT", sentence: "Ik heb vandaag genoeg tijd.", meaning: "a state or resource now" },
+      { label: "completed experience", tense: "VTT", sentence: "Ik heb vandaag genoeg tijd gehad.", meaning: "an experience completed in the current period" },
+      { label: "past background", tense: "OVT", sentence: "Ik had gisteren genoeg tijd.", meaning: "a past state viewed as background" },
+    ], formula: "ik heb gehad · hij/zij heeft gehad · wij hebben gehad", formulaNote: "VTT uses present hebben plus the lexical participle gehad. The experience can be completed while the time period still matters now.", valuableContrast: "Ik heb tijd describes availability now. Ik heb tijd gehad reports a completed experience, while Ik had tijd looks back to a past state." },
   }],
 };
 

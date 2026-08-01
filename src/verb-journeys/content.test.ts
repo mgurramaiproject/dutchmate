@@ -78,7 +78,10 @@ describe("werken Verb Journey pack", () => {
       "journey.hebben.ott-possession",
       "journey.hebben.ott-expressions",
       "journey.hebben.ovt-possession",
+      "journey.hebben.vtt-experience",
     ]);
+    expect(hebben!.journeys.every((journey) => journey.story.length > 0 && journey.notice)).toBe(true);
+    expect(hebben!.journeys.find((journey) => journey.id === "journey.hebben.vtt-experience")?.notice?.title).toBe("Having had the experience");
     expect(hebben!.journeys[0].story).toHaveLength(5);
     expect(hebben!.journeys[0].story.every((line) => line.targets.every((target) => line.nl.includes(target.text)))).toBe(true);
     expect(isVerbJourneyContentAvailable("verb.hebben")).toBe(true);

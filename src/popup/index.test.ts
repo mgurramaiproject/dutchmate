@@ -1197,6 +1197,17 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Looking back with had"));
   });
 
+  it("routes the hebben completed-experience journey through its own story and notice", async () => {
+    button("Lessons").click();
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable")][2].click();
+    await vi.waitFor(() => expect(content().textContent).toContain("What I have had"));
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((entry) => entry.textContent?.includes("What I have had"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Ik heb vandaag genoeg tijd gehad."));
+    button("Notice the pattern →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Having had the experience"));
+  });
+
   it("counts two mastered zijn journeys even when both use the OTT map form", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());

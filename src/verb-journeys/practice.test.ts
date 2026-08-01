@@ -162,6 +162,21 @@ describe("hebben expression and past-possession practice", () => {
   });
 });
 
+describe("hebben completed-experience practice", () => {
+  it("keeps the lexical gehad journey on its own five-family bank", () => {
+    const questions = getVerbPracticeQuestions("journey.hebben.vtt-experience");
+    expect(questions).toHaveLength(5);
+    expect(questions.every((question) => question.verbId === "verb.hebben" && question.journeyId === "journey.hebben.vtt-experience")).toBe(true);
+    expect(questions[4].delayedOrRecombined).toBe(true);
+  });
+
+  it("completes the lexical gehad journey with controlled answers", () => {
+    let session = createVerbPracticeSession("journey.hebben.vtt-experience");
+    for (const question of getVerbPracticeQuestions("journey.hebben.vtt-experience")) session = advanceVerbPractice(checkVerbPracticeAnswer(session, question.accepted[0]).session);
+    expect(session.completed).toBe(true);
+  });
+});
+
 describe("zijn question and past-state practice", () => {
   it.each(["journey.zijn.ott-questions", "journey.zijn.ovt-state"] as const)("keeps %s on its own five-family bank", (journeyId) => {
     const questions = getVerbPracticeQuestions(journeyId);
