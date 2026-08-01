@@ -1208,6 +1208,17 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Having had the experience"));
   });
 
+  it("routes the hebben auxiliary-perfect journey with its practical zijn contrast", async () => {
+    button("Lessons").click();
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    [...content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable")][2].click();
+    await vi.waitFor(() => expect(content().textContent).toContain("What I have done"));
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((entry) => entry.textContent?.includes("What I have done"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Ik heb vandaag gewerkt."));
+    button("Notice the pattern →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Choosing the practical auxiliary"));
+  });
+
   it("counts two mastered zijn journeys even when both use the OTT map form", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());

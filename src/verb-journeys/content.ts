@@ -501,6 +501,20 @@ const hebbenPack: VerbJourneyPack = {
       { label: "completed experience", tense: "VTT", sentence: "Ik heb vandaag genoeg tijd gehad.", meaning: "an experience completed in the current period" },
       { label: "past background", tense: "OVT", sentence: "Ik had gisteren genoeg tijd.", meaning: "a past state viewed as background" },
     ], formula: "ik heb gehad · hij/zij heeft gehad · wij hebben gehad", formulaNote: "VTT uses present hebben plus the lexical participle gehad. The experience can be completed while the time period still matters now.", valuableContrast: "Ik heb tijd describes availability now. Ik heb tijd gehad reports a completed experience, while Ik had tijd looks back to a past state." },
+  }, {
+    id: "journey.hebben.vtt-auxiliary", verbId: "verb.hebben", title: "What I have done", subtitle: "VTT · common auxiliary hebben", level: "A2", kind: "core", status: "later", targetForms: ["VTT"], targetSkills: ["skill.hebben.vtt-auxiliary"], learningGoal: "Recognise and construct common perfect phrases that use hebben as the auxiliary, with a practical contrast to selected zijn phrases.", estimatedMinutes: 3, storyTitle: "Wat ik vandaag heb gedaan",
+    story: [
+      { id: "story.hebben.vtt-auxiliary.1", nl: "Ik heb vandaag gewerkt.", english: "I have worked today.", telugu: "నేను ఈ రోజు పని చేశాను.", targets: [{ text: "heb", skillIds: ["skill.hebben.vtt-auxiliary"] }, { text: "gewerkt", skillIds: ["skill.hebben.vtt-auxiliary"] }] },
+      { id: "story.hebben.vtt-auxiliary.2", nl: "We hebben samen gekookt.", english: "We have cooked together.", telugu: "మేము కలిసి వంట చేశాము.", targets: [{ text: "hebben", skillIds: ["skill.hebben.vtt-auxiliary"] }, { text: "gekookt", skillIds: ["skill.hebben.vtt-auxiliary"] }] },
+      { id: "story.hebben.vtt-auxiliary.3", nl: "Zij heeft een lange brief geschreven.", english: "She has written a long letter.", telugu: "ఆమె ఒక పొడవైన లేఖ రాసింది.", targets: [{ text: "heeft", skillIds: ["skill.hebben.vtt-auxiliary"] }, { text: "geschreven", skillIds: ["skill.hebben.vtt-auxiliary"] }] },
+      { id: "story.hebben.vtt-auxiliary.4", nl: "Ik ben vroeg naar huis gegaan.", english: "I went home early.", telugu: "నేను త్వరగా ఇంటికి వెళ్లాను.", targets: [{ text: "ben", skillIds: ["skill.hebben.vtt-auxiliary"] }, { text: "gegaan", skillIds: ["skill.hebben.vtt-auxiliary"] }] },
+      { id: "story.hebben.vtt-auxiliary.5", nl: "Mijn broer heeft de deur geopend.", english: "My brother has opened the door.", telugu: "నా సోదరుడు తలుపు తెరిచాడు.", targets: [{ text: "heeft", skillIds: ["skill.hebben.vtt-auxiliary"] }, { text: "geopend", skillIds: ["skill.hebben.vtt-auxiliary"] }] },
+    ],
+    notice: { id: "notice.hebben.vtt-auxiliary", title: "Choosing the practical auxiliary", subtitle: "Many completed actions use hebben; selected movement or state changes can use zijn.", comparison: [
+      { label: "hebben auxiliary", tense: "VTT", sentence: "Ik heb vandaag gewerkt.", meaning: "a completed action" },
+      { label: "hebben auxiliary", tense: "VTT", sentence: "Zij heeft een lange brief geschreven.", meaning: "a completed action with a direct object" },
+      { label: "practical contrast", tense: "VTT", sentence: "Ik ben vroeg naar huis gegaan.", meaning: "a selected movement example using zijn" },
+    ], formula: "ik heb gewerkt · wij hebben gekookt · zij heeft geschreven", formulaNote: "This lesson uses a small high-frequency set. It shows the practical auxiliary choice without teaching every Dutch auxiliary rule or participle pattern.", valuableContrast: "Heb gewerkt and heeft geschreven use hebben for completed actions. Ben gegaan is a selected movement contrast using zijn; learners need the authored phrase, not a universal rule." },
   }],
 };
 

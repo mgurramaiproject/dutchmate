@@ -102,12 +102,12 @@ participle-formation course.
 
 **Blocked by:** T03 — Add lexical completed-experience journey.
 
-- [ ] The journey teaches common auxiliary `hebben` perfect constructions through a small authored set of high-frequency cross-verb examples.
-- [ ] The notice and practice explain the practical boundary between selected `hebben` and `zijn` perfect constructions without claiming a full auxiliary system.
-- [ ] Cross-verb examples remain authored content owned by the `hebben` package and do not create new journeys for `werken`, `zien`, or `gaan`.
-- [ ] The journey has five authored questions covering meaning, construction, natural usage, map placement, and delayed/recombined order, plus no more than two targeted repairs.
-- [ ] Evidence is keyed to the auxiliary skill and exercise family, remains additive and content-versioned, and preserves existing learner history.
-- [ ] Focused content, practice, popup, learning, typecheck, and build checks pass without regressions to T03 or earlier verb packs.
+- [x] The journey teaches common auxiliary `hebben` perfect constructions through a small authored set of high-frequency cross-verb examples.
+- [x] The notice and practice explain the practical boundary between selected `hebben` and `zijn` perfect constructions without claiming a full auxiliary system.
+- [x] Cross-verb examples remain authored content owned by the `hebben` package and do not create new journeys for `werken`, `zien`, or `gaan`.
+- [x] The journey has five authored questions covering meaning, construction, natural usage, map placement, and delayed/recombined order, plus no more than two targeted repairs.
+- [x] Evidence is keyed to the auxiliary skill and exercise family, remains additive and content-versioned, and preserves existing learner history.
+- [x] Focused content, practice, popup, learning, typecheck, and build checks pass without regressions to T03 or earlier verb packs.
 
 ## T05 — Add future, conditional, and advanced perfect variants
 
