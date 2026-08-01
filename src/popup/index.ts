@@ -632,10 +632,9 @@ function renderVerbJourneys(): HTMLElement {
   back.addEventListener("click", () => { screen = "lessons"; render(); });
   wrapper.append(back, eyebrow("Lessons · Verb Journeys"), heading("Verb Journeys"), text("Choose one useful Dutch verb and follow its staged forms from context to reference."));
   const list = section("verb-directory");
-  // Stable directory positions: number: "01" is werken and number: "04" remains reserved for gaan.
+  // Stable directory positions: number: "01" is werken, "02" is zijn, and "03" is hebben.
   const entries = [
     ...verbJourneyPacks.map((pack, index) => ({ number: String(index + 1).padStart(2, "0"), verbId: pack.verb.id, lemma: pack.verb.lemma, detail: `${pack.verb.english} · ${pack.verb.tags.includes("irregular") ? "irregular" : "A1 core verb"}`, enabled: true })),
-    { number: "03", verbId: undefined, lemma: "hebben", detail: "to have · coming later", enabled: false },
     { number: "04", verbId: undefined, lemma: "gaan", detail: "to go · coming later", enabled: false },
   ];
   for (const entry of entries) {
@@ -2040,9 +2039,13 @@ function renderVerbNoticeSentence(sentence: string, tense: DutchTense, verbId = 
 
 function renderVerbNoticeFormula(formula: string, verbId = "verb.werken"): HTMLElement {
   const element = text("", "verb-formula");
-  const pack = getVerbJourneyPack(verbId) ?? verbJourneyPack;
-  appendVerbNoticeHighlights(element, formula, verbNoticeTokens("VTT", verbId).concat(pack.verb.id === "verb.zijn" ? ["was", "waren", "bent", "zijn", "geweest"] : ["werkte", "werken", "gewerkt", "hebben", "werk", "had", "heb", "zal", "zou"]));
+  appendVerbNoticeHighlights(element, formula, verbNoticeFormulaTokens(verbId));
   return element;
+}
+
+function verbNoticeFormulaTokens(verbId = "verb.werken"): string[] {
+  const pack = getVerbJourneyPack(verbId) ?? verbJourneyPack;
+  return [...new Set(pack.dutchForms.flatMap(({ dutchTense }) => verbNoticeTokens(dutchTense, verbId)))];
 }
 
 function appendVerbNoticeHighlights(parent: HTMLElement, value: string, tokens: string[]): void {
@@ -2088,6 +2091,18 @@ function verbNoticeTokens(tense: DutchTense, verbId = "verb.werken"): string[] {
       OVTT: ["zou", "zijn"],
       VTTT: ["zal", "geweest", "zijn"],
       VVTT: ["zou", "geweest", "zijn"],
+    }[tense];
+  }
+  if (verbId === "verb.hebben") {
+    return {
+      OTT: ["heb", "hebt", "heeft", "hebben"],
+      OVT: ["had", "hadden"],
+      VTT: ["heb", "hebt", "heeft", "hebben", "gehad"],
+      VVT: ["had", "hadden", "gehad"],
+      OTTT: ["zal", "hebben"],
+      OVTT: ["zou", "hebben"],
+      VTTT: ["zal", "gehad", "hebben"],
+      VVTT: ["zou", "gehad", "hebben"],
     }[tense];
   }
   return {

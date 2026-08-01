@@ -34,6 +34,18 @@ describe("Feature 015 release qualification", () => {
     expect(coreQuestionCounts).toEqual([5, 5, 5, 5, 5, 5]);
   });
 
+  it("qualifies the complete additive hebben package and its six owned practice banks", () => {
+    const hebben = verbJourneyPacks.find((pack) => pack.verb.id === "verb.hebben");
+    expect(hebben).toBeTruthy();
+    expect(validateVerbJourneyRegistry()).toEqual([]);
+    expect(hebben?.contentVersion).toBe("017-1");
+    expect(hebben?.dutchForms).toHaveLength(8);
+    expect(hebben?.englishComparison).toHaveLength(12);
+    expect(hebben?.journeys).toHaveLength(6);
+    expect(hebben?.journeys.every((journey) => journey.story.length === 5 && journey.notice && journey.targetSkills.length > 0)).toBe(true);
+    expect(hebben?.journeys.map((journey) => getVerbPracticeQuestions(journey.id as never).filter((question) => question.phase !== "repair").length)).toEqual([5, 5, 5, 5, 5, 5]);
+  });
+
   it("keeps the practice contract at five core questions and two repairs", () => {
     expect(validateVerbPracticeContent()).toEqual([]);
     const questions = getVerbPracticeQuestions();

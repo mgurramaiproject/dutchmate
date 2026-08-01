@@ -1,4 +1,4 @@
-import { VERB_JOURNEY_CONTENT_VERSION, type VerbJourneyContentVersion } from "./content";
+import { HEBBEN_VERB_JOURNEY_CONTENT_VERSION, VERB_JOURNEY_CONTENT_VERSION, ZIJN_VERB_JOURNEY_CONTENT_VERSION, type VerbJourneyContentVersion } from "./content";
 
 export type VerbJourneySkillStatus = "needs-practice" | "practising" | "demonstrated";
 export type VerbJourneyOutcome = "correct" | "incorrect";
@@ -89,7 +89,7 @@ export function recordVerbJourneyEvidence(record: VerbJourneyRecord, input: Reco
 }
 
 export function parseVerbJourneyRecord(value: unknown): VerbJourneyRecord | null {
-  if (!isRecord(value) || (value.contentVersion !== VERB_JOURNEY_CONTENT_VERSION && value.contentVersion !== "016-1") || !nonNegativeInteger(value.evidenceRevision) || !isRecord(value.skills)) return null;
+  if (!isRecord(value) || (value.contentVersion !== VERB_JOURNEY_CONTENT_VERSION && value.contentVersion !== ZIJN_VERB_JOURNEY_CONTENT_VERSION && value.contentVersion !== HEBBEN_VERB_JOURNEY_CONTENT_VERSION) || !nonNegativeInteger(value.evidenceRevision) || !isRecord(value.skills)) return null;
   const skills: Record<string, VerbJourneySkillEvidence> = {};
   for (const [key, candidate] of Object.entries(value.skills)) {
     const parsed = parseSkill(candidate);

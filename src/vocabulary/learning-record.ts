@@ -545,7 +545,7 @@ function mergeContrastRecords(local: Record<string, ContrastRecord>, imported: R
 
 function mergeVerbJourneyRecords(local: VerbJourneyRecord, imported: VerbJourneyRecord | undefined): VerbJourneyRecord {
   if (!imported) return local;
-  const contentVersion = (local.contentVersion === "016-1" || imported.contentVersion === "016-1" ? "016-1" : "015-1") as "015-1" | "016-1";
+  const contentVersion = (local.contentVersion === "017-1" || imported.contentVersion === "017-1" ? "017-1" : local.contentVersion === "016-1" || imported.contentVersion === "016-1" ? "016-1" : "015-1") as "015-1" | "016-1" | "017-1";
   const result = { ...local, contentVersion, skills: { ...local.skills }, evidenceRevision: Math.max(local.evidenceRevision, imported.evidenceRevision) };
   for (const [skillId, incoming] of Object.entries(imported.skills)) {
     const existing = result.skills[skillId];
@@ -668,7 +668,7 @@ function isGrammarTask(value: unknown): value is Extract<DailyFiveTask, { kind: 
   return pattern !== undefined && pattern.exercises.some((exercise) => exercise.id === value.exerciseId);
 }
 function isContrastTask(value: unknown): value is Extract<DailyFiveTask, { kind: "contrast" }> { return isRecord(value) && value.kind === "contrast" && value.packId === CONTRAST_PACK_ID && value.contentVersion === CONTRAST_CONTENT_VERSION && typeof value.exerciseId === "string" && contrastPack.exercises.some((exercise) => exercise.id === value.exerciseId); }
-function isVerbJourneyTask(value: unknown): value is VerbJourneyDailyFiveTask { if (!isRecord(value) || value.kind !== "verb" || typeof value.verbId !== "string" || (value.contentVersion !== "015-1" && value.contentVersion !== "016-1") || typeof value.formOrSkillId !== "string" || typeof value.exerciseFamily !== "string" || typeof value.exerciseId !== "string") return false; const exercise = getVerbPracticeQuestion(value.exerciseId); return isVerbJourneyContentAvailable(value.verbId) && value.contentVersion === getVerbJourneyContentVersion(value.verbId) && exercise?.verbId === value.verbId && exercise.formOrSkillId === value.formOrSkillId && exercise.exerciseFamily === value.exerciseFamily; }
+function isVerbJourneyTask(value: unknown): value is VerbJourneyDailyFiveTask { if (!isRecord(value) || value.kind !== "verb" || typeof value.verbId !== "string" || !["015-1", "016-1", "017-1"].includes(value.contentVersion as string) || typeof value.formOrSkillId !== "string" || typeof value.exerciseFamily !== "string" || typeof value.exerciseId !== "string") return false; const exercise = getVerbPracticeQuestion(value.exerciseId); return isVerbJourneyContentAvailable(value.verbId) && value.contentVersion === getVerbJourneyContentVersion(value.verbId) && exercise?.verbId === value.verbId && exercise.formOrSkillId === value.formOrSkillId && exercise.exerciseFamily === value.exerciseFamily; }
 function parseGrammarRecords(value: unknown): Record<string, GrammarRecord> { if (!isRecord(value)) return {}; const result: Record<string, GrammarRecord> = {}; for (const [key, candidate] of Object.entries(value)) { const parsed = parseGrammarRecord(candidate); if (parsed && key === parsed.patternId) result[key] = parsed; } return result; }
 function parseGrammarRecordsStrict(value: unknown, durable: boolean): Record<string, GrammarRecord> {
   if (value === undefined && !durable) return {};
