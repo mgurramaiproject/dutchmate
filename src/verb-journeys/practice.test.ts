@@ -166,6 +166,14 @@ describe("gaan movement practice", () => {
     }
   });
 
+  it("keeps the movement question subject aligned", () => {
+    const question = getVerbPracticeQuestions("journey.gaan.ott-movement")[2];
+    expect(question.context).toBe("I am going to the station soon.");
+    expect(question.accepted[0]).toBe("Ik ga straks naar het station.");
+    expect(question.choices).toEqual(expect.arrayContaining(["Ik ga straks naar het station."]));
+    expect(question.choices?.every((choice) => choice.startsWith("Ik "))).toBe(true);
+  });
+
   it("completes all six journeys with their authored answers", () => {
     for (const journeyId of journeyIds) {
       let session = createVerbPracticeSession(journeyId);

@@ -1195,6 +1195,20 @@ describe("lesson popup", () => {
     expect(content().querySelector<HTMLElement>(".verb-form-card.selected")?.getAttribute("aria-label")).toMatch(/^OVT:/);
   });
 
+  it("opens gaan with one sentence family and highlights its forms in Notice", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable")[3].click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Going somewhere and leaving"));
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("Going somewhere and leaving"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Ik ga vandaag naar de markt."));
+    button("Notice the pattern →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("The present forms of gaan"));
+    expect([...content().querySelectorAll<HTMLElement>(".verb-notice-highlight")].map((highlight) => highlight.textContent)).toEqual(expect.arrayContaining(["ga", "gaat", "gaan", "zal"]));
+    expect(content().querySelectorAll(".verb-formula .verb-notice-highlight").length).toBeGreaterThan(0);
+  });
+
   it("opens the additive hebben directory entry and routes its first possession journey", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());

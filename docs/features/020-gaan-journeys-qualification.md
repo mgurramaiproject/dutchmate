@@ -52,6 +52,18 @@ repair IDs, and a content-versioned evidence path.
 
 ## Learner-language qualification
 
+### QA correction: one sentence family and visible target forms
+
+The map and English comparison were revised to use one consistent base
+proposition—`Ik ga naar het station`—across the eight Dutch forms and twelve
+English comparison records. Tense constructions change; destinations and
+subjects do not rotate unless a journey is explicitly teaching person
+agreement. Natural-translation choices keep the English prompt subject aligned
+with every Dutch option. The shared notice and English-detail renderers now
+highlight `gaan` finite forms, auxiliaries, participles, and infinitives using
+the existing colour-chip treatment. Regression coverage asserts both sentence
+family consistency and visible `gaan` highlights.
+
 For every learner-visible Dutch, English, and Telugu string, record:
 
 - reviewer identity and role;

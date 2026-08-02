@@ -1042,8 +1042,8 @@ function renderEnglishComparisonDetail(pack: ReturnType<typeof getActiveVerbJour
   });
   const position = text(`${index + 1} of ${pack.englishComparison.length}`, "verb-english-detail-position");
   detail.append(back, position, eyebrow("English comparison detail"), heading(englishFormLabel(record)));
-  detail.append(renderEnglishComparisonVariant("MEANING-PRESERVING DUTCH", englishComparisonVariant(record, "meaningPreserving"), record.cue?.tokens ?? []));
-  detail.append(renderEnglishComparisonVariant("EVERYDAY DUTCH", englishComparisonVariant(record, "everyday"), record.cue?.tokens ?? []));
+  detail.append(renderEnglishComparisonVariant("MEANING-PRESERVING DUTCH", englishComparisonVariant(record, "meaningPreserving"), record.cue?.tokens ?? [], pack.verb.id));
+  detail.append(renderEnglishComparisonVariant("EVERYDAY DUTCH", englishComparisonVariant(record, "everyday"), record.cue?.tokens ?? [], pack.verb.id));
   if (record.cue) {
     const cue = section("verb-english-detail-cue");
     cue.append(text("CUE", "verb-card-label"), text(`${record.cue.display} · ${record.cue.shortMeaning}`, "verb-english-cue"));
@@ -1067,11 +1067,11 @@ function openEnglishComparisonDetail(record: EnglishMapRecord): void {
   content?.focus();
 }
 
-function renderEnglishComparisonVariant(label: string, variant: EnglishComparisonVariant, cueTokens: string[]): HTMLElement {
+function renderEnglishComparisonVariant(label: string, variant: EnglishComparisonVariant, cueTokens: string[], verbId = "verb.werken"): HTMLElement {
   const block = section("verb-english-variant");
   const header = document.createElement("div"); header.className = "verb-english-variant-header";
   header.append(text(label, "verb-card-label"), text(variant.form, "verb-english-form"));
-  const dutch = renderEnglishCueSentence(variant.nl, cueTokens, "verb-english-detail-dutch"); dutch.lang = "nl";
+  const dutch = renderEnglishCueSentence(variant.nl, [...cueTokens, ...verbNoticeTokens(variant.form, verbId)], "verb-english-detail-dutch"); dutch.lang = "nl";
   block.append(header, dutch, text(`EN · ${variant.en}`, "verb-english-detail-translation"), text(`TE · ${variant.te}`, "verb-english-detail-translation"));
   return block;
 }
@@ -2228,6 +2228,18 @@ function verbNoticeTokens(tense: DutchTense, verbId = "verb.werken"): string[] {
       OVTT: ["zou", "hebben"],
       VTTT: ["zal", "gehad", "hebben"],
       VVTT: ["zou", "gehad", "hebben"],
+    }[tense];
+  }
+  if (verbId === "verb.gaan") {
+    return {
+      OTT: ["ga", "gaat", "gaan"],
+      OVT: ["ging", "gingen"],
+      VTT: ["ben", "is", "zijn", "gegaan"],
+      VVT: ["was", "waren", "gegaan"],
+      OTTT: ["zal", "gaan"],
+      OVTT: ["zou", "gaan"],
+      VTTT: ["zal", "gegaan", "zijn"],
+      VVTT: ["zou", "gegaan", "zijn"],
     }[tense];
   }
   return {

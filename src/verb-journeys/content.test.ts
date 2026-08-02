@@ -172,4 +172,12 @@ describe("werken Verb Journey pack", () => {
     expect(forms.flatMap((form) => [form.canonicalExample!.nl, form.canonicalExample!.en, form.canonicalExample!.te, form.commonUsageExample!.nl, form.commonUsageExample!.en, form.commonUsageExample!.te])).not.toContain("Unavailable");
     expect(new Set(forms.map((form) => form.id)).size).toBe(32);
   });
+
+  it("keeps gaan map and English comparison examples in one sentence family", () => {
+    const gaan = getVerbJourneyPack("verb.gaan")!;
+    const mapSentences = gaan.dutchForms.flatMap((form) => [form.canonicalExample!.nl, form.commonUsageExample!.nl]);
+    expect(mapSentences.every((sentence) => sentence.includes("naar het station"))).toBe(true);
+    expect(new Set(mapSentences).size).toBe(8);
+    expect(gaan.englishComparison.every((record) => record.meaningPreserving?.nl.includes("naar het station") && record.everyday?.nl.includes("naar het station"))).toBe(true);
+  });
 });

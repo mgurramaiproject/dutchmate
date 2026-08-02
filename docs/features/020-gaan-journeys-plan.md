@@ -35,6 +35,16 @@ deterministic practice, Today/Daily Five, popup, and local learning-record
 contracts. It will not create a parallel scheduler, mastery model, evidence
 store, or verb-specific UI framework.
 
+## QA correction recorded
+
+The learner-facing map and English lens use one sentence family for comparison:
+the same `Ik ga naar het station` proposition is converted across the eight
+Dutch forms and twelve English records. Practice choices keep their subject
+aligned with the prompt, and the shared notice/comparison renderer highlights
+the `gaan` form tokens with the existing colour-chip treatment. Person and
+destination variation remains only in stories or explicitly labelled
+conjugation contrasts.
+
 ## Shared understanding
 
 - Teach movement and departure, destinations, plans, near-future `gaan` plus an
