@@ -1605,7 +1605,9 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("I am working at home right now.");
     expect(content().textContent).toContain("Cue · elke maandag");
     expect(content().textContent).not.toContain("TE ·");
-    content().querySelector<HTMLButtonElement>(".verb-english-card")!.click();
+    const firstCard = content().querySelector<HTMLButtonElement>(".verb-english-card")!;
+    expect(firstCard.getAttribute("aria-label")).toContain("Dutch form: OTT");
+    firstCard.click();
     await vi.waitFor(() => expect(content().querySelector(".verb-english-detail-view")).toBeTruthy());
     expect(content().querySelectorAll(".verb-english-variant")).toHaveLength(2);
     expect(content().textContent).toContain("MEANING-PRESERVING DUTCH");
@@ -1615,12 +1617,25 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("HOW DUTCH EXPRESSES IT");
     expect(content().textContent).toContain("WHY THEY DIFFER");
     expect(content().textContent).toContain("1 of 12");
+    expect(content().textContent?.match(/Ik werk elke maandag thuis\./g)).toHaveLength(2);
+    expect(button("Previous").disabled).toBe(true);
     button("Next").click();
     await vi.waitFor(() => expect(content().textContent).toContain("2 of 12"));
     expect(content().textContent).toContain("Present continuous");
+    for (let position = 3; position <= 12; position += 1) {
+      button("Next").click();
+      await vi.waitFor(() => expect(content().textContent).toContain(`${position} of 12`));
+    }
+    expect(button("Next").disabled).toBe(true);
+    for (let position = 11; position >= 1; position -= 1) {
+      button("Previous").click();
+      await vi.waitFor(() => expect(content().textContent).toContain(`${position} of 12`));
+    }
+    expect(button("Previous").disabled).toBe(true);
     button("Back to Present forms").click();
     await vi.waitFor(() => expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4));
     expect(content().textContent).toContain("Present 1–4");
+    expect(document.activeElement).toBe(content().querySelector("[data-english-tense='present-simple']"));
     button("Past 5–8").click();
     expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4);
     expect(content().textContent).toContain("I worked at home yesterday.");

@@ -656,9 +656,13 @@ function parseLearningItem(value: unknown): LearningItem {
 }
 function parseDailyFiveSnapshot(value: unknown): DailyFiveSnapshot | null {
   if (!isRecord(value) || !finite(value.createdAt) || !finite(value.dayStartAt) || !Array.isArray(value.tasks) || !Array.isArray(value.completedTaskIds) || typeof value.goalCompleted !== "boolean") return null;
-  const tasks = value.tasks.filter((task): task is DailyFiveTask => isVocabularyTask(task) || isGrammarTask(task) || isContrastTask(task) || isVerbJourneyTask(task));
+  const tasks = value.tasks.flatMap((task) => { const parsed = parseDailyFiveTask(task); return parsed ? [parsed] : []; });
   if (tasks.length !== value.tasks.length || tasks.length > 5 || new Set(tasks.map(taskId)).size !== tasks.length || !value.completedTaskIds.every((id) => typeof id === "string" && tasks.some((task) => taskId(task) === id))) return null;
   return { createdAt: value.createdAt, dayStartAt: value.dayStartAt, tasks, completedTaskIds: value.completedTaskIds as string[], goalCompleted: value.goalCompleted };
+}
+function parseDailyFiveTask(value: unknown): DailyFiveTask | null {
+  if (isVocabularyTask(value) || isGrammarTask(value) || isContrastTask(value)) return value;
+  return parseVerbJourneyTask(value);
 }
 function taskId(task: DailyFiveTask): string { return isVocabularyTask(task) ? `${task.itemId}\u001f${task.dimension}` : isVerbJourneyTask(task) ? `${task.verbId}\u001f${task.formOrSkillId}\u001f${task.exerciseFamily}\u001f${task.exerciseId}` : "patternId" in task ? `${task.patternId}\u001f${task.exerciseId}` : `${task.packId}\u001f${task.exerciseId}`; }
 function isVocabularyTask(value: unknown): value is { itemId: string; dimension: DailyFiveDimension } { return isRecord(value) && typeof value.itemId === "string" && (value.dimension === "recognition" || value.dimension === "recall"); }
@@ -668,7 +672,21 @@ function isGrammarTask(value: unknown): value is Extract<DailyFiveTask, { kind: 
   return pattern !== undefined && pattern.exercises.some((exercise) => exercise.id === value.exerciseId);
 }
 function isContrastTask(value: unknown): value is Extract<DailyFiveTask, { kind: "contrast" }> { return isRecord(value) && value.kind === "contrast" && value.packId === CONTRAST_PACK_ID && value.contentVersion === CONTRAST_CONTENT_VERSION && typeof value.exerciseId === "string" && contrastPack.exercises.some((exercise) => exercise.id === value.exerciseId); }
-function isVerbJourneyTask(value: unknown): value is VerbJourneyDailyFiveTask { if (!isRecord(value) || value.kind !== "verb" || typeof value.verbId !== "string" || ![VERB_JOURNEY_CONTENT_VERSION, VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ZIJN_VERB_JOURNEY_CONTENT_VERSION, ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ENGLISH_COMPARISON_CONTENT_VERSION].includes(value.contentVersion as string) || typeof value.formOrSkillId !== "string" || typeof value.exerciseFamily !== "string" || typeof value.exerciseId !== "string") return false; const exercise = getVerbPracticeQuestion(value.exerciseId); return isVerbJourneyContentAvailable(value.verbId) && value.contentVersion === getVerbJourneyContentVersion(value.verbId) && exercise?.verbId === value.verbId && exercise.formOrSkillId === value.formOrSkillId && exercise.exerciseFamily === value.exerciseFamily; }
+function parseVerbJourneyTask(value: unknown): VerbJourneyDailyFiveTask | null {
+  if (!isRecord(value) || value.kind !== "verb" || typeof value.verbId !== "string" || typeof value.contentVersion !== "string" || typeof value.formOrSkillId !== "string" || typeof value.exerciseFamily !== "string" || typeof value.exerciseId !== "string") return null;
+  const currentVersion = getVerbJourneyContentVersion(value.verbId);
+  const validVersions = value.verbId === "verb.werken"
+    ? [VERB_JOURNEY_CONTENT_VERSION, VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ENGLISH_COMPARISON_CONTENT_VERSION]
+    : value.verbId === "verb.zijn"
+      ? [ZIJN_VERB_JOURNEY_CONTENT_VERSION, ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ENGLISH_COMPARISON_CONTENT_VERSION]
+      : value.verbId === "verb.hebben"
+        ? [HEBBEN_VERB_JOURNEY_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ENGLISH_COMPARISON_CONTENT_VERSION]
+        : [];
+  const exercise = getVerbPracticeQuestion(value.exerciseId);
+  if (!currentVersion || !validVersions.includes(value.contentVersion as VerbJourneyContentVersion) || !isVerbJourneyContentAvailable(value.verbId) || exercise?.verbId !== value.verbId || exercise.formOrSkillId !== value.formOrSkillId || exercise.exerciseFamily !== value.exerciseFamily) return null;
+  return { ...value, contentVersion: currentVersion } as VerbJourneyDailyFiveTask;
+}
+function isVerbJourneyTask(value: unknown): value is VerbJourneyDailyFiveTask { return parseVerbJourneyTask(value) !== null; }
 
 function latestVerbJourneyContentVersion(...versions: VerbJourneyContentVersion[]): VerbJourneyContentVersion {
   const order: VerbJourneyContentVersion[] = [VERB_JOURNEY_CONTENT_VERSION, VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ZIJN_VERB_JOURNEY_CONTENT_VERSION, ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ENGLISH_COMPARISON_CONTENT_VERSION];

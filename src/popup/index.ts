@@ -1016,7 +1016,7 @@ function renderEnglishComparisonCard(record: EnglishMapRecord, index: number): H
   const cue = record.cue;
   const card = button("", "verb-english-card");
   card.dataset.englishTense = record.englishTense;
-  card.setAttribute("aria-label", `${index}. ${englishFormLabel(record)}. Everyday Dutch: ${everyday.nl}. ${cue ? `Cue: ${cue.display}` : ""}`.trim());
+  card.setAttribute("aria-label", `${index}. ${englishFormLabel(record)}. Everyday Dutch: ${everyday.nl}. Dutch form: ${everyday.form}. ${cue ? `Cue: ${cue.display}` : ""}`.trim());
   const header = document.createElement("span"); header.className = "verb-english-card-header";
   header.append(spanText(String(index), "verb-english-index"), spanText(englishFormLabel(record), "verb-english-name"), spanText(everyday.form, "verb-english-form"), spanText("›", "verb-english-toggle"));
   const english = text(record.english, "verb-english-example"); english.lang = "en";

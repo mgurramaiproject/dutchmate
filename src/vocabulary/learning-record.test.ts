@@ -697,6 +697,25 @@ describe("LearningRecordStore", () => {
     await expect(records.recordVerbJourneyDailyFiveResult({ task: task!, result: "correct", expectedEvidenceRevision: 1 })).resolves.toEqual(result);
   });
 
+  it("migrates an in-progress legacy Verb Journey Daily Five task to the current pack version", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    await records.recordVerbJourneyResult({ verbId: "verb.werken", formOrSkillId: "skill.werken.vtt-completed", contentVersion: "019-1", exerciseFamily: "meaning", exerciseId: "exercise.werken.vtt.meaning", result: "incorrect", expectedEvidenceRevision: 0 });
+    const snapshot = await records.getDailyFive();
+    const task = snapshot.tasks.find((candidate) => "kind" in candidate && candidate.kind === "verb")!;
+    const stored = storage.values.get(LEARNING_RECORD_STORAGE_KEY) as { rhythm: Record<string, unknown> };
+    await storage.set(LEARNING_RECORD_STORAGE_KEY, {
+      ...stored,
+      rhythm: { ...stored.rhythm, dailyFive: { ...snapshot, tasks: [{ ...task, contentVersion: "015-2" }], completedTaskIds: [], goalCompleted: false } },
+    });
+
+    const restored = new LearningRecordStore(storage, () => 1_000);
+    const migrated = await restored.getDailyFive();
+    const migratedTask = migrated.tasks.find((candidate) => "kind" in candidate && candidate.kind === "verb");
+    expect(migratedTask).toMatchObject({ kind: "verb", contentVersion: "019-1", exerciseId: task.exerciseId });
+    await expect(restored.recordVerbJourneyDailyFiveResult({ task: migratedTask as typeof task, result: "correct", expectedEvidenceRevision: 1 })).resolves.toMatchObject({ snapshot: { completedTaskIds: [expect.stringContaining("verb.werken")] } });
+  });
+
   it("keeps OTT and OVT weak-skill reviews on their own authored packs", async () => {
     for (const [formOrSkillId, meaningId, constructionId] of [
       ["skill.werken.ott-routine", "exercise.werken.ott.meaning", "exercise.werken.ott.construct"],
