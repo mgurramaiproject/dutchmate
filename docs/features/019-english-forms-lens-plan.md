@@ -2,8 +2,10 @@
 
 **Codename:** `english-forms-lens`
 **Branch:** `feature/019-english-forms-lens`
-**Status:** plan agreed; awaiting approval to create the spec and tickets
+**Status:** spec published; awaiting approval to create tickets
 **Source proposal:** [DutchMate 12 English Forms presentation plan](./todos/dutchmate-12-english-forms-presentation-plan-v2.md)
+**Spec:** [Feature 019 spec](./019-english-forms-lens-spec.md)
+**GitHub issue:** [#153](https://github.com/mgurramaiproject/dutchmate/issues/153)
 
 ## Goal
 
@@ -232,10 +234,9 @@ Automated checks should prove external behaviour at existing seams:
 
 ## Delivery gates
 
-1. This plan is committed on the dedicated feature branch.
-2. User approval is required before invoking `$to-spec` and creating the
-   canonical specification under `docs/features/`.
+1. This plan and the canonical spec are committed on the dedicated feature
+   branch.
+2. The spec is published as GitHub issue #153 with `ready-for-agent`.
 3. User approval is required before invoking `$to-tickets` and creating the
    ticket documents under `docs/features/`.
 4. Implementation begins only from the approved spec and ticket breakdown.
-

@@ -2,7 +2,7 @@
 
 **Codename:** `english-forms-lens`
 **Branch:** `feature/019-english-forms-lens`
-**Status:** ready for implementation planning
+**Status:** published as GitHub issue [#153](https://github.com/mgurramaiproject/dutchmate/issues/153)
 **Plan:** [Feature 019 plan](./019-english-forms-lens-plan.md)
 
 ## Problem Statement
@@ -241,4 +241,3 @@ reference for the two-role detail contract and authored cues, then apply the
 same reviewed contract to `zijn` and `hebben`. Manual browser QA and
 independent linguistic review are release gates, not reasons to weaken the
 structural content contract.
-
