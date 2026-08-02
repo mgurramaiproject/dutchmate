@@ -7,11 +7,16 @@
 **Branch:** `020-gaan-journeys`, created from the clean local `main` branch on
 2026-08-02.
 
-**Status:** Specification created and published; awaiting approval before
-invoking `$to-tickets`.
+**Status:** Specification and dependency-ordered tickets created and
+published; implementation is ready to begin.
 
 **Specification:** [020-gaan-journeys-spec.md](./020-gaan-journeys-spec.md);
 published as [GitHub issue #159](https://github.com/mgurramaiproject/dutchmate/issues/159)
+with `ready-for-agent`.
+
+**Tickets:** [020-gaan-journeys-tickets.md](./020-gaan-journeys-tickets.md);
+published as child GitHub issues [#160](https://github.com/mgurramaiproject/dutchmate/issues/160)
+through [#166](https://github.com/mgurramaiproject/dutchmate/issues/166), all
 with `ready-for-agent`.
 
 ## Goal
@@ -138,7 +143,8 @@ and qualification record for every journey, including:
    the four approved seams are recorded in the specification.
 4. Ask for explicit approval to invoke `$to-tickets` and create
    `docs/features/020-gaan-journeys-tickets.md` plus the dependency-ordered
-   GitHub issue tree.
+   GitHub issue tree. **Completed:** the approved breakdown is checked in and
+   published as child issues #160–#166, all labeled `ready-for-agent`.
 5. Implement tickets strictly against the approved specification, using
    `$author-verb-journeys` and the existing additive multi-pack seam.
 6. Run qualification, Dutch review, focused tests, typecheck, full suite,
