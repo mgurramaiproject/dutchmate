@@ -1067,7 +1067,6 @@ function renderEnglishComparisonDetail(pack: ReturnType<typeof getActiveVerbJour
 function openEnglishComparisonDetail(record: EnglishMapRecord): void {
   verbEnglishComparisonGroup = record.group;
   verbEnglishComparisonDetailTense = record.englishTense;
-  verbEnglishComparisonOriginTense = record.englishTense;
   render();
   content?.focus();
 }

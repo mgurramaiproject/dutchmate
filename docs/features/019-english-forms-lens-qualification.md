@@ -17,7 +17,7 @@ feature owner on 2026-08-02.
 | Pack qualification | `src/verb-journeys/qualification.test.ts` validates all active packs, localized form content, six journeys per pack, and practice banks. | Pass |
 | Popup contract | `src/popup/index.test.ts` passes 71 tests, including the `werken` list/detail/map flow and cross-pack `zijn`/`hebben` lens entry and detail rendering. | Pass |
 | Persistence compatibility | Background and learning-record suites pass with additive `019-1` evidence, Daily Five validation, legacy import, and unchanged evidence semantics. | Pass |
-| Full repository tests | `npm test`: 111 test files, 781 tests passed. | Pass |
+| Full repository tests | `npm test`: 111 test files, 782 tests passed. | Pass |
 | Typecheck | `npm run typecheck` / build typecheck. | Pass |
 | Extension builds | `npm run build` completed for Chrome and Firefox. | Pass |
 | Whitespace | `git diff --check`. | Pass |
@@ -26,10 +26,10 @@ feature owner on 2026-08-02.
 
 | Gate | Reviewer / date | Sources or notes | Result |
 | --- | --- | --- | --- |
-| Default popup, 110%, and 125% zoom in Firefox and supported Chromium | Feature owner confirmation / 2026-08-02 | User confirmed manual QA complete, including clipping, overlap, focus, obstruction, and horizontal overflow checks across all three packs. | Pass |
-| Keyboard and accessibility QA | Feature owner confirmation / 2026-08-02 | User confirmed keyboard, visible focus, tab/card state, badges, cues, disclosures, and Previous/Next boundary checks complete. | Pass |
-| English/Telugu clarity and literal NL/EN/TE alignment | User-confirmed independent review / 2026-08-02 | User confirmed review of the visible comparison records in `src/verb-journeys/content.ts`; structural tests remain separate from linguistic approval. | Pass |
-| Fluent-Dutch review | User-confirmed independent review / 2026-08-02 | User confirmed fluent-Dutch review complete for the 36 comparison records in the three active packs. | Pass |
+| Default popup, 110%, and 125% zoom in Firefox and supported Chromium | Feature owner (user-confirmed) / 2026-08-02 | Manual QA covered `werken`, `zijn`, and `hebben` comparison entry points in the popup, including clipping, overlap, focus, obstruction, and horizontal overflow. | Pass |
+| Keyboard and accessibility QA | Feature owner (user-confirmed) / 2026-08-02 | Manual QA covered keyboard focus and activation, visible focus, tab/card state, Dutch form badges, cues, disclosures, and Previous/Next boundaries in the popup. | Pass |
+| English/Telugu clarity and literal NL/EN/TE alignment | Feature owner (user-confirmed) / 2026-08-02 | Linguistic review covered the authored records in `src/verb-journeys/content.ts`: `werkenEnglishComparisonContent`, `zijnEnglishComparisonBase`, and `hebbenEnglishComparisonBase`; structural tests remain separate from linguistic approval. | Pass |
+| Fluent-Dutch review | Feature owner (user-confirmed) / 2026-08-02 | Fluent-Dutch review covered all 12 comparison records in each active pack from `werkenEnglishComparisonContent`, `zijnEnglishComparisonBase`, and `hebbenEnglishComparisonBase` in `src/verb-journeys/content.ts`. | Pass |
 
 ## Handoff state
 

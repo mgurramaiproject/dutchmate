@@ -1605,8 +1605,16 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("I am working at home right now.");
     expect(content().textContent).toContain("Cue · elke maandag");
     expect(content().textContent).not.toContain("TE ·");
+    expect(content().querySelector("[role='tab'][aria-selected='true']")?.textContent).toContain("Present 1–4");
+    expect(button("ⓘ About this comparison").getAttribute("aria-expanded")).toBe("false");
+    button("ⓘ About this comparison").click();
+    expect(button("ⓘ About this comparison").getAttribute("aria-expanded")).toBe("true");
+    expect(content().textContent).toContain("This is a comparison lens");
     const firstCard = content().querySelector<HTMLButtonElement>(".verb-english-card")!;
     expect(firstCard.getAttribute("aria-label")).toContain("Dutch form: OTT");
+    firstCard.focus();
+    expect(document.activeElement).toBe(firstCard);
+    content().scrollTop = 48;
     firstCard.click();
     await vi.waitFor(() => expect(content().querySelector(".verb-english-detail-view")).toBeTruthy());
     expect(content().querySelectorAll(".verb-english-variant")).toHaveLength(2);
@@ -1635,6 +1643,7 @@ describe("lesson popup", () => {
     button("Back to Present forms").click();
     await vi.waitFor(() => expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4));
     expect(content().textContent).toContain("Present 1–4");
+    expect(content().scrollTop).toBe(48);
     expect(document.activeElement).toBe(content().querySelector("[data-english-tense='present-simple']"));
     button("Past 5–8").click();
     expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4);
