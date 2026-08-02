@@ -412,7 +412,7 @@ function renderToday(): HTMLElement {
     });
     nextAction.append(action);
     const verbTask = snapshot.tasks.find((task): task is VerbJourneyDailyFiveTask => "kind" in task && task.kind === "verb");
-    if (verbTask) nextAction.append(text(`Verb review · werken · ${getVerbReviewTense(verbTask)}`, "action-meta"));
+    if (verbTask) nextAction.append(text(`Verb review · ${getVerbJourneyPack(verbTask.verbId)?.verb.lemma ?? "verb"} · ${getVerbReviewTense(verbTask)}`, "action-meta"));
     if (completed && reviewsCompletedToday !== null) nextAction.append(text(`${reviewsCompletedToday} item${reviewsCompletedToday === 1 ? "" : "s"} reviewed today`, "review-completion-meta"));
   }
   if (total === 0 || !completed) nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
@@ -635,31 +635,27 @@ function renderVerbJourneys(): HTMLElement {
   back.addEventListener("click", () => { screen = "lessons"; render(); });
   wrapper.append(back, eyebrow("Lessons · Verb Journeys"), heading("Verb Journeys"), text("Choose one useful Dutch verb and follow its staged forms from context to reference."));
   const list = section("verb-directory");
-  // Stable directory positions: number: "01" is werken, "02" is zijn, and "03" is hebben.
+  // Stable directory positions follow the additive pack registry.
   const entries = [
     ...verbJourneyPacks.map((pack, index) => ({ number: String(index + 1).padStart(2, "0"), verbId: pack.verb.id, lemma: pack.verb.lemma, detail: `${pack.verb.english} · ${pack.verb.tags.includes("irregular") ? "irregular" : "A1 core verb"}`, enabled: true })),
-    { number: "04", verbId: undefined, lemma: "gaan", detail: "to go · coming later", enabled: false },
   ];
   for (const entry of entries) {
-    const row = entry.enabled ? button("", "verb-directory-row") : document.createElement("div");
-    row.className = `verb-directory-row${entry.enabled ? " is-openable" : " is-placeholder"}`;
-    row.setAttribute("aria-label", entry.enabled ? `Open ${entry.lemma} Verb Journey` : `${entry.lemma} Verb Journey coming later`);
+    const row = button("", "verb-directory-row is-openable");
+    row.setAttribute("aria-label", `Open ${entry.lemma} Verb Journey`);
     const number = document.createElement("span"); number.className = "verb-directory-number"; number.textContent = entry.number;
     const copy = document.createElement("span"); copy.className = "verb-directory-copy";
     const lemma = document.createElement("strong"); lemma.textContent = entry.lemma;
     const detail = document.createElement("small"); detail.textContent = entry.detail;
     copy.append(lemma, detail);
-    const action = document.createElement("span"); action.className = "verb-directory-action"; action.textContent = entry.enabled ? "Open →" : "Later";
+    const action = document.createElement("span"); action.className = "verb-directory-action"; action.textContent = "Open →";
     row.append(number, copy, action);
-    if (entry.enabled) {
-      const progress = getVerbJourneyProgress(getVerbJourneyPack(entry.verbId!) ?? verbJourneyPack);
-      row.classList.add("has-progress");
-      row.append(spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-directory-progress-summary"), renderVerbProgressTrack(progress));
-    }
-    if (entry.enabled && entry.verbId) row.addEventListener("click", () => { activeVerbId = entry.verbId!; activeVerbJourneyId = getVerbJourneyPack(activeVerbId)?.journeys[0]?.id ?? activeVerbJourneyId; screen = "verbJourneyOverview"; render(); content?.focus(); });
+    const progress = getVerbJourneyProgress(getVerbJourneyPack(entry.verbId) ?? verbJourneyPack);
+    row.classList.add("has-progress");
+    row.append(spanText(`${progress.completedForms} of ${progress.totalForms} forms practised`, "verb-directory-progress-summary"), renderVerbProgressTrack(progress));
+    row.addEventListener("click", () => { activeVerbId = entry.verbId; activeVerbJourneyId = getVerbJourneyPack(activeVerbId)?.journeys[0]?.id ?? activeVerbJourneyId; screen = "verbJourneyOverview"; render(); content?.focus(); });
     list.append(row);
   }
-  wrapper.append(list, text("Numbers reserve a stable place for future verb journeys; they do not lock your learning path.", "local-note"));
+  wrapper.append(list, text("Numbers keep the verb directory stable; they do not lock your learning path.", "local-note"));
   return wrapper;
 }
 
@@ -1786,7 +1782,7 @@ function renderVerbJourneyDailyFiveReview(task: VerbJourneyDailyFiveTask): HTMLE
   const wrapper = section("practice-content focused-content verb-daily-five-review");
   if (!question || question.exerciseFamily !== task.exerciseFamily) { wrapper.append(button("Exit review", "exit-button"), heading("Verb Journey review is unavailable.")); return wrapper; }
   const exit = button("Exit review", "exit-button"); exit.addEventListener("click", () => { activeVerbDailyFiveTask = null; screen = focusedOrigin ?? "today"; focusedOrigin = null; render(); });
-  wrapper.append(exit, eyebrow("Daily Five · Verb Journey"), heading(`werken · ${getVerbReviewTense(task)}`), text("Review one weak skill with a short authored decision.", "grammar-capability"), text(question.prompt, "verb-practice-context"), text(question.context, "story-dutch"));
+  wrapper.append(exit, eyebrow("Daily Five · Verb Journey"), heading(`${getVerbJourneyPack(task.verbId)?.verb.lemma ?? "verb"} · ${getVerbReviewTense(task)}`), text("Review one weak skill with a short authored decision.", "grammar-capability"), text(question.prompt, "verb-practice-context"), text(question.context, "story-dutch"));
   const controls = section("verb-daily-five-controls");
   const selected = verbDailyFiveAnswer;
   if (question.kind === "token-slots" || question.kind === "token-order") {

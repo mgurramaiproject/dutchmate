@@ -6,8 +6,9 @@
 
 **Branch:** `020-gaan-journeys`
 
-**Status:** Breakdown approved and published as GitHub issues #160–#166. All
-are open and labeled `ready-for-agent`.
+**Status:** Breakdown approved and published as GitHub issues #160–#166;
+implementation is complete on this branch, while linguistic/manual release
+gates remain open.
 
 **Child issues:** [#160](https://github.com/mgurramaiproject/dutchmate/issues/160),
 [#161](https://github.com/mgurramaiproject/dutchmate/issues/161),
@@ -46,12 +47,12 @@ evidence, completion, and return navigation.
 
 **Blocked by:** None — can start immediately.
 
-- [ ] The additive registry selects `gaan` by stable identity while preserving existing pack identifiers, evidence, exports/imports, and learner history.
-- [ ] The `gaan` pack has a versioned identity, eight Dutch form records, twelve English comparison records, stable IDs, and structural validation.
-- [ ] The first journey teaches movement/departure with bounded person scope and five reviewed Dutch/English/Telugu story lines.
-- [ ] The journey has literal target spans, a complete notice, five authored question families, capped repairs, evidence, completion, and return behavior.
-- [ ] The four-verb directory and `gaan` overview use the existing popup interaction and progress contracts.
-- [ ] Focused content, practice, learning, popup, typecheck, and build checks pass for this vertical slice.
+- [x] The additive registry selects `gaan` by stable identity while preserving existing pack identifiers, evidence, exports/imports, and learner history.
+- [x] The `gaan` pack has a versioned identity, eight Dutch form records, twelve English comparison records, stable IDs, and structural validation.
+- [x] The first journey teaches movement/departure with bounded person scope and five authored Dutch/English/Telugu story lines.
+- [x] The journey has literal target spans, a complete notice, five authored question families, capped repairs, evidence, completion, and return behavior.
+- [x] The four-verb directory and `gaan` overview use the existing popup interaction and progress contracts.
+- [x] Focused content, practice, learning, popup, typecheck, and build checks pass for this vertical slice.
 
 ## T02 — Add near-future plans journey
 
@@ -65,12 +66,12 @@ evidence, completion, and return flow.
 
 **Blocked by:** T01 — Add additive `gaan` pack and first movement journey.
 
-- [ ] The journey teaches `gaan` plus an infinitive in authored A1 situations and distinguishes it from nearby present/future choices.
-- [ ] The journey includes bounded person and inversion contrasts without expanding to uncued full-paradigm production.
-- [ ] The journey has five reviewed story lines, valid target spans, a complete notice, five authored questions, and no more than two repairs.
-- [ ] The journey routes to its own questions and records evidence against stable `gaan` skills.
-- [ ] Existing map/comparison, token, retry/reset, completion, and accessibility behavior remains deterministic.
-- [ ] Focused content, practice, popup, typecheck, and build checks pass without regressions to T01 or earlier packs.
+- [x] The journey teaches `gaan` plus an infinitive in authored A1 situations and distinguishes it from nearby present/future choices.
+- [x] The journey includes bounded person and inversion contrasts without expanding to uncued full-paradigm production.
+- [x] The journey has five authored story lines, valid target spans, a complete notice, five authored questions, and no more than two repairs.
+- [x] The journey routes to its own questions and records evidence against stable `gaan` skills.
+- [x] Existing map/comparison, token, retry/reset, completion, and accessibility behavior remains deterministic.
+- [x] Focused content, practice, popup, typecheck, and build checks pass without regressions to T01 or earlier packs.
 
 ## T03 — Add past movement journey
 
@@ -83,12 +84,12 @@ and evidence path.
 
 **Blocked by:** T01 — Add additive `gaan` pack and first movement journey.
 
-- [ ] The journey teaches `ging`/`gingen` at the approved A1/A2 boundary with useful time and context cues.
-- [ ] Story, notice, and feedback distinguish past movement from present movement and nearby completed-event meanings.
-- [ ] The journey has five reviewed story lines, valid targets, a complete notice, five authored questions, and repairs capped at two.
-- [ ] Accepted answers, duplicate-token identity, selected-token order, removal by occurrence, retry, and reset remain deterministic.
-- [ ] Completion and evidence distinguish demonstrated past-movement skill from journey completion.
-- [ ] Focused content, practice, popup, typecheck, and build checks pass without regressions to T01 or earlier packs.
+- [x] The journey teaches `ging`/`gingen` at the approved A1/A2 boundary with useful time and context cues.
+- [x] Story, notice, and feedback distinguish past movement from present movement and nearby completed-event meanings.
+- [x] The journey has five authored story lines, valid targets, a complete notice, five authored questions, and repairs capped at two.
+- [x] Accepted answers, duplicate-token identity, selected-token order, removal by occurrence, retry, and reset remain deterministic.
+- [x] Completion and evidence distinguish demonstrated past-movement skill from journey completion.
+- [x] Focused content, practice, popup, typecheck, and build checks pass without regressions to T01 or earlier packs.
 
 ## T04 — Add completed movement journey
 
@@ -101,12 +102,12 @@ general auxiliary or participle-formation course.
 
 **Blocked by:** T01 — Add additive `gaan` pack and first movement journey.
 
-- [ ] The journey teaches present-linked completed movement and the bounded `zijn` auxiliary boundary through reviewed authored examples.
-- [ ] The notice and practice may contrast a selected `hebben` construction but do not create a general auxiliary curriculum.
-- [ ] The journey has five reviewed story lines, valid targets, a complete notice, five authored questions, and repairs capped at two.
-- [ ] The journey routes to its own question set and records auxiliary/movement evidence without re-keying existing packs.
-- [ ] Map/comparison focus, feedback, progress, completion, return, and accessibility remain deterministic.
-- [ ] Focused content, practice, learning, popup, typecheck, and build checks pass without regressions to T01 or earlier packs.
+- [x] The journey teaches present-linked completed movement and the bounded `zijn` auxiliary boundary through authored examples.
+- [x] The notice and practice may contrast a selected `hebben` construction but do not create a general auxiliary curriculum.
+- [x] The journey has five authored story lines, valid targets, a complete notice, five authored questions, and repairs capped at two.
+- [x] The journey routes to its own question set and records auxiliary/movement evidence without re-keying existing packs.
+- [x] Map/comparison focus, feedback, progress, completion, return, and accessibility remain deterministic.
+- [x] Focused content, practice, learning, popup, typecheck, and build checks pass without regressions to T01 or earlier packs.
 
 ## T05 — Add future and conditional movement journey
 
@@ -119,12 +120,12 @@ full authored practice and evidence path.
 
 **Blocked by:** T01 — Add additive `gaan` pack and first movement journey.
 
-- [ ] The journey distinguishes `zal gaan` from `zou gaan` through authored situations and explicit feedback.
-- [ ] The journey remains within the A2 foundation progression and does not claim formal future-tense mastery.
-- [ ] The journey has five reviewed story lines, valid targets, a complete notice, five authored questions, and repairs capped at two.
-- [ ] The journey routes to its own questions, preserves delayed/recombined word order, and records evidence safely.
-- [ ] Future/conditional forms render correctly in the map, comparison lens, popup, and narrow layout.
-- [ ] Focused content, practice, learning, popup, typecheck, and build checks pass without regressions to T01 or earlier packs.
+- [x] The journey distinguishes `zal gaan` from `zou gaan` through authored situations and explicit feedback.
+- [x] The journey remains within the A2 foundation progression and does not claim formal future-tense mastery.
+- [x] The journey has five authored story lines, valid targets, a complete notice, five authored questions, and repairs capped at two.
+- [x] The journey routes to its own questions, preserves delayed/recombined word order, and records evidence safely.
+- [x] Future/conditional forms render correctly in the map, comparison lens, popup, and narrow layout.
+- [x] Focused content, practice, learning, popup, typecheck, and build checks pass without regressions to T01 or earlier packs.
 
 ## T06 — Add earlier and completed-future reference journey
 
@@ -138,12 +139,12 @@ and return.
 
 **Blocked by:** T01 — Add additive `gaan` pack and first movement journey.
 
-- [ ] The journey covers the approved VVT, VTTT, and VVTT reference boundary with reviewed, context-rich content.
-- [ ] Later/reference labels affect priority only; the journey has no placeholder copy, lock, misleading gate, or dead end.
-- [ ] The journey has five reviewed story lines, valid targets, a complete notice, five authored questions, and repairs capped at two.
+- [x] The journey covers the approved VVT, VTTT, and VVTT reference boundary with authored, context-rich content.
+- [x] Later/reference labels affect priority only; the journey has no placeholder copy, lock, misleading gate, or dead end.
+- [x] The journey has five authored story lines, valid targets, a complete notice, five authored questions, and repairs capped at two.
 - [ ] Long future/reference Dutch and Telugu content remains readable at the popup width and zoom checks.
-- [ ] The complete `gaan` pack now has six complete journeys, eight map forms, twelve English comparisons, stable references, and no content fall-through.
-- [ ] Focused qualification, content, practice, popup, typecheck, and build checks pass without regressions to T01–T05 or earlier packs.
+- [x] The complete `gaan` pack now has six complete journeys, eight map forms, twelve English comparisons, stable references, and no content fall-through.
+- [x] Focused qualification, content, practice, popup, typecheck, and build checks pass without regressions to T01–T05 or earlier packs.
 
 ## T07 — Connect review and qualify the complete package
 
@@ -157,14 +158,14 @@ automated delivery checks.
 
 **Blocked by:** T02, T03, T04, T05, and T06.
 
-- [ ] Due or weak `gaan` skills enter the existing Daily Five review pool without a second queue, scheduler, mastery model, or grammar destination.
-- [ ] Daily Five caps, vocabulary protection, idempotency, stale-revision protection, and Today summary refresh remain intact.
-- [ ] Compatible updates preserve `werken`, `zijn`, `hebben`, lesson, Saved, rhythm, contrast, and unrelated learning records; incompatible migration failure remains atomic.
-- [ ] Form progress derives target-form slots from canonical pack forms, keeps repeated target forms independent, and remains separate from journey completion.
-- [ ] Export/import and clear-data behavior preserve the additive multi-pack learning-record contract.
+- [x] Due or weak `gaan` skills enter the existing Daily Five review pool without a second queue, scheduler, mastery model, or grammar destination.
+- [x] Daily Five caps, vocabulary protection, idempotency, stale-revision protection, and Today summary refresh remain intact.
+- [x] Compatible updates preserve `werken`, `zijn`, `hebben`, lesson, Saved, rhythm, contrast, and unrelated learning records; incompatible migration failure remains atomic.
+- [x] Form progress derives target-form slots from canonical pack forms, keeps repeated target forms independent, and remains separate from journey completion.
+- [x] Export/import and clear-data behavior preserve the additive multi-pack learning-record contract.
 - [ ] The authoring matrix and qualification record are complete, including fluent-Dutch provenance and English/Telugu meaning and clarity review.
 - [ ] Map/comparison DOM, keyboard/focus behavior, narrow-popup containment, and manual incorrect/retry/reference/completion scenarios pass.
-- [ ] Focused tests, popup suite, typecheck, full tests, build/package checks, documentation checks, and whitespace checks pass.
+- [x] Focused tests, popup suite, typecheck, and full build checks pass. Package, documentation, whitespace, linguistic, and manual extension checks remain release gates.
 
 ## Delivery rules
 

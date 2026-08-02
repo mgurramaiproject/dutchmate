@@ -7,8 +7,9 @@
 **Branch:** `020-gaan-journeys`, created from the clean local `main` branch on
 2026-08-02.
 
-**Status:** Specification and dependency-ordered tickets created and
-published; implementation is ready to begin.
+**Status:** Package implementation and automated qualification complete on this
+branch; independent Dutch/English/Telugu review and manual extension QA remain
+release gates.
 
 **Specification:** [020-gaan-journeys-spec.md](./020-gaan-journeys-spec.md);
 published as [GitHub issue #159](https://github.com/mgurramaiproject/dutchmate/issues/159)
@@ -154,5 +155,7 @@ and qualification record for every journey, including:
    build/package checks, manual popup QA, diff review, and the complete
    GitHub/Delivery handoff.
 
-No specification, ticket document, issue tree, prototype, or implementation
-work is authorized by this plan alone.
+Implementation is complete for the approved boundary. The remaining release
+gates are independent linguistic review, manual extension QA, and the final
+GitHub/Delivery handoff; no broader auxiliary course, idiom course, audio,
+runtime-AI, or Saved resolver is included.

@@ -1,3 +1,5 @@
+import { gaanPack } from "./gaan-content";
+
 export const VERB_JOURNEY_SCHEMA_VERSION = 1;
 export const VERB_JOURNEY_CONTENT_VERSION = "015-1";
 export const VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION = "015-2";
@@ -6,6 +8,8 @@ export const ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION = "016-2";
 export const HEBBEN_VERB_JOURNEY_CONTENT_VERSION = "017-1";
 export const HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION = "017-2";
 export const ENGLISH_COMPARISON_CONTENT_VERSION = "019-1";
+export const GAAN_VERB_JOURNEY_CONTENT_VERSION = "020-1";
+export const GAAN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION = "020-2";
 export type VerbJourneyContentVersion =
   | typeof VERB_JOURNEY_CONTENT_VERSION
   | typeof VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION
@@ -13,7 +17,9 @@ export type VerbJourneyContentVersion =
   | typeof ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION
   | typeof HEBBEN_VERB_JOURNEY_CONTENT_VERSION
   | typeof HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION
-  | typeof ENGLISH_COMPARISON_CONTENT_VERSION;
+  | typeof ENGLISH_COMPARISON_CONTENT_VERSION
+  | typeof GAAN_VERB_JOURNEY_CONTENT_VERSION
+  | typeof GAAN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION;
 
 export type DutchTense = "OTT" | "OVT" | "VTT" | "VVT" | "OTTT" | "OVTT" | "VTTT" | "VVTT";
 export type TeachingPriority = "core" | "later" | "reference";
@@ -441,8 +447,9 @@ const multilingualContentVersions = new Set<VerbJourneyContentVersion>([
   VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
   ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
   HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
+  GAAN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
 ]);
-const englishComparisonContentVersions = new Set<VerbJourneyContentVersion>([ENGLISH_COMPARISON_CONTENT_VERSION]);
+const englishComparisonContentVersions = new Set<VerbJourneyContentVersion>([ENGLISH_COMPARISON_CONTENT_VERSION, GAAN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION]);
 const englishComparisonCueKinds = new Set<EnglishComparisonCueKind>([
   "frequency", "current-time", "current-period", "duration", "past-time",
   "past-reference", "sequence", "future-time", "deadline", "compound",
@@ -734,7 +741,7 @@ const hebbenPack: VerbJourneyPack = {
   }],
 };
 
-export const verbJourneyPacks: VerbJourneyPack[] = [verbJourneyPack, zijnPack, hebbenPack];
+export const verbJourneyPacks: VerbJourneyPack[] = [verbJourneyPack, zijnPack, hebbenPack, gaanPack];
 
 export function getVerbJourneyPack(verbId: string): VerbJourneyPack | null {
   return verbJourneyPacks.find((pack) => pack.verb.id === verbId) ?? null;
@@ -765,6 +772,8 @@ export function validateVerbJourneyPack(pack: VerbJourneyPack): string[] {
     HEBBEN_VERB_JOURNEY_CONTENT_VERSION,
     HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
     ENGLISH_COMPARISON_CONTENT_VERSION,
+    GAAN_VERB_JOURNEY_CONTENT_VERSION,
+    GAAN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
   ]).has(pack.contentVersion)) errors.push("contentVersion: unsupported version");
   const requiresMultilingualFormContent = multilingualContentVersions.has(pack.contentVersion);
   const requiresEnglishComparisonContent = englishComparisonContentVersions.has(pack.contentVersion);

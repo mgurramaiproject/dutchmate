@@ -13,7 +13,7 @@ import { applyContrastOutcome, applyContrastRepairOutcome, getContrastRepairExer
 import type { ContrastMisconceptionCode } from "../grammar/contrast";
 import { getMisconceptionDefinition } from "../grammar/misconceptions";
 import { createVerbJourneyRecord, parseVerbJourneyRecord, recordVerbJourneyEvidence, type RecordVerbJourneyEvidenceInput, type VerbJourneyRecord } from "../verb-journeys/learning";
-import { ENGLISH_COMPARISON_CONTENT_VERSION, getVerbJourney, getVerbJourneyContentVersion, HEBBEN_VERB_JOURNEY_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, isVerbJourneyContentAvailable, isVerbJourneyPlayable, VERB_JOURNEY_CONTENT_VERSION, VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, verbJourneyPacks, ZIJN_VERB_JOURNEY_CONTENT_VERSION, ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, type VerbJourneyContentVersion } from "../verb-journeys/content";
+import { ENGLISH_COMPARISON_CONTENT_VERSION, GAAN_VERB_JOURNEY_CONTENT_VERSION, GAAN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, getVerbJourney, getVerbJourneyContentVersion, HEBBEN_VERB_JOURNEY_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, isVerbJourneyContentAvailable, isVerbJourneyPlayable, VERB_JOURNEY_CONTENT_VERSION, VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, verbJourneyPacks, ZIJN_VERB_JOURNEY_CONTENT_VERSION, ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, type VerbJourneyContentVersion } from "../verb-journeys/content";
 import { getVerbPracticeQuestion, getVerbPracticeQuestionsForSkill } from "../verb-journeys/practice";
 
 export const LEARNING_RECORD_STORAGE_KEY = "dutchmate.learningRecord.v2";
@@ -681,6 +681,8 @@ function parseVerbJourneyTask(value: unknown): VerbJourneyDailyFiveTask | null {
       ? [ZIJN_VERB_JOURNEY_CONTENT_VERSION, ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ENGLISH_COMPARISON_CONTENT_VERSION]
       : value.verbId === "verb.hebben"
         ? [HEBBEN_VERB_JOURNEY_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ENGLISH_COMPARISON_CONTENT_VERSION]
+        : value.verbId === "verb.gaan"
+          ? [GAAN_VERB_JOURNEY_CONTENT_VERSION, GAAN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ENGLISH_COMPARISON_CONTENT_VERSION]
         : [];
   const exercise = getVerbPracticeQuestion(value.exerciseId);
   if (!currentVersion || !validVersions.includes(value.contentVersion as VerbJourneyContentVersion) || !isVerbJourneyContentAvailable(value.verbId) || exercise?.verbId !== value.verbId || exercise.formOrSkillId !== value.formOrSkillId || exercise.exerciseFamily !== value.exerciseFamily) return null;
@@ -689,7 +691,7 @@ function parseVerbJourneyTask(value: unknown): VerbJourneyDailyFiveTask | null {
 function isVerbJourneyTask(value: unknown): value is VerbJourneyDailyFiveTask { return parseVerbJourneyTask(value) !== null; }
 
 function latestVerbJourneyContentVersion(...versions: VerbJourneyContentVersion[]): VerbJourneyContentVersion {
-  const order: VerbJourneyContentVersion[] = [VERB_JOURNEY_CONTENT_VERSION, VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ZIJN_VERB_JOURNEY_CONTENT_VERSION, ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ENGLISH_COMPARISON_CONTENT_VERSION];
+  const order: VerbJourneyContentVersion[] = [VERB_JOURNEY_CONTENT_VERSION, VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ZIJN_VERB_JOURNEY_CONTENT_VERSION, ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_CONTENT_VERSION, HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, GAAN_VERB_JOURNEY_CONTENT_VERSION, GAAN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION, ENGLISH_COMPARISON_CONTENT_VERSION];
   return order.reduce((latest, candidate) => versions.includes(candidate) ? candidate : latest, VERB_JOURNEY_CONTENT_VERSION);
 }
 function parseGrammarRecords(value: unknown): Record<string, GrammarRecord> { if (!isRecord(value)) return {}; const result: Record<string, GrammarRecord> = {}; for (const [key, candidate] of Object.entries(value)) { const parsed = parseGrammarRecord(candidate); if (parsed && key === parsed.patternId) result[key] = parsed; } return result; }

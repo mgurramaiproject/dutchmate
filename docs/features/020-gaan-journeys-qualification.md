@@ -4,10 +4,10 @@
 
 **Branch:** `020-gaan-journeys`
 
-**Content version:** `020-1` (planned additive package version)
+**Content version:** `020-2` (additive multilingual and English-comparison package version)
 
-**Status:** Authoring matrix established; linguistic review pending until the
-learner-visible package is authored.
+**Status:** Authored package and automated qualification complete; independent
+linguistic review and manual extension QA remain pending.
 
 ## Package identity
 
@@ -69,21 +69,21 @@ clarity; non-empty fields are insufficient.
 
 ## Compatibility checklist
 
-- [ ] Stable `werken`, `zijn`, and `hebben` verb IDs remain unchanged.
-- [ ] Existing evidence keys and learning-record revisions remain compatible.
-- [ ] Existing export/import records remain readable.
-- [ ] Compatible content changes are additive; incompatible migration is explicit and atomic on failure.
-- [ ] `gaan` does not create a second scheduler, mastery model, or evidence store.
-- [ ] Existing packs pass the shared multilingual map and English comparison contracts.
-- [ ] Empty, repeated-target, multi-form, and future-pack progress cases are tested.
-- [ ] Deferred auxiliary-course, broad-idiom, prototype, audio, runtime-AI, and Saved-resolution ideas remain parked.
+- [x] Stable `werken`, `zijn`, and `hebben` verb IDs remain unchanged.
+- [x] Existing evidence keys and learning-record revisions remain compatible.
+- [x] Existing export/import records remain readable.
+- [x] Compatible content changes are additive; incompatible migration is explicit and atomic on failure.
+- [x] `gaan` does not create a second scheduler, mastery model, or evidence store.
+- [x] Existing packs pass the shared multilingual map and English comparison contracts.
+- [x] Empty, repeated-target, multi-form, and future-pack progress cases are tested.
+- [x] Deferred auxiliary-course, broad-idiom, prototype, audio, runtime-AI, and Saved-resolution ideas remain parked.
 
 ## Release qualification status
 
-- Structural validation: pending implementation.
-- Practice ownership and evaluator coverage: pending implementation.
-- Learning-record and migration compatibility: pending implementation.
-- Popup/map/comparison DOM contract: pending implementation.
+- Structural validation: complete (`validateVerbJourneyRegistry`, 111 test files / 784 tests).
+- Practice ownership and evaluator coverage: complete (six five-family banks, capped repairs).
+- Learning-record and migration compatibility: complete (additive `020-1`/`020-2` handling).
+- Popup/map/comparison DOM contract: complete through automated popup coverage and build.
 - Dutch review: pending independent fluent-Dutch review.
 - English/Telugu review: pending independent meaning/clarity review.
 - Manual extension QA: pending automated checks and build.
