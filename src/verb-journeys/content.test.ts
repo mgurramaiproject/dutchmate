@@ -5,6 +5,7 @@ describe("werken Verb Journey pack", () => {
   it("provides the complete stable read-only map and staged journeys", () => {
     expect(validateVerbJourneyPack(verbJourneyPack)).toEqual([]);
     expect(verbJourneyPack.verb.id).toBe("verb.werken");
+    expect(verbJourneyPack.contentVersion).toBe("019-1");
     expect(verbJourneyPack.dutchForms).toHaveLength(8);
     expect(new Set(verbJourneyPack.dutchForms.map((form) => form.dutchTense)).size).toBe(8);
     expect(verbJourneyPack.englishComparison).toHaveLength(12);
@@ -12,6 +13,12 @@ describe("werken Verb Journey pack", () => {
     expect(verbJourneyPack.englishComparison.filter((record) => record.group === "past")).toHaveLength(4);
     expect(verbJourneyPack.englishComparison.filter((record) => record.group === "future")).toHaveLength(4);
     expect(verbJourneyPack.englishComparison.every((record) => record.english && record.situation && record.meaningPreservingDutch && record.commonEverydayDutch && record.mismatchNote)).toBe(true);
+    expect(verbJourneyPack.englishComparison.every((record) => record.meaningPreserving?.nl && record.meaningPreserving.en && record.meaningPreserving.te && record.meaningPreserving.form && record.everyday?.nl && record.everyday.en && record.everyday.te && record.everyday.form && record.cue?.display && record.cue.shortMeaning && record.cue.tokens.length && record.howDutchExpressesIt && record.whyTheyDiffer)).toBe(true);
+    expect(verbJourneyPack.englishComparison[1]).toMatchObject({
+      meaningPreserving: { nl: "Ik ben nu thuis aan het werken.", form: "OTT" },
+      everyday: { nl: "Ik werk nu thuis.", form: "OTT" },
+      cue: { display: "nu", kind: "current-time" },
+    });
     expect(verbJourneyPack.journeys.map((journey) => journey.id)).toEqual([
       "journey.werken.ott-routine",
       "journey.werken.vtt-completed",
@@ -72,6 +79,7 @@ describe("werken Verb Journey pack", () => {
   it("requires the additive English comparison contract for the 019 content version", () => {
     const invalid = structuredClone(verbJourneyPack);
     invalid.contentVersion = "019-1" as never;
+    invalid.englishComparison = invalid.englishComparison.map(({ meaningPreserving, everyday, cue, howDutchExpressesIt, whyTheyDiffer, ...record }) => record) as never;
 
     expect(validateVerbJourneyPack(invalid)).toEqual(expect.arrayContaining([
       expect.stringContaining("meaningPreserving"),

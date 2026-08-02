@@ -21,7 +21,7 @@ import type { GrammarRecord } from "../grammar/learning";
 import { contrastPack, type ContrastExercise, type ContrastPackId } from "../grammar/contrast";
 import { contrastResultMessage, type ContrastRecord, type ImmediateContrastRepairOffer } from "../grammar/contrast-learning";
 import { getGrammarProgressLabel, getNextFoundationPattern } from "../grammar/progression";
-import { getVerbForm, getVerbJourney, getVerbJourneyContentVersion, getVerbJourneyPack, isVerbJourneyContentAvailable, isVerbJourneyPlayable, verbJourneyPack, verbJourneyPacks, type DutchTense, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type JourneyStatus, type VerbFormRecord } from "../verb-journeys/content";
+import { getVerbForm, getVerbJourney, getVerbJourneyContentVersion, getVerbJourneyPack, isVerbJourneyContentAvailable, isVerbJourneyPlayable, verbJourneyPack, verbJourneyPacks, type DutchTense, type EnglishComparisonCue, type EnglishComparisonVariant, type EnglishMapRecord, type EnglishTense, type JourneyRecord, type JourneyStatus, type VerbFormRecord } from "../verb-journeys/content";
 import { advanceVerbPractice, checkVerbPracticeAnswer, checkVerbPracticeQuestion, createVerbPracticeSession, getCurrentVerbPracticeQuestion, getVerbPracticeQuestion, getVerbPracticeQuestions, type VerbPracticeAnswer, type VerbPracticeJourneyId, type VerbPracticeQuestion, type VerbPracticeSession } from "../verb-journeys/practice";
 import type { VerbJourneyRecord } from "../verb-journeys/learning";
 import { countVerbJourneyFormSlots } from "../verb-journeys/progress";
@@ -84,7 +84,10 @@ let selectedVerbFormTense: DutchTense = "VTT";
 let verbMapOrigin: "overview" | "notice" | "saved" = "overview";
 let verbEnglishComparisonOrigin: "overview" | "map" = "overview";
 let verbEnglishComparisonGroup: "present" | "past" | "future" = "present";
-let expandedEnglishTense: EnglishTense | null = "present-simple";
+let verbEnglishComparisonDetailTense: EnglishTense | null = null;
+let verbEnglishComparisonOriginTense: EnglishTense | null = null;
+let verbEnglishComparisonListScrollTop = 0;
+let verbEnglishComparisonInfoOpen = false;
 let verbBoundaryMessage: string | null = null;
 let verbNoticeDecision: DutchTense | null = null;
 let verbPracticeSession: VerbPracticeSession | null = null;
@@ -752,7 +755,7 @@ function renderVerbJourneyOverview(): HTMLElement {
   const mapAction = button("8 Dutch forms", "button primary-button");
   mapAction.addEventListener("click", () => { selectedVerbFormTense = "VTT"; verbMapOrigin = "overview"; screen = "verbMap"; render(); content?.focus(); });
   const comparisonAction = button("12 English forms", "button secondary-button");
-  comparisonAction.addEventListener("click", () => { verbEnglishComparisonOrigin = "overview"; screen = "verbEnglishComparison"; render(); content?.focus(); });
+  comparisonAction.addEventListener("click", () => { openEnglishComparisonFrom("overview"); });
   const actions = document.createElement("div");
   actions.className = "verb-mastery-actions";
   actions.append(mapAction, comparisonAction);
@@ -942,26 +945,51 @@ function renderVerbEnglishComparison(): HTMLElement {
   const pack = getActiveVerbJourneyPack();
   const back = journeyBack(verbEnglishComparisonOrigin === "map" ? "Verb Map" : pack.verb.lemma);
   back.addEventListener("click", () => { screen = verbEnglishComparisonOrigin === "map" ? "verbMap" : "verbJourneyOverview"; render(); content?.focus(); });
-  wrapper.append(back, text(`English lens · ${pack.verb.lemma}`, "journey-meta"), eyebrow("English comparison"), heading("12 English forms → Dutch"), text("Use this as a comparison lens, not a one-to-one tense conversion. Select a pattern to inspect the natural Dutch choices.", "journey-lead"));
-  const insight = section("verb-english-insight");
-  insight.append(text("CORE INSIGHT", "verb-card-label"), text("Several English patterns collapse into a simpler Dutch form plus a time marker such as nu, al, gisteren, morgen, or tegen vrijdag.", "verb-card-copy"));
-  wrapper.append(insight);
+  wrapper.append(back, text(`English lens · ${pack.verb.lemma}`, "journey-meta"));
+  const detail = pack.englishComparison.find((record) => record.englishTense === verbEnglishComparisonDetailTense);
+  if (detail) {
+    wrapper.append(renderEnglishComparisonDetail(pack, detail));
+    return wrapper;
+  }
+  wrapper.append(eyebrow("English comparison"), heading("12 English forms → Dutch"), text("English often uses a larger verb construction; Dutch often uses a simpler form plus a time cue.", "journey-lead"));
+  const infoButton = button("ⓘ About this comparison", "button quiet-link verb-english-info-button");
+  infoButton.setAttribute("aria-expanded", String(verbEnglishComparisonInfoOpen));
+  infoButton.addEventListener("click", () => { verbEnglishComparisonInfoOpen = !verbEnglishComparisonInfoOpen; render(); });
+  wrapper.append(infoButton);
+  if (verbEnglishComparisonInfoOpen) wrapper.append(text("This is a comparison lens, not a one-to-one tense conversion. Compare the Dutch construction that closely preserves the English distinction with the form Dutch speakers commonly use in everyday speech.", "verb-english-info"));
   const tabs = document.createElement("div"); tabs.className = "verb-english-tabs"; tabs.setAttribute("role", "tablist"); tabs.setAttribute("aria-label", "English tense groups");
   for (const group of ["present", "past", "future"] as const) {
     const groupRecords = pack.englishComparison.filter((record) => record.group === group);
-    const tab = button(`${group[0].toUpperCase()}${group.slice(1)} · ${groupRecords.length}`, `verb-english-tab${verbEnglishComparisonGroup === group ? " is-active" : ""}`);
+    const rangeStart = group === "present" ? 1 : group === "past" ? 5 : 9;
+    const tab = button(`${group[0].toUpperCase()}${group.slice(1)} ${rangeStart}–${rangeStart + groupRecords.length - 1}`, `verb-english-tab${verbEnglishComparisonGroup === group ? " is-active" : ""}`);
     tab.setAttribute("role", "tab"); tab.setAttribute("aria-selected", String(verbEnglishComparisonGroup === group)); tab.setAttribute("tabindex", verbEnglishComparisonGroup === group ? "0" : "-1");
-    tab.addEventListener("click", () => { verbEnglishComparisonGroup = group; expandedEnglishTense = groupRecords[0]?.englishTense ?? null; render(); });
+    tab.addEventListener("click", () => { verbEnglishComparisonGroup = group; verbEnglishComparisonDetailTense = null; render(); });
     tabs.append(tab);
   }
   wrapper.append(tabs);
+  const mapButton = button("View 8-form Dutch map", "button secondary-button verb-english-map-link");
+  mapButton.addEventListener("click", () => { screen = "verbMap"; verbMapOrigin = verbEnglishComparisonOrigin === "map" ? verbMapOrigin : "overview"; render(); content?.focus(); });
+  wrapper.append(mapButton);
   const records = pack.englishComparison.filter((record) => record.group === verbEnglishComparisonGroup);
   const list = section("verb-english-list"); list.setAttribute("role", "tabpanel"); list.setAttribute("aria-label", `${verbEnglishComparisonGroup} English patterns`);
   for (const [index, record] of records.entries()) list.append(renderEnglishComparisonCard(record, index + (verbEnglishComparisonGroup === "present" ? 1 : verbEnglishComparisonGroup === "past" ? 5 : 9)));
+  list.scrollTop = verbEnglishComparisonListScrollTop;
   wrapper.append(list);
-  const mapButton = button("Back to 8-form map", "button secondary-button"); mapButton.addEventListener("click", () => { screen = "verbMap"; verbMapOrigin = verbEnglishComparisonOrigin === "map" ? verbMapOrigin : "overview"; render(); content?.focus(); });
-  wrapper.append(mapButton);
+  const mapButtonBottom = button("Back to 8-form map", "button secondary-button"); mapButtonBottom.addEventListener("click", () => { screen = "verbMap"; verbMapOrigin = verbEnglishComparisonOrigin === "map" ? verbMapOrigin : "overview"; render(); content?.focus(); });
+  wrapper.append(mapButtonBottom);
   return wrapper;
+}
+
+function openEnglishComparisonFrom(origin: "overview" | "map"): void {
+  verbEnglishComparisonOrigin = origin;
+  verbEnglishComparisonGroup = "present";
+  verbEnglishComparisonDetailTense = null;
+  verbEnglishComparisonOriginTense = null;
+  verbEnglishComparisonListScrollTop = 0;
+  verbEnglishComparisonInfoOpen = false;
+  screen = "verbEnglishComparison";
+  render();
+  content?.focus();
 }
 
 function focusEnglishComparisonForForm(tense: DutchTense): void {
@@ -978,22 +1006,108 @@ function focusEnglishComparisonForForm(tense: DutchTense): void {
   const record = getActiveVerbJourneyPack().englishComparison.find((candidate) => candidate.englishTense === preferredEnglishTense[tense]);
   if (!record) return;
   verbEnglishComparisonGroup = record.group;
-  expandedEnglishTense = record.englishTense;
+  verbEnglishComparisonDetailTense = null;
+  verbEnglishComparisonOriginTense = record.englishTense;
+  verbEnglishComparisonInfoOpen = false;
 }
 
 function renderEnglishComparisonCard(record: EnglishMapRecord, index: number): HTMLElement {
-  const card = button("", `verb-english-card${expandedEnglishTense === record.englishTense ? " is-expanded" : ""}`);
-  card.setAttribute("aria-expanded", String(expandedEnglishTense === record.englishTense));
+  const everyday = englishComparisonVariant(record, "everyday");
+  const cue = record.cue;
+  const card = button("", "verb-english-card");
+  card.dataset.englishTense = record.englishTense;
+  card.setAttribute("aria-label", `${index}. ${englishFormLabel(record)}. Everyday Dutch: ${everyday.nl}. ${cue ? `Cue: ${cue.display}` : ""}`.trim());
   const header = document.createElement("span"); header.className = "verb-english-card-header";
-  header.append(spanText(String(index), "verb-english-index"), spanText(record.englishTense.replaceAll("-", " "), "verb-english-name"), spanText(expandedEnglishTense === record.englishTense ? "⌃" : "⌄", "verb-english-toggle"));
+  header.append(spanText(String(index), "verb-english-index"), spanText(englishFormLabel(record), "verb-english-name"), spanText(everyday.form, "verb-english-form"), spanText("›", "verb-english-toggle"));
   const english = text(record.english, "verb-english-example"); english.lang = "en";
-  const dutch = section("verb-english-dutch"); dutch.append(text(record.commonEverydayDutch, "verb-english-dutch-sentence"), text(englishAnalysisLabel(record), "verb-english-form"));
+  const dutch = section("verb-english-dutch"); dutch.append(renderEnglishCueSentence(everyday.nl, cue?.tokens ?? [], "verb-english-dutch-sentence"));
+  if (cue) dutch.append(text(`Cue · ${cue.display}`, "verb-english-cue"));
   card.append(header, english, dutch);
-  const details = section("verb-english-details"); details.hidden = expandedEnglishTense !== record.englishTense;
-  details.append(meaning("Situation", record.situation), meaning("Meaning-preserving Dutch", record.meaningPreservingDutch), meaning("Common everyday Dutch", record.commonEverydayDutch), meaning("Dutch form or construction", englishAnalysis(record)), meaning("Mismatch / usage", record.mismatchNote));
-  card.append(details);
-  card.addEventListener("click", () => { expandedEnglishTense = expandedEnglishTense === record.englishTense ? null : record.englishTense; render(); });
+  card.addEventListener("click", () => {
+    verbEnglishComparisonListScrollTop = content?.scrollTop ?? 0;
+    verbEnglishComparisonOriginTense = record.englishTense;
+    verbEnglishComparisonDetailTense = record.englishTense;
+    render();
+    content?.focus();
+  });
   return card;
+}
+
+function renderEnglishComparisonDetail(pack: ReturnType<typeof getActiveVerbJourneyPack>, record: EnglishMapRecord): HTMLElement {
+  const detail = section("verb-english-detail-view");
+  const index = pack.englishComparison.findIndex((candidate) => candidate.englishTense === record.englishTense);
+  const back = button(`Back to ${record.group[0].toUpperCase()}${record.group.slice(1)} forms`, "quiet-link");
+  back.addEventListener("click", () => {
+    verbEnglishComparisonDetailTense = null;
+    render();
+    const origin = content?.querySelector<HTMLButtonElement>(`[data-english-tense="${verbEnglishComparisonOriginTense ?? record.englishTense}"]`);
+    if (content) content.scrollTop = verbEnglishComparisonListScrollTop;
+    origin?.focus();
+  });
+  const position = text(`${index + 1} of ${pack.englishComparison.length}`, "verb-english-detail-position");
+  detail.append(back, position, eyebrow("English comparison detail"), heading(englishFormLabel(record)));
+  detail.append(renderEnglishComparisonVariant("MEANING-PRESERVING DUTCH", englishComparisonVariant(record, "meaningPreserving"), record.cue?.tokens ?? []));
+  detail.append(renderEnglishComparisonVariant("EVERYDAY DUTCH", englishComparisonVariant(record, "everyday"), record.cue?.tokens ?? []));
+  if (record.cue) {
+    const cue = section("verb-english-detail-cue");
+    cue.append(text("CUE", "verb-card-label"), text(`${record.cue.display} · ${record.cue.shortMeaning}`, "verb-english-cue"));
+    detail.append(cue);
+  }
+  detail.append(meaning("HOW DUTCH EXPRESSES IT", record.howDutchExpressesIt ?? englishAnalysis(record)), meaning("WHY THEY DIFFER", record.whyTheyDiffer ?? record.mismatchNote));
+  const pager = section("verb-english-pager");
+  const previous = button("Previous", "button secondary-button"); previous.disabled = index <= 0;
+  const next = button("Next", "button primary-button"); next.disabled = index >= pack.englishComparison.length - 1;
+  previous.addEventListener("click", () => openEnglishComparisonDetail(pack.englishComparison[index - 1]));
+  next.addEventListener("click", () => openEnglishComparisonDetail(pack.englishComparison[index + 1]));
+  pager.append(previous, next);
+  detail.append(pager);
+  return detail;
+}
+
+function openEnglishComparisonDetail(record: EnglishMapRecord): void {
+  verbEnglishComparisonGroup = record.group;
+  verbEnglishComparisonDetailTense = record.englishTense;
+  verbEnglishComparisonOriginTense = record.englishTense;
+  render();
+  content?.focus();
+}
+
+function renderEnglishComparisonVariant(label: string, variant: EnglishComparisonVariant, cueTokens: string[]): HTMLElement {
+  const block = section("verb-english-variant");
+  const header = document.createElement("div"); header.className = "verb-english-variant-header";
+  header.append(text(label, "verb-card-label"), text(variant.form, "verb-english-form"));
+  const dutch = renderEnglishCueSentence(variant.nl, cueTokens, "verb-english-detail-dutch"); dutch.lang = "nl";
+  block.append(header, dutch, text(`EN · ${variant.en}`, "verb-english-detail-translation"), text(`TE · ${variant.te}`, "verb-english-detail-translation"));
+  return block;
+}
+
+function renderEnglishCueSentence(value: string, tokens: string[], className: string): HTMLElement {
+  const element = text("", className);
+  let cursor = 0;
+  const uniqueTokens = [...new Set(tokens)].filter(Boolean);
+  while (cursor < value.length) {
+    const match = uniqueTokens
+      .map((token) => ({ token, index: value.toLocaleLowerCase().indexOf(token.toLocaleLowerCase(), cursor) }))
+      .filter((candidate) => candidate.index >= cursor)
+      .sort((first, second) => first.index - second.index || second.token.length - first.token.length)[0];
+    if (!match) break;
+    element.append(value.slice(cursor, match.index));
+    const highlight = document.createElement("mark"); highlight.className = "verb-english-cue-highlight"; highlight.textContent = value.slice(match.index, match.index + match.token.length);
+    element.append(highlight);
+    cursor = match.index + match.token.length;
+  }
+  element.append(value.slice(cursor));
+  return element;
+}
+
+function englishComparisonVariant(record: EnglishMapRecord, role: "meaningPreserving" | "everyday"): EnglishComparisonVariant {
+  const variant = record[role];
+  if (variant) return variant;
+  return { nl: role === "everyday" ? record.commonEverydayDutch : record.meaningPreservingDutch, en: record.english, te: "", form: record.dutchAnalysis.primaryForm ?? "OTT" };
+}
+
+function englishFormLabel(record: EnglishMapRecord): string {
+  return record.englishTense.split("-").map((part, index) => index === 0 ? part[0].toUpperCase() + part.slice(1) : part).join(" ");
 }
 
 function englishAnalysis(record: EnglishMapRecord): string {

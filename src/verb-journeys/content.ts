@@ -93,6 +93,20 @@ export type EnglishMapRecord = {
   cefrLevel: "A1" | "A2" | "reference";
   teachingPriority: TeachingPriority;
 };
+type EnglishComparisonContent = {
+  meaningPreserving: EnglishComparisonVariant;
+  everyday: EnglishComparisonVariant;
+  cue: EnglishComparisonCue;
+  howDutchExpressesIt: string;
+  whyTheyDiffer: string;
+};
+
+function withEnglishComparisonContent(
+  records: readonly EnglishMapRecord[],
+  content: Record<EnglishTense, EnglishComparisonContent>,
+): EnglishMapRecord[] {
+  return records.map((record) => ({ ...record, ...content[record.englishTense] }));
+}
 
 export type StoryTarget = { text: string; skillIds: string[] };
 export type StoryLine = { id: string; nl: string; english: string; telugu: string; targets: StoryTarget[] };
@@ -213,7 +227,7 @@ const completedFutureNotice: NoticeContent = {
   valuableContrast: "VTTT looks forward to a completed result before a future point. VVTT imagines a completed result that did not happen; everyday Dutch often chooses a simpler construction instead.",
 };
 
-const englishComparison: EnglishMapRecord[] = [
+const englishComparisonBase: EnglishMapRecord[] = [
   {
     id: "english.werken.present-simple", englishTense: "present-simple", group: "present", english: "I work at home every Monday.", situation: "A repeated routine or fact.", meaningPreservingDutch: "Ik werk elke maandag thuis.", commonEverydayDutch: "Ik werk elke maandag thuis.", dutchAnalysis: { primaryForm: "OTT" }, mismatchNote: "This is a direct mapping for routines, facts, and repeated actions.", cefrLevel: "A1", teachingPriority: "core",
   },
@@ -242,19 +256,108 @@ const englishComparison: EnglishMapRecord[] = [
     id: "english.werken.future-simple", englishTense: "future-simple", group: "future", english: "I will work at home tomorrow.", situation: "A planned or predicted future event.", meaningPreservingDutch: "Ik zal morgen thuis werken.", commonEverydayDutch: "Morgen werk ik thuis.", dutchAnalysis: { primaryForm: "OTT", construction: "OTT + future time marker", alternativeForms: ["OTTT"] }, mismatchNote: "English will does not automatically require Dutch zal; a future time word often makes OTT sufficient.", cefrLevel: "A1", teachingPriority: "core",
   },
   {
-    id: "english.werken.future-continuous", englishTense: "future-continuous", group: "future", english: "Tomorrow at eight, I will be working.", situation: "An activity in progress at a future time.", meaningPreservingDutch: "Morgen om acht uur zal ik aan het werken zijn.", commonEverydayDutch: "Morgen om acht uur ben ik aan het werk.", dutchAnalysis: { primaryForm: "OTT", construction: "future time + aan het werk", alternativeForms: ["OTTT"] }, mismatchNote: "The future time phrase and progressive expression carry both the future and ongoing meaning.", cefrLevel: "reference", teachingPriority: "reference",
+    id: "english.werken.future-continuous", englishTense: "future-continuous", group: "future", english: "Tomorrow at eight, I will be working.", situation: "An activity in progress at a future time.", meaningPreservingDutch: "Morgen om acht uur zal ik aan het werken zijn.", commonEverydayDutch: "Morgen om acht uur ben ik aan het werken.", dutchAnalysis: { primaryForm: "OTT", construction: "future time + aan het werken", alternativeForms: ["OTTT"] }, mismatchNote: "The future time phrase and progressive expression carry both the future and ongoing meaning.", cefrLevel: "reference", teachingPriority: "reference",
   },
   {
-    id: "english.werken.future-perfect", englishTense: "future-perfect", group: "future", english: "By Friday, I will have worked forty hours.", situation: "A completed amount measured before a future deadline.", meaningPreservingDutch: "Tegen vrijdag zal ik veertig uur gewerkt hebben.", commonEverydayDutch: "Tegen vrijdag heb ik veertig uur gewerkt.", dutchAnalysis: { primaryForm: "VTTT", alternativeForms: ["VTT"] }, mismatchNote: "VTTT explicitly marks completion before a future point; everyday Dutch may let the deadline carry the future meaning.", cefrLevel: "reference", teachingPriority: "reference",
+    id: "english.werken.future-perfect", englishTense: "future-perfect", group: "future", english: "By Friday, I will have worked at home three times.", situation: "A completed amount measured before a future deadline.", meaningPreservingDutch: "Tegen vrijdag zal ik drie keer thuis gewerkt hebben.", commonEverydayDutch: "Uiterlijk vrijdag heb ik drie keer thuis gewerkt.", dutchAnalysis: { primaryForm: "VTTT", alternativeForms: ["VTT"] }, mismatchNote: "VTTT explicitly marks completion before a future point; everyday Dutch may let the deadline carry the future meaning.", cefrLevel: "reference", teachingPriority: "reference",
   },
   {
-    id: "english.werken.future-perfect-continuous", englishTense: "future-perfect-continuous", group: "future", english: "Tomorrow at eight, I will have been working for two hours.", situation: "A continuing activity measured at a future time.", meaningPreservingDutch: "Morgen om acht uur zal ik al twee uur aan het werken zijn.", commonEverydayDutch: "Morgen om acht uur ben ik al twee uur aan het werk.", dutchAnalysis: { primaryForm: "OTT", construction: "future time + al + duration", alternativeForms: ["OTTT"] }, mismatchNote: "The activity is still ongoing at the future point, so Dutch normally avoids a completed VTTT form.", cefrLevel: "reference", teachingPriority: "reference",
+    id: "english.werken.future-perfect-continuous", englishTense: "future-perfect-continuous", group: "future", english: "Tomorrow at eight, I will have been working for two hours.", situation: "A continuing activity measured at a future time.", meaningPreservingDutch: "Morgen om acht uur zal ik al twee uur aan het werken zijn.", commonEverydayDutch: "Morgen om acht uur ben ik al twee uur aan het werken.", dutchAnalysis: { primaryForm: "OTT", construction: "future time + al + duration", alternativeForms: ["OTTT"] }, mismatchNote: "The activity is still ongoing at the future point, so Dutch normally avoids a completed VTTT form.", cefrLevel: "reference", teachingPriority: "reference",
   },
 ];
 
+const werkenEnglishComparisonContent: Record<EnglishTense, EnglishComparisonContent> = {
+  "present-simple": {
+    meaningPreserving: { nl: "Ik werk elke maandag thuis.", en: "I work at home every Monday.", te: "నేను ప్రతి సోమవారం ఇంటి నుంచి పని చేస్తాను.", form: "OTT" },
+    everyday: { nl: "Ik werk elke maandag thuis.", en: "I work at home every Monday.", te: "నేను ప్రతి సోమవారం ఇంటి నుంచి పని చేస్తాను.", form: "OTT" },
+    cue: { display: "elke maandag", shortMeaning: "repeated routine", kind: "frequency", tokens: ["elke maandag"] },
+    howDutchExpressesIt: "Meaning-preserving: OTT + frequency cue. Everyday: OTT + frequency cue.",
+    whyTheyDiffer: "This is a direct mapping for a repeated routine or habit.",
+  },
+  "present-continuous": {
+    meaningPreserving: { nl: "Ik ben nu thuis aan het werken.", en: "I am working at home right now.", te: "నేను ఇప్పుడు ఇంటి నుంచి పని చేస్తున్నాను.", form: "OTT" },
+    everyday: { nl: "Ik werk nu thuis.", en: "I am working at home right now.", te: "నేను ఇప్పుడు ఇంటి నుంచి పని చేస్తున్నాను.", form: "OTT" },
+    cue: { display: "nu", shortMeaning: "happening now", kind: "current-time", tokens: ["nu"] },
+    howDutchExpressesIt: "Meaning-preserving: OTT progressive. Everyday: OTT + nu.",
+    whyTheyDiffer: "Dutch can express an action in progress with ordinary OTT when nu makes the current meaning clear.",
+  },
+  "present-perfect": {
+    meaningPreserving: { nl: "Ik heb deze week drie keer thuis gewerkt.", en: "I have worked at home three times this week.", te: "నేను ఈ వారం మూడు సార్లు ఇంటి నుంచి పని చేశాను.", form: "VTT" },
+    everyday: { nl: "Ik heb deze week drie keer thuis gewerkt.", en: "I have worked at home three times this week.", te: "నేను ఈ వారం మూడు సార్లు ఇంటి నుంచి పని చేశాను.", form: "VTT" },
+    cue: { display: "deze week", shortMeaning: "completed events in the current period", kind: "current-period", tokens: ["deze week"] },
+    howDutchExpressesIt: "Meaning-preserving: VTT + current-period cue. Everyday: VTT + current-period cue.",
+    whyTheyDiffer: "VTT presents completed events as relevant to the current period.",
+  },
+  "present-perfect-continuous": {
+    meaningPreserving: { nl: "Ik ben al twee uur aan het werken.", en: "I have been working for two hours.", te: "నేను రెండు గంటలుగా పని చేస్తున్నాను.", form: "OTT" },
+    everyday: { nl: "Ik werk al twee uur.", en: "I have been working for two hours.", te: "నేను రెండు గంటలుగా పని చేస్తున్నాను.", form: "OTT" },
+    cue: { display: "al twee uur", shortMeaning: "duration continuing now", kind: "duration", tokens: ["al", "twee uur"] },
+    howDutchExpressesIt: "Meaning-preserving: OTT progressive + duration. Everyday: OTT + al + duration.",
+    whyTheyDiffer: "Because the activity continues now, Dutch treats it as a present situation with al and a duration.",
+  },
+  "past-simple": {
+    meaningPreserving: { nl: "Gisteren werkte ik thuis.", en: "I worked at home yesterday.", te: "నేను నిన్న ఇంటి నుంచి పని చేశాను.", form: "OVT" },
+    everyday: { nl: "Ik heb gisteren thuis gewerkt.", en: "I worked at home yesterday.", te: "నేను నిన్న ఇంటి నుంచి పని చేశాను.", form: "VTT" },
+    cue: { display: "gisteren", shortMeaning: "completed past fact", kind: "past-time", tokens: ["gisteren"] },
+    howDutchExpressesIt: "Meaning-preserving: OVT for a past fact. Everyday: VTT + past-time cue.",
+    whyTheyDiffer: "English simple past often maps to VTT for a standalone completed fact; OVT is common for narrative background or habits.",
+  },
+  "past-continuous": {
+    meaningPreserving: { nl: "Ik was aan het werken toen ze belde.", en: "I was working when she called.", te: "ఆమె ఫోన్ చేసినప్పుడు నేను పని చేస్తున్నాను.", form: "OVT" },
+    everyday: { nl: "Ik zat te werken toen ze belde.", en: "I was working when she called.", te: "ఆమె ఫోన్ చేసినప్పుడు నేను పని చేస్తున్నాను.", form: "OVT" },
+    cue: { display: "toen ze belde", shortMeaning: "ongoing action around a past event", kind: "past-reference", tokens: ["toen ze belde"] },
+    howDutchExpressesIt: "Meaning-preserving: OVT + aan het. Everyday: zitten te + past reference.",
+    whyTheyDiffer: "Dutch supplies ongoing meaning with aan het or a position verb such as zitten te.",
+  },
+  "past-perfect": {
+    meaningPreserving: { nl: "Ik had al thuis gewerkt voordat de vergadering begon.", en: "I had already worked at home before the meeting began.", te: "సమావేశం ప్రారంభమయ్యే ముందు నేను ఇప్పటికే ఇంటి నుంచి పని చేశాను.", form: "VVT" },
+    everyday: { nl: "Ik had al thuis gewerkt voordat de vergadering begon.", en: "I had already worked at home before the meeting began.", te: "సమావేశం ప్రారంభమయ్యే ముందు నేను ఇప్పటికే ఇంటి నుంచి పని చేశాను.", form: "VVT" },
+    cue: { display: "al … voordat", shortMeaning: "completed before another past event", kind: "compound", tokens: ["al", "voordat"] },
+    howDutchExpressesIt: "Meaning-preserving: VVT + al + voordat. Everyday: VVT + al + voordat.",
+    whyTheyDiffer: "VVT explicitly marks the earlier of two past events.",
+  },
+  "past-perfect-continuous": {
+    meaningPreserving: { nl: "Ik was al twee uur aan het werken toen ze belde.", en: "I had been working for two hours when she called.", te: "ఆమె ఫోన్ చేసినప్పుడు నేను రెండు గంటలుగా పని చేస్తున్నాను.", form: "OVT" },
+    everyday: { nl: "Ik zat al twee uur te werken toen ze belde.", en: "I had been working for two hours when she called.", te: "ఆమె ఫోన్ చేసినప్పుడు నేను రెండు గంటలుగా పని చేస్తున్నాను.", form: "OVT" },
+    cue: { display: "al twee uur … toen", shortMeaning: "duration continuing up to a past point", kind: "compound", tokens: ["al", "twee uur", "toen"] },
+    howDutchExpressesIt: "Meaning-preserving: OVT progressive + duration. Everyday: zitten te + al + duration.",
+    whyTheyDiffer: "The past reference point and al twee uur carry the had been meaning; Dutch normally does not need VVT here.",
+  },
+  "future-simple": {
+    meaningPreserving: { nl: "Ik zal morgen thuis werken.", en: "I will work at home tomorrow.", te: "నేను రేపు ఇంటి నుంచి పని చేస్తాను.", form: "OTTT" },
+    everyday: { nl: "Morgen werk ik thuis.", en: "I will work at home tomorrow.", te: "నేను రేపు ఇంటి నుంచి పని చేస్తాను.", form: "OTT" },
+    cue: { display: "morgen", shortMeaning: "future supplied by context", kind: "future-time", tokens: ["morgen"] },
+    howDutchExpressesIt: "Meaning-preserving: OTTT + future-time cue. Everyday: OTT + future-time cue.",
+    whyTheyDiffer: "English will does not automatically require Dutch zal; a future time word often makes OTT sufficient.",
+  },
+  "future-continuous": {
+    meaningPreserving: { nl: "Morgen om acht uur zal ik aan het werken zijn.", en: "Tomorrow at eight, I will be working.", te: "రేపు ఎనిమిది గంటలకు నేను పని చేస్తూ ఉంటాను.", form: "OTTT" },
+    everyday: { nl: "Morgen om acht uur ben ik aan het werken.", en: "Tomorrow at eight, I will be working.", te: "రేపు ఎనిమిది గంటలకు నేను పని చేస్తూ ఉంటాను.", form: "OTT" },
+    cue: { display: "morgen om acht uur", shortMeaning: "action in progress at a future point", kind: "future-time", tokens: ["morgen", "om acht uur"] },
+    howDutchExpressesIt: "Meaning-preserving: OTTT + aan het werken. Everyday: OTT + future-time cue + aan het werken.",
+    whyTheyDiffer: "The future time phrase and progressive expression carry both the future and ongoing meaning.",
+  },
+  "future-perfect": {
+    meaningPreserving: { nl: "Tegen vrijdag zal ik drie keer thuis gewerkt hebben.", en: "By Friday, I will have worked at home three times.", te: "శుక్రవారం నాటికి నేను ఇంటి నుంచి మూడు సార్లు పని చేసి ఉంటాను.", form: "VTTT" },
+    everyday: { nl: "Uiterlijk vrijdag heb ik drie keer thuis gewerkt.", en: "By Friday, I will have worked at home three times.", te: "శుక్రవారం నాటికి నేను ఇంటి నుంచి మూడు సార్లు పని చేసి ఉంటాను.", form: "VTT" },
+    cue: { display: "tegen/uiterlijk vrijdag", shortMeaning: "completed by a future deadline", kind: "deadline", tokens: ["vrijdag"] },
+    howDutchExpressesIt: "Meaning-preserving: VTTT + deadline. Everyday: VTT + deadline.",
+    whyTheyDiffer: "VTTT explicitly marks completion before a future point; everyday Dutch may let the deadline carry the future meaning.",
+  },
+  "future-perfect-continuous": {
+    meaningPreserving: { nl: "Morgen om acht uur zal ik al twee uur aan het werken zijn.", en: "Tomorrow at eight, I will have been working for two hours.", te: "రేపు ఎనిమిది గంటలకు నేను రెండు గంటలుగా పని చేస్తూ ఉంటాను.", form: "OTTT" },
+    everyday: { nl: "Morgen om acht uur ben ik al twee uur aan het werken.", en: "Tomorrow at eight, I will have been working for two hours.", te: "రేపు ఎనిమిది గంటలకు నేను రెండు గంటలుగా పని చేస్తూ ఉంటాను.", form: "OTT" },
+    cue: { display: "morgen om acht uur + al twee uur", shortMeaning: "duration continuing at a future point", kind: "compound", tokens: ["morgen", "om acht uur", "al twee uur"] },
+    howDutchExpressesIt: "Meaning-preserving: OTTT + al + duration. Everyday: OTT + future-time cue + al + duration.",
+    whyTheyDiffer: "The activity is still ongoing at the future point, so Dutch normally avoids a completed VTTT form.",
+  },
+};
+
+const englishComparison = withEnglishComparisonContent(englishComparisonBase, werkenEnglishComparisonContent);
+
 export const verbJourneyPack: VerbJourneyPack = {
   schemaVersion: VERB_JOURNEY_SCHEMA_VERSION,
-  contentVersion: VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
+  contentVersion: ENGLISH_COMPARISON_CONTENT_VERSION,
   verb: { id: "verb.werken", lemma: "werken", english: "to work", level: "A1", tags: ["regular", "weak"], auxiliary: "hebben" },
   dutchForms: [
     { id: "form.werken.ott", dutchTense: "OTT", viewpoint: "present", completion: "onvoltooid", fullNameNl: "onvoltooid tegenwoordige tijd", sentence: "Ik werk thuis.", naturalEnglish: "I work at home.", usageMeaning: "routine, fact, present situation, or a scheduled future with a time word", formula: "ik + present stem", commonUsage: "Ik werk thuis. / Morgen werk ik thuis.", learnerLabelEn: "Present", canonicalExample: { nl: "Ik werk vandaag thuis.", en: "I am working at home today.", te: "నేను ఈరోజు ఇంటి నుంచి పని చేస్తున్నాను." }, commonUsageExample: { nl: "Morgen werk ik thuis.", en: "I will work at home tomorrow.", te: "రేపు నేను ఇంటి వద్ద పని చేస్తాను." }, cefrLevel: "A1", teachingPriority: "core", status: "mastered" },

@@ -21,7 +21,7 @@ release qualification and handoff gate.
 ## Implementation status
 
 - [x] T01 — Expand the versioned English comparison content contract
-- [ ] T02 — Ship the `werken` English comparison lens
+- [x] T02 — Ship the `werken` English comparison lens
 - [ ] T03 — Complete `zijn` and `hebben` lens coverage
 - [ ] T04 — Qualify and hand off Feature 019
 
