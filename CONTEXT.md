@@ -44,6 +44,10 @@ _Avoid_: 100-verb catalog, conjugation-table course, tense encyclopedia
 A short, staged learning path for one high-utility Dutch verb inside the existing Lesson library. It connects a first-person context, a noticed form, the shared Verb Map, controlled practice, and later review without making the verb a single completed lesson or a separate learner-facing destination.
 _Avoid_: Verb course, verb destination tab, completed verb badge
 
+**Gaan Verb Journey**:
+The approved `gaan` learning boundary: movement and departure, destinations and plans, near-future `gaan` plus an infinitive, and a bounded perfect construction with `zijn`. It uses primarily first-person stories with limited person and inversion contrasts, and does not claim to teach a general auxiliary course or the full idiom range of *gaan*.
+_Avoid_: Full auxiliary course, full *gaan* idiom course, uncued full-paradigm production
+
 **Verb Map**:
 The stable eight-form Dutch reference for one verb, pairing onvoltooid and voltooid viewpoints across present, past, future, and future-from-past. Each form has reviewed Dutch, English, and Telugu example content, while the map remains a supporting reference that highlights the current journey form; advanced forms remain reference material rather than beginner mastery requirements.
 _Avoid_: Tense timeline, conjugation quiz, formal proficiency map
