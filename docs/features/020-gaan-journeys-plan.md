@@ -19,6 +19,9 @@ published as child GitHub issues [#160](https://github.com/mgurramaiproject/dutc
 through [#166](https://github.com/mgurramaiproject/dutchmate/issues/166), all
 with `ready-for-agent`.
 
+**Qualification:** [020-gaan-journeys-qualification.md](./020-gaan-journeys-qualification.md);
+authoring matrix established before implementation.
+
 ## Goal
 
 Author a complete DutchMate Verb Journey package for the irregular, high-utility
