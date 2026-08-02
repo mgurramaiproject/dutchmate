@@ -18,6 +18,13 @@ T01 is the intentional expand-stage exception for the shared versioned
 content contract. T02 and T03 are learner-facing vertical slices; T04 is the
 release qualification and handoff gate.
 
+## Implementation status
+
+- [x] T01 — Expand the versioned English comparison content contract
+- [ ] T02 — Ship the `werken` English comparison lens
+- [ ] T03 — Complete `zijn` and `hebben` lens coverage
+- [ ] T04 — Qualify and hand off Feature 019
+
 The full acceptance criteria and blocker text live in the per-ticket
 documents and matching GitHub issues:
 
@@ -28,4 +35,3 @@ documents and matching GitHub issues:
 
 All child issues are open and labeled `ready-for-agent`. The parent issue was
 not modified or closed.
-

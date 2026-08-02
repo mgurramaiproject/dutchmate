@@ -5,13 +5,15 @@ export const ZIJN_VERB_JOURNEY_CONTENT_VERSION = "016-1";
 export const ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION = "016-2";
 export const HEBBEN_VERB_JOURNEY_CONTENT_VERSION = "017-1";
 export const HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION = "017-2";
+export const ENGLISH_COMPARISON_CONTENT_VERSION = "019-1";
 export type VerbJourneyContentVersion =
   | typeof VERB_JOURNEY_CONTENT_VERSION
   | typeof VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION
   | typeof ZIJN_VERB_JOURNEY_CONTENT_VERSION
   | typeof ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION
   | typeof HEBBEN_VERB_JOURNEY_CONTENT_VERSION
-  | typeof HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION;
+  | typeof HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION
+  | typeof ENGLISH_COMPARISON_CONTENT_VERSION;
 
 export type DutchTense = "OTT" | "OVT" | "VTT" | "VVT" | "OTTT" | "OVTT" | "VTTT" | "VVTT";
 export type TeachingPriority = "core" | "later" | "reference";
@@ -31,6 +33,24 @@ export type EnglishTense =
   | "future-continuous"
   | "future-perfect"
   | "future-perfect-continuous";
+export type EnglishComparisonCueKind =
+  | "frequency"
+  | "current-time"
+  | "current-period"
+  | "duration"
+  | "past-time"
+  | "past-reference"
+  | "sequence"
+  | "future-time"
+  | "deadline"
+  | "compound";
+export type EnglishComparisonCue = {
+  display: string;
+  shortMeaning: string;
+  kind: EnglishComparisonCueKind;
+  tokens: string[];
+};
+export type EnglishComparisonVariant = LocalizedVerbSentence & { form: DutchTense };
 
 export type VerbFormRecord = {
   id: string;
@@ -65,6 +85,11 @@ export type EnglishMapRecord = {
     alternativeForms?: DutchTense[];
   };
   mismatchNote: string;
+  meaningPreserving?: EnglishComparisonVariant;
+  everyday?: EnglishComparisonVariant;
+  cue?: EnglishComparisonCue;
+  howDutchExpressesIt?: string;
+  whyTheyDiffer?: string;
   cefrLevel: "A1" | "A2" | "reference";
   teachingPriority: TeachingPriority;
 };
@@ -313,6 +338,11 @@ const multilingualContentVersions = new Set<VerbJourneyContentVersion>([
   VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
   ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
   HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
+]);
+const englishComparisonContentVersions = new Set<VerbJourneyContentVersion>([ENGLISH_COMPARISON_CONTENT_VERSION]);
+const englishComparisonCueKinds = new Set<EnglishComparisonCueKind>([
+  "frequency", "current-time", "current-period", "duration", "past-time",
+  "past-reference", "sequence", "future-time", "deadline", "compound",
 ]);
 
 const zijnEnglishComparison: EnglishMapRecord[] = [
@@ -581,8 +611,10 @@ export function validateVerbJourneyPack(pack: VerbJourneyPack): string[] {
     ZIJN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
     HEBBEN_VERB_JOURNEY_CONTENT_VERSION,
     HEBBEN_VERB_JOURNEY_MULTILINGUAL_CONTENT_VERSION,
+    ENGLISH_COMPARISON_CONTENT_VERSION,
   ]).has(pack.contentVersion)) errors.push("contentVersion: unsupported version");
   const requiresMultilingualFormContent = multilingualContentVersions.has(pack.contentVersion);
+  const requiresEnglishComparisonContent = englishComparisonContentVersions.has(pack.contentVersion);
   if (!stableId.test(pack.verb.id) || !pack.verb.lemma || !pack.verb.english || !pack.verb.tags.length || !["hebben", "zijn"].includes(pack.verb.auxiliary)) errors.push("verb: incomplete verb record");
   const ids = new Set<string>();
   const addId = (id: string, field: string) => {
@@ -618,6 +650,14 @@ export function validateVerbJourneyPack(pack: VerbJourneyPack): string[] {
     englishTenses.add(record.englishTense);
     englishGroups.set(record.group, (englishGroups.get(record.group) ?? 0) + 1);
     if (!record.english || !record.situation || !record.meaningPreservingDutch || !record.commonEverydayDutch || !record.mismatchNote) errors.push(`englishComparison[${index}]: missing learner-facing comparison detail`);
+    if (requiresEnglishComparisonContent) {
+      for (const [role, variant] of [["meaningPreserving", record.meaningPreserving], ["everyday", record.everyday]] as const) {
+        if (!variant || !variant.nl || !variant.en || !variant.te) errors.push(`englishComparison[${index}].${role}: expected non-empty nl, en, and te values`);
+        if (!variant?.form || !forms.has(variant.form)) errors.push(`englishComparison[${index}].${role}.form: unknown Dutch form`);
+      }
+      if (!record.cue || !record.cue.display || !record.cue.shortMeaning || !englishComparisonCueKinds.has(record.cue.kind) || !record.cue.tokens.length || record.cue.tokens.some((token) => !token.trim())) errors.push(`englishComparison[${index}].cue: incomplete authored cue`);
+      if (!record.howDutchExpressesIt || !record.whyTheyDiffer) errors.push(`englishComparison[${index}]: missing authored comparison explanation`);
+    }
     if (!record.dutchAnalysis.primaryForm && !record.dutchAnalysis.construction) errors.push(`englishComparison[${index}].dutchAnalysis: expected a form or construction`);
     if (record.dutchAnalysis.primaryForm && !forms.has(record.dutchAnalysis.primaryForm)) errors.push(`englishComparison[${index}].dutchAnalysis.primaryForm: unknown form`);
     for (const alternative of record.dutchAnalysis.alternativeForms ?? []) if (!forms.has(alternative)) errors.push(`englishComparison[${index}].dutchAnalysis.alternativeForms: unknown form`);

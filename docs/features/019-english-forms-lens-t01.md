@@ -14,19 +14,19 @@ during this expand stage.
 
 ## Acceptance criteria
 
-- [ ] A new content version supports two distinct Dutch comparison roles for
+- [x] A new content version supports two distinct Dutch comparison roles for
       every English form, each with complete NL/EN/TE content and a Dutch form
       identity.
-- [ ] Every English form can store an authored Cue with display text, short
+- [x] Every English form can store an authored Cue with display text, short
       meaning, bounded kind, and safe authored token information.
-- [ ] Pack validation rejects missing role content, invalid Dutch form
+- [x] Pack validation rejects missing role content, invalid Dutch form
       identities, missing cues, duplicate English identities, invalid group
       counts, and incomplete localized values.
-- [ ] The active `werken`, `zijn`, and `hebben` packs remain compatible with
+- [x] The active `werken`, `zijn`, and `hebben` packs remain compatible with
       stable form IDs, evidence keys, exports, and learner history.
-- [ ] Matching Meaning-preserving Dutch and Everyday Dutch records remain
+- [x] Matching Meaning-preserving Dutch and Everyday Dutch records remain
       distinct rather than being deduplicated.
-- [ ] Existing comparison rendering and relevant tests remain green while the
+- [x] Existing comparison rendering and relevant tests remain green while the
       additive contract is introduced.
 
 ## Blocked by
