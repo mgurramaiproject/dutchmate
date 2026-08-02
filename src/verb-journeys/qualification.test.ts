@@ -16,7 +16,7 @@ const popupHtml = readFileSync(path.join(import.meta.dirname, "../popup/index.ht
 const popupStyles = readFileSync(path.join(import.meta.dirname, "../popup/styles.css"), "utf8");
 const popupSource = readFileSync(path.join(import.meta.dirname, "../popup/index.ts"), "utf8");
 
-describe("Feature 015 release qualification", () => {
+describe("Feature 019 English Forms Lens qualification", () => {
   it("keeps the authored werken pack complete and structurally valid", () => {
     expect(validateVerbJourneyPack(verbJourneyPack)).toEqual([]);
     expect(verbJourneyPack.dutchForms).toHaveLength(8);
@@ -38,7 +38,7 @@ describe("Feature 015 release qualification", () => {
     const hebben = verbJourneyPacks.find((pack) => pack.verb.id === "verb.hebben");
     expect(hebben).toBeTruthy();
     expect(validateVerbJourneyRegistry()).toEqual([]);
-    expect(hebben?.contentVersion).toBe("017-2");
+    expect(hebben?.contentVersion).toBe("019-1");
     expect(hebben?.dutchForms).toHaveLength(8);
     expect(hebben?.englishComparison).toHaveLength(12);
     expect(hebben?.journeys).toHaveLength(6);

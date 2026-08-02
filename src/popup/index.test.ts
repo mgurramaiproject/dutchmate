@@ -1395,8 +1395,8 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
     button("Compare 12 English forms →").click();
     await vi.waitFor(() => expect(content().textContent).toContain("12 English forms → Dutch"));
-    expect(content().querySelector<HTMLElement>(".verb-english-tab.is-active")?.textContent).toBe("Present · 4");
-    expect(content().querySelector<HTMLElement>(".verb-english-card.is-expanded .verb-english-name")?.textContent).toBe("present perfect");
+    expect(content().querySelector<HTMLElement>(".verb-english-tab.is-active")?.textContent).toBe("Present 1–4");
+    expect(content().querySelector(".verb-english-card.is-expanded")).toBeNull();
     button("Back to 8-form map").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
     button("werken").click();
@@ -1603,11 +1603,49 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("12 English forms → Dutch"));
     expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4);
     expect(content().textContent).toContain("I am working at home right now.");
-    expect(content().textContent).toContain("Common everyday Dutch");
-    expect(content().querySelector<HTMLButtonElement>(".verb-english-card")?.getAttribute("aria-expanded")).toBe("true");
-    content().querySelector<HTMLButtonElement>(".verb-english-card")!.click();
-    expect(content().querySelector<HTMLButtonElement>(".verb-english-card")?.getAttribute("aria-expanded")).toBe("false");
-    button("Past · 4").click();
+    expect(content().textContent).toContain("Cue · elke maandag");
+    expect(content().textContent).not.toContain("TE ·");
+    expect(content().querySelector("[role='tab'][aria-selected='true']")?.textContent).toContain("Present 1–4");
+    expect(button("ⓘ About this comparison").getAttribute("aria-expanded")).toBe("false");
+    button("ⓘ About this comparison").click();
+    expect(button("ⓘ About this comparison").getAttribute("aria-expanded")).toBe("true");
+    expect(content().textContent).toContain("This is a comparison lens");
+    const firstCard = content().querySelector<HTMLButtonElement>(".verb-english-card")!;
+    expect(firstCard.getAttribute("aria-label")).toContain("Dutch form: OTT");
+    firstCard.focus();
+    expect(document.activeElement).toBe(firstCard);
+    content().scrollTop = 48;
+    firstCard.click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-english-detail-view")).toBeTruthy());
+    expect(content().querySelectorAll(".verb-english-variant")).toHaveLength(2);
+    expect(content().textContent).toContain("MEANING-PRESERVING DUTCH");
+    expect(content().textContent).toContain("EVERYDAY DUTCH");
+    expect(content().textContent).toContain("TE ·");
+    expect(content().textContent).toContain("CUE");
+    expect(content().textContent).toContain("HOW DUTCH EXPRESSES IT");
+    expect(content().textContent).toContain("WHY THEY DIFFER");
+    expect(content().textContent).toContain("1 of 12");
+    expect(content().textContent?.match(/Ik werk elke maandag thuis\./g)).toHaveLength(2);
+    expect(button("Previous").disabled).toBe(true);
+    button("Next").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("2 of 12"));
+    expect(content().textContent).toContain("Present continuous");
+    for (let position = 3; position <= 12; position += 1) {
+      button("Next").click();
+      await vi.waitFor(() => expect(content().textContent).toContain(`${position} of 12`));
+    }
+    expect(button("Next").disabled).toBe(true);
+    for (let position = 11; position >= 1; position -= 1) {
+      button("Previous").click();
+      await vi.waitFor(() => expect(content().textContent).toContain(`${position} of 12`));
+    }
+    expect(button("Previous").disabled).toBe(true);
+    button("Back to Present forms").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4));
+    expect(content().textContent).toContain("Present 1–4");
+    expect(content().scrollTop).toBe(48);
+    expect(document.activeElement).toBe(content().querySelector("[data-english-tense='present-simple']"));
+    button("Past 5–8").click();
     expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4);
     expect(content().textContent).toContain("I worked at home yesterday.");
     button("werken").click();
@@ -1620,6 +1658,36 @@ describe("lesson popup", () => {
     button("Back to 8-form map").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Werken Verb Map"));
     expect(content().querySelector(".verb-detail-example")?.textContent).toBe("NL · Ik werkte gisteren thuis.");
+  });
+
+  it("reuses the English lens for zijn and hebben without changing practice state", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
+    button("Verb Journeys").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(3));
+
+    for (const [directoryIndex, lemma, example] of [[1, "zijn", "Ik ben vandaag thuis."], [2, "hebben", "Ik heb vandaag genoeg tijd."]] as const) {
+      content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable")[directoryIndex].click();
+      await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
+      button("12 English forms").click();
+      await vi.waitFor(() => expect(content().textContent).toContain("12 English forms → Dutch"));
+      expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4);
+      expect(content().textContent).toContain(example);
+      content().querySelector<HTMLButtonElement>(".verb-english-card")!.click();
+      await vi.waitFor(() => expect(content().querySelector(".verb-english-detail-view")).toBeTruthy());
+      expect(content().querySelectorAll(".verb-english-variant")).toHaveLength(2);
+      content().querySelector<HTMLButtonElement>(".verb-english-detail-view .quiet-link")!.click();
+      await vi.waitFor(() => expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4));
+      button(lemma).click();
+      await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
+      if (directoryIndex === 1) {
+        button("Verb Journeys").click();
+        await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(3));
+      }
+    }
   });
 
   it("surfaces a weak verb skill through the existing Daily Five review flow", async () => {

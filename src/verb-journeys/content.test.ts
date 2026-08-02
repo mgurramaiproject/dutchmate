@@ -5,6 +5,7 @@ describe("werken Verb Journey pack", () => {
   it("provides the complete stable read-only map and staged journeys", () => {
     expect(validateVerbJourneyPack(verbJourneyPack)).toEqual([]);
     expect(verbJourneyPack.verb.id).toBe("verb.werken");
+    expect(verbJourneyPack.contentVersion).toBe("019-1");
     expect(verbJourneyPack.dutchForms).toHaveLength(8);
     expect(new Set(verbJourneyPack.dutchForms.map((form) => form.dutchTense)).size).toBe(8);
     expect(verbJourneyPack.englishComparison).toHaveLength(12);
@@ -12,6 +13,12 @@ describe("werken Verb Journey pack", () => {
     expect(verbJourneyPack.englishComparison.filter((record) => record.group === "past")).toHaveLength(4);
     expect(verbJourneyPack.englishComparison.filter((record) => record.group === "future")).toHaveLength(4);
     expect(verbJourneyPack.englishComparison.every((record) => record.english && record.situation && record.meaningPreservingDutch && record.commonEverydayDutch && record.mismatchNote)).toBe(true);
+    expect(verbJourneyPack.englishComparison.every((record) => record.meaningPreserving?.nl && record.meaningPreserving.en && record.meaningPreserving.te && record.meaningPreserving.form && record.everyday?.nl && record.everyday.en && record.everyday.te && record.everyday.form && record.cue?.display && record.cue.shortMeaning && record.cue.tokens.length && record.howDutchExpressesIt && record.whyTheyDiffer)).toBe(true);
+    expect(verbJourneyPack.englishComparison[1]).toMatchObject({
+      meaningPreserving: { nl: "Ik ben nu thuis aan het werken.", form: "OTT" },
+      everyday: { nl: "Ik werk nu thuis.", form: "OTT" },
+      cue: { display: "nu", kind: "current-time" },
+    });
     expect(verbJourneyPack.journeys.map((journey) => journey.id)).toEqual([
       "journey.werken.ott-routine",
       "journey.werken.vtt-completed",
@@ -69,11 +76,39 @@ describe("werken Verb Journey pack", () => {
     expect(migrated.dutchForms.map((form) => form.id)).toEqual(verbJourneyPack.dutchForms.map((form) => form.id));
   });
 
+  it("requires the additive English comparison contract for the 019 content version", () => {
+    const invalid = structuredClone(verbJourneyPack);
+    invalid.contentVersion = "019-1" as never;
+    invalid.englishComparison = invalid.englishComparison.map(({ meaningPreserving, everyday, cue, howDutchExpressesIt, whyTheyDiffer, ...record }) => record) as never;
+
+    expect(validateVerbJourneyPack(invalid)).toEqual(expect.arrayContaining([
+      expect.stringContaining("meaningPreserving"),
+      expect.stringContaining("everyday"),
+      expect.stringContaining("cue"),
+    ]));
+  });
+
+  it("accepts two localized comparison roles and authored cues without changing stable identities", () => {
+    const migrated = structuredClone(verbJourneyPack);
+    migrated.contentVersion = "019-1" as never;
+    migrated.englishComparison = migrated.englishComparison.map((record) => ({
+      ...record,
+      meaningPreserving: { nl: record.meaningPreservingDutch, en: record.english, te: "తెలుగు", form: record.dutchAnalysis.primaryForm ?? "OTT" },
+      everyday: { nl: record.commonEverydayDutch, en: record.english, te: "తెలుగు", form: record.dutchAnalysis.primaryForm ?? "OTT" },
+      cue: { display: "nu", shortMeaning: "happening now", kind: "current-time", tokens: ["nu"] },
+      howDutchExpressesIt: "A reviewed Dutch construction carries the meaning.",
+      whyTheyDiffer: record.mismatchNote,
+    })) as never;
+
+    expect(validateVerbJourneyPack(migrated)).toEqual([]);
+    expect(migrated.englishComparison.map((record) => record.id)).toEqual(verbJourneyPack.englishComparison.map((record) => record.id));
+  });
+
   it("adds a validated zijn pack without changing werken identity", () => {
     const zijn = getVerbJourneyPack("verb.zijn");
     expect(zijn).not.toBeNull();
     expect(validateVerbJourneyPack(zijn!)).toEqual([]);
-    expect(zijn!.contentVersion).toBe("016-2");
+    expect(zijn!.contentVersion).toBe("019-1");
     expect(zijn!.verb).toMatchObject({ id: "verb.zijn", lemma: "zijn", auxiliary: "zijn" });
     expect(zijn!.dutchForms).toHaveLength(8);
     expect(zijn!.englishComparison).toHaveLength(12);
@@ -96,7 +131,7 @@ describe("werken Verb Journey pack", () => {
     const hebben = getVerbJourneyPack("verb.hebben");
     expect(hebben).not.toBeNull();
     expect(validateVerbJourneyPack(hebben!)).toEqual([]);
-    expect(hebben!.contentVersion).toBe("017-2");
+    expect(hebben!.contentVersion).toBe("019-1");
     expect(hebben!.verb).toMatchObject({ id: "verb.hebben", lemma: "hebben", english: "to have", auxiliary: "hebben" });
     expect(hebben!.dutchForms).toHaveLength(8);
     expect(hebben!.englishComparison).toHaveLength(12);
@@ -116,6 +151,17 @@ describe("werken Verb Journey pack", () => {
     expect(hebben!.journeys[0].story.every((line) => line.targets.every((target) => line.nl.includes(target.text)))).toBe(true);
     expect(isVerbJourneyContentAvailable("verb.hebben")).toBe(true);
     expect(verbJourneyPack.verb.id).toBe("verb.werken");
+  });
+
+  it("qualifies the English comparison contract across every registered pack", () => {
+    expect(verbJourneyPacks).toHaveLength(3);
+    for (const pack of verbJourneyPacks) {
+      expect(pack.contentVersion).toBe("019-1");
+      expect(pack.englishComparison).toHaveLength(12);
+      expect(pack.englishComparison.every((record) => record.meaningPreserving && record.everyday && record.cue && record.howDutchExpressesIt && record.whyTheyDiffer)).toBe(true);
+      expect(new Set(pack.englishComparison.map((record) => record.id)).size).toBe(12);
+    }
+    expect(new Set(verbJourneyPacks.flatMap((pack) => pack.englishComparison.map((record) => record.id))).size).toBe(36);
   });
 
   it("qualifies all active packs with complete localized form and common-use records", () => {

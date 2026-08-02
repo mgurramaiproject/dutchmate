@@ -52,6 +52,18 @@ _Avoid_: Tense timeline, conjugation quiz, formal proficiency map
 The one reviewed Dutch, English, and Telugu canonical or common-use example attached to a Verb Map form. The same record supports the compact map card and its detail panel; it is content support for Dutch learning, not a separate translation or language-learning mode.
 _Avoid_: Translation fallback, language switch, Telugu course content
 
+**English comparison lens**:
+A learner-facing Verb Journey reference view that compares an English form and example with the Dutch construction that preserves its meaning and the Dutch construction commonly used in everyday speech. It explains that English form labels do not map one-to-one onto Dutch forms and does not create a separate mastery or scheduling system.
+_Avoid_: Tense conversion table, English tense course, grammar diagnosis
+
+**Dual-Dutch detail**:
+The focused detail state of the English comparison lens, showing separately labelled meaning-preserving Dutch and Everyday Dutch blocks, each with Dutch, English, and Telugu support. Matching Dutch sentences remain separate when they serve the two comparison roles.
+_Avoid_: Duplicate translation, alternate answer, replacement sentence
+
+**Cue**:
+An authored Dutch time, frequency, duration, sequence, or deadline phrase that carries the intended timeline or aspect meaning in an English comparison example. A cue is content, not a runtime inference or another translation.
+_Avoid_: Tense marker, generated hint, inferred timestamp
+
 **Verb skill evidence**:
 Bounded local evidence for a learner's recognition or controlled application of one verb form or usage skill through authored exercise families. It supports honest review status and does not claim independent production, full verb mastery, or formal CEFR attainment.
 _Avoid_: Verb completion, fluency score, free-writing diagnosis
