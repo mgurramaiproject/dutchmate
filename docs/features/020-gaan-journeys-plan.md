@@ -7,8 +7,12 @@
 **Branch:** `020-gaan-journeys`, created from the clean local `main` branch on
 2026-08-02.
 
-**Status:** Shared understanding complete; awaiting approval before invoking
-`$to-spec` and creating the canonical specification.
+**Status:** Specification created and published; awaiting approval before
+invoking `$to-tickets`.
+
+**Specification:** [020-gaan-journeys-spec.md](./020-gaan-journeys-spec.md);
+published as [GitHub issue #159](https://github.com/mgurramaiproject/dutchmate/issues/159)
+with `ready-for-agent`.
 
 ## Goal
 
@@ -125,10 +129,13 @@ and qualification record for every journey, including:
 
 ## Approval gates and next delivery order
 
-1. Commit this plan, glossary decision, and parking-lot updates.
-2. Ask for explicit approval to invoke `$to-spec` and create
-   `docs/features/020-gaan-journeys-spec.md`.
-3. Review the specification and its proposed seams with the user.
+1. Commit this plan, glossary decision, and parking-lot updates. **Completed:**
+   commit `cfcfde7`.
+2. Ask for explicit approval to invoke `$to-spec` and create the canonical
+   specification. **Completed:** the seams were reviewed and the
+   specification was published as GitHub issue #159 with `ready-for-agent`.
+3. Review the specification and its proposed seams with the user. **Completed:**
+   the four approved seams are recorded in the specification.
 4. Ask for explicit approval to invoke `$to-tickets` and create
    `docs/features/020-gaan-journeys-tickets.md` plus the dependency-ordered
    GitHub issue tree.
