@@ -16,4 +16,3 @@ presentation/content upgrade cannot silently reset or regrade a learner.
 - Add the new fields under a new content version and reuse the existing pack
   and popup seams: accepted because it preserves the current learning model
   while making the new learner-facing distinction explicit.
-
