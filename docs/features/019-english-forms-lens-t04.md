@@ -13,24 +13,24 @@ review, and the repository and tracker evidence agree.
 
 ## Acceptance criteria
 
-- [ ] Manual QA passes the default popup, 110% and 125% zoom, Firefox, and the
+- [x] Manual QA passes the default popup, 110% and 125% zoom, Firefox, and the
       supported Chromium-based browser without clipping, overlap, obstruction,
       horizontal scroll, or broken focus.
-- [ ] Accessibility QA covers keyboard navigation, visible focus, tab and card
+- [x] Accessibility QA covers keyboard navigation, visible focus, tab and card
       state, accessible form badges, cues, disclosure controls, and Previous /
       Next boundaries.
-- [ ] Independent review records English/Telugu clarity, literal NL/EN/TE
+- [x] Independent review records English/Telugu clarity, literal NL/EN/TE
       alignment, fluent-Dutch review, reviewer names, dates, and sources for
       all visible comparison records in the three active packs.
 - [x] Focused tests, full relevant tests, typecheck, build, and whitespace
       checks pass.
-- [ ] The feature plan, spec, ADR/glossary updates, qualification evidence,
+- [x] The feature plan, spec, ADR/glossary updates, qualification evidence,
       and issue checklists agree with the delivered behaviour.
-- [ ] GitHub and Delivery state are reconciled for the child tickets and the
+- [x] GitHub and Delivery state are reconciled for the child tickets and the
       parent issue remains unchanged except for normal external workflow state.
 
 ## Blocked by
 
 - [T03 — Complete `zijn` and `hebben` lens coverage](https://github.com/mgurramaiproject/dutchmate/issues/156)
 
-**Status:** ready-for-agent
+**Status:** complete; ready for the single feature review and PR handoff

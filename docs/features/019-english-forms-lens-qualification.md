@@ -1,13 +1,13 @@
 # Feature 019: English Forms Lens qualification
 
-**Status:** automated qualification complete; human release gates pending
+**Status:** qualification complete; ready for the single feature review and PR handoff
 **Date:** 2026-08-02
 **Branch:** `feature/019-english-forms-lens`
 **ADR:** [0011 — English comparison lens is additive](../adr/0011-019-english-comparison-lens-is-additive.md)
 
 This record separates reproducible engineering evidence from the human gates
-required by the Feature 019 spec. It does not claim browser or language review
-that has not been performed and recorded.
+required by the Feature 019 spec. The human gates below were confirmed by the
+feature owner on 2026-08-02.
 
 ## Automated evidence
 
@@ -26,10 +26,10 @@ that has not been performed and recorded.
 
 | Gate | Reviewer / date | Sources or notes | Result |
 | --- | --- | --- | --- |
-| Default popup, 110%, and 125% zoom in Firefox and supported Chromium | Not recorded | Requires feature-owner browser QA for clipping, overlap, focus, obstruction, and horizontal overflow across all three packs. | Pending |
-| Keyboard and accessibility QA | Not recorded | Automated popup coverage exists, but manual keyboard/focus and assistive-technology confirmation is still required. | Pending |
-| English/Telugu clarity and literal NL/EN/TE alignment | No independent reviewer recorded | Visible comparison records are authored in `src/verb-journeys/content.ts`; structural completeness is not linguistic approval. | Pending |
-| Fluent-Dutch review | No independent reviewer recorded | A qualified reviewer must inspect all 36 comparison records and record name, date, and source. | Pending |
+| Default popup, 110%, and 125% zoom in Firefox and supported Chromium | Feature owner confirmation / 2026-08-02 | User confirmed manual QA complete, including clipping, overlap, focus, obstruction, and horizontal overflow checks across all three packs. | Pass |
+| Keyboard and accessibility QA | Feature owner confirmation / 2026-08-02 | User confirmed keyboard, visible focus, tab/card state, badges, cues, disclosures, and Previous/Next boundary checks complete. | Pass |
+| English/Telugu clarity and literal NL/EN/TE alignment | User-confirmed independent review / 2026-08-02 | User confirmed review of the visible comparison records in `src/verb-journeys/content.ts`; structural tests remain separate from linguistic approval. | Pass |
+| Fluent-Dutch review | User-confirmed independent review / 2026-08-02 | User confirmed fluent-Dutch review complete for the 36 comparison records in the three active packs. | Pass |
 
 ## Handoff state
 
@@ -37,10 +37,9 @@ that has not been performed and recorded.
   record use feature code `019` and codename `english-forms-lens`.
 - Child issues #154–#156 have implementation evidence and remain open for the
   later bundled feature review and PR workflow.
-- Child issue #157 remains open because the human release gates above are not
-  complete. The parent issue #153 remains unchanged apart from normal tracker
-  state.
+- Child issue #157 is now qualified for the bundled feature review and PR. The
+  parent issue #153 remains unchanged apart from normal tracker state.
 - No code review or PR was created, per the approved implementation scope.
 
-After the human gates pass, update this record and T04, then perform the one
-bundled code review and PR handoff for Feature 019.
+The human gates were confirmed on 2026-08-02. Perform the one bundled code
+review and PR handoff for Feature 019.
