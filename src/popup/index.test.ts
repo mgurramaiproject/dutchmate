@@ -1636,6 +1636,36 @@ describe("lesson popup", () => {
     expect(content().querySelector(".verb-detail-example")?.textContent).toBe("NL · Ik werkte gisteren thuis.");
   });
 
+  it("reuses the English lens for zijn and hebben without changing practice state", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
+    button("Verb Journeys").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(3));
+
+    for (const [directoryIndex, lemma, example] of [[1, "zijn", "Ik ben vandaag thuis."], [2, "hebben", "Ik heb vandaag genoeg tijd."]] as const) {
+      content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable")[directoryIndex].click();
+      await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
+      button("12 English forms").click();
+      await vi.waitFor(() => expect(content().textContent).toContain("12 English forms → Dutch"));
+      expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4);
+      expect(content().textContent).toContain(example);
+      content().querySelector<HTMLButtonElement>(".verb-english-card")!.click();
+      await vi.waitFor(() => expect(content().querySelector(".verb-english-detail-view")).toBeTruthy());
+      expect(content().querySelectorAll(".verb-english-variant")).toHaveLength(2);
+      content().querySelector<HTMLButtonElement>(".verb-english-detail-view .quiet-link")!.click();
+      await vi.waitFor(() => expect(content().querySelectorAll(".verb-english-card")).toHaveLength(4));
+      button(lemma).click();
+      await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
+      if (directoryIndex === 1) {
+        button("Verb Journeys").click();
+        await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(3));
+      }
+    }
+  });
+
   it("surfaces a weak verb skill through the existing Daily Five review flow", async () => {
     button("Start Daily Five").click();
     await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());

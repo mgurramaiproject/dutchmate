@@ -108,7 +108,7 @@ describe("werken Verb Journey pack", () => {
     const zijn = getVerbJourneyPack("verb.zijn");
     expect(zijn).not.toBeNull();
     expect(validateVerbJourneyPack(zijn!)).toEqual([]);
-    expect(zijn!.contentVersion).toBe("016-2");
+    expect(zijn!.contentVersion).toBe("019-1");
     expect(zijn!.verb).toMatchObject({ id: "verb.zijn", lemma: "zijn", auxiliary: "zijn" });
     expect(zijn!.dutchForms).toHaveLength(8);
     expect(zijn!.englishComparison).toHaveLength(12);
@@ -131,7 +131,7 @@ describe("werken Verb Journey pack", () => {
     const hebben = getVerbJourneyPack("verb.hebben");
     expect(hebben).not.toBeNull();
     expect(validateVerbJourneyPack(hebben!)).toEqual([]);
-    expect(hebben!.contentVersion).toBe("017-2");
+    expect(hebben!.contentVersion).toBe("019-1");
     expect(hebben!.verb).toMatchObject({ id: "verb.hebben", lemma: "hebben", english: "to have", auxiliary: "hebben" });
     expect(hebben!.dutchForms).toHaveLength(8);
     expect(hebben!.englishComparison).toHaveLength(12);
@@ -151,6 +151,17 @@ describe("werken Verb Journey pack", () => {
     expect(hebben!.journeys[0].story.every((line) => line.targets.every((target) => line.nl.includes(target.text)))).toBe(true);
     expect(isVerbJourneyContentAvailable("verb.hebben")).toBe(true);
     expect(verbJourneyPack.verb.id).toBe("verb.werken");
+  });
+
+  it("qualifies the English comparison contract across every registered pack", () => {
+    expect(verbJourneyPacks).toHaveLength(3);
+    for (const pack of verbJourneyPacks) {
+      expect(pack.contentVersion).toBe("019-1");
+      expect(pack.englishComparison).toHaveLength(12);
+      expect(pack.englishComparison.every((record) => record.meaningPreserving && record.everyday && record.cue && record.howDutchExpressesIt && record.whyTheyDiffer)).toBe(true);
+      expect(new Set(pack.englishComparison.map((record) => record.id)).size).toBe(12);
+    }
+    expect(new Set(verbJourneyPacks.flatMap((pack) => pack.englishComparison.map((record) => record.id))).size).toBe(36);
   });
 
   it("qualifies all active packs with complete localized form and common-use records", () => {

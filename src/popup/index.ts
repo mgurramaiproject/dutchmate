@@ -956,7 +956,7 @@ function renderVerbEnglishComparison(): HTMLElement {
   infoButton.setAttribute("aria-expanded", String(verbEnglishComparisonInfoOpen));
   infoButton.addEventListener("click", () => { verbEnglishComparisonInfoOpen = !verbEnglishComparisonInfoOpen; render(); });
   wrapper.append(infoButton);
-  if (verbEnglishComparisonInfoOpen) wrapper.append(text("This is a comparison lens, not a one-to-one tense conversion. Compare the Dutch construction that closely preserves the English distinction with the form Dutch speakers commonly use in everyday speech.", "verb-english-info"));
+  if (verbEnglishComparisonInfoOpen) wrapper.append(text("This is a comparison lens, not a one-to-one tense conversion. Compare the Dutch construction that closely preserves the English distinction with the form Dutch speakers commonly use in daily conversation.", "verb-english-info"));
   const tabs = document.createElement("div"); tabs.className = "verb-english-tabs"; tabs.setAttribute("role", "tablist"); tabs.setAttribute("aria-label", "English tense groups");
   for (const group of ["present", "past", "future"] as const) {
     const groupRecords = pack.englishComparison.filter((record) => record.group === group);
