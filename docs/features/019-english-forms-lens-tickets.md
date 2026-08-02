@@ -23,7 +23,7 @@ release qualification and handoff gate.
 - [x] T01 — Expand the versioned English comparison content contract
 - [x] T02 — Ship the `werken` English comparison lens
 - [x] T03 — Complete `zijn` and `hebben` lens coverage
-- [ ] T04 — Qualify and hand off Feature 019
+- [ ] T04 — Qualify and hand off Feature 019 (automated qualification recorded; human release gates pending)
 
 The full acceptance criteria and blocker text live in the per-ticket
 documents and matching GitHub issues:

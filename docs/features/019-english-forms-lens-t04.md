@@ -22,7 +22,7 @@ review, and the repository and tracker evidence agree.
 - [ ] Independent review records English/Telugu clarity, literal NL/EN/TE
       alignment, fluent-Dutch review, reviewer names, dates, and sources for
       all visible comparison records in the three active packs.
-- [ ] Focused tests, full relevant tests, typecheck, build, and whitespace
+- [x] Focused tests, full relevant tests, typecheck, build, and whitespace
       checks pass.
 - [ ] The feature plan, spec, ADR/glossary updates, qualification evidence,
       and issue checklists agree with the delivered behaviour.
