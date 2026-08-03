@@ -49,6 +49,7 @@ describe("popup layout", () => {
     expect(styles).toContain(".lesson-category-groups { display: grid;");
     expect(styles).toContain(".verb-notice-highlight");
     expect(styles).toContain(".verb-map-label-sub");
+    expect(styles).toContain(".verb-map-initial");
     expect(styles).toContain(".verb-form-status");
     expect(styles).not.toContain("var(--dm-success)");
     expect(styles).toContain(".verb-mastery-card { display: grid; gap: 6px; min-width: 0; padding: 9px 10px; border: 1px solid var(--dm-line); border-left: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-soft); color: var(--dm-ink-strong);");

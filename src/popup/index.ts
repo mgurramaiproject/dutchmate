@@ -906,11 +906,13 @@ function renderVerbMap(): HTMLElement {
   wrapper.append(legend);
   const map = document.createElement("div"); map.className = "verb-map-grid"; map.setAttribute("role", "grid"); map.setAttribute("aria-label", `Eight Dutch forms for ${pack.verb.lemma}`);
   const corner = document.createElement("div"); corner.className = "verb-map-corner"; corner.append(spanText("VIEWPOINT", "verb-map-label-main"), spanText("Tijd & aspect", "verb-map-label-sub")); map.append(corner);
-  for (const headingValue of [["Onvoltooid", "Not completed"], ["Voltooid", "Completed"]] as const) { const header = document.createElement("div"); header.className = "verb-map-column"; header.append(spanText(headingValue[0], "verb-map-label-main"), spanText(headingValue[1], "verb-map-label-sub")); map.append(header); }
+  for (const headingValue of [["Onvoltooid", "Not completed"], ["Voltooid", "Completed"]] as const) { const header = document.createElement("div"); header.className = "verb-map-column"; header.setAttribute("aria-label", `${headingValue[0].charAt(0)}: ${headingValue[0]} · ${headingValue[1]}`); header.append(renderVerbMapHeaderLabel(headingValue[0], "verb-map-label-main"), spanText(headingValue[1], "verb-map-label-sub")); map.append(header); }
   for (const viewpoint of ["present", "past", "future", "future-from-past"] as const) {
     const rowLabel = document.createElement("div"); rowLabel.className = "verb-map-row-label";
     const rowMeta = verbMapViewpointMeta(viewpoint);
-    rowLabel.append(spanText(rowMeta.english, "verb-map-label-main"), spanText(rowMeta.dutch, "verb-map-label-sub"));
+    const tenseCode = rowMeta.dutch.split(/\s+/u).map((word) => word.charAt(0)).join("");
+    rowLabel.setAttribute("aria-label", `${tenseCode}: ${rowMeta.dutch} · ${rowMeta.english}`);
+    rowLabel.append(spanText(rowMeta.english, "verb-map-label-main"), renderVerbMapHeaderLabel(rowMeta.dutch, "verb-map-label-sub"));
     map.append(rowLabel);
     for (const completion of ["onvoltooid", "voltooid"] as const) {
       const form = pack.dutchForms.find((candidate) => candidate.viewpoint === viewpoint && candidate.completion === completion)!;
@@ -2264,11 +2266,20 @@ function verbFormStatusMeta(status: JourneyStatus): { label: string; detail: str
 
 function verbMapViewpointMeta(viewpoint: "present" | "past" | "future" | "future-from-past"): { english: string; dutch: string } {
   return {
-    present: { english: "Present", dutch: "tegenwoordige tijd" },
-    past: { english: "Past", dutch: "verleden tijd" },
-    future: { english: "Future from present", dutch: "tegenwoordige toekomende tijd" },
-    "future-from-past": { english: "Future from past", dutch: "verleden toekomende tijd" },
+    present: { english: "Present", dutch: "Tegenwoordige Tijd" },
+    past: { english: "Past", dutch: "Verleden Tijd" },
+    future: { english: "Future from present", dutch: "Tegenwoordige Toekomende Tijd" },
+    "future-from-past": { english: "Future from past", dutch: "Verleden Toekomende Tijd" },
   }[viewpoint];
+}
+
+function renderVerbMapHeaderLabel(value: string, className: string): HTMLElement {
+  const label = document.createElement("span"); label.className = className;
+  for (const part of value.split(/(\s+)/u)) {
+    if (/^\s+$/u.test(part)) label.append(document.createTextNode(part));
+    else if (part) label.append(spanText(part.charAt(0), "verb-map-initial"), document.createTextNode(part.slice(1)));
+  }
+  return label;
 }
 
 function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }

@@ -1080,9 +1080,12 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("COMMON USE");
     expect(content().textContent).toContain("Not completed");
     expect(content().textContent).toContain("Present");
-    expect(content().textContent).toContain("tegenwoordige tijd");
+    expect(content().textContent).toContain("Tegenwoordige Tijd");
     expect(content().textContent).toContain("Future from present");
-    expect(content().textContent).toContain("tegenwoordige toekomende tijd");
+    expect(content().textContent).toContain("Tegenwoordige Toekomende Tijd");
+    expect(content().querySelectorAll(".verb-map-initial")).toHaveLength(12);
+    expect([...content().querySelectorAll<HTMLElement>(".verb-map-column")].map((header) => header.getAttribute("aria-label"))).toEqual(["O: Onvoltooid · Not completed", "V: Voltooid · Completed"]);
+    expect([...content().querySelectorAll<HTMLElement>(".verb-map-row-label")].map((header) => header.getAttribute("aria-label"))).toEqual(["TT: Tegenwoordige Tijd · Present", "VT: Verleden Tijd · Past", "TTT: Tegenwoordige Toekomende Tijd · Future from present", "VTT: Verleden Toekomende Tijd · Future from past"]);
     expect(content().textContent).not.toContain("2 forms");
     expect(content().querySelectorAll(".map-legend-item")).toHaveLength(3);
     expect(content().textContent).toContain("Mastered");

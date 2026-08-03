@@ -562,6 +562,7 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-map-row-label { min-height: 108px; border: 1px solid var(--dm-line); background: var(--dm-paper-soft); }
 .verb-map-label-main { color: var(--dm-ink-strong); font-size: .62rem; font-weight: var(--dm-weight-black); line-height: 1.15; }
 .verb-map-label-sub { color: var(--dm-ink-muted); font-size: .55rem; font-weight: var(--dm-weight-medium); line-height: 1.2; }
+.verb-map-initial { display: inline-block; padding-inline: 1px; border-bottom: 2px solid var(--dm-brand-orange); border-radius: 2px; color: var(--dm-brand-orange-deep); font-weight: var(--dm-weight-black); }
 .verb-map-row-count { margin-top: auto; color: var(--dm-brand-orange-deep); font-size: .52rem; font-weight: var(--dm-weight-black); }
 .verb-form-card { min-height: 108px; }
 .verb-form-card:hover { border-color: var(--dm-line); background: var(--dm-paper-soft); box-shadow: none; }
