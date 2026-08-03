@@ -53,6 +53,13 @@ candidates, practice, companions, and learner behavior.
 existing deterministic practice, companion references, evidence, repair, and
 review behavior intact.
 
+**Status:** complete
+
+- [x] Four grammar patterns and the contrast pack are versioned release-qualified catalog packages.
+- [x] Existing grammar and contrast validation and companion references remain intact.
+- [x] Deterministic practice, accepted answers, feedback, evidence, and repair behavior are preserved.
+- [x] Grammar and contrast learner records and backup behavior remain compatible.
+
 ## 04 — Migrate the `werken` Verb Journey pack
 
 **Issue:** [#172](https://github.com/mgurramaiproject/dutchmate/issues/172)

@@ -4,7 +4,7 @@ import { contentCatalog, validateContentPackage } from "./index";
 describe("content catalog", () => {
   it("discovers the released lesson package through the shared interface", () => {
     expect(contentCatalog.manifest()).toHaveLength(15);
-    expect(contentCatalog.manifest()[0]).toEqual({
+    expect(contentCatalog.manifest().find((entry) => entry.id === "a0-hallo-ik-ben")).toEqual({
       family: "lesson",
       id: "a0-hallo-ik-ben",
       schemaVersion: 1,

@@ -1,4 +1,5 @@
 import { lessonCatalog } from "../lessons/catalog";
+import { contentCatalog } from "../content-catalog";
 import type { GrammarPrimitive, GrammarReviewMetadata } from "./content";
 import { isRegisteredMisconceptionSource, MAIN_CLAUSE_NO_INVERSION, misconceptionRegistry } from "./misconceptions";
 
@@ -47,7 +48,7 @@ const contrastReview: GrammarReviewMetadata = {
   provenance: "Original DutchMate-authored examples about time-first main-clause order; no copied exercise text.",
 };
 
-export const contrastPack: ContrastPack = {
+const legacyContrastPack: ContrastPack = {
   id: CONTRAST_PACK_ID,
   contentVersion: CONTRAST_CONTENT_VERSION,
   level: "A1",
@@ -116,6 +117,8 @@ export const contrastPack: ContrastPack = {
   ],
   review: contrastReview,
 };
+
+export const contrastPack: ContrastPack = contentCatalog.getContrastPack(CONTRAST_PACK_ID) ?? legacyContrastPack;
 
 export function validateContrastPack(pack: ContrastPack): string[] {
   const errors: string[] = [];

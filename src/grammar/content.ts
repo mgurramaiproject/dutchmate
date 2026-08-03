@@ -1,4 +1,5 @@
 import { lessonCatalog, validateLessonCatalog, type GrammarPatternId, type LessonCatalog } from "../lessons/catalog";
+import { contentCatalog } from "../content-catalog";
 
 export type GrammarPrimitive = "choose-form" | "contrast-form" | "change-subject" | "order-tokens" | "repair-choice";
 export type Misconception = "wrong-person" | "wrong-irregular-form" | "invalid-order";
@@ -347,7 +348,8 @@ export const inversionPattern: GrammarPattern = {
 };
 
 export const GRAMMAR_PATTERN_IDS: readonly GrammarPatternId[] = ["a0-zijn-present", "a0-hebben-present", "a0-regular-present", "a0-yes-no-inversion"];
-export const grammarPatterns: GrammarPattern[] = [zijnPattern, hebbenPattern, regularPattern, inversionPattern];
+const legacyGrammarPatterns: GrammarPattern[] = [zijnPattern, hebbenPattern, regularPattern, inversionPattern];
+export const grammarPatterns: GrammarPattern[] = GRAMMAR_PATTERN_IDS.map((patternId) => contentCatalog.getGrammarPattern(patternId) ?? legacyGrammarPatterns.find((pattern) => pattern.id === patternId)!);
 
 export function getGrammarPattern(patternId: GrammarPatternId): GrammarPattern | undefined { return grammarPatterns.find((pattern) => pattern.id === patternId); }
 

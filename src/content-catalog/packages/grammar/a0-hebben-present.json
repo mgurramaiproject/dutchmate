@@ -1,0 +1,283 @@
+{
+  "family": "grammar",
+  "id": "a0-hebben-present",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-27",
+    "sources": [
+      "https://taaladvies.net/u-heeft-of-hebt/",
+      "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/onregelmatig_werkwoord.html"
+    ],
+    "provenance": "Original DutchMate-authored examples; u hebt and u heeft are both retained as reviewed alternatives."
+  },
+  "payload": {
+    "id": "a0-hebben-present",
+    "contentVersion": 1,
+    "level": "A0",
+    "capability": "Say what you have or need in practical lesson situations.",
+    "prerequisites": [
+      "a0-zijn-present"
+    ],
+    "forms": [
+      {
+        "subject": "ik",
+        "forms": [
+          "heb"
+        ]
+      },
+      {
+        "subject": "jij/je",
+        "forms": [
+          "hebt"
+        ]
+      },
+      {
+        "subject": "u",
+        "forms": [
+          "hebt",
+          "heeft"
+        ]
+      },
+      {
+        "subject": "hij/zij/het",
+        "forms": [
+          "heeft"
+        ]
+      },
+      {
+        "subject": "wij/we/jullie/zij/ze",
+        "forms": [
+          "hebben"
+        ]
+      }
+    ],
+    "exercises": [
+      {
+        "id": "hebben-choose-ik",
+        "patternId": "a0-hebben-present",
+        "primitive": "choose-form",
+        "prompt": "Choose the form for ik.",
+        "context": "Ik ___ een pen nodig.",
+        "contextTag": "needs",
+        "choices": [
+          "heb",
+          "hebt",
+          "heeft"
+        ],
+        "accepted": [
+          "heb"
+        ],
+        "distractors": [
+          {
+            "value": "hebt",
+            "misconception": "wrong-person",
+            "feedback": "With ik, use heb: ik heb een pen nodig."
+          },
+          {
+            "value": "heeft",
+            "misconception": "wrong-person",
+            "feedback": "With ik, use heb: ik heb een pen nodig."
+          }
+        ],
+        "feedback": "With ik, use heb: ik heb een pen nodig.",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-27",
+          "sources": [
+            "https://taaladvies.net/u-heeft-of-hebt/",
+            "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/onregelmatig_werkwoord.html"
+          ],
+          "provenance": "Original DutchMate-authored examples; u hebt and u heeft are both retained as reviewed alternatives."
+        }
+      },
+      {
+        "id": "hebben-change-jij",
+        "patternId": "a0-hebben-present",
+        "primitive": "change-subject",
+        "prompt": "Change the subject to jij.",
+        "context": "Jij ___ een schrift.",
+        "contextTag": "school-items",
+        "choices": [
+          "heb",
+          "hebt",
+          "heeft"
+        ],
+        "accepted": [
+          "hebt"
+        ],
+        "distractors": [
+          {
+            "value": "heb",
+            "misconception": "wrong-person",
+            "feedback": "With jij, use hebt: jij hebt een schrift."
+          },
+          {
+            "value": "heeft",
+            "misconception": "wrong-person",
+            "feedback": "With jij, use hebt: jij hebt een schrift."
+          }
+        ],
+        "feedback": "With jij, use hebt: jij hebt een schrift.",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-27",
+          "sources": [
+            "https://taaladvies.net/u-heeft-of-hebt/",
+            "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/onregelmatig_werkwoord.html"
+          ],
+          "provenance": "Original DutchMate-authored examples; u hebt and u heeft are both retained as reviewed alternatives."
+        }
+      },
+      {
+        "id": "hebben-contrast-u",
+        "patternId": "a0-hebben-present",
+        "primitive": "contrast-form",
+        "prompt": "Choose a correct polite form.",
+        "context": "U ___ een extra pen.",
+        "contextTag": "politeness",
+        "choices": [
+          "hebt",
+          "heeft",
+          "hebben"
+        ],
+        "accepted": [
+          "hebt",
+          "heeft"
+        ],
+        "distractors": [
+          {
+            "value": "hebben",
+            "misconception": "wrong-irregular-form",
+            "feedback": "With u, both hebt and heeft are correct: u hebt een extra pen or u heeft een extra pen."
+          }
+        ],
+        "feedback": "With u, both hebt and heeft are correct: u hebt een extra pen or u heeft een extra pen.",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-27",
+          "sources": [
+            "https://taaladvies.net/u-heeft-of-hebt/",
+            "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/onregelmatig_werkwoord.html"
+          ],
+          "provenance": "Original DutchMate-authored examples; u hebt and u heeft are both retained as reviewed alternatives."
+        }
+      },
+      {
+        "id": "hebben-repair-wij",
+        "patternId": "a0-hebben-present",
+        "primitive": "repair-choice",
+        "prompt": "Repair the sentence.",
+        "context": "Wij ___ alles voor de les.",
+        "contextTag": "classroom",
+        "choices": [
+          "heb",
+          "heeft",
+          "hebben"
+        ],
+        "accepted": [
+          "hebben"
+        ],
+        "distractors": [
+          {
+            "value": "heb",
+            "misconception": "wrong-person",
+            "feedback": "With wij, use hebben: wij hebben alles voor de les."
+          },
+          {
+            "value": "heeft",
+            "misconception": "wrong-person",
+            "feedback": "With wij, use hebben: wij hebben alles voor de les."
+          }
+        ],
+        "feedback": "With wij, use hebben: wij hebben alles voor de les.",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-27",
+          "sources": [
+            "https://taaladvies.net/u-heeft-of-hebt/",
+            "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/onregelmatig_werkwoord.html"
+          ],
+          "provenance": "Original DutchMate-authored examples; u hebt and u heeft are both retained as reviewed alternatives."
+        }
+      }
+    ],
+    "encounterForms": [
+      {
+        "subject": "ik",
+        "form": "heb"
+      },
+      {
+        "subject": "jij",
+        "form": "hebt"
+      },
+      {
+        "subject": "je",
+        "form": "hebt"
+      },
+      {
+        "subject": "u",
+        "form": "hebt"
+      },
+      {
+        "subject": "u",
+        "form": "heeft"
+      },
+      {
+        "subject": "hij",
+        "form": "heeft"
+      },
+      {
+        "subject": "zij",
+        "form": "heeft"
+      },
+      {
+        "subject": "het",
+        "form": "heeft"
+      },
+      {
+        "subject": "wij",
+        "form": "hebben"
+      },
+      {
+        "subject": "we",
+        "form": "hebben"
+      },
+      {
+        "subject": "jullie",
+        "form": "hebben"
+      },
+      {
+        "subject": "ze",
+        "form": "hebben"
+      }
+    ],
+    "companionLessonId": "a0-ik-heb-dit-nodig",
+    "review": {
+      "author": "DutchMate team",
+      "reviewState": "second-review-complete",
+      "reviewer": "Project owner",
+      "reviewedAt": "2026-07-27",
+      "sources": [
+        "https://taaladvies.net/u-heeft-of-hebt/",
+        "https://woordenlijst.org/zoeken/leidraad/lijst_van_vaktermen/onregelmatig_werkwoord.html"
+      ],
+      "provenance": "Original DutchMate-authored examples; u hebt and u heeft are both retained as reviewed alternatives."
+    }
+  }
+}
