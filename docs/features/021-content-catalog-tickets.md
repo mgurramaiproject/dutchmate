@@ -35,6 +35,14 @@ existing Lessons, practice, popup, and local-learning-record behavior.
 versioned, release-qualified catalog packages while preserving micro-stories,
 candidates, practice, companions, and learner behavior.
 
+**Status:** complete
+
+- [x] All 15 current curated mini-lessons have versioned release-qualified JSON packages.
+- [x] Micro-stories, candidates, practice, transfer content, and companions retain their behavior and references.
+- [x] Lessons uses the catalog-backed content through the shared loader.
+- [x] Lesson progress and Saved-item behavior remain compatible.
+- [x] Migrated packages pass structural validation and existing content-review checks.
+
 ## 03 — Migrate grammar and contrast packs
 
 **Issue:** [#171](https://github.com/mgurramaiproject/dutchmate/issues/171)

@@ -1,0 +1,285 @@
+{
+  "family": "lesson",
+  "id": "a1-kan-ik-met-pin-betalen",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "Original DutchMate-authored lesson content."
+    ],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a1-kan-ik-met-pin-betalen",
+    "contentVersion": 1,
+    "pathway": "shopping-and-cafes",
+    "order": 4,
+    "cefr": "A1",
+    "title": "A1 · Kan ik met pin betalen?",
+    "durationMinutes": 3,
+    "pattern": "Kan ik met pin betalen?",
+    "patternText": "met pin betalen",
+    "patternExplanation": "Use Kan ik met pin betalen? to ask whether you can pay by debit card.",
+    "lines": [
+      {
+        "dutch": "Na het eten vraag ik om de rekening.",
+        "english": "After eating, I ask for the bill.",
+        "telugu": "తిన్న తర్వాత నేను బిల్లు అడుగుతాను."
+      },
+      {
+        "dutch": "Natuurlijk. Wilt u contant of met pin betalen?",
+        "english": "Of course. Would you like to pay with cash or by card?",
+        "telugu": "తప్పకుండా. మీరు నగదుతో లేదా కార్డుతో చెల్లించాలనుకుంటున్నారా?"
+      },
+      {
+        "dutch": "Kan ik met pin betalen? Ik heb geen contant geld.",
+        "english": "Can I pay by debit card? I do not have cash.",
+        "telugu": "నేను డెబిట్ కార్డుతో చెల్లించవచ్చా? నా దగ్గర నగదు లేదు."
+      },
+      {
+        "dutch": "Ja, u kunt met pin betalen. Houd uw pas hier even tegenaan.",
+        "english": "Yes, you can pay by debit card. Hold your card against the reader for a moment.",
+        "telugu": "అవును, మీరు డెబిట్ కార్డుతో చెల్లించవచ్చు. మీ కార్డును క్షణం ఇక్కడ తాకించండి."
+      },
+      {
+        "dutch": "Dank u. De betaling is gelukt.",
+        "english": "Thank you. The payment worked.",
+        "telugu": "ధన్యవాదాలు. చెల్లింపు విజయవంతమైంది."
+      }
+    ],
+    "candidates": [
+      {
+        "id": "met-pin-betalen",
+        "dutch": "met pin betalen",
+        "english": "to pay by debit card",
+        "telugu": "డెబిట్ కార్డుతో చెల్లించడం",
+        "kind": "chunk"
+      },
+      {
+        "id": "contant-geld",
+        "dutch": "contant geld",
+        "english": "cash",
+        "telugu": "నగదు",
+        "kind": "chunk"
+      },
+      {
+        "id": "de-rekening",
+        "dutch": "de rekening",
+        "english": "the bill",
+        "telugu": "బిల్లు",
+        "kind": "word"
+      },
+      {
+        "id": "is-gelukt",
+        "dutch": "is gelukt",
+        "english": "worked",
+        "telugu": "విజయవంతమైంది",
+        "kind": "chunk"
+      }
+    ],
+    "practice": [
+      {
+        "candidateId": "met-pin-betalen",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "contant-geld",
+        "dimension": "recall"
+      },
+      {
+        "candidateId": "de-rekening",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "is-gelukt",
+        "dimension": "recall"
+      }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a1-kan-ik-met-pin-betalen-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "met-pin-betalen",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "The cashier asks how you will pay: Ik wil ___.",
+        "choices": [
+          "met pin betalen",
+          "graag bestellen",
+          "dat herhalen"
+        ],
+        "accepted": [
+          "met pin betalen"
+        ],
+        "distractors": [
+          {
+            "answer": "graag bestellen",
+            "misconception": "lesson-context-mismatch"
+          },
+          {
+            "answer": "dat herhalen",
+            "misconception": "lesson-context-mismatch"
+          }
+        ],
+        "feedback": "Use met pin betalen here: met pin betalen.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-kan-ik-met-pin-betalen-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "met-pin-betalen",
+        "dimension": "recall",
+        "prompt": "Repair the payment question.",
+        "context": "Choose the reviewed sentence.",
+        "choices": [
+          "Kan ik met pin betalen?",
+          "Kan met pin ik betalen?",
+          "Ik kan met pin betalen?"
+        ],
+        "accepted": [
+          "Kan ik met pin betalen?"
+        ],
+        "distractors": [
+          {
+            "answer": "Kan met pin ik betalen?",
+            "misconception": "lesson-form-or-order"
+          },
+          {
+            "answer": "Ik kan met pin betalen?",
+            "misconception": "lesson-form-or-order"
+          }
+        ],
+        "feedback": "Use the reviewed form: Kan ik met pin betalen?",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-kan-ik-met-pin-betalen-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "met-pin-betalen",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Ask whether you can pay by debit card.",
+        "choices": [
+          "Kan ik met pin betalen?"
+        ],
+        "tokens": [
+          "Kan",
+          "ik",
+          "met",
+          "pin",
+          "betalen?"
+        ],
+        "accepted": [
+          "Kan ik met pin betalen?"
+        ],
+        "distractors": [],
+        "feedback": "Build the sentence as: Kan ik met pin betalen?",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "review": {
+      "dutch": true,
+      "english": true,
+      "telugu": true,
+      "cefr": true,
+      "cultural": true,
+      "practicalUse": true
+    },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "reduced",
+      "outcome": {
+        "primary": "Ask whether you can pay by debit card.",
+        "supporting": [
+          "Recognize met pin betalen in a practical payment exchange."
+        ]
+      },
+      "coverage": {
+        "understand": true,
+        "guidedAction": true,
+        "reducedSupportRetrieval": true,
+        "safeApplication": true
+      },
+      "transfer": {
+        "id": "a1-kan-ik-met-pin-betalen-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "met-pin-betalen",
+        "prompt": "The café asks how you will pay. Choose the Dutch phrase about paying by debit card.",
+        "context": "You say you will pay by card: Ik wil ___ .",
+        "choices": [
+          "met pin betalen",
+          "ik wil graag",
+          "kunt u dat herhalen"
+        ],
+        "accepted": [
+          "met pin betalen"
+        ],
+        "distractors": [
+          {
+            "answer": "ik wil graag",
+            "misconception": "ordering-not-payment"
+          },
+          {
+            "answer": "kunt u dat herhalen",
+            "misconception": "clarification-not-payment"
+          }
+        ],
+        "feedback": "Use met pin betalen to say that you will pay by debit card."
+      },
+      "accessibility": {
+        "keyboard": true,
+        "focus": true,
+        "feedbackAnnouncement": true,
+        "narrowPopup": true
+      },
+      "migration": {
+        "policy": "compatible-additive",
+        "historyKey": "lesson-id-and-content-version"
+      },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": [
+          "Original DutchMate-authored lesson content."
+        ],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    }
+  }
+}

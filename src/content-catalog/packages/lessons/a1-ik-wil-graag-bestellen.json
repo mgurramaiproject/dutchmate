@@ -1,0 +1,289 @@
+{
+  "family": "lesson",
+  "id": "a1-ik-wil-graag-bestellen",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "Original DutchMate-authored lesson content."
+    ],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a1-ik-wil-graag-bestellen",
+    "contentVersion": 1,
+    "pathway": "shopping-and-cafes",
+    "order": 3,
+    "cefr": "A1",
+    "title": "A1 · Ik wil graag bestellen",
+    "durationMinutes": 4,
+    "pattern": "Ik wil graag…",
+    "patternText": "Ik wil graag",
+    "patternExplanation": "Use Ik wil graag… to order politely. Say what you want after the phrase.",
+    "lines": [
+      {
+        "dutch": "In het café bekijk ik de kaart.",
+        "english": "In the cafe, I look at the menu.",
+        "telugu": "కేఫేలో నేను మెనూను చూస్తున్నాను."
+      },
+      {
+        "dutch": "Goedemiddag, wat wilt u drinken?",
+        "english": "Good afternoon, what would you like to drink?",
+        "telugu": "శుభ మధ్యాహ్నం, మీరు ఏమి తాగాలనుకుంటున్నారు?"
+      },
+      {
+        "dutch": "Ik wil graag een koffie met melk, alstublieft.",
+        "english": "I would like a coffee with milk, please.",
+        "telugu": "నాకు పాలతో ఒక కాఫీ కావాలి, దయచేసి."
+      },
+      {
+        "dutch": "Natuurlijk. Wilt u er ook iets bij?",
+        "english": "Of course. Would you like something with it too?",
+        "telugu": "తప్పకుండా. దానితో పాటు ఇంకేమైనా కావాలా?"
+      },
+      {
+        "dutch": "Ja, ik wil graag een broodje kaas.",
+        "english": "Yes, I would like a cheese roll.",
+        "telugu": "అవును, నాకు ఒక చీజ్ రోల్ కావాలి."
+      },
+      {
+        "dutch": "Dat komt zo. U kunt straks betalen.",
+        "english": "That will come shortly. You can pay in a moment.",
+        "telugu": "అది కాసేపట్లో వస్తుంది. మీరు కొద్దిసేపటికి చెల్లించవచ్చు."
+      }
+    ],
+    "candidates": [
+      {
+        "id": "ik-wil-graag",
+        "dutch": "ik wil graag",
+        "english": "I would like",
+        "telugu": "నాకు కావాలి",
+        "kind": "chunk"
+      },
+      {
+        "id": "een-koffie-met-melk",
+        "dutch": "een koffie met melk",
+        "english": "a coffee with milk",
+        "telugu": "పాలతో ఒక కాఫీ",
+        "kind": "chunk"
+      },
+      {
+        "id": "iets-bij",
+        "dutch": "iets bij",
+        "english": "something with it",
+        "telugu": "దానితో పాటు ఇంకేదైనా",
+        "kind": "chunk"
+      },
+      {
+        "id": "graag",
+        "dutch": "graag",
+        "english": "please / gladly",
+        "telugu": "దయచేసి / ఇష్టంగా",
+        "kind": "word"
+      }
+    ],
+    "practice": [
+      {
+        "candidateId": "ik-wil-graag",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "een-koffie-met-melk",
+        "dimension": "recall"
+      },
+      {
+        "candidateId": "iets-bij",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "graag",
+        "dimension": "recall"
+      }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a1-ik-wil-graag-bestellen-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "ik-wil-graag",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "At the café, start your order politely: ___ een koffie.",
+        "choices": [
+          "ik wil graag",
+          "kunt u dat herhalen",
+          "met pin betalen"
+        ],
+        "accepted": [
+          "ik wil graag"
+        ],
+        "distractors": [
+          {
+            "answer": "kunt u dat herhalen",
+            "misconception": "lesson-context-mismatch"
+          },
+          {
+            "answer": "met pin betalen",
+            "misconception": "lesson-context-mismatch"
+          }
+        ],
+        "feedback": "Use ik wil graag here: ik wil graag.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-ik-wil-graag-bestellen-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "ik-wil-graag",
+        "dimension": "recall",
+        "prompt": "Repair the café order.",
+        "context": "Choose the reviewed sentence.",
+        "choices": [
+          "Ik wil graag een koffie met melk.",
+          "Ik graag wil een koffie met melk.",
+          "Ik wil een koffie graag met melk."
+        ],
+        "accepted": [
+          "Ik wil graag een koffie met melk."
+        ],
+        "distractors": [
+          {
+            "answer": "Ik graag wil een koffie met melk.",
+            "misconception": "lesson-form-or-order"
+          },
+          {
+            "answer": "Ik wil een koffie graag met melk.",
+            "misconception": "lesson-form-or-order"
+          }
+        ],
+        "feedback": "Use the reviewed form: Ik wil graag een koffie met melk.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-ik-wil-graag-bestellen-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "ik-wil-graag",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Start the polite order.",
+        "choices": [
+          "Ik wil graag bestellen."
+        ],
+        "tokens": [
+          "Ik",
+          "wil",
+          "graag",
+          "bestellen."
+        ],
+        "accepted": [
+          "Ik wil graag bestellen."
+        ],
+        "distractors": [],
+        "feedback": "Build the sentence as: Ik wil graag bestellen.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "review": {
+      "dutch": true,
+      "english": true,
+      "telugu": true,
+      "cefr": true,
+      "cultural": true,
+      "practicalUse": true
+    },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "reduced",
+      "outcome": {
+        "primary": "Order a drink or snack politely in a café.",
+        "supporting": [
+          "Recognize Ik wil graag… before naming what you want."
+        ]
+      },
+      "coverage": {
+        "understand": true,
+        "guidedAction": true,
+        "reducedSupportRetrieval": true,
+        "safeApplication": true
+      },
+      "transfer": {
+        "id": "a1-ik-wil-graag-bestellen-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "ik-wil-graag",
+        "prompt": "You are ready to order in a café. Choose the Dutch phrase to start politely.",
+        "context": "You order a coffee: ___ een koffie met melk.",
+        "choices": [
+          "ik wil graag",
+          "kunt u dat herhalen",
+          "met pin betalen"
+        ],
+        "accepted": [
+          "ik wil graag"
+        ],
+        "distractors": [
+          {
+            "answer": "kunt u dat herhalen",
+            "misconception": "clarification-not-order"
+          },
+          {
+            "answer": "met pin betalen",
+            "misconception": "payment-not-order"
+          }
+        ],
+        "feedback": "Use Ik wil graag before saying what you would like to order."
+      },
+      "accessibility": {
+        "keyboard": true,
+        "focus": true,
+        "feedbackAnnouncement": true,
+        "narrowPopup": true
+      },
+      "migration": {
+        "policy": "compatible-additive",
+        "historyKey": "lesson-id-and-content-version"
+      },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": [
+          "Original DutchMate-authored lesson content."
+        ],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    }
+  }
+}

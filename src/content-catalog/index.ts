@@ -1,4 +1,18 @@
-import lessonPackageJson from "./packages/lessons/a0-hallo-ik-ben.json";
+import a0HalloIkBenPackage from "./packages/lessons/a0-hallo-ik-ben.json";
+import a0IkHebDitNodigPackage from "./packages/lessons/a0-ik-heb-dit-nodig.json";
+import a0IkWoonEnWerkHierPackage from "./packages/lessons/a0-ik-woon-en-werk-hier.json";
+import a0WoonJeHierPackage from "./packages/lessons/a0-woon-je-hier.json";
+import a1KuntUDatHerhalenPackage from "./packages/lessons/a1-kunt-u-dat-herhalen.json";
+import a1IkWilGraagBestellenPackage from "./packages/lessons/a1-ik-wil-graag-bestellen.json";
+import a1KanIkMetPinBetalenPackage from "./packages/lessons/a1-kan-ik-met-pin-betalen.json";
+import a1WaarMoetIkOverstappenPackage from "./packages/lessons/a1-waar-moet-ik-overstappen.json";
+import a1MijnTreinIsVertraagdPackage from "./packages/lessons/a1-mijn-trein-is-vertraagd.json";
+import a1EenAfspraakMakenPackage from "./packages/lessons/a1-een-afspraak-maken.json";
+import a1IkHebLastVanPackage from "./packages/lessons/a1-ik-heb-last-van.json";
+import a1ErIsIetsKapotPackage from "./packages/lessons/a1-er-is-iets-kapot.json";
+import a1IkBenBeschikbaarOpPackage from "./packages/lessons/a1-ik-ben-beschikbaar-op.json";
+import a1WatMoetIkMeenemenPackage from "./packages/lessons/a1-wat-moet-ik-meenemen.json";
+import a2WatStaatErInDezeBriefPackage from "./packages/lessons/a2-wat-staat-er-in-deze-brief.json";
 import type { Lesson } from "../lessons/catalog";
 
 export const CONTENT_CATALOG_SCHEMA_VERSION = 1 as const;
@@ -28,7 +42,23 @@ export type ContentCatalog = {
   getLesson(id: string): Lesson | null;
 };
 
-const lessonPackages: readonly ContentPackage<Lesson>[] = [lessonPackageJson as unknown as ContentPackage<Lesson>];
+const lessonPackages: readonly ContentPackage<Lesson>[] = [
+  a0HalloIkBenPackage,
+  a0IkHebDitNodigPackage,
+  a0IkWoonEnWerkHierPackage,
+  a0WoonJeHierPackage,
+  a1KuntUDatHerhalenPackage,
+  a1IkWilGraagBestellenPackage,
+  a1KanIkMetPinBetalenPackage,
+  a1WaarMoetIkOverstappenPackage,
+  a1MijnTreinIsVertraagdPackage,
+  a1EenAfspraakMakenPackage,
+  a1IkHebLastVanPackage,
+  a1ErIsIetsKapotPackage,
+  a1IkBenBeschikbaarOpPackage,
+  a1WatMoetIkMeenemenPackage,
+  a2WatStaatErInDezeBriefPackage,
+] as unknown as readonly ContentPackage<Lesson>[];
 
 export function validateContentPackage(value: unknown): string[] {
   const errors: string[] = [];

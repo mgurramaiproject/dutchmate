@@ -1,6 +1,6 @@
 {
   "family": "lesson",
-  "id": "a0-hallo-ik-ben",
+  "id": "a1-ik-ben-beschikbaar-op",
   "schemaVersion": 1,
   "contentVersion": 1,
   "releaseStatus": "released",
@@ -14,114 +14,119 @@
     "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
   },
   "payload": {
-    "id": "a0-hallo-ik-ben",
+    "id": "a1-ik-ben-beschikbaar-op",
     "contentVersion": 1,
-    "pathway": "first-conversations",
-    "order": 1,
-    "cefr": "A0",
-    "title": "A0 · Hallo, ik ben…",
+    "pathway": "work-and-study",
+    "order": 10,
+    "cefr": "A1",
+    "title": "A1 · Ik ben beschikbaar op…",
     "durationMinutes": 3,
-    "pattern": "Ik ben…",
-    "patternText": "ik ben",
-    "patternExplanation": "Use ik ben… to say who you are. Add your name after the phrase.",
+    "pattern": "Ik ben beschikbaar op…",
+    "patternText": "Ik ben beschikbaar",
+    "patternExplanation": "Use ik ben beschikbaar to say when you are free.",
     "lines": [
       {
-        "dutch": "Hallo, ik ben Ravi. Ik woon sinds kort in Utrecht.",
-        "english": "Hello, I am Ravi. I have lived in Utrecht for a short time.",
-        "telugu": "హలో, నేను రవి. నేను ఇటీవలే ఉట్రెహ్ట్‌లో నివసిస్తున్నాను."
+        "dutch": "Mijn collega vraagt wanneer ik kan werken.",
+        "english": "My colleague asks when I can work.",
+        "telugu": "నేను ఎప్పుడు పని చేయగలనో నా సహోద్యోగి అడుగుతారు."
       },
       {
-        "dutch": "Hallo Ravi, ik ben Noor. Leuk je te ontmoeten.",
-        "english": "Hello Ravi, I am Noor. Nice to meet you.",
-        "telugu": "హలో రవి, నేను నూర్. మిమ్మల్ని కలవడం ఆనందంగా ఉంది."
+        "dutch": "Ik ben beschikbaar op maandag en woensdag.",
+        "english": "I am available on Monday and Wednesday.",
+        "telugu": "నేను సోమవారం మరియు బుధవారం అందుబాటులో ఉన్నాను."
       },
       {
-        "dutch": "Leuk je te ontmoeten, Noor. Woon je hier ook?",
-        "english": "Nice to meet you, Noor. Do you live here too?",
-        "telugu": "మిమ్మల్ని కలవడం ఆనందంగా ఉంది, నూర్. మీరు కూడా ఇక్కడే నివసిస్తున్నారా?"
+        "dutch": "Ben je ook in de middag beschikbaar?",
+        "english": "Are you also available in the afternoon?",
+        "telugu": "మీరు మధ్యాహ్నం కూడా అందుబాటులో ఉన్నారా?"
       },
       {
-        "dutch": "Ja, ik woon vlakbij. Welkom in de buurt!",
-        "english": "Yes, I live nearby. Welcome to the neighbourhood!",
-        "telugu": "అవును, నేను దగ్గరలోనే నివసిస్తున్నాను. ఈ పరిసరాలకు స్వాగతం!"
+        "dutch": "Ja, ik ben beschikbaar vanaf twee uur.",
+        "english": "Yes, I am available from two o'clock.",
+        "telugu": "అవును, నేను రెండు గంటల నుంచి అందుబాటులో ఉన్నాను."
+      },
+      {
+        "dutch": "Prima, dan zetten we je op het rooster.",
+        "english": "Great, then we will put you on the schedule.",
+        "telugu": "బాగుంది, అప్పుడు మిమ్మల్ని షెడ్యూల్‌లో పెడతాము."
       }
     ],
     "candidates": [
       {
-        "id": "ik-ben",
-        "dutch": "ik ben",
-        "english": "I am",
-        "telugu": "నేను",
+        "id": "ik-ben-beschikbaar",
+        "dutch": "ik ben beschikbaar",
+        "english": "I am available",
+        "telugu": "నేను అందుబాటులో ఉన్నాను",
         "kind": "chunk"
       },
       {
-        "id": "leuk-je-te-ontmoeten",
-        "dutch": "leuk je te ontmoeten",
-        "english": "nice to meet you",
-        "telugu": "మిమ్మల్ని కలవడం ఆనందంగా ఉంది",
+        "id": "vanaf-twee-uur",
+        "dutch": "vanaf twee uur",
+        "english": "from two o'clock",
+        "telugu": "రెండు గంటల నుంచి",
         "kind": "chunk"
       },
       {
-        "id": "ik-woon",
-        "dutch": "ik woon",
-        "english": "I live",
-        "telugu": "నేను నివసిస్తున్నాను",
-        "kind": "chunk"
+        "id": "de-middag",
+        "dutch": "de middag",
+        "english": "the afternoon",
+        "telugu": "మధ్యాహ్నం",
+        "kind": "word"
       },
       {
-        "id": "vlakbij",
-        "dutch": "vlakbij",
-        "english": "nearby",
-        "telugu": "దగ్గరలో",
+        "id": "het-rooster",
+        "dutch": "het rooster",
+        "english": "the schedule",
+        "telugu": "షెడ్యూల్",
         "kind": "word"
       }
     ],
     "practice": [
       {
-        "candidateId": "ik-ben",
+        "candidateId": "ik-ben-beschikbaar",
         "dimension": "recognition"
       },
       {
-        "candidateId": "leuk-je-te-ontmoeten",
+        "candidateId": "vanaf-twee-uur",
         "dimension": "recall"
       },
       {
-        "candidateId": "ik-woon",
+        "candidateId": "de-middag",
         "dimension": "recognition"
       },
       {
-        "candidateId": "vlakbij",
+        "candidateId": "het-rooster",
         "dimension": "recall"
       }
     ],
     "practiceExercises": [
       {
         "contentVersion": 1,
-        "id": "a0-hallo-ik-ben-contrast-form",
+        "id": "a1-ik-ben-beschikbaar-op-contrast-form",
         "primitive": "contrast-form",
-        "candidateId": "ik-ben",
+        "candidateId": "ik-ben-beschikbaar",
         "dimension": "recognition",
         "prompt": "Choose the phrase that fits the situation.",
-        "context": "You meet Noor and introduce yourself: ___ Ravi.",
+        "context": "Tell your colleague when you can work: ___.",
         "choices": [
-          "ik ben",
-          "ik woon",
-          "vlakbij"
+          "ik ben beschikbaar",
+          "er is iets kapot",
+          "wat moet ik meenemen"
         ],
         "accepted": [
-          "ik ben"
+          "ik ben beschikbaar"
         ],
         "distractors": [
           {
-            "answer": "ik woon",
+            "answer": "er is iets kapot",
             "misconception": "lesson-context-mismatch"
           },
           {
-            "answer": "vlakbij",
+            "answer": "wat moet ik meenemen",
             "misconception": "lesson-context-mismatch"
           }
         ],
-        "feedback": "Use ik ben: ik ben.",
+        "feedback": "Use ik ben beschikbaar here: ik ben beschikbaar.",
         "review": {
           "author": "DutchMate team",
           "reviewState": "second-review-complete",
@@ -135,31 +140,31 @@
       },
       {
         "contentVersion": 1,
-        "id": "a0-hallo-ik-ben-repair-choice",
+        "id": "a1-ik-ben-beschikbaar-op-repair-choice",
         "primitive": "repair-choice",
-        "candidateId": "ik-ben",
+        "candidateId": "ik-ben-beschikbaar",
         "dimension": "recall",
-        "prompt": "Repair the introduction.",
+        "prompt": "Repair the availability statement.",
         "context": "Choose the reviewed sentence.",
         "choices": [
-          "Hallo, ik ben Ravi.",
-          "Hallo, ik woon Ravi.",
-          "Hallo, vlakbij Ravi."
+          "Ik ben beschikbaar op maandag.",
+          "Ik beschikbaar ben op maandag.",
+          "Ik ben beschikbaar maandag op."
         ],
         "accepted": [
-          "Hallo, ik ben Ravi."
+          "Ik ben beschikbaar op maandag."
         ],
         "distractors": [
           {
-            "answer": "Hallo, ik woon Ravi.",
+            "answer": "Ik beschikbaar ben op maandag.",
             "misconception": "lesson-form-or-order"
           },
           {
-            "answer": "Hallo, vlakbij Ravi.",
+            "answer": "Ik ben beschikbaar maandag op.",
             "misconception": "lesson-form-or-order"
           }
         ],
-        "feedback": "Use the reviewed sentence: Hallo, ik ben Ravi.",
+        "feedback": "Use the reviewed form: Ik ben beschikbaar op maandag.",
         "review": {
           "author": "DutchMate team",
           "reviewState": "second-review-complete",
@@ -173,25 +178,25 @@
       },
       {
         "contentVersion": 1,
-        "id": "a0-hallo-ik-ben-order-tokens",
+        "id": "a1-ik-ben-beschikbaar-op-order-tokens",
         "primitive": "order-tokens",
-        "candidateId": "ik-ben",
+        "candidateId": "ik-ben-beschikbaar",
         "dimension": "recall",
         "prompt": "Build the sentence in the lesson context.",
-        "context": "Say who you are.",
+        "context": "Say that you are available.",
         "choices": [
-          "Ik ben Ravi."
+          "Ik ben beschikbaar."
         ],
         "tokens": [
           "Ik",
           "ben",
-          "Ravi."
+          "beschikbaar."
         ],
         "accepted": [
-          "Ik ben Ravi."
+          "Ik ben beschikbaar."
         ],
         "distractors": [],
-        "feedback": "Build the sentence as: Ik ben Ravi.",
+        "feedback": "Build the sentence as: Ik ben beschikbaar.",
         "review": {
           "author": "DutchMate team",
           "reviewState": "second-review-complete",
@@ -212,18 +217,13 @@
       "cultural": true,
       "practicalUse": true
     },
-    "grammarCompanion": {
-      "id": "a0-zijn-present",
-      "contentVersion": 1,
-      "patternId": "a0-zijn-present"
-    },
     "practiceEnvelope": {
       "contentVersion": 1,
-      "support": "guided",
+      "support": "reduced",
       "outcome": {
-        "primary": "Introduce yourself and say where you live.",
+        "primary": "Say when you are available for work or study.",
         "supporting": [
-          "Recognize ik ben and ik woon in a friendly introduction."
+          "Recognize ik ben beschikbaar in a short scheduling exchange."
         ]
       },
       "coverage": {
@@ -233,30 +233,30 @@
         "safeApplication": true
       },
       "transfer": {
-        "id": "a0-hallo-ik-ben-transfer",
+        "id": "a1-ik-ben-beschikbaar-op-transfer",
         "primitive": "choose-meaning",
-        "candidateId": "ik-ben",
-        "prompt": "You meet someone new. Choose the Dutch phrase to introduce yourself.",
-        "context": "You say who you are: ___ Ravi.",
+        "candidateId": "ik-ben-beschikbaar",
+        "prompt": "A colleague asks when you can work. Choose the Dutch sentence.",
+        "context": "Say that you are available on Monday: ___ .",
         "choices": [
-          "ik ben",
-          "ik woon",
-          "vlakbij"
+          "ik ben beschikbaar",
+          "er is iets kapot",
+          "wat moet ik meenemen"
         ],
         "accepted": [
-          "ik ben"
+          "ik ben beschikbaar"
         ],
         "distractors": [
           {
-            "answer": "ik woon",
-            "misconception": "location-not-identity"
+            "answer": "er is iets kapot",
+            "misconception": "breakage-not-availability"
           },
           {
-            "answer": "vlakbij",
-            "misconception": "place-fragment-not-introduction"
+            "answer": "wat moet ik meenemen",
+            "misconception": "bring-question-not-availability"
           }
         ],
-        "feedback": "Use ik ben to say who you are: Ik ben Ravi."
+        "feedback": "Use ik ben beschikbaar before adding the day or time."
       },
       "accessibility": {
         "keyboard": true,

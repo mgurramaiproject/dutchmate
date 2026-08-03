@@ -675,7 +675,7 @@ export const letterLesson: Lesson = { id: "a2-wat-staat-er-in-deze-brief", conte
 
 export const lessonCatalog: LessonCatalog = {
   version: LESSON_CATALOG_VERSION,
-  lessons: [contentCatalog.getLesson(introductionLesson.id) ?? introductionLesson, hebbenLesson, regularLesson, inversionLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson],
+  lessons: [introductionLesson, hebbenLesson, regularLesson, inversionLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson].map((lesson) => contentCatalog.getLesson(lesson.id) ?? lesson),
 };
 
 export function validateLessonCatalog(catalog: LessonCatalog): string[] {

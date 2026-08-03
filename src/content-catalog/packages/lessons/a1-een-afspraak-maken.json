@@ -1,0 +1,291 @@
+{
+  "family": "lesson",
+  "id": "a1-een-afspraak-maken",
+  "schemaVersion": 1,
+  "contentVersion": 2,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "Original DutchMate-authored lesson content."
+    ],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a1-een-afspraak-maken",
+    "contentVersion": 2,
+    "pathway": "appointments-and-healthcare",
+    "order": 7,
+    "cefr": "A1",
+    "title": "A1 · Een afspraak maken",
+    "durationMinutes": 4,
+    "pattern": "Ik wil graag…",
+    "patternText": "Ik wil graag",
+    "patternExplanation": "Use Ik wil graag… to make a polite request. The verb stays in its normal position after ik.",
+    "lines": [
+      {
+        "dutch": "Receptionist: Goedemorgen. Waarmee kan ik u helpen?",
+        "english": "Receptionist: Good morning. How can I help you?",
+        "telugu": "రిసెప్షనిస్ట్: శుభోదయం. నేను మీకు ఎలా సహాయం చేయగలను?"
+      },
+      {
+        "dutch": "Ik wil graag een afspraak maken met de huisarts.",
+        "english": "I would like to make an appointment with the GP.",
+        "telugu": "నేను కుటుంబ వైద్యుడితో అపాయింట్‌మెంట్ తీసుకోవాలనుకుంటున్నాను."
+      },
+      {
+        "dutch": "Natuurlijk. Wanneer kunt u langskomen?",
+        "english": "Of course. When can you come by?",
+        "telugu": "తప్పకుండా. మీరు ఎప్పుడు రావచ్చు?"
+      },
+      {
+        "dutch": "Ik wil graag dinsdagmiddag, als het kan.",
+        "english": "I would like Tuesday afternoon, if possible.",
+        "telugu": "వీలైతే, నాకు మంగళవారం మధ్యాహ్నం కావాలి."
+      },
+      {
+        "dutch": "Dinsdag om drie uur is nog vrij.",
+        "english": "Tuesday at three o'clock is still free.",
+        "telugu": "మంగళవారం మూడు గంటలకు ఇంకా ఖాళీగా ఉంది."
+      },
+      {
+        "dutch": "Dat is goed. Bedankt en tot dinsdag.",
+        "english": "That is good. Thank you and see you Tuesday.",
+        "telugu": "అది బాగుంది. ధన్యవాదాలు, మంగళవారం కలుద్దాం."
+      }
+    ],
+    "candidates": [
+      {
+        "id": "ik-wil-graag",
+        "dutch": "ik wil graag",
+        "english": "I would like",
+        "telugu": "నేను కోరుకుంటున్నాను",
+        "kind": "chunk"
+      },
+      {
+        "id": "afspraak",
+        "dutch": "de afspraak",
+        "english": "the appointment",
+        "telugu": "అపాయింట్‌మెంట్",
+        "kind": "word"
+      },
+      {
+        "id": "afspraak-maken",
+        "dutch": "een afspraak maken",
+        "english": "to make an appointment",
+        "telugu": "అపాయింట్‌మెంట్ తీసుకోవడం",
+        "kind": "chunk"
+      },
+      {
+        "id": "als-het-kan",
+        "dutch": "als het kan",
+        "english": "if possible",
+        "telugu": "వీలైతే",
+        "kind": "chunk"
+      }
+    ],
+    "practice": [
+      {
+        "candidateId": "ik-wil-graag",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "afspraak-maken",
+        "dimension": "recall"
+      },
+      {
+        "candidateId": "als-het-kan",
+        "dimension": "recognition"
+      }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a1-een-afspraak-maken-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "ik-wil-graag",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "At the GP reception, make a polite request: ___ een afspraak maken.",
+        "choices": [
+          "ik wil graag",
+          "ik heb last van",
+          "mijn trein is vertraagd"
+        ],
+        "accepted": [
+          "ik wil graag"
+        ],
+        "distractors": [
+          {
+            "answer": "ik heb last van",
+            "misconception": "lesson-context-mismatch"
+          },
+          {
+            "answer": "mijn trein is vertraagd",
+            "misconception": "lesson-context-mismatch"
+          }
+        ],
+        "feedback": "Use ik wil graag here: ik wil graag.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-een-afspraak-maken-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "ik-wil-graag",
+        "dimension": "recall",
+        "prompt": "Repair the appointment request.",
+        "context": "Choose the reviewed sentence.",
+        "choices": [
+          "Ik wil graag een afspraak maken.",
+          "Ik wil een afspraak graag maken.",
+          "Ik graag wil een afspraak maken."
+        ],
+        "accepted": [
+          "Ik wil graag een afspraak maken."
+        ],
+        "distractors": [
+          {
+            "answer": "Ik wil een afspraak graag maken.",
+            "misconception": "lesson-form-or-order"
+          },
+          {
+            "answer": "Ik graag wil een afspraak maken.",
+            "misconception": "lesson-form-or-order"
+          }
+        ],
+        "feedback": "Use the reviewed form: Ik wil graag een afspraak maken.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-een-afspraak-maken-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "ik-wil-graag",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Ask to make an appointment.",
+        "choices": [
+          "Ik wil graag een afspraak maken."
+        ],
+        "tokens": [
+          "Ik",
+          "wil",
+          "graag",
+          "een",
+          "afspraak",
+          "maken."
+        ],
+        "accepted": [
+          "Ik wil graag een afspraak maken."
+        ],
+        "distractors": [],
+        "feedback": "Build the sentence as: Ik wil graag een afspraak maken.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "contrastCompanion": {
+      "id": "contrast.main_clause_inversion",
+      "contentVersion": 1
+    },
+    "review": {
+      "dutch": true,
+      "english": true,
+      "telugu": true,
+      "cefr": true,
+      "cultural": true,
+      "practicalUse": true
+    },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "reduced",
+      "outcome": {
+        "primary": "Make a polite request for an appointment.",
+        "supporting": [
+          "Recognize ik wil graag in a short reception-desk exchange."
+        ]
+      },
+      "coverage": {
+        "understand": true,
+        "guidedAction": true,
+        "reducedSupportRetrieval": true,
+        "safeApplication": true
+      },
+      "transfer": {
+        "id": "a1-een-afspraak-maken-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "ik-wil-graag",
+        "prompt": "You are calling a clinic. Choose the Dutch phrase to make a polite request.",
+        "context": "Ask politely for an appointment: ___ een afspraak maken.",
+        "choices": [
+          "ik wil graag",
+          "ik heb last van",
+          "mijn trein is vertraagd"
+        ],
+        "accepted": [
+          "ik wil graag"
+        ],
+        "distractors": [
+          {
+            "answer": "ik heb last van",
+            "misconception": "symptom-not-request"
+          },
+          {
+            "answer": "mijn trein is vertraagd",
+            "misconception": "transport-not-request"
+          }
+        ],
+        "feedback": "Use ik wil graag to make a polite request: Ik wil graag een afspraak maken."
+      },
+      "accessibility": {
+        "keyboard": true,
+        "focus": true,
+        "feedbackAnnouncement": true,
+        "narrowPopup": true
+      },
+      "migration": {
+        "policy": "compatible-additive",
+        "historyKey": "lesson-id-and-content-version"
+      },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": [
+          "Original DutchMate-authored lesson content."
+        ],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "family": "lesson",
-  "id": "a0-hallo-ik-ben",
+  "id": "a0-ik-heb-dit-nodig",
   "schemaVersion": 1,
   "contentVersion": 1,
   "releaseStatus": "released",
@@ -14,114 +14,119 @@
     "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
   },
   "payload": {
-    "id": "a0-hallo-ik-ben",
+    "id": "a0-ik-heb-dit-nodig",
     "contentVersion": 1,
-    "pathway": "first-conversations",
+    "pathway": "needs-and-routines",
     "order": 1,
     "cefr": "A0",
-    "title": "A0 · Hallo, ik ben…",
+    "title": "A0 · Ik heb dit nodig",
     "durationMinutes": 3,
-    "pattern": "Ik ben…",
-    "patternText": "ik ben",
-    "patternExplanation": "Use ik ben… to say who you are. Add your name after the phrase.",
+    "pattern": "Ik heb dit nodig.",
+    "patternText": "Ik heb",
+    "patternExplanation": "Use hebben to say what you have or need. The form changes with the subject.",
     "lines": [
       {
-        "dutch": "Hallo, ik ben Ravi. Ik woon sinds kort in Utrecht.",
-        "english": "Hello, I am Ravi. I have lived in Utrecht for a short time.",
-        "telugu": "హలో, నేను రవి. నేను ఇటీవలే ఉట్రెహ్ట్‌లో నివసిస్తున్నాను."
+        "dutch": "Voor mijn Nederlandse les heb ik een pen nodig.",
+        "english": "I need a pen for my Dutch lesson.",
+        "telugu": "నా డచ్ పాఠానికి నాకు ఒక పెన్ కావాలి."
       },
       {
-        "dutch": "Hallo Ravi, ik ben Noor. Leuk je te ontmoeten.",
-        "english": "Hello Ravi, I am Noor. Nice to meet you.",
-        "telugu": "హలో రవి, నేను నూర్. మిమ్మల్ని కలవడం ఆనందంగా ఉంది."
+        "dutch": "Ik heb ook een schrift en een potlood bij me.",
+        "english": "I also have a notebook and a pencil with me.",
+        "telugu": "నా దగ్గర ఒక నోట్‌బుక్ మరియు పెన్సిల్ కూడా ఉన్నాయి."
       },
       {
-        "dutch": "Leuk je te ontmoeten, Noor. Woon je hier ook?",
-        "english": "Nice to meet you, Noor. Do you live here too?",
-        "telugu": "మిమ్మల్ని కలవడం ఆనందంగా ఉంది, నూర్. మీరు కూడా ఇక్కడే నివసిస్తున్నారా?"
+        "dutch": "Heb jij een gum? Ja, jij hebt een pen.",
+        "english": "Do you have an eraser? Yes, you have a pen.",
+        "telugu": "నీ దగ్గర రబ్బరు ఉందా? అవును, నీ దగ్గర ఒక పెన్ ఉంది."
       },
       {
-        "dutch": "Ja, ik woon vlakbij. Welkom in de buurt!",
-        "english": "Yes, I live nearby. Welcome to the neighbourhood!",
-        "telugu": "అవును, నేను దగ్గరలోనే నివసిస్తున్నాను. ఈ పరిసరాలకు స్వాగతం!"
+        "dutch": "Hebt u een extra schrift? U heeft geluk.",
+        "english": "Do you have an extra notebook? You are in luck.",
+        "telugu": "మీ దగ్గర అదనపు నోట్‌బుక్ ఉందా? మీ అదృష్టం బాగుంది."
+      },
+      {
+        "dutch": "Wij hebben alles voor de les en kunnen beginnen.",
+        "english": "We have everything for the lesson and can begin.",
+        "telugu": "పాఠానికి కావాల్సినవన్నీ మా దగ్గర ఉన్నాయి, మేము ప్రారంభించవచ్చు."
       }
     ],
     "candidates": [
       {
-        "id": "ik-ben",
-        "dutch": "ik ben",
-        "english": "I am",
-        "telugu": "నేను",
+        "id": "ik-heb-dit-nodig",
+        "dutch": "ik heb dit nodig",
+        "english": "I need this",
+        "telugu": "నాకు ఇది కావాలి",
         "kind": "chunk"
       },
       {
-        "id": "leuk-je-te-ontmoeten",
-        "dutch": "leuk je te ontmoeten",
-        "english": "nice to meet you",
-        "telugu": "మిమ్మల్ని కలవడం ఆనందంగా ఉంది",
-        "kind": "chunk"
+        "id": "een-pen",
+        "dutch": "een pen",
+        "english": "a pen",
+        "telugu": "ఒక పెన్",
+        "kind": "word"
       },
       {
-        "id": "ik-woon",
-        "dutch": "ik woon",
-        "english": "I live",
-        "telugu": "నేను నివసిస్తున్నాను",
-        "kind": "chunk"
+        "id": "een-schrift",
+        "dutch": "een schrift",
+        "english": "a notebook",
+        "telugu": "ఒక నోట్‌బుక్",
+        "kind": "word"
       },
       {
-        "id": "vlakbij",
-        "dutch": "vlakbij",
-        "english": "nearby",
-        "telugu": "దగ్గరలో",
+        "id": "een-potlood",
+        "dutch": "een potlood",
+        "english": "a pencil",
+        "telugu": "ఒక పెన్సిల్",
         "kind": "word"
       }
     ],
     "practice": [
       {
-        "candidateId": "ik-ben",
+        "candidateId": "ik-heb-dit-nodig",
         "dimension": "recognition"
       },
       {
-        "candidateId": "leuk-je-te-ontmoeten",
+        "candidateId": "een-pen",
         "dimension": "recall"
       },
       {
-        "candidateId": "ik-woon",
+        "candidateId": "een-schrift",
         "dimension": "recognition"
       },
       {
-        "candidateId": "vlakbij",
+        "candidateId": "een-potlood",
         "dimension": "recall"
       }
     ],
     "practiceExercises": [
       {
         "contentVersion": 1,
-        "id": "a0-hallo-ik-ben-contrast-form",
+        "id": "a0-ik-heb-dit-nodig-contrast-form",
         "primitive": "contrast-form",
-        "candidateId": "ik-ben",
+        "candidateId": "ik-heb-dit-nodig",
         "dimension": "recognition",
         "prompt": "Choose the phrase that fits the situation.",
-        "context": "You meet Noor and introduce yourself: ___ Ravi.",
+        "context": "For class, say that you need a pen: ___ een pen.",
         "choices": [
-          "ik ben",
-          "ik woon",
-          "vlakbij"
+          "ik heb dit nodig",
+          "ik woon hier",
+          "woon je hier"
         ],
         "accepted": [
-          "ik ben"
+          "ik heb dit nodig"
         ],
         "distractors": [
           {
-            "answer": "ik woon",
+            "answer": "ik woon hier",
             "misconception": "lesson-context-mismatch"
           },
           {
-            "answer": "vlakbij",
+            "answer": "woon je hier",
             "misconception": "lesson-context-mismatch"
           }
         ],
-        "feedback": "Use ik ben: ik ben.",
+        "feedback": "Use ik heb dit nodig here: ik heb dit nodig.",
         "review": {
           "author": "DutchMate team",
           "reviewState": "second-review-complete",
@@ -135,31 +140,31 @@
       },
       {
         "contentVersion": 1,
-        "id": "a0-hallo-ik-ben-repair-choice",
+        "id": "a0-ik-heb-dit-nodig-repair-choice",
         "primitive": "repair-choice",
-        "candidateId": "ik-ben",
+        "candidateId": "ik-heb-dit-nodig",
         "dimension": "recall",
-        "prompt": "Repair the introduction.",
+        "prompt": "Repair the classroom request.",
         "context": "Choose the reviewed sentence.",
         "choices": [
-          "Hallo, ik ben Ravi.",
-          "Hallo, ik woon Ravi.",
-          "Hallo, vlakbij Ravi."
+          "Ik heb dit nodig.",
+          "Ik heb hier nodig.",
+          "Ik woon dit nodig."
         ],
         "accepted": [
-          "Hallo, ik ben Ravi."
+          "Ik heb dit nodig."
         ],
         "distractors": [
           {
-            "answer": "Hallo, ik woon Ravi.",
+            "answer": "Ik heb hier nodig.",
             "misconception": "lesson-form-or-order"
           },
           {
-            "answer": "Hallo, vlakbij Ravi.",
+            "answer": "Ik woon dit nodig.",
             "misconception": "lesson-form-or-order"
           }
         ],
-        "feedback": "Use the reviewed sentence: Hallo, ik ben Ravi.",
+        "feedback": "Use the reviewed form: Ik heb dit nodig.",
         "review": {
           "author": "DutchMate team",
           "reviewState": "second-review-complete",
@@ -173,25 +178,26 @@
       },
       {
         "contentVersion": 1,
-        "id": "a0-hallo-ik-ben-order-tokens",
+        "id": "a0-ik-heb-dit-nodig-order-tokens",
         "primitive": "order-tokens",
-        "candidateId": "ik-ben",
+        "candidateId": "ik-heb-dit-nodig",
         "dimension": "recall",
         "prompt": "Build the sentence in the lesson context.",
-        "context": "Say who you are.",
+        "context": "Say that you need this.",
         "choices": [
-          "Ik ben Ravi."
+          "Ik heb dit nodig."
         ],
         "tokens": [
           "Ik",
-          "ben",
-          "Ravi."
+          "heb",
+          "dit",
+          "nodig."
         ],
         "accepted": [
-          "Ik ben Ravi."
+          "Ik heb dit nodig."
         ],
         "distractors": [],
-        "feedback": "Build the sentence as: Ik ben Ravi.",
+        "feedback": "Build the sentence as: Ik heb dit nodig.",
         "review": {
           "author": "DutchMate team",
           "reviewState": "second-review-complete",
@@ -212,18 +218,13 @@
       "cultural": true,
       "practicalUse": true
     },
-    "grammarCompanion": {
-      "id": "a0-zijn-present",
-      "contentVersion": 1,
-      "patternId": "a0-zijn-present"
-    },
     "practiceEnvelope": {
       "contentVersion": 1,
       "support": "guided",
       "outcome": {
-        "primary": "Introduce yourself and say where you live.",
+        "primary": "Say that you need a simple item.",
         "supporting": [
-          "Recognize ik ben and ik woon in a friendly introduction."
+          "Recognize ik heb dit nodig in a classroom or shopping situation."
         ]
       },
       "coverage": {
@@ -233,30 +234,30 @@
         "safeApplication": true
       },
       "transfer": {
-        "id": "a0-hallo-ik-ben-transfer",
+        "id": "a0-ik-heb-dit-nodig-transfer",
         "primitive": "choose-meaning",
-        "candidateId": "ik-ben",
-        "prompt": "You meet someone new. Choose the Dutch phrase to introduce yourself.",
-        "context": "You say who you are: ___ Ravi.",
+        "candidateId": "ik-heb-dit-nodig",
+        "prompt": "You need a pen for class. Choose the Dutch phrase to say that you need this.",
+        "context": "You need a pen: ___ een pen nodig.",
         "choices": [
-          "ik ben",
-          "ik woon",
-          "vlakbij"
+          "ik heb dit nodig",
+          "ik woon hier",
+          "ik ben beschikbaar"
         ],
         "accepted": [
-          "ik ben"
+          "ik heb dit nodig"
         ],
         "distractors": [
           {
-            "answer": "ik woon",
-            "misconception": "location-not-identity"
+            "answer": "ik woon hier",
+            "misconception": "place-not-need"
           },
           {
-            "answer": "vlakbij",
-            "misconception": "place-fragment-not-introduction"
+            "answer": "ik ben beschikbaar",
+            "misconception": "availability-not-need"
           }
         ],
-        "feedback": "Use ik ben to say who you are: Ik ben Ravi."
+        "feedback": "Use ik heb dit nodig to say that you need this: Ik heb dit nodig."
       },
       "accessibility": {
         "keyboard": true,
@@ -278,6 +279,11 @@
         ],
         "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
       }
+    },
+    "grammarCompanion": {
+      "id": "a0-hebben-present",
+      "contentVersion": 1,
+      "patternId": "a0-hebben-present"
     }
   }
 }

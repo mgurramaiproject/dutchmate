@@ -1,0 +1,289 @@
+{
+  "family": "lesson",
+  "id": "a1-waar-moet-ik-overstappen",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "Original DutchMate-authored lesson content."
+    ],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a1-waar-moet-ik-overstappen",
+    "contentVersion": 1,
+    "pathway": "transport",
+    "order": 5,
+    "cefr": "A1",
+    "title": "A1 · Waar moet ik overstappen?",
+    "durationMinutes": 3,
+    "pattern": "Waar moet ik overstappen?",
+    "patternText": "moet ik overstappen",
+    "patternExplanation": "Use moet ik overstappen to ask where you need to change trains.",
+    "lines": [
+      {
+        "dutch": "Op station Utrecht Centraal kijk ik naar het bord.",
+        "english": "At Utrecht Central station, I look at the board.",
+        "telugu": "ఉట్రెహ్ట్ సెంట్రల్ స్టేషన్‌లో నేను బోర్డును చూస్తున్నాను."
+      },
+      {
+        "dutch": "Excuseer, waar moet ik overstappen voor de trein naar Rotterdam?",
+        "english": "Excuse me, where do I need to change for the train to Rotterdam?",
+        "telugu": "క్షమించండి, రోటర్‌డామ్‌కు వెళ్లే రైలు కోసం నేను ఎక్కడ మారాలి?"
+      },
+      {
+        "dutch": "U moet op spoor acht overstappen.",
+        "english": "You need to change at platform eight.",
+        "telugu": "మీరు ఎనిమిదో ప్లాట్‌ఫారమ్‌లో మారాలి."
+      },
+      {
+        "dutch": "Moet ik overstappen als ik daar aankom?",
+        "english": "Do I need to change when I get there?",
+        "telugu": "నేను అక్కడికి చేరుకున్నప్పుడు మారాలా?"
+      },
+      {
+        "dutch": "Nee, de aansluiting vertrekt over vijf minuten.",
+        "english": "No, the connecting train leaves in five minutes.",
+        "telugu": "లేదు, కనెక్షన్ రైలు ఐదు నిమిషాల్లో బయలుదేరుతుంది."
+      },
+      {
+        "dutch": "Dank u, dan loop ik snel naar spoor acht.",
+        "english": "Thank you, then I will walk quickly to platform eight.",
+        "telugu": "ధన్యవాదాలు, నేను త్వరగా ఎనిమిదో ప్లాట్‌ఫారమ్‌కు వెళ్తాను."
+      }
+    ],
+    "candidates": [
+      {
+        "id": "waar-moet-ik-overstappen",
+        "dutch": "waar moet ik overstappen",
+        "english": "where do I need to change",
+        "telugu": "నేను ఎక్కడ మారాలి",
+        "kind": "chunk"
+      },
+      {
+        "id": "overstappen",
+        "dutch": "overstappen",
+        "english": "to change trains",
+        "telugu": "రైలు మారడం",
+        "kind": "word"
+      },
+      {
+        "id": "spoor-acht",
+        "dutch": "spoor acht",
+        "english": "platform eight",
+        "telugu": "ఎనిమిదో ప్లాట్‌ఫారమ్",
+        "kind": "chunk"
+      },
+      {
+        "id": "de-aansluiting",
+        "dutch": "de aansluiting",
+        "english": "the connection",
+        "telugu": "కనెక్షన్",
+        "kind": "chunk"
+      }
+    ],
+    "practice": [
+      {
+        "candidateId": "waar-moet-ik-overstappen",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "overstappen",
+        "dimension": "recall"
+      },
+      {
+        "candidateId": "spoor-acht",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "de-aansluiting",
+        "dimension": "recall"
+      }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a1-waar-moet-ik-overstappen-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "waar-moet-ik-overstappen",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "At the station, ask where you need to change: ___.",
+        "choices": [
+          "waar moet ik overstappen",
+          "mijn trein is vertraagd",
+          "spoor acht"
+        ],
+        "accepted": [
+          "waar moet ik overstappen"
+        ],
+        "distractors": [
+          {
+            "answer": "mijn trein is vertraagd",
+            "misconception": "lesson-context-mismatch"
+          },
+          {
+            "answer": "spoor acht",
+            "misconception": "lesson-context-mismatch"
+          }
+        ],
+        "feedback": "Use waar moet ik overstappen here: waar moet ik overstappen.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-waar-moet-ik-overstappen-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "waar-moet-ik-overstappen",
+        "dimension": "recall",
+        "prompt": "Repair the transport question.",
+        "context": "Choose the reviewed sentence.",
+        "choices": [
+          "Waar moet ik overstappen?",
+          "Waar ik moet overstappen?",
+          "Waar moet overstappen ik?"
+        ],
+        "accepted": [
+          "Waar moet ik overstappen?"
+        ],
+        "distractors": [
+          {
+            "answer": "Waar ik moet overstappen?",
+            "misconception": "lesson-form-or-order"
+          },
+          {
+            "answer": "Waar moet overstappen ik?",
+            "misconception": "lesson-form-or-order"
+          }
+        ],
+        "feedback": "Use the reviewed form: Waar moet ik overstappen?",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-waar-moet-ik-overstappen-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "waar-moet-ik-overstappen",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Ask where you need to change trains.",
+        "choices": [
+          "Waar moet ik overstappen?"
+        ],
+        "tokens": [
+          "Waar",
+          "moet",
+          "ik",
+          "overstappen?"
+        ],
+        "accepted": [
+          "Waar moet ik overstappen?"
+        ],
+        "distractors": [],
+        "feedback": "Build the sentence as: Waar moet ik overstappen?",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "review": {
+      "dutch": true,
+      "english": true,
+      "telugu": true,
+      "cefr": true,
+      "cultural": true,
+      "practicalUse": true
+    },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "reduced",
+      "outcome": {
+        "primary": "Ask where to change trains at a station.",
+        "supporting": [
+          "Recognize the key transport question in a real platform exchange."
+        ]
+      },
+      "coverage": {
+        "understand": true,
+        "guidedAction": true,
+        "reducedSupportRetrieval": true,
+        "safeApplication": true
+      },
+      "transfer": {
+        "id": "a1-waar-moet-ik-overstappen-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "waar-moet-ik-overstappen",
+        "prompt": "You need to change trains but do not know where. Choose the Dutch question.",
+        "context": "At the station, ask where you need to change: ___.",
+        "choices": [
+          "waar moet ik overstappen",
+          "mijn trein is vertraagd",
+          "spoor acht"
+        ],
+        "accepted": [
+          "waar moet ik overstappen"
+        ],
+        "distractors": [
+          {
+            "answer": "mijn trein is vertraagd",
+            "misconception": "delay-not-change-location"
+          },
+          {
+            "answer": "spoor acht",
+            "misconception": "platform-answer-not-question"
+          }
+        ],
+        "feedback": "Use waar moet ik overstappen to ask where you need to change trains."
+      },
+      "accessibility": {
+        "keyboard": true,
+        "focus": true,
+        "feedbackAnnouncement": true,
+        "narrowPopup": true
+      },
+      "migration": {
+        "policy": "compatible-additive",
+        "historyKey": "lesson-id-and-content-version"
+      },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": [
+          "Original DutchMate-authored lesson content."
+        ],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    }
+  }
+}
