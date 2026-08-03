@@ -1,0 +1,1530 @@
+{
+  "family": "verb-journey",
+  "id": "verb.werken",
+  "schemaVersion": 1,
+  "contentVersion": "019-1",
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-31",
+    "sources": [
+      "Original DutchMate-authored Verb Journey content."
+    ],
+    "provenance": "Feature 015 qualification record and owner-confirmed Dutch, English, and Telugu review."
+  },
+  "payload": {
+    "schemaVersion": 1,
+    "contentVersion": "019-1",
+    "verb": {
+      "id": "verb.werken",
+      "lemma": "werken",
+      "english": "to work",
+      "level": "A1",
+      "tags": [
+        "regular",
+        "weak"
+      ],
+      "auxiliary": "hebben"
+    },
+    "dutchForms": [
+      {
+        "id": "form.werken.ott",
+        "dutchTense": "OTT",
+        "viewpoint": "present",
+        "completion": "onvoltooid",
+        "fullNameNl": "onvoltooid tegenwoordige tijd",
+        "sentence": "Ik werk thuis.",
+        "naturalEnglish": "I work at home.",
+        "usageMeaning": "routine, fact, present situation, or a scheduled future with a time word",
+        "formula": "ik + present stem",
+        "commonUsage": "Ik werk thuis. / Morgen werk ik thuis.",
+        "learnerLabelEn": "Present",
+        "canonicalExample": {
+          "nl": "Ik werk vandaag thuis.",
+          "en": "I am working at home today.",
+          "te": "నేను ఈరోజు ఇంటి నుంచి పని చేస్తున్నాను."
+        },
+        "commonUsageExample": {
+          "nl": "Morgen werk ik thuis.",
+          "en": "I will work at home tomorrow.",
+          "te": "రేపు నేను ఇంటి వద్ద పని చేస్తాను."
+        },
+        "cefrLevel": "A1",
+        "teachingPriority": "core",
+        "status": "mastered"
+      },
+      {
+        "id": "form.werken.vtt",
+        "dutchTense": "VTT",
+        "viewpoint": "present",
+        "completion": "voltooid",
+        "fullNameNl": "voltooid tegenwoordige tijd",
+        "sentence": "Ik heb thuis gewerkt.",
+        "naturalEnglish": "I have worked at home.",
+        "usageMeaning": "completed fact, experience, or result presented from the present viewpoint",
+        "formula": "ik + heb + … + gewerkt",
+        "commonUsage": "Ik heb gisteren thuis gewerkt.",
+        "learnerLabelEn": "Completed present / perfect",
+        "canonicalExample": {
+          "nl": "Ik heb vandaag thuis gewerkt.",
+          "en": "I have worked at home today.",
+          "te": "నేను ఈరోజు ఇంటి నుంచి పని చేశాను."
+        },
+        "commonUsageExample": {
+          "nl": "Ik heb gisteren thuis gewerkt.",
+          "en": "I worked at home yesterday.",
+          "te": "నేను నిన్న ఇంటి వద్ద పని చేశాను."
+        },
+        "cefrLevel": "A1",
+        "teachingPriority": "core",
+        "status": "learning"
+      },
+      {
+        "id": "form.werken.ovt",
+        "dutchTense": "OVT",
+        "viewpoint": "past",
+        "completion": "onvoltooid",
+        "fullNameNl": "onvoltooid verleden tijd",
+        "sentence": "Ik werkte thuis.",
+        "naturalEnglish": "I worked at home.",
+        "usageMeaning": "past habit, story background, or connected past sequence",
+        "formula": "ik + werkte",
+        "commonUsage": "Vroeger werkte ik thuis.",
+        "learnerLabelEn": "Past",
+        "canonicalExample": {
+          "nl": "Ik werkte gisteren thuis.",
+          "en": "I worked at home yesterday.",
+          "te": "నేను నిన్న ఇంటి నుంచి పని చేశాను."
+        },
+        "commonUsageExample": {
+          "nl": "Vroeger werkte ik thuis.",
+          "en": "I used to work at home.",
+          "te": "గతంలో నేను ఇంటి వద్ద పని చేసేవాడిని."
+        },
+        "cefrLevel": "A2",
+        "teachingPriority": "core",
+        "status": "next"
+      },
+      {
+        "id": "form.werken.vvt",
+        "dutchTense": "VVT",
+        "viewpoint": "past",
+        "completion": "voltooid",
+        "fullNameNl": "voltooid verleden tijd",
+        "sentence": "Ik had thuis gewerkt.",
+        "naturalEnglish": "I had worked at home.",
+        "usageMeaning": "an earlier completed event viewed from a past reference point",
+        "formula": "ik + had + … + gewerkt",
+        "commonUsage": "Ik had al thuis gewerkt voordat de vergadering begon.",
+        "learnerLabelEn": "Completed past",
+        "canonicalExample": {
+          "nl": "Ik had al thuis gewerkt.",
+          "en": "I had already worked at home.",
+          "te": "నేను అప్పటికే ఇంటి నుంచి పని చేసి ఉన్నాను."
+        },
+        "commonUsageExample": {
+          "nl": "Ik had al thuis gewerkt voordat de vergadering begon.",
+          "en": "I had already worked at home before the meeting began.",
+          "te": "సమావేశం మొదలయ్యే ముందు నేను ఇంటి వద్ద పని చేసి ఉన్నాను."
+        },
+        "cefrLevel": "A2",
+        "teachingPriority": "later",
+        "status": "later"
+      },
+      {
+        "id": "form.werken.ottt",
+        "dutchTense": "OTTT",
+        "viewpoint": "future",
+        "completion": "onvoltooid",
+        "fullNameNl": "onvoltooid tegenwoordige toekomende tijd",
+        "sentence": "Ik zal thuis werken.",
+        "naturalEnglish": "I will work at home.",
+        "usageMeaning": "future prediction, promise, offer, or emphatic future",
+        "formula": "ik + zal + … + werken",
+        "commonUsage": "Morgen werk ik thuis. / Ik ga morgen thuis werken.",
+        "learnerLabelEn": "Future viewed from the present",
+        "canonicalExample": {
+          "nl": "Ik zal morgen thuis werken.",
+          "en": "I will work at home tomorrow.",
+          "te": "నేను రేపు ఇంటి నుంచి పని చేస్తాను."
+        },
+        "commonUsageExample": {
+          "nl": "Morgen zal ik thuis werken.",
+          "en": "Tomorrow I will work at home.",
+          "te": "రేపు నేను ఇంటి వద్ద పని చేస్తాను."
+        },
+        "cefrLevel": "reference",
+        "teachingPriority": "later",
+        "status": "later"
+      },
+      {
+        "id": "form.werken.vttt",
+        "dutchTense": "VTTT",
+        "viewpoint": "future",
+        "completion": "voltooid",
+        "fullNameNl": "voltooid tegenwoordige toekomende tijd",
+        "sentence": "Ik zal thuis gewerkt hebben.",
+        "naturalEnglish": "I will have worked at home.",
+        "usageMeaning": "completion before a future reference point",
+        "formula": "ik + zal + … + gewerkt hebben",
+        "commonUsage": "Tegen vrijdag heb ik veertig uur gewerkt.",
+        "learnerLabelEn": "Completed future viewed from the present",
+        "canonicalExample": {
+          "nl": "Ik zal tegen die tijd thuis gewerkt hebben.",
+          "en": "I will have worked at home by then.",
+          "te": "అప్పటికి నేను ఇంటి నుంచి పని చేసి ఉంటాను."
+        },
+        "commonUsageExample": {
+          "nl": "Tegen vrijdag zal ik veertig uur gewerkt hebben.",
+          "en": "By Friday, I will have worked forty hours.",
+          "te": "శుక్రవారం నాటికి నేను నలభై గంటలు పని చేసి ఉంటాను."
+        },
+        "cefrLevel": "reference",
+        "teachingPriority": "reference",
+        "status": "reference"
+      },
+      {
+        "id": "form.werken.ovtt",
+        "dutchTense": "OVTT",
+        "viewpoint": "future-from-past",
+        "completion": "onvoltooid",
+        "fullNameNl": "onvoltooid verleden toekomende tijd",
+        "sentence": "Ik zou thuis werken.",
+        "naturalEnglish": "I would work at home.",
+        "usageMeaning": "future viewed from the past or a hypothetical / conditional situation",
+        "formula": "ik + zou + … + werken",
+        "commonUsage": "Ik zou thuis werken als dat kon.",
+        "learnerLabelEn": "Future viewed from the past / conditional",
+        "canonicalExample": {
+          "nl": "Ik zou thuis werken.",
+          "en": "I would work at home.",
+          "te": "నేను ఇంటి నుంచి పని చేసేవాడిని."
+        },
+        "commonUsageExample": {
+          "nl": "Ik zou thuis werken als dat kon.",
+          "en": "I would work at home if that were possible.",
+          "te": "అది సాధ్యమైతే నేను ఇంటి వద్ద పని చేసేవాడిని."
+        },
+        "cefrLevel": "reference",
+        "teachingPriority": "later",
+        "status": "later"
+      },
+      {
+        "id": "form.werken.vvtt",
+        "dutchTense": "VVTT",
+        "viewpoint": "future-from-past",
+        "completion": "voltooid",
+        "fullNameNl": "voltooid verleden toekomende tijd",
+        "sentence": "Ik zou thuis gewerkt hebben.",
+        "naturalEnglish": "I would have worked at home.",
+        "usageMeaning": "an unreal or unrealised completed result",
+        "formula": "ik + zou + … + gewerkt hebben",
+        "commonUsage": "Ik zou thuis gewerkt hebben als dat mogelijk was.",
+        "learnerLabelEn": "Completed future viewed from the past / conditional perfect",
+        "canonicalExample": {
+          "nl": "Ik zou thuis gewerkt hebben.",
+          "en": "I would have worked at home.",
+          "te": "నేను ఇంటి నుంచి పని చేసి ఉండేవాడిని."
+        },
+        "commonUsageExample": {
+          "nl": "Ik zou thuis gewerkt hebben als dat mogelijk was.",
+          "en": "I would have worked at home if that had been possible.",
+          "te": "అది సాధ్యమై ఉంటే నేను ఇంటి వద్ద పని చేసి ఉండేవాడిని."
+        },
+        "cefrLevel": "reference",
+        "teachingPriority": "reference",
+        "status": "reference"
+      }
+    ],
+    "englishComparison": [
+      {
+        "id": "english.werken.present-simple",
+        "englishTense": "present-simple",
+        "group": "present",
+        "english": "I work at home every Monday.",
+        "situation": "A repeated routine or fact.",
+        "meaningPreservingDutch": "Ik werk elke maandag thuis.",
+        "commonEverydayDutch": "Ik werk elke maandag thuis.",
+        "dutchAnalysis": {
+          "primaryForm": "OTT"
+        },
+        "mismatchNote": "This is a direct mapping for routines, facts, and repeated actions.",
+        "cefrLevel": "A1",
+        "teachingPriority": "core",
+        "meaningPreserving": {
+          "nl": "Ik werk elke maandag thuis.",
+          "en": "I work at home every Monday.",
+          "te": "నేను ప్రతి సోమవారం ఇంటి నుంచి పని చేస్తాను.",
+          "form": "OTT"
+        },
+        "everyday": {
+          "nl": "Ik werk elke maandag thuis.",
+          "en": "I work at home every Monday.",
+          "te": "నేను ప్రతి సోమవారం ఇంటి నుంచి పని చేస్తాను.",
+          "form": "OTT"
+        },
+        "cue": {
+          "display": "elke maandag",
+          "shortMeaning": "repeated routine",
+          "kind": "frequency",
+          "tokens": [
+            "elke maandag"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: OTT + frequency cue. Everyday: OTT + frequency cue.",
+        "whyTheyDiffer": "This is a direct mapping for a repeated routine or habit."
+      },
+      {
+        "id": "english.werken.present-continuous",
+        "englishTense": "present-continuous",
+        "group": "present",
+        "english": "I am working at home right now.",
+        "situation": "An activity happening now.",
+        "meaningPreservingDutch": "Ik ben nu thuis aan het werken.",
+        "commonEverydayDutch": "Ik werk nu thuis.",
+        "dutchAnalysis": {
+          "primaryForm": "OTT",
+          "construction": "OTT + nu"
+        },
+        "mismatchNote": "Dutch has no separate continuous tense; ordinary OTT plus nu is often enough.",
+        "cefrLevel": "A1",
+        "teachingPriority": "core",
+        "meaningPreserving": {
+          "nl": "Ik ben nu thuis aan het werken.",
+          "en": "I am working at home right now.",
+          "te": "నేను ఇప్పుడు ఇంటి నుంచి పని చేస్తున్నాను.",
+          "form": "OTT"
+        },
+        "everyday": {
+          "nl": "Ik werk nu thuis.",
+          "en": "I am working at home right now.",
+          "te": "నేను ఇప్పుడు ఇంటి నుంచి పని చేస్తున్నాను.",
+          "form": "OTT"
+        },
+        "cue": {
+          "display": "nu",
+          "shortMeaning": "happening now",
+          "kind": "current-time",
+          "tokens": [
+            "nu"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: OTT progressive. Everyday: OTT + nu.",
+        "whyTheyDiffer": "Dutch can express an action in progress with ordinary OTT when nu makes the current meaning clear."
+      },
+      {
+        "id": "english.werken.present-perfect",
+        "englishTense": "present-perfect",
+        "group": "present",
+        "english": "I have worked at home three times this week.",
+        "situation": "Completed events connected to the current period.",
+        "meaningPreservingDutch": "Ik heb deze week drie keer thuis gewerkt.",
+        "commonEverydayDutch": "Ik heb deze week drie keer thuis gewerkt.",
+        "dutchAnalysis": {
+          "primaryForm": "VTT"
+        },
+        "mismatchNote": "VTT presents completed events as relevant to the current period.",
+        "cefrLevel": "A1",
+        "teachingPriority": "core",
+        "meaningPreserving": {
+          "nl": "Ik heb deze week drie keer thuis gewerkt.",
+          "en": "I have worked at home three times this week.",
+          "te": "నేను ఈ వారం మూడు సార్లు ఇంటి నుంచి పని చేశాను.",
+          "form": "VTT"
+        },
+        "everyday": {
+          "nl": "Ik heb deze week drie keer thuis gewerkt.",
+          "en": "I have worked at home three times this week.",
+          "te": "నేను ఈ వారం మూడు సార్లు ఇంటి నుంచి పని చేశాను.",
+          "form": "VTT"
+        },
+        "cue": {
+          "display": "deze week",
+          "shortMeaning": "completed events in the current period",
+          "kind": "current-period",
+          "tokens": [
+            "deze week"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: VTT + current-period cue. Everyday: VTT + current-period cue.",
+        "whyTheyDiffer": "VTT presents completed events as relevant to the current period."
+      },
+      {
+        "id": "english.werken.present-perfect-continuous",
+        "englishTense": "present-perfect-continuous",
+        "group": "present",
+        "english": "I have been working for two hours.",
+        "situation": "An activity started earlier and is still continuing.",
+        "meaningPreservingDutch": "Ik ben al twee uur aan het werken.",
+        "commonEverydayDutch": "Ik werk al twee uur.",
+        "dutchAnalysis": {
+          "primaryForm": "OTT",
+          "construction": "OTT + al + duration"
+        },
+        "mismatchNote": "Because the activity continues now, Dutch treats it as a present situation with al and a duration.",
+        "cefrLevel": "A2",
+        "teachingPriority": "core",
+        "meaningPreserving": {
+          "nl": "Ik ben al twee uur aan het werken.",
+          "en": "I have been working for two hours.",
+          "te": "నేను రెండు గంటలుగా పని చేస్తున్నాను.",
+          "form": "OTT"
+        },
+        "everyday": {
+          "nl": "Ik werk al twee uur.",
+          "en": "I have been working for two hours.",
+          "te": "నేను రెండు గంటలుగా పని చేస్తున్నాను.",
+          "form": "OTT"
+        },
+        "cue": {
+          "display": "al twee uur",
+          "shortMeaning": "duration continuing now",
+          "kind": "duration",
+          "tokens": [
+            "al",
+            "twee uur"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: OTT progressive + duration. Everyday: OTT + al + duration.",
+        "whyTheyDiffer": "Because the activity continues now, Dutch treats it as a present situation with al and a duration."
+      },
+      {
+        "id": "english.werken.past-simple",
+        "englishTense": "past-simple",
+        "group": "past",
+        "english": "I worked at home yesterday.",
+        "situation": "One completed fact in a past conversation.",
+        "meaningPreservingDutch": "Gisteren werkte ik thuis.",
+        "commonEverydayDutch": "Ik heb gisteren thuis gewerkt.",
+        "dutchAnalysis": {
+          "primaryForm": "VTT",
+          "alternativeForms": [
+            "OVT"
+          ]
+        },
+        "mismatchNote": "English simple past often maps to VTT for a standalone completed fact; OVT is common for narrative background or habits.",
+        "cefrLevel": "A2",
+        "teachingPriority": "core",
+        "meaningPreserving": {
+          "nl": "Gisteren werkte ik thuis.",
+          "en": "I worked at home yesterday.",
+          "te": "నేను నిన్న ఇంటి నుంచి పని చేశాను.",
+          "form": "OVT"
+        },
+        "everyday": {
+          "nl": "Ik heb gisteren thuis gewerkt.",
+          "en": "I worked at home yesterday.",
+          "te": "నేను నిన్న ఇంటి నుంచి పని చేశాను.",
+          "form": "VTT"
+        },
+        "cue": {
+          "display": "gisteren",
+          "shortMeaning": "completed past fact",
+          "kind": "past-time",
+          "tokens": [
+            "gisteren"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: OVT for a past fact. Everyday: VTT + past-time cue.",
+        "whyTheyDiffer": "English simple past often maps to VTT for a standalone completed fact; OVT is common for narrative background or habits."
+      },
+      {
+        "id": "english.werken.past-continuous",
+        "englishTense": "past-continuous",
+        "group": "past",
+        "english": "I was working when she called.",
+        "situation": "An ongoing past activity interrupted by another event.",
+        "meaningPreservingDutch": "Ik was aan het werken toen ze belde.",
+        "commonEverydayDutch": "Ik zat te werken toen ze belde.",
+        "dutchAnalysis": {
+          "primaryForm": "OVT",
+          "construction": "OVT + aan het / zitten te"
+        },
+        "mismatchNote": "Dutch supplies ongoing meaning with aan het or a position verb such as zitten te.",
+        "cefrLevel": "A2",
+        "teachingPriority": "core",
+        "meaningPreserving": {
+          "nl": "Ik was aan het werken toen ze belde.",
+          "en": "I was working when she called.",
+          "te": "ఆమె ఫోన్ చేసినప్పుడు నేను పని చేస్తున్నాను.",
+          "form": "OVT"
+        },
+        "everyday": {
+          "nl": "Ik zat te werken toen ze belde.",
+          "en": "I was working when she called.",
+          "te": "ఆమె ఫోన్ చేసినప్పుడు నేను పని చేస్తున్నాను.",
+          "form": "OVT"
+        },
+        "cue": {
+          "display": "toen ze belde",
+          "shortMeaning": "ongoing action around a past event",
+          "kind": "past-reference",
+          "tokens": [
+            "toen ze belde"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: OVT + aan het. Everyday: zitten te + past reference.",
+        "whyTheyDiffer": "Dutch supplies ongoing meaning with aan het or a position verb such as zitten te."
+      },
+      {
+        "id": "english.werken.past-perfect",
+        "englishTense": "past-perfect",
+        "group": "past",
+        "english": "I had already worked at home before the meeting began.",
+        "situation": "An earlier completed event viewed from a past reference point.",
+        "meaningPreservingDutch": "Ik had al thuis gewerkt voordat de vergadering begon.",
+        "commonEverydayDutch": "Ik had al thuis gewerkt voordat de vergadering begon.",
+        "dutchAnalysis": {
+          "primaryForm": "VVT"
+        },
+        "mismatchNote": "VVT explicitly marks the earlier of two past events.",
+        "cefrLevel": "A2",
+        "teachingPriority": "later",
+        "meaningPreserving": {
+          "nl": "Ik had al thuis gewerkt voordat de vergadering begon.",
+          "en": "I had already worked at home before the meeting began.",
+          "te": "సమావేశం ప్రారంభమయ్యే ముందు నేను ఇప్పటికే ఇంటి నుంచి పని చేశాను.",
+          "form": "VVT"
+        },
+        "everyday": {
+          "nl": "Ik had al thuis gewerkt voordat de vergadering begon.",
+          "en": "I had already worked at home before the meeting began.",
+          "te": "సమావేశం ప్రారంభమయ్యే ముందు నేను ఇప్పటికే ఇంటి నుంచి పని చేశాను.",
+          "form": "VVT"
+        },
+        "cue": {
+          "display": "al … voordat",
+          "shortMeaning": "completed before another past event",
+          "kind": "compound",
+          "tokens": [
+            "al",
+            "voordat"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: VVT + al + voordat. Everyday: VVT + al + voordat.",
+        "whyTheyDiffer": "VVT explicitly marks the earlier of two past events."
+      },
+      {
+        "id": "english.werken.past-perfect-continuous",
+        "englishTense": "past-perfect-continuous",
+        "group": "past",
+        "english": "I had been working for two hours when she called.",
+        "situation": "A continuing activity measured up to a past reference point.",
+        "meaningPreservingDutch": "Ik was al twee uur aan het werken toen ze belde.",
+        "commonEverydayDutch": "Ik zat al twee uur te werken toen ze belde.",
+        "dutchAnalysis": {
+          "primaryForm": "OVT",
+          "construction": "OVT + al + duration"
+        },
+        "mismatchNote": "The past reference point and al twee uur carry the had been meaning; Dutch normally does not need VVT here.",
+        "cefrLevel": "reference",
+        "teachingPriority": "reference",
+        "meaningPreserving": {
+          "nl": "Ik was al twee uur aan het werken toen ze belde.",
+          "en": "I had been working for two hours when she called.",
+          "te": "ఆమె ఫోన్ చేసినప్పుడు నేను రెండు గంటలుగా పని చేస్తున్నాను.",
+          "form": "OVT"
+        },
+        "everyday": {
+          "nl": "Ik zat al twee uur te werken toen ze belde.",
+          "en": "I had been working for two hours when she called.",
+          "te": "ఆమె ఫోన్ చేసినప్పుడు నేను రెండు గంటలుగా పని చేస్తున్నాను.",
+          "form": "OVT"
+        },
+        "cue": {
+          "display": "al twee uur … toen",
+          "shortMeaning": "duration continuing up to a past point",
+          "kind": "compound",
+          "tokens": [
+            "al",
+            "twee uur",
+            "toen"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: OVT progressive + duration. Everyday: zitten te + al + duration.",
+        "whyTheyDiffer": "The past reference point and al twee uur carry the had been meaning; Dutch normally does not need VVT here."
+      },
+      {
+        "id": "english.werken.future-simple",
+        "englishTense": "future-simple",
+        "group": "future",
+        "english": "I will work at home tomorrow.",
+        "situation": "A planned or predicted future event.",
+        "meaningPreservingDutch": "Ik zal morgen thuis werken.",
+        "commonEverydayDutch": "Morgen werk ik thuis.",
+        "dutchAnalysis": {
+          "primaryForm": "OTT",
+          "construction": "OTT + future time marker",
+          "alternativeForms": [
+            "OTTT"
+          ]
+        },
+        "mismatchNote": "English will does not automatically require Dutch zal; a future time word often makes OTT sufficient.",
+        "cefrLevel": "A1",
+        "teachingPriority": "core",
+        "meaningPreserving": {
+          "nl": "Ik zal morgen thuis werken.",
+          "en": "I will work at home tomorrow.",
+          "te": "నేను రేపు ఇంటి నుంచి పని చేస్తాను.",
+          "form": "OTTT"
+        },
+        "everyday": {
+          "nl": "Morgen werk ik thuis.",
+          "en": "I will work at home tomorrow.",
+          "te": "నేను రేపు ఇంటి నుంచి పని చేస్తాను.",
+          "form": "OTT"
+        },
+        "cue": {
+          "display": "morgen",
+          "shortMeaning": "future supplied by context",
+          "kind": "future-time",
+          "tokens": [
+            "morgen"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: OTTT + future-time cue. Everyday: OTT + future-time cue.",
+        "whyTheyDiffer": "English will does not automatically require Dutch zal; a future time word often makes OTT sufficient."
+      },
+      {
+        "id": "english.werken.future-continuous",
+        "englishTense": "future-continuous",
+        "group": "future",
+        "english": "Tomorrow at eight, I will be working.",
+        "situation": "An activity in progress at a future time.",
+        "meaningPreservingDutch": "Morgen om acht uur zal ik aan het werken zijn.",
+        "commonEverydayDutch": "Morgen om acht uur ben ik aan het werken.",
+        "dutchAnalysis": {
+          "primaryForm": "OTT",
+          "construction": "future time + aan het werken",
+          "alternativeForms": [
+            "OTTT"
+          ]
+        },
+        "mismatchNote": "The future time phrase and progressive expression carry both the future and ongoing meaning.",
+        "cefrLevel": "reference",
+        "teachingPriority": "reference",
+        "meaningPreserving": {
+          "nl": "Morgen om acht uur zal ik aan het werken zijn.",
+          "en": "Tomorrow at eight, I will be working.",
+          "te": "రేపు ఎనిమిది గంటలకు నేను పని చేస్తూ ఉంటాను.",
+          "form": "OTTT"
+        },
+        "everyday": {
+          "nl": "Morgen om acht uur ben ik aan het werken.",
+          "en": "Tomorrow at eight, I will be working.",
+          "te": "రేపు ఎనిమిది గంటలకు నేను పని చేస్తూ ఉంటాను.",
+          "form": "OTT"
+        },
+        "cue": {
+          "display": "morgen om acht uur",
+          "shortMeaning": "action in progress at a future point",
+          "kind": "future-time",
+          "tokens": [
+            "morgen",
+            "om acht uur"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: OTTT + aan het werken. Everyday: OTT + future-time cue + aan het werken.",
+        "whyTheyDiffer": "The future time phrase and progressive expression carry both the future and ongoing meaning."
+      },
+      {
+        "id": "english.werken.future-perfect",
+        "englishTense": "future-perfect",
+        "group": "future",
+        "english": "By Friday, I will have worked at home three times.",
+        "situation": "A completed amount measured before a future deadline.",
+        "meaningPreservingDutch": "Tegen vrijdag zal ik drie keer thuis gewerkt hebben.",
+        "commonEverydayDutch": "Uiterlijk vrijdag heb ik drie keer thuis gewerkt.",
+        "dutchAnalysis": {
+          "primaryForm": "VTTT",
+          "alternativeForms": [
+            "VTT"
+          ]
+        },
+        "mismatchNote": "VTTT explicitly marks completion before a future point; everyday Dutch may let the deadline carry the future meaning.",
+        "cefrLevel": "reference",
+        "teachingPriority": "reference",
+        "meaningPreserving": {
+          "nl": "Tegen vrijdag zal ik drie keer thuis gewerkt hebben.",
+          "en": "By Friday, I will have worked at home three times.",
+          "te": "శుక్రవారం నాటికి నేను ఇంటి నుంచి మూడు సార్లు పని చేసి ఉంటాను.",
+          "form": "VTTT"
+        },
+        "everyday": {
+          "nl": "Uiterlijk vrijdag heb ik drie keer thuis gewerkt.",
+          "en": "By Friday, I will have worked at home three times.",
+          "te": "శుక్రవారం నాటికి నేను ఇంటి నుంచి మూడు సార్లు పని చేసి ఉంటాను.",
+          "form": "VTT"
+        },
+        "cue": {
+          "display": "tegen/uiterlijk vrijdag",
+          "shortMeaning": "completed by a future deadline",
+          "kind": "deadline",
+          "tokens": [
+            "vrijdag"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: VTTT + deadline. Everyday: VTT + deadline.",
+        "whyTheyDiffer": "VTTT explicitly marks completion before a future point; everyday Dutch may let the deadline carry the future meaning."
+      },
+      {
+        "id": "english.werken.future-perfect-continuous",
+        "englishTense": "future-perfect-continuous",
+        "group": "future",
+        "english": "Tomorrow at eight, I will have been working for two hours.",
+        "situation": "A continuing activity measured at a future time.",
+        "meaningPreservingDutch": "Morgen om acht uur zal ik al twee uur aan het werken zijn.",
+        "commonEverydayDutch": "Morgen om acht uur ben ik al twee uur aan het werken.",
+        "dutchAnalysis": {
+          "primaryForm": "OTT",
+          "construction": "future time + al + duration",
+          "alternativeForms": [
+            "OTTT"
+          ]
+        },
+        "mismatchNote": "The activity is still ongoing at the future point, so Dutch normally avoids a completed VTTT form.",
+        "cefrLevel": "reference",
+        "teachingPriority": "reference",
+        "meaningPreserving": {
+          "nl": "Morgen om acht uur zal ik al twee uur aan het werken zijn.",
+          "en": "Tomorrow at eight, I will have been working for two hours.",
+          "te": "రేపు ఎనిమిది గంటలకు నేను రెండు గంటలుగా పని చేస్తూ ఉంటాను.",
+          "form": "OTTT"
+        },
+        "everyday": {
+          "nl": "Morgen om acht uur ben ik al twee uur aan het werken.",
+          "en": "Tomorrow at eight, I will have been working for two hours.",
+          "te": "రేపు ఎనిమిది గంటలకు నేను రెండు గంటలుగా పని చేస్తూ ఉంటాను.",
+          "form": "OTT"
+        },
+        "cue": {
+          "display": "morgen om acht uur + al twee uur",
+          "shortMeaning": "duration continuing at a future point",
+          "kind": "compound",
+          "tokens": [
+            "morgen",
+            "om acht uur",
+            "al twee uur"
+          ]
+        },
+        "howDutchExpressesIt": "Meaning-preserving: OTTT + al + duration. Everyday: OTT + future-time cue + al + duration.",
+        "whyTheyDiffer": "The activity is still ongoing at the future point, so Dutch normally avoids a completed VTTT form."
+      }
+    ],
+    "journeys": [
+      {
+        "id": "journey.werken.ott-routine",
+        "verbId": "verb.werken",
+        "title": "What I normally do",
+        "subtitle": "OTT · present and routine",
+        "level": "A1",
+        "kind": "core",
+        "status": "mastered",
+        "targetForms": [
+          "OTT"
+        ],
+        "targetSkills": [
+          "skill.werken.ott-routine"
+        ],
+        "learningGoal": "Describe a routine or present work situation.",
+        "estimatedMinutes": 3,
+        "story": [
+          {
+            "id": "story.werken.ott.1",
+            "nl": "Ik werk meestal samen op kantoor.",
+            "english": "I usually work together with others at the office.",
+            "telugu": "నేను సాధారణంగా కార్యాలయంలో ఇతరులతో కలిసి పని చేస్తాను.",
+            "targets": [
+              {
+                "text": "werk",
+                "skillIds": [
+                  "skill.werken.ott-routine"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.ott.2",
+            "nl": "Op maandag werk ik aan een nieuw plan.",
+            "english": "On Mondays I work on a new plan.",
+            "telugu": "సోమవారాల్లో నేను ఒక కొత్త ప్రణాళికపై పని చేస్తాను.",
+            "targets": [
+              {
+                "text": "werk",
+                "skillIds": [
+                  "skill.werken.ott-routine"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.ott.3",
+            "nl": "In de ochtend werk ik rustig.",
+            "english": "In the morning I work calmly.",
+            "telugu": "ఉదయం నేను ప్రశాంతంగా పని చేస్తాను.",
+            "targets": [
+              {
+                "text": "werk",
+                "skillIds": [
+                  "skill.werken.ott-routine"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.ott.4",
+            "nl": "Na de lunch werk ik verder aan het project.",
+            "english": "After lunch I continue working on the project.",
+            "telugu": "మధ్యాహ్న భోజనం తర్వాత నేను ప్రాజెక్ట్‌పై పని కొనసాగిస్తాను.",
+            "targets": [
+              {
+                "text": "werk",
+                "skillIds": [
+                  "skill.werken.ott-routine"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.ott.5",
+            "nl": "Aan het einde van de dag werk ik aan de laatste punten.",
+            "english": "At the end of the day I work on the final points.",
+            "telugu": "రోజు చివర్లో నేను చివరి అంశాలపై పని చేస్తాను.",
+            "targets": [
+              {
+                "text": "werk",
+                "skillIds": [
+                  "skill.werken.ott-routine"
+                ]
+              }
+            ]
+          }
+        ],
+        "notice": {
+          "id": "notice.werken.ott-routine",
+          "title": "The routine",
+          "subtitle": "Notice the present form for a routine or current situation.",
+          "comparison": [
+            {
+              "label": "OTT",
+              "tense": "OTT",
+              "sentence": "Ik werk meestal thuis.",
+              "meaning": "routine / present situation"
+            },
+            {
+              "label": "VTT",
+              "tense": "VTT",
+              "sentence": "Ik heb gisteren thuis gewerkt.",
+              "meaning": "completed event"
+            }
+          ],
+          "formula": "ik + werk",
+          "formulaNote": "With ik, the regular weak verb werken uses the stem werk.",
+          "valuableContrast": "Ik werk meestal thuis describes what is usual. Ik heb gisteren thuis gewerkt reports one completed event."
+        }
+      },
+      {
+        "id": "journey.werken.vtt-completed",
+        "verbId": "verb.werken",
+        "title": "What I completed",
+        "subtitle": "VTT · completed events",
+        "level": "A1",
+        "kind": "core",
+        "status": "learning",
+        "targetForms": [
+          "VTT"
+        ],
+        "targetSkills": [
+          "skill.werken.vtt-completed"
+        ],
+        "learningGoal": "Report one completed work event from a recent situation.",
+        "estimatedMinutes": 3,
+        "storyTitle": "Een drukke werkdag",
+        "story": [
+          {
+            "id": "story.werken.vtt.1",
+            "nl": "Gisteren heb ik op kantoor gewerkt.",
+            "english": "Yesterday I worked at the office.",
+            "telugu": "నిన్న నేను కార్యాలయంలో పని చేశాను.",
+            "targets": [
+              {
+                "text": "heb ik",
+                "skillIds": [
+                  "skill.werken.vtt-completed"
+                ]
+              },
+              {
+                "text": "gewerkt",
+                "skillIds": [
+                  "skill.werken.vtt-completed",
+                  "skill.werken.construct-phrase"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.vtt.2",
+            "nl": "Ik heb met een nieuw team gewerkt.",
+            "english": "I worked with a new team.",
+            "telugu": "నేను ఒక కొత్త బృందంతో కలిసి పని చేశాను.",
+            "targets": [
+              {
+                "text": "Ik heb",
+                "skillIds": [
+                  "skill.werken.vtt-completed"
+                ]
+              },
+              {
+                "text": "gewerkt",
+                "skillIds": [
+                  "skill.werken.vtt-completed",
+                  "skill.werken.construct-phrase"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.vtt.3",
+            "nl": "Ik heb aan een nieuw project gewerkt.",
+            "english": "I worked on a new project.",
+            "telugu": "నేను ఒక కొత్త ప్రాజెక్ట్‌పై పని చేశాను.",
+            "targets": [
+              {
+                "text": "Ik heb",
+                "skillIds": [
+                  "skill.werken.vtt-completed"
+                ]
+              },
+              {
+                "text": "gewerkt",
+                "skillIds": [
+                  "skill.werken.vtt-completed"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.vtt.4",
+            "nl": "Na de lunch heb ik nog twee uur gewerkt.",
+            "english": "After lunch I worked for another two hours.",
+            "telugu": "మధ్యాహ్న భోజనం తర్వాత నేను మరో రెండు గంటలు పని చేశాను.",
+            "targets": [
+              {
+                "text": "heb ik",
+                "skillIds": [
+                  "skill.werken.vtt-completed"
+                ]
+              },
+              {
+                "text": "gewerkt",
+                "skillIds": [
+                  "skill.werken.vtt-completed"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.vtt.5",
+            "nl": "Aan het einde heb ik nog een uur gewerkt.",
+            "english": "At the end I worked for another hour.",
+            "telugu": "చివర్లో నేను మరో గంట పని చేశాను.",
+            "targets": [
+              {
+                "text": "heb ik",
+                "skillIds": [
+                  "skill.werken.vtt-completed"
+                ]
+              },
+              {
+                "text": "gewerkt",
+                "skillIds": [
+                  "skill.werken.vtt-completed"
+                ]
+              }
+            ]
+          }
+        ],
+        "notice": {
+          "id": "notice.werken.vtt-completed",
+          "title": "The completed event",
+          "subtitle": "Compare a routine with a completed fact.",
+          "comparison": [
+            {
+              "label": "OTT",
+              "tense": "OTT",
+              "sentence": "Ik werk meestal thuis.",
+              "meaning": "routine / present situation"
+            },
+            {
+              "label": "VTT",
+              "tense": "VTT",
+              "sentence": "Ik heb gisteren thuis gewerkt.",
+              "meaning": "completed conversational event"
+            }
+          ],
+          "formula": "ik + heb + … + gewerkt",
+          "formulaNote": "Use hebben with werken. The participle is gewerkt.",
+          "valuableContrast": "Ik heb gisteren gewerkt is common when reporting one completed fact. Ik werkte vroeger thuis is common for past habits or story background."
+        }
+      },
+      {
+        "id": "journey.werken.ovt-background",
+        "verbId": "verb.werken",
+        "title": "How I worked before",
+        "subtitle": "OVT · habits and stories",
+        "level": "A2",
+        "kind": "core",
+        "status": "next",
+        "targetForms": [
+          "OVT"
+        ],
+        "targetSkills": [
+          "skill.werken.ovt-background"
+        ],
+        "learningGoal": "Describe a past habit or story background.",
+        "estimatedMinutes": 3,
+        "story": [
+          {
+            "id": "story.werken.ovt.1",
+            "nl": "Vroeger werkte ik vaak in een kleine ruimte.",
+            "english": "I used to work in a small room.",
+            "telugu": "గతంలో నేను తరచుగా ఒక చిన్న గదిలో పని చేసేవాడిని.",
+            "targets": [
+              {
+                "text": "werkte",
+                "skillIds": [
+                  "skill.werken.ovt-background"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.ovt.2",
+            "nl": "Elke zaterdag werkte ik samen.",
+            "english": "I worked together with others every Saturday.",
+            "telugu": "ప్రతి శనివారం నేను ఇతరులతో కలిసి పని చేసేవాడిని.",
+            "targets": [
+              {
+                "text": "werkte",
+                "skillIds": [
+                  "skill.werken.ovt-background"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.ovt.3",
+            "nl": "Tijdens de winter werkte ik rustig binnen.",
+            "english": "During the winter I worked quietly indoors.",
+            "telugu": "చలికాలంలో నేను ఇంటి లోపల ప్రశాంతంగా పని చేసేవాడిని.",
+            "targets": [
+              {
+                "text": "werkte",
+                "skillIds": [
+                  "skill.werken.ovt-background"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.ovt.4",
+            "nl": "In die periode werkte ik aan hetzelfde plan.",
+            "english": "During that period I worked on the same plan.",
+            "telugu": "ఆ కాలంలో నేను అదే ప్రణాళికపై పని చేసేవాడిని.",
+            "targets": [
+              {
+                "text": "werkte",
+                "skillIds": [
+                  "skill.werken.ovt-background"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.ovt.5",
+            "nl": "Na de lunch werkte ik verder.",
+            "english": "After lunch I continued working.",
+            "telugu": "మధ్యాహ్న భోజనం తర్వాత నేను పని కొనసాగించేవాడిని.",
+            "targets": [
+              {
+                "text": "werkte",
+                "skillIds": [
+                  "skill.werken.ovt-background"
+                ]
+              }
+            ]
+          }
+        ],
+        "notice": {
+          "id": "notice.werken.ovt-background",
+          "title": "The past background",
+          "subtitle": "Compare a past habit with one completed conversational fact.",
+          "comparison": [
+            {
+              "label": "VTT",
+              "tense": "VTT",
+              "sentence": "Ik heb gisteren thuis gewerkt.",
+              "meaning": "completed conversational event"
+            },
+            {
+              "label": "OVT",
+              "tense": "OVT",
+              "sentence": "Ik werkte vroeger thuis.",
+              "meaning": "past habit / story background"
+            }
+          ],
+          "formula": "ik + werkte",
+          "formulaNote": "The regular past singular of werken is werkte.",
+          "valuableContrast": "Ik werkte vroeger thuis sets the background or describes a habit. Ik heb gisteren gewerkt reports a completed fact."
+        }
+      },
+      {
+        "id": "journey.werken.vvt-earlier-past",
+        "verbId": "verb.werken",
+        "title": "What had already happened",
+        "subtitle": "VVT · earlier past",
+        "level": "A2",
+        "kind": "later",
+        "status": "later",
+        "targetForms": [
+          "VVT"
+        ],
+        "targetSkills": [
+          "skill.werken.vvt-earlier-past"
+        ],
+        "learningGoal": "Place an earlier completed event before another past event.",
+        "estimatedMinutes": 3,
+        "storyTitle": "Voordat de vergadering begon",
+        "story": [
+          {
+            "id": "story.werken.vvt.1",
+            "nl": "Ik had al gewerkt voordat de vergadering begon.",
+            "english": "I had already worked before the meeting began.",
+            "telugu": "సమావేశం ప్రారంభమయ్యే ముందు నేను ఇప్పటికే పని చేశాను.",
+            "targets": [
+              {
+                "text": "had",
+                "skillIds": [
+                  "skill.werken.vvt-earlier-past"
+                ]
+              },
+              {
+                "text": "gewerkt",
+                "skillIds": [
+                  "skill.werken.vvt-earlier-past"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.vvt.2",
+            "nl": "Voordat ik naar kantoor ging, had ik rustig gewerkt.",
+            "english": "Before I went to the office, I had worked quietly.",
+            "telugu": "నేను కార్యాలయానికి వెళ్లే ముందు ప్రశాంతంగా పని చేశాను.",
+            "targets": [
+              {
+                "text": "had",
+                "skillIds": [
+                  "skill.werken.vvt-earlier-past"
+                ]
+              },
+              {
+                "text": "gewerkt",
+                "skillIds": [
+                  "skill.werken.vvt-earlier-past"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.vvt.3",
+            "nl": "Toen de bel ging, had ik al twee uur gewerkt.",
+            "english": "When the bell rang, I had already worked for two hours.",
+            "telugu": "గంట మోగినప్పుడు నేను ఇప్పటికే రెండు గంటలు పని చేశాను.",
+            "targets": [
+              {
+                "text": "had",
+                "skillIds": [
+                  "skill.werken.vvt-earlier-past"
+                ]
+              },
+              {
+                "text": "gewerkt",
+                "skillIds": [
+                  "skill.werken.vvt-earlier-past"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.vvt.4",
+            "nl": "Ik had thuis gewerkt voordat het kantoor openging.",
+            "english": "I had worked at home before the office opened.",
+            "telugu": "కార్యాలయం తెరవకముందు నేను ఇంటి వద్ద పని చేశాను.",
+            "targets": [
+              {
+                "text": "had",
+                "skillIds": [
+                  "skill.werken.vvt-earlier-past"
+                ]
+              },
+              {
+                "text": "gewerkt",
+                "skillIds": [
+                  "skill.werken.vvt-earlier-past"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.vvt.5",
+            "nl": "Voordat de deadline kwam, had ik aan het project gewerkt.",
+            "english": "Before the deadline arrived, I had worked on the project.",
+            "telugu": "గడువు రాకముందు నేను ప్రాజెక్ట్‌పై పని చేశాను.",
+            "targets": [
+              {
+                "text": "had",
+                "skillIds": [
+                  "skill.werken.vvt-earlier-past"
+                ]
+              },
+              {
+                "text": "gewerkt",
+                "skillIds": [
+                  "skill.werken.vvt-earlier-past"
+                ]
+              }
+            ]
+          }
+        ],
+        "notice": {
+          "id": "notice.werken.vvt-earlier-past",
+          "title": "The earlier past",
+          "subtitle": "Notice how VVT places one completed event before another past event.",
+          "comparison": [
+            {
+              "label": "VVT",
+              "tense": "VVT",
+              "sentence": "Ik had al thuis gewerkt voordat de vergadering begon.",
+              "meaning": "earlier completed event"
+            },
+            {
+              "label": "VTT",
+              "tense": "VTT",
+              "sentence": "Ik heb gisteren thuis gewerkt.",
+              "meaning": "completed fact from the present viewpoint"
+            },
+            {
+              "label": "OVT",
+              "tense": "OVT",
+              "sentence": "Ik werkte vroeger thuis.",
+              "meaning": "past habit / story background"
+            }
+          ],
+          "formula": "ik + had + … + gewerkt",
+          "formulaNote": "VVT uses the past auxiliary had plus gewerkt to show an earlier completed event.",
+          "valuableContrast": "Ik had al thuis gewerkt voordat de vergadering begon places one completed action before another past event. Ik heb gisteren gewerkt reports a completed fact from the present viewpoint."
+        }
+      },
+      {
+        "id": "journey.werken.future-possibility",
+        "verbId": "verb.werken",
+        "title": "Plans and possibilities",
+        "subtitle": "OTTT + OVTT · future and conditional",
+        "level": "reference",
+        "kind": "later",
+        "status": "later",
+        "targetForms": [
+          "OTTT",
+          "OVTT"
+        ],
+        "targetSkills": [
+          "skill.werken.future-possibility"
+        ],
+        "learningGoal": "Distinguish an explicit future plan from a conditional possibility.",
+        "estimatedMinutes": 3,
+        "storyTitle": "Een plan voor morgen",
+        "story": [
+          {
+            "id": "story.werken.future.1",
+            "nl": "Morgen zal ik thuis werken.",
+            "english": "Tomorrow I will work at home.",
+            "telugu": "రేపు నేను ఇంటి వద్ద పని చేస్తాను.",
+            "targets": [
+              {
+                "text": "zal",
+                "skillIds": [
+                  "skill.werken.future-possibility"
+                ]
+              },
+              {
+                "text": "werken",
+                "skillIds": [
+                  "skill.werken.future-possibility"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.future.2",
+            "nl": "Als het regent, zou ik thuis werken.",
+            "english": "If it rains, I would work at home.",
+            "telugu": "వర్షం పడితే, నేను ఇంటి వద్ద పని చేస్తాను.",
+            "targets": [
+              {
+                "text": "zou",
+                "skillIds": [
+                  "skill.werken.future-possibility"
+                ]
+              },
+              {
+                "text": "werken",
+                "skillIds": [
+                  "skill.werken.future-possibility"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.future.3",
+            "nl": "Na de lunch zal ik aan het project werken.",
+            "english": "After lunch I will work on the project.",
+            "telugu": "మధ్యాహ్న భోజనం తర్వాత నేను ప్రాజెక్ట్‌పై పని చేస్తాను.",
+            "targets": [
+              {
+                "text": "zal",
+                "skillIds": [
+                  "skill.werken.future-possibility"
+                ]
+              },
+              {
+                "text": "werken",
+                "skillIds": [
+                  "skill.werken.future-possibility"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.future.4",
+            "nl": "Volgende week zal ik met een nieuwe planning werken.",
+            "english": "Next week I will work with a new schedule.",
+            "telugu": "వచ్చే వారం నేను కొత్త షెడ్యూల్‌తో పని చేస్తాను.",
+            "targets": [
+              {
+                "text": "zal",
+                "skillIds": [
+                  "skill.werken.future-possibility"
+                ]
+              },
+              {
+                "text": "werken",
+                "skillIds": [
+                  "skill.werken.future-possibility"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.future.5",
+            "nl": "Bij slecht weer zou ik in een rustige ruimte werken.",
+            "english": "In bad weather I would work in a quiet room.",
+            "telugu": "చెడు వాతావరణంలో నేను ప్రశాంతమైన గదిలో పని చేస్తాను.",
+            "targets": [
+              {
+                "text": "zou",
+                "skillIds": [
+                  "skill.werken.future-possibility"
+                ]
+              },
+              {
+                "text": "werken",
+                "skillIds": [
+                  "skill.werken.future-possibility"
+                ]
+              }
+            ]
+          }
+        ],
+        "notice": {
+          "id": "notice.werken.future-possibility",
+          "title": "Plans and possibilities",
+          "subtitle": "Compare a future plan with a conditional possibility.",
+          "comparison": [
+            {
+              "label": "OTTT",
+              "tense": "OTTT",
+              "sentence": "Morgen zal ik thuis werken.",
+              "meaning": "future plan or prediction"
+            },
+            {
+              "label": "OVTT",
+              "tense": "OVTT",
+              "sentence": "Als het regent, zou ik thuis werken.",
+              "meaning": "conditional possibility"
+            },
+            {
+              "label": "OTT",
+              "tense": "OTT",
+              "sentence": "Morgen werk ik thuis.",
+              "meaning": "ordinary everyday future"
+            }
+          ],
+          "formula": "ik + zal / zou + … + werken",
+          "formulaNote": "Zal marks an explicit future; zou frames the action as conditional or hypothetical.",
+          "valuableContrast": "Morgen zal ik thuis werken makes the future explicit. Als het regent, zou ik thuis werken depends on a condition; everyday Dutch often uses OTT for a straightforward future plan."
+        }
+      },
+      {
+        "id": "journey.werken.reference-completed-future",
+        "verbId": "verb.werken",
+        "title": "Completed future and unreal past",
+        "subtitle": "VTTT + VVTT · advanced completion",
+        "level": "reference",
+        "kind": "reference",
+        "status": "reference",
+        "targetForms": [
+          "VTTT",
+          "VVTT"
+        ],
+        "targetSkills": [
+          "skill.werken.reference-completed-future"
+        ],
+        "learningGoal": "Recognise a completed result viewed from a future or hypothetical point.",
+        "estimatedMinutes": 3,
+        "storyTitle": "Voor het einde van de dag",
+        "story": [
+          {
+            "id": "story.werken.completed-future.1",
+            "nl": "Voor het einde van de dag zal ik acht uur gewerkt hebben.",
+            "english": "By the end of the day, I will have worked for eight hours.",
+            "telugu": "రోజు ముగిసే సమయానికి నేను ఎనిమిది గంటలు పని చేసి ఉంటాను.",
+            "targets": [
+              {
+                "text": "zal",
+                "skillIds": [
+                  "skill.werken.reference-completed-future"
+                ]
+              },
+              {
+                "text": "gewerkt hebben",
+                "skillIds": [
+                  "skill.werken.reference-completed-future"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.completed-future.2",
+            "nl": "Als ik meer tijd had gehad, zou ik langer gewerkt hebben.",
+            "english": "If I had had more time, I would have worked longer.",
+            "telugu": "నాకు మరింత సమయం ఉండి ఉంటే, నేను ఎక్కువసేపు పని చేసి ఉండేవాడిని.",
+            "targets": [
+              {
+                "text": "zou",
+                "skillIds": [
+                  "skill.werken.reference-completed-future"
+                ]
+              },
+              {
+                "text": "gewerkt hebben",
+                "skillIds": [
+                  "skill.werken.reference-completed-future"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.completed-future.3",
+            "nl": "Om vijf uur zal ik al acht uur gewerkt hebben.",
+            "english": "At five o'clock, I will already have worked for eight hours.",
+            "telugu": "ఐదు గంటలకు నేను ఇప్పటికే ఎనిమిది గంటలు పని చేసి ఉంటాను.",
+            "targets": [
+              {
+                "text": "zal",
+                "skillIds": [
+                  "skill.werken.reference-completed-future"
+                ]
+              },
+              {
+                "text": "gewerkt hebben",
+                "skillIds": [
+                  "skill.werken.reference-completed-future"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.completed-future.4",
+            "nl": "Voor de deadline zal ik aan het project gewerkt hebben.",
+            "english": "Before the deadline, I will have worked on the project.",
+            "telugu": "గడువుకు ముందు నేను ప్రాజెక్ట్‌పై పని చేసి ఉంటాను.",
+            "targets": [
+              {
+                "text": "zal",
+                "skillIds": [
+                  "skill.werken.reference-completed-future"
+                ]
+              },
+              {
+                "text": "gewerkt hebben",
+                "skillIds": [
+                  "skill.werken.reference-completed-future"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "story.werken.completed-future.5",
+            "nl": "Als de planning anders was geweest, zou ik langer gewerkt hebben.",
+            "english": "If the schedule had been different, I would have worked longer.",
+            "telugu": "షెడ్యూల్ భిన్నంగా ఉండి ఉంటే, నేను ఎక్కువసేపు పని చేసి ఉండేవాడిని.",
+            "targets": [
+              {
+                "text": "zou",
+                "skillIds": [
+                  "skill.werken.reference-completed-future"
+                ]
+              },
+              {
+                "text": "gewerkt hebben",
+                "skillIds": [
+                  "skill.werken.reference-completed-future"
+                ]
+              }
+            ]
+          }
+        ],
+        "notice": {
+          "id": "notice.werken.reference-completed-future",
+          "title": "Completion from another viewpoint",
+          "subtitle": "Notice how the same completed action can be viewed from the future or a hypothetical past.",
+          "comparison": [
+            {
+              "label": "VTTT",
+              "tense": "VTTT",
+              "sentence": "Voor het einde van de dag zal ik acht uur gewerkt hebben.",
+              "meaning": "completed before a future point"
+            },
+            {
+              "label": "VVTT",
+              "tense": "VVTT",
+              "sentence": "Als ik meer tijd had gehad, zou ik langer gewerkt hebben.",
+              "meaning": "unreal completed result"
+            },
+            {
+              "label": "VTT",
+              "tense": "VTT",
+              "sentence": "Ik heb vandaag acht uur gewerkt.",
+              "meaning": "completed fact from the present viewpoint"
+            }
+          ],
+          "formula": "ik + zal / zou + … + gewerkt hebben",
+          "formulaNote": "The auxiliary pair zal hebben or zou hebben frames gewerkt as completed from another viewpoint.",
+          "valuableContrast": "VTTT looks forward to a completed result before a future point. VVTT imagines a completed result that did not happen; everyday Dutch often chooses a simpler construction instead."
+        }
+      }
+    ]
+  }
+}

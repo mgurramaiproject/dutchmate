@@ -1,4 +1,5 @@
 import { gaanPack } from "./gaan-content";
+import { contentCatalog } from "../content-catalog";
 
 export const VERB_JOURNEY_SCHEMA_VERSION = 1;
 export const VERB_JOURNEY_CONTENT_VERSION = "015-1";
@@ -361,7 +362,7 @@ const werkenEnglishComparisonContent: Record<EnglishTense, EnglishComparisonCont
 
 const englishComparison = withEnglishComparisonContent(englishComparisonBase, werkenEnglishComparisonContent);
 
-export const verbJourneyPack: VerbJourneyPack = {
+const legacyVerbJourneyPack: VerbJourneyPack = {
   schemaVersion: VERB_JOURNEY_SCHEMA_VERSION,
   contentVersion: ENGLISH_COMPARISON_CONTENT_VERSION,
   verb: { id: "verb.werken", lemma: "werken", english: "to work", level: "A1", tags: ["regular", "weak"], auxiliary: "hebben" },
@@ -439,6 +440,8 @@ export const verbJourneyPack: VerbJourneyPack = {
     },
   ],
 };
+
+export const verbJourneyPack: VerbJourneyPack = contentCatalog.getVerbJourneyPack("verb.werken") ?? legacyVerbJourneyPack;
 
 const tenseValues = new Set<DutchTense>(["OTT", "OVT", "VTT", "VVT", "OTTT", "OVTT", "VTTT", "VVTT"]);
 const englishTenseValues = new Set<EnglishTense>(["present-simple", "present-continuous", "present-perfect", "present-perfect-continuous", "past-simple", "past-continuous", "past-perfect", "past-perfect-continuous", "future-simple", "future-continuous", "future-perfect", "future-perfect-continuous"]);

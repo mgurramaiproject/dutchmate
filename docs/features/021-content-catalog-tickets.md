@@ -70,6 +70,13 @@ review behavior intact.
 preserving stories, forms, comparisons, practice, qualification, popup routes,
 Daily Five eligibility, and verb evidence.
 
+**Status:** complete
+
+- [x] The `werken` pack is a versioned release-qualified catalog package.
+- [x] Existing stories, forms, comparisons, and stable Verb Journey IDs are preserved.
+- [x] Practice, qualification, popup routes, Daily Five eligibility, and verb evidence remain compatible.
+- [x] Existing `werken` content validation and learner-history checks pass through the catalog-backed runtime shape.
+
 ## 05 — Migrate the `zijn` Verb Journey pack
 
 **Issue:** [#173](https://github.com/mgurramaiproject/dutchmate/issues/173)

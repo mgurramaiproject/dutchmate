@@ -21,11 +21,14 @@ import a0YesNoInversionPackage from "./packages/grammar/a0-yes-no-inversion.json
 import contrastMainClauseInversionPackage from "./packages/contrast/contrast.main_clause_inversion.json";
 import type { GrammarPattern } from "../grammar/content";
 import type { ContrastPack } from "../grammar/contrast";
+import werkenVerbJourneyPackage from "./packages/verb-journeys/verb.werken.json";
+import type { VerbJourneyPack } from "../verb-journeys/content";
 
 export const CONTENT_CATALOG_SCHEMA_VERSION = 1 as const;
 
 export type ContentFamily = "lesson" | "verb-journey" | "grammar" | "contrast";
 export type ContentReleaseStatus = "draft" | "released";
+export type ContentVersion = number | string;
 export type ContentReviewMetadata = {
   author: string;
   reviewer: string;
@@ -37,7 +40,7 @@ export type ContentPackage<T> = {
   family: ContentFamily;
   id: string;
   schemaVersion: typeof CONTENT_CATALOG_SCHEMA_VERSION;
-  contentVersion: number;
+  contentVersion: ContentVersion;
   releaseStatus: ContentReleaseStatus;
   review: ContentReviewMetadata;
   payload: T;
@@ -49,6 +52,7 @@ export type ContentCatalog = {
   getLesson(id: string): Lesson | null;
   getGrammarPattern(id: string): GrammarPattern | null;
   getContrastPack(id: string): ContrastPack | null;
+  getVerbJourneyPack(id: string): VerbJourneyPack | null;
 };
 
 const lessonPackages: readonly ContentPackage<Lesson>[] = [
@@ -70,7 +74,8 @@ const lessonPackages: readonly ContentPackage<Lesson>[] = [
 ] as unknown as readonly ContentPackage<Lesson>[];
 const grammarPackages: readonly ContentPackage<GrammarPattern>[] = [a0ZijnPresentPackage, a0HebbenPresentPackage, a0RegularPresentPackage, a0YesNoInversionPackage] as unknown as readonly ContentPackage<GrammarPattern>[];
 const contrastPackages: readonly ContentPackage<ContrastPack>[] = [contrastMainClauseInversionPackage] as unknown as readonly ContentPackage<ContrastPack>[];
-const allPackages: readonly ContentPackage<unknown>[] = [...lessonPackages, ...grammarPackages, ...contrastPackages];
+const verbJourneyPackages: readonly ContentPackage<VerbJourneyPack>[] = [werkenVerbJourneyPackage] as unknown as readonly ContentPackage<VerbJourneyPack>[];
+const allPackages: readonly ContentPackage<unknown>[] = [...lessonPackages, ...grammarPackages, ...contrastPackages, ...verbJourneyPackages];
 
 export function validateContentPackage(value: unknown): string[] {
   const errors: string[] = [];
@@ -79,7 +84,9 @@ export function validateContentPackage(value: unknown): string[] {
   if (!Object.values<ContentFamily>(["lesson", "verb-journey", "grammar", "contrast"]).includes(value.family as ContentFamily)) errors.push("family: expected supported content family");
   if (typeof value.id !== "string" || !stableId.test(value.id)) errors.push("id: expected stable identifier");
   if (value.schemaVersion !== CONTENT_CATALOG_SCHEMA_VERSION) errors.push("schemaVersion: unsupported catalog schema");
-  if (!Number.isInteger(value.contentVersion) || (value.contentVersion as number) < 1) errors.push("contentVersion: expected positive version");
+  const validNumericVersion = typeof value.contentVersion === "number" && Number.isInteger(value.contentVersion) && value.contentVersion >= 1;
+  const validNamedVersion = typeof value.contentVersion === "string" && /^\S+$/u.test(value.contentVersion);
+  if (!validNumericVersion && !validNamedVersion) errors.push("contentVersion: expected positive version");
   if (value.releaseStatus !== "released") errors.push("releaseStatus: expected released package");
   const review = value.review;
   if (!isRecord(review)) errors.push("review: expected review metadata");
@@ -101,6 +108,7 @@ function manifestEntry(contentPackage: ContentPackage<unknown>): ContentManifest
 const releasedLessonPackages = lessonPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
 const releasedGrammarPackages = grammarPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
 const releasedContrastPackages = contrastPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
+const releasedVerbJourneyPackages = verbJourneyPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
 const manifest = allPackages.map(manifestEntry).sort((first, second) => `${first.family}:${first.id}`.localeCompare(`${second.family}:${second.id}`));
 
 export const contentCatalog: ContentCatalog = {
@@ -108,6 +116,7 @@ export const contentCatalog: ContentCatalog = {
   getLesson: (id) => releasedLessonPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
   getGrammarPattern: (id) => releasedGrammarPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
   getContrastPack: (id) => releasedContrastPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
+  getVerbJourneyPack: (id) => releasedVerbJourneyPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
