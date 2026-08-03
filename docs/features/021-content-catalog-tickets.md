@@ -143,3 +143,11 @@ practice, qualification, popup integration, and learner evidence.
 duplicate legacy registries are retired; full catalog validation,
 learner-history compatibility, offline behavior, Chrome/Firefox packaging, and
 release qualification pass together.
+
+**Status:** complete
+
+- [x] Lessons, grammar, contrast, and all four Verb Journey families resolve from release-qualified catalog packages.
+- [x] Duplicate code-defined content registries are retired while existing public runtime exports remain compatible.
+- [x] Catalog package validation detects malformed release envelopes and duplicate package IDs.
+- [x] Full catalog qualification and existing learner-history/content behavior checks pass.
+- [x] The bundled catalog remains offline-first and does not add account, network, or remote-database requirements.

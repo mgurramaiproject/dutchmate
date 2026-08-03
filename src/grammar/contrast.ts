@@ -39,86 +39,11 @@ export type ContrastPack = {
   review: GrammarReviewMetadata;
 };
 
-const contrastReview: GrammarReviewMetadata = {
-  author: "DutchMate team",
-  reviewState: "second-review-complete",
-  reviewer: "Project owner",
-  reviewedAt: "2026-07-30",
-  sources: ["https://taaladvies.net/termen-inversie/"],
-  provenance: "Original DutchMate-authored examples about time-first main-clause order; no copied exercise text.",
-};
-
-const legacyContrastPack: ContrastPack = {
-  id: CONTRAST_PACK_ID,
-  contentVersion: CONTRAST_CONTENT_VERSION,
-  level: "A1",
-  title: "Time first? Put the verb next",
-  capability: "Put the finite verb before the subject when a time phrase starts a simple main clause.",
-  companionLessonId: "a1-een-afspraak-maken",
-  comparison: {
-    items: [
-      { id: "subject-first", label: "Subject first", sentenceNl: "Ik werk morgen thuis.", valid: true },
-      { id: "time-first", label: "Time first", sentenceNl: "Morgen werk ik thuis.", valid: true },
-      { id: "learner-error", label: "Common learner error", sentenceNl: "Morgen ik werk thuis.", valid: false },
-    ],
-  },
-  explanation: "When a time phrase comes first in a simple main clause, the finite verb comes next: Morgen werk ik thuis.",
-  meaningNote: "The first two sentences have the same basic meaning. The second one puts tomorrow first.",
-  exercises: [
-    {
-      id: "contrast-choose-time-first",
-      packId: CONTRAST_PACK_ID,
-      primitive: "contrast-form",
-      prompt: "Choose the finite verb after Morgen.",
-      context: "Morgen ___ ik thuis.",
-      contextTag: "time-first",
-      choices: ["werk", "ik werk", "werkt"],
-      accepted: ["werk"],
-      distractors: [
-        { value: "ik werk", misconception: MAIN_CLAUSE_NO_INVERSION, feedback: "Because morgen is first, put the finite verb werk next: Morgen werk ik thuis." },
-        { value: "werkt", feedback: "Use werk with ik: Morgen werk ik thuis." },
-      ],
-      feedback: "Because morgen is first, put the finite verb werk next: Morgen werk ik thuis.",
-      evidenceEligible: true,
-      review: { ...contrastReview },
-    },
-    {
-      id: "contrast-repair-time-first",
-      packId: CONTRAST_PACK_ID,
-      primitive: "repair-choice",
-      prompt: "Repair the sentence.",
-      context: "Morgen ik werk thuis.",
-      contextTag: "repair",
-      choices: ["Morgen werk ik thuis.", "Morgen ik werk thuis.", "Morgen werkt ik thuis."],
-      accepted: ["Morgen werk ik thuis."],
-      distractors: [
-        { value: "Morgen ik werk thuis.", misconception: MAIN_CLAUSE_NO_INVERSION, feedback: "Because morgen is first, put werk before ik: Morgen werk ik thuis." },
-        { value: "Morgen werkt ik thuis.", feedback: "Use werk with ik: Morgen werk ik thuis." },
-      ],
-      feedback: "Because morgen is first, put werk before ik: Morgen werk ik thuis.",
-      evidenceEligible: true,
-      review: { ...contrastReview },
-    },
-    {
-      id: "contrast-rebuild-appointment",
-      packId: CONTRAST_PACK_ID,
-      primitive: "order-tokens",
-      prompt: "Build a fresh time-first sentence.",
-      context: "___ maak ik een afspraak.",
-      contextTag: "fresh-repair",
-      tokens: ["Morgen", "maak", "ik", "een", "afspraak."],
-      choices: ["Morgen maak ik een afspraak."],
-      accepted: ["Morgen maak ik een afspraak."],
-      distractors: [],
-      feedback: "Morgen comes first, then the finite verb maak: Morgen maak ik een afspraak.",
-      evidenceEligible: true,
-      review: { ...contrastReview },
-    },
-  ],
-  review: contrastReview,
-};
-
-export const contrastPack: ContrastPack = contentCatalog.getContrastPack(CONTRAST_PACK_ID) ?? legacyContrastPack;
+export const contrastPack: ContrastPack = (() => {
+  const pack = contentCatalog.getContrastPack(CONTRAST_PACK_ID);
+  if (!pack) throw new Error(`Content catalog is missing contrast package: ${CONTRAST_PACK_ID}`);
+  return pack;
+})();
 
 export function validateContrastPack(pack: ContrastPack): string[] {
   const errors: string[] = [];

@@ -52,6 +52,7 @@ export type ContentManifestEntry = Pick<ContentPackage<unknown>, "family" | "id"
 
 export type ContentCatalog = {
   manifest(): readonly ContentManifestEntry[];
+  validate(): readonly string[];
   getLesson(id: string): Lesson | null;
   getGrammarPattern(id: string): GrammarPattern | null;
   getContrastPack(id: string): ContrastPack | null;
@@ -98,6 +99,16 @@ export function validateContentPackage(value: unknown): string[] {
   return errors;
 }
 
+export function validateContentCatalog(): string[] {
+  const errors = allPackages.flatMap((contentPackage) => validateContentPackage(contentPackage).map((error) => `${contentPackage.family}:${contentPackage.id}: ${error}`));
+  const ids = new Set<string>();
+  for (const contentPackage of allPackages) {
+    if (ids.has(contentPackage.id)) errors.push(`${contentPackage.id}: duplicate catalog package identifier`);
+    ids.add(contentPackage.id);
+  }
+  return errors;
+}
+
 function manifestEntry(contentPackage: ContentPackage<unknown>): ContentManifestEntry {
   return {
     family: contentPackage.family,
@@ -116,6 +127,7 @@ const manifest = allPackages.map(manifestEntry).sort((first, second) => `${first
 
 export const contentCatalog: ContentCatalog = {
   manifest: () => manifest,
+  validate: () => validateContentCatalog(),
   getLesson: (id) => releasedLessonPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
   getGrammarPattern: (id) => releasedGrammarPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
   getContrastPack: (id) => releasedContrastPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
