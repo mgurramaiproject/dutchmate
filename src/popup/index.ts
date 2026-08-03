@@ -411,8 +411,6 @@ function renderToday(): HTMLElement {
       else { focusedOrigin = "today"; screen = "review"; revealed = false; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; activeGrammarTask = null; activeContrastTask = null; activeVerbDailyFiveTask = null; verbDailyFiveAnswer = null; verbDailyFiveFeedback = null; verbDailyFiveChecked = false; verbDailyFiveRetrying = false; render(); content?.focus(); }
     });
     nextAction.append(action);
-    const verbTask = snapshot.tasks.find((task): task is VerbJourneyDailyFiveTask => "kind" in task && task.kind === "verb");
-    if (verbTask) nextAction.append(text(`Verb review · ${getVerbJourneyPack(verbTask.verbId)?.verb.lemma ?? "verb"} · ${getVerbReviewTense(verbTask)}`, "action-meta"));
     if (completed && reviewsCompletedToday !== null) nextAction.append(text(`${reviewsCompletedToday} item${reviewsCompletedToday === 1 ? "" : "s"} reviewed today`, "review-completion-meta"));
   }
   if (total === 0 || !completed) nextAction.append(text(total === 0 ? "Practical Dutch · 3–5 min" : `${done} of ${total} today`, "action-meta"));
@@ -922,7 +920,7 @@ function renderVerbMap(): HTMLElement {
       card.setAttribute("aria-label", `${form.dutchTense}: ${form.learnerLabelEn} · ${form.fullNameNl} · ${statusMeta.label}: ${statusMeta.detail}`); card.setAttribute("aria-pressed", String(form.dutchTense === selectedVerbFormTense)); card.setAttribute("aria-selected", String(form.dutchTense === selectedVerbFormTense));
       const status = document.createElement("span"); status.className = `verb-form-status ${displayStatus}`; status.setAttribute("aria-label", `${statusMeta.label}: ${statusMeta.detail}`); status.append(spanText(statusMeta.symbol, "verb-status-symbol"));
       const canonical = form.canonicalExample;
-      const cardHeader = document.createElement("span"); cardHeader.className = "verb-form-card-header"; cardHeader.append(spanText(form.dutchTense, "verb-form-code"), status);
+      const cardHeader = document.createElement("span"); cardHeader.className = "verb-form-card-header"; cardHeader.append(renderVerbTenseCode(form.dutchTense), status);
       card.append(cardHeader, spanText(`NL · ${canonical.nl}`, "verb-form-example"), spanText(`EN · ${canonical.en}`, "verb-form-example-en"), spanText(`TE · ${canonical.te}`, "verb-form-example-te"));
       card.addEventListener("click", () => { selectedVerbFormTense = form.dutchTense; render(); content?.querySelector<HTMLElement>(".verb-form-detail")?.scrollIntoView?.({ block: "nearest", inline: "nearest" }); });
       map.append(card);
@@ -2280,6 +2278,12 @@ function renderVerbMapHeaderLabel(value: string, className: string): HTMLElement
     else if (part) label.append(spanText(part.charAt(0), "verb-map-initial"), document.createTextNode(part.slice(1)));
   }
   return label;
+}
+
+function renderVerbTenseCode(value: string): HTMLElement {
+  const code = document.createElement("span"); code.className = "verb-form-code";
+  for (const letter of value) code.append(spanText(letter, "verb-map-code-letter"));
+  return code;
 }
 
 function highlightedPattern(value: string): HTMLElement { const mark = document.createElement("mark"); mark.className = "pattern-highlight"; mark.textContent = value; return mark; }
