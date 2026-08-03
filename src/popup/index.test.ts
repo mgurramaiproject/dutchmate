@@ -134,6 +134,22 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().textContent).toContain("Start your Daily Five."));
   });
 
+  it("keeps Today focused on the action instead of repeating verb metadata", async () => {
+    button("Start Daily Five").click();
+    await vi.waitFor(() => expect(button("Show answer")).toBeTruthy());
+    button("Show answer").click();
+    await vi.waitFor(() => expect(button("Got it")).toBeTruthy());
+    button("Got it").click();
+    await vi.waitFor(() => expect(button("Review 5 more")).toBeTruthy());
+
+    verbJourneyRevision = 1;
+    button("Review 5 more").click();
+    await vi.waitFor(() => expect(button("Exit review")).toBeTruthy());
+    button("Exit review").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Review one weak verb skill in context"));
+    expect(content().textContent).not.toContain("Verb review ·");
+  });
+
   it("renders the appointment lesson through read, notice, practise, replay, selection, keep, and exit", async () => {
     openPracticalStories();
     await vi.waitFor(() => expect(content().textContent).toContain("Een afspraak maken"));
@@ -1080,9 +1096,13 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("COMMON USE");
     expect(content().textContent).toContain("Not completed");
     expect(content().textContent).toContain("Present");
-    expect(content().textContent).toContain("tegenwoordige tijd");
+    expect(content().textContent).toContain("Tegenwoordige Tijd");
     expect(content().textContent).toContain("Future from present");
-    expect(content().textContent).toContain("tegenwoordige toekomende tijd");
+    expect(content().textContent).toContain("Tegenwoordige Toekomende Tijd");
+    expect(content().querySelectorAll(".verb-map-initial")).toHaveLength(12);
+    expect(content().querySelectorAll(".verb-map-code-letter")).toHaveLength(28);
+    expect([...content().querySelectorAll<HTMLElement>(".verb-map-column")].map((header) => header.getAttribute("aria-label"))).toEqual(["O: Onvoltooid · Not completed", "V: Voltooid · Completed"]);
+    expect([...content().querySelectorAll<HTMLElement>(".verb-map-row-label")].map((header) => header.getAttribute("aria-label"))).toEqual(["TT: Tegenwoordige Tijd · Present", "VT: Verleden Tijd · Past", "TTT: Tegenwoordige Toekomende Tijd · Future from present", "VTT: Verleden Toekomende Tijd · Future from past"]);
     expect(content().textContent).not.toContain("2 forms");
     expect(content().querySelectorAll(".map-legend-item")).toHaveLength(3);
     expect(content().textContent).toContain("Mastered");
@@ -1098,6 +1118,7 @@ describe("lesson popup", () => {
     const ott = content().querySelector<HTMLButtonElement>(".verb-form-card[aria-label^='OTT']")!;
     expect(ott.getAttribute("role")).toBeNull();
     expect(ott.querySelector(".verb-form-card-header")?.firstElementChild?.textContent).toBe("OTT");
+    expect([...ott.querySelectorAll(".verb-map-code-letter")].map((letter) => letter.textContent)).toEqual(["O", "T", "T"]);
     expect(ott.querySelector(".verb-form-card-header")?.lastElementChild?.textContent).toBe("›");
     expect(ott.querySelector(".verb-form-example")?.textContent).toBe("NL · Ik werk vandaag thuis.");
     const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;

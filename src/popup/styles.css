@@ -51,8 +51,8 @@ button { font: inherit; cursor: pointer; transition: background-color 160ms ease
 .tab:not(.is-active):not(:disabled):hover { background: rgba(255, 111, 0, 0.08); }
 .tab-icon { display: grid; place-items: center; width: 18px; height: 18px; }
 .tab-icon svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
-.popup-content { display: grid; flex: 1 1 auto; min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; padding: 16px; }
-.popup-content.today-panel { display: flex; align-items: stretch; overflow-y: auto; padding: 12px; }
+.popup-content { display: grid; flex: 1 1 auto; min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; padding: 12px; }
+.popup-content.today-panel { display: flex; align-items: stretch; overflow-y: auto; padding: 8px 12px 12px; }
 .popup-content.lesson-panel { padding: 0; }
 .today-content, .brief-today { display: grid; min-width: 0; align-content: start; gap: 8px; }
 .brief-today.today-week { display: flex; flex: 1 1 auto; flex-direction: column; justify-content: space-between; min-height: 100%; }
@@ -347,7 +347,7 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .lesson-content .story-line .helper-copy { margin: 0; color: var(--dm-ink-muted); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 
 /* Feature 015 T01: the authored read-only Verb Journey route. */
-.verb-journey-panel { padding: 8px 12px 14px; }
+.verb-journey-panel { padding: 2px 12px 10px; }
 .verb-journeys-content, .verb-journey-overview, .verb-journey-story, .verb-journey-notice, .verb-map-screen, .verb-english-comparison { display: grid; align-content: start; gap: 7px; min-width: 0; }
 .journey-back { justify-self: start; min-height: var(--dm-target-min); padding: 0 2px; border: 0; background: transparent; color: var(--dm-ink-muted); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
 .journey-back:hover, .journey-back:focus-visible { color: var(--dm-ink-strong); text-decoration: underline; text-decoration-color: var(--dm-brand-orange); text-underline-offset: 3px; }
@@ -562,6 +562,7 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-map-row-label { min-height: 108px; border: 1px solid var(--dm-line); background: var(--dm-paper-soft); }
 .verb-map-label-main { color: var(--dm-ink-strong); font-size: .62rem; font-weight: var(--dm-weight-black); line-height: 1.15; }
 .verb-map-label-sub { color: var(--dm-ink-muted); font-size: .55rem; font-weight: var(--dm-weight-medium); line-height: 1.2; }
+.verb-map-initial, .verb-map-code-letter { display: inline-block; padding-inline: 1px; border-bottom: 2px solid var(--dm-brand-orange); border-radius: 2px; color: var(--dm-brand-orange-deep); font-weight: var(--dm-weight-black); }
 .verb-map-row-count { margin-top: auto; color: var(--dm-brand-orange-deep); font-size: .52rem; font-weight: var(--dm-weight-black); }
 .verb-form-card { min-height: 108px; }
 .verb-form-card:hover { border-color: var(--dm-line); background: var(--dm-paper-soft); box-shadow: none; }

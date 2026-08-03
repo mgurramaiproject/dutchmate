@@ -1,0 +1,289 @@
+{
+  "family": "lesson",
+  "id": "a1-mijn-trein-is-vertraagd",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "Original DutchMate-authored lesson content."
+    ],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a1-mijn-trein-is-vertraagd",
+    "contentVersion": 1,
+    "pathway": "transport",
+    "order": 6,
+    "cefr": "A1",
+    "title": "A1 · Mijn trein is vertraagd",
+    "durationMinutes": 3,
+    "pattern": "Mijn trein is vertraagd.",
+    "patternText": "trein is vertraagd",
+    "patternExplanation": "Use mijn trein is vertraagd to explain that your train is late.",
+    "lines": [
+      {
+        "dutch": "Op het perron wacht ik op de trein naar Amsterdam.",
+        "english": "On the platform, I am waiting for the train to Amsterdam.",
+        "telugu": "ప్లాట్‌ఫారమ్‌పై నేను ఆమ్స్టర్డామ్‌కు వెళ్లే రైలు కోసం ఎదురు చూస్తున్నాను."
+      },
+      {
+        "dutch": "Op het scherm staat dat mijn trein is vertraagd.",
+        "english": "The screen says that my train is delayed.",
+        "telugu": "నా రైలు ఆలస్యం అయిందని తెరపై ఉంది."
+      },
+      {
+        "dutch": "De trein is vertraagd door een storing op het spoor.",
+        "english": "The train is delayed because of a disruption on the track.",
+        "telugu": "పట్టాలపై అంతరాయం వల్ల రైలు ఆలస్యం అయింది."
+      },
+      {
+        "dutch": "Hoe laat vertrekt hij nu?",
+        "english": "What time does it leave now?",
+        "telugu": "ఇప్పుడు అది ఎప్పుడు బయలుదేరుతుంది?"
+      },
+      {
+        "dutch": "Hij vertrekt twintig minuten later van spoor drie.",
+        "english": "It leaves twenty minutes later from platform three.",
+        "telugu": "అది ఇరవై నిమిషాల తర్వాత మూడో ప్లాట్‌ఫారమ్ నుంచి బయలుదేరుతుంది."
+      },
+      {
+        "dutch": "Bedankt, dan stuur ik mijn collega een bericht.",
+        "english": "Thank you, then I will send my colleague a message.",
+        "telugu": "ధన్యవాదాలు, నేను నా సహోద్యోగికి సందేశం పంపుతాను."
+      }
+    ],
+    "candidates": [
+      {
+        "id": "mijn-trein-is-vertraagd",
+        "dutch": "mijn trein is vertraagd",
+        "english": "my train is delayed",
+        "telugu": "నా రైలు ఆలస్యం అయింది",
+        "kind": "chunk"
+      },
+      {
+        "id": "een-storing",
+        "dutch": "een storing",
+        "english": "a disruption",
+        "telugu": "అంతరాయం",
+        "kind": "chunk"
+      },
+      {
+        "id": "twintig-minuten-later",
+        "dutch": "twintig minuten later",
+        "english": "twenty minutes later",
+        "telugu": "ఇరవై నిమిషాల తర్వాత",
+        "kind": "chunk"
+      },
+      {
+        "id": "een-bericht",
+        "dutch": "een bericht",
+        "english": "a message",
+        "telugu": "సందేశం",
+        "kind": "chunk"
+      }
+    ],
+    "practice": [
+      {
+        "candidateId": "mijn-trein-is-vertraagd",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "een-storing",
+        "dimension": "recall"
+      },
+      {
+        "candidateId": "twintig-minuten-later",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "een-bericht",
+        "dimension": "recall"
+      }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a1-mijn-trein-is-vertraagd-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "mijn-trein-is-vertraagd",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "Tell your colleague about the train: ___.",
+        "choices": [
+          "mijn trein is vertraagd",
+          "waar moet ik overstappen",
+          "een bericht"
+        ],
+        "accepted": [
+          "mijn trein is vertraagd"
+        ],
+        "distractors": [
+          {
+            "answer": "waar moet ik overstappen",
+            "misconception": "lesson-context-mismatch"
+          },
+          {
+            "answer": "een bericht",
+            "misconception": "lesson-context-mismatch"
+          }
+        ],
+        "feedback": "Use mijn trein is vertraagd here: mijn trein is vertraagd.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-mijn-trein-is-vertraagd-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "mijn-trein-is-vertraagd",
+        "dimension": "recall",
+        "prompt": "Repair the delay report.",
+        "context": "Choose the reviewed sentence.",
+        "choices": [
+          "Mijn trein is vertraagd.",
+          "Mijn trein zijn vertraagd.",
+          "Mijn vertraagd trein is."
+        ],
+        "accepted": [
+          "Mijn trein is vertraagd."
+        ],
+        "distractors": [
+          {
+            "answer": "Mijn trein zijn vertraagd.",
+            "misconception": "lesson-form-or-order"
+          },
+          {
+            "answer": "Mijn vertraagd trein is.",
+            "misconception": "lesson-form-or-order"
+          }
+        ],
+        "feedback": "Use the reviewed form: Mijn trein is vertraagd.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-mijn-trein-is-vertraagd-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "mijn-trein-is-vertraagd",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Report that your train is delayed.",
+        "choices": [
+          "Mijn trein is vertraagd."
+        ],
+        "tokens": [
+          "Mijn",
+          "trein",
+          "is",
+          "vertraagd."
+        ],
+        "accepted": [
+          "Mijn trein is vertraagd."
+        ],
+        "distractors": [],
+        "feedback": "Build the sentence as: Mijn trein is vertraagd.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "review": {
+      "dutch": true,
+      "english": true,
+      "telugu": true,
+      "cefr": true,
+      "cultural": true,
+      "practicalUse": true
+    },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "reduced",
+      "outcome": {
+        "primary": "Tell someone that your train is delayed.",
+        "supporting": [
+          "Recognize a simple delay report and respond with the next practical detail."
+        ]
+      },
+      "coverage": {
+        "understand": true,
+        "guidedAction": true,
+        "reducedSupportRetrieval": true,
+        "safeApplication": true
+      },
+      "transfer": {
+        "id": "a1-mijn-trein-is-vertraagd-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "mijn-trein-is-vertraagd",
+        "prompt": "The station screen shows a delay. Choose the Dutch sentence to report it.",
+        "context": "Tell your colleague about the train: ___.",
+        "choices": [
+          "mijn trein is vertraagd",
+          "waar moet ik overstappen",
+          "een bericht"
+        ],
+        "accepted": [
+          "mijn trein is vertraagd"
+        ],
+        "distractors": [
+          {
+            "answer": "waar moet ik overstappen",
+            "misconception": "change-location-not-delay"
+          },
+          {
+            "answer": "een bericht",
+            "misconception": "object-not-delay-report"
+          }
+        ],
+        "feedback": "Use mijn trein is vertraagd to report that your train is delayed."
+      },
+      "accessibility": {
+        "keyboard": true,
+        "focus": true,
+        "feedbackAnnouncement": true,
+        "narrowPopup": true
+      },
+      "migration": {
+        "policy": "compatible-additive",
+        "historyKey": "lesson-id-and-content-version"
+      },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": [
+          "Original DutchMate-authored lesson content."
+        ],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    }
+  }
+}

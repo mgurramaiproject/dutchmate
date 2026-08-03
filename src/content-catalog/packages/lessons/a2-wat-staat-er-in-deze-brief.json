@@ -1,0 +1,286 @@
+{
+  "family": "lesson",
+  "id": "a2-wat-staat-er-in-deze-brief",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "Original DutchMate-authored lesson content."
+    ],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a2-wat-staat-er-in-deze-brief",
+    "contentVersion": 1,
+    "pathway": "official-life",
+    "order": 12,
+    "cefr": "A2",
+    "title": "A2 · Wat staat er in deze brief?",
+    "durationMinutes": 4,
+    "pattern": "Wat staat er in deze brief?",
+    "patternText": "in deze brief",
+    "patternExplanation": "Use wat staat er in deze brief to ask for help understanding a letter.",
+    "lines": [
+      {
+        "dutch": "Ik krijg een brief van de gemeente en begrijp hem niet goed.",
+        "english": "I receive a letter from the municipality and do not understand it well.",
+        "telugu": "నాకు మున్సిపాలిటీ నుంచి ఒక లేఖ వచ్చింది, అది నాకు బాగా అర్థం కావడం లేదు."
+      },
+      {
+        "dutch": "Weet je wat er in deze brief staat?",
+        "english": "Do you know what this letter says?",
+        "telugu": "ఈ లేఖలో ఏమి ఉందో మీకు తెలుసా?"
+      },
+      {
+        "dutch": "Er staat dat je een afspraak kunt maken.",
+        "english": "It says that you can make an appointment.",
+        "telugu": "మీరు అపాయింట్‌మెంట్ తీసుకోవచ్చని అందులో ఉంది."
+      },
+      {
+        "dutch": "Staat er in deze brief ook een datum?",
+        "english": "Does this letter also state a date?",
+        "telugu": "ఈ లేఖలో తేదీ కూడా ఉందా?"
+      },
+      {
+        "dutch": "Ja, maar vraag hulp als iets niet duidelijk is.",
+        "english": "Yes, but ask for help if something is unclear.",
+        "telugu": "అవును, కానీ ఏదైనా స్పష్టంగా లేకపోతే సహాయం అడగండి."
+      }
+    ],
+    "candidates": [
+      {
+        "id": "wat-staat-er-in-deze-brief",
+        "dutch": "wat staat er in deze brief",
+        "english": "what does this letter say",
+        "telugu": "ఈ లేఖలో ఏమి ఉంది",
+        "kind": "chunk"
+      },
+      {
+        "id": "de-gemeente",
+        "dutch": "de gemeente",
+        "english": "the municipality",
+        "telugu": "మున్సిపాలిటీ",
+        "kind": "word"
+      },
+      {
+        "id": "niet-duidelijk",
+        "dutch": "niet duidelijk",
+        "english": "not clear",
+        "telugu": "స్పష్టంగా లేదు",
+        "kind": "chunk"
+      },
+      {
+        "id": "hulp-vragen",
+        "dutch": "hulp vragen",
+        "english": "to ask for help",
+        "telugu": "సహాయం అడగడం",
+        "kind": "chunk"
+      }
+    ],
+    "practice": [
+      {
+        "candidateId": "wat-staat-er-in-deze-brief",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "de-gemeente",
+        "dimension": "recall"
+      },
+      {
+        "candidateId": "niet-duidelijk",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "hulp-vragen",
+        "dimension": "recall"
+      }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a2-wat-staat-er-in-deze-brief-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "wat-staat-er-in-deze-brief",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "Ask what the municipality letter says: ___.",
+        "choices": [
+          "wat staat er in deze brief",
+          "niet duidelijk",
+          "hulp vragen"
+        ],
+        "accepted": [
+          "wat staat er in deze brief"
+        ],
+        "distractors": [
+          {
+            "answer": "niet duidelijk",
+            "misconception": "lesson-context-mismatch"
+          },
+          {
+            "answer": "hulp vragen",
+            "misconception": "lesson-context-mismatch"
+          }
+        ],
+        "feedback": "Use wat staat er in deze brief here: wat staat er in deze brief.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a2-wat-staat-er-in-deze-brief-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "wat-staat-er-in-deze-brief",
+        "dimension": "recall",
+        "prompt": "Repair the letter-help question.",
+        "context": "Choose the reviewed sentence.",
+        "choices": [
+          "Wat staat er in deze brief?",
+          "Wat er staat in deze brief?",
+          "Wat staat in er deze brief?"
+        ],
+        "accepted": [
+          "Wat staat er in deze brief?"
+        ],
+        "distractors": [
+          {
+            "answer": "Wat er staat in deze brief?",
+            "misconception": "lesson-form-or-order"
+          },
+          {
+            "answer": "Wat staat in er deze brief?",
+            "misconception": "lesson-form-or-order"
+          }
+        ],
+        "feedback": "Use the reviewed form: Wat staat er in deze brief?",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a2-wat-staat-er-in-deze-brief-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "wat-staat-er-in-deze-brief",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Ask what the letter says.",
+        "choices": [
+          "Wat staat er in deze brief?"
+        ],
+        "tokens": [
+          "Wat",
+          "staat",
+          "er",
+          "in",
+          "deze",
+          "brief?"
+        ],
+        "accepted": [
+          "Wat staat er in deze brief?"
+        ],
+        "distractors": [],
+        "feedback": "Build the sentence as: Wat staat er in deze brief?",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "review": {
+      "dutch": true,
+      "english": true,
+      "telugu": true,
+      "cefr": true,
+      "cultural": true,
+      "practicalUse": true
+    },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "reduced",
+      "outcome": {
+        "primary": "Ask for help understanding an official letter.",
+        "supporting": [
+          "Recognize the key question in a municipality letter-help exchange."
+        ]
+      },
+      "coverage": {
+        "understand": true,
+        "guidedAction": true,
+        "reducedSupportRetrieval": true,
+        "safeApplication": true
+      },
+      "transfer": {
+        "id": "a2-wat-staat-er-in-deze-brief-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "wat-staat-er-in-deze-brief",
+        "prompt": "A letter from the municipality is unclear. Choose the Dutch question to ask for help.",
+        "context": "Ask what the letter says: ___.",
+        "choices": [
+          "wat staat er in deze brief",
+          "niet duidelijk",
+          "hulp vragen"
+        ],
+        "accepted": [
+          "wat staat er in deze brief"
+        ],
+        "distractors": [
+          {
+            "answer": "niet duidelijk",
+            "misconception": "description-not-question"
+          },
+          {
+            "answer": "hulp vragen",
+            "misconception": "action-not-letter-question"
+          }
+        ],
+        "feedback": "Use wat staat er in deze brief to ask what an official letter says."
+      },
+      "accessibility": {
+        "keyboard": true,
+        "focus": true,
+        "feedbackAnnouncement": true,
+        "narrowPopup": true
+      },
+      "migration": {
+        "policy": "compatible-additive",
+        "historyKey": "lesson-id-and-content-version"
+      },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": [
+          "Original DutchMate-authored lesson content."
+        ],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    }
+  }
+}

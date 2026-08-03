@@ -1,0 +1,291 @@
+{
+  "family": "lesson",
+  "id": "a1-ik-heb-last-van",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "Original DutchMate-authored lesson content."
+    ],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a1-ik-heb-last-van",
+    "contentVersion": 1,
+    "pathway": "appointments-and-healthcare",
+    "order": 8,
+    "cefr": "A1",
+    "title": "A1 · Ik heb last van…",
+    "durationMinutes": 3,
+    "pattern": "Ik heb last van…",
+    "patternText": "Ik heb last van",
+    "patternExplanation": "Use ik heb last van… to describe a symptom when arranging care, without needing to explain its cause.",
+    "lines": [
+      {
+        "dutch": "Goedemiddag, ik wil graag een afspraak maken bij de huisarts.",
+        "english": "Good afternoon, I would like to make an appointment with the GP.",
+        "telugu": "శుభ మధ్యాహ్నం, నేను కుటుంబ వైద్యుడితో అపాయింట్‌మెంట్ తీసుకోవాలనుకుంటున్నాను."
+      },
+      {
+        "dutch": "Wat is er aan de hand?",
+        "english": "What is the matter?",
+        "telugu": "ఏమైంది?"
+      },
+      {
+        "dutch": "Ik heb last van mijn keel en ik voel mij niet goed.",
+        "english": "I have trouble with my throat and I do not feel well.",
+        "telugu": "నాకు గొంతు నొప్పిగా ఉంది మరియు నాకు బాగా అనిపించడం లేదు."
+      },
+      {
+        "dutch": "Ik heb last van hoofdpijn sinds gisteren.",
+        "english": "I have had a headache since yesterday.",
+        "telugu": "నిన్నటి నుంచి నాకు తలనొప్పి ఉంది."
+      },
+      {
+        "dutch": "De huisarts kan u morgen bellen.",
+        "english": "The GP can call you tomorrow.",
+        "telugu": "కుటుంబ వైద్యుడు రేపు మీకు ఫోన్ చేయవచ్చు."
+      },
+      {
+        "dutch": "Dank u, dat is fijn.",
+        "english": "Thank you, that is good.",
+        "telugu": "ధన్యవాదాలు, అది బాగుంది."
+      }
+    ],
+    "candidates": [
+      {
+        "id": "ik-heb-last-van",
+        "dutch": "ik heb last van",
+        "english": "I have trouble with",
+        "telugu": "నాకు ఇబ్బంది ఉంది",
+        "kind": "chunk"
+      },
+      {
+        "id": "mijn-keel",
+        "dutch": "mijn keel",
+        "english": "my throat",
+        "telugu": "నా గొంతు",
+        "kind": "chunk"
+      },
+      {
+        "id": "hoofdpijn",
+        "dutch": "hoofdpijn",
+        "english": "headache",
+        "telugu": "తలనొప్పి",
+        "kind": "word"
+      },
+      {
+        "id": "de-huisarts",
+        "dutch": "de huisarts",
+        "english": "the GP",
+        "telugu": "కుటుంబ వైద్యుడు",
+        "kind": "chunk"
+      }
+    ],
+    "practice": [
+      {
+        "candidateId": "ik-heb-last-van",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "mijn-keel",
+        "dimension": "recall"
+      },
+      {
+        "candidateId": "hoofdpijn",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "de-huisarts",
+        "dimension": "recall"
+      }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a1-ik-heb-last-van-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "ik-heb-last-van",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "Tell the GP receptionist about your throat: ___ mijn keel.",
+        "choices": [
+          "ik heb last van",
+          "ik wil graag",
+          "de huisarts"
+        ],
+        "accepted": [
+          "ik heb last van"
+        ],
+        "distractors": [
+          {
+            "answer": "ik wil graag",
+            "misconception": "lesson-context-mismatch"
+          },
+          {
+            "answer": "de huisarts",
+            "misconception": "lesson-context-mismatch"
+          }
+        ],
+        "feedback": "Use ik heb last van here: ik heb last van.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-ik-heb-last-van-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "ik-heb-last-van",
+        "dimension": "recall",
+        "prompt": "Repair the symptom description.",
+        "context": "Choose the reviewed sentence.",
+        "choices": [
+          "Ik heb last van mijn keel.",
+          "Ik heb mijn keel last van.",
+          "Ik last heb van mijn keel."
+        ],
+        "accepted": [
+          "Ik heb last van mijn keel."
+        ],
+        "distractors": [
+          {
+            "answer": "Ik heb mijn keel last van.",
+            "misconception": "lesson-form-or-order"
+          },
+          {
+            "answer": "Ik last heb van mijn keel.",
+            "misconception": "lesson-form-or-order"
+          }
+        ],
+        "feedback": "Use the reviewed form: Ik heb last van mijn keel.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-ik-heb-last-van-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "ik-heb-last-van",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Describe trouble with your throat.",
+        "choices": [
+          "Ik heb last van mijn keel."
+        ],
+        "tokens": [
+          "Ik",
+          "heb",
+          "last",
+          "van",
+          "mijn",
+          "keel."
+        ],
+        "accepted": [
+          "Ik heb last van mijn keel."
+        ],
+        "distractors": [],
+        "feedback": "Build the sentence as: Ik heb last van mijn keel.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "review": {
+      "dutch": true,
+      "english": true,
+      "telugu": true,
+      "cefr": true,
+      "cultural": true,
+      "practicalUse": true
+    },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "reduced",
+      "outcome": {
+        "primary": "Describe a symptom when arranging care.",
+        "supporting": [
+          "Recognize ik heb last van without guessing a diagnosis or cause."
+        ]
+      },
+      "coverage": {
+        "understand": true,
+        "guidedAction": true,
+        "reducedSupportRetrieval": true,
+        "safeApplication": true
+      },
+      "transfer": {
+        "id": "a1-ik-heb-last-van-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "ik-heb-last-van",
+        "prompt": "You are speaking to the GP receptionist. Choose the Dutch phrase to describe a symptom.",
+        "context": "Say that you have trouble with your throat: ___ mijn keel.",
+        "choices": [
+          "ik heb last van",
+          "ik wil graag",
+          "de huisarts"
+        ],
+        "accepted": [
+          "ik heb last van"
+        ],
+        "distractors": [
+          {
+            "answer": "ik wil graag",
+            "misconception": "request-not-symptom"
+          },
+          {
+            "answer": "de huisarts",
+            "misconception": "person-not-symptom-report"
+          }
+        ],
+        "feedback": "Use ik heb last van to describe a symptom without adding an unsupported diagnosis."
+      },
+      "accessibility": {
+        "keyboard": true,
+        "focus": true,
+        "feedbackAnnouncement": true,
+        "narrowPopup": true
+      },
+      "migration": {
+        "policy": "compatible-additive",
+        "historyKey": "lesson-id-and-content-version"
+      },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": [
+          "Original DutchMate-authored lesson content."
+        ],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    }
+  }
+}

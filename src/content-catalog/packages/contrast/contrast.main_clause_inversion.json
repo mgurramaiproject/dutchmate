@@ -1,0 +1,172 @@
+{
+  "family": "contrast",
+  "id": "contrast.main_clause_inversion",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "https://taaladvies.net/termen-inversie/"
+    ],
+    "provenance": "Original DutchMate-authored examples about time-first main-clause order; no copied exercise text."
+  },
+  "payload": {
+    "id": "contrast.main_clause_inversion",
+    "contentVersion": 1,
+    "level": "A1",
+    "title": "Time first? Put the verb next",
+    "capability": "Put the finite verb before the subject when a time phrase starts a simple main clause.",
+    "companionLessonId": "a1-een-afspraak-maken",
+    "comparison": {
+      "items": [
+        {
+          "id": "subject-first",
+          "label": "Subject first",
+          "sentenceNl": "Ik werk morgen thuis.",
+          "valid": true
+        },
+        {
+          "id": "time-first",
+          "label": "Time first",
+          "sentenceNl": "Morgen werk ik thuis.",
+          "valid": true
+        },
+        {
+          "id": "learner-error",
+          "label": "Common learner error",
+          "sentenceNl": "Morgen ik werk thuis.",
+          "valid": false
+        }
+      ]
+    },
+    "explanation": "When a time phrase comes first in a simple main clause, the finite verb comes next: Morgen werk ik thuis.",
+    "meaningNote": "The first two sentences have the same basic meaning. The second one puts tomorrow first.",
+    "exercises": [
+      {
+        "id": "contrast-choose-time-first",
+        "packId": "contrast.main_clause_inversion",
+        "primitive": "contrast-form",
+        "prompt": "Choose the finite verb after Morgen.",
+        "context": "Morgen ___ ik thuis.",
+        "contextTag": "time-first",
+        "choices": [
+          "werk",
+          "ik werk",
+          "werkt"
+        ],
+        "accepted": [
+          "werk"
+        ],
+        "distractors": [
+          {
+            "value": "ik werk",
+            "misconception": "MAIN_CLAUSE_NO_INVERSION",
+            "feedback": "Because morgen is first, put the finite verb werk next: Morgen werk ik thuis."
+          },
+          {
+            "value": "werkt",
+            "feedback": "Use werk with ik: Morgen werk ik thuis."
+          }
+        ],
+        "feedback": "Because morgen is first, put the finite verb werk next: Morgen werk ik thuis.",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "https://taaladvies.net/termen-inversie/"
+          ],
+          "provenance": "Original DutchMate-authored examples about time-first main-clause order; no copied exercise text."
+        }
+      },
+      {
+        "id": "contrast-repair-time-first",
+        "packId": "contrast.main_clause_inversion",
+        "primitive": "repair-choice",
+        "prompt": "Repair the sentence.",
+        "context": "Morgen ik werk thuis.",
+        "contextTag": "repair",
+        "choices": [
+          "Morgen werk ik thuis.",
+          "Morgen ik werk thuis.",
+          "Morgen werkt ik thuis."
+        ],
+        "accepted": [
+          "Morgen werk ik thuis."
+        ],
+        "distractors": [
+          {
+            "value": "Morgen ik werk thuis.",
+            "misconception": "MAIN_CLAUSE_NO_INVERSION",
+            "feedback": "Because morgen is first, put werk before ik: Morgen werk ik thuis."
+          },
+          {
+            "value": "Morgen werkt ik thuis.",
+            "feedback": "Use werk with ik: Morgen werk ik thuis."
+          }
+        ],
+        "feedback": "Because morgen is first, put werk before ik: Morgen werk ik thuis.",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "https://taaladvies.net/termen-inversie/"
+          ],
+          "provenance": "Original DutchMate-authored examples about time-first main-clause order; no copied exercise text."
+        }
+      },
+      {
+        "id": "contrast-rebuild-appointment",
+        "packId": "contrast.main_clause_inversion",
+        "primitive": "order-tokens",
+        "prompt": "Build a fresh time-first sentence.",
+        "context": "___ maak ik een afspraak.",
+        "contextTag": "fresh-repair",
+        "tokens": [
+          "Morgen",
+          "maak",
+          "ik",
+          "een",
+          "afspraak."
+        ],
+        "choices": [
+          "Morgen maak ik een afspraak."
+        ],
+        "accepted": [
+          "Morgen maak ik een afspraak."
+        ],
+        "distractors": [],
+        "feedback": "Morgen comes first, then the finite verb maak: Morgen maak ik een afspraak.",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "https://taaladvies.net/termen-inversie/"
+          ],
+          "provenance": "Original DutchMate-authored examples about time-first main-clause order; no copied exercise text."
+        }
+      }
+    ],
+    "review": {
+      "author": "DutchMate team",
+      "reviewState": "second-review-complete",
+      "reviewer": "Project owner",
+      "reviewedAt": "2026-07-30",
+      "sources": [
+        "https://taaladvies.net/termen-inversie/"
+      ],
+      "provenance": "Original DutchMate-authored examples about time-first main-clause order; no copied exercise text."
+    }
+  }
+}

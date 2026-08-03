@@ -1,0 +1,288 @@
+{
+  "family": "lesson",
+  "id": "a0-ik-woon-en-werk-hier",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "Original DutchMate-authored lesson content."
+    ],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a0-ik-woon-en-werk-hier",
+    "contentVersion": 1,
+    "pathway": "home-and-work",
+    "order": 1,
+    "cefr": "A0",
+    "title": "A0 · Ik woon en werk hier",
+    "durationMinutes": 3,
+    "pattern": "Ik woon en werk hier.",
+    "patternText": "Ik woon",
+    "patternExplanation": "Regular verbs usually use the stem with -t for jij, u, and one person, and the full -en form for plural subjects.",
+    "lines": [
+      {
+        "dutch": "Ik woon in Utrecht en ik leer Nederlands.",
+        "english": "I live in Utrecht and I learn Dutch.",
+        "telugu": "నేను ఉట్రెహ్ట్‌లో నివసిస్తున్నాను మరియు డచ్ నేర్చుకుంటున్నాను."
+      },
+      {
+        "dutch": "Jij werkt in een café en je woont dichtbij.",
+        "english": "You work in a cafe and you live nearby.",
+        "telugu": "నువ్వు ఒక కేఫేలో పని చేస్తున్నావు మరియు దగ్గరలో నివసిస్తున్నావు."
+      },
+      {
+        "dutch": "U leert snel en u werkt elke dag.",
+        "english": "You learn quickly and you work every day.",
+        "telugu": "మీరు త్వరగా నేర్చుకుంటారు మరియు ప్రతిరోజూ పని చేస్తారు."
+      },
+      {
+        "dutch": "Hij maakt een plan voor de week.",
+        "english": "He makes a plan for the week.",
+        "telugu": "అతను వారానికి ఒక ప్రణాళిక తయారు చేస్తాడు."
+      },
+      {
+        "dutch": "Wij wonen en werken hier samen.",
+        "english": "We live and work here together.",
+        "telugu": "మేము ఇక్కడ కలిసి నివసిస్తూ పని చేస్తున్నాము."
+      }
+    ],
+    "candidates": [
+      {
+        "id": "ik-woon-hier",
+        "dutch": "ik woon hier",
+        "english": "I live here",
+        "telugu": "నేను ఇక్కడ నివసిస్తున్నాను",
+        "kind": "chunk"
+      },
+      {
+        "id": "ik-leer-nederlands",
+        "dutch": "ik leer Nederlands",
+        "english": "I learn Dutch",
+        "telugu": "నేను డచ్ నేర్చుకుంటున్నాను",
+        "kind": "chunk"
+      },
+      {
+        "id": "je-werkt",
+        "dutch": "je werkt",
+        "english": "you work",
+        "telugu": "నువ్వు పని చేస్తున్నావు",
+        "kind": "chunk"
+      },
+      {
+        "id": "een-plan-maken",
+        "dutch": "een plan maken",
+        "english": "to make a plan",
+        "telugu": "ఒక ప్రణాళిక తయారు చేయడం",
+        "kind": "chunk"
+      }
+    ],
+    "practice": [
+      {
+        "candidateId": "ik-woon-hier",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "ik-leer-nederlands",
+        "dimension": "recall"
+      },
+      {
+        "candidateId": "je-werkt",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "een-plan-maken",
+        "dimension": "recall"
+      }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a0-ik-woon-en-werk-hier-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "ik-woon-hier",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "Tell your new neighbour where you live: ___.",
+        "choices": [
+          "ik woon hier",
+          "ik heb dit nodig",
+          "woon je hier"
+        ],
+        "accepted": [
+          "ik woon hier"
+        ],
+        "distractors": [
+          {
+            "answer": "ik heb dit nodig",
+            "misconception": "lesson-context-mismatch"
+          },
+          {
+            "answer": "woon je hier",
+            "misconception": "lesson-context-mismatch"
+          }
+        ],
+        "feedback": "Use ik woon hier here: ik woon hier.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a0-ik-woon-en-werk-hier-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "ik-woon-hier",
+        "dimension": "recall",
+        "prompt": "Repair the home-and-work statement.",
+        "context": "Choose the reviewed sentence.",
+        "choices": [
+          "Ik woon en werk hier.",
+          "Ik woon en werkt hier.",
+          "Ik woont en werk hier."
+        ],
+        "accepted": [
+          "Ik woon en werk hier."
+        ],
+        "distractors": [
+          {
+            "answer": "Ik woon en werkt hier.",
+            "misconception": "lesson-form-or-order"
+          },
+          {
+            "answer": "Ik woont en werk hier.",
+            "misconception": "lesson-form-or-order"
+          }
+        ],
+        "feedback": "Use the reviewed form: Ik woon en werk hier.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a0-ik-woon-en-werk-hier-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "ik-woon-hier",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Say where you live.",
+        "choices": [
+          "Ik woon hier."
+        ],
+        "tokens": [
+          "Ik",
+          "woon",
+          "hier."
+        ],
+        "accepted": [
+          "Ik woon hier."
+        ],
+        "distractors": [],
+        "feedback": "Build the sentence as: Ik woon hier.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "review": {
+      "dutch": true,
+      "english": true,
+      "telugu": true,
+      "cefr": true,
+      "cultural": true,
+      "practicalUse": true
+    },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "guided",
+      "outcome": {
+        "primary": "Say where you live and work in simple present tense.",
+        "supporting": [
+          "Recognize ik woon hier and je werkt in everyday home-and-work situations."
+        ]
+      },
+      "coverage": {
+        "understand": true,
+        "guidedAction": true,
+        "reducedSupportRetrieval": true,
+        "safeApplication": true
+      },
+      "transfer": {
+        "id": "a0-ik-woon-en-werk-hier-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "ik-woon-hier",
+        "prompt": "You tell a new neighbour where you live. Choose the Dutch phrase.",
+        "context": "You say where you live: ___.",
+        "choices": [
+          "ik woon hier",
+          "ik heb dit nodig",
+          "woon je hier"
+        ],
+        "accepted": [
+          "ik woon hier"
+        ],
+        "distractors": [
+          {
+            "answer": "ik heb dit nodig",
+            "misconception": "need-not-place"
+          },
+          {
+            "answer": "woon je hier",
+            "misconception": "question-not-statement"
+          }
+        ],
+        "feedback": "Use ik woon hier to say where you live: Ik woon hier."
+      },
+      "accessibility": {
+        "keyboard": true,
+        "focus": true,
+        "feedbackAnnouncement": true,
+        "narrowPopup": true
+      },
+      "migration": {
+        "policy": "compatible-additive",
+        "historyKey": "lesson-id-and-content-version"
+      },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": [
+          "Original DutchMate-authored lesson content."
+        ],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    },
+    "grammarCompanion": {
+      "id": "a0-regular-present",
+      "contentVersion": 1,
+      "patternId": "a0-regular-present"
+    }
+  }
+}

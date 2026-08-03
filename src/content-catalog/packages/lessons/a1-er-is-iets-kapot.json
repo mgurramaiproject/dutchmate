@@ -1,0 +1,284 @@
+{
+  "family": "lesson",
+  "id": "a1-er-is-iets-kapot",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "Original DutchMate-authored lesson content."
+    ],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a1-er-is-iets-kapot",
+    "contentVersion": 1,
+    "pathway": "home",
+    "order": 9,
+    "cefr": "A1",
+    "title": "A1 · Er is iets kapot",
+    "durationMinutes": 3,
+    "pattern": "Er is iets kapot.",
+    "patternText": "Er is iets kapot",
+    "patternExplanation": "Use er is iets kapot to report that something is broken.",
+    "lines": [
+      {
+        "dutch": "In mijn keuken doet de kraan het niet meer.",
+        "english": "In my kitchen, the tap no longer works.",
+        "telugu": "నా వంటగదిలో కుళాయి ఇక పనిచేయడం లేదు."
+      },
+      {
+        "dutch": "Er is iets kapot in de keuken.",
+        "english": "Something is broken in the kitchen.",
+        "telugu": "వంటగదిలో ఏదో పాడైంది."
+      },
+      {
+        "dutch": "De verhuurder vraagt wat er precies kapot is.",
+        "english": "The landlord asks what exactly is broken.",
+        "telugu": "ఏమి పాడైందో యజమాని అడుగుతారు."
+      },
+      {
+        "dutch": "Er is iets kapot aan de kraan, hij lekt.",
+        "english": "Something is broken with the tap; it leaks.",
+        "telugu": "కుళాయికి ఏదో పాడైంది; అది కారుతోంది."
+      },
+      {
+        "dutch": "Morgen komt iemand kijken en het repareren.",
+        "english": "Someone will come tomorrow to look at it and repair it.",
+        "telugu": "రేపు ఎవరో వచ్చి చూసి మరమ్మతు చేస్తారు."
+      }
+    ],
+    "candidates": [
+      {
+        "id": "er-is-iets-kapot",
+        "dutch": "er is iets kapot",
+        "english": "something is broken",
+        "telugu": "ఏదో పాడైంది",
+        "kind": "chunk"
+      },
+      {
+        "id": "de-kraan",
+        "dutch": "de kraan",
+        "english": "the tap",
+        "telugu": "కుళాయి",
+        "kind": "word"
+      },
+      {
+        "id": "het-lekt",
+        "dutch": "het lekt",
+        "english": "it leaks",
+        "telugu": "అది కారుతోంది",
+        "kind": "chunk"
+      },
+      {
+        "id": "repareren",
+        "dutch": "repareren",
+        "english": "to repair",
+        "telugu": "మరమ్మతు చేయడం",
+        "kind": "word"
+      }
+    ],
+    "practice": [
+      {
+        "candidateId": "er-is-iets-kapot",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "de-kraan",
+        "dimension": "recall"
+      },
+      {
+        "candidateId": "het-lekt",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "repareren",
+        "dimension": "recall"
+      }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a1-er-is-iets-kapot-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "er-is-iets-kapot",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "Tell your landlord about the kitchen: ___.",
+        "choices": [
+          "er is iets kapot",
+          "ik ben beschikbaar",
+          "wat moet ik meenemen"
+        ],
+        "accepted": [
+          "er is iets kapot"
+        ],
+        "distractors": [
+          {
+            "answer": "ik ben beschikbaar",
+            "misconception": "lesson-context-mismatch"
+          },
+          {
+            "answer": "wat moet ik meenemen",
+            "misconception": "lesson-context-mismatch"
+          }
+        ],
+        "feedback": "Use er is iets kapot here: er is iets kapot.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-er-is-iets-kapot-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "er-is-iets-kapot",
+        "dimension": "recall",
+        "prompt": "Repair the report about the broken item.",
+        "context": "Choose the reviewed sentence.",
+        "choices": [
+          "Er is iets kapot.",
+          "Er iets is kapot.",
+          "Er is kapot iets."
+        ],
+        "accepted": [
+          "Er is iets kapot."
+        ],
+        "distractors": [
+          {
+            "answer": "Er iets is kapot.",
+            "misconception": "lesson-form-or-order"
+          },
+          {
+            "answer": "Er is kapot iets.",
+            "misconception": "lesson-form-or-order"
+          }
+        ],
+        "feedback": "Use the reviewed form: Er is iets kapot.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-er-is-iets-kapot-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "er-is-iets-kapot",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Report the problem.",
+        "choices": [
+          "Er is iets kapot."
+        ],
+        "tokens": [
+          "Er",
+          "is",
+          "iets",
+          "kapot."
+        ],
+        "accepted": [
+          "Er is iets kapot."
+        ],
+        "distractors": [],
+        "feedback": "Build the sentence as: Er is iets kapot.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "review": {
+      "dutch": true,
+      "english": true,
+      "telugu": true,
+      "cefr": true,
+      "cultural": true,
+      "practicalUse": true
+    },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "reduced",
+      "outcome": {
+        "primary": "Report that something is broken at home.",
+        "supporting": [
+          "Recognize er is iets kapot and give a simple repair context."
+        ]
+      },
+      "coverage": {
+        "understand": true,
+        "guidedAction": true,
+        "reducedSupportRetrieval": true,
+        "safeApplication": true
+      },
+      "transfer": {
+        "id": "a1-er-is-iets-kapot-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "er-is-iets-kapot",
+        "prompt": "You need to tell your landlord about a broken item. Choose the Dutch sentence.",
+        "context": "Report the problem in your kitchen: ___ .",
+        "choices": [
+          "er is iets kapot",
+          "ik ben beschikbaar",
+          "wat moet ik meenemen"
+        ],
+        "accepted": [
+          "er is iets kapot"
+        ],
+        "distractors": [
+          {
+            "answer": "ik ben beschikbaar",
+            "misconception": "availability-not-breakage"
+          },
+          {
+            "answer": "wat moet ik meenemen",
+            "misconception": "bring-question-not-breakage"
+          }
+        ],
+        "feedback": "Use er is iets kapot to report that something is broken."
+      },
+      "accessibility": {
+        "keyboard": true,
+        "focus": true,
+        "feedbackAnnouncement": true,
+        "narrowPopup": true
+      },
+      "migration": {
+        "policy": "compatible-additive",
+        "historyKey": "lesson-id-and-content-version"
+      },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": [
+          "Original DutchMate-authored lesson content."
+        ],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    }
+  }
+}

@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { contentCatalog } from "../content-catalog";
 import { appointmentLesson, availabilityLesson, brokenThingLesson, bringLesson, cardPaymentLesson, cafeOrderLesson, delayedTrainLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, letterLesson, regularLesson, repetitionLesson, symptomsLesson, transferLesson, validateLessonCatalog } from "./catalog";
 
 describe("lesson catalog", () => {
+  it("serves the tracer lesson through the shared content catalog seam", () => {
+    expect(lessonCatalog.lessons[0]).toEqual(contentCatalog.getLesson("a0-hallo-ik-ben"));
+  });
+
   it("requires the A0 tracer to declare outcome coverage, transfer, and review metadata", () => {
     expect(introductionLesson.practiceEnvelope).toMatchObject({
       contentVersion: 1,

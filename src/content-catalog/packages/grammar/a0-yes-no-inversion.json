@@ -1,0 +1,256 @@
+{
+  "family": "grammar",
+  "id": "a0-yes-no-inversion",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-27",
+    "sources": [
+      "https://taaladvies.net/termen-inversie/",
+      "https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/"
+    ],
+    "provenance": "Original DutchMate-authored questions using reviewed finite-verb inversion; no copied sentence text."
+  },
+  "payload": {
+    "id": "a0-yes-no-inversion",
+    "contentVersion": 1,
+    "level": "A0",
+    "capability": "Ask simple yes-or-no questions about everyday places, work, and routines.",
+    "prerequisites": [
+      "a0-zijn-present"
+    ],
+    "forms": [
+      {
+        "subject": "jij/je",
+        "forms": [
+          "woont",
+          "werkt",
+          "leert",
+          "maakt"
+        ]
+      },
+      {
+        "subject": "u",
+        "forms": [
+          "woont",
+          "werkt",
+          "leert",
+          "maakt"
+        ]
+      }
+    ],
+    "exercises": [
+      {
+        "id": "inversion-order-je",
+        "patternId": "a0-yes-no-inversion",
+        "primitive": "order-tokens",
+        "prompt": "Build the question.",
+        "context": "Je woont hier.",
+        "contextTag": "inversion",
+        "tokens": [
+          "Woon",
+          "je",
+          "hier?"
+        ],
+        "choices": [
+          "Woon je hier?",
+          "Je woont hier?",
+          "Woon hier je?"
+        ],
+        "accepted": [
+          "Woon je hier?"
+        ],
+        "distractors": [
+          {
+            "value": "Je woont hier?",
+            "misconception": "wrong-person",
+            "feedback": "Before je in a question, use the stem without -t and put it first: Woon je hier?"
+          },
+          {
+            "value": "Woon hier je?",
+            "misconception": "invalid-order",
+            "feedback": "Put the finite verb first and je immediately after it: Woon je hier?"
+          }
+        ],
+        "feedback": "Put the finite verb first. Before je, use woon without -t: Woon je hier?",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-27",
+          "sources": [
+            "https://taaladvies.net/termen-inversie/",
+            "https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/"
+          ],
+          "provenance": "Original DutchMate-authored questions using reviewed finite-verb inversion; no copied sentence text."
+        }
+      },
+      {
+        "id": "inversion-order-u",
+        "patternId": "a0-yes-no-inversion",
+        "primitive": "order-tokens",
+        "prompt": "Build the polite question.",
+        "context": "U werkt vandaag.",
+        "contextTag": "polite-question",
+        "tokens": [
+          "Werkt",
+          "u",
+          "vandaag?"
+        ],
+        "choices": [
+          "Werkt u vandaag?",
+          "Werk u vandaag?",
+          "U werkt vandaag?"
+        ],
+        "accepted": [
+          "Werkt u vandaag?"
+        ],
+        "distractors": [
+          {
+            "value": "Werk u vandaag?",
+            "misconception": "wrong-person",
+            "feedback": "Before u, keep the -t on the finite verb: Werkt u vandaag?"
+          },
+          {
+            "value": "U werkt vandaag?",
+            "misconception": "invalid-order",
+            "feedback": "In a yes-or-no question, put the finite verb before u: Werkt u vandaag?"
+          }
+        ],
+        "feedback": "Put the finite verb first and keep -t before u: Werkt u vandaag?",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-27",
+          "sources": [
+            "https://taaladvies.net/termen-inversie/",
+            "https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/"
+          ],
+          "provenance": "Original DutchMate-authored questions using reviewed finite-verb inversion; no copied sentence text."
+        }
+      },
+      {
+        "id": "inversion-contrast-je",
+        "patternId": "a0-yes-no-inversion",
+        "primitive": "contrast-form",
+        "prompt": "Choose the form before je.",
+        "context": "___ je in Utrecht?",
+        "contextTag": "jij-je",
+        "choices": [
+          "Woon",
+          "Woont",
+          "Wonen"
+        ],
+        "accepted": [
+          "Woon"
+        ],
+        "distractors": [
+          {
+            "value": "Woont",
+            "misconception": "wrong-person",
+            "feedback": "Before je in a question, use woon without -t: Woon je in Utrecht?"
+          },
+          {
+            "value": "Wonen",
+            "misconception": "wrong-person",
+            "feedback": "Je is singular here, so use woon, not the plural wonen: Woon je in Utrecht?"
+          }
+        ],
+        "feedback": "Before je in a question, use the stem without -t: woon.",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-27",
+          "sources": [
+            "https://taaladvies.net/termen-inversie/",
+            "https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/"
+          ],
+          "provenance": "Original DutchMate-authored questions using reviewed finite-verb inversion; no copied sentence text."
+        }
+      },
+      {
+        "id": "inversion-repair-u",
+        "patternId": "a0-yes-no-inversion",
+        "primitive": "repair-choice",
+        "prompt": "Repair the polite question.",
+        "context": "___ u morgen?",
+        "contextTag": "u-contrast",
+        "choices": [
+          "Werkt",
+          "Werk",
+          "Werken"
+        ],
+        "accepted": [
+          "Werkt"
+        ],
+        "distractors": [
+          {
+            "value": "Werk",
+            "misconception": "wrong-person",
+            "feedback": "Before u, keep -t on the finite verb: Werkt u morgen?"
+          },
+          {
+            "value": "Werken",
+            "misconception": "wrong-person",
+            "feedback": "U takes the singular -t form here, not the plural werken: Werkt u morgen?"
+          }
+        ],
+        "feedback": "Before u, keep -t on the finite verb: werkt.",
+        "evidenceEligible": true,
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-27",
+          "sources": [
+            "https://taaladvies.net/termen-inversie/",
+            "https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/"
+          ],
+          "provenance": "Original DutchMate-authored questions using reviewed finite-verb inversion; no copied sentence text."
+        }
+      }
+    ],
+    "encounterForms": [
+      {
+        "subject": "je",
+        "form": "woon",
+        "text": "Woon je hier?"
+      },
+      {
+        "subject": "je",
+        "form": "werk",
+        "text": "Werk je vandaag?"
+      },
+      {
+        "subject": "u",
+        "form": "werkt",
+        "text": "Werkt u morgen?"
+      },
+      {
+        "subject": "u",
+        "form": "leert",
+        "text": "Leert u Nederlands?"
+      }
+    ],
+    "companionLessonId": "a0-woon-je-hier",
+    "review": {
+      "author": "DutchMate team",
+      "reviewState": "second-review-complete",
+      "reviewer": "Project owner",
+      "reviewedAt": "2026-07-27",
+      "sources": [
+        "https://taaladvies.net/termen-inversie/",
+        "https://taaladvies.net/d-of-t-tegenwoordige-tijd-hij-beloofd-of-hij-belooft/"
+      ],
+      "provenance": "Original DutchMate-authored questions using reviewed finite-verb inversion; no copied sentence text."
+    }
+  }
+}

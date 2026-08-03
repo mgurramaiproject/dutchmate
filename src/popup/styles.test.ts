@@ -23,7 +23,8 @@ describe("popup layout", () => {
     expect(styles).toContain(".heatmap-month .rhythm-day { position: relative; display: grid; min-height: 36px; aspect-ratio: auto; place-items: center;");
     expect(styles).not.toContain(".heatmap .rhythm-day.high { background: var(--black); }");
     expect(styles).toContain(".activity-total { font-family: var(--serif);");
-    expect(styles).toContain(".popup-content.today-panel { display: flex; align-items: stretch; overflow-y: auto; padding: 12px; }");
+    expect(styles).toContain(".popup-content { display: grid; flex: 1 1 auto; min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; padding: 12px; }");
+    expect(styles).toContain(".popup-content.today-panel { display: flex; align-items: stretch; overflow-y: auto; padding: 8px 12px 12px; }");
     expect(styles).toContain(".popup-content.lesson-panel { padding: 0; }");
     expect(styles).toContain(".brief-today.today-week { display: flex; flex: 1 1 auto; flex-direction: column; justify-content: space-between; min-height: 100%; }");
     expect(styles).toContain(".calendar-focus { display: flex; flex: 0 0 100%; flex-direction: column; justify-content: space-between; width: 100%; min-height: 100%; }");
@@ -49,6 +50,9 @@ describe("popup layout", () => {
     expect(styles).toContain(".lesson-category-groups { display: grid;");
     expect(styles).toContain(".verb-notice-highlight");
     expect(styles).toContain(".verb-map-label-sub");
+    expect(styles).toContain(".verb-map-initial");
+    expect(styles).toContain(".verb-map-code-letter");
+    expect(styles).toContain(".verb-journey-panel { padding: 2px 12px 10px; }");
     expect(styles).toContain(".verb-form-status");
     expect(styles).not.toContain("var(--dm-success)");
     expect(styles).toContain(".verb-mastery-card { display: grid; gap: 6px; min-width: 0; padding: 9px 10px; border: 1px solid var(--dm-line); border-left: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-soft); color: var(--dm-ink-strong);");

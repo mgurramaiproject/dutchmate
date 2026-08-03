@@ -1,0 +1,284 @@
+{
+  "family": "lesson",
+  "id": "a1-wat-moet-ik-meenemen",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": [
+      "Original DutchMate-authored lesson content."
+    ],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a1-wat-moet-ik-meenemen",
+    "contentVersion": 1,
+    "pathway": "work-and-study",
+    "order": 11,
+    "cefr": "A1",
+    "title": "A1 · Wat moet ik meenemen?",
+    "durationMinutes": 3,
+    "pattern": "Wat moet ik meenemen?",
+    "patternText": "meenemen",
+    "patternExplanation": "Use meenemen in wat moet ik meenemen to ask what you need to bring.",
+    "lines": [
+      {
+        "dutch": "Morgen begin ik met een cursus Nederlands.",
+        "english": "Tomorrow I start a Dutch course.",
+        "telugu": "రేపు నేను డచ్ కోర్సు ప్రారంభిస్తాను."
+      },
+      {
+        "dutch": "Wat moet ik meenemen naar de les?",
+        "english": "What do I need to bring to class?",
+        "telugu": "తరగతికి నేను ఏమి తీసుకురావాలి?"
+      },
+      {
+        "dutch": "Je moet een pen en je identiteitsbewijs meenemen.",
+        "english": "You need to bring a pen and your identity document.",
+        "telugu": "మీరు ఒక పెన్ మరియు గుర్తింపు పత్రం తీసుకురావాలి."
+      },
+      {
+        "dutch": "Moet ik ook mijn laptop meenemen?",
+        "english": "Do I also need to bring my laptop?",
+        "telugu": "నేను నా ల్యాప్‌టాప్ కూడా తీసుకురావాలా?"
+      },
+      {
+        "dutch": "Nee, een schrift is genoeg voor de eerste les.",
+        "english": "No, a notebook is enough for the first lesson.",
+        "telugu": "లేదు, మొదటి తరగతికి ఒక నోట్‌బుక్ చాలు."
+      }
+    ],
+    "candidates": [
+      {
+        "id": "wat-moet-ik-meenemen",
+        "dutch": "wat moet ik meenemen",
+        "english": "what do I need to bring",
+        "telugu": "నేను ఏమి తీసుకురావాలి",
+        "kind": "chunk"
+      },
+      {
+        "id": "een-pen",
+        "dutch": "een pen",
+        "english": "a pen",
+        "telugu": "ఒక పెన్",
+        "kind": "chunk"
+      },
+      {
+        "id": "mijn-identiteitsbewijs",
+        "dutch": "mijn identiteitsbewijs",
+        "english": "my identity document",
+        "telugu": "నా గుర్తింపు పత్రం",
+        "kind": "chunk"
+      },
+      {
+        "id": "een-schrift",
+        "dutch": "een schrift",
+        "english": "a notebook",
+        "telugu": "ఒక నోట్‌బుక్",
+        "kind": "chunk"
+      }
+    ],
+    "practice": [
+      {
+        "candidateId": "wat-moet-ik-meenemen",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "een-pen",
+        "dimension": "recall"
+      },
+      {
+        "candidateId": "mijn-identiteitsbewijs",
+        "dimension": "recognition"
+      },
+      {
+        "candidateId": "een-schrift",
+        "dimension": "recall"
+      }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a1-wat-moet-ik-meenemen-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "wat-moet-ik-meenemen",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "Ask what to bring to class: ___.",
+        "choices": [
+          "wat moet ik meenemen",
+          "ik ben beschikbaar",
+          "er is iets kapot"
+        ],
+        "accepted": [
+          "wat moet ik meenemen"
+        ],
+        "distractors": [
+          {
+            "answer": "ik ben beschikbaar",
+            "misconception": "lesson-context-mismatch"
+          },
+          {
+            "answer": "er is iets kapot",
+            "misconception": "lesson-context-mismatch"
+          }
+        ],
+        "feedback": "Use wat moet ik meenemen here: wat moet ik meenemen.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-wat-moet-ik-meenemen-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "wat-moet-ik-meenemen",
+        "dimension": "recall",
+        "prompt": "Repair the question about what to bring.",
+        "context": "Choose the reviewed sentence.",
+        "choices": [
+          "Wat moet ik meenemen?",
+          "Wat ik moet meenemen?",
+          "Wat moet meenemen ik?"
+        ],
+        "accepted": [
+          "Wat moet ik meenemen?"
+        ],
+        "distractors": [
+          {
+            "answer": "Wat ik moet meenemen?",
+            "misconception": "lesson-form-or-order"
+          },
+          {
+            "answer": "Wat moet meenemen ik?",
+            "misconception": "lesson-form-or-order"
+          }
+        ],
+        "feedback": "Use the reviewed form: Wat moet ik meenemen?",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a1-wat-moet-ik-meenemen-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "wat-moet-ik-meenemen",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Ask what you need to bring.",
+        "choices": [
+          "Wat moet ik meenemen?"
+        ],
+        "tokens": [
+          "Wat",
+          "moet",
+          "ik",
+          "meenemen?"
+        ],
+        "accepted": [
+          "Wat moet ik meenemen?"
+        ],
+        "distractors": [],
+        "feedback": "Build the sentence as: Wat moet ik meenemen?",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": [
+            "Original DutchMate-authored lesson content."
+          ],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "review": {
+      "dutch": true,
+      "english": true,
+      "telugu": true,
+      "cefr": true,
+      "cultural": true,
+      "practicalUse": true
+    },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "reduced",
+      "outcome": {
+        "primary": "Ask what you need to bring to class.",
+        "supporting": [
+          "Recognize wat moet ik meenemen in a practical study situation."
+        ]
+      },
+      "coverage": {
+        "understand": true,
+        "guidedAction": true,
+        "reducedSupportRetrieval": true,
+        "safeApplication": true
+      },
+      "transfer": {
+        "id": "a1-wat-moet-ik-meenemen-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "wat-moet-ik-meenemen",
+        "prompt": "You are starting a course and need to ask what to bring. Choose the Dutch question.",
+        "context": "Ask what you need to bring to class: ___ .",
+        "choices": [
+          "wat moet ik meenemen",
+          "ik ben beschikbaar",
+          "er is iets kapot"
+        ],
+        "accepted": [
+          "wat moet ik meenemen"
+        ],
+        "distractors": [
+          {
+            "answer": "ik ben beschikbaar",
+            "misconception": "availability-not-bring-question"
+          },
+          {
+            "answer": "er is iets kapot",
+            "misconception": "breakage-not-bring-question"
+          }
+        ],
+        "feedback": "Use wat moet ik meenemen to ask what you need to bring."
+      },
+      "accessibility": {
+        "keyboard": true,
+        "focus": true,
+        "feedbackAnnouncement": true,
+        "narrowPopup": true
+      },
+      "migration": {
+        "policy": "compatible-additive",
+        "historyKey": "lesson-id-and-content-version"
+      },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": [
+          "Original DutchMate-authored lesson content."
+        ],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    }
+  }
+}
