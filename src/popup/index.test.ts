@@ -1156,7 +1156,7 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
     const entries = content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable");
-    expect(entries).toHaveLength(3);
+    expect(entries).toHaveLength(4);
     entries[1].click();
     await vi.waitFor(() => expect(content().textContent).toContain("Questions I ask"));
     expect(content().textContent).toContain("Questions I ask");
@@ -1195,12 +1195,26 @@ describe("lesson popup", () => {
     expect(content().querySelector<HTMLElement>(".verb-form-card.selected")?.getAttribute("aria-label")).toMatch(/^OVT:/);
   });
 
+  it("opens gaan with one sentence family and highlights its forms in Notice", async () => {
+    button("Lessons").click();
+    await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
+    content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
+    content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable")[3].click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Going somewhere and leaving"));
+    [...content().querySelectorAll<HTMLButtonElement>(".journey-list-row")].find((row) => row.textContent?.includes("Going somewhere and leaving"))!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Ik ga vandaag naar de markt."));
+    button("Notice the pattern →").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("The present forms of gaan"));
+    expect([...content().querySelectorAll<HTMLElement>(".verb-notice-highlight")].map((highlight) => highlight.textContent)).toEqual(expect.arrayContaining(["ga", "gaat", "gaan", "zal"]));
+    expect(content().querySelectorAll(".verb-formula .verb-notice-highlight").length).toBeGreaterThan(0);
+  });
+
   it("opens the additive hebben directory entry and routes its first possession journey", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".verb-journey-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".verb-journey-entry")!.click();
     const entries = content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable");
-    expect(entries).toHaveLength(3);
+    expect(entries).toHaveLength(4);
     entries[2].click();
     await vi.waitFor(() => expect(content().textContent).toContain("What I have and what is available"));
     expect(content().textContent).toContain("hebben");
@@ -1454,7 +1468,7 @@ describe("lesson popup", () => {
     expect(firstJourney.querySelector(".journey-completion-mark")).toBeTruthy();
     expect(content().querySelector<HTMLElement>(".verb-mastery-card .verb-mastery-count")?.textContent).toBe("1 of 8 forms practised");
     button("Verb Journeys").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(3));
+    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(4));
     const directoryRows = content().querySelectorAll<HTMLElement>(".verb-directory-row.is-openable");
     expect(directoryRows[0].querySelector<HTMLElement>(".verb-directory-progress-summary")?.textContent).toBe("1 of 8 forms practised");
     expect(directoryRows[1].querySelector<HTMLElement>(".verb-directory-progress-summary")?.textContent).toBe("0 of 8 forms practised");
@@ -1485,7 +1499,7 @@ describe("lesson popup", () => {
     expect(content().querySelector<HTMLElement>(".verb-mastery-card .verb-mastery-count")?.textContent).toBe("2 of 8 forms practised");
     expect(verbJourneyRecordReads).toBeGreaterThan(1);
     button("Verb Journeys").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(3));
+    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(4));
     expect(content().querySelector<HTMLElement>(".verb-directory-row.is-openable .verb-directory-progress-summary")?.textContent).toBe("2 of 8 forms practised");
   });
 
@@ -1667,7 +1681,7 @@ describe("lesson popup", () => {
     content().querySelector<HTMLButtonElement>(".verb-directory-row.is-openable")!.click();
     await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
     button("Verb Journeys").click();
-    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(3));
+    await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(4));
 
     for (const [directoryIndex, lemma, example] of [[1, "zijn", "Ik ben vandaag thuis."], [2, "hebben", "Ik heb vandaag genoeg tijd."]] as const) {
       content().querySelectorAll<HTMLButtonElement>(".verb-directory-row.is-openable")[directoryIndex].click();
@@ -1685,7 +1699,7 @@ describe("lesson popup", () => {
       await vi.waitFor(() => expect(content().textContent).toContain("Your Verb Journey"));
       if (directoryIndex === 1) {
         button("Verb Journeys").click();
-        await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(3));
+        await vi.waitFor(() => expect(content().querySelectorAll(".verb-directory-row.is-openable")).toHaveLength(4));
       }
     }
   });

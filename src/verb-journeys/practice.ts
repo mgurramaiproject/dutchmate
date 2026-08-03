@@ -36,7 +36,7 @@ export type VerbPracticeSession = {
   completed: boolean;
 };
 
-export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity" | "journey.zijn.ott-questions" | "journey.zijn.ovt-state" | "journey.zijn.vtt-experience" | "journey.zijn.future-conditional" | "journey.zijn.reference-completed" | "journey.hebben.ott-possession" | "journey.hebben.ott-expressions" | "journey.hebben.ovt-possession" | "journey.hebben.vtt-experience" | "journey.hebben.vtt-auxiliary" | "journey.hebben.future-reference";
+export type VerbPracticeJourneyId = "journey.werken.ott-routine" | "journey.werken.vtt-completed" | "journey.werken.ovt-background" | "journey.werken.vvt-earlier-past" | "journey.werken.future-possibility" | "journey.werken.reference-completed-future" | "journey.zijn.ott-identity" | "journey.zijn.ott-questions" | "journey.zijn.ovt-state" | "journey.zijn.vtt-experience" | "journey.zijn.future-conditional" | "journey.zijn.reference-completed" | "journey.hebben.ott-possession" | "journey.hebben.ott-expressions" | "journey.hebben.ovt-possession" | "journey.hebben.vtt-experience" | "journey.hebben.vtt-auxiliary" | "journey.hebben.future-reference" | "journey.gaan.ott-movement" | "journey.gaan.ott-plans" | "journey.gaan.ovt-movement" | "journey.gaan.vtt-completed-movement" | "journey.gaan.future-conditional" | "journey.gaan.reference-completed";
 const defaultJourneyId: VerbPracticeJourneyId = "journey.werken.vtt-completed";
 
 type AuthoredVerbPracticeQuestion = Omit<VerbPracticeQuestion, "journeyId">;
@@ -383,6 +383,60 @@ const hebbenFutureReferenceRepairs: AuthoredVerbPracticeQuestion[] = [
   { id: "exercise.hebben.future-reference.repair-order", verbId: "verb.hebben", formOrSkillId: "skill.hebben.future-reference", exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the conditional order.", context: "Als ik vrij ben, …", tokens: ["zou", "ik", "meer", "tijd", "hebben."], accepted: ["zou ik meer tijd hebben."], feedback: "Correct. Zou comes before ik after the condition.", incorrectFeedback: "Use zou ik meer tijd hebben after Als ik vrij ben." },
 ];
 
+type GaanPracticeSpec = {
+  journeyId: Extract<VerbPracticeJourneyId, `journey.gaan.${string}`>;
+  skillId: string;
+  meaningContext: string;
+  meaningChoices: string[];
+  meaningAnswer: string;
+  constructionContext: string;
+  constructionTokens: string[];
+  constructionAnswer: string;
+  naturalContext: string;
+  naturalChoices: string[];
+  naturalAnswer: string;
+  mapContext: string;
+  mapChoices: string[];
+  mapAnswer: string;
+  orderContext: string;
+  orderTokens: string[];
+  orderAnswer: string;
+  repairContext: string;
+  repairChoices: string[];
+  repairAnswer: string;
+};
+
+function makeGaanPracticePack(spec: GaanPracticeSpec): AuthoredVerbPracticePack {
+  const stem = spec.journeyId.replace("journey.", "exercise.");
+  const repairStem = `${stem}.repair`;
+  const constructionTokens = [...new Set([...spec.constructionTokens, ...spec.constructionAnswer.split(" ")])];
+  const mapChoices = [...new Set([...spec.mapChoices, spec.mapAnswer])];
+  return {
+    questions: [
+      { id: `${stem}.meaning`, verbId: "verb.gaan", formOrSkillId: spec.skillId, exerciseFamily: "meaning", kind: "choice", prompt: "What does this sentence describe?", context: spec.meaningContext, choices: spec.meaningChoices, accepted: [spec.meaningAnswer], feedback: "Correct. Read the time cue and the authored form together.", incorrectFeedback: `Look again at the form and context: ${spec.meaningContext}`, repairIds: [`${repairStem}-form`, `${repairStem}-order`] },
+      { id: `${stem}.construct`, verbId: "verb.gaan", formOrSkillId: spec.skillId, exerciseFamily: "construction", kind: "token-slots", prompt: "Build the phrase with taps.", context: spec.constructionContext, tokens: constructionTokens, accepted: [spec.constructionAnswer], feedback: "Correct. Keep the finite form and the rest of the phrase in their authored roles.", incorrectFeedback: "Use the subject and time relationship to choose the finite form." },
+      { id: `${stem}.natural-translation`, verbId: "verb.gaan", formOrSkillId: spec.skillId, exerciseFamily: "natural-translation", kind: "choice", prompt: "Choose the best everyday answer.", context: spec.naturalContext, choices: spec.naturalChoices, accepted: [spec.naturalAnswer], feedback: "Correct. This is the natural Dutch choice for the situation.", incorrectFeedback: `For this situation, choose ${spec.naturalAnswer}` },
+      { id: `${stem}.map-placement`, verbId: "verb.gaan", formOrSkillId: spec.skillId, exerciseFamily: "map-placement", kind: "map-placement", prompt: "Where does this sentence belong?", context: spec.mapContext, choices: mapChoices, accepted: [spec.mapAnswer], feedback: "Correct. The form belongs in this tense slot.", incorrectFeedback: `This authored example belongs in ${spec.mapAnswer}.` },
+      { id: `${stem}.word-order`, verbId: "verb.gaan", formOrSkillId: spec.skillId, exerciseFamily: "word-order", delayedOrRecombined: true, kind: "token-order", prompt: "Put the words in the correct order.", context: spec.orderContext, tokens: spec.orderTokens, accepted: [spec.orderAnswer], feedback: "Correct. The finite verb stays in its Dutch word-order position.", incorrectFeedback: `Use this order: ${spec.orderAnswer}` },
+    ],
+    repairs: [
+      { id: `${repairStem}-form`, verbId: "verb.gaan", formOrSkillId: spec.skillId, exerciseFamily: "repair-form", kind: "choice", prompt: "Repair the phrase.", context: spec.repairContext, choices: spec.repairChoices, accepted: [spec.repairAnswer], feedback: "Correct. The subject and time relationship select this form.", incorrectFeedback: `Choose ${spec.repairAnswer} for this authored phrase.` },
+      { id: `${repairStem}-order`, verbId: "verb.gaan", formOrSkillId: spec.skillId, exerciseFamily: "repair-order", kind: "token-order", prompt: "Repair the word order.", context: spec.orderContext, tokens: spec.orderTokens, accepted: [spec.orderAnswer], feedback: "Correct. Keep the finite verb in the right position.", incorrectFeedback: `Use this order: ${spec.orderAnswer}` },
+    ],
+  };
+}
+
+const gaanPracticeSpecs: GaanPracticeSpec[] = [
+  { journeyId: "journey.gaan.ott-movement", skillId: "skill.gaan.ott-movement", meaningContext: "Ik ga vandaag naar de markt.", meaningChoices: ["Present movement or a plan", "A completed past movement", "A conditional possibility"], meaningAnswer: "Present movement or a plan", constructionContext: "Complete: Ik ___ vandaag naar de markt.", constructionTokens: ["ga", "gaat", "ging", "ben"], constructionAnswer: "ga", naturalContext: "I am going to the station soon.", naturalChoices: ["Ik ga straks naar het station.", "Ik ging straks naar het station.", "Ik ben straks naar het station gegaan."], naturalAnswer: "Ik ga straks naar het station.", mapContext: "Ik ga vandaag naar de markt.", mapChoices: ["OTT · onvoltooid tegenwoordige tijd", "OVT · onvoltooid verleden tijd", "VTT · voltooid tegenwoordige tijd", "OTTT · onvoltooid tegenwoordige toekomende tijd"], mapAnswer: "OTT · onvoltooid tegenwoordige tijd", orderContext: "Start with the time phrase: Vandaag …", orderTokens: ["Vandaag", "ga", "ik", "naar", "de", "markt."], orderAnswer: "Vandaag ga ik naar de markt.", repairContext: "Ik ___ vandaag naar de markt.", repairChoices: ["ga", "gaat", "ging"], repairAnswer: "ga" },
+  { journeyId: "journey.gaan.ott-plans", skillId: "skill.gaan.ott-plans", meaningContext: "Ik ga vanavond koken.", meaningChoices: ["A near-future plan", "A completed movement", "An earlier past event"], meaningAnswer: "A near-future plan", constructionContext: "Complete: Ik ___ vanavond koken.", constructionTokens: ["ga", "gaat", "ging", "zal"], constructionAnswer: "ga", naturalContext: "We are going to watch a film together.", naturalChoices: ["Wij gaan samen een film kijken.", "Wij gingen samen een film kijken.", "Wij zijn samen een film gekeken."], naturalAnswer: "Wij gaan samen een film kijken.", mapContext: "Morgen ga ik vroeg vertrekken.", mapChoices: ["OTT · onvoltooid tegenwoordige tijd", "OVT · onvoltooid verleden tijd", "VTT · voltooid tegenwoordige tijd", "OTTT · onvoltooid tegenwoordige toekomende tijd"], mapAnswer: "OTT · onvoltooid tegenwoordige tijd", orderContext: "Start with the time phrase: Morgen …", orderTokens: ["Morgen", "ga", "ik", "vroeg", "vertrekken."], orderAnswer: "Morgen ga ik vroeg vertrekken.", repairContext: "Ik ___ vanavond koken.", repairChoices: ["ga", "gaat", "ging"], repairAnswer: "ga" },
+  { journeyId: "journey.gaan.ovt-movement", skillId: "skill.gaan.ovt-movement", meaningContext: "Gisteren ging ik naar het station.", meaningChoices: ["Past movement or story background", "A present plan", "An explicit future"], meaningAnswer: "Past movement or story background", constructionContext: "Complete: Gisteren ___ ik naar het station.", constructionTokens: ["ging", "ga", "gingen", "ben"], constructionAnswer: "ging", naturalContext: "We went to the coast together.", naturalChoices: ["Wij gingen samen naar de kust.", "Wij gaan samen naar de kust.", "Wij zijn samen naar de kust gegaan."], naturalAnswer: "Wij gingen samen naar de kust.", mapContext: "Gisteren ging ik naar het station.", mapChoices: ["OVT · onvoltooid verleden tijd", "OTT · onvoltooid tegenwoordige tijd", "VTT · voltooid tegenwoordige tijd", "VVT · voltooid verleden tijd"], mapAnswer: "OVT · onvoltooid verleden tijd", orderContext: "Start with the time phrase: Gisteren …", orderTokens: ["Gisteren", "ging", "ik", "naar", "het", "station."], orderAnswer: "Gisteren ging ik naar het station.", repairContext: "Gisteren ___ ik naar het station.", repairChoices: ["ging", "ga", "gingen"], repairAnswer: "ging" },
+  { journeyId: "journey.gaan.vtt-completed-movement", skillId: "skill.gaan.vtt-completed-movement", meaningContext: "Ik ben al naar huis gegaan.", meaningChoices: ["Completed movement viewed from now", "A present routine", "A hypothetical movement"], meaningAnswer: "Completed movement viewed from now", constructionContext: "Complete: Ik ___ al naar huis gegaan.", constructionTokens: ["ben", "is", "was", "zal"], constructionAnswer: "ben", naturalContext: "She has gone to the shop.", naturalChoices: ["Zij is naar de winkel gegaan.", "Zij heeft naar de winkel gegaan.", "Zij ging naar de winkel gegaan."], naturalAnswer: "Zij is naar de winkel gegaan.", mapContext: "Wij zijn samen naar het museum gegaan.", mapChoices: ["VTT · voltooid tegenwoordige tijd", "OTT · onvoltooid tegenwoordige tijd", "OVT · onvoltooid verleden tijd", "VVT · voltooid verleden tijd"], mapAnswer: "VTT · voltooid tegenwoordige tijd", orderContext: "Start with the time phrase: Vandaag …", orderTokens: ["Vandaag", "zijn", "wij", "naar", "het", "museum", "gegaan."], orderAnswer: "Vandaag zijn wij naar het museum gegaan.", repairContext: "Ik ___ al naar huis gegaan.", repairChoices: ["ben", "is", "was"], repairAnswer: "ben" },
+  { journeyId: "journey.gaan.future-conditional", skillId: "skill.gaan.future-conditional", meaningContext: "Als ik tijd had, zou ik naar de markt gaan.", meaningChoices: ["A conditional or hypothetical movement", "A completed past movement", "A present routine"], meaningAnswer: "A conditional or hypothetical movement", constructionContext: "Complete: Morgen ___ ik naar Utrecht ___.", constructionTokens: ["zal", "zou", "ik", "naar", "Utrecht", "gaan."], constructionAnswer: "zal gaan", naturalContext: "Tomorrow I will go to Utrecht.", naturalChoices: ["Morgen zal ik naar Utrecht gaan.", "Morgen zou ik naar Utrecht gegaan.", "Morgen was ik naar Utrecht gegaan."], naturalAnswer: "Morgen zal ik naar Utrecht gaan.", mapContext: "Morgen zal ik naar Utrecht gaan.", mapChoices: ["OTTT · onvoltooid tegenwoordige toekomende tijd", "OVTT · onvoltooid verleden toekomende tijd", "VTT · voltooid tegenwoordige tijd", "OTT · onvoltooid tegenwoordige tijd"], mapAnswer: "OTTT · onvoltooid tegenwoordige tijd", orderContext: "Start with the condition: Als ik tijd had, …", orderTokens: ["Als", "ik", "tijd", "had,", "zou", "ik", "naar", "de", "markt", "gaan."], orderAnswer: "Als ik tijd had, zou ik naar de markt gaan.", repairContext: "Morgen ___ ik naar Utrecht gaan.", repairChoices: ["zal", "zou", "was"], repairAnswer: "zal" },
+  { journeyId: "journey.gaan.reference-completed", skillId: "skill.gaan.reference-completed", meaningContext: "Ik was al naar huis gegaan voordat het begon te regenen.", meaningChoices: ["Movement completed before another past event", "A present plan", "A repeated present routine"], meaningAnswer: "Movement completed before another past event", constructionContext: "Complete: Ik ___ al naar huis gegaan.", constructionTokens: ["was", "ben", "zal", "zou"], constructionAnswer: "was", naturalContext: "By eight o'clock, I will have gone home.", naturalChoices: ["Tegen acht uur zal ik naar huis gegaan zijn.", "Tegen acht uur zou ik naar huis gaan.", "Tegen acht uur ging ik naar huis."], naturalAnswer: "Tegen acht uur zal ik naar huis gegaan zijn.", mapContext: "Tegen acht uur zal ik naar huis gegaan zijn.", mapChoices: ["VTTT · voltooid tegenwoordige toekomende tijd", "VVT · voltooid verleden tijd", "OTT · onvoltooid tegenwoordige tijd", "OVTT · onvoltooid verleden toekomende tijd"], mapAnswer: "VTTT · voltooid tegenwoordige toekomende tijd", orderContext: "Start with the deadline: Tegen acht uur …", orderTokens: ["Tegen", "acht", "uur", "zal", "ik", "naar", "huis", "gegaan", "zijn."], orderAnswer: "Tegen acht uur zal ik naar huis gegaan zijn.", repairContext: "Ik ___ al naar huis gegaan voordat het regende.", repairChoices: ["was", "ben", "zal"], repairAnswer: "was" },
+];
+
+const gaanPracticePacks = Object.fromEntries(gaanPracticeSpecs.map((spec) => [spec.journeyId, makeGaanPracticePack(spec)])) as Record<Extract<VerbPracticeJourneyId, `journey.gaan.${string}`>, AuthoredVerbPracticePack>;
+
 function assignJourneyId(journeyId: VerbPracticeJourneyId, pack: AuthoredVerbPracticePack): VerbPracticePack {
   return { questions: pack.questions.map((question) => ({ ...question, journeyId })), repairs: pack.repairs.map((question) => ({ ...question, journeyId })) };
 }
@@ -406,6 +460,7 @@ const practicePacks: Record<VerbPracticeJourneyId, VerbPracticePack> = {
   "journey.hebben.vtt-experience": assignJourneyId("journey.hebben.vtt-experience", { questions: hebbenCompletedExperienceQuestions, repairs: hebbenCompletedExperienceRepairs }),
   "journey.hebben.vtt-auxiliary": assignJourneyId("journey.hebben.vtt-auxiliary", { questions: hebbenAuxiliaryQuestions, repairs: hebbenAuxiliaryRepairs }),
   "journey.hebben.future-reference": assignJourneyId("journey.hebben.future-reference", { questions: hebbenFutureReferenceQuestions, repairs: hebbenFutureReferenceRepairs }),
+  ...Object.fromEntries(Object.entries(gaanPracticePacks).map(([journeyId, pack]) => [journeyId, assignJourneyId(journeyId as VerbPracticeJourneyId, pack)])) as Record<Extract<VerbPracticeJourneyId, `journey.gaan.${string}`>, VerbPracticePack>,
 };
 const allPracticeQuestions = Object.values(practicePacks).flatMap((pack) => [...pack.questions, ...pack.repairs]);
 const questionById = new Map(allPracticeQuestions.map((question) => [question.id, question]));

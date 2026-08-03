@@ -154,22 +154,30 @@ describe("werken Verb Journey pack", () => {
   });
 
   it("qualifies the English comparison contract across every registered pack", () => {
-    expect(verbJourneyPacks).toHaveLength(3);
+    expect(verbJourneyPacks).toHaveLength(4);
     for (const pack of verbJourneyPacks) {
-      expect(pack.contentVersion).toBe("019-1");
+      expect(["019-1", "020-2"]).toContain(pack.contentVersion);
       expect(pack.englishComparison).toHaveLength(12);
       expect(pack.englishComparison.every((record) => record.meaningPreserving && record.everyday && record.cue && record.howDutchExpressesIt && record.whyTheyDiffer)).toBe(true);
       expect(new Set(pack.englishComparison.map((record) => record.id)).size).toBe(12);
     }
-    expect(new Set(verbJourneyPacks.flatMap((pack) => pack.englishComparison.map((record) => record.id))).size).toBe(36);
+    expect(new Set(verbJourneyPacks.flatMap((pack) => pack.englishComparison.map((record) => record.id))).size).toBe(48);
   });
 
   it("qualifies all active packs with complete localized form and common-use records", () => {
     expect(validateVerbJourneyRegistry()).toEqual([]);
     const forms = verbJourneyPacks.flatMap((pack) => pack.dutchForms);
-    expect(forms).toHaveLength(24);
+    expect(forms).toHaveLength(32);
     expect(forms.every((form) => form.learnerLabelEn && form.canonicalExample?.nl && form.canonicalExample.en && form.canonicalExample.te && form.commonUsageExample?.nl && form.commonUsageExample.en && form.commonUsageExample.te)).toBe(true);
     expect(forms.flatMap((form) => [form.canonicalExample!.nl, form.canonicalExample!.en, form.canonicalExample!.te, form.commonUsageExample!.nl, form.commonUsageExample!.en, form.commonUsageExample!.te])).not.toContain("Unavailable");
-    expect(new Set(forms.map((form) => form.id)).size).toBe(24);
+    expect(new Set(forms.map((form) => form.id)).size).toBe(32);
+  });
+
+  it("keeps gaan map and English comparison examples in one sentence family", () => {
+    const gaan = getVerbJourneyPack("verb.gaan")!;
+    const mapSentences = gaan.dutchForms.flatMap((form) => [form.canonicalExample!.nl, form.commonUsageExample!.nl]);
+    expect(mapSentences.every((sentence) => sentence.includes("naar het station"))).toBe(true);
+    expect(new Set(mapSentences).size).toBe(8);
+    expect(gaan.englishComparison.every((record) => record.meaningPreserving?.nl.includes("naar het station") && record.everyday?.nl.includes("naar het station"))).toBe(true);
   });
 });

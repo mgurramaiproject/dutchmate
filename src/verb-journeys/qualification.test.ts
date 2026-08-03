@@ -32,6 +32,11 @@ describe("Feature 019 English Forms Lens qualification", () => {
     expect(zijn?.journeys.every((journey) => journey.story.length === 5 && journey.notice && journey.targetSkills.length > 0)).toBe(true);
     const coreQuestionCounts = zijn?.journeys.map((journey) => getVerbPracticeQuestions(journey.id as never).filter((question) => question.phase !== "repair").length) ?? [];
     expect(coreQuestionCounts).toEqual([5, 5, 5, 5, 5, 5]);
+    const gaan = verbJourneyPacks.find((pack) => pack.verb.id === "verb.gaan");
+    expect(gaan?.contentVersion).toBe("020-2");
+    expect(gaan?.journeys).toHaveLength(6);
+    expect(gaan?.journeys.every((journey) => journey.story.length === 5 && journey.notice && journey.targetSkills.length > 0)).toBe(true);
+    expect(gaan?.journeys.map((journey) => getVerbPracticeQuestions(journey.id as never).filter((question) => question.phase !== "repair").length)).toEqual([5, 5, 5, 5, 5, 5]);
   });
 
   it("qualifies the complete additive hebben package and its six owned practice banks", () => {
@@ -71,7 +76,7 @@ describe("Feature 019 English Forms Lens qualification", () => {
     expect(popupStyles).toContain("button:focus-visible");
     expect(popupStyles).toContain("@media (prefers-reduced-motion: reduce)");
     expect(popupSource).toContain("renderWithRecovery(content");
-    expect(popupSource).toContain('number: "01"');
-    expect(popupSource).toContain('number: "04"');
+    expect(popupSource).toContain("verbJourneyPacks.map");
+    expect(popupSource).not.toContain("coming later");
   });
 });
