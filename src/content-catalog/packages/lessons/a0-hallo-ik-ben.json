@@ -1,0 +1,148 @@
+{
+  "family": "lesson",
+  "id": "a0-hallo-ik-ben",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "released",
+  "review": {
+    "author": "DutchMate team",
+    "reviewer": "Project owner",
+    "reviewedAt": "2026-07-30",
+    "sources": ["Original DutchMate-authored lesson content."],
+    "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+  },
+  "payload": {
+    "id": "a0-hallo-ik-ben",
+    "contentVersion": 1,
+    "pathway": "first-conversations",
+    "order": 1,
+    "cefr": "A0",
+    "title": "A0 · Hallo, ik ben…",
+    "durationMinutes": 3,
+    "pattern": "Ik ben…",
+    "patternText": "ik ben",
+    "patternExplanation": "Use ik ben… to say who you are. Add your name after the phrase.",
+    "lines": [
+      { "dutch": "Hallo, ik ben Ravi. Ik woon sinds kort in Utrecht.", "english": "Hello, I am Ravi. I have lived in Utrecht for a short time.", "telugu": "హలో, నేను రవి. నేను ఇటీవలే ఉట్రెహ్ట్‌లో నివసిస్తున్నాను." },
+      { "dutch": "Hallo Ravi, ik ben Noor. Leuk je te ontmoeten.", "english": "Hello Ravi, I am Noor. Nice to meet you.", "telugu": "హలో రవి, నేను నూర్. మిమ్మల్ని కలవడం ఆనందంగా ఉంది." },
+      { "dutch": "Leuk je te ontmoeten, Noor. Woon je hier ook?", "english": "Nice to meet you, Noor. Do you live here too?", "telugu": "మిమ్మల్ని కలవడం ఆనందంగా ఉంది, నూర్. మీరు కూడా ఇక్కడే నివసిస్తున్నారా?" },
+      { "dutch": "Ja, ik woon vlakbij. Welkom in de buurt!", "english": "Yes, I live nearby. Welcome to the neighbourhood!", "telugu": "అవును, నేను దగ్గరలోనే నివసిస్తున్నాను. ఈ పరిసరాలకు స్వాగతం!" }
+    ],
+    "candidates": [
+      { "id": "ik-ben", "dutch": "ik ben", "english": "I am", "telugu": "నేను", "kind": "chunk" },
+      { "id": "leuk-je-te-ontmoeten", "dutch": "leuk je te ontmoeten", "english": "nice to meet you", "telugu": "మిమ్మల్ని కలవడం ఆనందంగా ఉంది", "kind": "chunk" },
+      { "id": "ik-woon", "dutch": "ik woon", "english": "I live", "telugu": "నేను నివసిస్తున్నాను", "kind": "chunk" },
+      { "id": "vlakbij", "dutch": "vlakbij", "english": "nearby", "telugu": "దగ్గరలో", "kind": "word" }
+    ],
+    "practice": [
+      { "candidateId": "ik-ben", "dimension": "recognition" },
+      { "candidateId": "leuk-je-te-ontmoeten", "dimension": "recall" },
+      { "candidateId": "ik-woon", "dimension": "recognition" },
+      { "candidateId": "vlakbij", "dimension": "recall" }
+    ],
+    "practiceExercises": [
+      {
+        "contentVersion": 1,
+        "id": "a0-hallo-ik-ben-contrast-form",
+        "primitive": "contrast-form",
+        "candidateId": "ik-ben",
+        "dimension": "recognition",
+        "prompt": "Choose the phrase that fits the situation.",
+        "context": "You meet Noor and introduce yourself: ___ Ravi.",
+        "choices": ["ik ben", "ik woon", "vlakbij"],
+        "accepted": ["ik ben"],
+        "distractors": [
+          { "answer": "ik woon", "misconception": "lesson-context-mismatch" },
+          { "answer": "vlakbij", "misconception": "lesson-context-mismatch" }
+        ],
+        "feedback": "Use ik ben: ik ben.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": ["Original DutchMate-authored lesson content."],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a0-hallo-ik-ben-repair-choice",
+        "primitive": "repair-choice",
+        "candidateId": "ik-ben",
+        "dimension": "recall",
+        "prompt": "Repair the introduction.",
+        "context": "Choose the reviewed sentence.",
+        "choices": ["Hallo, ik ben Ravi.", "Hallo, ik woon Ravi.", "Hallo, vlakbij Ravi."],
+        "accepted": ["Hallo, ik ben Ravi."],
+        "distractors": [
+          { "answer": "Hallo, ik woon Ravi.", "misconception": "lesson-form-or-order" },
+          { "answer": "Hallo, vlakbij Ravi.", "misconception": "lesson-form-or-order" }
+        ],
+        "feedback": "Use the reviewed sentence: Hallo, ik ben Ravi.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": ["Original DutchMate-authored lesson content."],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      },
+      {
+        "contentVersion": 1,
+        "id": "a0-hallo-ik-ben-order-tokens",
+        "primitive": "order-tokens",
+        "candidateId": "ik-ben",
+        "dimension": "recall",
+        "prompt": "Build the sentence in the lesson context.",
+        "context": "Say who you are.",
+        "choices": ["Ik ben Ravi."],
+        "tokens": ["Ik", "ben", "Ravi."],
+        "accepted": ["Ik ben Ravi."],
+        "distractors": [],
+        "feedback": "Build the sentence as: Ik ben Ravi.",
+        "review": {
+          "author": "DutchMate team",
+          "reviewState": "second-review-complete",
+          "reviewer": "Project owner",
+          "reviewedAt": "2026-07-30",
+          "sources": ["Original DutchMate-authored lesson content."],
+          "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+        }
+      }
+    ],
+    "review": { "dutch": true, "english": true, "telugu": true, "cefr": true, "cultural": true, "practicalUse": true },
+    "grammarCompanion": { "id": "a0-zijn-present", "contentVersion": 1, "patternId": "a0-zijn-present" },
+    "practiceEnvelope": {
+      "contentVersion": 1,
+      "support": "guided",
+      "outcome": { "primary": "Introduce yourself and say where you live.", "supporting": ["Recognize ik ben and ik woon in a friendly introduction."] },
+      "coverage": { "understand": true, "guidedAction": true, "reducedSupportRetrieval": true, "safeApplication": true },
+      "transfer": {
+        "id": "a0-hallo-ik-ben-transfer",
+        "primitive": "choose-meaning",
+        "candidateId": "ik-ben",
+        "prompt": "You meet someone new. Choose the Dutch phrase to introduce yourself.",
+        "context": "You say who you are: ___ Ravi.",
+        "choices": ["ik ben", "ik woon", "vlakbij"],
+        "accepted": ["ik ben"],
+        "distractors": [
+          { "answer": "ik woon", "misconception": "location-not-identity" },
+          { "answer": "vlakbij", "misconception": "place-fragment-not-introduction" }
+        ],
+        "feedback": "Use ik ben to say who you are: Ik ben Ravi."
+      },
+      "accessibility": { "keyboard": true, "focus": true, "feedbackAnnouncement": true, "narrowPopup": true },
+      "migration": { "policy": "compatible-additive", "historyKey": "lesson-id-and-content-version" },
+      "review": {
+        "author": "DutchMate team",
+        "reviewState": "second-review-complete",
+        "reviewer": "Project owner",
+        "reviewedAt": "2026-07-30",
+        "sources": ["Original DutchMate-authored lesson content."],
+        "provenance": "Original DutchMate-authored lesson transfer task reviewed with its lesson micro-story; no copied sentence text."
+      }
+    }
+  }
+}

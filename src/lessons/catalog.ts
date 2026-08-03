@@ -1,3 +1,5 @@
+import { contentCatalog } from "../content-catalog";
+
 export const LESSON_CATALOG_VERSION = 1;
 
 export type GrammarPatternId = "a0-zijn-present" | "a0-hebben-present" | "a0-regular-present" | "a0-yes-no-inversion";
@@ -673,7 +675,7 @@ export const letterLesson: Lesson = { id: "a2-wat-staat-er-in-deze-brief", conte
 
 export const lessonCatalog: LessonCatalog = {
   version: LESSON_CATALOG_VERSION,
-  lessons: [introductionLesson, hebbenLesson, regularLesson, inversionLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson],
+  lessons: [contentCatalog.getLesson(introductionLesson.id) ?? introductionLesson, hebbenLesson, regularLesson, inversionLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson],
 };
 
 export function validateLessonCatalog(catalog: LessonCatalog): string[] {

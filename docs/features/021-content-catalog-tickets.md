@@ -17,6 +17,14 @@ migration slice.
 loader, validators, and one catalog-backed curated mini-lesson through the
 existing Lessons, practice, popup, and local-learning-record behavior.
 
+**Status:** complete
+
+- [x] Typed catalog envelope and manifest identify the released lesson package.
+- [x] Shared loader returns the existing lesson runtime shape.
+- [x] The tracer mini-lesson is bundled from JSON and remains behaviorally equivalent.
+- [x] Invalid package shape, identity, version, or review state fails validation.
+- [x] Existing lesson and learner-record contracts remain unchanged.
+
 ## 02 — Migrate the curated mini-lesson family
 
 **Issue:** [#170](https://github.com/mgurramaiproject/dutchmate/issues/170)
@@ -92,4 +100,3 @@ practice, qualification, popup integration, and learner evidence.
 duplicate legacy registries are retired; full catalog validation,
 learner-history compatibility, offline behavior, Chrome/Firefox packaging, and
 release qualification pass together.
-
