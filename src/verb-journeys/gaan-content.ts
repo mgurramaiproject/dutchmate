@@ -1,4 +1,5 @@
 import type { DutchTense, EnglishComparisonVariant, EnglishMapRecord, EnglishTense, JourneyRecord, VerbJourneyPack } from "./content";
+import { contentCatalog } from "../content-catalog";
 
 type LocalizedComparison = Omit<EnglishComparisonVariant, "en">;
 type ComparisonContent = {
@@ -139,7 +140,7 @@ const gaanJourneys: JourneyRecord[] = [
   },
 ];
 
-export const gaanPack: VerbJourneyPack = {
+const legacyGaanPack: VerbJourneyPack = {
   schemaVersion: 1,
   contentVersion: "020-2",
   verb: { id: "verb.gaan", lemma: "gaan", english: "to go", level: "A1", tags: ["irregular", "motion"], auxiliary: "zijn" },
@@ -162,3 +163,5 @@ export const gaanPack: VerbJourneyPack = {
     ], formula: "ik ga · jij gaat · hij/zij gaat · wij gaan", formulaNote: "Gaan is irregular. Learn these bounded present forms from the subject; this journey does not claim uncued full-paradigm production.", valuableContrast: "Ik ga naar het station describes present movement or a plan. Ik zal naar het station gaan makes the future explicit; everyday Dutch can also use Ik ga naar het station with a future cue." },
   }, ...gaanJourneys],
 };
+
+export const gaanPack: VerbJourneyPack = contentCatalog.getVerbJourneyPack("verb.gaan") ?? legacyGaanPack;

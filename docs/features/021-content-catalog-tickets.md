@@ -121,6 +121,13 @@ qualification, popup integration, and learner evidence.
 preserving its bounded movement/auxiliary boundary, multilingual content,
 practice, qualification, popup integration, and learner evidence.
 
+**Status:** complete
+
+- [x] The `gaan` pack is a versioned release-qualified catalog package.
+- [x] Its bounded movement/auxiliary boundary, multilingual content, stories, and journey IDs are preserved.
+- [x] Practice, popup integration, qualification, and learner evidence remain compatible.
+- [x] Existing `gaan` content validation and learner-history checks pass through the catalog-backed runtime shape.
+
 ## 08 — Retire legacy content sources and qualify the complete catalog
 
 **Issue:** [#176](https://github.com/mgurramaiproject/dutchmate/issues/176)
