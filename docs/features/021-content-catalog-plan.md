@@ -7,14 +7,16 @@
 **Branch:** `feature/021-content-catalog`, created from the clean local `main`
 branch on 2026-08-03.
 
-**Status:** Shared understanding reached; specification and tickets await
-explicit approval gates.
+**Status:** Specification and dependency-ordered tickets published.
 
-**Specification:** Not created. Awaiting explicit approval to invoke
-`$to-spec`.
+**Specification:** [021-content-catalog-spec.md](./021-content-catalog-spec.md);
+published as [GitHub issue #168](https://github.com/mgurramaiproject/dutchmate/issues/168)
+with `ready-for-agent`.
 
-**Tickets:** Not created. Awaiting specification review and explicit approval
-to invoke `$to-tickets`.
+**Tickets:** [021-content-catalog-tickets.md](./021-content-catalog-tickets.md);
+published as child GitHub issues [#169](https://github.com/mgurramaiproject/dutchmate/issues/169)
+through [#176](https://github.com/mgurramaiproject/dutchmate/issues/176), all
+with `ready-for-agent`.
 
 ## Goal
 
@@ -119,16 +121,20 @@ the specification is written.
 
 ## Approval gates and next delivery order
 
-1. Commit this plan, glossary decision, ADR, and parking-lot updates.
+1. Commit this plan, glossary decision, ADR, and parking-lot updates. **Done:**
+   commit `78ec7f2`.
 2. Ask for explicit approval to invoke `$to-spec` and create the canonical
-   specification under `docs/features/021-content-catalog-spec.md`.
+   specification under `docs/features/021-content-catalog-spec.md`. **Done:**
+   specification published as GitHub issue #168 with `ready-for-agent`.
 3. Review the specification and its proposed verification seams with the user.
+   **Done:** the approved verification seams and scope were used for the
+   published ticket breakdown.
 4. Ask for explicit approval to invoke `$to-tickets` and create the dependency-
    ordered ticket document under `docs/features/021-content-catalog-tickets.md`
-   plus the GitHub issue tree.
+   plus the GitHub issue tree. **Done:** the approved breakdown is checked in
+   and published as child issues #169–#176, all labeled `ready-for-agent`.
 5. Implement the approved migration slices while preserving the existing
    learner-history and UI contracts.
 6. Run focused content/catalog checks, typecheck, the full relevant suite,
    Chrome/Firefox builds, diff review, and the complete GitHub/Delivery
    handoff.
-
