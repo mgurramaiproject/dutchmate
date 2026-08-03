@@ -44,6 +44,22 @@ _Avoid_: 100-verb catalog, conjugation-table course, tense encyclopedia
 A short, staged learning path for one high-utility Dutch verb inside the existing Lesson library. It connects a first-person context, a noticed form, the shared Verb Map, controlled practice, and later review without making the verb a single completed lesson or a separate learner-facing destination.
 _Avoid_: Verb course, verb destination tab, completed verb badge
 
+**Published authored content**:
+Reviewed, versioned learner-facing teaching material that DutchMate ships or
+otherwise makes available as part of its product, including curated
+mini-lessons, micro-stories, Verb Journey packs, and authored practice. It is
+distinct from learner-created Saved items, local learning evidence, and
+learner history.
+_Avoid_: User content, saved translation, generated lesson
+
+**Content catalog**:
+The organized collection of DutchMate's published authored content, addressed
+by stable content identity so product surfaces can present compatible lessons,
+stories, journeys, and practice without changing the learner's local record.
+It describes teaching material, not an account, learner profile, or mastery
+store.
+_Avoid_: Content feed, learner database, progress database
+
 **Gaan Verb Journey**:
 The approved `gaan` learning boundary: movement and departure, destinations and plans, near-future `gaan` plus an infinitive, and a bounded perfect construction with `zijn`. It uses primarily first-person stories with limited person and inversion contrasts, and does not claim to teach a general auxiliary course or the full idiom range of *gaan*.
 _Avoid_: Full auxiliary course, full *gaan* idiom course, uncued full-paradigm production
