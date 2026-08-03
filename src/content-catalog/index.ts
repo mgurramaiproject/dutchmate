@@ -22,6 +22,7 @@ import contrastMainClauseInversionPackage from "./packages/contrast/contrast.mai
 import type { GrammarPattern } from "../grammar/content";
 import type { ContrastPack } from "../grammar/contrast";
 import werkenVerbJourneyPackage from "./packages/verb-journeys/verb.werken.json";
+import zijnVerbJourneyPackage from "./packages/verb-journeys/verb.zijn.json";
 import type { VerbJourneyPack } from "../verb-journeys/content";
 
 export const CONTENT_CATALOG_SCHEMA_VERSION = 1 as const;
@@ -74,7 +75,7 @@ const lessonPackages: readonly ContentPackage<Lesson>[] = [
 ] as unknown as readonly ContentPackage<Lesson>[];
 const grammarPackages: readonly ContentPackage<GrammarPattern>[] = [a0ZijnPresentPackage, a0HebbenPresentPackage, a0RegularPresentPackage, a0YesNoInversionPackage] as unknown as readonly ContentPackage<GrammarPattern>[];
 const contrastPackages: readonly ContentPackage<ContrastPack>[] = [contrastMainClauseInversionPackage] as unknown as readonly ContentPackage<ContrastPack>[];
-const verbJourneyPackages: readonly ContentPackage<VerbJourneyPack>[] = [werkenVerbJourneyPackage] as unknown as readonly ContentPackage<VerbJourneyPack>[];
+const verbJourneyPackages: readonly ContentPackage<VerbJourneyPack>[] = [werkenVerbJourneyPackage, zijnVerbJourneyPackage] as unknown as readonly ContentPackage<VerbJourneyPack>[];
 const allPackages: readonly ContentPackage<unknown>[] = [...lessonPackages, ...grammarPackages, ...contrastPackages, ...verbJourneyPackages];
 
 export function validateContentPackage(value: unknown): string[] {

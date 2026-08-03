@@ -87,6 +87,13 @@ Daily Five eligibility, and verb evidence.
 preserving stable identity, multilingual content, comparison behavior, popup
 integration, and learner evidence.
 
+**Status:** complete
+
+- [x] The `zijn` pack is a versioned release-qualified catalog package.
+- [x] Stable identity, multilingual forms, comparisons, stories, and journey IDs are preserved.
+- [x] Practice, popup integration, qualification, and learner evidence remain compatible.
+- [x] Existing `zijn` content validation and learner-history checks pass through the catalog-backed runtime shape.
+
 ## 06 — Migrate the `hebben` Verb Journey pack
 
 **Issue:** [#174](https://github.com/mgurramaiproject/dutchmate/issues/174)

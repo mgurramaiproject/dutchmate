@@ -508,7 +508,7 @@ const zijnEnglishComparison: EnglishMapRecord[] = withLocalizedEnglishComparison
   "future-perfect-continuous": { meaningPreserving: localizedEnglishComparison("Vrijdag zal ik al een week moe zijn.", "శుక్రవారం నాటికి నేను ఇప్పటికే ఒక వారం అలసిపోయి ఉంటాను.", "OTTT"), everyday: localizedEnglishComparison("Vrijdag ben ik al een week moe.", "శుక్రవారం నాటికి నేను ఇప్పటికే ఒక వారం అలసిపోయి ఉన్నాను.", "OTT"), cue: { display: "vrijdag + al een week", shortMeaning: "continuing state at a future point", kind: "compound", tokens: ["Vrijdag", "al een week"] }, howDutchExpressesIt: "Meaning-preserving: OTTT zal zijn + duration. Everyday: OTT ben + duration.", whyTheyDiffer: "Dutch normally keeps the state in OTT and uses a duration rather than a separate future-perfect-continuous form." },
 });
 
-const zijnPack: VerbJourneyPack = {
+const legacyZijnPack: VerbJourneyPack = {
   schemaVersion: VERB_JOURNEY_SCHEMA_VERSION,
   contentVersion: ENGLISH_COMPARISON_CONTENT_VERSION,
   verb: { id: "verb.zijn", lemma: "zijn", english: "to be", level: "A1", tags: ["irregular", "copular"], auxiliary: "zijn" },
@@ -743,6 +743,8 @@ const hebbenPack: VerbJourneyPack = {
     ], formula: "zal hebben · zou hebben · zal gehad hebben · zou gehad hebben", formulaNote: "OTTT and OVTT are the main future or conditional contrast. VTTT and VVTT are advanced reference forms connected to the map; they are labelled for recognition, not taught as a beginner gate.", valuableContrast: "Zal hebben points to an explicit future. Zou hebben depends on a condition. Zal gehad hebben and zou gehad hebben add completion before that future or hypothetical reference point." },
   }],
 };
+
+const zijnPack: VerbJourneyPack = contentCatalog.getVerbJourneyPack("verb.zijn") ?? legacyZijnPack;
 
 export const verbJourneyPacks: VerbJourneyPack[] = [verbJourneyPack, zijnPack, hebbenPack, gaanPack];
 
