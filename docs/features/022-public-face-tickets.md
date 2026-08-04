@@ -1,0 +1,74 @@
+# Feature 022: Public Face Tickets
+
+**Parent:** [Feature 022: Public Face](https://github.com/mgurramaiproject/dutchmate/issues/178)
+
+**Status:** Dependency-ordered ticket set published; both tickets are
+`ready-for-agent`.
+
+## Ticket tree
+
+### T01 — Refresh the public frontend story and browser availability
+
+**Issue:** [#179](https://github.com/mgurramaiproject/dutchmate/issues/179)
+
+**Blocked by:** None — can start immediately.
+
+**What it delivers:** The existing DutchMate homepage accurately presents the
+current learner experience and honest browser availability. Chrome and Firefox
+have real store links with their logos; Edge is a non-navigating coming-soon
+action that reports “Edge support is coming soon” when clicked. The page,
+metadata, accessibility labels, and focused public-site tests no longer make
+stale release or Firefox-only claims, while the existing gallery and feedback
+paths remain intact.
+
+**Acceptance criteria:**
+
+- [ ] Homepage copy describes translation, Saved vocabulary, Daily Five,
+      Lessons, Verb Journeys, multilingual form support, and English
+      comparisons in crisp learner-first language.
+- [ ] Current repository build and older store-installed builds are clearly
+      distinguished.
+- [ ] Chrome and Firefox install actions use the supplied public listing URLs,
+      recognizable local browser logos, and accessible names.
+- [ ] Clicking the Edge availability action shows “Edge support is coming
+      soon” without navigating to a fabricated URL.
+- [ ] Social metadata, footer, privacy/feedback wording, and accessibility
+      labels agree with the updated availability story.
+- [ ] Existing gallery assets, lightbox behavior, feedback links, and privacy
+      link remain intact.
+- [ ] Focused public-site tests protect the new external behavior and reject
+      the stale one-browser-only claims.
+
+### T02 — Qualify and approve the Feature 022 public face
+
+**Issue:** [#180](https://github.com/mgurramaiproject/dutchmate/issues/180)
+
+**Blocked by:** T01 — Refresh the public frontend story and browser
+availability.
+
+**What it delivers:** A reviewed, release-ready public frontend whose final
+copy is explicitly approved and whose desktop, narrow-screen, keyboard,
+browser-link, Edge feedback, test, typecheck, build, diff, and consistency
+checks pass.
+
+**Acceptance criteria:**
+
+- [ ] Final homepage and metadata copy receives explicit user approval.
+- [ ] Stale release, unsupported feature, misleading store-status, and
+      Firefox-only claims are reviewed and corrected.
+- [ ] Desktop and narrow layouts remain readable without horizontal overflow.
+- [ ] Keyboard focus, accessible names, and Edge status feedback are manually
+      verified.
+- [ ] Chrome and Firefox links open the supplied public listings.
+- [ ] The existing screenshot gallery remains readable and its copy does not
+      claim to show newer behavior absent from the captures.
+- [ ] Focused tests, full relevant tests, typecheck, frontend build checks, and
+      whitespace/diff review pass.
+- [ ] All intentional changes are committed on the Feature 022 branch.
+
+## Publication record
+
+- Parent issue: [#178](https://github.com/mgurramaiproject/dutchmate/issues/178)
+- T01: [#179](https://github.com/mgurramaiproject/dutchmate/issues/179)
+- T02: [#180](https://github.com/mgurramaiproject/dutchmate/issues/180),
+  blocked by #179

@@ -7,7 +7,8 @@
 **Branch:** `feature/022-public-face`, created from the clean local `main`
 branch on 2026-08-04.
 
-**Status:** Specification published; awaiting approval to invoke `$to-tickets`.
+**Status:** Specification and dependency-ordered tickets published; ready for
+implementation.
 
 **Specification:** [022-public-face-spec.md](./022-public-face-spec.md);
 published as [GitHub issue #178](https://github.com/mgurramaiproject/dutchmate/issues/178)
@@ -116,7 +117,10 @@ system, information architecture, screenshot gallery, and human tone.
    **Done:** the approved seams are recorded in the specification.
 4. Ask for explicit approval to invoke `$to-tickets` and create
    `docs/features/022-public-face-tickets.md` plus the dependency-ordered
-   tracker issues.
+   tracker issues. **Done:** the approved breakdown is checked in and
+   published as child issues [#179](https://github.com/mgurramaiproject/dutchmate/issues/179)
+   and [#180](https://github.com/mgurramaiproject/dutchmate/issues/180), both
+   labeled `ready-for-agent`; #180 is blocked by #179.
 5. Implement the approved frontend slice, then present the final copy for
    explicit user approval before treating the copy as final.
 6. Run focused public-site tests, the full relevant test suite, typecheck,
