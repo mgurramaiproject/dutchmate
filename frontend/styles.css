@@ -442,6 +442,12 @@ h3 {
   gap: 18px;
 }
 
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -717,7 +723,7 @@ h3 {
 
 .availability-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin-top: 24px;
 }
@@ -760,19 +766,6 @@ h3 {
 .browser-logo,
 .browser-wordmark {
   flex: 0 0 auto;
-}
-
-.browser-wordmark {
-  display: inline-grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-  font-family: Georgia, serif;
-  font-size: 1.55rem;
-  font-style: italic;
-  font-weight: 700;
 }
 
 .availability-card-copy {
@@ -1000,6 +993,7 @@ h3 {
   .feedback-preview-grid,
   .grid-2,
   .grid-3,
+  .grid-4,
   .steps,
   .availability-grid,
   .store-action-pair {

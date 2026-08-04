@@ -2,11 +2,20 @@ const lightbox = document.querySelector("#screenshot-lightbox");
 
 const edgeAvailability = document.querySelector("#edge-availability");
 const edgeStatus = document.querySelector("#edge-status");
+const safariAvailability = document.querySelector("#safari-availability");
+const safariStatus = document.querySelector("#safari-status");
 
 if (edgeAvailability instanceof HTMLButtonElement && edgeStatus instanceof HTMLElement) {
   edgeAvailability.addEventListener("click", () => {
     edgeAvailability.setAttribute("aria-expanded", "true");
     edgeStatus.hidden = false;
+  });
+}
+
+if (safariAvailability instanceof HTMLButtonElement && safariStatus instanceof HTMLElement) {
+  safariAvailability.addEventListener("click", () => {
+    safariAvailability.setAttribute("aria-expanded", "true");
+    safariStatus.hidden = false;
   });
 }
 

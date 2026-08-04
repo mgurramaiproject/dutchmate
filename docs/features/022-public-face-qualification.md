@@ -4,7 +4,8 @@
 
 **Branch:** `feature/022-public-face`
 
-**Status:** Final copy approved; implementation and qualification checks passed.
+**Status:** Final copy approved; QA follow-up implemented and qualification
+checks passed.
 
 ## Scope qualified
 
@@ -13,13 +14,14 @@
   latest update.
 - Chrome and Firefox availability actions use the supplied public store URLs
   and local browser logos.
-- Edge is a native button, not a fabricated link. Its click handler exposes
-  the accessible status text “Edge support is coming soon.”
+- Edge and Safari are native buttons, not fabricated links. Their click
+  handlers expose accessible browser-specific support-is-coming-soon text.
 - The existing screenshot gallery, lightbox, feedback routes, privacy route,
   and responsive design primitives remain in place.
 - The newer learner-facing story is represented through translation, Saved
-  vocabulary, Daily Five, Lessons, Verb Journeys, English comparisons, and
-  reviewed practice. Internal content-catalog terminology is not marketed.
+  vocabulary, Daily Five, Lessons, Dutch grammar, verb conjugations with
+  English, sentence exercises, Verb Journeys, and useful vocabulary practice.
+  Internal content-catalog terminology is not marketed.
 - The user explicitly approved the final copy on 2026-08-04.
 
 ## Verification evidence
@@ -33,11 +35,11 @@
   deferred static asset there.
 - `git diff --check` — passed.
 - Headless Chrome DOM load of the local homepage — passed. The rendered DOM
-  contained the current build copy, Chrome/Firefox availability, Edge button
-  and status, and combined review copy.
-- Edge interaction regression — passed through the focused test that executes
-  the shipped script, clicks the native Edge button, verifies
-  `aria-expanded="true"`, and verifies that the status becomes visible.
+  contained the current build copy, four browser cards, Edge and Safari buttons
+  and statuses, and the expanded practice copy.
+- Edge and Safari interaction regression — passed through the focused test that
+  executes the shipped script, clicks both native buttons, verifies
+  `aria-expanded="true"`, and verifies that both statuses become visible.
 - Local Render-style preview — passed through the repository `frontend:dev`
   server and HTTP response inspection. The preview served the updated
   homepage from the same `frontend/` directory documented for Render.
@@ -50,4 +52,3 @@
   English comparison screens.
 - Real store-installed extension update: intentionally out of scope; the page
   says the latest update is coming soon.
-

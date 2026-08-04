@@ -13,7 +13,10 @@ describe("public website", () => {
     expect(homepage).toContain("Build 0.4.1 · Store updates coming soon");
     expect(homepage).toContain("Read Dutch. Keep the words that matter.");
     expect(homepage).toContain("Daily Five, Lessons, and Verb Journeys");
-    expect(homepage).toContain("English comparisons");
+    expect(homepage).toContain("Practise Dutch grammar");
+    expect(homepage).toContain("Follow verb conjugations");
+    expect(homepage).toContain("Build sentences");
+    expect(homepage).toContain("Grow useful vocabulary");
     expect(homepage).toContain("No account or subscription");
     expect(homepage).toContain("007-showcase-040-14-browser-popup.png");
     expect(homepage).toContain('id="screenshot-lightbox"');
@@ -22,9 +25,14 @@ describe("public website", () => {
     expect(homepage).toContain("https://addons.mozilla.org/en-US/firefox/addon/dutchmate/");
     expect(homepage).toContain("assets/chrome-logo.svg");
     expect(homepage).toContain("assets/firefox-logo.svg");
+    expect(homepage).toContain("assets/edge-logo.svg");
+    expect(homepage).toContain("assets/safari-logo.svg");
     expect(homepage).toContain('id="edge-availability"');
+    expect(homepage).toContain('id="safari-availability"');
     expect(homepage).toContain("Edge support is coming soon.");
+    expect(homepage).toContain("Safari support is coming soon.");
     expect(homepage).toContain('id="edge-status" role="status" hidden');
+    expect(homepage).toContain('id="safari-status" role="status" hidden');
     expect(homepage).not.toContain("Release 0.4.0");
     expect(homepage).not.toContain("Now available for Firefox");
     expect(homepage).not.toContain("Install the Firefox extension");
@@ -57,6 +65,8 @@ describe("public website", () => {
     expect(homepage).not.toContain("dutchmate-firefox-");
     expect(homepage).not.toContain("homepage-hover-translation.png");
     expect(existsSync(resolve(process.cwd(), "frontend", "assets", "chrome-logo.svg"))).toBe(true);
+    expect(existsSync(resolve(process.cwd(), "frontend", "assets", "edge-logo.svg"))).toBe(true);
+    expect(existsSync(resolve(process.cwd(), "frontend", "assets", "safari-logo.svg"))).toBe(true);
   });
 
   it("supports public sharing plus private feedback without repo-dependent links", () => {
@@ -118,10 +128,14 @@ describe("public website", () => {
 
     const edgeButton = new FakeButton();
     const edgeStatus = new FakeElement();
+    const safariButton = new FakeButton();
+    const safariStatus = new FakeElement();
     const document = {
       querySelector(selector: string) {
         if (selector === "#edge-availability") return edgeButton;
         if (selector === "#edge-status") return edgeStatus;
+        if (selector === "#safari-availability") return safariButton;
+        if (selector === "#safari-status") return safariStatus;
         return null;
       },
     };
@@ -134,8 +148,11 @@ describe("public website", () => {
     });
 
     edgeButton.click();
+    safariButton.click();
 
     expect(edgeButton.attributes.get("aria-expanded")).toBe("true");
     expect(edgeStatus.hidden).toBe(false);
+    expect(safariButton.attributes.get("aria-expanded")).toBe("true");
+    expect(safariStatus.hidden).toBe(false);
   });
 });

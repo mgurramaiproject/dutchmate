@@ -15,8 +15,9 @@ qualification are complete.
 
 **What it delivers:** The existing DutchMate homepage accurately presents the
 current learner experience and honest browser availability. Chrome and Firefox
-have real store links with their logos; Edge is a non-navigating coming-soon
-action that reports “Edge support is coming soon” when clicked. The page,
+have real store links with their logos; Edge and Safari are non-navigating
+coming-soon actions that report browser-specific support messages when clicked.
+The page,
 metadata, accessibility labels, and focused public-site tests no longer make
 stale release or Firefox-only claims, while the existing gallery and feedback
 paths remain intact.
@@ -32,6 +33,10 @@ paths remain intact.
       recognizable local browser logos, and accessible names.
 - [x] Clicking the Edge availability action shows “Edge support is coming
       soon” without navigating to a fabricated URL.
+- [x] Safari has a matching local logo and non-navigating coming-soon action
+      with no fabricated store URL.
+- [x] Practice copy highlights Dutch grammar, verb conjugations with English,
+      sentence exercises, and useful vocabulary practice.
 - [x] Social metadata, footer, privacy/feedback wording, and accessibility
       labels agree with the updated availability story.
 - [x] Existing gallery assets, lightbox behavior, feedback links, and privacy

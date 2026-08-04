@@ -35,12 +35,12 @@ system, information architecture, screenshot gallery, and human tone.
   Chrome and Firefox have public listings, but those listings still contain an
   earlier published build. Store actions remain valid install links and carry
   concise wording such as the latest update coming soon.
-- Edge is not yet published. It appears as a clearly marked “Coming soon”
-  availability action without a store link; clicking it shows “Edge support is
-  coming soon” and does not navigate.
-- Chrome and Firefox logos are used on the corresponding install or
-  availability actions. No browser logo is required for the non-clickable
-  Edge state unless an appropriate local asset already exists.
+- Edge and Safari are not yet published. They appear as clearly marked
+  “Coming soon” availability actions without store links; clicking either one
+  shows its support-is-coming-soon message and does not navigate.
+- Chrome, Firefox, Edge, and Safari logos are used on the corresponding
+  availability actions. Chrome and Firefox are real links; Edge and Safari are
+  non-navigating placeholders.
 - The existing 007 showcase gallery remains in place for this feature. Its
   captions and surrounding copy must not imply that the images demonstrate
   newer Verb Journey or comparison-lens behavior that the captures do not
@@ -75,7 +75,11 @@ system, information architecture, screenshot gallery, and human tone.
   accessibility labels.
 - Add the Chrome store link supplied by the user and retain the Firefox link
   supplied by the user.
-- Add a local Chrome logo asset and reuse the existing Firefox logo asset.
+- Add local Chrome, Edge, and Safari logo assets and reuse the existing Firefox
+  logo asset.
+- Add a compact practice-feature block covering Dutch grammar, verb
+  conjugations with English comparisons, sentence exercises, and useful
+  vocabulary practice.
 - Keep the existing screenshot files and lightbox behavior unchanged.
 - Extend the focused public-site tests to verify the two live store links,
   browser labels/logos, Edge's non-link state, current-build/store-version
@@ -88,7 +92,8 @@ system, information architecture, screenshot gallery, and human tone.
    versions.
 2. **Availability actions:** Chrome and Firefox actions point to the supplied
    public listings, use their browser logos, and describe the older store-build
-   status accurately; Edge is visibly coming soon and not clickable.
+  status accurately; Edge and Safari are visibly coming soon and not
+  clickable.
 3. **Existing frontend behavior:** the screenshot gallery, feedback links,
    privacy link, responsive structure, and lightbox remain intact.
 4. **Repository consistency:** no stale 0.4.0 marketing claims remain where

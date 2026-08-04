@@ -22,14 +22,16 @@ short, human descriptions of the current product.
 
 The homepage will link to the supplied Chrome Web Store and Firefox Add-ons
 listings. Each browser action will use its browser logo and explain that the
-listing is available while the latest update is still coming soon. An Edge
-availability action will use a non-navigating interactive state: clicking it
-shows “Edge support is coming soon.” It does not link to a store.
+listing is available while the latest update is still coming soon. Edge and
+Safari availability actions will use non-navigating interactive states:
+clicking them shows their support-is-coming-soon message. They do not link to
+a store.
 
 The public copy will describe the user-visible browsing-to-fluency loop:
 translate on real webpages, save useful vocabulary, practise with Daily Five
 and short Lessons, and follow Verb Journeys with multilingual form support and
-English comparisons. Internal catalog architecture and unverified future
+English comparisons, grammar practice, sentence exercises, and useful
+vocabulary practice. Internal catalog architecture and unverified future
 capabilities remain out of the marketing promise.
 
 ## User Stories
@@ -112,13 +114,15 @@ capabilities remain out of the marketing promise.
   official listings and display local browser logo assets. The existing Firefox
   logo is reused; a local Chrome logo asset is added if required by the current
   asset set.
-- Edge is represented as a clearly labelled coming-soon availability action.
-  Its click behavior shows “Edge support is coming soon” in an accessible
-  feedback state and does not navigate or fabricate a store URL.
+- Edge and Safari are represented as clearly labelled coming-soon availability
+  actions. Their click behavior shows browser-specific support-is-coming-soon
+  messages in accessible feedback states and does not navigate or fabricate a
+  store URL.
 - Public feature copy leads with learner outcomes and uses domain terms only
   where they clarify the experience: Saved, Daily Five, Lessons, Verb
-  Journeys, Verb Map, and English comparisons. Content catalog remains an
-  internal term and is not marketed.
+  Journeys, Verb Map, English comparisons, grammar practice, sentence
+  exercises, and useful vocabulary. Content catalog remains an internal term
+  and is not marketed.
 - The existing 007 showcase image files, gallery structure, lightbox, and
   screenshot navigation remain unchanged. Captions and adjacent prose are
   narrowed so they describe only the behavior visible in those older captures.
@@ -164,6 +168,7 @@ capabilities remain out of the marketing promise.
 - Updating or publishing the Chrome Web Store listing.
 - Updating or publishing the Firefox Add-ons listing.
 - Publishing Edge or implementing an Edge build or store integration.
+- Publishing Safari or implementing a Safari build or store integration.
 - Capturing, replacing, or redesigning the existing screenshot gallery.
 - Extension popup redesign or changes to learner-facing runtime behavior.
 - Changes to learner history, evidence, scheduling, content packages, or the
@@ -181,4 +186,3 @@ capabilities remain out of the marketing promise.
   feature is considered copy-complete.
 - The next workflow gate is approval to invoke `$to-tickets` and create the
   dependency-ordered ticket document and GitHub issue tree.
-
