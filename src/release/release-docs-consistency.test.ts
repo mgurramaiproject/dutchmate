@@ -39,7 +39,7 @@ describe("release docs consistency", () => {
     const manualTesting = readRepoFile("docs/release/manual-testing.md");
     const privacyPolicy = readRepoFile("docs/release/privacy-policy.md");
     const storeDisclosure = readRepoFile("docs/release/store-disclosure-draft.md");
-    const releaseNotes = readRepoFile("docs/release/notes/v0.4.0.md");
+    const releaseNotes = readRepoFile("docs/release/notes/v0.5.0.md");
 
     expect(manualTesting).toContain("## LearnLoop Release Checks");
     expect(manualTesting).toContain("## Voluntary Learner Validation Protocol");

@@ -1,5 +1,37 @@
 # Release Notes
 
+## 0.5.0
+
+Target: the next minor release after `0.4.0`, consolidating the grammar,
+sentence-practice, Verb Journey, content-catalog, and public-face work shipped
+since the last GitHub release.
+
+Changes:
+
+- Added grammar practice, sentence exercises, short Lessons, Daily Five, and
+  Verb Journeys for `werken`, `zijn`, `hebben`, and `gaan`.
+- Added English comparisons and multilingual form references across verb
+  learning.
+- Added the typed, versioned content catalog for reviewed Lessons, grammar,
+  contrast, and Verb Journey packages while preserving learner history.
+- Refreshed the public homepage with current product copy and four-browser
+  availability states.
+- Tightened store-ready host permissions while keeping local-testing access
+  explicit.
+
+Verification:
+
+- `corepack pnpm verify`
+- `corepack pnpm package:extensions`
+- `node scripts/verify-extension-release.mjs`
+- `git diff --check`
+
+Notes:
+
+- GitHub Release assets are packaged for Chrome and Firefox; store submission
+  remains manual and separate.
+- Learning data remains local-only, with no account or cloud sync.
+
 ## 0.4.0
 
 Target: the first minor release after the `0.3.0` LearnLoop baseline, adding Context Missions, learning-loop refinements, and source-aware cross-language capture.
