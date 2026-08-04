@@ -1,5 +1,25 @@
 const lightbox = document.querySelector("#screenshot-lightbox");
 
+document.querySelectorAll("[data-coming-soon-browser]").forEach((button) => {
+  if (!(button instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const browser = button.dataset.comingSoonBrowser;
+  const statusId = button.getAttribute("aria-controls");
+  const status = statusId ? document.getElementById(statusId) : null;
+
+  if (!browser || !(status instanceof HTMLElement)) {
+    return;
+  }
+
+  button.addEventListener("click", () => {
+    button.setAttribute("aria-expanded", "true");
+    status.textContent = `${browser} support is coming soon.`;
+    status.hidden = false;
+  });
+});
+
 if (lightbox instanceof HTMLDialogElement) {
   const lightboxImage = lightbox.querySelector("#screenshot-lightbox-image");
   const lightboxTitle = lightbox.querySelector("#screenshot-lightbox-title");

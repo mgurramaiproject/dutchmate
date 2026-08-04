@@ -3,22 +3,22 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="DutchMate 0.4.0 helps you read Dutch on real websites with English and Telugu beside you, save useful vocabulary, and practise with Daily Five and short lessons. No account or subscription required.">
+    <meta name="description" content="Read Dutch on real websites with English and Telugu beside you. Practise grammar, verb conjugations, sentence exercises, and useful vocabulary. No account required.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="DutchMate">
-    <meta property="og:title" content="DutchMate 0.4.0 | Read Dutch from the web">
-    <meta property="og:description" content="Read Dutch on real websites with English and Telugu beside you. Save vocabulary, practise with Daily Five and lessons, and keep learning local.">
+    <meta property="og:title" content="DutchMate | Read Dutch from the web">
+    <meta property="og:description" content="Read Dutch on real websites with English and Telugu beside you. Practise grammar, verb conjugations, sentence exercises, and useful vocabulary.">
     <meta property="og:url" content="https://dutchmate-frontend.onrender.com/">
     <meta property="og:image" content="https://dutchmate-frontend.onrender.com/assets/og-dutchmate-hover-1200x630.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="DutchMate showing English and Telugu meanings while reading a Dutch word online.">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="DutchMate 0.4.0 | Read Dutch from the web">
-    <meta name="twitter:description" content="Read Dutch on real websites with English and Telugu beside you. Save vocabulary, practise with Daily Five and lessons, and keep learning local.">
+    <meta name="twitter:title" content="DutchMate | Read Dutch from the web">
+    <meta name="twitter:description" content="Read Dutch on real websites with English and Telugu beside you. Practise grammar, verb conjugations, sentence exercises, and useful vocabulary.">
     <meta name="twitter:image" content="https://dutchmate-frontend.onrender.com/assets/og-dutchmate-hover-1200x630.png">
     <meta name="twitter:image:alt" content="DutchMate showing English and Telugu meanings while reading a Dutch word online.">
-    <title>DutchMate 0.4.0 | Read Dutch from the web</title>
+    <title>DutchMate | Read Dutch from the web</title>
     <link rel="icon" href="assets/dutchmate-mark.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
     <script src="007-showcase-gallery.js" defer></script>
@@ -34,10 +34,25 @@
           <a href="#how-it-works">Learn</a>
           <a href="feedback.html">Feedback</a>
           <a href="privacy-policy.html">Privacy policy</a>
-          <a class="download-badge download-badge-compact" href="https://addons.mozilla.org/en-US/firefox/addon/dutchmate/">
-            <img src="assets/firefox-logo.svg" alt="" width="24" height="24">
-            <span>Install free on Firefox</span>
-          </a>
+          <div class="nav-store-links" aria-label="Install DutchMate">
+            <a class="nav-store-link" href="https://chromewebstore.google.com/detail/kafimmaagcjmcpajmfneabhebblobgeo">
+              <img src="assets/chrome-logo.svg" alt="" width="22" height="22">
+              <span>Chrome</span>
+            </a>
+            <a class="nav-store-link" href="https://addons.mozilla.org/en-US/firefox/addon/dutchmate/">
+              <img src="assets/firefox-logo.svg" alt="" width="22" height="22">
+              <span>Firefox</span>
+            </a>
+            <button class="nav-store-link nav-store-link-placeholder" type="button" data-coming-soon-browser="Edge" aria-controls="nav-browser-status" aria-expanded="false">
+              <img src="assets/edge-logo.svg" alt="" width="22" height="22">
+              <span>Edge</span>
+            </button>
+            <button class="nav-store-link nav-store-link-placeholder" type="button" data-coming-soon-browser="Safari" aria-controls="nav-browser-status" aria-expanded="false">
+              <img src="assets/safari-logo.svg" alt="" width="22" height="22">
+              <span>Safari</span>
+            </button>
+            <span class="nav-browser-status" id="nav-browser-status" role="status" hidden></span>
+          </div>
         </div>
       </nav>
     </header>
@@ -45,36 +60,60 @@
     <main>
       <section class="hero">
         <div>
-          <p class="eyebrow">Release 0.4.0 · Now available for Firefox</p>
-          <h1>Read Dutch. Build your vocabulary from the web.</h1>
-          <p class="lead">Understand Dutch in context with <span class="lead-accent">English</span> and <span class="lead-accent">Telugu (తెలుగు)</span> beside you. Save useful words, then practise them with Daily Five and short lessons.</p>
+          <p class="eyebrow">Build 0.4.1 · Store updates coming soon</p>
+          <h1>Read Dutch. Keep the words that matter.</h1>
+          <p class="lead">Understand Dutch in context with <span class="lead-accent">English</span> and <span class="lead-accent">Telugu (తెలుగు)</span> beside you. Save useful words, then practise grammar, verb conjugations, and sentences with Daily Five, Lessons, and Verb Journeys.</p>
           <div class="hero-value-grid" aria-label="DutchMate core learning actions">
             <article class="hero-value-card">
               <h2>Translate in place</h2>
-              <p>Read Dutch, English, or Telugu on real websites without switching tabs.</p>
+              <p>Read Dutch, English, or Telugu on real websites without leaving the page.</p>
             </article>
             <article class="hero-value-card">
-              <h2>Keep what matters</h2>
-              <p>Save useful vocabulary from real pages and return to it with local practice.</p>
+              <h2>Practise what you keep</h2>
+              <p>Save useful vocabulary and return to it with small, local practice.</p>
             </article>
           </div>
           <div class="hero-actions" id="get-dutchmate">
-            <a class="download-badge" href="https://addons.mozilla.org/en-US/firefox/addon/dutchmate/">
-              <img src="assets/firefox-logo.svg" alt="" width="40" height="40">
-              <span class="download-badge-copy">
-                <strong>Install DutchMate free</strong>
-                <span>Available now on Firefox Add-ons</span>
-              </span>
-            </a>
+            <div class="store-action-pair" aria-label="Install DutchMate">
+              <a class="download-badge" href="https://chromewebstore.google.com/detail/kafimmaagcjmcpajmfneabhebblobgeo">
+                <img src="assets/chrome-logo.svg" alt="" width="32" height="32">
+                <span class="download-badge-copy">
+                  <strong>Chrome</strong>
+                  <span>Latest update coming soon</span>
+                </span>
+              </a>
+              <a class="download-badge" href="https://addons.mozilla.org/en-US/firefox/addon/dutchmate/">
+                <img src="assets/firefox-logo.svg" alt="" width="32" height="32">
+                <span class="download-badge-copy">
+                  <strong>Firefox</strong>
+                  <span>Latest update coming soon</span>
+                </span>
+              </a>
+              <button class="download-badge download-badge-placeholder" type="button" data-coming-soon-browser="Edge" aria-controls="hero-browser-status" aria-expanded="false">
+                <img src="assets/edge-logo.svg" alt="" width="32" height="32">
+                <span class="download-badge-copy">
+                  <strong>Edge</strong>
+                  <span>Coming soon</span>
+                </span>
+              </button>
+              <button class="download-badge download-badge-placeholder" type="button" data-coming-soon-browser="Safari" aria-controls="hero-browser-status" aria-expanded="false">
+                <img src="assets/safari-logo.svg" alt="" width="32" height="32">
+                <span class="download-badge-copy">
+                  <strong>Safari</strong>
+                  <span>Coming soon</span>
+                </span>
+              </button>
+              <p class="availability-status hero-browser-status" id="hero-browser-status" role="status" hidden></p>
+            </div>
             <a class="feedback-cta" href="feedback.html">
               <span class="feedback-cta-eyebrow">Help shape DutchMate</span>
               <strong>Send feedback</strong>
-              <span class="feedback-cta-copy">Private form or quick sharing options</span>
+              <span class="feedback-cta-copy">Tell us what would make Dutch easier.</span>
             </a>
           </div>
           <div class="trust-row" aria-label="Product highlights">
             <span>Dutch · English · Telugu</span>
-            <span>Daily Five + short lessons</span>
+            <span>Grammar + sentence practice</span>
             <span>No account or subscription</span>
           </div>
         </div>
@@ -92,7 +131,7 @@
       <section class="section">
         <div class="section-header">
           <h2 class="section-title-single-line">See DutchMate in a real reading flow.</h2>
-          <p>From the page you are reading to the words you keep and practise, these real Firefox screenshots show DutchMate 0.4.0 in action.</p>
+          <p>From the page you are reading to the words you keep and practise, these Firefox screenshots show the core reading flow.</p>
         </div>
         <div class="screenshot-stories">
           <article class="screenshot-story">
@@ -185,7 +224,7 @@
               <a class="screenshot-link" href="assets/screenshots/007-showcase-040-14-browser-popup.png">
                 <img src="assets/screenshots/007-showcase-040-14-browser-popup.png" alt="DutchMate open in Firefox over a real Dutch webpage, showing the Today learning view in the browser popup.">
               </a>
-              <figcaption><strong>Everything starts on a real page.</strong> Install the free Firefox extension and make Dutch part of the web you already read.</figcaption>
+              <figcaption><strong>Everything starts on a real page.</strong> The install links below work for Chrome and Firefox; this capture shows the reading flow they support.</figcaption>
             </figure>
           </article>
         </div>
@@ -217,21 +256,25 @@
 
       <section class="section">
         <div class="section-header">
-          <h2>Everything you need to keep going.</h2>
-          <p>DutchMate 0.4.0 connects real-page translation with the small practice loop that helps useful words stick.</p>
+          <h2>Practise what makes Dutch click.</h2>
+          <p>Move from a useful word to the grammar, conjugation, sentence, and vocabulary practice behind it.</p>
         </div>
-        <div class="grid-3">
+        <div class="grid-4">
           <article class="feature">
-            <h3>Real websites</h3>
-            <p>Translate Dutch, English, and Telugu without leaving the page you are reading.</p>
+            <h3>Practise Dutch grammar</h3>
+            <p>Work through useful patterns with short exercises and clear feedback.</p>
           </article>
           <article class="feature">
-            <h3>Context that helps</h3>
-            <p>Keep English and Telugu meanings with the words and page context you chose to save.</p>
+            <h3>Follow verb conjugations</h3>
+            <p>See Dutch forms with English comparisons, examples, and a clear path.</p>
           </article>
           <article class="feature">
-            <h3>Local by design</h3>
-            <p>Your saved vocabulary stays in your browser. No account, subscription, or payment required.</p>
+            <h3>Build sentences</h3>
+            <p>Reorder and transform words until the pattern feels familiar.</p>
+          </article>
+          <article class="feature">
+            <h3>Grow useful vocabulary</h3>
+            <p>Save words from real pages and bring them back with Daily Five and Lessons.</p>
           </article>
         </div>
       </section>
@@ -252,22 +295,47 @@
           </article>
           <article class="privacy-note">
             <h3>No account or subscription</h3>
-            <p>Install the Firefox extension and start building your own Dutch vocabulary.</p>
+            <p>Install from Chrome or Firefox and start building your own Dutch vocabulary.</p>
           </article>
         </div>
       </section>
 
       <section class="section" id="availability">
         <div class="cta-band">
-          <h2>Install DutchMate free for Firefox.</h2>
-          <p>DutchMate 0.4.0 is available on the Mozilla Add-ons store. Read Dutch with English and Telugu beside you, save useful vocabulary, and practise with Daily Five and lessons.</p>
-          <a class="download-badge download-badge-on-dark" href="https://addons.mozilla.org/en-US/firefox/addon/dutchmate/">
-            <img src="assets/firefox-logo.svg" alt="" width="32" height="32">
-            <span class="download-badge-copy">
-              <strong>Install DutchMate free</strong>
-              <span>Open the official Add-ons listing</span>
-            </span>
-          </a>
+          <h2>Choose your browser.</h2>
+          <p>Chrome and Firefox listings are live. The latest update is coming soon.</p>
+          <div class="availability-grid" aria-label="DutchMate browser availability">
+            <a class="availability-card" href="https://chromewebstore.google.com/detail/kafimmaagcjmcpajmfneabhebblobgeo">
+              <img class="browser-logo" src="assets/chrome-logo.svg" alt="" width="40" height="40">
+              <span class="availability-card-copy">
+                <strong>Chrome</strong>
+                <span>Open the Chrome Web Store listing</span>
+              </span>
+            </a>
+            <a class="availability-card" href="https://addons.mozilla.org/en-US/firefox/addon/dutchmate/">
+              <img class="browser-logo" src="assets/firefox-logo.svg" alt="" width="40" height="40">
+              <span class="availability-card-copy">
+                <strong>Firefox</strong>
+                <span>Open the Firefox Add-ons listing</span>
+              </span>
+            </a>
+            <button class="availability-card availability-card-muted" id="edge-availability" type="button" aria-controls="edge-status" aria-expanded="false">
+              <img class="browser-logo" src="assets/edge-logo.svg" alt="" width="40" height="40">
+              <span class="availability-card-copy">
+                <strong>Edge</strong>
+                <span>Coming soon</span>
+              </span>
+            </button>
+            <button class="availability-card availability-card-muted" id="safari-availability" type="button" aria-controls="safari-status" aria-expanded="false">
+              <img class="browser-logo" src="assets/safari-logo.svg" alt="" width="40" height="40">
+              <span class="availability-card-copy">
+                <strong>Safari</strong>
+                <span>Coming soon</span>
+              </span>
+            </button>
+          </div>
+          <p class="availability-status" id="edge-status" role="status" hidden>Edge support is coming soon.</p>
+          <p class="availability-status" id="safari-status" role="status" hidden>Safari support is coming soon.</p>
         </div>
       </section>
 
@@ -283,12 +351,12 @@
             <p><a href="https://forms.gle/9KSsqfE1NNZcPEaaA">Open the feedback form</a> if you want to send comments without posting publicly.</p>
           </article>
           <article class="feedback-preview">
-            <h3>Review on Firefox</h3>
-            <p><a href="https://addons.mozilla.org/en-US/firefox/addon/dutchmate/reviews/">Leave a rating or review on Firefox Add-ons</a> to help other learners trust the extension.</p>
+            <h3>Review on Chrome or Firefox</h3>
+            <p><a href="https://chromewebstore.google.com/detail/kafimmaagcjmcpajmfneabhebblobgeo">Review DutchMate on Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/dutchmate/reviews/">Firefox Add-ons</a> to help other learners find it.</p>
           </article>
           <article class="feedback-preview">
             <h3>Share on X</h3>
-            <p><a href="https://twitter.com/intent/tweet?text=I%27m%20using%20DutchMate%20to%20read%20Dutch%20with%20English%20and%20Telugu.&url=https%3A%2F%2Faddons.mozilla.org%2Fen-US%2Ffirefox%2Faddon%2Fdutchmate%2F">Post about DutchMate on X</a> with the live Firefox Add-ons link.</p>
+            <p><a href="https://twitter.com/intent/tweet?text=I%27m%20using%20DutchMate%20to%20read%20Dutch%20with%20English%20and%20Telugu.&url=https%3A%2F%2Fdutchmate-frontend.onrender.com%2F">Share DutchMate on X</a> with the homepage link.</p>
           </article>
           <article class="feedback-preview">
             <h3>Follow DutchMate on X</h3>
@@ -325,7 +393,7 @@
 
     <footer class="footer">
       <div class="footer-inner">
-        <span>DutchMate 0.4.0</span>
+        <span>DutchMate build 0.4.1</span>
         <a href="feedback.html">Feedback</a>
         <a href="https://x.com/dutchmate_addon" target="_blank" rel="noopener noreferrer" aria-label="Follow DutchMate on X (opens in a new tab)">Follow on X</a>
         <a href="privacy-policy.html">Privacy Policy</a>

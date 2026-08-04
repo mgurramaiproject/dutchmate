@@ -81,6 +81,46 @@ p, li, figcaption { font-family: var(--dm-serif); }
   text-decoration: none;
 }
 
+.nav-store-links {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.nav-store-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 7px 10px;
+  border: 1px solid var(--dm-line);
+  border-radius: 8px;
+  background: var(--dm-white);
+  color: var(--dm-black);
+  cursor: pointer;
+  font-family: var(--dm-sans);
+  font-size: 0.84rem;
+  font-weight: 750;
+  text-align: left;
+}
+
+.nav-store-link:hover,
+.nav-store-link:focus-visible {
+  border-color: var(--dm-orange);
+  background: var(--dm-white);
+}
+
+.nav-browser-status {
+  flex-basis: 100%;
+  color: var(--dm-orange);
+  font-family: var(--dm-sans);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-align: right;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -128,6 +168,12 @@ p, li, figcaption { font-family: var(--dm-serif); }
   color: var(--dm-black);
   font-family: var(--dm-sans);
   text-decoration: none;
+}
+
+.download-badge-placeholder {
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
 }
 
 .download-badge:hover,
@@ -307,6 +353,35 @@ h3 {
   max-width: 640px;
 }
 
+.store-action-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.store-action-pair .download-badge {
+  min-height: 56px;
+  padding: 10px 12px;
+  gap: 9px;
+}
+
+.store-action-pair .download-badge-copy strong {
+  font-size: 0.92rem;
+}
+
+.store-action-pair .download-badge-copy span {
+  font-size: 0.74rem;
+}
+
+.store-action-pair .availability-status {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.hero-browser-status {
+  color: var(--dm-muted) !important;
+}
+
 .trust-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -392,6 +467,12 @@ h3 {
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -668,6 +749,82 @@ h3 {
   color: rgba(255, 255, 255, 0.78);
 }
 
+.availability-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.availability-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 72px;
+  padding: 14px 16px;
+  border: 1px solid var(--dm-white);
+  border-radius: 8px;
+  background: var(--dm-white);
+  color: var(--dm-black);
+  font-family: var(--dm-sans);
+  text-align: left;
+  text-decoration: none;
+}
+
+.availability-card:hover,
+.availability-card:focus-visible {
+  border-color: var(--dm-orange);
+  background: var(--dm-orange);
+}
+
+.availability-card-muted {
+  border-color: rgba(255, 255, 255, 0.48);
+  background: transparent;
+  color: var(--dm-white);
+  cursor: pointer;
+}
+
+.availability-card-muted:hover,
+.availability-card-muted:focus-visible {
+  border-color: var(--dm-orange);
+  background: rgba(255, 111, 0, 0.14);
+  color: var(--dm-white);
+}
+
+.browser-logo,
+.browser-wordmark {
+  flex: 0 0 auto;
+}
+
+.availability-card-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.availability-card-copy strong {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.availability-card-copy span {
+  color: var(--dm-muted);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.availability-card-muted .availability-card-copy span {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.availability-status {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--dm-orange);
+  color: var(--dm-white) !important;
+  font-family: var(--dm-sans);
+  font-size: 0.9rem;
+}
+
 .cta-band .button.secondary {
   background: var(--dm-white);
   color: var(--dm-black);
@@ -864,7 +1021,10 @@ h3 {
   .feedback-preview-grid,
   .grid-2,
   .grid-3,
-  .steps {
+  .grid-4,
+  .steps,
+  .availability-grid,
+  .store-action-pair {
     grid-template-columns: 1fr;
   }
 
@@ -886,6 +1046,10 @@ h3 {
   .feedback-actions,
   .feedback-hero {
     grid-template-columns: 1fr;
+  }
+
+  .store-action-pair .download-badge {
+    width: 100%;
   }
 
   .feedback-hero {
