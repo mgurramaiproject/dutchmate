@@ -7,8 +7,8 @@
 **Branch:** `feature/022-public-face`, created from the clean local `main`
 branch on 2026-08-04.
 
-**Status:** Implementation and qualification complete; ready for delivery
-reconciliation.
+**Status:** Implementation, qualification, and post-release Safari deferral
+complete; ready for delivery reconciliation.
 
 **Specification:** [022-public-face-spec.md](./022-public-face-spec.md);
 published as [GitHub issue #178](https://github.com/mgurramaiproject/dutchmate/issues/178)
@@ -34,14 +34,16 @@ system, information architecture, screenshot gallery, and human tone.
 - The frontend must distinguish current product behavior from store status:
   Chrome and Firefox have public listings, but those listings still contain an
   earlier published build. Store actions remain valid install links and carry
-  concise wording such as the latest update coming soon.
-- Edge and Safari are not yet published. They appear as clearly marked
-  “Coming soon” availability actions without store links; clicking either one
-  shows its support-is-coming-soon message and does not navigate.
-- Chrome, Firefox, Edge, and Safari logos are used on the corresponding
-  availability actions in the navigation, hero, and availability sections.
-  Chrome and Firefox are real links; Edge and Safari are non-navigating
-  placeholders.
+  concise wording such as the latest update coming soon. The current
+  repository build is 0.5.0.
+- Edge is not yet published. It appears as a clearly marked “Coming soon”
+  availability action without a store link; clicking it shows its
+  support-is-coming-soon message and does not navigate. The Chromium package
+  is available in the 0.5.0 GitHub Release for the later Edge submission.
+- Chrome, Firefox, and Edge logos are used on the corresponding availability
+  actions in the navigation, hero, and availability sections. Chrome and
+  Firefox are real links; Edge is a non-navigating placeholder. Safari is
+  intentionally deferred and is not presented as an available target.
 - The existing 007 showcase gallery remains in place for this feature. Its
   captions and surrounding copy must not imply that the images demonstrate
   newer Verb Journey or comparison-lens behavior that the captures do not
@@ -53,14 +55,14 @@ system, information architecture, screenshot gallery, and human tone.
 - Copy stays crisp, short, concrete, and human. It should explain learner
   benefits before naming internal feature vocabulary.
 - The current version mismatch is corrected deliberately: package metadata
-  identifies the current repository build as 0.4.1, while the store-status
+  identifies the current repository build as 0.5.0, while the store-status
   wording makes clear that the public listings are older rather than claiming
-  that 0.4.1 is already installed there.
+  that 0.5.0 is already installed there.
 
 ## Current inconsistencies to resolve
 
 - The homepage, social metadata, footer, tests, and gallery copy still center
-  release 0.4.0 while the package is 0.4.1.
+  release 0.4.0 while the package is 0.5.0.
 - The homepage exposes only Firefox install actions even though Chrome now has
   a public listing.
 - Several privacy, feedback, and sharing lines are Firefox-only where the
@@ -76,7 +78,7 @@ system, information architecture, screenshot gallery, and human tone.
   accessibility labels.
 - Add the Chrome store link supplied by the user and retain the Firefox link
   supplied by the user.
-- Add local Chrome, Edge, and Safari logo assets and reuse the existing Firefox
+- Add local Chrome and Edge logo assets and reuse the existing Firefox
   logo asset.
 - Add a compact practice-feature block covering Dutch grammar, verb
   conjugations with English comparisons, sentence exercises, and useful
@@ -93,18 +95,20 @@ system, information architecture, screenshot gallery, and human tone.
    versions.
 2. **Availability actions:** Chrome and Firefox actions point to the supplied
    public listings, use their browser logos, and describe the older store-build
-  status accurately; Edge and Safari are visibly coming soon and not
-  clickable.
+   status accurately; Edge is visibly coming soon and not clickable, while
+   Safari is omitted as a deferred target.
 3. **Existing frontend behavior:** the screenshot gallery, feedback links,
    privacy link, responsive structure, and lightbox remain intact.
 4. **Repository consistency:** no stale 0.4.0 marketing claims remain where
-  they would be read as the current build, all four browser surfaces agree,
+  they would be read as the current build, all three browser surfaces agree,
   and the tests protect against a future one-browser-only regression.
 
 ## Out of scope
 
 - Publishing or updating the Chrome or Firefox store listings.
-- Publishing Edge or creating an Edge store listing.
+- Publishing the Edge store listing or creating a separate Edge-specific
+  implementation.
+- Publishing Safari or implementing a Safari build or store integration.
 - New screenshots, screenshot recapture, or changes to the existing gallery
   assets.
 - Extension popup redesign, new learner navigation, or a new frontend
