@@ -921,7 +921,7 @@ function renderVerbMap(): HTMLElement {
       const status = document.createElement("span"); status.className = `verb-form-status ${displayStatus}`; status.setAttribute("aria-label", `${statusMeta.label}: ${statusMeta.detail}`); status.append(spanText(statusMeta.symbol, "verb-status-symbol"));
       const canonical = form.canonicalExample;
       const cardHeader = document.createElement("span"); cardHeader.className = "verb-form-card-header"; cardHeader.append(renderVerbTenseCode(form.dutchTense), status);
-      card.append(cardHeader, spanText(`NL · ${canonical.nl}`, "verb-form-example"), spanText(`EN · ${canonical.en}`, "verb-form-example-en"), spanText(`TE · ${canonical.te}`, "verb-form-example-te"));
+      card.append(cardHeader, renderLocalizedSentenceLine("NL", canonical.nl, "verb-form-example", verbNoticeTokens(form.dutchTense, pack.verb.id)), spanText(`EN · ${canonical.en}`, "verb-form-example-en"), spanText(`TE · ${canonical.te}`, "verb-form-example-te"));
       card.addEventListener("click", () => { selectedVerbFormTense = form.dutchTense; render(); content?.querySelector<HTMLElement>(".verb-form-detail")?.scrollIntoView?.({ block: "nearest", inline: "nearest" }); });
       map.append(card);
     }
@@ -932,7 +932,7 @@ function renderVerbMap(): HTMLElement {
   comparisonButton.addEventListener("click", () => { focusEnglishComparisonForForm(selected.dutchTense); verbEnglishComparisonOrigin = "map"; screen = "verbEnglishComparison"; render(); content?.focus(); });
   const practiceButton = button(verbPracticeActionLabel(), "button primary-button");
   practiceButton.addEventListener("click", () => startVerbPractice());
-  wrapper.append(renderVerbFormDetail(selected), text("Important: Dutch onvoltooid does not mean the same thing as English continuous, and voltooid is not always a direct English perfect. Context and time words still matter.", "verb-map-note"), comparisonButton, practiceButton);
+  wrapper.append(renderVerbFormDetail(selected, pack.verb.id), text("Important: Dutch onvoltooid does not mean the same thing as English continuous, and voltooid is not always a direct English perfect. Context and time words still matter.", "verb-map-note"), comparisonButton, practiceButton);
   return wrapper;
 }
 
@@ -968,7 +968,7 @@ function renderVerbEnglishComparison(): HTMLElement {
   wrapper.append(mapButton);
   const records = pack.englishComparison.filter((record) => record.group === verbEnglishComparisonGroup);
   const list = section("verb-english-list"); list.setAttribute("role", "tabpanel"); list.setAttribute("aria-label", `${verbEnglishComparisonGroup} English patterns`);
-  for (const [index, record] of records.entries()) list.append(renderEnglishComparisonCard(record, index + (verbEnglishComparisonGroup === "present" ? 1 : verbEnglishComparisonGroup === "past" ? 5 : 9)));
+  for (const [index, record] of records.entries()) list.append(renderEnglishComparisonCard(record, index + (verbEnglishComparisonGroup === "present" ? 1 : verbEnglishComparisonGroup === "past" ? 5 : 9), pack.verb.id));
   list.scrollTop = verbEnglishComparisonListScrollTop;
   wrapper.append(list);
   const mapButtonBottom = button("Back to 8-form map", "button secondary-button"); mapButtonBottom.addEventListener("click", () => { screen = "verbMap"; verbMapOrigin = verbEnglishComparisonOrigin === "map" ? verbMapOrigin : "overview"; render(); content?.focus(); });
@@ -1007,7 +1007,7 @@ function focusEnglishComparisonForForm(tense: DutchTense): void {
   verbEnglishComparisonInfoOpen = false;
 }
 
-function renderEnglishComparisonCard(record: EnglishMapRecord, index: number): HTMLElement {
+function renderEnglishComparisonCard(record: EnglishMapRecord, index: number, verbId: string): HTMLElement {
   const everyday = englishComparisonVariant(record, "everyday");
   const cue = record.cue;
   const card = button("", "verb-english-card");
@@ -1016,7 +1016,7 @@ function renderEnglishComparisonCard(record: EnglishMapRecord, index: number): H
   const header = document.createElement("span"); header.className = "verb-english-card-header";
   header.append(spanText(String(index), "verb-english-index"), spanText(englishFormLabel(record), "verb-english-name"), spanText(everyday.form, "verb-english-form"), spanText("›", "verb-english-toggle"));
   const english = text(record.english, "verb-english-example"); english.lang = "en";
-  const dutch = section("verb-english-dutch"); dutch.append(renderEnglishCueSentence(everyday.nl, cue?.tokens ?? [], "verb-english-dutch-sentence"));
+  const dutch = section("verb-english-dutch"); dutch.append(renderEnglishCueSentence(everyday.nl, [...(cue?.tokens ?? []), ...verbNoticeTokens(everyday.form, verbId)], "verb-english-dutch-sentence"));
   if (cue) dutch.append(text(`Cue · ${cue.display}`, "verb-english-cue"));
   card.append(header, english, dutch);
   card.addEventListener("click", () => {
@@ -1078,20 +1078,7 @@ function renderEnglishComparisonVariant(label: string, variant: EnglishCompariso
 
 function renderEnglishCueSentence(value: string, tokens: string[], className: string): HTMLElement {
   const element = text("", className);
-  let cursor = 0;
-  const uniqueTokens = [...new Set(tokens)].filter(Boolean);
-  while (cursor < value.length) {
-    const match = uniqueTokens
-      .map((token) => ({ token, index: value.toLocaleLowerCase().indexOf(token.toLocaleLowerCase(), cursor) }))
-      .filter((candidate) => candidate.index >= cursor)
-      .sort((first, second) => first.index - second.index || second.token.length - first.token.length)[0];
-    if (!match) break;
-    element.append(value.slice(cursor, match.index));
-    const highlight = document.createElement("mark"); highlight.className = "verb-english-cue-highlight"; highlight.textContent = value.slice(match.index, match.index + match.token.length);
-    element.append(highlight);
-    cursor = match.index + match.token.length;
-  }
-  element.append(value.slice(cursor));
+  appendTokenHighlights(element, value, tokens, "verb-english-cue-highlight");
   return element;
 }
 
@@ -1136,21 +1123,29 @@ function getActiveVerbPracticeJourneyId(): VerbPracticeJourneyId {
   return getPracticeJourney()?.id as VerbPracticeJourneyId ?? "journey.werken.vtt-completed";
 }
 
-function renderVerbFormDetail(form: VerbFormRecord): HTMLElement {
+function renderVerbFormDetail(form: VerbFormRecord, verbId = getActiveVerbJourneyPack().verb.id): HTMLElement {
   const detail = section("verb-form-detail");
   const canonical = form.canonicalExample;
   const commonUse = form.commonUsageExample;
   const statusMeta = verbFormStatusMeta(getVerbFormDisplayStatus(form));
   const header = document.createElement("div"); header.className = "verb-detail-header"; header.append(text(form.dutchTense, "verb-detail-code"), spanText(`${statusMeta.symbol} ${statusMeta.label}`, "verb-detail-status"));
-  detail.append(header, text(form.learnerLabelEn, "verb-detail-label"), text(form.fullNameNl, "verb-detail-dutch-name"), localizedSentenceSection(null, canonical, "verb-detail-canonical"), meaning("MEANING", form.usageMeaning), meaning("PATTERN", form.formula), localizedSentenceSection("COMMON USE", commonUse, "verb-detail-common-use"));
+  const formTokens = verbNoticeTokens(form.dutchTense, verbId);
+  detail.append(header, text(form.learnerLabelEn, "verb-detail-label"), text(form.fullNameNl, "verb-detail-dutch-name"), localizedSentenceSection(null, canonical, "verb-detail-canonical", formTokens), meaning("MEANING", form.usageMeaning), meaning("PATTERN", form.formula), localizedSentenceSection("COMMON USE", commonUse, "verb-detail-common-use", formTokens));
   return detail;
 }
 
-function localizedSentenceSection(label: string | null, sentence: { nl: string; en: string; te: string }, className: string): HTMLElement {
+function localizedSentenceSection(label: string | null, sentence: { nl: string; en: string; te: string }, className: string, highlightTokens: string[] = []): HTMLElement {
   const group = section(className);
   if (label) group.append(text(label, "verb-detail-section-label"));
-  group.append(text(`NL · ${sentence.nl}`, "verb-detail-localized-line verb-detail-canonical-nl verb-detail-example"), text(`EN · ${sentence.en}`, "verb-detail-localized-line verb-detail-canonical-en"), text(`TE · ${sentence.te}`, "verb-detail-localized-line verb-detail-canonical-te"));
+  group.append(renderLocalizedSentenceLine("NL", sentence.nl, "verb-detail-localized-line verb-detail-canonical-nl verb-detail-example", highlightTokens), text(`EN · ${sentence.en}`, "verb-detail-localized-line verb-detail-canonical-en"), text(`TE · ${sentence.te}`, "verb-detail-localized-line verb-detail-canonical-te"));
   return group;
+}
+
+function renderLocalizedSentenceLine(label: string, value: string, className: string, highlightTokens: string[] = []): HTMLElement {
+  const line = text("", className);
+  line.append(`${label} · `);
+  appendTokenHighlights(line, value, highlightTokens, "verb-form-highlight");
+  return line;
 }
 
 function startVerbPractice(journeyId: VerbPracticeJourneyId = getActiveVerbPracticeJourneyId()): void {
@@ -2174,6 +2169,10 @@ function verbNoticeFormulaTokens(verbId = "verb.werken"): string[] {
 }
 
 function appendVerbNoticeHighlights(parent: HTMLElement, value: string, tokens: string[]): void {
+  appendTokenHighlights(parent, value, tokens, "verb-notice-highlight");
+}
+
+function appendTokenHighlights(parent: HTMLElement, value: string, tokens: string[], className: string): void {
   const orderedTokens = [...new Set(tokens)].sort((first, second) => second.length - first.length);
   let cursor = 0;
   while (cursor < value.length) {
@@ -2184,8 +2183,8 @@ function appendVerbNoticeHighlights(parent: HTMLElement, value: string, tokens: 
     if (!match) { parent.append(value.slice(cursor)); break; }
     parent.append(value.slice(cursor, match.index));
     const highlight = document.createElement("mark");
-    highlight.className = "verb-notice-highlight";
-    highlight.textContent = match.token;
+    highlight.className = className;
+    highlight.textContent = value.slice(match.index, match.index + match.token.length);
     parent.append(highlight);
     cursor = match.index + match.token.length;
   }
