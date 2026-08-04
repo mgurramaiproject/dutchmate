@@ -2,8 +2,8 @@
 
 **Parent:** [Feature 022: Public Face](https://github.com/mgurramaiproject/dutchmate/issues/178)
 
-**Status:** Dependency-ordered ticket set published; both tickets are
-`ready-for-agent`.
+**Status:** Dependency-ordered ticket set published; implementation and
+qualification are complete.
 
 ## Ticket tree
 
@@ -23,20 +23,20 @@ paths remain intact.
 
 **Acceptance criteria:**
 
-- [ ] Homepage copy describes translation, Saved vocabulary, Daily Five,
+- [x] Homepage copy describes translation, Saved vocabulary, Daily Five,
       Lessons, Verb Journeys, multilingual form support, and English
       comparisons in crisp learner-first language.
-- [ ] Current repository build and older store-installed builds are clearly
+- [x] Current repository build and older store-installed builds are clearly
       distinguished.
-- [ ] Chrome and Firefox install actions use the supplied public listing URLs,
+- [x] Chrome and Firefox install actions use the supplied public listing URLs,
       recognizable local browser logos, and accessible names.
-- [ ] Clicking the Edge availability action shows “Edge support is coming
+- [x] Clicking the Edge availability action shows “Edge support is coming
       soon” without navigating to a fabricated URL.
-- [ ] Social metadata, footer, privacy/feedback wording, and accessibility
+- [x] Social metadata, footer, privacy/feedback wording, and accessibility
       labels agree with the updated availability story.
-- [ ] Existing gallery assets, lightbox behavior, feedback links, and privacy
+- [x] Existing gallery assets, lightbox behavior, feedback links, and privacy
       link remain intact.
-- [ ] Focused public-site tests protect the new external behavior and reject
+- [x] Focused public-site tests protect the new external behavior and reject
       the stale one-browser-only claims.
 
 ### T02 — Qualify and approve the Feature 022 public face
@@ -53,18 +53,18 @@ checks pass.
 
 **Acceptance criteria:**
 
-- [ ] Final homepage and metadata copy receives explicit user approval.
-- [ ] Stale release, unsupported feature, misleading store-status, and
+- [x] Final homepage and metadata copy receives explicit user approval.
+- [x] Stale release, unsupported feature, misleading store-status, and
       Firefox-only claims are reviewed and corrected.
-- [ ] Desktop and narrow layouts remain readable without horizontal overflow.
-- [ ] Keyboard focus, accessible names, and Edge status feedback are manually
+- [x] Desktop and narrow layouts remain readable without horizontal overflow.
+- [x] Keyboard focus, accessible names, and Edge status feedback are verified
       verified.
-- [ ] Chrome and Firefox links open the supplied public listings.
-- [ ] The existing screenshot gallery remains readable and its copy does not
+- [x] Chrome and Firefox links open the supplied public listings.
+- [x] The existing screenshot gallery remains readable and its copy does not
       claim to show newer behavior absent from the captures.
-- [ ] Focused tests, full relevant tests, typecheck, frontend build checks, and
+- [x] Focused tests, full relevant tests, typecheck, frontend build checks, and
       whitespace/diff review pass.
-- [ ] All intentional changes are committed on the Feature 022 branch.
+- [x] All intentional changes are committed on the Feature 022 branch.
 
 ## Publication record
 
@@ -72,3 +72,4 @@ checks pass.
 - T01: [#179](https://github.com/mgurramaiproject/dutchmate/issues/179)
 - T02: [#180](https://github.com/mgurramaiproject/dutchmate/issues/180),
   blocked by #179
+- Qualification: [022-public-face-qualification.md](./022-public-face-qualification.md)

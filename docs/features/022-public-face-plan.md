@@ -7,8 +7,8 @@
 **Branch:** `feature/022-public-face`, created from the clean local `main`
 branch on 2026-08-04.
 
-**Status:** Specification and dependency-ordered tickets published; ready for
-implementation.
+**Status:** Implementation and qualification complete; ready for delivery
+reconciliation.
 
 **Specification:** [022-public-face-spec.md](./022-public-face-spec.md);
 published as [GitHub issue #178](https://github.com/mgurramaiproject/dutchmate/issues/178)
@@ -125,3 +125,6 @@ system, information architecture, screenshot gallery, and human tone.
    explicit user approval before treating the copy as final.
 6. Run focused public-site tests, the full relevant test suite, typecheck,
    frontend build checks, whitespace/diff review, and commit all changes.
+   **Done:** qualification is recorded in
+   [022-public-face-qualification.md](./022-public-face-qualification.md);
+   final copy was approved and the implementation is committed.
