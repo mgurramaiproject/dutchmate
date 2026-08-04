@@ -62,8 +62,8 @@ checks pass.
 - [x] Stale release, unsupported feature, misleading store-status, and
       Firefox-only claims are reviewed and corrected.
 - [x] Desktop and narrow layouts remain readable without horizontal overflow.
-- [x] Keyboard focus, accessible names, and Edge status feedback are verified
-      verified.
+- [x] Keyboard focus, accessible names, and Edge/Safari status feedback are
+      verified for the navigation, hero, and availability actions.
 - [x] Chrome and Firefox links open the supplied public listings.
 - [x] The existing screenshot gallery remains readable and its copy does not
       claim to show newer behavior absent from the captures.

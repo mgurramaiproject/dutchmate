@@ -39,8 +39,9 @@ system, information architecture, screenshot gallery, and human tone.
   “Coming soon” availability actions without store links; clicking either one
   shows its support-is-coming-soon message and does not navigate.
 - Chrome, Firefox, Edge, and Safari logos are used on the corresponding
-  availability actions. Chrome and Firefox are real links; Edge and Safari are
-  non-navigating placeholders.
+  availability actions in the navigation, hero, and availability sections.
+  Chrome and Firefox are real links; Edge and Safari are non-navigating
+  placeholders.
 - The existing 007 showcase gallery remains in place for this feature. Its
   captions and surrounding copy must not imply that the images demonstrate
   newer Verb Journey or comparison-lens behavior that the captures do not
@@ -97,8 +98,8 @@ system, information architecture, screenshot gallery, and human tone.
 3. **Existing frontend behavior:** the screenshot gallery, feedback links,
    privacy link, responsive structure, and lightbox remain intact.
 4. **Repository consistency:** no stale 0.4.0 marketing claims remain where
-   they would be read as the current build, and the tests protect against a
-   future one-browser-only regression.
+  they would be read as the current build, all four browser surfaces agree,
+  and the tests protect against a future one-browser-only regression.
 
 ## Out of scope
 

@@ -27,6 +27,8 @@ describe("public website", () => {
     expect(homepage).toContain("assets/firefox-logo.svg");
     expect(homepage).toContain("assets/edge-logo.svg");
     expect(homepage).toContain("assets/safari-logo.svg");
+    expect(homepage).toContain('aria-controls="nav-browser-status"');
+    expect(homepage).toContain('aria-controls="hero-browser-status"');
     expect(homepage).toContain('id="edge-availability"');
     expect(homepage).toContain('id="safari-availability"');
     expect(homepage).toContain("Edge support is coming soon.");
@@ -104,17 +106,30 @@ describe("public website", () => {
     expect(feedbackPage).not.toContain("github.com/mgurramaiproject/dutchmate/issues/new");
   });
 
-  it("shows the Edge coming-soon message without navigation", () => {
+  it("shows every coming-soon browser message without navigation", () => {
     class FakeElement {
       hidden = true;
+      textContent = "";
     }
 
     class FakeButton extends FakeElement {
       attributes = new Map<string, string>();
       listeners = new Map<string, () => void>();
 
+      constructor(browser: string, statusId: string) {
+        super();
+        this.dataset = { comingSoonBrowser: browser };
+        this.attributes.set("aria-controls", statusId);
+      }
+
+      dataset: { comingSoonBrowser: string };
+
       addEventListener(type: string, listener: () => void) {
         this.listeners.set(type, listener);
+      }
+
+      getAttribute(name: string) {
+        return this.attributes.get(name) ?? null;
       }
 
       setAttribute(name: string, value: string) {
@@ -126,16 +141,32 @@ describe("public website", () => {
       }
     }
 
-    const edgeButton = new FakeButton();
+    const navEdgeButton = new FakeButton("Edge", "nav-browser-status");
+    const navSafariButton = new FakeButton("Safari", "nav-browser-status");
+    const heroEdgeButton = new FakeButton("Edge", "hero-browser-status");
+    const heroSafariButton = new FakeButton("Safari", "hero-browser-status");
+    const edgeButton = new FakeButton("Edge", "edge-status");
     const edgeStatus = new FakeElement();
-    const safariButton = new FakeButton();
+    const safariButton = new FakeButton("Safari", "safari-status");
     const safariStatus = new FakeElement();
+    const navStatus = new FakeElement();
+    const heroStatus = new FakeElement();
+    const buttons = [navEdgeButton, navSafariButton, heroEdgeButton, heroSafariButton, edgeButton, safariButton];
+    const statuses = new Map([
+      ["nav-browser-status", navStatus],
+      ["hero-browser-status", heroStatus],
+      ["edge-status", edgeStatus],
+      ["safari-status", safariStatus],
+    ]);
     const document = {
-      querySelector(selector: string) {
-        if (selector === "#edge-availability") return edgeButton;
-        if (selector === "#edge-status") return edgeStatus;
-        if (selector === "#safari-availability") return safariButton;
-        if (selector === "#safari-status") return safariStatus;
+      querySelectorAll(selector: string) {
+        if (selector === "[data-coming-soon-browser]") return buttons;
+        return [];
+      },
+      getElementById(id: string) {
+        return statuses.get(id) ?? null;
+      },
+      querySelector() {
         return null;
       },
     };
@@ -147,12 +178,18 @@ describe("public website", () => {
       HTMLDialogElement: class {},
     });
 
-    edgeButton.click();
-    safariButton.click();
+    for (const button of buttons) {
+      button.click();
+      expect(button.attributes.get("aria-expanded")).toBe("true");
+    }
 
-    expect(edgeButton.attributes.get("aria-expanded")).toBe("true");
-    expect(edgeStatus.hidden).toBe(false);
-    expect(safariButton.attributes.get("aria-expanded")).toBe("true");
-    expect(safariStatus.hidden).toBe(false);
+    for (const status of statuses.values()) {
+      expect(status.hidden).toBe(false);
+    }
+
+    expect(navStatus.textContent).toBe("Safari support is coming soon.");
+    expect(heroStatus.textContent).toBe("Safari support is coming soon.");
+    expect(edgeStatus.textContent).toBe("Edge support is coming soon.");
+    expect(safariStatus.textContent).toBe("Safari support is coming soon.");
   });
 });

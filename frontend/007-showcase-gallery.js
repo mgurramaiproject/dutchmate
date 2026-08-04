@@ -1,23 +1,24 @@
 const lightbox = document.querySelector("#screenshot-lightbox");
 
-const edgeAvailability = document.querySelector("#edge-availability");
-const edgeStatus = document.querySelector("#edge-status");
-const safariAvailability = document.querySelector("#safari-availability");
-const safariStatus = document.querySelector("#safari-status");
+document.querySelectorAll("[data-coming-soon-browser]").forEach((button) => {
+  if (!(button instanceof HTMLButtonElement)) {
+    return;
+  }
 
-if (edgeAvailability instanceof HTMLButtonElement && edgeStatus instanceof HTMLElement) {
-  edgeAvailability.addEventListener("click", () => {
-    edgeAvailability.setAttribute("aria-expanded", "true");
-    edgeStatus.hidden = false;
-  });
-}
+  const browser = button.dataset.comingSoonBrowser;
+  const statusId = button.getAttribute("aria-controls");
+  const status = statusId ? document.getElementById(statusId) : null;
 
-if (safariAvailability instanceof HTMLButtonElement && safariStatus instanceof HTMLElement) {
-  safariAvailability.addEventListener("click", () => {
-    safariAvailability.setAttribute("aria-expanded", "true");
-    safariStatus.hidden = false;
+  if (!browser || !(status instanceof HTMLElement)) {
+    return;
+  }
+
+  button.addEventListener("click", () => {
+    button.setAttribute("aria-expanded", "true");
+    status.textContent = `${browser} support is coming soon.`;
+    status.hidden = false;
   });
-}
+});
 
 if (lightbox instanceof HTMLDialogElement) {
   const lightboxImage = lightbox.querySelector("#screenshot-lightbox-image");

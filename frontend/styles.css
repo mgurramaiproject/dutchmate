@@ -84,6 +84,8 @@ p, li, figcaption { font-family: var(--dm-serif); }
 .nav-store-links {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
 }
 
@@ -97,15 +99,26 @@ p, li, figcaption { font-family: var(--dm-serif); }
   border-radius: 8px;
   background: var(--dm-white);
   color: var(--dm-black);
+  cursor: pointer;
   font-family: var(--dm-sans);
   font-size: 0.84rem;
   font-weight: 750;
+  text-align: left;
 }
 
 .nav-store-link:hover,
 .nav-store-link:focus-visible {
   border-color: var(--dm-orange);
   background: var(--dm-white);
+}
+
+.nav-browser-status {
+  flex-basis: 100%;
+  color: var(--dm-orange);
+  font-family: var(--dm-sans);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-align: right;
 }
 
 .button {
@@ -155,6 +168,12 @@ p, li, figcaption { font-family: var(--dm-serif); }
   color: var(--dm-black);
   font-family: var(--dm-sans);
   text-decoration: none;
+}
+
+.download-badge-placeholder {
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
 }
 
 .download-badge:hover,
@@ -352,6 +371,15 @@ h3 {
 
 .store-action-pair .download-badge-copy span {
   font-size: 0.74rem;
+}
+
+.store-action-pair .availability-status {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.hero-browser-status {
+  color: var(--dm-muted) !important;
 }
 
 .trust-row {

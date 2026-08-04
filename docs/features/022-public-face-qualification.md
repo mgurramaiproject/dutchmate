@@ -5,7 +5,7 @@
 **Branch:** `feature/022-public-face`
 
 **Status:** Final copy approved; QA follow-up implemented and qualification
-checks passed.
+checks passed, including navigation and hero browser actions.
 
 ## Scope qualified
 
@@ -13,9 +13,11 @@ checks passed.
   pretending that the published Chrome or Firefox listings already contain the
   latest update.
 - Chrome and Firefox availability actions use the supplied public store URLs
-  and local browser logos.
+  and local browser logos. All four browser logos are visible in the nav, hero,
+  and availability surfaces.
 - Edge and Safari are native buttons, not fabricated links. Their click
-  handlers expose accessible browser-specific support-is-coming-soon text.
+  handlers expose accessible browser-specific support-is-coming-soon text in
+  each surface without navigation.
 - The existing screenshot gallery, lightbox, feedback routes, privacy route,
   and responsive design primitives remain in place.
 - The newer learner-facing story is represented through translation, Saved
@@ -38,8 +40,9 @@ checks passed.
   contained the current build copy, four browser cards, Edge and Safari buttons
   and statuses, and the expanded practice copy.
 - Edge and Safari interaction regression — passed through the focused test that
-  executes the shipped script, clicks both native buttons, verifies
-  `aria-expanded="true"`, and verifies that both statuses become visible.
+  executes the shipped script, clicks all six native placeholders across the
+  nav, hero, and availability surfaces, verifies `aria-expanded="true"`, and
+  verifies that each status becomes visible.
 - Local Render-style preview — passed through the repository `frontend:dev`
   server and HTTP response inspection. The preview served the updated
   homepage from the same `frontend/` directory documented for Render.
