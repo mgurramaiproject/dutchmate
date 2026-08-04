@@ -1,6 +1,6 @@
 # Firefox Add-on 0.5.0 Submission
 
-Last updated: 2026-08-04
+Last updated: 2026-08-05
 
 Use this document for the AMO version submission of DutchMate 0.5.0.
 
@@ -20,7 +20,7 @@ Upload this file as the new add-on version:
 
 SHA-256:
 
-`c48352b46e59e736efbead39f304ab02af448fe01c52609bd99a7bb55770d01a`
+`4e000ff9a211cc9ab6dcae4240b9cf529431c02bf724eb38e11a81d8b22c271b`
 
 GitHub download:
 
@@ -60,6 +60,10 @@ The backend uses Google Cloud Translation. The add-on does not collect text in t
 
 Settings, selected-word translation cache, saved vocabulary, lesson progress, Daily Five progress, and Verb Journey progress remain in local browser storage. Users can disable translation and clear local data from Options.
 
+On extension install or update, DutchMate automatically completes its local
+storage migration before learning messages are handled. A failed migration does
+not replace the previous record or mark the migration complete.
+
 To test the add-on:
 
 1. Install the submitted add-on in Firefox.
@@ -84,7 +88,7 @@ If AMO asks whether source code is required, select **Yes** and upload:
 
 SHA-256:
 
-`e7e97f0bec272ee7dc1a39d9cfee17f665990317fe4670f08984db6f5b0431d1`
+`88872d2d19de79a3f128f78618413b5f4763fc78f4ccaaab726b905f4fc66372`
 
 The source package was clean-room built successfully. Its build instructions
 are also included in `README.md` and `build-firefox.sh` inside the archive.

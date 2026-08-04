@@ -55,6 +55,21 @@ describe("WebpageLifecycleController", () => {
     expect(clear).not.toHaveBeenCalled();
   });
 
+  it("does not clear a hover tooltip while the pointer enters the tooltip", () => {
+    const clear = vi.fn();
+    const isTooltipEvent = vi.fn((event: Event) => event.type === "mouseleave");
+    const controller = createWebpageLifecycleController({
+      getSettings: () => settings,
+      lookupModule: { beginLookup: vi.fn(), clear, hasActiveMission: vi.fn(() => false), hasActiveSelectionControl: vi.fn(() => false), shouldKeepVisibleOnMouseLeave: vi.fn(() => false) },
+      tooltipView: { isTooltipEvent, showError: vi.fn(), hide: vi.fn() },
+    });
+
+    controller.handleMouseLeave(new MouseEvent("mouseleave"));
+
+    expect(isTooltipEvent).toHaveBeenCalledOnce();
+    expect(clear).not.toHaveBeenCalled();
+  });
+
   it("invalidates Context Missions on Escape and page navigation", () => {
     const clear = vi.fn();
     const controller = createWebpageLifecycleController({

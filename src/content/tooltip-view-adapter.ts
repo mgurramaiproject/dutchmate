@@ -211,7 +211,9 @@ export function createTooltipViewAdapter(callbacks: {
 
   return {
     isTooltipEvent(event) {
-      return event.target instanceof Node && tooltip.contains(event.target);
+      const target = event.target;
+      const relatedTarget = event instanceof MouseEvent ? event.relatedTarget : null;
+      return (target instanceof Node && tooltip.contains(target)) || (relatedTarget instanceof Node && tooltip.contains(relatedTarget));
     },
 
     showLoading(message, x, y) {

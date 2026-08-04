@@ -24,7 +24,7 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
   handleMouseMove(event: MouseEvent): void;
   handleSelection(event: MouseEvent): void;
   handlePageClick(event: MouseEvent): void;
-  handleMouseLeave(): void;
+  handleMouseLeave(event: MouseEvent): void;
   handleKeyDown(event: KeyboardEvent): void;
   handlePageHide(): void;
   clearSelectionAndHideTooltip(): void;
@@ -192,7 +192,11 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
       dependencies.lookupModule.clear();
     },
 
-    handleMouseLeave(): void {
+    handleMouseLeave(event: MouseEvent): void {
+      if (dependencies.tooltipView.isTooltipEvent(event)) {
+        return;
+      }
+
       if (dependencies.lookupModule.shouldKeepVisibleOnMouseLeave()) {
         return;
       }

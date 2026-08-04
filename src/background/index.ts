@@ -17,6 +17,7 @@ import { TranslationService } from "../translation/translation-service";
 import { getTranslationErrorMessage } from "./translation-error-message";
 import { LearningRecordStore } from "../vocabulary/learning-record";
 import { updateReviewBadge, type ReviewBadgeExtensionApi } from "./review-badge";
+import { migrateExtensionStorage } from "./storage-migration";
 
 const MAX_CACHE_ENTRIES = 100;
 
@@ -37,6 +38,9 @@ type BackgroundRuntimeApi = BackgroundExtensionApi & LocalCacheExtensionApi & {
           sendResponse: (response: BackgroundMessageResponse) => void,
         ) => true | undefined,
       ): void;
+    };
+    onInstalled?: {
+      addListener(callback: (details: { reason: string; previousVersion?: string }) => void): void;
     };
   };
 };
@@ -61,6 +65,7 @@ const translationService = new TranslationService(
   }),
 );
 const learningRecordStore = new LearningRecordStore(localStorage);
+const storageMigration = migrateExtensionStorage(localStorage, learningRecordStore);
 const reviewSettings = {
   read: () => readExtensionSettings(extensionApi),
   async update(changes: Parameters<typeof mergeSettings>[1]) {
@@ -74,6 +79,7 @@ const reviewSettings = {
 
 async function refreshReviewBadge(): Promise<void> {
   try {
+    await storageMigration;
     const settings = await readExtensionSettings(extensionApi);
     await updateReviewBadge(extensionApi, learningRecordStore, settings.dailyReviewBadge);
   } catch {
@@ -83,6 +89,7 @@ async function refreshReviewBadge(): Promise<void> {
 
 const handleBackgroundMessage = createBackgroundMessageHandler({
   learningRecords: learningRecordStore,
+  ready: storageMigration,
   reviewSettings,
   refreshBadge: refreshReviewBadge,
 });
@@ -98,6 +105,12 @@ extensionApi?.runtime.onMessage.addListener((message, _sender, sendResponse) => 
 
   void handleTranslate(message.payload).then(sendResponse);
   return true;
+});
+
+extensionApi?.runtime.onInstalled?.addListener((details) => {
+  if (details.reason === "install" || details.reason === "update") {
+    void storageMigration.catch(() => undefined);
+  }
 });
 
 extensionApi?.storage.onChanged?.addListener((_changes, areaName) => {

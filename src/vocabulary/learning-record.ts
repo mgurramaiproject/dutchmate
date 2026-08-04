@@ -97,6 +97,10 @@ export class LearningRecordStore {
     return Object.values(record.items).sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
   }
 
+  async migrate(): Promise<void> {
+    await this.readMigrated();
+  }
+
   async summary(): Promise<{ total: number; due: number; new: number; recent: LearningItem[] }> {
     const items = await this.list();
     const now = this.now();
