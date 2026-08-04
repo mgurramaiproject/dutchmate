@@ -7,8 +7,11 @@
 **Branch:** `feature/022-public-face`, created from the clean local `main`
 branch on 2026-08-04.
 
-**Status:** Shared understanding reached; awaiting approval to invoke
-`$to-spec` and create the specification.
+**Status:** Specification published; awaiting approval to invoke `$to-tickets`.
+
+**Specification:** [022-public-face-spec.md](./022-public-face-spec.md);
+published as [GitHub issue #178](https://github.com/mgurramaiproject/dutchmate/issues/178)
+with `ready-for-agent`.
 
 ## Goal
 
@@ -31,8 +34,9 @@ system, information architecture, screenshot gallery, and human tone.
   Chrome and Firefox have public listings, but those listings still contain an
   earlier published build. Store actions remain valid install links and carry
   concise wording such as the latest update coming soon.
-- Edge is not yet published. It may appear as a non-clickable, clearly marked
-  “Coming soon” availability state without a store link.
+- Edge is not yet published. It appears as a clearly marked “Coming soon”
+  availability action without a store link; clicking it shows “Edge support is
+  coming soon” and does not navigate.
 - Chrome and Firefox logos are used on the corresponding install or
   availability actions. No browser logo is required for the non-clickable
   Edge state unless an appropriate local asset already exists.
@@ -106,8 +110,10 @@ system, information architecture, screenshot gallery, and human tone.
 
 1. Commit this shared-understanding plan to the Feature 022 branch.
 2. Ask for explicit approval to invoke `$to-spec` and create
-   `docs/features/022-public-face-spec.md`.
+   `docs/features/022-public-face-spec.md`. **Done:** the specification was
+   published as GitHub issue #178 with `ready-for-agent`.
 3. Confirm the proposed verification seams during the specification review.
+   **Done:** the approved seams are recorded in the specification.
 4. Ask for explicit approval to invoke `$to-tickets` and create
    `docs/features/022-public-face-tickets.md` plus the dependency-ordered
    tracker issues.
@@ -115,4 +121,3 @@ system, information architecture, screenshot gallery, and human tone.
    explicit user approval before treating the copy as final.
 6. Run focused public-site tests, the full relevant test suite, typecheck,
    frontend build checks, whitespace/diff review, and commit all changes.
-
