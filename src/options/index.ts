@@ -138,7 +138,7 @@ async function restoreSettings(): Promise<void> {
   }
 
   if (translateOnHover) {
-    translateOnHover.checked = settings.translateOnHover;
+    translateOnHover.checked = false;
   }
 
   if (translateOnSelection) {
@@ -222,7 +222,7 @@ async function saveSettings(): Promise<void> {
 
   const settings: ExtensionSettings = {
     isEnabled: isEnabled?.checked ?? defaultSettings.isEnabled,
-    translateOnHover: translateOnHover?.checked ?? defaultSettings.translateOnHover,
+    translateOnHover: false,
     translateOnSelection: translateOnSelection?.checked ?? defaultSettings.translateOnSelection,
     cacheHoveredWords: cacheHoveredWords?.checked ?? defaultSettings.cacheHoveredWords,
     cacheSelectedWords: cacheSelectedWords?.checked ?? defaultSettings.cacheSelectedWords,

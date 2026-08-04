@@ -50,7 +50,7 @@ export type ExtensionSettings = {
 
 export const defaultSettings: ExtensionSettings = {
   isEnabled: true,
-  translateOnHover: true,
+  translateOnHover: false,
   translateOnSelection: true,
   cacheHoveredWords: true,
   cacheSelectedWords: true,
@@ -85,7 +85,7 @@ export function normalizeSettings(
 
   return {
     isEnabled: getBooleanSetting(stored?.isEnabled, fallback.isEnabled),
-    translateOnHover: getBooleanSetting(stored?.translateOnHover, fallback.translateOnHover),
+    translateOnHover: false,
     translateOnSelection: getBooleanSetting(
       stored?.translateOnSelection,
       fallback.translateOnSelection,

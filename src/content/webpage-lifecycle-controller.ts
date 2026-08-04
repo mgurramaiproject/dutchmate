@@ -95,9 +95,6 @@ export function createWebpageLifecycleController(dependencies: ControllerDepende
       }
 
       if (!settings.translateOnHover) {
-        if (!dependencies.lookupModule.hasActiveSelectionControl()) {
-          dependencies.lookupModule.clear();
-        }
         return;
       }
 

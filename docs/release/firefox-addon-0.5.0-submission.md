@@ -20,11 +20,15 @@ Upload this file as the new add-on version:
 
 SHA-256:
 
-`8ef05e19b761a2ff0ed13e1481f43e39ad90b25b8dfca5fc8b0d838b5ac5ca2f`
+`c48352b46e59e736efbead39f304ab02af448fe01c52609bd99a7bb55770d01a`
 
 GitHub download:
 
 https://github.com/mgurramaiproject/dutchmate/releases/download/v0.5.0/dutchmate-firefox-0.5.0.zip
+
+The existing GitHub v0.5.0 asset predates this correction. Upload the local
+artifact above until the GitHub release asset is deliberately refreshed or a
+new patch release is published.
 
 Do not upload the source package as the add-on version. AMO requests it in a
 separate source-code field when source submission is required.
@@ -48,7 +52,7 @@ DutchMate 0.5.0 adds a focused practice loop for learning Dutch while reading on
 ```text
 This is a Manifest V3 update to the existing DutchMate Firefox add-on.
 
-DutchMate helps users learn Dutch while reading normal webpages. Users can hover over a word or deliberately select short text to request a translation. The add-on sends the requested text, language settings, and translation context to:
+DutchMate helps users learn Dutch while reading normal webpages. Users can deliberately select short text to request a translation. Hover translation is disabled in this build. The add-on sends the requested text, language settings, and translation context to:
 
 https://dutchmate-backend.onrender.com/translate
 
@@ -60,8 +64,8 @@ To test the add-on:
 
 1. Install the submitted add-on in Firefox.
 2. Open a public Dutch webpage that contains no private information.
-3. Hover over a Dutch word or select a short Dutch phrase.
-4. Confirm that the translation tooltip appears.
+3. Select a short Dutch phrase.
+4. Confirm that the translation tooltip remains visible while the selection is active.
 5. Open the add-on popup and check Today, Lessons, and Saved.
 6. Open Options and check language, behavior, privacy, and saved-vocabulary controls.
 
@@ -80,7 +84,7 @@ If AMO asks whether source code is required, select **Yes** and upload:
 
 SHA-256:
 
-`84f8f38c7b8051737cf179c03103afe40b83b2578f67fc19171c7f7519bd64a9`
+`e7e97f0bec272ee7dc1a39d9cfee17f665990317fe4670f08984db6f5b0431d1`
 
 The source package was clean-room built successfully. Its build instructions
 are also included in `README.md` and `build-firefox.sh` inside the archive.
@@ -124,6 +128,7 @@ https://dutchmate-frontend.onrender.com/
 - Manifest version: 3
 - Firefox minimum version: 140.0
 - Firefox Android minimum version: 142.0
+- Hover translation: disabled; selected-text translation remains available
 - Permissions: `storage`, `downloads`
 - Backend host permission: `https://dutchmate-backend.onrender.com/*`
 - Firefox data declaration: required `websiteContent`

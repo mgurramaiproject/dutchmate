@@ -16,7 +16,7 @@ import {
 
 const defaultSettings = {
   isEnabled: true,
-  translateOnHover: true,
+  translateOnHover: false,
   translateOnSelection: true,
   cacheHoveredWords: true,
   cacheSelectedWords: true,
