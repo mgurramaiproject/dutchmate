@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title>Google Chrome</title>
+  <circle cx="24" cy="24" r="22" fill="#fbbc04"/>
+  <path d="M24 24h22a22 22 0 0 0-32.3-19.5L24 24Z" fill="#ea4335"/>
+  <path d="M13.7 4.5A22 22 0 0 0 24 46l10.8-22H24L13.7 4.5Z" fill="#34a853"/>
+  <circle cx="24" cy="24" r="9.2" fill="#4285f4" stroke="#fff" stroke-width="2"/>
+</svg>

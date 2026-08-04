@@ -1,5 +1,15 @@
 const lightbox = document.querySelector("#screenshot-lightbox");
 
+const edgeAvailability = document.querySelector("#edge-availability");
+const edgeStatus = document.querySelector("#edge-status");
+
+if (edgeAvailability instanceof HTMLButtonElement && edgeStatus instanceof HTMLElement) {
+  edgeAvailability.addEventListener("click", () => {
+    edgeAvailability.setAttribute("aria-expanded", "true");
+    edgeStatus.hidden = false;
+  });
+}
+
 if (lightbox instanceof HTMLDialogElement) {
   const lightboxImage = lightbox.querySelector("#screenshot-lightbox-image");
   const lightboxTitle = lightbox.querySelector("#screenshot-lightbox-title");
