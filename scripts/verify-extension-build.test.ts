@@ -35,17 +35,31 @@ describe("validateExtensionBuild", () => {
     ]);
   });
 
-  it("requires the permissions used by the learning record and Saved export", async () => {
+  it("requires storage for the local learning record and Saved export", async () => {
     const distDir = await createExtensionFixture("chrome", {
       service_worker: "assets/background.js",
     });
     const manifestPath = join(distDir, "manifest.json");
     const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
-    manifest.permissions = ["storage"];
+    manifest.permissions = [];
     await writeFile(manifestPath, JSON.stringify(manifest));
 
     await expect(validateExtensionBuild(distDir, "chrome")).resolves.toContain(
-      "Manifest must request the downloads permission.",
+      "Manifest must request the storage permission.",
+    );
+  });
+
+  it("rejects the unused downloads permission", async () => {
+    const distDir = await createExtensionFixture("chrome", {
+      service_worker: "assets/background.js",
+    });
+    const manifestPath = join(distDir, "manifest.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.permissions = ["storage", "downloads"];
+    await writeFile(manifestPath, JSON.stringify(manifest));
+
+    await expect(validateExtensionBuild(distDir, "chrome")).resolves.toContain(
+      "Manifest must not request the unused downloads permission.",
     );
   });
 
@@ -122,7 +136,7 @@ async function createExtensionFixture(
     join(distDir, "manifest.json"),
     JSON.stringify({
       manifest_version: 3,
-      permissions: ["storage", "downloads"],
+      permissions: ["storage"],
       icons: {
         16: "icons/icon-16.png",
         32: "icons/icon-32.png",

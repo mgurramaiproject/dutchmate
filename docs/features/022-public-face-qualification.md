@@ -7,17 +7,34 @@
 **Status:** Final copy approved; QA follow-up implemented, Safari deferred,
 and qualification checks passed.
 
-## Scope qualified
+## Post-release update
 
-- The public homepage describes the current 0.5.0 repository build without
+On 2026-08-05, Microsoft approved DutchMate 0.5.1 and published the Edge
+listing:
+
+https://microsoftedge.microsoft.com/addons/detail/dutchmate/plobaccfjjbpfekjomnmmidlmjjdecme
+
+The original qualification below records the pre-publication Edge coming-soon
+state. The current frontend now links directly to the approved listing.
+
+## Current release state
+
+- The public homepage now presents Chrome, Firefox, and Edge as available browser stores.
+- The live Edge actions use the approved Microsoft Edge Add-ons listing above.
+- The public privacy policy and store disclosure now describe deliberate text selection; hover translation remains disabled in the 0.5.1 build.
+- Safari remains deferred and is not presented as available.
+
+## Pre-publication qualification record
+
+- The public homepage described the current 0.5.0 repository build without
   pretending that the published Chrome or Firefox listings already contain the
   latest update.
-- Chrome and Firefox availability actions use the supplied public store URLs
+- Chrome and Firefox availability actions used the supplied public store URLs
   and local browser logos. Chrome, Firefox, and Edge logos are visible in the
   nav, hero, and availability surfaces.
-- Edge is a native button, not a fabricated link. Its click handler exposes
+- Before publication, Edge was a native button, not a fabricated link. Its click handler exposed
   accessible support-is-coming-soon text in each surface without navigation.
-- Safari is intentionally deferred and absent from the public UI and release
+- Safari was intentionally deferred and absent from the public UI and release
   target list.
 - The existing screenshot gallery, lightbox, feedback routes, privacy route,
   and responsive design primitives remain in place.
@@ -54,7 +71,8 @@ and qualification checks passed.
 - Screenshot replacement: intentionally out of scope; existing captures remain
   and surrounding copy does not claim they demonstrate newer Verb Journey or
   English comparison screens.
-- Real store-installed extension update: intentionally out of scope; the page
-  says the latest update is coming soon.
+- Real store-installed extension update: intentionally out of scope for the
+  original qualification; the page then said the latest update was coming
+  soon.
 - Safari build and store submission: intentionally deferred; no misleading
   Safari artifact or public availability claim is included.

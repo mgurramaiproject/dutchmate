@@ -20,7 +20,7 @@ Upload:
 
 Local upload SHA-256:
 
-`2ec7020d56d8211e68dfd294c757f7dffcdb98a0ae68431ad7c2124422d4d872`
+`9beddade0025ed62c23238e800b23e8ea1acf38d5ae5248cbffd5b88b2b0eb63`
 
 GitHub download:
 
@@ -34,6 +34,11 @@ The hashes differ because the local upload ZIP and the GitHub Actions ZIP are
 reproducible packages with different ZIP timestamps. Use the local hash when
 uploading the local file to AMO; use the GitHub hash when downloading the
 published release asset.
+
+The local package above is rebuilt with the unused `downloads` permission
+removed. The existing GitHub v0.5.1 asset predates this correction; use the
+local package for any store resubmission until a corrected release asset is
+published.
 
 Do not upload the source package as the add-on version. AMO requests it in a
 separate source-code field when source submission is required.
@@ -120,7 +125,7 @@ Homepage: https://dutchmate-frontend.onrender.com/
 - Firefox minimum version: 140.0
 - Firefox Android minimum version: 142.0
 - Hover translation: disabled; selected-text translation remains available
-- Permissions: `storage`, `downloads`
+- Permission: `storage`
 - Backend host permission: `https://dutchmate-backend.onrender.com/*`
 - Firefox data declaration: required `websiteContent`
 - No account, subscription, payment, or reviewer credentials required

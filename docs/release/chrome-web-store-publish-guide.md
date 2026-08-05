@@ -212,7 +212,6 @@ Permission justifications:
 | Permission | Justification |
 | --- | --- |
 | `storage` | Stores settings, translation-cache entries, saved vocabulary, and local learning data in browser storage. |
-| `downloads` | Exports a user-requested local learning backup to a file. |
 | `https://dutchmate-backend.onrender.com/*` | Allows the extension's background worker to send requested translation text to the DutchMate backend. The content script runs only on normal HTTP and HTTPS webpages so hover and selection translation can work passively. |
 
 The localhost permissions are development support from the generated manifest;
