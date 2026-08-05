@@ -11,6 +11,7 @@ import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
 import { lessonCatalog, type GrammarPatternId, type Lesson } from "../lessons/catalog";
+import { contentCatalog } from "../content-catalog";
 import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSavedQuiz, type SavedQuizSession } from "./saved-quiz";
@@ -553,11 +554,11 @@ function renderLessons(): HTMLElement {
   verbGroup.append(verbEntry);
   categoryGroups.append(verbGroup);
   const practicalGroup = section("lesson-category-group practical-stories-group");
-  practicalGroup.append(renderLessonCategoryHeader("Practical Stories", "Everyday Dutch situations", "book-open"));
+  practicalGroup.append(renderLessonCategoryHeader("Practical Dutch", "Everyday Dutch situations", "book-open"));
   const practicalEntry = button("", "lesson-category-card practical-stories-entry");
-  practicalEntry.setAttribute("aria-label", "Open Practical Stories");
+  practicalEntry.setAttribute("aria-label", "Open Practical Dutch");
   const practicalCopy = document.createElement("span"); practicalCopy.className = "lesson-category-card-copy";
-  practicalCopy.append(entryText("Follow a short everyday situation from read to review.", "verb-entry-copy"), entryText("Open stories →", "verb-entry-action"));
+  practicalCopy.append(entryText("Follow a short everyday situation from read to review.", "verb-entry-copy"), entryText("Open Practical Dutch →", "verb-entry-action"));
   practicalEntry.append(svgIcon("book-open"), practicalCopy, svgIcon("chevron-right"));
   practicalEntry.addEventListener("click", () => { screen = "practicalStories"; render(); content?.focus(); });
   practicalGroup.append(practicalEntry);
@@ -570,7 +571,9 @@ function renderPracticalStories(): HTMLElement {
   const wrapper = section("lessons-content practical-stories-content");
   const back = journeyBack("Lessons");
   back.addEventListener("click", () => { screen = "lessons"; render(); content?.focus(); });
-  wrapper.append(back, eyebrow(`Lesson library · ${lessonCatalog.lessons.length} small practical stories`), heading("Practical Stories"), text("Choose a situation. Each lesson is 3–5 minutes."));
+  wrapper.append(back, eyebrow(`Lesson library · ${lessonCatalog.lessons.length} legacy lessons plus one Practical Dutch topic`), heading("Practical Dutch"), text("Choose a level in the topic, or continue with an existing practical lesson."));
+  const topic = contentCatalog.getPracticalDutchTopic();
+  if (topic) wrapper.append(renderPracticalDutchTopicOverview(topic));
   wrapper.append(renderLessonFilters());
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
@@ -604,6 +607,20 @@ function renderPracticalStories(): HTMLElement {
   wrapper.append(library);
   if (visibleLessons.length === 0) wrapper.append(text("No lessons match these filters.", "empty-state"));
   wrapper.append(localNote()); return wrapper;
+}
+
+function renderPracticalDutchTopicOverview(topic: NonNullable<ReturnType<typeof contentCatalog.getPracticalDutchTopic>>): HTMLElement {
+  const panel = section("practical-dutch-topic-overview");
+  panel.append(eyebrow("New topic · Supermarket and shopping"), heading(topic.title.en), text(topic.description.en, "body-copy"));
+  const levels = section("practical-dutch-levels");
+  for (const lesson of topic.lessons) {
+    const card = section("practical-dutch-level-card");
+    card.dataset.lessonId = lesson.id;
+    card.append(text(lesson.cefr, "level"), heading(lesson.title.en), text(lesson.outcome.en, "body-copy"), text(`${lesson.durationMinutes} minutes · ${lesson.languageFocus.pattern.nl}`, "lesson-pattern-status"));
+    levels.append(card);
+  }
+  panel.append(levels, text("A1 is the recommended starting point. Both levels are available from the topic.", "local-note"));
+  return panel;
 }
 
 function renderLessonCategoryHeader(title: string, description: string, iconName: IconName): HTMLElement {

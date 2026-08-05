@@ -29,4 +29,11 @@ describe("content catalog", () => {
     })).toContain("releaseStatus: expected released package");
     expect(validateContentPackage({})).toContain("family: expected supported content family");
   });
+
+  it("keeps the paired Practical Dutch topic atomic", () => {
+    const topic = contentCatalog.getPracticalDutchTopic();
+    expect(topic?.lessons).toHaveLength(2);
+    expect(topic?.lessons.map((lesson) => lesson.cefr)).toEqual(["A1", "A2"]);
+    expect(topic?.lessons.every((lesson) => lesson.coreExercises.length === 6)).toBe(true);
+  });
 });

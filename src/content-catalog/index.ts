@@ -26,10 +26,12 @@ import zijnVerbJourneyPackage from "./packages/verb-journeys/verb.zijn.json";
 import hebbenVerbJourneyPackage from "./packages/verb-journeys/verb.hebben.json";
 import gaanVerbJourneyPackage from "./packages/verb-journeys/verb.gaan.json";
 import type { VerbJourneyPack } from "../verb-journeys/content";
+import practicalDutchPackage from "./packages/practical-dutch/supermarket-shopping.json";
+import { validatePracticalDutchTopic, type PracticalDutchTopic } from "./practical-dutch";
 
 export const CONTENT_CATALOG_SCHEMA_VERSION = 1 as const;
 
-export type ContentFamily = "lesson" | "verb-journey" | "grammar" | "contrast";
+export type ContentFamily = "lesson" | "verb-journey" | "grammar" | "contrast" | "practical-dutch";
 export type ContentReleaseStatus = "draft" | "released";
 export type ContentVersion = number | string;
 export type ContentReviewMetadata = {
@@ -57,6 +59,7 @@ export type ContentCatalog = {
   getGrammarPattern(id: string): GrammarPattern | null;
   getContrastPack(id: string): ContrastPack | null;
   getVerbJourneyPack(id: string): VerbJourneyPack | null;
+  getPracticalDutchTopic(id?: string): PracticalDutchTopic | null;
 };
 
 const lessonPackages: readonly ContentPackage<Lesson>[] = [
@@ -79,13 +82,14 @@ const lessonPackages: readonly ContentPackage<Lesson>[] = [
 const grammarPackages: readonly ContentPackage<GrammarPattern>[] = [a0ZijnPresentPackage, a0HebbenPresentPackage, a0RegularPresentPackage, a0YesNoInversionPackage] as unknown as readonly ContentPackage<GrammarPattern>[];
 const contrastPackages: readonly ContentPackage<ContrastPack>[] = [contrastMainClauseInversionPackage] as unknown as readonly ContentPackage<ContrastPack>[];
 const verbJourneyPackages: readonly ContentPackage<VerbJourneyPack>[] = [werkenVerbJourneyPackage, zijnVerbJourneyPackage, hebbenVerbJourneyPackage, gaanVerbJourneyPackage] as unknown as readonly ContentPackage<VerbJourneyPack>[];
-const allPackages: readonly ContentPackage<unknown>[] = [...lessonPackages, ...grammarPackages, ...contrastPackages, ...verbJourneyPackages];
+const practicalDutchPackages: readonly ContentPackage<PracticalDutchTopic>[] = [practicalDutchPackage] as unknown as readonly ContentPackage<PracticalDutchTopic>[];
+const allPackages: readonly ContentPackage<unknown>[] = [...lessonPackages, ...grammarPackages, ...contrastPackages, ...verbJourneyPackages, ...practicalDutchPackages];
 
 export function validateContentPackage(value: unknown): string[] {
   const errors: string[] = [];
   if (!isRecord(value)) return ["package: expected object"];
   const stableId = /^[a-z0-9]+(?:[-._][a-z0-9_]+)*$/u;
-  if (!Object.values<ContentFamily>(["lesson", "verb-journey", "grammar", "contrast"]).includes(value.family as ContentFamily)) errors.push("family: expected supported content family");
+  if (!Object.values<ContentFamily>(["lesson", "verb-journey", "grammar", "contrast", "practical-dutch"]).includes(value.family as ContentFamily)) errors.push("family: expected supported content family");
   if (typeof value.id !== "string" || !stableId.test(value.id)) errors.push("id: expected stable identifier");
   if (value.schemaVersion !== CONTENT_CATALOG_SCHEMA_VERSION) errors.push("schemaVersion: unsupported catalog schema");
   const validNumericVersion = typeof value.contentVersion === "number" && Number.isInteger(value.contentVersion) && value.contentVersion >= 1;
@@ -96,6 +100,7 @@ export function validateContentPackage(value: unknown): string[] {
   if (!isRecord(review)) errors.push("review: expected review metadata");
   else if (typeof review.author !== "string" || typeof review.reviewer !== "string" || typeof review.reviewedAt !== "string" || !Array.isArray(review.sources) || typeof review.provenance !== "string" || !review.author.trim() || !review.reviewer.trim() || !/^\d{4}-\d{2}-\d{2}$/u.test(review.reviewedAt) || review.sources.length === 0 || !review.provenance.trim()) errors.push("review: incomplete release metadata");
   if (!isRecord(value.payload)) errors.push("payload: expected authored content");
+  if (value.family === "practical-dutch" && validatePracticalDutchTopic(value.payload as PracticalDutchTopic).length > 0) errors.push("payload: invalid Practical Dutch topic");
   return errors;
 }
 
@@ -123,6 +128,7 @@ const releasedLessonPackages = lessonPackages.filter((contentPackage) => validat
 const releasedGrammarPackages = grammarPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
 const releasedContrastPackages = contrastPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
 const releasedVerbJourneyPackages = verbJourneyPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
+const releasedPracticalDutchPackages = practicalDutchPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
 const manifest = allPackages.map(manifestEntry).sort((first, second) => `${first.family}:${first.id}`.localeCompare(`${second.family}:${second.id}`));
 
 export const contentCatalog: ContentCatalog = {
@@ -132,6 +138,7 @@ export const contentCatalog: ContentCatalog = {
   getGrammarPattern: (id) => releasedGrammarPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
   getContrastPack: (id) => releasedContrastPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
   getVerbJourneyPack: (id) => releasedVerbJourneyPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
+  getPracticalDutchTopic: (id = "practical-dutch-supermarket-shopping") => releasedPracticalDutchPackages.find((contentPackage) => contentPackage.id === id)?.payload ?? null,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
