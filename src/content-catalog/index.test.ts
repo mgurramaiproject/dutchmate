@@ -34,7 +34,7 @@ describe("content catalog", () => {
     const topic = contentCatalog.getPracticalDutchTopic();
     expect(topic?.lessons).toHaveLength(2);
     expect(topic?.lessons.map((lesson) => lesson.cefr)).toEqual(["A1", "A2"]);
-    expect(topic?.lessons.every((lesson) => lesson.coreExercises.length === 6)).toBe(true);
+    expect(topic?.lessons.every((lesson) => lesson.coreExercises.length === 6 && lesson.extraExercises.length === 6 && lesson.coreExercises.length + lesson.extraExercises.length === 12)).toBe(true);
   });
 
   it("keeps A1 and A2 independently useful and distinct", () => {

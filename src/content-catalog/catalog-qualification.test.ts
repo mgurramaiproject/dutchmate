@@ -31,7 +31,7 @@ describe("complete content catalog qualification", () => {
     const topic = contentCatalog.getPracticalDutchTopic();
     expect(topic).toMatchObject({ id: "practical-dutch-supermarket-shopping", lessons: [{ cefr: "A1" }, { cefr: "A2" }] });
     expect(validatePracticalDutchTopic(topic!)).toEqual([]);
-    expect(topic?.lessons.every((lesson) => lesson.coreExercises.length === 6 && lesson.extraExercises.length >= 6 && lesson.coreExercises.every((exercise) => exercise.review.reviewState === "second-review-complete") && lesson.extraExercises.every((exercise) => exercise.review.reviewState === "second-review-complete"))).toBe(true);
+    expect(topic?.lessons.every((lesson) => lesson.coreExercises.length === 6 && lesson.extraExercises.length === 6 && lesson.coreExercises.length + lesson.extraExercises.length === 12 && lesson.coreExercises.every((exercise) => exercise.review.reviewState === "second-review-complete") && lesson.extraExercises.every((exercise) => exercise.review.reviewState === "second-review-complete"))).toBe(true);
   });
 
   it("fails closed for draft packages while exposing only release-qualified packages", () => {

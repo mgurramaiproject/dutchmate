@@ -43,7 +43,7 @@ let items: LearningItem[] = [];
 let snapshot: DailyFiveSnapshot | null = null;
 let rhythm: LearningRhythm | null = null;
 let settings: ExtensionSettings = defaultSettings;
-let screen: "today" | "lessons" | "practicalStories" | "practicalExtra" | "saved" | "lesson" | "review" | "savedQuiz" | "savedContextMission" | "settings" | "verbJourneys" | "verbJourneyOverview" | "verbJourneyStory" | "verbJourneyNotice" | "verbMap" | "verbEnglishComparison" | "verbPractice" | "verbCompletion" = "today";
+let screen: "today" | "lessons" | "practicalStories" | "legacyLessons" | "practicalExtra" | "saved" | "lesson" | "review" | "savedQuiz" | "savedContextMission" | "settings" | "verbJourneys" | "verbJourneyOverview" | "verbJourneyStory" | "verbJourneyNotice" | "verbMap" | "verbEnglishComparison" | "verbPractice" | "verbCompletion" = "today";
 let lessonSession: LessonSession | null = null;
 let practicalExtraSession: PracticalExtraSession | null = null;
 let grammarRecord: GrammarRecord | null = null;
@@ -80,7 +80,7 @@ let savedContextMissionError: string | null = null;
 let savedContextMissionRetry: "again" | "got-it" | null = null;
 let lessonStatusFilter: LessonFilterStatus = "all";
 let lessonLevelFilter: LessonFilterLevel = "all";
-let focusedOrigin: "today" | "lessons" | "practicalStories" | "saved" | null = null;
+let focusedOrigin: "today" | "lessons" | "practicalStories" | "legacyLessons" | "saved" | null = null;
 let activeVerbJourneyId = "journey.werken.vtt-completed";
 let activeVerbId = "verb.werken";
 let selectedVerbFormTense: DutchTense = "VTT";
@@ -162,8 +162,8 @@ function render(): void {
   if (screen !== "saved") expandedSavedItemId = null;
   const focused = screen === "review" || screen === "lesson" || screen === "practicalExtra" || screen === "savedQuiz" || screen === "savedContextMission";
   const activeTab = focused
-    ? focusedOrigin === "practicalStories" ? "lessons" : focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" || screen === "savedContextMission" ? "saved" : "today")
-    : screen === "lesson" || screen === "lessons" || screen === "practicalStories" || screen === "practicalExtra" || screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" || screen === "verbEnglishComparison" || screen === "verbPractice" || screen === "verbCompletion" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
+    ? focusedOrigin === "practicalStories" || focusedOrigin === "legacyLessons" ? "lessons" : focusedOrigin ?? (screen === "lesson" ? "lessons" : screen === "savedQuiz" || screen === "savedContextMission" ? "saved" : "today")
+    : screen === "lesson" || screen === "lessons" || screen === "practicalStories" || screen === "legacyLessons" || screen === "practicalExtra" || screen === "verbJourneys" || screen === "verbJourneyOverview" || screen === "verbJourneyStory" || screen === "verbJourneyNotice" || screen === "verbMap" || screen === "verbEnglishComparison" || screen === "verbPractice" || screen === "verbCompletion" ? "lessons" : screen === "review" || screen === "today" || screen === "settings" ? "today" : "saved";
   settingsButton?.toggleAttribute("hidden", focused);
   primaryNavigation?.toggleAttribute("hidden", screen === "lesson");
   primaryNavigation?.classList.toggle("is-locked", focused);
@@ -180,7 +180,7 @@ function render(): void {
   }
   content?.setAttribute("aria-labelledby", `${activeTab}-tab`);
   updateBadge();
-  renderWithRecovery(content, () => screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "practicalStories" ? renderPracticalStories() : screen === "practicalExtra" ? renderPracticalExtra() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : screen === "verbJourneys" ? renderVerbJourneys() : screen === "verbJourneyOverview" ? renderVerbJourneyOverview() : screen === "verbJourneyStory" ? renderVerbJourneyStory() : screen === "verbJourneyNotice" ? renderVerbJourneyNotice() : screen === "verbMap" ? renderVerbMap() : screen === "verbEnglishComparison" ? renderVerbEnglishComparison() : screen === "verbPractice" ? renderVerbPractice() : screen === "verbCompletion" ? renderVerbCompletion() : renderSettings(), renderRecovery);
+  renderWithRecovery(content, () => screen === "today" ? renderToday() : screen === "lessons" ? renderLessons() : screen === "practicalStories" ? renderPracticalStories() : screen === "legacyLessons" ? renderLegacyLessons() : screen === "practicalExtra" ? renderPracticalExtra() : screen === "saved" ? renderSaved() : screen === "lesson" ? renderLesson() : screen === "review" ? renderReview() : screen === "savedQuiz" ? renderSavedQuiz() : screen === "savedContextMission" ? renderSavedContextMission() : screen === "verbJourneys" ? renderVerbJourneys() : screen === "verbJourneyOverview" ? renderVerbJourneyOverview() : screen === "verbJourneyStory" ? renderVerbJourneyStory() : screen === "verbJourneyNotice" ? renderVerbJourneyNotice() : screen === "verbMap" ? renderVerbMap() : screen === "verbEnglishComparison" ? renderVerbEnglishComparison() : screen === "verbPractice" ? renderVerbPractice() : screen === "verbCompletion" ? renderVerbCompletion() : renderSettings(), renderRecovery);
 }
 
 function renderRecovery(): HTMLElement {
@@ -566,17 +566,30 @@ function renderLessons(): HTMLElement {
   practicalEntry.addEventListener("click", () => { screen = "practicalStories"; render(); content?.focus(); });
   practicalGroup.append(practicalEntry);
   categoryGroups.append(practicalGroup);
+  const legacyGroup = section("lesson-category-group legacy-lessons-group");
+  legacyGroup.append(renderLessonCategoryHeader("Other lessons", "The original curated lesson library", "book-open"));
+  const legacyEntry = button("Open other lessons →", "lesson-category-card legacy-lessons-entry");
+  legacyEntry.setAttribute("aria-label", "Open Other lessons");
+  legacyEntry.addEventListener("click", () => { screen = "legacyLessons"; render(); content?.focus(); });
+  legacyGroup.append(legacyEntry);
+  categoryGroups.append(legacyGroup);
   wrapper.append(categoryGroups);
   return wrapper;
 }
 
 function renderPracticalStories(): HTMLElement {
-  const wrapper = section("lessons-content practical-stories-content");
-  const back = journeyBack("Lessons");
-  back.addEventListener("click", () => { screen = "lessons"; render(); content?.focus(); });
-  wrapper.append(back, eyebrow(`Lesson library · ${lessonCatalog.lessons.length} legacy lessons plus one Practical Dutch topic`), heading("Practical Dutch"), text("Choose a level in the topic, or continue with an existing practical lesson."));
+  const wrapper = section("lessons-content practical-stories-content practical-dutch-landing");
+  wrapper.append(heading("Practical Dutch"));
   const topic = contentCatalog.getPracticalDutchTopic();
   if (topic) wrapper.append(renderPracticalDutchTopicOverview(topic));
+  return wrapper;
+}
+
+function renderLegacyLessons(): HTMLElement {
+  const wrapper = section("lessons-content legacy-lessons-content");
+  const back = journeyBack("Lessons");
+  back.addEventListener("click", () => { screen = "lessons"; render(); content?.focus(); });
+  wrapper.append(back, eyebrow(`Existing lessons · ${lessonCatalog.lessons.length}`), heading("Other lessons"), text("The original curated lessons remain here with their existing progress.", "body-copy"));
   wrapper.append(renderLessonFilters());
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
@@ -613,36 +626,15 @@ function renderPracticalStories(): HTMLElement {
 }
 
 function renderPracticalDutchTopicOverview(topic: NonNullable<ReturnType<typeof contentCatalog.getPracticalDutchTopic>>): HTMLElement {
-  const panel = section("practical-dutch-topic-overview");
-  const intro = section("practical-dutch-topic-header");
-  intro.append(eyebrow("Practical Dutch · Supermarket"), heading(topic.title.en), text(topic.description.en, "body-copy"), text("Two short levels · 5–7 minutes each", "practical-dutch-topic-meta"));
-  panel.append(intro);
-  const levels = section("practical-dutch-levels");
-  levels.append(text("Choose a level", "section-title"));
-  const a1Lesson = topic.lessons.find((lesson) => lesson.cefr === "A1");
-  const a1Complete = a1Lesson ? lessonProgressById[a1Lesson.id]?.completedAt !== null && lessonProgressById[a1Lesson.id]?.completedAt !== undefined : false;
+  const panel = section("practical-dutch-level-actions");
   for (const lesson of topic.lessons) {
-    const card = button("", "practical-dutch-level-card");
+    const card = button(`${lesson.cefr} · ${lesson.title.en}`, "button practical-dutch-level-card practical-dutch-level-button");
     card.dataset.lessonId = lesson.id;
-    const progress = lessonProgressById[lesson.id];
-    const completed = progress?.completedAt !== null && progress?.completedAt !== undefined;
-    const extraComplete = completed && (progress?.extraIndex ?? 0) >= lesson.extraExercises.length;
-    const recommendation = completed ? extraComplete ? "Completed · extra practice finished" : "Completed · extra practice available" : lesson.cefr === "A1" ? "Recommended starting point" : a1Complete ? "Recommended next" : "Available now";
-    const level = text(lesson.cefr, "practical-dutch-level-badge");
-    const copy = document.createElement("span");
-    copy.className = "practical-dutch-level-copy";
-    const title = document.createElement("strong");
-    title.className = "practical-dutch-level-title";
-    title.textContent = lesson.title.en;
-    copy.append(title, text(recommendation, "practical-dutch-level-status"), text(lesson.outcome.en, "practical-dutch-level-outcome"), text(`${lesson.durationMinutes} min · ${lesson.languageFocus.pattern.nl}`, "practical-dutch-level-meta"));
-    card.classList.toggle("is-complete", completed);
-    card.setAttribute("aria-label", `${lesson.cefr}: ${lesson.title.en}. ${recommendation}`);
-    card.append(level, copy, svgIcon("chevron-right", "practical-dutch-level-arrow"));
+    card.setAttribute("aria-label", `Start ${lesson.cefr}: ${lesson.title.en}`);
     const adapted = practicalDutchLessons.find((candidate) => candidate.id === lesson.id);
-    if (adapted) card.addEventListener("click", () => void (completed ? startPracticalExtra(adapted) : startLesson(adapted)));
-    levels.append(card);
+    if (adapted) card.addEventListener("click", () => void startLesson(adapted));
+    panel.append(card);
   }
-  panel.append(levels, text("Start with A1 for the everyday pattern. A2 stays available when you want a more precise question.", "local-note"));
   return panel;
 }
 
@@ -1477,7 +1469,7 @@ function renderPracticalDutchStory(session: LessonSession, allowHelp: boolean): 
   lesson.context.forEach((line, index) => {
     const row = section("story-line");
     row.append(text(line.nl, "story-dutch"));
-    if (allowHelp && session.revealedLineIndexes.includes(index)) row.append(text(`English: ${line.en}`, "helper-copy"), text(`Telugu: ${line.te}`, "helper-copy"));
+    if (allowHelp && session.revealedLineIndexes.includes(index)) row.append(text(`English: ${line.en}`, "practical-dutch-translation"), text(`Telugu: ${line.te}`, "practical-dutch-translation telugu-copy"));
     else if (allowHelp) { const help = button("Show English and Telugu", "line-help"); help.addEventListener("click", () => { lessonSession = revealLessonLine(session, index); render(); }); row.append(help); }
     story.append(row);
   });
@@ -1491,7 +1483,7 @@ function renderPracticalDutchNotice(session: LessonSession): HTMLElement {
   const lesson = session.lesson.practicalDutch!;
   const panel = section("lesson-story practical-dutch-notice");
   const pattern = section("practical-dutch-pattern-card");
-  pattern.append(text("Language focus", "section-title"), text(lesson.languageFocus.pattern.nl, "practical-dutch-pattern"), text(lesson.languageFocus.explanation.en, "body-copy"), text(lesson.languageFocus.explanation.te, "helper-copy"));
+  pattern.append(text("Language focus", "section-title"), text(lesson.languageFocus.pattern.nl, "practical-dutch-pattern"), text(lesson.languageFocus.explanation.en, "practical-dutch-translation"), text(lesson.languageFocus.explanation.te, "practical-dutch-translation telugu-copy"));
   panel.append(eyebrow("Notice the language"), pattern);
   const sentences = section("practical-dutch-sentences");
   sentences.append(text("Useful sentences", "section-title"));
@@ -1846,7 +1838,7 @@ async function persistGrammarDailyFiveOutcome(patternId: GrammarPatternId, exerc
 }
 function renderLessonPractice(session: LessonSession): HTMLElement { const prompt = session.lesson.practice[session.practiceIndex]; const candidate = session.lesson.candidates.find((item) => item.id === prompt.candidateId)!; const panel = section("practice-card"); panel.append(eyebrow(session.practiceRevealed ? "Answer" : prompt.dimension === "recognition" ? "Read in Dutch" : "Say it in Dutch"), heading(session.practiceRevealed ? candidate.dutch : prompt.dimension === "recognition" ? candidate.dutch : candidate.english)); if (!session.practiceRevealed) { const reveal = button("Show answer", "button answer-button"); reveal.addEventListener("click", () => { lessonSession = revealLessonPractice(session); render(); }); panel.append(reveal, phoneticHint()); } else { panel.append(meaning("Dutch", candidate.dutch), meaning("English", candidate.english), teluguMeaning(candidate.telugu)); const actions = document.createElement("div"); actions.className = "rating-actions"; for (const result of ["again", "got-it"] as const) { const action = button(result === "again" ? "Again" : "Got it", "button"); action.addEventListener("click", () => void saveLessonPractice(session, result)); actions.append(action); } panel.append(actions); } return panel; }
 function renderLessonKeep(session: LessonSession): HTMLElement { const panel = section("lesson-story"); panel.append(eyebrow("Keep"), heading("Choose what to keep for review.")); for (const candidate of getLessonCandidateChoices(session, items)) { const label = document.createElement("label"); label.className = "candidate-choice"; const checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = candidate.checked; checkbox.addEventListener("change", () => { lessonSession = toggleLessonCandidate(session, candidate.id); render(); }); label.append(checkbox, text(candidate.dutch)); if (candidate.alreadySaved) label.append(text("Already saved", "already-saved")); panel.append(label); } const keep = button(`Keep ${session.selectedCandidateIds.length} for review`, "button primary-button"); keep.disabled = pending; keep.addEventListener("click", () => void keepLessonCandidates(session)); panel.append(keep); return panel; }
-async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : screen === "practicalStories" ? "practicalStories" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); grammarRecord = null; grammarPatternId = lesson.grammarCompanion?.patternId ?? null; contrastRecord = null; contrastExerciseIndex = 0; contrastOffer = null; activeGrammarTask = null; activeContrastTask = null; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : origin === "practicalStories" ? "practicalStories" : "lessons"; render(); } }
+async function startLesson(lesson: Lesson): Promise<void> { const origin = screen === "today" ? "today" : screen === "saved" ? "saved" : screen === "practicalStories" ? "practicalStories" : screen === "legacyLessons" ? "legacyLessons" : "lessons"; try { let lessonProgress = await learningClient.getLessonProgress(lesson.id); if (!lessonProgress) lessonProgress = await learningClient.saveLessonProgress(lesson.id, "read"); grammarRecord = null; grammarPatternId = lesson.grammarCompanion?.patternId ?? null; contrastRecord = null; contrastExerciseIndex = 0; contrastOffer = null; activeGrammarTask = null; activeContrastTask = null; grammarAnswer = null; grammarTokens = []; grammarFeedback = null; grammarChecked = false; grammarOutcome = null; grammarRetrying = false; lessonProgressById = { ...lessonProgressById, [lesson.id]: lessonProgress }; lessonSession = resumeLessonSession(lesson, lessonProgress); focusedOrigin = origin; screen = "lesson"; render(); content?.focus(); } catch (error) { lessonsError = error instanceof Error ? error.message : "This lesson is unavailable."; focusedOrigin = null; screen = origin === "today" ? "today" : origin === "practicalStories" ? "practicalStories" : origin === "legacyLessons" ? "legacyLessons" : "lessons"; render(); } }
 async function startPracticalExtra(lesson: Lesson): Promise<void> {
   const practical = lesson.practicalDutch;
   if (!practical) return;

@@ -524,6 +524,7 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .lesson-category-card-copy { display: grid; min-width: 0; gap: 4px; }
 .lesson-category-card-copy .verb-entry-copy { margin: 0; }
 .lesson-category-card > .icon:last-child { width: 16px; height: 16px; color: var(--dm-ink-muted); }
+.legacy-lessons-entry { display: block; text-align: left; }
 
 .journey-back { display: inline-flex; align-items: center; gap: 6px; }
 .journey-back-icon { width: 16px; height: 16px; flex: 0 0 auto; }
@@ -596,6 +597,8 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 /* Practical Dutch: use the established lesson-card language without turning
    the multilingual content into a wall of equally weighted text. */
 .practical-stories-content { gap: 10px; }
+.practical-dutch-landing { gap: 12px; }
+.practical-dutch-level-actions { display: grid; gap: 8px; }
 .practical-dutch-topic-overview { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--dm-ink-strong); border-left: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); box-shadow: var(--dm-shadow-low); }
 .practical-dutch-topic-header { display: grid; gap: 5px; }
 .practical-dutch-topic-header .heading { font-size: var(--dm-font-size-h2); line-height: var(--dm-line-height-h2); }
@@ -632,6 +635,7 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .practical-dutch-extra .heading { font-size: var(--dm-font-size-h2); line-height: var(--dm-line-height-h2); }
 .practical-dutch-extra .grammar-feedback, .practical-dutch-exercise .grammar-feedback { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 .practical-dutch-extra .button, .practical-dutch-exercise .button { min-height: var(--dm-target-min); padding: 7px 8px; font-size: var(--dm-font-size-label); line-height: var(--dm-line-height-label); overflow-wrap: anywhere; }
+.practical-dutch-level-button { display: block; grid-template-columns: none; width: 100%; min-height: var(--dm-target-min); padding: 11px 12px; text-align: left; }
 
 @media (max-width: 360px) {
   .popup-content { padding-inline: 16px; }
