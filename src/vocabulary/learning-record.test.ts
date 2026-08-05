@@ -179,6 +179,20 @@ describe("LearningRecordStore", () => {
     await expect(records.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toBeUndefined();
   });
 
+  it("adds Practical Dutch progress without changing the existing record sections", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    await records.createOrMerge({ dutch: "huis", english: "house" });
+    await records.saveLessonProgress("a1-practical-supermarket-shopping", 1, "notice");
+    const raw = storage.values.get(LEARNING_RECORD_STORAGE_KEY) as Record<string, unknown>;
+    expect(raw).toMatchObject({ version: 2, items: expect.any(Object), lessonProgress: expect.objectContaining({ "a1-practical-supermarket-shopping\u001f1": expect.objectContaining({ stage: "notice" }) }), rhythm: expect.any(Object), grammar: {}, contrast: {}, verbJourneys: expect.any(Object) });
+    const backup = await records.exportBackup();
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    await restored.importBackup(backup);
+    await expect(restored.getLessonProgress("a1-practical-supermarket-shopping", 1)).resolves.toMatchObject({ stage: "notice" });
+    await expect(restored.list()).resolves.toEqual([expect.objectContaining({ dutch: "huis", english: "house" })]);
+  });
+
   it("imports newer valid lesson progress without copying catalog content", async () => {
     const local = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     await local.saveLessonProgress("a1-een-afspraak-maken", 1, "read");

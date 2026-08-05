@@ -10,7 +10,7 @@ import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningCont
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
-import { lessonCatalog, type GrammarPatternId, type Lesson } from "../lessons/catalog";
+import { allLessons, lessonCatalog, type GrammarPatternId, type Lesson } from "../lessons/catalog";
 import { contentCatalog } from "../content-catalog";
 import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
@@ -130,7 +130,7 @@ async function load(continueAfterCompletion = false): Promise<void> {
     try { contrastRecord = await learningClient.getContrast(); } catch { contrastRecord = null; }
     try { verbJourneyRecord = await learningClient.getVerbJourneyRecord(); } catch { verbJourneyRecord = null; }
     try {
-      lessonProgressById = Object.fromEntries(await Promise.all(lessonCatalog.lessons.map(async (lesson) => [lesson.id, await learningClient.getLessonProgress(lesson.id)] as const)));
+      lessonProgressById = Object.fromEntries(await Promise.all(allLessons.map(async (lesson) => [lesson.id, await learningClient.getLessonProgress(lesson.id)] as const)));
       lessonsError = null;
     } catch (error) { lessonsError = error instanceof Error ? error.message : "Lessons are unavailable."; }
     render();

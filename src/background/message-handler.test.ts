@@ -20,6 +20,7 @@ import {
   LEARNING_DAILY_FIVE_RESULT_MESSAGE,
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
   LEARNING_LESSON_PROGRESS_MESSAGE,
+  LEARNING_SAVE_LESSON_PROGRESS_MESSAGE,
   LEARNING_GRAMMAR_INTRODUCE_MESSAGE,
   LEARNING_GRAMMAR_MESSAGE,
   LEARNING_GRAMMAR_RESULT_MESSAGE,
@@ -239,6 +240,15 @@ describe("createBackgroundMessageHandler", () => {
     await expect(send(handleMessage, { type: LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE, payload: { lessonId: "a1-een-afspraak-maken", candidateIds: ["afspraak-maken", "als-het-kan"], evidence: [{ candidateId: "afspraak-maken", dimension: "recognition", result: "got-it" }] } })).resolves.toMatchObject({ ok: true, result: { items: [expect.objectContaining({ dutch: "een afspraak maken", recognition: expect.objectContaining({ state: "learning" }), sources: expect.arrayContaining([expect.objectContaining({ type: "lesson", lessonId: "a1-een-afspraak-maken" })]) }), expect.objectContaining({ dutch: "als het kan" })] } });
     await expect(send(handleMessage, { type: LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE, payload: { lessonId: "a1-een-afspraak-maken", candidateIds: ["afspraak-maken"], evidence: [] } })).resolves.toMatchObject({ ok: true });
     await expect(records.list()).resolves.toHaveLength(2);
+  });
+
+  it("saves and resumes Practical Dutch progress through the typed learning boundary", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({ learningRecords: records, refreshBadge: async () => undefined });
+
+    await expect(send(handleMessage, { type: LEARNING_SAVE_LESSON_PROGRESS_MESSAGE, payload: { lessonId: "a1-practical-supermarket-shopping", stage: "notice" } })).resolves.toMatchObject({ ok: true, result: { progress: { lessonId: "a1-practical-supermarket-shopping", stage: "notice", completedAt: null } } });
+    await expect(send(handleMessage, { type: LEARNING_LESSON_PROGRESS_MESSAGE, payload: { lessonId: "a1-practical-supermarket-shopping" } })).resolves.toMatchObject({ ok: true, result: { progress: { lessonId: "a1-practical-supermarket-shopping", stage: "notice" } } });
   });
 
   it("does not change storage when keeping lesson candidates fails", async () => {

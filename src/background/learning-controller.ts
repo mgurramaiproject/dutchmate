@@ -29,7 +29,7 @@ import {
   LEARNING_VERB_JOURNEY_COMPLETION_MESSAGE,
   LEARNING_VERB_JOURNEY_DAILY_FIVE_RESULT_MESSAGE,
 } from "./messages";
-import { lessonCatalog, validateLessonCatalog } from "../lessons/catalog";
+import { getLessonDefinition, lessonCatalog, validateLessonCatalog } from "../lessons/catalog";
 import { isGrammarContentAvailable } from "../grammar/content";
 import { isContrastContentAvailable } from "../grammar/contrast";
 
@@ -75,11 +75,11 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
     const catalogErrors = validateLessonCatalog(lessonCatalog);
     if (catalogErrors.length > 0 && (message.type === LEARNING_LESSON_PROGRESS_MESSAGE || message.type === LEARNING_SAVE_LESSON_PROGRESS_MESSAGE || message.type === LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE)) return { ok: false, error: "Lessons are unavailable until bundled content is fixed." };
     if (message.type === LEARNING_LESSON_PROGRESS_MESSAGE) {
-      const lesson = lessonCatalog.lessons.find((candidate) => candidate.id === message.payload.lessonId);
+      const lesson = getLessonDefinition(message.payload.lessonId);
       return lesson ? { ok: true, result: { progress: await store.getLessonProgress(lesson.id, lesson.contentVersion) ?? null } } : { ok: false, error: "This lesson is unavailable." };
     }
     if (message.type === LEARNING_SAVE_LESSON_PROGRESS_MESSAGE) {
-      const lesson = lessonCatalog.lessons.find((candidate) => candidate.id === message.payload.lessonId);
+      const lesson = getLessonDefinition(message.payload.lessonId);
       return lesson ? { ok: true, result: { progress: await store.saveLessonProgress(lesson.id, lesson.contentVersion, message.payload.stage) } } : { ok: false, error: "This lesson is unavailable." };
     }
     if (message.type === LEARNING_LIST_MESSAGE) return { ok: true, result: { items: await store.list() } };
@@ -94,7 +94,7 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
     if (message.type === LEARNING_DAILY_FIVE_MESSAGE) return { ok: true, result: { snapshot: await store.getDailyFive(message.payload?.continueAfterCompletion) } };
     if (message.type === LEARNING_DAILY_FIVE_RESULT_MESSAGE) return { ok: true, result: await store.recordDailyFiveResult(message.payload.itemId, message.payload.dimension, message.payload.result) };
     if (message.type === LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE) {
-      const lesson = lessonCatalog.lessons.find((candidate) => candidate.id === message.payload.lessonId);
+      const lesson = getLessonDefinition(message.payload.lessonId);
       if (!lesson) return { ok: false, error: "This lesson is unavailable." };
       if (new Set(message.payload.candidateIds).size !== message.payload.candidateIds.length || message.payload.evidence.some((entry) => !message.payload.candidateIds.includes(entry.candidateId))) return { ok: false, error: "Lesson candidates are unavailable." };
       const candidates = message.payload.candidateIds.map((id) => lesson.candidates.find((candidate) => candidate.id === id));

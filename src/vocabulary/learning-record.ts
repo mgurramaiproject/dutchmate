@@ -5,7 +5,7 @@ import { parseVocabularyBackup, type VocabularyBackup } from "./vocabulary-backu
 import { normalizeSavedVocabularyText } from "./saved-vocabulary";
 import { applyDailyFiveResult, createDailyFiveSnapshot, getLocalDayStart, selectGrammarDailyFiveTasks, selectVerbJourneyDailyFiveTasks, type ContrastDailyFiveTask, type DailyFiveDimension, type DailyFiveResult, type DailyFiveSnapshot, type DailyFiveTask, type VerbJourneyDailyFiveTask } from "./daily-five";
 import { getLearningRhythm, type LearningRhythm } from "./learning-rhythm";
-import { lessonCatalog, type GrammarPatternId } from "../lessons/catalog";
+import { allLessons, type GrammarPatternId } from "../lessons/catalog";
 import { applyGrammarCheck, applyGrammarOutcome, introduceGrammar, type GrammarOutcome, type GrammarRecord } from "../grammar/learning";
 import { getGrammarPattern, grammarPatterns, isGrammarContentAvailable } from "../grammar/content";
 import { CONTRAST_CONTENT_VERSION, CONTRAST_PACK_ID, contrastPack, isContrastContentAvailable, type ContrastPackId } from "../grammar/contrast";
@@ -114,7 +114,7 @@ export class LearningRecordStore {
 
   async getRhythm(): Promise<LearningRhythm> {
     const record = await this.readMigrated();
-    return getLearningRhythm(Object.values(record.items), record.lessonProgress, record.rhythm, this.now(), lessonCatalog.lessons);
+    return getLearningRhythm(Object.values(record.items), record.lessonProgress, record.rhythm, this.now(), allLessons);
   }
 
   async createOrMerge(input: CreateOrMergeLearningItemInput): Promise<LearningItem> {
@@ -177,7 +177,7 @@ export class LearningRecordStore {
     const timestamp = this.now();
     record.rhythm = { ...record.rhythm, ...withActiveDay(record.rhythm, timestamp, "lessonCompletions"), ...withActivity(record.rhythm, timestamp, { lessons: 1 }) };
     await this.write(record);
-    return getLearningRhythm(Object.values(record.items), record.lessonProgress, record.rhythm, timestamp, lessonCatalog.lessons);
+    return getLearningRhythm(Object.values(record.items), record.lessonProgress, record.rhythm, timestamp, allLessons);
   }
 
   async introduceContrast(packId: ContrastPackId = CONTRAST_PACK_ID): Promise<ContrastRecord> {

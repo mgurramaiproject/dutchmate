@@ -8,7 +8,7 @@ and the parent issue remains open and unchanged.
 | Ticket | Issue | Blocked by | Frontier |
 | --- | --- | --- | --- |
 | 01 — Establish the atomic Practical Dutch catalog and topic overview | [#186](https://github.com/mgurramaiproject/dutchmate/issues/186) | None | x |
-| 02 — Protect installed-user history and persist a resumable Practical Dutch lesson | [#187](https://github.com/mgurramaiproject/dutchmate/issues/187) | #186 | Waiting |
+| 02 — Protect installed-user history and persist a resumable Practical Dutch lesson | [#187](https://github.com/mgurramaiproject/dutchmate/issues/187) | #186 | x |
 | 03 — Deliver the supermarket A1 context and language-focus path | [#188](https://github.com/mgurramaiproject/dutchmate/issues/188) | #187 | Waiting |
 | 04 — Complete the A1 core practice and intentional Saved flow | [#189](https://github.com/mgurramaiproject/dutchmate/issues/189) | #188 | Waiting |
 | 05 — Deliver the A2 companion and level progression | [#190](https://github.com/mgurramaiproject/dutchmate/issues/190) | #189 | Waiting |
