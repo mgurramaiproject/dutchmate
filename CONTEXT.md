@@ -191,6 +191,10 @@ _Avoid_: Automatic page scan, passive grammar highlighting, unrelated-content an
 A three-to-five-minute, intentionally sequenced A0-A2 activity that teaches one practical Dutch pattern for daily life in the Netherlands through a micro-story and three to five useful learning items, introducing grammar only where the situation needs it. Published mini-lessons are human-reviewed, versioned, stable across learners, and complementary to the browsing-to-fluency loop rather than a comprehensive curriculum.
 _Avoid_: Full course unit, generated lesson, content feed
 
+**Practical Dutch lesson**:
+An additive lesson format in the Lesson library for one practical life pathway. It gives a short first-completion path through contextual input, useful sentences, selected phrases and vocabulary, one primary language focus, deterministic core practice, and optional extra review. It reuses the existing learner-record, Saved-item, rhythm, and evidence boundaries rather than creating a separate mastery or scheduling system.
+_Avoid_: Topic course, sentence-pack product, generated lesson, standalone practice mode
+
 **Micro-story**:
 One coherent everyday scene of four to six short Dutch sentences or dialogue turns, normally about thirty-five to sixty words, that gives a mini-lesson's practical pattern and learning items meaningful context. It is read first, revisited with less support after practice, and is not a collection of unrelated example sentences.
 _Avoid_: Anchor sentence, long-form story, example list, grammar explanation
@@ -208,8 +212,12 @@ The first twelve curated mini-lessons, spanning all seven practical life pathway
 _Avoid_: Lesson preview, full curriculum, content demo
 
 **Practical life pathway**:
-An ordered group of mini-lessons built around accomplishing related everyday tasks, with A0-A2 difficulty progressing inside the pathway. It organizes learning by real-life usefulness rather than by an isolated grammar or CEFR syllabus.
+An ordered group of curated lessons and Practical Dutch topics built around accomplishing related everyday tasks, with A0-A2 difficulty progressing inside the pathway. It organizes learning by real-life usefulness rather than by an isolated grammar or CEFR syllabus.
 _Avoid_: Grammar chapter, CEFR section, flat topic list
+
+**Practical Dutch topic**:
+An authored A1/A2 pair inside a Practical life pathway, grouped around one bounded everyday situation or task domain. The pair is reviewed and released atomically, while each level remains separately playable and keeps its own stable identity and learner progress.
+_Avoid_: Standalone course, level gate, duplicate pathway, flat sentence pack
 
 **Engagement layer**:
 The restrained set of playful feedback and motivation mechanisms that helps learners return to meaningful Dutch practice. It measures and rewards learning actions without becoming a separate game economy.

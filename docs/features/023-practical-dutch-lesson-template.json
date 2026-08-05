@@ -1,0 +1,109 @@
+{
+  "$comment": "Draft authoring skeleton for one atomic Practical Dutch topic. Expand every marked example to the counts in the authoring guide before validation or review.",
+  "family": "practical-dutch",
+  "id": "topic.supermarket-shopping",
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "releaseStatus": "draft",
+  "review": {
+    "author": "",
+    "reviewer": "",
+    "reviewedAt": null,
+    "sources": [],
+    "provenance": "Original DutchMate-authored draft; human review pending."
+  },
+  "payload": {
+    "topicId": "topic.supermarket-shopping",
+    "pathway": "shopping-and-cafes",
+    "slug": "supermarket-shopping",
+    "title": "Supermarket and shopping",
+    "shortDescription": "Find products, pay, compare choices, and solve common shopping problems.",
+    "levels": ["A1", "A2"],
+    "lessons": [
+      {
+        "$comment": "Expand this A1 lesson to the full authoring contract.",
+        "id": "lesson.supermarket-shopping.a1",
+        "contentVersion": 1,
+        "level": "A1",
+        "format": "dialogue",
+        "title": "A1 · Find products and pay",
+        "subtitle": "Basic supermarket questions and checkout",
+        "estimatedMinutes": 6,
+        "tags": ["shopping", "checkout"],
+        "outcomes": ["Ask where a product is."],
+        "situation": {
+          "en": "You need help finding a product in a supermarket.",
+          "te": "సూపర్‌మార్కెట్‌లో ఒక వస్తువు ఎక్కడ ఉందో అడగాలి."
+        },
+        "context": [
+          { "id": "context.supermarket-shopping.a1.01", "speaker": "Customer", "nl": "Waar kan ik de melk vinden?", "en": "Where can I find the milk?", "te": "పాలు ఎక్కడ దొరుకుతాయి?" }
+        ],
+        "sentences": [
+          { "id": "sentence.supermarket-shopping.a1.01", "order": 1, "intention": "Ask where a product is", "nl": "Waar kan ik de melk vinden?", "en": "Where can I find the milk?", "te": "పాలు ఎక్కడ దొరుకుతాయి?", "chunkIds": ["chunk.supermarket-shopping.a1.where"], "vocabularyIds": ["vocab.supermarket-shopping.a1.melk"] }
+        ],
+        "chunks": [
+          { "id": "chunk.supermarket-shopping.a1.where", "nl": "Waar kan ik ... vinden?", "en": "Where can I find ...?", "te": "... ఎక్కడ దొరుకుతాయి?", "slotHint": "Replace the product." }
+        ],
+        "vocabulary": [
+          { "id": "vocab.supermarket-shopping.a1.melk", "nl": "de melk", "lemma": "melk", "article": "de", "partOfSpeech": "noun", "en": "milk", "te": "పాలు", "plural": null, "note": null, "sentenceIds": ["sentence.supermarket-shopping.a1.01"] }
+        ],
+        "languageFocus": {
+          "id": "focus.supermarket-shopping.a1.where",
+          "title": "Ask where something is",
+          "pattern": "Waar kan ik + object + infinitive?",
+          "explanation": { "en": "Use this frame to ask where you can find a product.", "te": "ఒక వస్తువు ఎక్కడ దొరుకుతుందో అడగడానికి ఈ నమూనాను వాడండి." },
+          "exampleSentenceIds": ["sentence.supermarket-shopping.a1.01"]
+        },
+        "supportingObservation": null,
+        "exercises": [
+          { "id": "exercise.supermarket-shopping.a1.core.01", "set": "core", "primitive": "choose-meaning", "targetCategory": "comprehension", "targetIds": ["sentence.supermarket-shopping.a1.01"], "prompt": "What does this sentence ask?", "context": "Waar kan ik de melk vinden?", "choices": ["Where can I find the milk?", "How much is the milk?"], "accepted": ["Where can I find the milk?"], "distractors": [{ "answer": "How much is the milk?", "misconception": "wrong-intention" }], "feedback": "This asks where the milk is.", "review": { "status": "draft", "reviewedBy": "", "reviewedAt": null } }
+        ],
+        "completionClaims": ["Ask where a product is."],
+        "provenance": { "authoringMethod": "ai-assisted-original", "originalContentDeclaration": true, "copiedSourceText": false, "researchNotes": [] },
+        "review": { "status": "draft", "author": "", "reviewer": "", "reviewedAt": null, "dutchReviewed": false, "englishReviewed": false, "teluguReviewed": false, "exerciseReviewed": false, "notes": [] }
+      },
+      {
+        "$comment": "Expand this A2 lesson to the full authoring contract and keep its outcome/pattern distinct from A1.",
+        "id": "lesson.supermarket-shopping.a2",
+        "contentVersion": 1,
+        "level": "A2",
+        "format": "mixed",
+        "title": "A2 · Product information and problem resolution",
+        "subtitle": "Ask for details and resolve a shopping problem",
+        "estimatedMinutes": 6,
+        "tags": ["shopping", "product-information", "service-desk"],
+        "outcomes": ["Ask an employee to check product information politely."],
+        "situation": {
+          "en": "You need product information or help with a shopping problem.",
+          "te": "ఒక వస్తువు గురించి సమాచారం లేదా సమస్యకు సహాయం కావాలి."
+        },
+        "context": [
+          { "id": "context.supermarket-shopping.a2.01", "speaker": "Customer", "nl": "Kunt u controleren of dit glutenvrij is?", "en": "Could you check whether this is gluten-free?", "te": "ఇది గ్లూటెన్-రహితమో లేదో చూసి చెప్పగలరా?" }
+        ],
+        "sentences": [
+          { "id": "sentence.supermarket-shopping.a2.01", "order": 1, "intention": "Ask for a product check", "nl": "Kunt u controleren of dit glutenvrij is?", "en": "Could you check whether this is gluten-free?", "te": "ఇది గ్లూటెన్-రహితమో లేదో చూసి చెప్పగలరా?", "chunkIds": ["chunk.supermarket-shopping.a2.check"], "vocabularyIds": ["vocab.supermarket-shopping.a2.glutenvrij"] }
+        ],
+        "chunks": [
+          { "id": "chunk.supermarket-shopping.a2.check", "nl": "Kunt u controleren of ...?", "en": "Could you check whether ...?", "te": "... అని చూసి చెప్పగలరా?", "slotHint": "Replace the product detail." }
+        ],
+        "vocabulary": [
+          { "id": "vocab.supermarket-shopping.a2.glutenvrij", "nl": "glutenvrij", "lemma": "glutenvrij", "article": null, "partOfSpeech": "adjective", "en": "gluten-free", "te": "గ్లూటెన్-రహిత", "plural": null, "note": null, "sentenceIds": ["sentence.supermarket-shopping.a2.01"] }
+        ],
+        "languageFocus": {
+          "id": "focus.supermarket-shopping.a2.check",
+          "title": "Ask politely for a check",
+          "pattern": "Kunt u controleren of ...?",
+          "explanation": { "en": "Use this polite frame when asking staff to check information.", "te": "సిబ్బందిని సమాచారం చూసి చెప్పమని మర్యాదగా అడగడానికి ఈ నమూనాను వాడండి." },
+          "exampleSentenceIds": ["sentence.supermarket-shopping.a2.01"]
+        },
+        "supportingObservation": "Use u in a service-desk interaction.",
+        "exercises": [
+          { "id": "exercise.supermarket-shopping.a2.core.01", "set": "core", "primitive": "choose-situation-response", "targetCategory": "practical-response", "targetIds": ["sentence.supermarket-shopping.a2.01"], "prompt": "Choose the polite request.", "context": "You need an employee to check the ingredients.", "choices": ["Kunt u controleren of dit glutenvrij is?", "Geef mij de bon."], "accepted": ["Kunt u controleren of dit glutenvrij is?"], "distractors": [{ "answer": "Geef mij de bon.", "misconception": "wrong-situation" }], "feedback": "Use Kunt u controleren of ...? for a polite check.", "review": { "status": "draft", "reviewedBy": "", "reviewedAt": null } }
+        ],
+        "completionClaims": ["Ask an employee to check product information politely."],
+        "provenance": { "authoringMethod": "ai-assisted-original", "originalContentDeclaration": true, "copiedSourceText": false, "researchNotes": [] },
+        "review": { "status": "draft", "author": "", "reviewer": "", "reviewedAt": null, "dutchReviewed": false, "englishReviewed": false, "teluguReviewed": false, "exerciseReviewed": false, "notes": [] }
+      }
+    ]
+  }
+}
