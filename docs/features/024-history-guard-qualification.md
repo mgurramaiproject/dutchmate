@@ -1,6 +1,6 @@
 # Feature 024 — History Guard
 
-Status: fix in progress
+Status: ready for patch release
 
 Codename: `history-guard`
 
@@ -38,6 +38,6 @@ migration complete. A later update could not retry that migration.
 
 ## Release note
 
-Ship this correction in the next Firefox patch release after rebuilding and
-testing the Firefox package against an existing 0.5.0 profile. Do not describe
-it as a recovery of data already removed by Firefox.
+Ship this correction as Firefox 0.5.2 after rebuilding and testing the Firefox
+package against an existing 0.5.0 profile. Do not describe it as a recovery of
+data already removed by Firefox.
