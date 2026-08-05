@@ -10,13 +10,13 @@ Deliver the A2 companion lesson and topic-level progression so learners can ask 
 
 ## Acceptance criteria
 
-- [ ] The A2 lesson has distinct outcomes, context, vocabulary, interaction problems, and the primary `Kunt u controleren of ...?` focus.
-- [ ] A2 uses the shared staged/session and deterministic practice behavior without sharing A1 completion state.
-- [ ] A1 and A2 remain visible and directly selectable; completing A1 promotes A2 without hard-locking it.
-- [ ] A2 progress, Saved candidates, completion, and multilingual/narrow-popup behavior are independently persisted and tested.
+- [x] The A2 lesson has distinct outcomes, context, vocabulary, interaction problems, and the primary `Kunt u controleren of ...?` focus.
+- [x] A2 uses the shared staged/session and deterministic practice behavior without sharing A1 completion state.
+- [x] A1 and A2 remain visible and directly selectable; completing A1 promotes A2 without hard-locking it.
+- [x] A2 progress, Saved candidates, completion, and multilingual/narrow-popup behavior are independently persisted and tested.
 
 ## Blocked by
 
 - [#189 — Complete the A1 core practice and intentional Saved flow](https://github.com/mgurramaiproject/dutchmate/issues/189)
 
-**Status:** ready-for-agent
+**Status:** implemented on `feature/023-practical-dutch`

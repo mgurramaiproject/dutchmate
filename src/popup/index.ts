@@ -613,10 +613,13 @@ function renderPracticalDutchTopicOverview(topic: NonNullable<ReturnType<typeof 
   const panel = section("practical-dutch-topic-overview");
   panel.append(eyebrow("New topic · Supermarket and shopping"), heading(topic.title.en), text(topic.description.en, "body-copy"));
   const levels = section("practical-dutch-levels");
+  const a1Lesson = topic.lessons.find((lesson) => lesson.cefr === "A1");
+  const a1Complete = a1Lesson ? lessonProgressById[a1Lesson.id]?.completedAt !== null && lessonProgressById[a1Lesson.id]?.completedAt !== undefined : false;
   for (const lesson of topic.lessons) {
     const card = button("", "practical-dutch-level-card");
     card.dataset.lessonId = lesson.id;
-    card.append(text(lesson.cefr, "level"), heading(lesson.title.en), text(lesson.outcome.en, "body-copy"), text(`${lesson.durationMinutes} minutes · ${lesson.languageFocus.pattern.nl}`, "lesson-pattern-status"));
+    const recommendation = lesson.cefr === "A1" ? "Recommended starting point" : a1Complete ? "Recommended next" : "Available now";
+    card.append(text(lesson.cefr, "level"), heading(lesson.title.en), text(recommendation, "lesson-pattern-status"), text(lesson.outcome.en, "body-copy"), text(`${lesson.durationMinutes} minutes · ${lesson.languageFocus.pattern.nl}`, "lesson-pattern-status"));
     const adapted = practicalDutchLessons.find((candidate) => candidate.id === lesson.id);
     if (adapted) card.addEventListener("click", () => void startLesson(adapted));
     levels.append(card);

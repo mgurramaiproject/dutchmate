@@ -11,7 +11,7 @@ and the parent issue remains open and unchanged.
 | 02 — Protect installed-user history and persist a resumable Practical Dutch lesson | [#187](https://github.com/mgurramaiproject/dutchmate/issues/187) | #186 | x |
 | 03 — Deliver the supermarket A1 context and language-focus path | [#188](https://github.com/mgurramaiproject/dutchmate/issues/188) | #187 | x |
 | 04 — Complete the A1 core practice and intentional Saved flow | [#189](https://github.com/mgurramaiproject/dutchmate/issues/189) | #188 | x |
-| 05 — Deliver the A2 companion and level progression | [#190](https://github.com/mgurramaiproject/dutchmate/issues/190) | #189 | Waiting |
+| 05 — Deliver the A2 companion and level progression | [#190](https://github.com/mgurramaiproject/dutchmate/issues/190) | #189 | x |
 | 06 — Add optional extra practice and Today continuation | [#191](https://github.com/mgurramaiproject/dutchmate/issues/191) | #190 | Waiting |
 | 07 — Release-qualify Practical Dutch and protect legacy behavior | [#192](https://github.com/mgurramaiproject/dutchmate/issues/192) | #186–#191 | Waiting |
 

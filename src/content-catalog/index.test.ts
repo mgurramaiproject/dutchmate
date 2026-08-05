@@ -36,4 +36,12 @@ describe("content catalog", () => {
     expect(topic?.lessons.map((lesson) => lesson.cefr)).toEqual(["A1", "A2"]);
     expect(topic?.lessons.every((lesson) => lesson.coreExercises.length === 6)).toBe(true);
   });
+
+  it("keeps A1 and A2 independently useful and distinct", () => {
+    const topic = contentCatalog.getPracticalDutchTopic()!;
+    expect(topic.lessons[0].languageFocus.pattern.nl).toBe("Waar kan ik ... vinden?");
+    expect(topic.lessons[1].languageFocus.pattern.nl).toBe("Kunt u controleren of ...?");
+    expect(topic.lessons[0].outcome.en).not.toBe(topic.lessons[1].outcome.en);
+    expect(topic.lessons[0].id).not.toBe(topic.lessons[1].id);
+  });
 });

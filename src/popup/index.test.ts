@@ -1081,6 +1081,19 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
     button("Choose what to keep").click();
     await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
+    button("Keep 4 for review").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Recommended next"));
+  });
+
+  it("keeps A2 directly playable and promotes it after A1 completion", async () => {
+    openPracticalStories();
+    await vi.waitFor(() => expect(content().querySelector<HTMLButtonElement>('[data-lesson-id="a2-practical-supermarket-shopping"]')).toBeTruthy());
+    expect(content().textContent).toContain("Available now");
+    content().querySelector<HTMLButtonElement>('[data-lesson-id="a2-practical-supermarket-shopping"]')!.click();
+    await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+    button("Notice the pattern").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Kunt u controleren of ...?"));
+    expect(content().textContent).toContain("Ik zie dat de verpakking beschadigd is.");
   });
 
   it("keeps Lessons as a compact landing page with sub-pages for each lesson type", async () => {
