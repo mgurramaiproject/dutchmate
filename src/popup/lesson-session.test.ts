@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advanceLessonPractice, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken } from "./lesson-session";
+import { advanceLessonPractice, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken, toggleLessonTranslations } from "./lesson-session";
 import { appointmentLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, practicalDutchLessons, regularLesson } from "../lessons/catalog";
 
 describe("lesson session", () => {
@@ -14,6 +14,15 @@ describe("lesson session", () => {
 
   it.each(["read", "notice", "practise", "replay", "keep"] as const)("restores %s at its safe stage", (stage) => {
     expect(createLessonSession(appointmentLesson, stage)).toMatchObject({ stage, practiceIndex: 0, practiceRevealed: false });
+  });
+
+  it("keeps translation visibility transient and shared within one session", () => {
+    const session = createLessonSession(practicalDutchLessons[0]);
+    expect(session.translationsVisible).toBe(false);
+    const visible = toggleLessonTranslations(session);
+    expect(visible.translationsVisible).toBe(true);
+    expect(toggleLessonTranslations(visible).translationsVisible).toBe(false);
+    expect(createLessonSession(practicalDutchLessons[0]).translationsVisible).toBe(false);
   });
 
   it("restores incomplete work, replays completed lessons, labels canonical saves, and exposes a retryable lesson error", () => {

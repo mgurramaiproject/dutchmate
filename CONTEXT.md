@@ -219,6 +219,10 @@ _Avoid_: Grammar chapter, CEFR section, flat topic list
 An authored A1/A2 pair inside a Practical life pathway, grouped around one bounded everyday situation or task domain. The pair is reviewed and released atomically, while each level remains separately playable and keeps its own stable identity and learner progress.
 _Avoid_: Standalone course, level gate, duplicate pathway, flat sentence pack
 
+**Lesson stage rail**:
+The visible four-stage status indicator for Read, Notice, Practise, and Keep in a focused lesson. It marks the current stage without making stages a separate destination, filter, or progress system; lesson-defined progression remains authoritative.
+_Avoid_: Stage tabs, stage filter, separate practice mode
+
 **Engagement layer**:
 The restrained set of playful feedback and motivation mechanisms that helps learners return to meaningful Dutch practice. It measures and rewards learning actions without becoming a separate game economy.
 _Avoid_: Gamification system, rewards economy, entertainment mode
