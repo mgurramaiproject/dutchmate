@@ -30,6 +30,7 @@ export const LEARNING_DAILY_FIVE_RESULT_MESSAGE = "dutchmate.learning.dailyFive.
 export const LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE = "dutchmate.learning.keepLessonCandidates";
 export const LEARNING_LESSON_PROGRESS_MESSAGE = "dutchmate.learning.lessonProgress";
 export const LEARNING_SAVE_LESSON_PROGRESS_MESSAGE = "dutchmate.learning.lessonProgress.save";
+export const LEARNING_SAVE_PRACTICAL_EXTRA_PROGRESS_MESSAGE = "dutchmate.learning.practicalDutch.extraProgress.save";
 export const LEARNING_GRAMMAR_MESSAGE = "dutchmate.learning.grammar";
 export const LEARNING_GRAMMAR_INTRODUCE_MESSAGE = "dutchmate.learning.grammar.introduce";
 export const LEARNING_GRAMMAR_RESULT_MESSAGE = "dutchmate.learning.grammar.result";
@@ -61,6 +62,7 @@ export type LearningMessage =
   | { type: typeof LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE; payload: { lessonId: string; candidateIds: string[]; evidence: Array<{ candidateId: string; dimension: DailyFiveDimension; result: DailyFiveResult }> } }
   | { type: typeof LEARNING_LESSON_PROGRESS_MESSAGE; payload: { lessonId: string } }
   | { type: typeof LEARNING_SAVE_LESSON_PROGRESS_MESSAGE; payload: { lessonId: string; stage: LessonProgressStage } }
+  | { type: typeof LEARNING_SAVE_PRACTICAL_EXTRA_PROGRESS_MESSAGE; payload: { lessonId: string; extraIndex: number } }
   | { type: typeof LEARNING_GRAMMAR_MESSAGE; payload?: { patternId?: GrammarPatternId } }
   | { type: typeof LEARNING_GRAMMAR_INTRODUCE_MESSAGE; payload?: { patternId?: GrammarPatternId } }
   | { type: typeof LEARNING_GRAMMAR_RESULT_MESSAGE; payload: { patternId: GrammarPatternId; contentVersion: 1; exerciseId: string; answer?: string; expectedEvidenceRevision: number; dailyFive?: boolean; outcome?: "reveal" | "skip" } }
@@ -96,6 +98,7 @@ export function isLearningMessage(message: unknown): message is LearningMessage 
   }
   if (message.type === LEARNING_LESSON_PROGRESS_MESSAGE) return typeof payload.lessonId === "string";
   if (message.type === LEARNING_SAVE_LESSON_PROGRESS_MESSAGE) return typeof payload.lessonId === "string" && (payload.stage === "read" || payload.stage === "notice" || payload.stage === "practise" || payload.stage === "replay" || payload.stage === "keep");
+  if (message.type === LEARNING_SAVE_PRACTICAL_EXTRA_PROGRESS_MESSAGE) return typeof payload.lessonId === "string" && typeof payload.extraIndex === "number" && Number.isInteger(payload.extraIndex) && payload.extraIndex >= 0;
   if (message.type === LEARNING_RECORD_ENCOUNTER_MESSAGE) return typeof payload.id === "string" && typeof payload.context === "string" && (payload.sourceLanguage === undefined || payload.sourceLanguage === "en" || payload.sourceLanguage === "nl" || payload.sourceLanguage === "te");
   if (message.type === LEARNING_RECORD_MISSION_RESULT_MESSAGE) return typeof payload.itemId === "string" && (payload.dimension === "recognition" || payload.dimension === "recall") && (payload.result === "again" || payload.result === "got-it") && typeof payload.expectedAttemptCount === "number" && Number.isInteger(payload.expectedAttemptCount) && payload.expectedAttemptCount >= 0;
   if (message.type === LEARNING_DAILY_FIVE_RESULT_MESSAGE) return typeof payload.itemId === "string" && (payload.dimension === "recognition" || payload.dimension === "recall") && (payload.result === "again" || payload.result === "got-it");

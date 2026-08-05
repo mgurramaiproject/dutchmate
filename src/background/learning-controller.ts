@@ -18,6 +18,7 @@ import {
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
   LEARNING_LESSON_PROGRESS_MESSAGE,
   LEARNING_SAVE_LESSON_PROGRESS_MESSAGE,
+  LEARNING_SAVE_PRACTICAL_EXTRA_PROGRESS_MESSAGE,
   LEARNING_GRAMMAR_MESSAGE,
   LEARNING_GRAMMAR_INTRODUCE_MESSAGE,
   LEARNING_GRAMMAR_RESULT_MESSAGE,
@@ -81,6 +82,10 @@ export async function handleLearningMessage(message: LearningMessage, store: Lea
     if (message.type === LEARNING_SAVE_LESSON_PROGRESS_MESSAGE) {
       const lesson = getLessonDefinition(message.payload.lessonId);
       return lesson ? { ok: true, result: { progress: await store.saveLessonProgress(lesson.id, lesson.contentVersion, message.payload.stage) } } : { ok: false, error: "This lesson is unavailable." };
+    }
+    if (message.type === LEARNING_SAVE_PRACTICAL_EXTRA_PROGRESS_MESSAGE) {
+      const lesson = getLessonDefinition(message.payload.lessonId);
+      return lesson ? { ok: true, result: { progress: await store.savePracticalDutchExtraProgress(lesson.id, lesson.contentVersion, message.payload.extraIndex) } } : { ok: false, error: "This lesson is unavailable." };
     }
     if (message.type === LEARNING_LIST_MESSAGE) return { ok: true, result: { items: await store.list() } };
     if (message.type === LEARNING_SUMMARY_MESSAGE) return { ok: true, result: await store.summary() };

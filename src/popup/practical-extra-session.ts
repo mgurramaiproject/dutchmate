@@ -1,0 +1,11 @@
+import type { PracticalDutchExercise, PracticalDutchLesson } from "../content-catalog/practical-dutch";
+
+export type PracticalExtraSession = { lesson: PracticalDutchLesson; index: number; answer: string | null; tokens: string[]; checked: boolean; result: "correct" | "incorrect" | null };
+
+export function createPracticalExtraSession(lesson: PracticalDutchLesson, index = 0): PracticalExtraSession { return { lesson, index: Math.min(index, lesson.extraExercises.length), answer: null, tokens: [], checked: false, result: null }; }
+export function getPracticalExtraExercise(session: PracticalExtraSession): PracticalDutchExercise | undefined { return session.lesson.extraExercises[session.index]; }
+export function selectPracticalExtraAnswer(session: PracticalExtraSession, answer: string): PracticalExtraSession { const exercise = getPracticalExtraExercise(session); return !exercise || session.checked || !exercise.choices.includes(answer) ? session : { ...session, answer }; }
+export function togglePracticalExtraToken(session: PracticalExtraSession, token: string): PracticalExtraSession { const exercise = getPracticalExtraExercise(session); if (!exercise || exercise.kind !== "order" || session.checked || !exercise.tokens?.includes(token)) return session; const tokens = session.tokens.includes(token) ? session.tokens.filter((candidate) => candidate !== token) : [...session.tokens, token]; return { ...session, tokens, answer: tokens.length > 0 ? tokens.join(" ") : null }; }
+export function checkPracticalExtraAnswer(session: PracticalExtraSession): PracticalExtraSession { const exercise = getPracticalExtraExercise(session); const answer = exercise?.kind === "order" ? session.tokens.join(" ") : session.answer; if (!exercise || !answer || session.checked) return session; return { ...session, answer, checked: true, result: exercise.accepted.includes(answer) ? "correct" : "incorrect" }; }
+export function retryPracticalExtra(session: PracticalExtraSession): PracticalExtraSession { return { ...session, answer: null, tokens: [], checked: false, result: null }; }
+export function advancePracticalExtra(session: PracticalExtraSession): PracticalExtraSession { return session.result === "correct" ? { ...session, index: Math.min(session.index + 1, session.lesson.extraExercises.length), answer: null, tokens: [], checked: false, result: null } : session; }

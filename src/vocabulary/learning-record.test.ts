@@ -193,6 +193,15 @@ describe("LearningRecordStore", () => {
     await expect(restored.list()).resolves.toEqual([expect.objectContaining({ dutch: "huis", english: "house" })]);
   });
 
+  it("persists optional Practical Dutch extra progress through backup import", async () => {
+    const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await source.keepLessonCandidates("a1-practical-supermarket-shopping", 1, [], []);
+    await source.savePracticalDutchExtraProgress("a1-practical-supermarket-shopping", 1, 2);
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    await restored.importBackup(await source.exportBackup());
+    await expect(restored.getLessonProgress("a1-practical-supermarket-shopping", 1)).resolves.toMatchObject({ completedAt: 1_000, extraIndex: 2 });
+  });
+
   it("does not count a Practical Dutch keep twice", async () => {
     const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     const candidates = [{ id: "where-find", dutch: "Waar kan ik vinden?", kind: "chunk" as const, english: "Where can I find it?", telugu: "ఎక్కడ దొరుకుతుంది?" }];

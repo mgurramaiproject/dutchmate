@@ -116,6 +116,12 @@ describe("lesson popup", () => {
         progressByLesson[lessonId] = progress;
         return { ok: true, result: { progress } };
       }
+      if (message.type === "dutchmate.learning.practicalDutch.extraProgress.save") {
+        const lessonId = String(message.payload?.lessonId);
+        const progress = { ...(progressByLesson[lessonId] ?? { lessonId, contentVersion: 1, stage: "keep", completedAt: 1, keptCandidateIds: [], updatedAt: 1 }), extraIndex: Number(message.payload?.extraIndex), updatedAt: 2 };
+        progressByLesson[lessonId] = progress;
+        return { ok: true, result: { progress } };
+      }
       if (message.type === "dutchmate.learning.keepLessonCandidates") {
         if (keepFails) return { ok: false, error: "Lesson candidates could not be kept." };
         const lessonId = String(message.payload?.lessonId);
@@ -1083,6 +1089,19 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
     button("Keep 4 for review").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Recommended next"));
+    content().querySelector<HTMLButtonElement>('[data-lesson-id="a1-practical-supermarket-shopping"]')!.click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Extra practice · 1 of 6"));
+    content().querySelector<HTMLButtonElement>(".practical-dutch-choices button")!.click();
+    button("Check answer").click();
+    await vi.waitFor(() => expect(button("Continue")).toBeTruthy());
+    button("Continue").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Extra practice · 2 of 6"));
+    expect(runtime.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ type: "dutchmate.learning.practicalDutch.extraProgress.save", payload: { lessonId: "a1-practical-supermarket-shopping", extraIndex: 1 } }));
+    button("Exit extra practice").click();
+    button("Today").click();
+    await vi.waitFor(() => expect(button("Continue lesson")).toBeTruthy());
+    button("Continue lesson").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Extra practice · 2 of 6"));
   });
 
   it("keeps A2 directly playable and promotes it after A1 completion", async () => {

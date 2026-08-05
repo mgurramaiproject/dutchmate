@@ -21,6 +21,7 @@ import {
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
   LEARNING_LESSON_PROGRESS_MESSAGE,
   LEARNING_SAVE_LESSON_PROGRESS_MESSAGE,
+  LEARNING_SAVE_PRACTICAL_EXTRA_PROGRESS_MESSAGE,
   LEARNING_GRAMMAR_INTRODUCE_MESSAGE,
   LEARNING_GRAMMAR_MESSAGE,
   LEARNING_GRAMMAR_RESULT_MESSAGE,
@@ -249,6 +250,16 @@ describe("createBackgroundMessageHandler", () => {
 
     await expect(send(handleMessage, { type: LEARNING_SAVE_LESSON_PROGRESS_MESSAGE, payload: { lessonId: "a1-practical-supermarket-shopping", stage: "notice" } })).resolves.toMatchObject({ ok: true, result: { progress: { lessonId: "a1-practical-supermarket-shopping", stage: "notice", completedAt: null } } });
     await expect(send(handleMessage, { type: LEARNING_LESSON_PROGRESS_MESSAGE, payload: { lessonId: "a1-practical-supermarket-shopping" } })).resolves.toMatchObject({ ok: true, result: { progress: { lessonId: "a1-practical-supermarket-shopping", stage: "notice" } } });
+  });
+
+  it("saves Practical Dutch extra progress without reopening the main lesson", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    const handleMessage = createBackgroundMessageHandler({ learningRecords: records, refreshBadge: async () => undefined });
+
+    await send(handleMessage, { type: LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE, payload: { lessonId: "a1-practical-supermarket-shopping", candidateIds: [], evidence: [] } });
+    await expect(send(handleMessage, { type: LEARNING_SAVE_PRACTICAL_EXTRA_PROGRESS_MESSAGE, payload: { lessonId: "a1-practical-supermarket-shopping", extraIndex: 1 } })).resolves.toMatchObject({ ok: true, result: { progress: { completedAt: 1_000, extraIndex: 1 } } });
+    await expect(send(handleMessage, { type: LEARNING_LESSON_PROGRESS_MESSAGE, payload: { lessonId: "a1-practical-supermarket-shopping" } })).resolves.toMatchObject({ ok: true, result: { progress: { completedAt: 1_000, extraIndex: 1 } } });
   });
 
   it("does not change storage when keeping lesson candidates fails", async () => {
