@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { contentCatalog } from "../content-catalog";
-import { appointmentLesson, availabilityLesson, brokenThingLesson, bringLesson, cardPaymentLesson, cafeOrderLesson, delayedTrainLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, letterLesson, regularLesson, repetitionLesson, symptomsLesson, transferLesson, validateLessonCatalog } from "./catalog";
+import { appointmentLesson, availabilityLesson, brokenThingLesson, bringLesson, cardPaymentLesson, cafeOrderLesson, delayedTrainLesson, getLessonDefinition, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, letterLesson, practicalDutchLessons, regularLesson, repetitionLesson, symptomsLesson, transferLesson, validateLessonCatalog } from "./catalog";
 
 describe("lesson catalog", () => {
+  it("exposes both Practical Dutch levels through the shared lesson lookup without changing the legacy catalog", () => {
+    expect(lessonCatalog.lessons).toHaveLength(15);
+    expect(practicalDutchLessons.map((lesson) => lesson.cefr)).toEqual(["A1", "A2"]);
+    expect(getLessonDefinition("a1-practical-supermarket-shopping")).toEqual(practicalDutchLessons[0]);
+  });
   it("serves the tracer lesson through the shared content catalog seam", () => {
     expect(lessonCatalog.lessons[0]).toEqual(contentCatalog.getLesson("a0-hallo-ik-ben"));
   });

@@ -12,6 +12,7 @@ import {
   LEARNING_KEEP_LESSON_CANDIDATES_MESSAGE,
   LEARNING_LESSON_PROGRESS_MESSAGE,
   LEARNING_SAVE_LESSON_PROGRESS_MESSAGE,
+  LEARNING_SAVE_PRACTICAL_EXTRA_PROGRESS_MESSAGE,
   LEARNING_GRAMMAR_MESSAGE,
   LEARNING_GRAMMAR_INTRODUCE_MESSAGE,
   LEARNING_GRAMMAR_RESULT_MESSAGE,
@@ -50,6 +51,7 @@ export type LearningClient = {
   keepLessonCandidates(lessonId: string, candidateIds: string[], evidence: LessonPracticeEvidence[]): Promise<LearningItem[]>;
   getLessonProgress(lessonId: string): Promise<LessonProgress | null>;
   saveLessonProgress(lessonId: string, stage: LessonProgressStage): Promise<LessonProgress>;
+  savePracticalDutchExtraProgress(lessonId: string, extraIndex: number): Promise<LessonProgress>;
   getGrammar(patternId?: GrammarPatternId): Promise<GrammarRecord | null>;
   introduceGrammar(patternId?: GrammarPatternId): Promise<GrammarRecord>;
   recordGrammarResult(patternId: GrammarPatternId, contentVersion: 1, exerciseId: string, answer: string | null, expectedEvidenceRevision: number, outcome?: "reveal" | "skip"): Promise<GrammarRecord>;
@@ -117,6 +119,11 @@ export function createLearningClient(extensionApi: LearningRuntimeApi): Learning
       const response = await extensionApi.runtime.sendMessage({ type: LEARNING_SAVE_LESSON_PROGRESS_MESSAGE, payload: { lessonId, stage } });
       if (response.ok && "progress" in response.result && response.result.progress) return response.result.progress;
       throw new Error(response.ok ? "Lesson progress could not be saved." : response.error);
+    },
+    async savePracticalDutchExtraProgress(lessonId, extraIndex) {
+      const response = await extensionApi.runtime.sendMessage({ type: LEARNING_SAVE_PRACTICAL_EXTRA_PROGRESS_MESSAGE, payload: { lessonId, extraIndex } });
+      if (response.ok && "progress" in response.result && response.result.progress) return response.result.progress;
+      throw new Error(response.ok ? "Practical Dutch extra progress could not be saved." : response.error);
     },
     async getGrammar(patternId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_MESSAGE, ...(patternId ? { payload: { patternId } } : {}) }); if (response.ok && "grammar" in response.result) return response.result.grammar; throw new Error(response.ok ? "Grammar is unavailable." : response.error); },
     async introduceGrammar(patternId) { const response = await extensionApi.runtime.sendMessage({ type: LEARNING_GRAMMAR_INTRODUCE_MESSAGE, ...(patternId ? { payload: { patternId } } : {}) }); if (response.ok && "grammar" in response.result && response.result.grammar) return response.result.grammar; throw new Error(response.ok ? "Grammar is unavailable." : response.error); },

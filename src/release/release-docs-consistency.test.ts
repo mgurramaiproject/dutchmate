@@ -1,9 +1,18 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const repoRoot = path.resolve(import.meta.dirname, "../..");
+function findRepoRoot(start: string): string {
+  let candidate = path.resolve(start, "../..");
+  while (candidate !== path.dirname(candidate)) {
+    if (existsSync(path.join(candidate, "docs/release/manual-testing.md"))) return candidate;
+    candidate = path.dirname(candidate);
+  }
+  return path.resolve(start, "../..");
+}
+
+const repoRoot = findRepoRoot(import.meta.dirname);
 
 function readRepoFile(relativePath: string): string {
   return readFileSync(path.join(repoRoot, relativePath), "utf8");

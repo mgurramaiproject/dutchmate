@@ -1,4 +1,5 @@
 import { contentCatalog } from "../content-catalog";
+import type { PracticalDutchLesson } from "../content-catalog/practical-dutch";
 
 export const LESSON_CATALOG_VERSION = 1;
 
@@ -43,9 +44,50 @@ export type Lesson = {
   id: string; contentVersion: number; pathway: string; order: number; cefr: "A0" | "A1" | "A2"; title: string; durationMinutes: number;
   pattern: string; patternText: string; patternExplanation: string; lines: LessonLine[];
   candidates: LessonCandidate[]; practice: LessonPracticePrompt[]; practiceExercises: LessonPracticeExercise[]; practiceEnvelope?: LessonPracticeEnvelope; grammarCompanion?: GrammarCompanion; contrastCompanion?: ContrastCompanion;
+  practicalDutch?: PracticalDutchLesson;
   review: { dutch: true; english: true; telugu: true; cefr: true; cultural: true; practicalUse: true };
 };
 export type LessonCatalog = { version: typeof LESSON_CATALOG_VERSION; lessons: Lesson[] };
+
+function adaptPracticalDutchLesson(lesson: PracticalDutchLesson, order: number): Lesson {
+  const candidates = lesson.chunks.map((chunk) => ({ id: chunk.id, dutch: chunk.nl, english: chunk.en, telugu: chunk.te, kind: "chunk" as const }));
+  const practiceExercises = lesson.coreExercises.slice(0, 3).map((exercise, index): LessonPracticeExercise => ({
+    contentVersion: 1,
+    id: exercise.id,
+    primitive: exercise.kind === "order" ? "order-tokens" : index === 0 ? "contrast-form" : "repair-choice",
+    candidateId: candidates[index % candidates.length]?.id ?? "",
+    dimension: index === 0 ? "recognition" : "recall",
+    prompt: exercise.prompt.en,
+    context: exercise.context.nl,
+    choices: exercise.choices,
+    ...(exercise.tokens ? { tokens: exercise.tokens } : {}),
+    accepted: exercise.accepted,
+    distractors: exercise.distractors,
+    feedback: exercise.feedback.en,
+    review: { author: exercise.review.author, reviewState: "second-review-complete", reviewer: exercise.review.reviewer, reviewedAt: exercise.review.reviewedAt, sources: exercise.review.sources, provenance: exercise.review.provenance },
+  }));
+  return {
+    id: lesson.id,
+    contentVersion: lesson.contentVersion,
+    pathway: "shopping-and-cafes",
+    order,
+    cefr: lesson.cefr,
+    title: `${lesson.cefr} · ${lesson.title.nl}`,
+    durationMinutes: lesson.durationMinutes,
+    pattern: lesson.languageFocus.pattern.nl,
+    patternText: lesson.languageFocus.pattern.nl,
+    patternExplanation: lesson.languageFocus.explanation.en,
+    lines: lesson.context.map((line) => ({ dutch: line.nl, english: line.en, telugu: line.te })),
+    candidates,
+    practice: candidates.map((candidate, index) => ({ candidateId: candidate.id, dimension: index % 2 === 0 ? "recognition" : "recall" })),
+    practiceExercises,
+    practicalDutch: lesson,
+    review: { dutch: true, english: true, telugu: true, cefr: true, cultural: true, practicalUse: true },
+  };
+}
+
+const practicalDutchTopic = contentCatalog.getPracticalDutchTopic();
+export const practicalDutchLessons: Lesson[] = practicalDutchTopic?.lessons.map((lesson, index) => adaptPracticalDutchLesson(lesson, 100 + index)) ?? [];
 
 function getCatalogLesson(id: string): Lesson {
   const lesson = contentCatalog.getLesson(id);
@@ -73,6 +115,12 @@ export const lessonCatalog: LessonCatalog = {
   version: LESSON_CATALOG_VERSION,
   lessons: [introductionLesson, hebbenLesson, regularLesson, inversionLesson, repetitionLesson, cafeOrderLesson, cardPaymentLesson, transferLesson, delayedTrainLesson, appointmentLesson, symptomsLesson, brokenThingLesson, availabilityLesson, bringLesson, letterLesson],
 };
+
+export const allLessons = [...lessonCatalog.lessons, ...practicalDutchLessons];
+
+export function getLessonDefinition(id: string): Lesson | undefined {
+  return allLessons.find((lesson) => lesson.id === id);
+}
 
 export function validateLessonCatalog(catalog: LessonCatalog): string[] {
   const errors: string[] = [];

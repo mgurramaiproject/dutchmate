@@ -179,6 +179,37 @@ describe("LearningRecordStore", () => {
     await expect(records.getLessonProgress("a1-een-afspraak-maken", 1)).resolves.toBeUndefined();
   });
 
+  it("adds Practical Dutch progress without changing the existing record sections", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 1_000);
+    await records.createOrMerge({ dutch: "huis", english: "house" });
+    await records.saveLessonProgress("a1-practical-supermarket-shopping", 1, "notice");
+    const raw = storage.values.get(LEARNING_RECORD_STORAGE_KEY) as Record<string, unknown>;
+    expect(raw).toMatchObject({ version: 2, items: expect.any(Object), lessonProgress: expect.objectContaining({ "a1-practical-supermarket-shopping\u001f1": expect.objectContaining({ stage: "notice" }) }), rhythm: expect.any(Object), grammar: {}, contrast: {}, verbJourneys: expect.any(Object) });
+    const backup = await records.exportBackup();
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    await restored.importBackup(backup);
+    await expect(restored.getLessonProgress("a1-practical-supermarket-shopping", 1)).resolves.toMatchObject({ stage: "notice" });
+    await expect(restored.list()).resolves.toEqual([expect.objectContaining({ dutch: "huis", english: "house" })]);
+  });
+
+  it("persists optional Practical Dutch extra progress through backup import", async () => {
+    const source = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    await source.keepLessonCandidates("a1-practical-supermarket-shopping", 1, [], []);
+    await source.savePracticalDutchExtraProgress("a1-practical-supermarket-shopping", 1, 2);
+    const restored = new LearningRecordStore(new MemoryStorage(), () => 2_000);
+    await restored.importBackup(await source.exportBackup());
+    await expect(restored.getLessonProgress("a1-practical-supermarket-shopping", 1)).resolves.toMatchObject({ completedAt: 1_000, extraIndex: 2 });
+  });
+
+  it("does not count a Practical Dutch keep twice", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    const candidates = [{ id: "where-find", dutch: "Waar kan ik vinden?", kind: "chunk" as const, english: "Where can I find it?", telugu: "ఎక్కడ దొరుకుతుంది?" }];
+    await records.keepLessonCandidates("a1-practical-supermarket-shopping", 1, candidates, []);
+    await records.keepLessonCandidates("a1-practical-supermarket-shopping", 1, candidates, []);
+    expect((await records.getRhythm()).activity.find((day) => day.lessons !== null)?.lessons).toBe(1);
+  });
+
   it("imports newer valid lesson progress without copying catalog content", async () => {
     const local = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     await local.saveLessonProgress("a1-een-afspraak-maken", 1, "read");
