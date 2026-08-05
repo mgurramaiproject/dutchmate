@@ -98,6 +98,19 @@ export class LearningRecordStore {
   }
 
   async migrate(): Promise<void> {
+    const raw = await this.storage.get(LEARNING_RECORD_STORAGE_KEY);
+    if (isRecord(raw) && raw.version === 2) {
+      const stored = parseRecord(raw);
+      if (Object.keys(stored.items).length > 0) return;
+
+      const legacyVocabulary = parseLegacyVocabulary(await this.storage.get("dutchmate.savedVocabulary.v1"));
+      const legacyCards = parseLegacyCards(await this.storage.get("dutchmate.reviewCards.v1"));
+      if (Object.keys(legacyVocabulary.entries).length > 0 || Object.keys(legacyCards.cards).length > 0) {
+        await this.write(migrateLegacyLearningRecord(stored, Object.values(legacyVocabulary.entries), Object.values(legacyCards.cards), this.now()));
+      }
+      return;
+    }
+
     await this.readMigrated();
   }
 

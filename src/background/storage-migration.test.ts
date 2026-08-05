@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { migrateExtensionStorage, STORAGE_MIGRATION_KEY } from "./storage-migration";
+import { LocalCacheStorage, type LocalCacheExtensionApi } from "./local-cache-storage";
 import { LEARNING_RECORD_STORAGE_KEY, LearningRecordStore } from "../vocabulary/learning-record";
 import type { SavedVocabularyStorage } from "../vocabulary/saved-vocabulary";
 
@@ -30,6 +31,45 @@ describe("extension storage migration", () => {
     expect(storage.values.has(LEARNING_RECORD_STORAGE_KEY)).toBe(false);
     expect(storage.values.has(STORAGE_MIGRATION_KEY)).toBe(false);
   });
+
+  it("does not replace the existing learning record when a local read fails", async () => {
+    const existingRecord = {
+      version: 2,
+      items: { "nl\u001fhuis": { dutch: "huis", id: "nl\u001fhuis" } },
+      lessonProgress: { "lesson\u001f1": { stage: "keep" } },
+      rhythm: { activeDays: { "2026-08-05": { completedAt: 1_000 } } },
+    };
+    const extensionApi = createReadFailingExtensionApi({
+      [LEARNING_RECORD_STORAGE_KEY]: existingRecord,
+    });
+    const storage = new LocalCacheStorage(extensionApi);
+
+    await expect(
+      migrateExtensionStorage(storage, new LearningRecordStore(storage, () => 10_000)),
+    ).rejects.toThrow("Storage unavailable");
+
+    expect(extensionApi.values[LEARNING_RECORD_STORAGE_KEY]).toEqual(existingRecord);
+    expect(extensionApi.values[STORAGE_MIGRATION_KEY]).toBeUndefined();
+  });
+
+  it("recovers legacy history when an earlier migration left an empty record", async () => {
+    const storage = new MemoryStorage();
+    await storage.set(LEARNING_RECORD_STORAGE_KEY, {
+      version: 2,
+      items: {},
+      lessonProgress: {},
+      rhythm: {},
+    });
+    await storage.set(STORAGE_MIGRATION_KEY, { version: 1 });
+    await storage.set("dutchmate.savedVocabulary.v1", { entries: {
+      "nl\u001fhuis\u001fen": { id: "nl\u001fhuis\u001fen", text: "huis", normalizedText: "huis", sourceLanguage: "auto", detectedSourceLanguage: "nl", targetLanguage: "en", translatedText: "house", providerName: "test", createdAt: 1_000, updatedAt: 2_000, pageContext: "Een huis staat daar." },
+    } });
+    const records = new LearningRecordStore(storage, () => 10_000);
+
+    await migrateExtensionStorage(storage, records);
+
+    await expect(records.list()).resolves.toEqual([expect.objectContaining({ dutch: "huis", english: "house" })]);
+  });
 });
 
 class MemoryStorage implements SavedVocabularyStorage {
@@ -44,4 +84,30 @@ class FailingStorage extends MemoryStorage {
     if (key === LEARNING_RECORD_STORAGE_KEY) throw new Error("Storage unavailable");
     await super.set(key, value);
   }
+}
+
+type ReadFailingExtensionApi = LocalCacheExtensionApi & {
+  values: Record<string, unknown>;
+};
+
+function createReadFailingExtensionApi(values: Record<string, unknown>): ReadFailingExtensionApi {
+  const extensionApi: ReadFailingExtensionApi = {
+    values: { ...values },
+    runtime: {},
+    storage: {
+      local: {
+        get(_keys, callback) {
+          extensionApi.runtime.lastError = { message: "Storage unavailable" };
+          callback({});
+          extensionApi.runtime.lastError = undefined;
+        },
+        set(items, callback) {
+          extensionApi.values = { ...extensionApi.values, ...items };
+          callback?.();
+        },
+      },
+    },
+  };
+
+  return extensionApi;
 }

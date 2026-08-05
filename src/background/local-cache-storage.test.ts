@@ -27,14 +27,14 @@ describe("LocalCacheStorage", () => {
     await expect(storage.set("cache-key", { entries: {} })).resolves.toBeUndefined();
   });
 
-  it("returns undefined when storage.local.get reports a runtime error", async () => {
+  it("rejects when storage.local.get reports a runtime error", async () => {
     const extensionApi = createFakeExtensionApi({
       "cache-key": { entries: {} },
     });
     extensionApi.runtime.lastError = { message: "Storage failed" };
     const storage = new LocalCacheStorage(extensionApi);
 
-    await expect(storage.get("cache-key")).resolves.toBeUndefined();
+    await expect(storage.get("cache-key")).rejects.toThrow("Storage failed");
   });
 
   it("rejects when storage.local.set reports a runtime error", async () => {

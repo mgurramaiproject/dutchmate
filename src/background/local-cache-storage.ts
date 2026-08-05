@@ -20,10 +20,10 @@ export class LocalCacheStorage implements PersistentTranslationCacheStorage {
       return undefined;
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       this.extensionApi?.storage.local.get(key, (items) => {
         if (this.extensionApi?.runtime.lastError) {
-          resolve(undefined);
+          reject(new Error(this.extensionApi.runtime.lastError.message ?? "Storage unavailable."));
           return;
         }
 
