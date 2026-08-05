@@ -77,6 +77,9 @@ describe("popup layout", () => {
     expect(styles).toContain(".lesson-content .lesson-rail { gap: 0; margin-bottom: 12px; }");
     expect(styles).toContain(".lesson-content .lesson-stage { display: grid; min-height: var(--dm-target-min); place-items: center;");
     expect(styles).toContain(".lesson-content .story-line .helper-copy { margin: 0; color: var(--dm-ink-muted); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }");
+    expect(styles).toContain(".practical-dutch-lesson-header { display: flex; align-items: center; justify-content: space-between;");
+    expect(styles).toContain(".practical-dutch-lesson .lesson-stage { min-height: 38px;");
+    expect(styles).toContain(".practical-dutch-translation-toggle { width: 100%; min-height: var(--dm-target-min);");
     expect(styles).toContain(".year-month-labels span { min-width: 0; white-space: nowrap; }");
     expect(styles).toContain(".practical-dutch-pack { display: grid; gap: 0;");
     expect(styles).toContain(".practical-dutch-topic-heading { display: flex;");

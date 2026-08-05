@@ -346,6 +346,18 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .lesson-content .story-line { gap: 4px; }
 .lesson-content .story-line .helper-copy { margin: 0; color: var(--dm-ink-muted); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
 
+.practical-dutch-lesson { gap: 0; padding: 0 16px 16px; }
+.practical-dutch-lesson-header { display: flex; align-items: center; justify-content: space-between; min-height: 48px; margin: 0 -16px 8px; padding: 2px 16px; border-bottom: 1px solid var(--dm-line); background: var(--dm-paper-raised); }
+.practical-dutch-lesson-header .journey-back { min-height: var(--dm-target-min); }
+.practical-dutch-lesson-level { margin: 0; color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); letter-spacing: .04em; text-transform: uppercase; }
+.practical-dutch-lesson .lesson-rail { margin-bottom: 8px; }
+.practical-dutch-lesson .lesson-stage { min-height: 38px; font-size: .57rem; }
+.practical-dutch-stage-header { display: grid; gap: 2px; }
+.practical-dutch-stage-header .heading { font-size: var(--dm-font-size-h2); line-height: 1.2; }
+.practical-dutch-translation-toggle { width: 100%; min-height: var(--dm-target-min); margin-bottom: 2px; font-size: var(--dm-font-size-label); }
+.practical-dutch-story .story-line { gap: 3px; padding: 7px 0; }
+.practical-dutch-story .story-dutch { font-size: .88rem; line-height: 1.3; }
+
 /* Feature 015 T01: the authored read-only Verb Journey route. */
 .verb-journey-panel { padding: 2px 12px 10px; }
 .verb-journeys-content, .verb-journey-overview, .verb-journey-story, .verb-journey-notice, .verb-map-screen, .verb-english-comparison { display: grid; align-content: start; gap: 7px; min-width: 0; }

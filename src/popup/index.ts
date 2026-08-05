@@ -12,7 +12,7 @@ import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
 import { allLessons, lessonCatalog, practicalDutchLessons, type GrammarPatternId, type Lesson } from "../lessons/catalog";
 import { contentCatalog } from "../content-catalog";
-import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonPracticeExercises, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
+import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonPracticeExercises, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken, toggleLessonTranslations, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { advancePracticalExtra, checkPracticalExtraAnswer, createPracticalExtraSession, getPracticalExtraExercise, retryPracticalExtra, selectPracticalExtraAnswer, togglePracticalExtraToken, type PracticalExtraSession } from "./practical-extra-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSavedQuiz, type SavedQuizSession } from "./saved-quiz";
@@ -1447,8 +1447,16 @@ function localDay(date: Date): number { return new Date(date.getFullYear(), date
 function renderLesson(): HTMLElement {
   const session = lessonSession;
   if (!session) { screen = "lessons"; return renderLessons(); }
-  const wrapper = section("lesson-content focused-content");
+  const practical = session.lesson.practicalDutch;
+  const wrapper = section(`lesson-content focused-content${practical ? " practical-dutch-lesson" : ""}`);
   const exit = button("Exit lesson", "exit-button"); exit.addEventListener("click", () => { lessonSession = null; screen = focusedOrigin ?? "lessons"; focusedOrigin = null; render(); });
+  if (practical) {
+    const header = section("practical-dutch-lesson-header");
+    const back = journeyBack("Practical Dutch");
+    back.addEventListener("click", () => { lessonSession = null; screen = "practicalStories"; focusedOrigin = null; render(); });
+    header.append(back, text(session.lesson.cefr, "practical-dutch-lesson-level"));
+    wrapper.append(header);
+  } else wrapper.append(exit);
   const rail = document.createElement("div"); rail.className = "lesson-rail"; rail.setAttribute("aria-label", "Lesson stages");
   for (const stage of ["read", "notice", "practise", "keep"] as const) {
     const active = session.stage === stage || (stage === "practise" && session.stage === "replay");
@@ -1456,7 +1464,7 @@ function renderLesson(): HTMLElement {
     stageNode.setAttribute("aria-current", active ? "step" : "false");
     rail.append(stageNode);
   }
-  wrapper.append(exit, rail);
+  wrapper.append(rail);
   if (session.stage === "read" || session.stage === "replay") wrapper.append(session.lesson.practicalDutch ? renderPracticalDutchStory(session, session.stage === "read") : renderLessonStory(session, session.stage === "read"));
   if (session.stage === "notice") wrapper.append(session.lesson.practicalDutch ? renderPracticalDutchNotice(session) : renderLessonNotice(session));
   if (session.stage === "practise") wrapper.append(session.lesson.practicalDutch ? renderPracticalDutchExercise(session) : session.practiceIndex < session.lesson.practice.length ? renderLessonPractice(session) : renderLessonAuthoredExercise(session));
@@ -1467,12 +1475,19 @@ function renderLesson(): HTMLElement {
 function renderPracticalDutchStory(session: LessonSession, allowHelp: boolean): HTMLElement {
   const lesson = session.lesson.practicalDutch!;
   const story = section("lesson-story practical-dutch-story");
-  story.append(eyebrow(session.stage === "read" ? "Read the situation" : "Replay"), heading(session.lesson.title));
-  lesson.context.forEach((line, index) => {
+  const storyHeader = section("practical-dutch-stage-header");
+  storyHeader.append(eyebrow(`${session.stage === "read" ? "Read" : "Replay"} · ${session.lesson.cefr}`), heading(session.lesson.title));
+  story.append(storyHeader);
+  if (allowHelp) {
+    const translations = button(session.translationsVisible ? "Hide translations" : "Show translations", "button secondary-button practical-dutch-translation-toggle");
+    translations.setAttribute("aria-pressed", String(session.translationsVisible));
+    translations.addEventListener("click", () => { lessonSession = toggleLessonTranslations(session); render(); });
+    story.append(translations);
+  }
+  lesson.context.forEach((line) => {
     const row = section("story-line");
     row.append(text(line.nl, "story-dutch"));
-    if (allowHelp && session.revealedLineIndexes.includes(index)) row.append(text(`English: ${line.en}`, "practical-dutch-translation"), text(`Telugu: ${line.te}`, "practical-dutch-translation telugu-copy"));
-    else if (allowHelp) { const help = button("Show English and Telugu", "line-help"); help.addEventListener("click", () => { lessonSession = revealLessonLine(session, index); render(); }); row.append(help); }
+    if (allowHelp && session.translationsVisible) row.append(text(`EN · ${line.en}`, "practical-dutch-translation"), text(`TE · ${line.te}`, "practical-dutch-translation telugu-copy"));
     story.append(row);
   });
   const next = button(session.stage === "read" ? "Notice the pattern" : "Choose what to keep", "button primary-button");

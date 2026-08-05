@@ -19,7 +19,7 @@ selection unit with compact ready, Continue, and completed states. A learner
 can open A1 or A2 by pointer or keyboard while existing progress and
 accessibility behavior remain intact.
 
-## 02 — Compact focused shell and Read stage
+## 02 — Compact focused shell and Read stage [x]
 
 **Issue:** [#197](https://github.com/mgurramaiproject/dutchmate/issues/197)
 
