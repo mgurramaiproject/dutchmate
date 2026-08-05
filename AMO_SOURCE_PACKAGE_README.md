@@ -41,7 +41,7 @@ corepack pnpm package:firefox
 The build creates this Firefox upload artifact:
 
 ```text
-release/dutchmate-firefox-0.5.0.zip
+release/dutchmate-firefox-0.5.1.zip
 ```
 
 ## How The Build Works
@@ -54,6 +54,6 @@ release/dutchmate-firefox-0.5.0.zip
 
 - This source package intentionally excludes `node_modules`, `dist`, and `release` outputs.
 - Store-ready Firefox builds are created with `corepack pnpm package:firefox`.
-- The 0.5.0 store build keeps hover translation disabled while selected-text
+- The 0.5.1 store build keeps hover translation disabled while selected-text
   translation remains available.
 - Local-testing builds that expose developer endpoint controls are created with `corepack pnpm build:firefox:local-testing`, but those are not the submitted store build.
