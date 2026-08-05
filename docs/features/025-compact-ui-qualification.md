@@ -2,8 +2,8 @@
 
 **Feature:** `025-compact-ui`
 **Branch:** `feature/025-compact-ui`
-**Status:** automated qualification complete; owner browser QA remains pending.
-**Scope:** Issues #196–#199, with one later feature-wide code review and PR.
+**Status:** automated and owner-confirmed browser qualification complete.
+**Scope:** Issues #196–#199, with feature-wide PR delivery after owner QA.
 
 This record separates reproducible repository evidence from the manual
 Chromium/Firefox and assistive-technology checks that cannot be certified by
@@ -26,10 +26,10 @@ the DOM test environment alone.
 The Vite builds emit the existing large-chunk warning for background/content
 and popup bundles; both builds and package verification still pass.
 
-## Manual gates still required
+## Owner-confirmed manual gates
 
-These checks remain intentionally unclaimed until the feature owner runs them
-in installed Chromium and Firefox builds:
+The feature owner confirmed these checks complete in installed Chromium and
+Firefox builds:
 
 1. At 390×600 and 80%, 100%, 125%, and 150% zoom, inspect the topic list,
    Read hidden/shown, Notice hidden/shown, Practise unanswered/feedback, and
@@ -45,8 +45,8 @@ in installed Chromium and Firefox builds:
 
 | Review | Reviewer / date | Result |
 | --- | --- | --- |
-| Chromium visual/keyboard/assistive-technology QA | Pending owner confirmation | Pending |
-| Firefox visual/keyboard/assistive-technology QA | Pending owner confirmation | Pending |
+| Chromium visual/keyboard/assistive-technology QA | Feature owner / 2026-08-05 | Pass |
+| Firefox visual/keyboard/assistive-technology QA | Feature owner / 2026-08-05 | Pass |
 
 ## Compatibility and handoff
 
@@ -55,6 +55,6 @@ LearningRecordStore, content catalog, and design tokens. It adds no storage
 key, content migration, scheduler, evidence model, permission, runtime
 translation, or parallel scroll container.
 
-Issues #196–#199 are implemented and committed on the feature branch. Per the
-approved delivery scope, do not run the feature-wide code review or open a PR
-in this session; those are the next gates after the owner completes manual QA.
+Issues #196–#199 are implemented and committed on the feature branch. The
+feature-wide PR was merged after owner QA confirmation; the separate code
+review was intentionally skipped per the delivery request.
