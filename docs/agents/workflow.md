@@ -83,6 +83,27 @@ When implementing an issue:
 - Use commit subjects in the form `<type>: <ticket-id> <branch-codename>: <summary>`; for example, `feat: T03 learnloop: record deliberate encounters`.
 - Finish with a clean worktree and report any checks or external actions that could not be completed.
 
+## Upgrade-Safe Learning History Invariant
+
+Every feature and bug fix must treat preservation of an installed user's local
+learning history as a default acceptance and release gate. This includes saved
+items, lesson progress, mastery and evidence, learning rhythm, and grammar,
+contrast, or Verb Journey progress where those records exist.
+
+Unless the user explicitly approves an exception in the issue or specification:
+
+- existing learning records must remain readable and must not be silently
+  reset, regraded, or discarded after an extension update;
+- any storage-key or record-version change must have an explicit compatible
+  migration path, with a failed migration leaving the prior record intact;
+- tests must exercise a representative pre-update record and verify the
+  affected history survives the feature; and
+- release qualification must include an installed-profile update check for
+  the affected browser paths, or clearly record the remaining owner check.
+
+If preservation cannot be demonstrated, stop before release and request the
+user's explicit approval for the data-loss or compatibility exception.
+
 ## Prototype Contract
 
 When a feature includes a UI or interaction prototype:

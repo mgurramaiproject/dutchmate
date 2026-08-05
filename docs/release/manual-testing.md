@@ -13,6 +13,9 @@ Use this short gate before the Firefox-first soft launch and before copying fina
 - Clear user-facing errors appear for busy and unreachable backend states.
 - After a timeout, unreachable backend, or busy response, the next hover or selection still works normally.
 - Store-ready builds keep provider override controls hidden, while the privacy section and saved-vocabulary section still reflect the real local-only behavior.
+- Updating an installed prior build preserves the existing local learning
+  history; no saved items, lesson progress, mastery/evidence, rhythm, or
+  feature-specific learning progress is silently reset or discarded.
 
 ## Build
 
