@@ -10,7 +10,7 @@ describe("public website", () => {
   it("publishes the current learner story and honest browser availability", () => {
     const homepage = readFrontendFile("index.html");
 
-    expect(homepage).toContain("Build 0.4.1 · Store updates coming soon");
+    expect(homepage).toContain("Build 0.5.0 · Store updates coming soon");
     expect(homepage).toContain("Read Dutch. Keep the words that matter.");
     expect(homepage).toContain("Daily Five, Lessons, and Verb Journeys");
     expect(homepage).toContain("Practise Dutch grammar");
@@ -26,15 +26,12 @@ describe("public website", () => {
     expect(homepage).toContain("assets/chrome-logo.svg");
     expect(homepage).toContain("assets/firefox-logo.svg");
     expect(homepage).toContain("assets/edge-logo.svg");
-    expect(homepage).toContain("assets/safari-logo.svg");
     expect(homepage).toContain('aria-controls="nav-browser-status"');
     expect(homepage).toContain('aria-controls="hero-browser-status"');
     expect(homepage).toContain('id="edge-availability"');
-    expect(homepage).toContain('id="safari-availability"');
     expect(homepage).toContain("Edge support is coming soon.");
-    expect(homepage).toContain("Safari support is coming soon.");
     expect(homepage).toContain('id="edge-status" role="status" hidden');
-    expect(homepage).toContain('id="safari-status" role="status" hidden');
+    expect(homepage).not.toContain("Safari");
     expect(homepage).not.toContain("Release 0.4.0");
     expect(homepage).not.toContain("Now available for Firefox");
     expect(homepage).not.toContain("Install the Firefox extension");
@@ -68,7 +65,6 @@ describe("public website", () => {
     expect(homepage).not.toContain("homepage-hover-translation.png");
     expect(existsSync(resolve(process.cwd(), "frontend", "assets", "chrome-logo.svg"))).toBe(true);
     expect(existsSync(resolve(process.cwd(), "frontend", "assets", "edge-logo.svg"))).toBe(true);
-    expect(existsSync(resolve(process.cwd(), "frontend", "assets", "safari-logo.svg"))).toBe(true);
   });
 
   it("supports public sharing plus private feedback without repo-dependent links", () => {
@@ -106,7 +102,7 @@ describe("public website", () => {
     expect(feedbackPage).not.toContain("github.com/mgurramaiproject/dutchmate/issues/new");
   });
 
-  it("shows every coming-soon browser message without navigation", () => {
+  it("shows the Edge coming-soon message without navigation", () => {
     class FakeElement {
       hidden = true;
       textContent = "";
@@ -142,21 +138,16 @@ describe("public website", () => {
     }
 
     const navEdgeButton = new FakeButton("Edge", "nav-browser-status");
-    const navSafariButton = new FakeButton("Safari", "nav-browser-status");
     const heroEdgeButton = new FakeButton("Edge", "hero-browser-status");
-    const heroSafariButton = new FakeButton("Safari", "hero-browser-status");
     const edgeButton = new FakeButton("Edge", "edge-status");
     const edgeStatus = new FakeElement();
-    const safariButton = new FakeButton("Safari", "safari-status");
-    const safariStatus = new FakeElement();
     const navStatus = new FakeElement();
     const heroStatus = new FakeElement();
-    const buttons = [navEdgeButton, navSafariButton, heroEdgeButton, heroSafariButton, edgeButton, safariButton];
+    const buttons = [navEdgeButton, heroEdgeButton, edgeButton];
     const statuses = new Map([
       ["nav-browser-status", navStatus],
       ["hero-browser-status", heroStatus],
       ["edge-status", edgeStatus],
-      ["safari-status", safariStatus],
     ]);
     const document = {
       querySelectorAll(selector: string) {
@@ -187,9 +178,8 @@ describe("public website", () => {
       expect(status.hidden).toBe(false);
     }
 
-    expect(navStatus.textContent).toBe("Safari support is coming soon.");
-    expect(heroStatus.textContent).toBe("Safari support is coming soon.");
+    expect(navStatus.textContent).toBe("Edge support is coming soon.");
+    expect(heroStatus.textContent).toBe("Edge support is coming soon.");
     expect(edgeStatus.textContent).toBe("Edge support is coming soon.");
-    expect(safariStatus.textContent).toBe("Safari support is coming soon.");
   });
 });

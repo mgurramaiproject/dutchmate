@@ -50,6 +50,42 @@ function savedItem(overrides: Partial<LearningItem> = {}): LearningItem {
 }
 
 describe("WebpageLookupModule", () => {
+  it("clears an active hover result when hover translation becomes disabled", async () => {
+    let settings: ExtensionSettings = defaultSettings;
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => settings,
+      transport: createTransport(),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "huis", context: "hover", x: 1, y: 1, sourceLanguageHint: "nl" });
+    settings = { ...defaultSettings, translateOnHover: false };
+    module.applySettings();
+
+    expect(events.at(-1)).toEqual({ type: "hide-tooltip" });
+  });
+
+  it("keeps an active selection result when hover translation becomes disabled", async () => {
+    let settings: ExtensionSettings = defaultSettings;
+    const events: unknown[] = [];
+    const module = new WebpageLookupModule({
+      getSettings: () => settings,
+      transport: createTransport(),
+      runWithTimeout: (promise) => promise,
+      tooltipTimeoutMs: 9000,
+    });
+    module.subscribe((event) => events.push(event));
+
+    await module.beginLookup({ text: "huis", context: "selection", x: 1, y: 1, sourceLanguageHint: "nl", pageContext: "Ik zie een huis." });
+    settings = { ...defaultSettings, translateOnHover: false };
+    module.applySettings();
+
+    expect(events.at(-1)).not.toEqual({ type: "hide-tooltip" });
+  });
+
   it("offers an introduced exact hebben encounter without another provider request", async () => {
     const events: unknown[] = [];
     const grammar: GrammarRecord = { patternId: "a0-hebben-present", contentVersion: 1, state: "introduced", introducedAt: 1, lastPractisedAt: null, dueAt: 2, intervalDays: 0, successfulEvidenceCount: 0, successfulExerciseIds: [], primitives: [], contextTags: [], recentExerciseIds: [], recentSuccessfulDays: [], delayedEvidence: false, misconceptionCounts: {}, evidenceRevision: 0, updatedAt: 1 };

@@ -50,6 +50,7 @@ jobs:
           NOTES_FILE="docs/release/notes/${TAG}.md"
           FIREFOX_ASSET="release/dutchmate-firefox-${VERSION_INPUT}.zip"
           CHROME_ASSET="release/dutchmate-chrome-${VERSION_INPUT}.zip"
+          EDGE_ASSET="release/dutchmate-edge-${VERSION_INPUT}.zip"
 
           if [ "${GITHUB_REF_NAME}" != "main" ]; then
             echo "Releases must be published from main. Current ref: ${GITHUB_REF_NAME}"
@@ -76,6 +77,7 @@ jobs:
           echo "notes_file=${NOTES_FILE}" >> "${GITHUB_OUTPUT}"
           echo "firefox_asset=${FIREFOX_ASSET}" >> "${GITHUB_OUTPUT}"
           echo "chrome_asset=${CHROME_ASSET}" >> "${GITHUB_OUTPUT}"
+          echo "edge_asset=${EDGE_ASSET}" >> "${GITHUB_OUTPUT}"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -86,12 +88,17 @@ jobs:
       - name: Package extension artifacts
         run: pnpm package:extensions
 
+      - name: Prepare Edge Chromium artifact
+        shell: bash
+        run: cp "${{ steps.meta.outputs.chrome_asset }}" "${{ steps.meta.outputs.edge_asset }}"
+
       - name: Confirm release artifacts exist
         shell: bash
         run: |
           set -euo pipefail
           test -f "${{ steps.meta.outputs.firefox_asset }}"
           test -f "${{ steps.meta.outputs.chrome_asset }}"
+          test -f "${{ steps.meta.outputs.edge_asset }}"
 
       - name: Create git tag
         shell: bash
@@ -111,5 +118,6 @@ jobs:
           files: |
             ${{ steps.meta.outputs.firefox_asset }}
             ${{ steps.meta.outputs.chrome_asset }}
+            ${{ steps.meta.outputs.edge_asset }}
           draft: ${{ github.event.inputs.draft }}
           fail_on_unmatched_files: true

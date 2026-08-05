@@ -12,9 +12,11 @@ The `Publish Release` GitHub Actions workflow:
 - packages the Firefox and Chrome zip artifacts;
 - creates the git tag;
 - creates the GitHub Release;
-- uploads the packaged zip files to the release.
+- uploads the packaged Firefox, Chrome, and Edge-compatible Chromium zip files
+  to the release.
 
-This workflow does not submit the extension to Firefox, Chrome, or Edge stores. Store submission stays manual.
+This workflow does not submit the extension to Firefox, Chrome, or Edge stores.
+Safari is not a release target. Store submission stays manual.
 
 ## Release Inputs
 

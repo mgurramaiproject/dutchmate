@@ -275,7 +275,11 @@ export class WebpageLookupModule {
 
   applySettings(): void {
     const settings = this.#deps.getSettings();
-    if (!settings.isEnabled || !settings.translateOnSelection) {
+    if (
+      !settings.isEnabled ||
+      !settings.translateOnSelection ||
+      (!settings.translateOnHover && this.#session.activeContext === "hover")
+    ) {
       this.clear();
     }
   }

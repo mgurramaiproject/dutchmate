@@ -22,10 +22,10 @@ short, human descriptions of the current product.
 
 The homepage will link to the supplied Chrome Web Store and Firefox Add-ons
 listings. Each browser action will use its browser logo and explain that the
-listing is available while the latest update is still coming soon. Edge and
-Safari availability actions will use non-navigating interactive states:
-clicking them shows their support-is-coming-soon message. They do not link to
-a store.
+listing is available while the latest update is still coming soon. Edge will
+use a non-navigating interactive state: clicking it shows its
+support-is-coming-soon message. It does not link to a store. Safari is
+deferred and is not represented in the public surface.
 
 The public copy will describe the user-visible browsing-to-fluency loop:
 translate on real webpages, save useful vocabulary, practise with Daily Five
@@ -105,19 +105,18 @@ capabilities remain out of the marketing promise.
 - Homepage copy, headings, social metadata, footer version language,
   availability sections, feedback references, and accessibility labels are
   updated together so the page presents one consistent story.
-- The current repository build is described as 0.4.1 where a version is
+- The current repository build is described as 0.5.0 where a version is
   needed. Chrome and Firefox store actions state that the public listings are
   available but still carry an earlier build and that the latest update is
-  coming soon. The copy does not claim that 0.4.1 is already installed from
+  coming soon. The copy does not claim that 0.5.0 is already installed from
   those listings.
 - Chrome and Firefox install actions are real links to the user-supplied
   official listings and display local browser logo assets. The existing Firefox
   logo is reused; a local Chrome logo asset is added if required by the current
   asset set.
-- Edge and Safari are represented as clearly labelled coming-soon availability
-  actions. Their click behavior shows browser-specific support-is-coming-soon
-  messages in accessible feedback states and does not navigate or fabricate a
-  store URL.
+- Edge is represented as a clearly labelled coming-soon availability action.
+  Its click behavior shows an accessible support-is-coming-soon message and
+  does not navigate or fabricate a store URL. Safari is explicitly deferred.
 - Public feature copy leads with learner outcomes and uses domain terms only
   where they clarify the experience: Saved, Daily Five, Lessons, Verb
   Journeys, Verb Map, English comparisons, grammar practice, sentence
@@ -146,7 +145,7 @@ capabilities remain out of the marketing promise.
   details.
 - The focused public-site test suite covers the homepage and its existing
   feedback/privacy contracts. It verifies both supplied store links, both
-  browser logo references, the Edge coming-soon interaction contract, the
+  three browser logo references, the Edge coming-soon interaction contract, the
   current-build/store-version distinction, and retained screenshot/lightbox
   references.
 - Existing frontend test prior art is the public-site contract test that reads
@@ -167,7 +166,8 @@ capabilities remain out of the marketing promise.
 
 - Updating or publishing the Chrome Web Store listing.
 - Updating or publishing the Firefox Add-ons listing.
-- Publishing Edge or implementing an Edge build or store integration.
+- Publishing the Edge store listing or creating a separate Edge-specific
+  implementation.
 - Publishing Safari or implementing a Safari build or store integration.
 - Capturing, replacing, or redesigning the existing screenshot gallery.
 - Extension popup redesign or changes to learner-facing runtime behavior.

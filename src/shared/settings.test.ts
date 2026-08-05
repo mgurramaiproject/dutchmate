@@ -92,6 +92,12 @@ describe("settings", () => {
     });
   });
 
+  it("keeps hover translation disabled even when an older setting stored it as enabled", () => {
+    expect(defaultSettings.translateOnHover).toBe(false);
+    expect(normalizeSettings({ translateOnHover: true }).translateOnHover).toBe(false);
+    expect(mergeSettings(defaultSettings, { translateOnHover: true }).translateOnHover).toBe(false);
+  });
+
   it("keeps runtime setting updates coherent with options reads", () => {
     expect(
       mergeSettings(defaultSettings, {

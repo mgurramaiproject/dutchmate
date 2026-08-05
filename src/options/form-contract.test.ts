@@ -27,6 +27,14 @@ describe("Options form contract", () => {
     expect(html).toContain('<fieldset class="locked-settings" disabled');
   });
 
+  it("locks hover translation off", () => {
+    const hoverToggle = html.match(/<input id="translate-on-hover"[^>]*>/)?.[0] ?? "";
+
+    expect(hoverToggle).toContain("disabled");
+    expect(hoverToggle).not.toContain("checked");
+    expect(script).toContain("translateOnHover: false");
+  });
+
   it("keeps saved numbering and the bottom-save reminder visible when dirty", () => {
     expect(html).toContain('<div id="save-reminder" class="save-reminder"');
     expect(html).toContain('<th scope="col">#</th>');

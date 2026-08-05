@@ -46,6 +46,18 @@ describe("TooltipViewAdapter", () => {
     expect(styles).not.toContain('#7f1d1d');
   });
 
+  it("recognizes a pointer transition into the tooltip as tooltip-owned", () => {
+    const view = createTooltipViewAdapter({
+      onSaveClick: vi.fn(), onPractice: vi.fn(), onTryFromMemory: vi.fn(), onTranslateNow: vi.fn(), onShowMeaning: vi.fn(), onRecallResult: vi.fn(), onReplayRecall: vi.fn(), onAddFragment: vi.fn(), onRemoveFragment: vi.fn(), onReset: vi.fn(), onCheck: vi.fn(), onReplay: vi.fn(), onClose: vi.fn(),
+    });
+    view.showResult({ ok: true, result: { translatedText: "house", providerName: "test" } }, 10, 10, { status: "ready", label: "Save", disabled: false });
+
+    const tooltip = document.querySelector<HTMLDivElement>("#hover-translate-tooltip")!;
+    const event = new MouseEvent("mouseleave", { relatedTarget: tooltip });
+
+    expect(view.isTooltipEvent(event)).toBe(true);
+  });
+
   it("renders an accessible Context Slip and routes keyboard-operable controls without changing the page", () => {
     const onPractice = vi.fn();
     const onAddFragment = vi.fn();

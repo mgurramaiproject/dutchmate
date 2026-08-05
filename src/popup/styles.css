@@ -533,7 +533,7 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-notice-chip { display: inline-flex; align-items: center; width: fit-content; padding: 4px 7px; border: 1px solid var(--dm-line); border-radius: var(--dm-radius-round); background: var(--dm-paper-soft); color: var(--dm-ink-muted); font-size: .6rem; font-weight: var(--dm-weight-black); letter-spacing: .02em; }
 .verb-notice-chip.current { border-color: color-mix(in srgb, var(--dm-brand-orange) 55%, var(--dm-line)); background: color-mix(in srgb, var(--dm-brand-orange) 12%, var(--dm-paper-raised)); color: var(--dm-brand-orange-deep); }
 .verb-notice-chip.contrast { color: var(--dm-ink-strong); }
-.verb-notice-highlight { margin-inline: 2px; padding: 1px 4px; border-radius: 5px; background: color-mix(in srgb, var(--dm-brand-orange) 18%, var(--dm-paper-raised)); color: var(--dm-brand-orange-deep); font-weight: var(--dm-weight-black); }
+.verb-notice-highlight, .verb-form-highlight { margin-inline: 2px; padding: 1px 4px; border-radius: 5px; background: color-mix(in srgb, var(--dm-brand-orange) 18%, var(--dm-paper-raised)); color: var(--dm-brand-orange-deep); font-weight: var(--dm-weight-black); }
 .verb-formula .verb-notice-highlight { background: var(--dm-paper-soft); color: var(--dm-ink-strong); }
 .verb-notice-interaction { display: grid; gap: 7px; padding: 10px; border: 1px solid var(--dm-line); border-radius: var(--dm-radius-card); background: var(--dm-paper-soft); }
 .verb-notice-choices { display: grid; gap: 6px; }

@@ -14,8 +14,8 @@ Changes:
   learning.
 - Added the typed, versioned content catalog for reviewed Lessons, grammar,
   contrast, and Verb Journey packages while preserving learner history.
-- Refreshed the public homepage with current product copy and four-browser
-  availability states.
+- Refreshed the public homepage with current product copy and three-browser
+  availability states; Safari is intentionally deferred.
 - Tightened store-ready host permissions while keeping local-testing access
   explicit.
 

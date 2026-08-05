@@ -1121,6 +1121,8 @@ describe("lesson popup", () => {
     expect([...ott.querySelectorAll(".verb-map-code-letter")].map((letter) => letter.textContent)).toEqual(["O", "T", "T"]);
     expect(ott.querySelector(".verb-form-card-header")?.lastElementChild?.textContent).toBe("›");
     expect(ott.querySelector(".verb-form-example")?.textContent).toBe("NL · Ik werk vandaag thuis.");
+    expect(ott.querySelectorAll(".verb-form-highlight")).toHaveLength(1);
+    expect(ott.querySelector(".verb-form-highlight")?.textContent).toBe("werk");
     const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
     const scrollTargets: HTMLElement[] = [];
     const scrollIntoView = vi.fn(function (this: HTMLElement) { scrollTargets.push(this); });
@@ -1130,6 +1132,8 @@ describe("lesson popup", () => {
     expect(scrollTargets[0]?.classList.contains("verb-form-detail")).toBe(true);
     Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: originalScrollIntoView });
     expect(content().querySelector(".verb-detail-example")?.textContent).toBe("NL · Ik werk vandaag thuis.");
+    expect(content().querySelectorAll(".verb-detail-canonical .verb-form-highlight")).toHaveLength(1);
+    expect(content().querySelectorAll(".verb-detail-common-use .verb-form-highlight").length).toBeGreaterThan(0);
     expect(content().querySelector(".verb-detail-label")?.textContent).toBe("Present");
     expect(content().querySelector(".verb-detail-status")?.textContent).toContain("›");
     expect(content().querySelector(".verb-detail-canonical")?.textContent).toContain("NL · Ik werk vandaag thuis.");
@@ -1647,6 +1651,7 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("This is a comparison lens");
     const firstCard = content().querySelector<HTMLButtonElement>(".verb-english-card")!;
     expect(firstCard.getAttribute("aria-label")).toContain("Dutch form: OTT");
+    expect([...firstCard.querySelectorAll<HTMLElement>(".verb-english-cue-highlight")].map((highlight) => highlight.textContent)).toEqual(expect.arrayContaining(["werk", "elke maandag"]));
     firstCard.focus();
     expect(document.activeElement).toBe(firstCard);
     content().scrollTop = 48;
