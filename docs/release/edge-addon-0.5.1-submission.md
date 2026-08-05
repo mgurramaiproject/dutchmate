@@ -119,6 +119,8 @@ listing:
 
 - Square DutchMate logo, 1:1 aspect ratio; Microsoft recommends 300 x 300
   pixels and accepts a minimum of 128 x 128.
+- Small promotional tile: [dutchmate-promo-440x280.png](../../public/brand/png/dutchmate-promo-440x280.png)
+  at exactly 440 x 280 pixels.
 - Up to six readable screenshots at an accepted Edge size, preferably 1280 x
   800.
 - Optional promotional tiles only if they improve the listing.
