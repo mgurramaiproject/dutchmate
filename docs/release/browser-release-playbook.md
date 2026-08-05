@@ -1,6 +1,6 @@
 # Browser Release Playbook
 
-Last updated: 2026-08-04
+Last updated: 2026-08-05
 
 This is the canonical, browser-neutral release path for DutchMate.
 
@@ -60,6 +60,7 @@ Keep one single feedback intake for the soft Firefox launch:
 - GitHub Release Edge asset: `release/dutchmate-edge-0.5.1.zip` (the verified
   Chromium package under an Edge-specific filename)
 - GitHub release notes source: `docs/release/notes/v0.5.1.md`
+- Published Edge listing: `https://microsoftedge.microsoft.com/addons/detail/dutchmate/plobaccfjjbpfekjomnmmidlmjjdecme`
 - Privacy policy: `https://dutchmate-frontend.onrender.com/privacy-policy.html`
 - Chrome listing draft: `docs/release/chrome-web-store-listing-draft.md`
 - Shared disclosure draft: `docs/release/store-disclosure-draft.md`
@@ -105,13 +106,19 @@ Use Firefox Add-ons / AMO for the public release and subsequent updates.
 
 Use Microsoft Edge Add-ons / Partner Center after Firefox.
 
+### Current status
+
+DutchMate 0.5.1 is approved and publicly available on Edge:
+
+https://microsoftedge.microsoft.com/addons/detail/dutchmate/plobaccfjjbpfekjomnmmidlmjjdecme
+
 ### Your action
 
 1. Sign in to your Microsoft account in Partner Center.
-2. Open the existing DutchMate extension listing for an update. Create a new extension only if the listing does not exist.
-3. Upload the Chromium zip package.
+2. Open the existing DutchMate extension listing.
+3. For a future update, upload the newer Chromium ZIP package.
 4. Fill in the store listing and privacy fields.
-5. Submit for certification.
+5. Submit the update for certification.
 
 ### Notes
 

@@ -1,8 +1,10 @@
-# Microsoft Edge Add-ons Publishing Guide: DutchMate 0.4.0
+# Microsoft Edge Add-ons Publishing Guide: DutchMate
 
 **Work code:** `008-edge-publish`
-**Last reviewed:** 2026-07-25
-**Status:** Preparation guide; final Partner Center submission is a manual step
+**Last reviewed:** 2026-08-05
+**Status:** DutchMate 0.5.1 is approved and publicly available
+
+**Published listing:** https://microsoftedge.microsoft.com/addons/detail/dutchmate/plobaccfjjbpfekjomnmmidlmjjdecme
 
 This guide records the repository-specific and Microsoft-specific work needed to publish DutchMate on the Microsoft Edge Add-ons store. It is intended to be reused for the first Edge listing and future Edge updates.
 
@@ -13,7 +15,7 @@ Microsoft's current publication reference is [Publish a Microsoft Edge extension
 DutchMate uses Manifest V3 and the Chromium extension architecture. For the first Edge submission, use the current Chrome Chromium package rather than creating a separate Edge implementation:
 
 ```text
-release/dutchmate-chrome-0.4.0.zip
+release/dutchmate-chrome-0.5.1.zip
 ```
 
 The repository does not currently have a separate `build:edge` or `package:edge` script. The old `release/dutchmate-edge-0.1.0.zip` is not the current release and must not be uploaded.
@@ -25,15 +27,15 @@ The source-of-truth release instructions are in [browser-release-playbook.md](br
 ### Already available
 
 - Manifest V3 Chromium build.
-- Package version `0.4.0`.
-- Current Chromium artifact at `release/dutchmate-chrome-0.4.0.zip`.
+- Package version `0.5.1`.
+- Current Chromium artifact at `release/dutchmate-chrome-0.5.1.zip`.
 - Public privacy policy at `https://dutchmate-frontend.onrender.com/privacy-policy.html`.
 - Support email: `dutchmate.project@gmail.com`.
 - Existing listing copy in [chrome-web-store-listing-draft.md](chrome-web-store-listing-draft.md).
 - Existing privacy and disclosure material in [store-disclosure-draft.md](store-disclosure-draft.md) and [privacy-policy.md](privacy-policy.md).
 - GitHub release procedure in [github-release-pipeline.md](github-release-pipeline.md).
 
-### Still required before submission
+### Completed for 0.5.1
 
 - A manual smoke test in Microsoft Edge.
 - Edge-specific store copy, without Chrome or Firefox references.
@@ -54,24 +56,24 @@ corepack pnpm verify:release
 This regenerates and verifies the Chrome and Firefox release packages. Confirm that the Edge upload candidate is the Chromium package:
 
 ```bash
-unzip -p release/dutchmate-chrome-0.4.0.zip manifest.json
-unzip -l release/dutchmate-chrome-0.4.0.zip
+unzip -p release/dutchmate-chrome-0.5.1.zip manifest.json
+unzip -l release/dutchmate-chrome-0.5.1.zip
 ```
 
 The ZIP must contain `manifest.json` at its root. Upload the ZIP itself, not the `dist/chrome` directory and not the source repository.
 
-The 0.4.0 manifest currently contains:
+The 0.5.1 manifest contains:
 
 ```text
 manifest_version: 3
 name: DutchMate
-version: 0.4.0
+version: 0.5.1
 permissions: storage, downloads
 host_permissions: https://*/* plus localhost development hosts
 background: assets/background.js as a service worker
 ```
 
-The broad website access must be explained accurately in Partner Center: DutchMate needs webpage access to translate text that the user hovers over or selects. Do not reduce or expand permissions during submission without auditing the extension behavior and regenerating the package.
+The broad website access must be explained accurately in Partner Center: DutchMate needs webpage access to translate text that the user deliberately selects. Do not reduce or expand permissions during submission without auditing the extension behavior and regenerating the package.
 
 ## Manual Microsoft Edge test
 
@@ -89,12 +91,11 @@ dist/chrome
 
 Test at least the following:
 
-- Hover translation on a normal Dutch webpage.
 - Selected-word, selected-phrase, and selected-sentence translation.
 - English and Telugu translation directions.
 - Saving a selected single-word translation.
 - Popup Today, Lessons, Saved, Daily Five, and review flows.
-- Context Missions where included in the 0.4.0 release.
+- Context Missions where included in the 0.5.1 release.
 - Options settings and language changes.
 - Local learning data after closing and reopening Edge.
 - Learning-record export through the download action.
@@ -131,7 +132,7 @@ The existing 007 showcase images are portrait UI captures and are not suitable a
 
 Suggested six screenshots:
 
-1. Hovering over a Dutch word and seeing the translation tooltip.
+1. Selecting a Dutch word and seeing the translation tooltip.
 2. Selecting a short phrase and seeing Dutch, English, and Telugu context.
 3. Saving a word to local vocabulary.
 4. Popup Today or Daily Five progress.
@@ -149,7 +150,7 @@ The current Edge form may require a description between 250 and 10,000 character
 ### Suggested short description
 
 ```text
-Learn Dutch while reading with hover and selection translations in English and Telugu.
+Learn Dutch while reading with selected-text translations in English and Telugu.
 ```
 
 ### Suggested full description
@@ -157,7 +158,7 @@ Learn Dutch while reading with hover and selection translations in English and T
 ```text
 DutchMate helps you learn Dutch while reading online.
 
-Hover over a Dutch word or select a short phrase to see translations in Dutch, English, and Telugu. Keep English as a bridge language, bring your own language close to the page, and build vocabulary from the text you already read.
+Select a Dutch word, phrase, or sentence to see translations in Dutch, English, and Telugu. Keep English as a bridge language, bring your own language close to the page, and build vocabulary from the text you already read.
 
 Save useful single-word translations locally, practise with Daily Five and lessons, and review your learning progress from the extension popup. DutchMate does not require an account, subscription, or payment.
 
@@ -167,7 +168,7 @@ Privacy note: DutchMate sends the text you ask it to translate to the DutchMate 
 ### Suggested single-purpose statement
 
 ```text
-DutchMate helps users learn Dutch online by translating webpage text that they deliberately hover over or select between Dutch, English, and Telugu.
+DutchMate helps users learn Dutch online by translating webpage text that users deliberately select between Dutch, English, and Telugu.
 ```
 
 ### Suggested search terms
@@ -203,13 +204,13 @@ Answer the Partner Center privacy questions from the actual packaged behavior:
 ### Does the extension transmit user data?
 
 ```text
-Yes. DutchMate sends text that the user hovers over or selects, together with language settings and translation context, to the DutchMate backend so it can return a translation.
+Yes. DutchMate sends text that the user selects, together with language settings and translation context, to the DutchMate backend so it can return a translation.
 ```
 
 ### Data types to disclose
 
-- Website content: hovered words, nearby sentence context, selected words, phrases, or short sentences.
-- User interaction context: whether the request came from hover or selection.
+- Website content: selected words, nearby sentence context, selected phrases, or short sentences.
+- User interaction context: the selected-text translation action.
 - User settings and local learning data: language settings, cache preferences, saved vocabulary, learning items, mastery, lesson progress, and rhythm stored locally in the browser.
 
 Do not claim that DutchMate collects personally identifiable information, financial information, health information, authentication information, or payment information unless the product behavior changes.
@@ -233,7 +234,7 @@ storage: Stores extension settings, selected-word translation cache, saved vocab
 
 downloads: Lets the user export their local learning record as a file when they choose the export action.
 
-website access: Allows DutchMate's content script to detect user hover or selection actions and show translation results on webpages.
+website access: Allows DutchMate's content script to detect deliberate text selections and show translation results on webpages.
 ```
 
 ### Remote code
@@ -242,7 +243,7 @@ Select **No** for remote code if the uploaded package contains all executable Ja
 
 ### Single purpose
 
-Keep the listing, privacy policy, permissions, and certification notes aligned around one purpose: translating deliberately hovered or selected webpage text to help the user learn Dutch.
+Keep the listing, privacy policy, permissions, and certification notes aligned around one purpose: translating deliberately selected webpage text to help the user learn Dutch.
 
 ## Certification notes
 
@@ -254,7 +255,7 @@ DutchMate is a Manifest V3 extension for learning Dutch while reading online. No
 To test:
 1. Install DutchMate.
 2. Open a normal Dutch webpage.
-3. Hover over a Dutch word.
+3. Select a Dutch word.
 4. Select a short Dutch phrase or sentence.
 5. Select a single Dutch word and save it from the translation UI.
 6. Open the extension popup and Options page.
@@ -271,8 +272,8 @@ The current Microsoft flow is:
 
 1. Sign in to Microsoft Partner Center.
 2. Register as an Edge extension developer if necessary.
-3. Create a new extension listing for DutchMate, or open the existing listing for an update.
-4. Upload `release/dutchmate-chrome-0.4.0.zip` under Packages.
+3. Open the existing public DutchMate listing for an update.
+4. For a future update, upload the newer Chromium package under Packages.
 5. Continue through Extension overview, Packages, Availability, Properties, Privacy, Store listings, and Certification notes.
 6. Select the desired markets and choose Public visibility for a normal public launch, or Hidden for a controlled test.
 7. Add the logo, screenshots, description, support details, privacy URL, permissions, and data disclosures.
@@ -287,7 +288,7 @@ Certification can take up to seven business days according to Microsoft's curren
 Before submitting:
 
 - Run `corepack pnpm verify:release`.
-- Confirm the uploaded ZIP has version `0.4.0`.
+- Confirm the uploaded ZIP has the intended newer version.
 - Confirm `manifest.json` is at the ZIP root.
 - Complete and retain the Microsoft Edge manual smoke-test evidence.
 - Confirm the privacy policy URL is publicly reachable.

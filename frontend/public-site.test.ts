@@ -1,6 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { runInNewContext } from "node:vm";
 import { describe, expect, it } from "vitest";
 
 const readFrontendFile = (name: string) =>
@@ -10,7 +9,7 @@ describe("public website", () => {
   it("publishes the current learner story and honest browser availability", () => {
     const homepage = readFrontendFile("index.html");
 
-    expect(homepage).toContain("Build 0.5.0 · Store updates coming soon");
+    expect(homepage).toContain("Build 0.5.1 · Edge listing now live");
     expect(homepage).toContain("Read Dutch. Keep the words that matter.");
     expect(homepage).toContain("Daily Five, Lessons, and Verb Journeys");
     expect(homepage).toContain("Practise Dutch grammar");
@@ -23,14 +22,13 @@ describe("public website", () => {
     expect(homepage).toContain('src="007-showcase-gallery.js" defer');
     expect(homepage).toContain("https://chromewebstore.google.com/detail/kafimmaagcjmcpajmfneabhebblobgeo");
     expect(homepage).toContain("https://addons.mozilla.org/en-US/firefox/addon/dutchmate/");
+    expect(homepage).toContain("https://microsoftedge.microsoft.com/addons/detail/dutchmate/plobaccfjjbpfekjomnmmidlmjjdecme");
     expect(homepage).toContain("assets/chrome-logo.svg");
     expect(homepage).toContain("assets/firefox-logo.svg");
     expect(homepage).toContain("assets/edge-logo.svg");
-    expect(homepage).toContain('aria-controls="nav-browser-status"');
-    expect(homepage).toContain('aria-controls="hero-browser-status"');
-    expect(homepage).toContain('id="edge-availability"');
-    expect(homepage).toContain("Edge support is coming soon.");
-    expect(homepage).toContain('id="edge-status" role="status" hidden');
+    expect(homepage).toContain("Chrome, Firefox, and Edge listings are live.");
+    expect(homepage).not.toContain("data-coming-soon-browser");
+    expect(homepage).not.toContain("Edge support is coming soon.");
     expect(homepage).not.toContain("Safari");
     expect(homepage).not.toContain("Release 0.4.0");
     expect(homepage).not.toContain("Now available for Firefox");
@@ -73,9 +71,10 @@ describe("public website", () => {
 
     expect(homepage).toContain('href="feedback.html"');
     expect(homepage).toContain("Share DutchMate with friends and family.");
-    expect(homepage).toContain("Review on Chrome or Firefox");
+    expect(homepage).toContain("Review on Chrome, Firefox, or Edge");
     expect(homepage).toContain("Firefox Add-ons");
     expect(homepage).toContain("https://chromewebstore.google.com/detail/kafimmaagcjmcpajmfneabhebblobgeo");
+    expect(homepage).toContain("https://microsoftedge.microsoft.com/addons/detail/dutchmate/plobaccfjjbpfekjomnmmidlmjjdecme");
     expect(homepage).toContain("Share on X");
     expect(homepage).toContain("twitter.com/intent/tweet");
     expect(homepage).toContain("url=https%3A%2F%2Fdutchmate-frontend.onrender.com%2F");
@@ -90,6 +89,8 @@ describe("public website", () => {
     expect(feedbackPage).toContain("Contact form");
     expect(feedbackPage).toContain("Review on Chrome");
     expect(feedbackPage).toContain("Review on Firefox");
+    expect(feedbackPage).toContain("Review on Edge");
+    expect(feedbackPage).toContain("https://microsoftedge.microsoft.com/addons/detail/dutchmate/plobaccfjjbpfekjomnmmidlmjjdecme");
     expect(feedbackPage).toContain("Share on X");
     expect(feedbackPage).toContain("url=https%3A%2F%2Fdutchmate-frontend.onrender.com%2F");
     expect(feedbackPage).toContain('href="https://x.com/dutchmate_addon"');
@@ -102,84 +103,4 @@ describe("public website", () => {
     expect(feedbackPage).not.toContain("github.com/mgurramaiproject/dutchmate/issues/new");
   });
 
-  it("shows the Edge coming-soon message without navigation", () => {
-    class FakeElement {
-      hidden = true;
-      textContent = "";
-    }
-
-    class FakeButton extends FakeElement {
-      attributes = new Map<string, string>();
-      listeners = new Map<string, () => void>();
-
-      constructor(browser: string, statusId: string) {
-        super();
-        this.dataset = { comingSoonBrowser: browser };
-        this.attributes.set("aria-controls", statusId);
-      }
-
-      dataset: { comingSoonBrowser: string };
-
-      addEventListener(type: string, listener: () => void) {
-        this.listeners.set(type, listener);
-      }
-
-      getAttribute(name: string) {
-        return this.attributes.get(name) ?? null;
-      }
-
-      setAttribute(name: string, value: string) {
-        this.attributes.set(name, value);
-      }
-
-      click() {
-        this.listeners.get("click")?.();
-      }
-    }
-
-    const navEdgeButton = new FakeButton("Edge", "nav-browser-status");
-    const heroEdgeButton = new FakeButton("Edge", "hero-browser-status");
-    const edgeButton = new FakeButton("Edge", "edge-status");
-    const edgeStatus = new FakeElement();
-    const navStatus = new FakeElement();
-    const heroStatus = new FakeElement();
-    const buttons = [navEdgeButton, heroEdgeButton, edgeButton];
-    const statuses = new Map([
-      ["nav-browser-status", navStatus],
-      ["hero-browser-status", heroStatus],
-      ["edge-status", edgeStatus],
-    ]);
-    const document = {
-      querySelectorAll(selector: string) {
-        if (selector === "[data-coming-soon-browser]") return buttons;
-        return [];
-      },
-      getElementById(id: string) {
-        return statuses.get(id) ?? null;
-      },
-      querySelector() {
-        return null;
-      },
-    };
-
-    runInNewContext(readFileSync(resolve(process.cwd(), "frontend", "007-showcase-gallery.js"), "utf8"), {
-      document,
-      HTMLButtonElement: FakeButton,
-      HTMLElement: FakeElement,
-      HTMLDialogElement: class {},
-    });
-
-    for (const button of buttons) {
-      button.click();
-      expect(button.attributes.get("aria-expanded")).toBe("true");
-    }
-
-    for (const status of statuses.values()) {
-      expect(status.hidden).toBe(false);
-    }
-
-    expect(navStatus.textContent).toBe("Edge support is coming soon.");
-    expect(heroStatus.textContent).toBe("Edge support is coming soon.");
-    expect(edgeStatus.textContent).toBe("Edge support is coming soon.");
-  });
 });
