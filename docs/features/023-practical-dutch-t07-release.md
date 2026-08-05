@@ -10,11 +10,11 @@ Release-qualify the complete Practical Dutch pilot as one offline-first feature 
 
 ## Acceptance criteria
 
-- [ ] The complete supermarket A1/A2 pair passes structural validation, original-content checks, independent Dutch/English/Telugu review, and exercise review.
-- [ ] Invalid or draft content remains excluded from production builds, while the approved pair is bundled deterministically in Chrome and Firefox without a content network request.
-- [ ] Upgrade-safety fixtures prove existing installed-user records and old backups survive the feature update and new export/import behavior.
-- [ ] Keyboard, focus, narrow-popup, Telugu wrapping, error recovery, and legacy curated mini-lesson regressions pass.
-- [ ] The full relevant test suite, typecheck, browser builds, and release verification pass together.
+- [x] The complete supermarket A1/A2 pair passes structural validation, original-content checks, independent Dutch/English/Telugu review, and exercise review.
+- [x] Invalid or draft content remains excluded from production builds, while the approved pair is bundled deterministically in Chrome and Firefox without a content network request.
+- [x] Upgrade-safety fixtures prove existing installed-user records and old backups survive the feature update and new export/import behavior.
+- [x] Keyboard, focus, narrow-popup, Telugu wrapping, error recovery, and legacy curated mini-lesson regressions pass.
+- [x] The full relevant test suite, typecheck, browser builds, and release verification pass together.
 
 ## Blocked by
 
@@ -25,4 +25,4 @@ Release-qualify the complete Practical Dutch pilot as one offline-first feature 
 - [#190 — Deliver the A2 companion and level progression](https://github.com/mgurramaiproject/dutchmate/issues/190)
 - [#191 — Add optional extra practice and Today continuation](https://github.com/mgurramaiproject/dutchmate/issues/191)
 
-**Status:** ready-for-agent
+**Status:** implemented on `feature/023-practical-dutch`

@@ -129,7 +129,8 @@ const releasedGrammarPackages = grammarPackages.filter((contentPackage) => valid
 const releasedContrastPackages = contrastPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
 const releasedVerbJourneyPackages = verbJourneyPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
 const releasedPracticalDutchPackages = practicalDutchPackages.filter((contentPackage) => validateContentPackage(contentPackage).length === 0);
-const manifest = allPackages.map(manifestEntry).sort((first, second) => `${first.family}:${first.id}`.localeCompare(`${second.family}:${second.id}`));
+const releasedPackages = [...releasedLessonPackages, ...releasedGrammarPackages, ...releasedContrastPackages, ...releasedVerbJourneyPackages, ...releasedPracticalDutchPackages];
+const manifest = releasedPackages.map(manifestEntry).sort((first, second) => `${first.family}:${first.id}`.localeCompare(`${second.family}:${second.id}`));
 
 export const contentCatalog: ContentCatalog = {
   manifest: () => manifest,

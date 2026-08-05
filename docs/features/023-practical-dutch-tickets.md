@@ -13,7 +13,7 @@ and the parent issue remains open and unchanged.
 | 04 — Complete the A1 core practice and intentional Saved flow | [#189](https://github.com/mgurramaiproject/dutchmate/issues/189) | #188 | x |
 | 05 — Deliver the A2 companion and level progression | [#190](https://github.com/mgurramaiproject/dutchmate/issues/190) | #189 | x |
 | 06 — Add optional extra practice and Today continuation | [#191](https://github.com/mgurramaiproject/dutchmate/issues/191) | #190 | x |
-| 07 — Release-qualify Practical Dutch and protect legacy behavior | [#192](https://github.com/mgurramaiproject/dutchmate/issues/192) | #186–#191 | Waiting |
+| 07 — Release-qualify Practical Dutch and protect legacy behavior | [#192](https://github.com/mgurramaiproject/dutchmate/issues/192) | #186–#191 | x |
 
 The individual feature-coded ticket documents contain the full issue bodies:
 
