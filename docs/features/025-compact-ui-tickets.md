@@ -8,7 +8,7 @@
 The tickets are ordered by dependency frontier. Each child issue is labelled
 `ready-for-agent`; the parent issue remains open and unchanged.
 
-## 01 — Compact Practical Dutch topic rows
+## 01 — Compact Practical Dutch topic rows [x]
 
 **Issue:** [#196](https://github.com/mgurramaiproject/dutchmate/issues/196)
 

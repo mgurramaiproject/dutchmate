@@ -568,7 +568,7 @@ function renderPracticalStories(): HTMLElement {
   const wrapper = section("lessons-content practical-stories-content");
   const back = journeyBack("Lessons");
   back.addEventListener("click", () => { screen = "lessons"; render(); content?.focus(); });
-  wrapper.append(back, eyebrow("Lessons · Practical Dutch"), heading("Practical Dutch"), text("Choose a situation pack, then start at A1 or A2."));
+  wrapper.append(back, heading("Practical Dutch"));
   const packs = section("practical-dutch-pack-list");
   const topics = contentCatalog.manifest()
     .filter((entry) => entry.family === "practical-dutch")
@@ -622,12 +622,11 @@ function renderLegacyLessons(): HTMLElement {
 
 function renderPracticalDutchPack(topic: NonNullable<ReturnType<typeof contentCatalog.getPracticalDutchTopic>>): HTMLElement {
   const panel = section("practical-dutch-pack");
-  const packHeader = section("practical-dutch-pack-header");
-  const pathway = topic.pathway.replaceAll("-", " ");
-  const pathwayLabel = pathway.charAt(0).toUpperCase() + pathway.slice(1);
+  const packHeader = document.createElement("div");
+  packHeader.className = "practical-dutch-topic-heading";
   const packTitle = document.createElement("h2"); packTitle.className = "practical-dutch-pack-title"; packTitle.textContent = topic.title.en;
-  packHeader.append(eyebrow(pathwayLabel), packTitle, text(topic.description.en, "practical-dutch-pack-description"));
-  panel.append(packHeader, text("Choose a level", "practical-dutch-pack-label"));
+  packHeader.append(packTitle);
+  panel.append(packHeader);
   const levels = section("practical-dutch-level-actions");
   for (const lesson of topic.lessons) {
     const card = button("", "button practical-dutch-level-card practical-dutch-level-button");
@@ -638,13 +637,19 @@ function renderPracticalDutchPack(topic: NonNullable<ReturnType<typeof contentCa
     const level = text(lesson.cefr, "practical-dutch-level-badge");
     const copy = document.createElement("span"); copy.className = "practical-dutch-level-copy";
     const title = document.createElement("strong"); title.className = "practical-dutch-level-title"; title.textContent = lesson.title.en;
-    const meta = document.createElement("small"); meta.className = "practical-dutch-level-meta"; meta.textContent = `${lesson.durationMinutes} min · ${availability === "completed" ? "Completed · restart" : availability === "continue" ? "Continue" : "Ready"}`;
-    copy.append(title, meta);
+    copy.append(title);
+    const status = document.createElement("span"); status.className = `practical-dutch-level-status ${availability}`;
+    if (availability === "continue") status.textContent = "Continue";
+    if (availability === "completed") {
+      status.append(svgIcon("check-circle", "practical-dutch-level-check"));
+      status.setAttribute("aria-hidden", "true");
+    }
     card.setAttribute("aria-label", `${availability === "completed" ? "Restart" : availability === "continue" ? "Continue" : "Start"} ${lesson.cefr}: ${lesson.title.en}`);
+    card.dataset.status = availability;
     card.classList.toggle("is-complete", availability === "completed");
-    card.append(level, copy, svgIcon("chevron-right", "practical-dutch-level-arrow"));
+    card.append(level, copy, status, svgIcon("chevron-right", "practical-dutch-level-arrow"));
     if (adapted) card.addEventListener("click", () => void startLesson(adapted));
-    else { card.disabled = true; meta.textContent = "Coming soon"; }
+    else { card.disabled = true; status.textContent = "Unavailable"; }
     levels.append(card);
   }
   panel.append(levels);

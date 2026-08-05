@@ -1038,22 +1038,43 @@ describe("lesson popup", () => {
     }
   });
 
-  it("keeps the Practical Dutch landing page to a title and two level buttons", async () => {
+  it("renders each Practical Dutch topic as one heading row and two compact level rows", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".practical-stories-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".practical-stories-entry")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".practical-dutch-level-card")).toHaveLength(2));
     expect(content().querySelector(".lessons-content .heading")?.textContent).toBe("Practical Dutch");
     expect(content().querySelector(".practical-dutch-pack-title")?.textContent).toBe("Supermarket and shopping");
-    expect(content().querySelector(".practical-dutch-pack-label")?.textContent).toBe("Choose a level");
     expect(content().querySelectorAll(".practical-dutch-pack")).toHaveLength(1);
     expect(content().querySelectorAll(".practical-dutch-pack .practical-dutch-level-card")).toHaveLength(2);
+    expect(content().querySelectorAll(".practical-dutch-pack > *")).toHaveLength(2);
+    expect(content().querySelector(".practical-dutch-topic-heading")?.textContent).toBe("Supermarket and shopping");
+    expect(content().querySelector(".practical-dutch-pack-description")).toBeNull();
+    expect(content().querySelector(".practical-dutch-pack-label")).toBeNull();
+    expect(content().querySelectorAll(".practical-dutch-level-card[data-status='ready']")).toHaveLength(2);
+    expect(content().querySelectorAll(".practical-dutch-level-status.ready")).toHaveLength(2);
     expect(content().querySelector(".practical-dutch-topic-overview")).toBeNull();
     expect(content().querySelector(".lesson-library")).toBeNull();
     expect(content().querySelector(".journey-back")?.textContent).toContain("Lessons");
     button("Lessons").click();
     content().querySelector<HTMLButtonElement>(".legacy-lessons-entry")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15));
+  });
+
+  it("keeps compact Practical Dutch row states accessible", async () => {
+    openPracticalStories();
+    await vi.waitFor(() => expect(content().querySelectorAll(".practical-dutch-level-card")).toHaveLength(2));
+    const [readyRow] = [...content().querySelectorAll<HTMLButtonElement>(".practical-dutch-level-card")];
+    expect(readyRow.dataset.status).toBe("ready");
+    readyRow.click();
+    await vi.waitFor(() => expect(button("Exit lesson")).toBeTruthy());
+    button("Exit lesson").click();
+    await vi.waitFor(() => expect(content().querySelectorAll(".practical-dutch-level-card")).toHaveLength(2));
+    const [continueRow, readyA2Row] = [...content().querySelectorAll<HTMLButtonElement>(".practical-dutch-level-card")];
+    expect(continueRow.dataset.status).toBe("continue");
+    expect(continueRow.textContent).toContain("Continue");
+    expect(continueRow.getAttribute("aria-label")).toContain("Continue A1");
+    expect(readyA2Row.dataset.status).toBe("ready");
   });
 
   it("plays the A1 Practical Dutch context with reviewed multilingual support and focus", async () => {
@@ -1097,6 +1118,11 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
     button("Keep 4 for review").click();
     await vi.waitFor(() => expect(content().querySelectorAll(".practical-dutch-level-card")).toHaveLength(2));
+    const completedRow = content().querySelector<HTMLButtonElement>('[data-lesson-id="a1-practical-supermarket-shopping"]')!;
+    expect(completedRow.dataset.status).toBe("completed");
+    expect(completedRow.querySelector(".practical-dutch-level-check")).toBeTruthy();
+    expect(completedRow.textContent).not.toContain("restart");
+    expect(completedRow.getAttribute("aria-label")).toContain("Restart A1");
     content().querySelector<HTMLButtonElement>('[data-lesson-id="a1-practical-supermarket-shopping"]')!.click();
     await vi.waitFor(() => expect(button("Show English and Telugu")).toBeTruthy());
     button("Exit lesson").click();
