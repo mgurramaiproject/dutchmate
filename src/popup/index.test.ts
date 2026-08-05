@@ -1061,6 +1061,28 @@ describe("lesson popup", () => {
     expect(runtime.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ type: "dutchmate.learning.lessonProgress.save", payload: expect.objectContaining({ lessonId: "a1-practical-supermarket-shopping", stage: "notice" }) }));
   });
 
+  it("runs the six A1 core exercises, supports retry, and reaches intentional keep", async () => {
+    openPracticalStories();
+    await vi.waitFor(() => expect(content().querySelector<HTMLButtonElement>('[data-lesson-id="a1-practical-supermarket-shopping"]')).toBeTruthy());
+    content().querySelector<HTMLButtonElement>('[data-lesson-id="a1-practical-supermarket-shopping"]')!.click();
+    await vi.waitFor(() => expect(button("Notice the pattern")).toBeTruthy());
+    button("Notice the pattern").click();
+    await vi.waitFor(() => expect(button("Practise")).toBeTruthy());
+    button("Practise").click();
+    for (let index = 0; index < 6; index += 1) {
+      await vi.waitFor(() => expect(button("Check answer")).toBeTruthy());
+      const orderTokens = content().querySelectorAll<HTMLButtonElement>(".practical-dutch-exercise .grammar-token");
+      if (orderTokens.length > 0) [...orderTokens].forEach((token) => button(token.textContent!.trim()).click());
+      else content().querySelector<HTMLButtonElement>(".practical-dutch-choices button")!.click();
+      button("Check answer").click();
+      await vi.waitFor(() => expect(button("Continue")).toBeTruthy());
+      button("Continue").click();
+    }
+    await vi.waitFor(() => expect(button("Choose what to keep")).toBeTruthy());
+    button("Choose what to keep").click();
+    await vi.waitFor(() => expect(button("Keep 4 for review")).toBeTruthy());
+  });
+
   it("keeps Lessons as a compact landing page with sub-pages for each lesson type", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelectorAll(".lesson-category-card")).toHaveLength(2));

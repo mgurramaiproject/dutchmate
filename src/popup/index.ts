@@ -12,7 +12,7 @@ import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
 import { allLessons, lessonCatalog, practicalDutchLessons, type GrammarPatternId, type Lesson } from "../lessons/catalog";
 import { contentCatalog } from "../content-catalog";
-import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
+import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonPracticeExercises, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
 import { advanceSavedQuiz, createSavedQuizSession, getSavedQuizTask, revealSavedQuiz, type SavedQuizSession } from "./saved-quiz";
 import { addSavedContextToken, checkSavedContextMission, createSavedContextMission, getSavedContextTokenOrder, removeSavedContextToken, resetSavedContextTokens, revealSavedContextMission, type SavedContextMission } from "./saved-context-mission";
@@ -1444,7 +1444,7 @@ function renderLesson(): HTMLElement {
   wrapper.append(exit, rail);
   if (session.stage === "read" || session.stage === "replay") wrapper.append(session.lesson.practicalDutch ? renderPracticalDutchStory(session, session.stage === "read") : renderLessonStory(session, session.stage === "read"));
   if (session.stage === "notice") wrapper.append(session.lesson.practicalDutch ? renderPracticalDutchNotice(session) : renderLessonNotice(session));
-  if (session.stage === "practise") wrapper.append(session.practiceIndex < session.lesson.practice.length ? renderLessonPractice(session) : renderLessonAuthoredExercise(session));
+  if (session.stage === "practise") wrapper.append(session.lesson.practicalDutch ? renderPracticalDutchExercise(session) : session.practiceIndex < session.lesson.practice.length ? renderLessonPractice(session) : renderLessonAuthoredExercise(session));
   if (session.stage === "keep") wrapper.append(renderLessonKeep(session));
   return wrapper;
 }
@@ -1510,7 +1510,7 @@ function renderLessonTransfer(session: LessonSession): HTMLElement {
 }
 
 function renderLessonAuthoredExercise(session: LessonSession): HTMLElement {
-  const exercise = session.lesson.practiceExercises[session.authoredExerciseIndex];
+  const exercise = getLessonPracticeExercises(session)[session.authoredExerciseIndex];
   const panel = section("practice-card lesson-authored-exercise");
   if (!exercise) return panel;
   const label = exercise.primitive === "contrast-form" ? "Choose" : exercise.primitive === "repair-choice" ? "Repair" : "Build";
@@ -1552,6 +1552,30 @@ function renderLessonAuthoredExercise(session: LessonSession): HTMLElement {
   next.disabled = pending || (session.authoredResult !== "correct" && session.authoredAnswer === null);
   next.addEventListener("click", () => { if (session.authoredResult === "correct") void advanceLessonAuthoredExercise(session); else { lessonSession = checkLessonPracticeExercise(session); render(); } });
   panel.append(next);
+  return panel;
+}
+
+function renderPracticalDutchExercise(session: LessonSession): HTMLElement {
+  const lesson = session.lesson.practicalDutch!;
+  const exercise = lesson.coreExercises[session.authoredExerciseIndex];
+  const panel = section("practice-card practical-dutch-exercise");
+  if (!exercise) return panel;
+  panel.append(eyebrow(`Core practice · ${session.authoredExerciseIndex + 1} of ${lesson.coreExercises.length}`), heading(exercise.prompt.nl), text(`English: ${exercise.prompt.en}`, "helper-copy"), text(`Telugu: ${exercise.prompt.te}`, "helper-copy"), text(exercise.context.nl, "story-dutch"), text(`English: ${exercise.context.en}`, "helper-copy"), text(`Telugu: ${exercise.context.te}`, "helper-copy"));
+  if (exercise.kind === "order" && exercise.tokens) {
+    const answer = section("grammar-order-answer"); answer.setAttribute("aria-live", "polite"); answer.append(text(session.authoredTokens.length > 0 ? session.authoredTokens.join(" ") : "Choose tokens in order.", session.authoredTokens.length > 0 ? "" : "grammar-order-placeholder")); panel.append(answer);
+    const choices = document.createElement("div"); choices.className = "grammar-choices grammar-token-choices";
+    for (const token of exercise.tokens) { const selected = session.authoredTokens.includes(token); const action = button(token, `button grammar-token${selected ? " is-selected" : ""}`); action.setAttribute("aria-pressed", String(selected)); action.disabled = session.authoredChecked || pending; action.addEventListener("click", () => { lessonSession = toggleLessonPracticeExerciseToken(session, token); render(); }); choices.append(action); }
+    panel.append(choices);
+  } else {
+    const choices = document.createElement("div"); choices.className = "grammar-choices practical-dutch-choices";
+    for (const choice of exercise.choices) { const action = button(choice, `button${session.authoredAnswer === choice ? " is-selected" : ""}`); action.setAttribute("aria-pressed", String(session.authoredAnswer === choice)); action.disabled = session.authoredChecked || pending; action.addEventListener("click", () => { lessonSession = selectLessonPracticeExerciseAnswer(session, choice); render(); }); choices.append(action); }
+    panel.append(choices);
+  }
+  if (session.authoredChecked) {
+    const status = text(session.authoredResult === "correct" ? `Correct. ${exercise.feedback.en} ${exercise.feedback.te}` : `Not yet. ${exercise.feedback.en}`, "grammar-feedback"); status.setAttribute("role", "status"); panel.append(status);
+    if (session.authoredResult === "incorrect") { const retry = button("Try again", "button"); retry.disabled = pending; retry.addEventListener("click", () => { lessonSession = { ...session, authoredAnswer: null, authoredTokens: [], authoredChecked: false, authoredResult: null }; render(); }); panel.append(retry); }
+  }
+  const next = button(session.authoredResult === "correct" ? "Continue" : "Check answer", "button primary-button"); next.disabled = pending || (session.authoredResult !== "correct" && (session.authoredAnswer === null || (exercise.kind === "order" && session.authoredTokens.length === 0))); next.addEventListener("click", () => { if (session.authoredResult === "correct") void advanceLessonAuthoredExercise(session); else { lessonSession = checkLessonPracticeExercise(session); render(); } }); panel.append(next);
   return panel;
 }
 

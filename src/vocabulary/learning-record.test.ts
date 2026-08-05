@@ -193,6 +193,14 @@ describe("LearningRecordStore", () => {
     await expect(restored.list()).resolves.toEqual([expect.objectContaining({ dutch: "huis", english: "house" })]);
   });
 
+  it("does not count a Practical Dutch keep twice", async () => {
+    const records = new LearningRecordStore(new MemoryStorage(), () => 1_000);
+    const candidates = [{ id: "where-find", dutch: "Waar kan ik vinden?", kind: "chunk" as const, english: "Where can I find it?", telugu: "ఎక్కడ దొరుకుతుంది?" }];
+    await records.keepLessonCandidates("a1-practical-supermarket-shopping", 1, candidates, []);
+    await records.keepLessonCandidates("a1-practical-supermarket-shopping", 1, candidates, []);
+    expect((await records.getRhythm()).activity.find((day) => day.lessons !== null)?.lessons).toBe(1);
+  });
+
   it("imports newer valid lesson progress without copying catalog content", async () => {
     const local = new LearningRecordStore(new MemoryStorage(), () => 1_000);
     await local.saveLessonProgress("a1-een-afspraak-maken", 1, "read");

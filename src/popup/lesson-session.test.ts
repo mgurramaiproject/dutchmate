@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { advanceLessonPractice, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, revealLessonLine, revealLessonPractice, resumeLessonSession, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken } from "./lesson-session";
-import { appointmentLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, regularLesson } from "../lessons/catalog";
+import { appointmentLesson, hebbenLesson, introductionLesson, inversionLesson, lessonCatalog, practicalDutchLessons, regularLesson } from "../lessons/catalog";
 
 describe("lesson session", () => {
   it("moves through Read, Notice, Practise, Replay, and Keep while retaining candidate choice", () => {
@@ -22,6 +22,25 @@ describe("lesson session", () => {
     expect(resumeLessonSession(appointmentLesson, { lessonId: appointmentLesson.id, contentVersion: 1, stage: "keep", completedAt: 0, keptCandidateIds: [], updatedAt: 0 })).toMatchObject({ stage: "read" });
     expect(getLessonCandidateChoices(createLessonSession(appointmentLesson), [{ id: "nl\u001feen afspraak maken" } as never])).toEqual(expect.arrayContaining([expect.objectContaining({ id: "afspraak-maken", alreadySaved: true })]));
     expect(getLessonsAvailabilityView("Lessons are unavailable.")).toEqual({ unavailable: true, message: "Lessons are unavailable.", retryLabel: "Try lessons again" });
+  });
+
+  it("grades all six Practical Dutch core exercises with retry and completes only after the final answer", () => {
+    let session = createLessonSession(practicalDutchLessons[0], "practise");
+    for (const exercise of practicalDutchLessons[0].practicalDutch!.coreExercises) {
+      if (exercise.kind === "order") for (const token of exercise.tokens!) session = toggleLessonPracticeExerciseToken(session, token);
+      else session = selectLessonPracticeExerciseAnswer(session, exercise.choices[0]);
+      session = checkLessonPracticeExercise(session);
+      expect(session.authoredResult).toBe("correct");
+      session = advanceLessonPracticeExercise(session);
+    }
+    expect(session.stage).toBe("replay");
+    expect(session.authoredExerciseIndex).toBe(6);
+    let retry = createLessonSession(practicalDutchLessons[0], "practise");
+    retry = selectLessonPracticeExerciseAnswer(retry, practicalDutchLessons[0].practicalDutch!.coreExercises[0].choices[1]);
+    expect(checkLessonPracticeExercise(retry).authoredResult).toBe("incorrect");
+    retry = { ...retry, authoredAnswer: null, authoredChecked: false, authoredResult: null };
+    retry = selectLessonPracticeExerciseAnswer(retry, practicalDutchLessons[0].practicalDutch!.coreExercises[0].choices[0]);
+    expect(checkLessonPracticeExercise(retry).authoredResult).toBe("correct");
   });
 
   it("filters lessons by readiness and CEFR level without treating completion as Continue", () => {
