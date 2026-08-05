@@ -10,7 +10,7 @@ import { LEARNING_RECORD_STORAGE_KEY, serializeLearningBackup, type LearningCont
 import type { LearningRhythm } from "../vocabulary/learning-rhythm";
 import { defaultSettings, type ExtensionSettings } from "../shared/settings";
 import type { ReviewSettingsChanges } from "../background/messages";
-import { allLessons, lessonCatalog, type GrammarPatternId, type Lesson } from "../lessons/catalog";
+import { allLessons, lessonCatalog, practicalDutchLessons, type GrammarPatternId, type Lesson } from "../lessons/catalog";
 import { contentCatalog } from "../content-catalog";
 import { advanceLessonPractice as advanceLessonPracticeState, advanceLessonPracticeExercise, advanceLessonStage, advanceLessonTransfer, checkLessonPracticeExercise, checkLessonTransfer, createLessonSession, filterLessons, getLessonAvailability, getLessonCandidateChoices, getLessonsAvailabilityView, resumeLessonSession, revealLessonLine, revealLessonPractice, selectLessonPracticeExerciseAnswer, selectLessonTransferAnswer, toggleLessonCandidate, toggleLessonPracticeExerciseToken, type LessonFilterLevel, type LessonFilterStatus, type LessonSession } from "./lesson-session";
 import { getSimpleTeluguPhonetics } from "../vocabulary/telugu-phonetics";
@@ -614,9 +614,11 @@ function renderPracticalDutchTopicOverview(topic: NonNullable<ReturnType<typeof 
   panel.append(eyebrow("New topic · Supermarket and shopping"), heading(topic.title.en), text(topic.description.en, "body-copy"));
   const levels = section("practical-dutch-levels");
   for (const lesson of topic.lessons) {
-    const card = section("practical-dutch-level-card");
+    const card = button("", "practical-dutch-level-card");
     card.dataset.lessonId = lesson.id;
     card.append(text(lesson.cefr, "level"), heading(lesson.title.en), text(lesson.outcome.en, "body-copy"), text(`${lesson.durationMinutes} minutes · ${lesson.languageFocus.pattern.nl}`, "lesson-pattern-status"));
+    const adapted = practicalDutchLessons.find((candidate) => candidate.id === lesson.id);
+    if (adapted) card.addEventListener("click", () => void startLesson(adapted));
     levels.append(card);
   }
   panel.append(levels, text("A1 is the recommended starting point. Both levels are available from the topic.", "local-note"));
@@ -1440,11 +1442,45 @@ function renderLesson(): HTMLElement {
     rail.append(stageNode);
   }
   wrapper.append(exit, rail);
-  if (session.stage === "read" || session.stage === "replay") wrapper.append(renderLessonStory(session, session.stage === "read"));
-  if (session.stage === "notice") wrapper.append(renderLessonNotice(session));
+  if (session.stage === "read" || session.stage === "replay") wrapper.append(session.lesson.practicalDutch ? renderPracticalDutchStory(session, session.stage === "read") : renderLessonStory(session, session.stage === "read"));
+  if (session.stage === "notice") wrapper.append(session.lesson.practicalDutch ? renderPracticalDutchNotice(session) : renderLessonNotice(session));
   if (session.stage === "practise") wrapper.append(session.practiceIndex < session.lesson.practice.length ? renderLessonPractice(session) : renderLessonAuthoredExercise(session));
   if (session.stage === "keep") wrapper.append(renderLessonKeep(session));
   return wrapper;
+}
+
+function renderPracticalDutchStory(session: LessonSession, allowHelp: boolean): HTMLElement {
+  const lesson = session.lesson.practicalDutch!;
+  const story = section("lesson-story practical-dutch-story");
+  story.append(eyebrow(session.stage === "read" ? "Read the situation" : "Replay"), heading(session.lesson.title));
+  lesson.context.forEach((line, index) => {
+    const row = section("story-line");
+    row.append(text(line.nl, "story-dutch"));
+    if (allowHelp && session.revealedLineIndexes.includes(index)) row.append(text(`English: ${line.en}`, "helper-copy"), text(`Telugu: ${line.te}`, "helper-copy"));
+    else if (allowHelp) { const help = button("Show English and Telugu", "line-help"); help.addEventListener("click", () => { lessonSession = revealLessonLine(session, index); render(); }); row.append(help); }
+    story.append(row);
+  });
+  const next = button(session.stage === "read" ? "Notice the pattern" : "Choose what to keep", "button primary-button");
+  next.addEventListener("click", () => void advanceLesson(session));
+  story.append(next);
+  return story;
+}
+
+function renderPracticalDutchNotice(session: LessonSession): HTMLElement {
+  const lesson = session.lesson.practicalDutch!;
+  const panel = section("lesson-story practical-dutch-notice");
+  panel.append(eyebrow("Notice the language"), heading(lesson.languageFocus.pattern.nl), text(lesson.languageFocus.explanation.en, "body-copy"), text(lesson.languageFocus.explanation.te, "helper-copy"));
+  const sentences = section("practical-dutch-sentences");
+  sentences.append(text("Useful sentences", "section-title"));
+  for (const sentence of lesson.sentences) { const row = section("practical-dutch-sentence"); row.append(text(sentence.nl, "story-dutch"), text(`English: ${sentence.en}`, "helper-copy"), text(`Telugu: ${sentence.te}`, "helper-copy")); sentences.append(row); }
+  const support = section("practical-dutch-support");
+  support.append(text("Useful chunks", "section-title"));
+  support.append(text(lesson.chunks.map((chunk) => `${chunk.nl} · ${chunk.en}`).join("\n"), "helper-copy"));
+  support.append(text("Vocabulary", "section-title"));
+  support.append(text(lesson.vocabulary.map((word) => `${word.nl} · ${word.en}`).join("\n"), "helper-copy"));
+  panel.append(sentences, support);
+  const next = button("Practise", "button primary-button"); next.addEventListener("click", () => void advanceLesson(session)); panel.append(next);
+  return panel;
 }
 
 function renderLessonStory(session: LessonSession, allowHelp: boolean): HTMLElement {

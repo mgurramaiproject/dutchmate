@@ -881,7 +881,7 @@ describe("lesson popup", () => {
     secondCandidate.click();
     button("Keep 3 for review").click();
     expect(runtime.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ type: "dutchmate.learning.keepLessonCandidates", payload: expect.objectContaining({ lessonId: "a0-hallo-ik-ben", evidence: expect.arrayContaining([{ candidateId: "ik-ben", dimension: "recognition", result: "got-it" }]) }) }));
-    await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
+    await vi.waitFor(() => expect(content().textContent).toContain("one Practical Dutch topic"));
     button("Today").click();
     await vi.waitFor(() => expect(button("Learn another lesson")).toBeTruthy());
     expect(content().querySelector(".lesson-completion-meta")?.textContent).toBe("1 lesson completed today");
@@ -1032,27 +1032,44 @@ describe("lesson popup", () => {
     }
   });
 
-  it("opens the numbered Practical Stories sub-page from the compact Lessons landing", async () => {
+  it("opens the Practical Dutch topic and keeps the legacy lesson library available", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelector(".practical-stories-entry")).toBeTruthy());
     content().querySelector<HTMLButtonElement>(".practical-stories-entry")!.click();
-    await vi.waitFor(() => expect(content().textContent).toContain("15 small practical stories"));
-    expect(content().querySelector(".lessons-content .heading")?.textContent).toBe("Practical Stories");
-    expect(content().textContent).toContain("Choose a situation. Each lesson is 3–5 minutes.");
+    await vi.waitFor(() => expect(content().textContent).toContain("one Practical Dutch topic"));
+    expect(content().querySelector(".lessons-content .heading")?.textContent).toBe("Practical Dutch");
+    expect(content().textContent).toContain("Supermarket and shopping");
+    expect(content().querySelectorAll(".practical-dutch-level-card")).toHaveLength(2);
     expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15);
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
     expect([...content().querySelectorAll<HTMLElement>(".lesson-number")].map((number) => number.textContent)).toEqual(Array.from({ length: 15 }, (_, index) => String(index + 1).padStart(2, "0")));
+  });
+
+  it("plays the A1 Practical Dutch context with reviewed multilingual support and focus", async () => {
+    openPracticalStories();
+    await vi.waitFor(() => expect(content().querySelectorAll(".practical-dutch-level-card")).toHaveLength(2));
+    content().querySelector<HTMLButtonElement>('[data-lesson-id="a1-practical-supermarket-shopping"]')!.click();
+    await vi.waitFor(() => expect(button("Show English and Telugu")).toBeTruthy());
+    button("Show English and Telugu").click();
+    expect(content().textContent).toContain("English: I am in the supermarket and look for rice.");
+    expect(content().textContent).toContain("Telugu: నేను సూపర్‌మార్కెట్‌లో బియ్యం కోసం చూస్తున్నాను.");
+    button("Notice the pattern").click();
+    await vi.waitFor(() => expect(content().textContent).toContain("Waar kan ik ... vinden?"));
+    expect(content().textContent).toContain("Useful sentences");
+    expect(content().textContent).toContain("Kunt u het schap aanwijzen?");
+    expect(content().textContent).toContain("Vocabulary");
+    expect(runtime.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ type: "dutchmate.learning.lessonProgress.save", payload: expect.objectContaining({ lessonId: "a1-practical-supermarket-shopping", stage: "notice" }) }));
   });
 
   it("keeps Lessons as a compact landing page with sub-pages for each lesson type", async () => {
     button("Lessons").click();
     await vi.waitFor(() => expect(content().querySelectorAll(".lesson-category-card")).toHaveLength(2));
     expect(content().querySelector(".lesson-library")).toBeNull();
-    expect([...content().querySelectorAll<HTMLElement>(".lesson-category-title")].map((title) => title.textContent)).toEqual(["Verb Journeys", "Practical Stories"]);
+    expect([...content().querySelectorAll<HTMLElement>(".lesson-category-title")].map((title) => title.textContent)).toEqual(["Verb Journeys", "Practical Dutch"]);
     expect(content().querySelector(".verb-journey-entry.lesson-category-card svg")).toBeTruthy();
     expect(content().querySelector(".practical-stories-group svg.lesson-category-icon")).toBeTruthy();
     expect(content().querySelector(".verb-journey-entry")?.getAttribute("aria-label")).toBe("Open Verb Journeys");
-    expect(content().querySelector(".practical-stories-entry")?.getAttribute("aria-label")).toBe("Open Practical Stories");
+    expect(content().querySelector(".practical-stories-entry")?.getAttribute("aria-label")).toBe("Open Practical Dutch");
     content().querySelector<HTMLButtonElement>(".practical-stories-entry")!.click();
     await vi.waitFor(() => expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15));
   });

@@ -10,13 +10,13 @@ Deliver the supermarket A1 lesson's multilingual, resumable learning path from t
 
 ## Acceptance criteria
 
-- [ ] The A1 lesson provides reviewed Dutch, English, and Telugu context, useful sentences, chunks, vocabulary, outcomes, and one primary focus.
-- [ ] The learner can move through the content stages in order, pause after any stage, and resume at the saved stage.
-- [ ] The A1 content remains distinct from existing shopping-and-cafes lessons and fits the narrow popup without essential hover-only information.
-- [ ] Stage transitions, multilingual rendering, language metadata, focus movement, and resume behavior are covered by focused tests.
+- [x] The A1 lesson provides reviewed Dutch, English, and Telugu context, useful sentences, chunks, vocabulary, outcomes, and one primary focus.
+- [x] The learner can move through the content stages in order, pause after any stage, and resume at the saved stage.
+- [x] The A1 content remains distinct from existing shopping-and-cafes lessons and fits the narrow popup without essential hover-only information.
+- [x] Stage transitions, multilingual rendering, language metadata, focus movement, and resume behavior are covered by focused tests.
 
 ## Blocked by
 
 - [#187 — Protect installed-user history and persist a resumable Practical Dutch lesson](https://github.com/mgurramaiproject/dutchmate/issues/187)
 
-**Status:** ready-for-agent
+**Status:** implemented on `feature/023-practical-dutch`
