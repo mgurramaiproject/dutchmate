@@ -1,0 +1,125 @@
+{
+  "$comment": "Illustrative source-file skeleton. The repository JSON Schema is authoritative once implemented.",
+  "schemaVersion": 1,
+  "id": "lesson.topic-slug.a1",
+  "topicId": "topic.topic-slug",
+  "slug": "topic-slug-a1",
+  "contentVersion": 1,
+  "level": "A1",
+  "format": "dialogue",
+  "title": "A1 · Lesson title",
+  "subtitle": "Short practical focus",
+  "estimatedMinutes": 8,
+  "tags": ["tag-one", "tag-two"],
+  "outcomes": [
+    "Observable ability one.",
+    "Observable ability two.",
+    "Observable ability three."
+  ],
+  "situation": {
+    "en": "Brief English situation.",
+    "te": "సంక్షిప్త తెలుగు సందర్భ వివరణ."
+  },
+  "context": [
+    {
+      "id": "context.01",
+      "speaker": "Speaker",
+      "nl": "Natural Dutch line.",
+      "en": "Natural English translation.",
+      "te": "సహజమైన తెలుగు అనువాదం."
+    }
+  ],
+  "sentences": [
+    {
+      "id": "sentence.01",
+      "order": 1,
+      "intention": "Named communicative intention",
+      "nl": "Useful standalone Dutch sentence.",
+      "en": "Natural English translation.",
+      "te": "సహజమైన తెలుగు అనువాదం.",
+      "chunkIds": ["chunk.example"],
+      "vocabularyIds": ["vocab.example"]
+    }
+  ],
+  "chunks": [
+    {
+      "id": "chunk.example",
+      "nl": "Reusable Dutch chunk",
+      "en": "English meaning",
+      "te": "తెలుగు అర్థం",
+      "slotHint": "Optional description of a replaceable slot"
+    }
+  ],
+  "vocabulary": [
+    {
+      "id": "vocab.example",
+      "nl": "het voorbeeld",
+      "lemma": "voorbeeld",
+      "article": "het",
+      "partOfSpeech": "noun",
+      "en": "example",
+      "te": "ఉదాహరణ",
+      "plural": "voorbeelden",
+      "note": null,
+      "sentenceIds": ["sentence.01"]
+    }
+  ],
+  "languageFocus": {
+    "id": "focus.primary",
+    "title": "Practical pattern title",
+    "pattern": "Reusable pattern",
+    "explanation": {
+      "en": "Short learner-friendly explanation.",
+      "te": "సంక్షిప్తంగా నేర్చుకునే వారికి అనుకూలమైన వివరణ."
+    },
+    "exampleSentenceIds": ["sentence.01"]
+  },
+  "supportingObservation": null,
+  "exercises": [
+    {
+      "id": "exercise.core.01",
+      "set": "core",
+      "primitive": "fill-word-choice",
+      "targetCategory": "vocabulary",
+      "targetIds": ["vocab.example"],
+      "prompt": "Complete the sentence.",
+      "context": "Dutch sentence with ___.",
+      "choices": ["correct", "distractor one", "distractor two"],
+      "accepted": ["correct"],
+      "distractors": [
+        {
+          "answer": "distractor one",
+          "misconception": "wrong-vocabulary"
+        },
+        {
+          "answer": "distractor two",
+          "misconception": "context-mismatch"
+        }
+      ],
+      "feedback": "Use correct here: Full correct sentence."
+    }
+  ],
+  "completionClaims": [
+    "Evidence-supported ability one.",
+    "Evidence-supported ability two.",
+    "Evidence-supported ability three."
+  ],
+  "provenance": {
+    "authoringMethod": "ai-assisted-original",
+    "originalContentDeclaration": true,
+    "copiedSourceText": false,
+    "researchNotes": []
+  },
+  "review": {
+    "status": "draft",
+    "author": "DutchMate team",
+    "authoredWith": "ChatGPT or Codex CLI",
+    "dutchReviewed": false,
+    "englishReviewed": false,
+    "teluguReviewed": false,
+    "exerciseReviewed": false,
+    "reviewedBy": "",
+    "reviewedAt": null,
+    "notes": []
+  }
+}
