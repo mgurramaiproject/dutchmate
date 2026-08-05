@@ -39,7 +39,7 @@ compact Read content, and session-local translation visibility.
 using the compact shell without changing support, feedback, evidence,
 completion, resume, restart, or review-selection semantics.
 
-## 04 — Cross-browser and viewport qualification
+## 04 — Cross-browser and viewport qualification [x]
 
 **Issue:** [#199](https://github.com/mgurramaiproject/dutchmate/issues/199)
 
