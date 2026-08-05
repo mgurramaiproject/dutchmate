@@ -1,10 +1,10 @@
 # Feature 023 — Practical Dutch Specification
 
-**Codename:** `practical-dutch`  
-**User-facing area:** `Practical Dutch`  
-**Pilot topic:** `Supermarket and shopping`  
-**Parent pathway:** `shopping-and-cafes`  
-**Status:** Spec approved and published  
+**Codename:** `practical-dutch`
+**User-facing area:** `Practical Dutch`
+**Pilot topic:** `Supermarket and shopping`
+**Parent pathway:** `shopping-and-cafes`
+**Status:** Spec approved and published
 **Prepared:** 2026-08-05
 
 ## Problem Statement

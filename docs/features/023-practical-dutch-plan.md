@@ -1,11 +1,11 @@
 # Feature 023 — Practical Dutch
 
-**Codename:** `practical-dutch`  
-**Branch:** `feature/023-practical-dutch`  
-**User-facing area:** `Practical Dutch`  
-**Pilot:** `Supermarket and shopping`  
-**Parent pathway:** `shopping-and-cafes`  
-**Status:** Planning complete; awaiting spec approval  
+**Codename:** `practical-dutch`
+**Branch:** `feature/023-practical-dutch`
+**User-facing area:** `Practical Dutch`
+**Pilot:** `Supermarket and shopping`
+**Parent pathway:** `shopping-and-cafes`
+**Status:** Plan approved and published
 **Prepared:** 2026-08-05
 
 ## Decision summary
