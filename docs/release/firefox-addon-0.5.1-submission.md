@@ -18,13 +18,22 @@ Upload:
 
 `release/dutchmate-firefox-0.5.1.zip`
 
-SHA-256:
+Local upload SHA-256:
 
 `2ec7020d56d8211e68dfd294c757f7dffcdb98a0ae68431ad7c2124422d4d872`
 
 GitHub download:
 
 https://github.com/mgurramaiproject/dutchmate/releases/download/v0.5.1/dutchmate-firefox-0.5.1.zip
+
+GitHub release asset SHA-256:
+
+`942c1f4863db324a3a4d608f151f4f23cee10068b897d73a7efad423e0b0e7a5`
+
+The hashes differ because the local upload ZIP and the GitHub Actions ZIP are
+reproducible packages with different ZIP timestamps. Use the local hash when
+uploading the local file to AMO; use the GitHub hash when downloading the
+published release asset.
 
 Do not upload the source package as the add-on version. AMO requests it in a
 separate source-code field when source submission is required.
