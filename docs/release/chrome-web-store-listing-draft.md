@@ -1,6 +1,6 @@
 # Chrome Web Store Listing Draft
 
-Last updated: 2026-07-20
+Last updated: 2026-08-05
 
 Use this as working copy for DutchMate's first Chrome Web Store submission. Recheck the Chrome Developer Dashboard fields during submission because field names and limits can change.
 
@@ -15,7 +15,7 @@ DutchMate
 Short description:
 
 ```text
-Learn Dutch online with hover and selection translations in Dutch, English, and your language.
+Learn Dutch from webpages with selected-text translation, grammar practice, verb conjugations, and sentence exercises.
 ```
 
 Category:
@@ -45,25 +45,27 @@ https://dutchmate-frontend.onrender.com/privacy-policy.html
 ## Full Description
 
 ```text
-DutchMate is a focused browser extension for learning Dutch while reading online.
+DutchMate is a focused browser extension for learning Dutch while reading online in three languages.
 
-It helps you use Dutch, English, and your mother tongue together while reading normal webpages. The current release supports Dutch, English, and Telugu.
+It helps you use Dutch, English, and your mother tongue together on normal webpages. The current release supports Dutch, English, and Telugu.
 
-Hover over a word or select a short phrase or sentence to see translations in context. You can choose your learning language, use English as a bridge language, and keep your mother tongue close for meaning.
+Select a word, short phrase, or sentence to see a translation in context without switching tabs. Use English as a bridge language and keep Telugu close when you need it.
 
-Selected single-word lookups can be stored locally in your browser to make repeat learning faster. You can also save selected single-word translations locally as vocabulary and manage them from Options. LearnLoop keeps local learning items, up to three capped contexts per item, recognition and recall mastery, lesson progress, and learning rhythm for Daily Five and bundled lessons. Optional Context Missions reuse a deliberate selection for a short local exercise; they are experimental learning support, not a claim of proven learning effect. Mission state, fragments, answers, raw page history, completion history, and resume state are not stored. Hovered single-word lookups are stored locally only if you enable hover-word caching in Options. Selected phrases, selected sentences, and failed translations are not stored in the local translation cache.
+- Translate selected Dutch, English, or Telugu text on any webpage
+- Practise Dutch grammar and verb conjugations with English comparisons
+- Build a personal Dutch vocabulary list from real websites
+- Practise sentences that turn new words into usable vocabulary
+- Review saved words with Daily Five, short lessons, and flashcards
+- Keep settings, saved vocabulary, and learning progress local in your browser
+- No account, subscription, or payment required
 
-The product direction is local word collection and spaced-repetition flashcards, using words you choose while browsing.
-
-DutchMate does not require an account, subscription, or payment.
-
-Privacy note: DutchMate sends the text you ask to translate to the DutchMate backend, which uses Google Cloud Translation. DutchMate does not sell user data and does not use translated text for advertising. Avoid using it on private pages if you do not want that text sent for translation.
+DutchMate sends only the text you choose to translate to the DutchMate backend, which uses Google Cloud Translation. Hover translation is currently disabled; selected-text translation remains available. Avoid using DutchMate on private pages if you do not want that text sent for translation.
 ```
 
 ## Single Purpose
 
 ```text
-DutchMate helps users learn Dutch online by translating user-hovered or user-selected webpage text between Dutch, English, and a supported mother tongue.
+DutchMate helps users learn Dutch online by translating user-selected webpage text between Dutch, English, and a supported mother tongue.
 ```
 
 ## User Data Disclosure
@@ -82,8 +84,8 @@ DutchMate transmits text the user asks to translate, along with language setting
 
 Likely data types to disclose:
 
-- Website content: hovered words, nearby sentence context, selected words, selected phrases, or selected short sentences from webpages.
-- User activity / interaction data: translation context such as `hover` or `selection`.
+- Website content: selected words, nearby sentence context, selected phrases, or selected short sentences from webpages.
+- User activity / interaction data: the user's selected-text translation action.
 - User settings and local learning data: source language, target language, hover/selection settings, cache/privacy preferences, learning items, capped contexts, mastery, lesson progress, rhythm, and saved vocabulary entries stored locally in the browser.
 
 Do not claim DutchMate collects personally identifiable information, financial information, health information, authentication information, or payment information unless the product behavior changes.
@@ -107,7 +109,7 @@ DutchMate does not sell user data. DutchMate does not use translated text for ad
 ## Limited Use Statement
 
 ```text
-DutchMate uses user data only to provide or improve its single purpose: translating hovered or selected webpage text for the user. DutchMate does not sell user data, does not use user data for advertising, and does not transfer user data except as needed to provide translations, comply with law, or protect the service.
+DutchMate uses user data only to provide or improve its single purpose: translating user-selected webpage text for the user. DutchMate does not sell user data, does not use user data for advertising, and does not transfer user data except as needed to provide translations, comply with law, or protect the service.
 ```
 
 ## Security Statement
@@ -119,19 +121,18 @@ DutchMate sends translation requests over HTTPS to the DutchMate backend. Provid
 ## Reviewer Notes
 
 ```text
-DutchMate is a Manifest V3 browser extension for Dutch learning support.
+DutchMate is a Manifest V3 browser extension for Dutch learning support. Hover translation is disabled in the 0.5.1 release.
 
-The extension translates hovered words and selected text through the DutchMate backend at https://dutchmate-backend.onrender.com/translate, which uses Google Cloud Translation.
+The extension translates user-selected words, phrases, and sentences through the DutchMate backend at https://dutchmate-backend.onrender.com/translate, which uses Google Cloud Translation.
 
 No account, login, payment, or reviewer credentials are required.
 
 To test:
 1. Install the extension.
 2. Open a normal Dutch webpage.
-3. Hover over a Dutch word.
-4. Select a short Dutch phrase or sentence.
-5. Select a single Dutch word and save it from the tooltip.
-6. Open Options and confirm language, behavior, and saved vocabulary settings can be changed.
+3. Select a short Dutch word, phrase, or sentence.
+4. Select a single Dutch word and save it from the tooltip.
+5. Open Options and confirm language, behavior, and saved vocabulary settings can be changed.
 
 Store-ready builds hide provider endpoint and API-key override controls from normal users. Local-testing builds can expose those controls for development only.
 ```
@@ -143,7 +144,7 @@ Use this outside the store when sharing with the Dutch learner WhatsApp group:
 ```text
 Hi everyone! I built a small browser extension for myself while learning Dutch online, and I thought it might be useful to a few people here too.
 
-It lets you hover over words or select short text on a webpage to see translations between Dutch, English, and Telugu. The idea is to learn Dutch with English as a bridge and your own language close by.
+It lets you select short text on a webpage to see translations between Dutch, English, and Telugu. The idea is to learn Dutch with English as a bridge and your own language close by.
 
 No pressure at all, but feel free to try it if it sounds useful. If anyone finds it helpful, confusing, broken, or not useful, I would be happy to hear.
 ```

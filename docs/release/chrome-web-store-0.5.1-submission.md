@@ -106,15 +106,21 @@ https://dutchmate-frontend.onrender.com/privacy-policy.html
 ### Full description
 
 ```text
-DutchMate helps you learn Dutch while reading online.
+DutchMate is a focused browser extension for learning Dutch while reading online in three languages.
 
-Select a Dutch word, phrase, or sentence to see a translation in context. Use Dutch with English as a bridge and Telugu support when you need it.
+It helps you use Dutch, English, and your mother tongue together on normal webpages. The current release supports Dutch, English, and Telugu.
 
-Practise Dutch grammar, verb conjugations with English comparisons, and sentence exercises that turn new words into usable vocabulary. Save selected single words locally and review them with Lessons and Daily Five.
+Select a word, short phrase, or sentence to see a translation in context without switching tabs. Use English as a bridge language and keep Telugu close when you need it.
 
-Your settings, saved vocabulary, and learning progress stay in your browser. No account, subscription, or payment.
+- Translate selected Dutch, English, or Telugu text on any webpage
+- Practise Dutch grammar and verb conjugations with English comparisons
+- Build a personal Dutch vocabulary list from real websites
+- Practise sentences that turn new words into usable vocabulary
+- Review saved words with Daily Five, short lessons, and flashcards
+- Keep settings, saved vocabulary, and learning progress local in your browser
+- No account, subscription, or payment required
 
-DutchMate sends only the text you ask to translate to the DutchMate backend, which uses Google Cloud Translation. Hover translation is currently disabled; selected-text translation remains available. Avoid using DutchMate on private pages if you do not want that text sent for translation.
+DutchMate sends only the text you choose to translate to the DutchMate backend, which uses Google Cloud Translation. Hover translation is currently disabled; selected-text translation remains available. Avoid using DutchMate on private pages if you do not want that text sent for translation.
 ```
 
 ## Privacy
