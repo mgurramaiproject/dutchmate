@@ -75,12 +75,15 @@ describe("extension storage migration", () => {
     const storage = new MemoryStorage();
     const records = new LearningRecordStore(storage, () => 10_000);
     const currentItem = await records.createOrMerge({ dutch: "fiets", english: "bike", source: "webpage" });
+    const progressedItem = await records.createOrMerge({ dutch: "stoel", english: "chair", source: "webpage" });
+    await records.recordMissionResult(progressedItem.id, "recognition", "got-it", 0);
     await storage.set(STORAGE_MIGRATION_KEY, { version: 1 });
     await storage.set("dutchmate.savedVocabulary.v1", { entries: {
       "nl\u001fhuis\u001fen": { id: "nl\u001fhuis\u001fen", text: "huis", normalizedText: "huis", sourceLanguage: "auto", detectedSourceLanguage: "nl", targetLanguage: "en", translatedText: "house", providerName: "test", createdAt: 1_000, updatedAt: 2_000, pageContext: "Een huis staat daar." },
     } });
     await storage.set("dutchmate.reviewCards.v1", { cards: {
       "nl\u001ffiets": { id: "nl\u001ffiets", dutch: "fiets", english: "bike", telugu: null, pageContext: null, createdAt: 1_000, updatedAt: 2_000, dueAt: 5_000, lastReviewedAt: 2_000, lastRating: "good", reviewCount: 2 },
+      "nl\u001fstoel": { id: "nl\u001fstoel", dutch: "stoel", english: "chair", telugu: null, pageContext: null, createdAt: 1_000, updatedAt: 2_000, dueAt: 5_000, lastReviewedAt: 2_000, lastRating: "good", reviewCount: 5 },
     } });
 
     await migrateExtensionStorage(storage, records);
@@ -88,8 +91,9 @@ describe("extension storage migration", () => {
     await expect(records.list()).resolves.toEqual(expect.arrayContaining([
       expect.objectContaining({ dutch: "fiets", english: "bike", recognition: expect.objectContaining({ attemptCount: 2, dueAt: 5_000 }) }),
       expect.objectContaining({ dutch: "huis", english: "house" }),
+      expect.objectContaining({ dutch: "stoel", english: "chair", recognition: expect.objectContaining({ attemptCount: 1 }) }),
     ]));
-    await expect(records.list()).resolves.toHaveLength(2);
+    await expect(records.list()).resolves.toHaveLength(3);
     expect((await records.list()).find((item) => item.dutch === "fiets")?.id).toBe(currentItem.id);
   });
 });
