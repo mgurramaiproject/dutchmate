@@ -5,10 +5,8 @@ export const STORAGE_MIGRATION_KEY = "dutchmate.storageMigration.v1";
 
 export async function migrateExtensionStorage(storage: SavedVocabularyStorage, learningRecords: LearningRecordStore): Promise<void> {
   const marker = await storage.get(STORAGE_MIGRATION_KEY);
-  if (isCurrentMigrationMarker(marker)) return;
-
   await learningRecords.migrate();
-  await storage.set(STORAGE_MIGRATION_KEY, { version: 1 });
+  if (!isCurrentMigrationMarker(marker)) await storage.set(STORAGE_MIGRATION_KEY, { version: 1 });
 }
 
 function isCurrentMigrationMarker(value: unknown): value is { version: 1 } {

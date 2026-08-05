@@ -98,6 +98,18 @@ export class LearningRecordStore {
   }
 
   async migrate(): Promise<void> {
+    const raw = await this.storage.get(LEARNING_RECORD_STORAGE_KEY);
+    if (isRecord(raw) && raw.version === 2) {
+      const stored = parseRecord(raw);
+      const legacyVocabulary = parseLegacyVocabulary(await this.storage.get("dutchmate.savedVocabulary.v1"));
+      const legacyCards = parseLegacyCards(await this.storage.get("dutchmate.reviewCards.v1"));
+      const recovered = recoverLegacyLearningRecord(stored, Object.values(legacyVocabulary.entries), Object.values(legacyCards.cards), this.now());
+      if (JSON.stringify(recovered) !== JSON.stringify(stored)) {
+        await this.write(recovered);
+      }
+      return;
+    }
+
     await this.readMigrated();
   }
 
@@ -448,6 +460,29 @@ export function createNewMastery(): LearningMastery { return { state: "new", due
 export function migrateLegacyLearningRecord(existing: LearningRecord, entries: SavedVocabularyEntry[], cards: ReviewCard[], now = Date.now()): LearningRecord {
   const result: LearningRecord = { version: 2, items: { ...existing.items }, lessonProgress: { ...existing.lessonProgress }, rhythm: { ...existing.rhythm }, grammar: { ...existing.grammar }, contrast: { ...existing.contrast }, verbJourneys: existing.verbJourneys };
   for (const card of cards) result.items[getLearningItemId(card.dutch)] = mergeLegacyCard(result.items[getLearningItemId(card.dutch)], card, now);
+  for (const entry of entries) {
+    const contribution = legacyContribution(entry, entries);
+    if (!contribution) continue;
+    result.items[getLearningItemId(contribution.dutch)] = mergeLearningItem(result.items[getLearningItemId(contribution.dutch)], contribution, entry.updatedAt);
+  }
+  return result;
+}
+
+function recoverLegacyLearningRecord(existing: LearningRecord, entries: SavedVocabularyEntry[], cards: ReviewCard[], now: number): LearningRecord {
+  const result: LearningRecord = { ...existing, items: { ...existing.items } };
+  for (const card of cards) {
+    const id = getLearningItemId(card.dutch);
+    const current = result.items[id];
+    const merged = mergeLearningItem(current, { dutch: card.dutch, english: card.english, telugu: card.telugu, source: "webpage", sourceMetadata: card.originalLanguage ? { originalLanguage: card.originalLanguage } : undefined, context: card.pageContext }, card.updatedAt);
+    if (!current) {
+      result.items[id] = mergeLegacyCard(undefined, card, now);
+      continue;
+    }
+    const restoredRecognition = current.recognition.attemptCount === 0 && card.reviewCount > 0
+      ? mergeLegacyCard(undefined, card, now).recognition
+      : current.recognition;
+    result.items[id] = { ...merged, recognition: restoredRecognition };
+  }
   for (const entry of entries) {
     const contribution = legacyContribution(entry, entries);
     if (!contribution) continue;
