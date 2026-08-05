@@ -101,8 +101,11 @@ function collectManifestFiles(manifest) {
 function validateManifest(manifest, target) {
   const errors = [];
   const permissions = new Set(manifest.permissions ?? []);
-  for (const permission of ["storage", "downloads"]) {
+  for (const permission of ["storage"]) {
     if (!permissions.has(permission)) errors.push(`Manifest must request the ${permission} permission.`);
+  }
+  if (permissions.has("downloads")) {
+    errors.push("Manifest must not request the unused downloads permission.");
   }
   if (target === "firefox") {
     if (JSON.stringify(manifest.background) !== JSON.stringify({ scripts: ["assets/background.js"] })) {

@@ -69,7 +69,7 @@ The 0.5.1 manifest contains:
 manifest_version: 3
 name: DutchMate
 version: 0.5.1
-permissions: storage, downloads
+permissions: storage
 host_permissions: https://*/* plus localhost development hosts
 background: assets/background.js as a service worker
 ```
@@ -232,8 +232,6 @@ DutchMate sends the text required for translation to the DutchMate backend. The 
 
 ```text
 storage: Stores extension settings, selected-word translation cache, saved vocabulary, learning progress, and review state locally in the browser.
-
-downloads: Lets the user export their local learning record as a file when they choose the export action.
 
 website access: Allows DutchMate's content script to detect deliberate text selections and show translation results on webpages.
 ```

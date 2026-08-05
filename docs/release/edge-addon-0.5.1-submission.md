@@ -30,7 +30,7 @@ repository does not maintain a separate Edge build implementation.
 
 Local upload SHA-256:
 
-`e679c86e47ee6d6be652966ae1eee43f233efbeca259a7716d7eba61f0608421`
+`8bfaba49e5e1b57c44c82370ee0337eda92b6b70d6808f00fb9f42ec060a70cd`
 
 GitHub release download:
 
@@ -39,13 +39,17 @@ https://github.com/mgurramaiproject/dutchmate/releases/download/v0.5.1/dutchmate
 Do not upload `release/dutchmate-firefox-0.5.1.zip` or the Firefox source
 package to Edge. The package must contain `manifest.json` at the ZIP root.
 
+The existing GitHub v0.5.1 asset predates the unused `downloads` permission
+correction. Use the rebuilt local package above for a store submission until a
+corrected GitHub release asset is published.
+
 ## Version and package facts
 
 - Name: `DutchMate`
 - Manifest version: `3`
 - Package version: `0.5.1`
 - Manifest description: `Learn Dutch while reading, with quick English and Telugu translations in context.`
-- Permissions: `storage`, `downloads`
+- Permission: `storage`
 - Backend host permission: `https://dutchmate-backend.onrender.com/*`
 - Webpage matches: `http://*/*`, `https://*/*`
 - Remote code: No
@@ -174,8 +178,6 @@ DutchMate sends the text required for translation to the DutchMate backend. The 
 
 ```text
 storage: Stores extension settings, selected-word translation cache, saved vocabulary, learning progress, and review state locally in the browser.
-
-downloads: Lets the user export their local learning record as a file when they choose the export action.
 
 website access: Allows DutchMate's content script to detect deliberate text selections and show translation results on webpages.
 ```

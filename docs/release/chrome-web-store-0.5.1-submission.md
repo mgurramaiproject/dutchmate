@@ -23,7 +23,7 @@ Do not upload the Firefox package, Edge package, or Firefox source package.
 
 Local upload SHA-256:
 
-`e679c86e47ee6d6be652966ae1eee43f233efbeca259a7716d7eba61f0608421`
+`8bfaba49e5e1b57c44c82370ee0337eda92b6b70d6808f00fb9f42ec060a70cd`
 
 GitHub release:
 
@@ -38,13 +38,17 @@ GitHub Actions ZIP have different ZIP timestamps. Use the local hash when
 uploading the local file; use the GitHub hash when downloading the published
 release asset.
 
+The local package above is the corrected resubmission artifact. The existing
+GitHub v0.5.1 asset predates the permission correction and must not be used for
+this Chrome resubmission until a corrected GitHub release asset is published.
+
 ## Package facts
 
 - Name: `DutchMate`
 - Version: `0.5.1`
 - Manifest version: 3
 - Manifest description: `Learn Dutch while reading, with quick English and Telugu translations in context.`
-- Permissions: `storage`, `downloads`
+- Permission: `storage`
 - Backend host permission: `https://dutchmate-backend.onrender.com/*`
 - Content-script matches: normal `http://*/*` and `https://*/*` webpages
 - Hover translation: disabled
@@ -176,8 +180,6 @@ No. The extension ships its JavaScript in the package. Requests to the HTTPS tra
 ```text
 storage: Stores settings, translation-cache entries, saved vocabulary, and local learning data.
 
-downloads: Exports a user-requested local learning backup to a file.
-
 Website access: DutchMate must read deliberately selected text on normal webpages so it can translate that text without requiring the user to open the extension first.
 
 Backend host access: Sends requested translation text to https://dutchmate-backend.onrender.com/translate.
@@ -246,7 +248,7 @@ and [image guidance](https://developer.chrome.com/docs/webstore/images).
 
 - Upload `release/dutchmate-chrome-0.5.1.zip`.
 - Confirm the Package tab reports version `0.5.1` and name `DutchMate`.
-- Confirm the manifest contains only `storage` and `downloads` permissions.
+- Confirm the manifest contains only the `storage` permission.
 - Complete Store Listing, Privacy, Distribution, and Test instructions.
 - Upload the icon, promotional image, and a current selected-text screenshot.
 - Save the draft.
