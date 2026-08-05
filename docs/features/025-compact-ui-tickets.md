@@ -29,7 +29,7 @@ accessibility behavior remain intact.
 `← Practical Dutch` header, CEFR level, gated stage rail, one scroll region,
 compact Read content, and session-local translation visibility.
 
-## 03 — Compact Notice, Practise, and Keep stages
+## 03 — Compact Notice, Practise, and Keep stages [x]
 
 **Issue:** [#198](https://github.com/mgurramaiproject/dutchmate/issues/198)
 

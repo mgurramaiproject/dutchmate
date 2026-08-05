@@ -88,5 +88,7 @@ describe("popup layout", () => {
     expect(styles).toContain(".practical-dutch-support { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));");
     expect(styles).toContain(".practical-dutch-extra-content { gap: 0;");
     expect(styles).toContain(".practical-dutch-choices { grid-template-columns: minmax(0, 1fr);");
+    expect(styles).toContain(".practical-dutch-notice-explanation { margin: 0;");
+    expect(styles).toContain(".practical-dutch-keep { gap: 7px;");
   });
 });
