@@ -70,6 +70,28 @@ describe("extension storage migration", () => {
 
     await expect(records.list()).resolves.toEqual([expect.objectContaining({ dutch: "huis", english: "house" })]);
   });
+
+  it("recovers missing legacy items and review evidence without replacing current items", async () => {
+    const storage = new MemoryStorage();
+    const records = new LearningRecordStore(storage, () => 10_000);
+    const currentItem = await records.createOrMerge({ dutch: "fiets", english: "bike", source: "webpage" });
+    await storage.set(STORAGE_MIGRATION_KEY, { version: 1 });
+    await storage.set("dutchmate.savedVocabulary.v1", { entries: {
+      "nl\u001fhuis\u001fen": { id: "nl\u001fhuis\u001fen", text: "huis", normalizedText: "huis", sourceLanguage: "auto", detectedSourceLanguage: "nl", targetLanguage: "en", translatedText: "house", providerName: "test", createdAt: 1_000, updatedAt: 2_000, pageContext: "Een huis staat daar." },
+    } });
+    await storage.set("dutchmate.reviewCards.v1", { cards: {
+      "nl\u001ffiets": { id: "nl\u001ffiets", dutch: "fiets", english: "bike", telugu: null, pageContext: null, createdAt: 1_000, updatedAt: 2_000, dueAt: 5_000, lastReviewedAt: 2_000, lastRating: "good", reviewCount: 2 },
+    } });
+
+    await migrateExtensionStorage(storage, records);
+
+    await expect(records.list()).resolves.toEqual(expect.arrayContaining([
+      expect.objectContaining({ dutch: "fiets", english: "bike", recognition: expect.objectContaining({ attemptCount: 2, dueAt: 5_000 }) }),
+      expect.objectContaining({ dutch: "huis", english: "house" }),
+    ]));
+    await expect(records.list()).resolves.toHaveLength(2);
+    expect((await records.list()).find((item) => item.dutch === "fiets")?.id).toBe(currentItem.id);
+  });
 });
 
 class MemoryStorage implements SavedVocabularyStorage {

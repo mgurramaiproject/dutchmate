@@ -23,6 +23,9 @@ migration complete. A later update could not retry that migration.
 - If an earlier failed migration left an empty current record while the legacy
   saved-vocabulary or review-card data still exists, the next startup restores
   that legacy history.
+- If the current record is only partially populated, missing legacy items are
+  added and legacy review evidence can restore a still-new current item without
+  replacing progress that is already present.
 - This does not claim to recover data that Firefox already removed after an
   uninstall or a genuinely new add-on identity.
 
