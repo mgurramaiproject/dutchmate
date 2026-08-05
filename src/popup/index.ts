@@ -614,21 +614,35 @@ function renderPracticalStories(): HTMLElement {
 
 function renderPracticalDutchTopicOverview(topic: NonNullable<ReturnType<typeof contentCatalog.getPracticalDutchTopic>>): HTMLElement {
   const panel = section("practical-dutch-topic-overview");
-  panel.append(eyebrow("New topic · Supermarket and shopping"), heading(topic.title.en), text(topic.description.en, "body-copy"));
+  const intro = section("practical-dutch-topic-header");
+  intro.append(eyebrow("Practical Dutch · Supermarket"), heading(topic.title.en), text(topic.description.en, "body-copy"), text("Two short levels · 5–7 minutes each", "practical-dutch-topic-meta"));
+  panel.append(intro);
   const levels = section("practical-dutch-levels");
+  levels.append(text("Choose a level", "section-title"));
   const a1Lesson = topic.lessons.find((lesson) => lesson.cefr === "A1");
   const a1Complete = a1Lesson ? lessonProgressById[a1Lesson.id]?.completedAt !== null && lessonProgressById[a1Lesson.id]?.completedAt !== undefined : false;
   for (const lesson of topic.lessons) {
     const card = button("", "practical-dutch-level-card");
     card.dataset.lessonId = lesson.id;
-    const recommendation = lesson.cefr === "A1" ? "Recommended starting point" : a1Complete ? "Recommended next" : "Available now";
-    card.append(text(lesson.cefr, "level"), heading(lesson.title.en), text(recommendation, "lesson-pattern-status"), text(lesson.outcome.en, "body-copy"), text(`${lesson.durationMinutes} minutes · ${lesson.languageFocus.pattern.nl}`, "lesson-pattern-status"));
+    const progress = lessonProgressById[lesson.id];
+    const completed = progress?.completedAt !== null && progress?.completedAt !== undefined;
+    const extraComplete = completed && (progress?.extraIndex ?? 0) >= lesson.extraExercises.length;
+    const recommendation = completed ? extraComplete ? "Completed · extra practice finished" : "Completed · extra practice available" : lesson.cefr === "A1" ? "Recommended starting point" : a1Complete ? "Recommended next" : "Available now";
+    const level = text(lesson.cefr, "practical-dutch-level-badge");
+    const copy = document.createElement("span");
+    copy.className = "practical-dutch-level-copy";
+    const title = document.createElement("strong");
+    title.className = "practical-dutch-level-title";
+    title.textContent = lesson.title.en;
+    copy.append(title, text(recommendation, "practical-dutch-level-status"), text(lesson.outcome.en, "practical-dutch-level-outcome"), text(`${lesson.durationMinutes} min · ${lesson.languageFocus.pattern.nl}`, "practical-dutch-level-meta"));
+    card.classList.toggle("is-complete", completed);
+    card.setAttribute("aria-label", `${lesson.cefr}: ${lesson.title.en}. ${recommendation}`);
+    card.append(level, copy, svgIcon("chevron-right", "practical-dutch-level-arrow"));
     const adapted = practicalDutchLessons.find((candidate) => candidate.id === lesson.id);
-    const completed = Boolean(lessonProgressById[lesson.id]?.completedAt !== null && lessonProgressById[lesson.id]?.completedAt !== undefined);
     if (adapted) card.addEventListener("click", () => void (completed ? startPracticalExtra(adapted) : startLesson(adapted)));
     levels.append(card);
   }
-  panel.append(levels, text("A1 is the recommended starting point. Both levels are available from the topic.", "local-note"));
+  panel.append(levels, text("Start with A1 for the everyday pattern. A2 stays available when you want a more precise question.", "local-note"));
   return panel;
 }
 
@@ -1476,15 +1490,24 @@ function renderPracticalDutchStory(session: LessonSession, allowHelp: boolean): 
 function renderPracticalDutchNotice(session: LessonSession): HTMLElement {
   const lesson = session.lesson.practicalDutch!;
   const panel = section("lesson-story practical-dutch-notice");
-  panel.append(eyebrow("Notice the language"), heading(lesson.languageFocus.pattern.nl), text(lesson.languageFocus.explanation.en, "body-copy"), text(lesson.languageFocus.explanation.te, "helper-copy"));
+  const pattern = section("practical-dutch-pattern-card");
+  pattern.append(text("Language focus", "section-title"), text(lesson.languageFocus.pattern.nl, "practical-dutch-pattern"), text(lesson.languageFocus.explanation.en, "body-copy"), text(lesson.languageFocus.explanation.te, "helper-copy"));
+  panel.append(eyebrow("Notice the language"), pattern);
   const sentences = section("practical-dutch-sentences");
   sentences.append(text("Useful sentences", "section-title"));
-  for (const sentence of lesson.sentences) { const row = section("practical-dutch-sentence"); row.append(text(sentence.nl, "story-dutch"), text(`English: ${sentence.en}`, "helper-copy"), text(`Telugu: ${sentence.te}`, "helper-copy")); sentences.append(row); }
+  for (const sentence of lesson.sentences) { const row = section("practical-dutch-sentence"); row.append(text(sentence.nl, "story-dutch"), text(`English: ${sentence.en}`, "practical-dutch-translation"), text(`Telugu: ${sentence.te}`, "practical-dutch-translation telugu-copy")); sentences.append(row); }
   const support = section("practical-dutch-support");
-  support.append(text("Useful chunks", "section-title"));
-  support.append(text(lesson.chunks.map((chunk) => `${chunk.nl} · ${chunk.en}`).join("\n"), "helper-copy"));
-  support.append(text("Vocabulary", "section-title"));
-  support.append(text(lesson.vocabulary.map((word) => `${word.nl} · ${word.en}`).join("\n"), "helper-copy"));
+  const chunks = section("practical-dutch-support-group");
+  chunks.append(text("Useful chunks", "section-title"));
+  const chunkList = section("practical-dutch-item-list");
+  for (const chunk of lesson.chunks) chunkList.append(text(chunk.nl, "practical-dutch-item"), text(`English: ${chunk.en}`, "practical-dutch-translation"));
+  chunks.append(chunkList);
+  const vocabulary = section("practical-dutch-support-group");
+  vocabulary.append(text("Vocabulary", "section-title"));
+  const vocabularyList = section("practical-dutch-item-list");
+  for (const word of lesson.vocabulary) vocabularyList.append(text(word.nl, "practical-dutch-item"), text(`English: ${word.en}`, "practical-dutch-translation"));
+  vocabulary.append(vocabularyList);
+  support.append(chunks, vocabulary);
   panel.append(sentences, support);
   const next = button("Practise", "button primary-button"); next.addEventListener("click", () => void advanceLesson(session)); panel.append(next);
   return panel;
@@ -1567,7 +1590,7 @@ function renderPracticalDutchExercise(session: LessonSession): HTMLElement {
   const exercise = lesson.coreExercises[session.authoredExerciseIndex];
   const panel = section("practice-card practical-dutch-exercise");
   if (!exercise) return panel;
-  panel.append(eyebrow(`Core practice · ${session.authoredExerciseIndex + 1} of ${lesson.coreExercises.length}`), heading(exercise.prompt.nl), text(`English: ${exercise.prompt.en}`, "helper-copy"), text(`Telugu: ${exercise.prompt.te}`, "helper-copy"), text(exercise.context.nl, "story-dutch"), text(`English: ${exercise.context.en}`, "helper-copy"), text(`Telugu: ${exercise.context.te}`, "helper-copy"));
+  panel.append(eyebrow(`Core practice · ${session.authoredExerciseIndex + 1} of ${lesson.coreExercises.length}`), heading(exercise.prompt.nl), text(`English: ${exercise.prompt.en}`, "practical-dutch-translation"), text(`Telugu: ${exercise.prompt.te}`, "practical-dutch-translation telugu-copy"), renderPracticalDutchExerciseContext(exercise.context));
   if (exercise.kind === "order" && exercise.tokens) {
     const answer = section("grammar-order-answer"); answer.setAttribute("aria-live", "polite"); answer.append(text(session.authoredTokens.length > 0 ? session.authoredTokens.join(" ") : "Choose tokens in order.", session.authoredTokens.length > 0 ? "" : "grammar-order-placeholder")); panel.append(answer);
     const choices = document.createElement("div"); choices.className = "grammar-choices grammar-token-choices";
@@ -1588,24 +1611,27 @@ function renderPracticalDutchExercise(session: LessonSession): HTMLElement {
 
 function renderPracticalExtra(): HTMLElement {
   const session = practicalExtraSession;
-  const panel = section("practice-card practical-dutch-extra focused-content");
+  const wrapper = section("practice-content focused-content practical-dutch-extra-content");
   const exit = button("Exit extra practice", "exit-button");
   exit.addEventListener("click", () => { practicalExtraSession = null; screen = focusedOrigin ?? "practicalStories"; focusedOrigin = null; render(); });
-  panel.append(exit);
+  wrapper.append(exit);
+  const panel = section("practice-card practical-dutch-extra");
   if (!session) {
     panel.append(eyebrow("Practical Dutch"), heading("Extra practice is unavailable."));
-    return panel;
+    wrapper.append(panel);
+    return wrapper;
   }
   if (session.index >= session.lesson.extraExercises.length) {
     panel.append(eyebrow("Extra practice complete"), heading("You finished the optional practice."), text("Your main lesson completion and saved review words stay unchanged.", "body-copy"));
     const back = button("Back to Practical Dutch", "button primary-button");
     back.addEventListener("click", () => { practicalExtraSession = null; screen = "practicalStories"; focusedOrigin = null; render(); });
     panel.append(back);
-    return panel;
+    wrapper.append(panel);
+    return wrapper;
   }
   const exercise = getPracticalExtraExercise(session);
-  if (!exercise) return panel;
-  panel.append(eyebrow(`Extra practice · ${session.index + 1} of ${session.lesson.extraExercises.length}`), heading(exercise.prompt.nl), text(`English: ${exercise.prompt.en}`, "helper-copy"), text(`Telugu: ${exercise.prompt.te}`, "helper-copy"), text(exercise.context.nl, "story-dutch"), text(`English: ${exercise.context.en}`, "helper-copy"), text(`Telugu: ${exercise.context.te}`, "helper-copy"));
+  if (!exercise) { wrapper.append(panel); return wrapper; }
+  panel.append(eyebrow(`Extra practice · ${session.index + 1} of ${session.lesson.extraExercises.length}`), heading(exercise.prompt.nl), text(`English: ${exercise.prompt.en}`, "practical-dutch-translation"), text(`Telugu: ${exercise.prompt.te}`, "practical-dutch-translation telugu-copy"), renderPracticalDutchExerciseContext(exercise.context));
   if (exercise.kind === "order" && exercise.tokens) {
     const answer = section("grammar-order-answer");
     answer.setAttribute("aria-live", "polite");
@@ -1648,6 +1674,13 @@ function renderPracticalExtra(): HTMLElement {
   next.disabled = pending || (session.result !== "correct" && (session.answer === null || (exercise.kind === "order" && session.tokens.length === 0)));
   next.addEventListener("click", () => { if (session.result === "correct") void advancePracticalExtraExercise(session); else { practicalExtraSession = checkPracticalExtraAnswer(session); render(); } });
   panel.append(next);
+  wrapper.append(panel);
+  return wrapper;
+}
+
+function renderPracticalDutchExerciseContext(context: { nl: string; en: string; te: string }): HTMLElement {
+  const panel = section("practical-dutch-exercise-context");
+  panel.append(text("Situation", "section-title"), text(context.nl, "story-dutch"), text(`English: ${context.en}`, "practical-dutch-translation"), text(`Telugu: ${context.te}`, "practical-dutch-translation telugu-copy"));
   return panel;
 }
 

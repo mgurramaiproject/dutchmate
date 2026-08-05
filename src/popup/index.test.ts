@@ -1046,6 +1046,9 @@ describe("lesson popup", () => {
     expect(content().querySelector(".lessons-content .heading")?.textContent).toBe("Practical Dutch");
     expect(content().textContent).toContain("Supermarket and shopping");
     expect(content().querySelectorAll(".practical-dutch-level-card")).toHaveLength(2);
+    expect(content().querySelector(".practical-dutch-topic-overview")).toBeTruthy();
+    expect(content().querySelectorAll(".practical-dutch-level-badge")).toHaveLength(2);
+    expect(content().querySelectorAll(".practical-dutch-level-arrow")).toHaveLength(2);
     expect(content().querySelectorAll(".lesson-library .lesson-row")).toHaveLength(15);
     expect(content().querySelectorAll(".lesson-group")).toHaveLength(0);
     expect([...content().querySelectorAll<HTMLElement>(".lesson-number")].map((number) => number.textContent)).toEqual(Array.from({ length: 15 }, (_, index) => String(index + 1).padStart(2, "0")));
@@ -1064,6 +1067,9 @@ describe("lesson popup", () => {
     expect(content().textContent).toContain("Useful sentences");
     expect(content().textContent).toContain("Kunt u het schap aanwijzen?");
     expect(content().textContent).toContain("Vocabulary");
+    expect(content().querySelector(".practical-dutch-pattern-card")).toBeTruthy();
+    expect(content().querySelectorAll(".practical-dutch-sentence").length).toBeGreaterThanOrEqual(8);
+    expect(content().querySelectorAll(".practical-dutch-support-group")).toHaveLength(2);
     expect(runtime.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ type: "dutchmate.learning.lessonProgress.save", payload: expect.objectContaining({ lessonId: "a1-practical-supermarket-shopping", stage: "notice" }) }));
   });
 
@@ -1096,6 +1102,8 @@ describe("lesson popup", () => {
     await vi.waitFor(() => expect(button("Continue")).toBeTruthy());
     button("Continue").click();
     await vi.waitFor(() => expect(content().textContent).toContain("Extra practice · 2 of 6"));
+    expect(content().querySelector(".practical-dutch-extra-content")).toBeTruthy();
+    expect(content().querySelector(".practical-dutch-extra")).toBeTruthy();
     expect(runtime.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ type: "dutchmate.learning.practicalDutch.extraProgress.save", payload: { lessonId: "a1-practical-supermarket-shopping", extraIndex: 1 } }));
     button("Exit extra practice").click();
     button("Today").click();

@@ -593,6 +593,46 @@ body { background: var(--dm-paper); color: var(--dm-ink-strong); font-family: va
 .verb-detail-common-use .verb-detail-canonical-en, .verb-detail-common-use .verb-detail-canonical-te { font-size: .72rem; }
 .verb-detail-canonical .verb-detail-example { color: var(--dm-ink-strong); font-size: .92rem; font-weight: 750; }
 
+/* Practical Dutch: use the established lesson-card language without turning
+   the multilingual content into a wall of equally weighted text. */
+.practical-stories-content { gap: 10px; }
+.practical-dutch-topic-overview { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--dm-ink-strong); border-left: 5px solid var(--dm-brand-orange); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); box-shadow: var(--dm-shadow-low); }
+.practical-dutch-topic-header { display: grid; gap: 5px; }
+.practical-dutch-topic-header .heading { font-size: var(--dm-font-size-h2); line-height: var(--dm-line-height-h2); }
+.practical-dutch-topic-meta, .practical-dutch-level-meta { margin: 0; color: var(--dm-ink-muted); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
+.practical-dutch-levels { display: grid; gap: 6px; }
+.practical-dutch-level-card { display: grid; grid-template-columns: 42px minmax(0, 1fr) 16px; align-items: center; gap: 9px; width: 100%; min-width: 0; padding: 10px; border: 1px solid var(--dm-line); border-left: 4px solid var(--dm-line); border-radius: var(--dm-radius-card); background: var(--dm-paper-raised); color: var(--dm-ink-strong); text-align: left; }
+.practical-dutch-level-card:hover, .practical-dutch-level-card:focus-visible { border-color: var(--dm-ink-strong); border-left-color: var(--dm-brand-orange); background: var(--dm-paper-soft); box-shadow: inset 4px 0 var(--dm-brand-orange); }
+.practical-dutch-level-card.is-complete { border-left-color: var(--dm-brand-orange); }
+.practical-dutch-level-badge { display: grid; width: 38px; height: 38px; place-items: center; margin: 0; border: 1px solid var(--dm-line); border-radius: var(--dm-radius-control); background: var(--dm-paper-soft); color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-label); font-weight: var(--dm-weight-black); }
+.practical-dutch-level-copy { display: grid; min-width: 0; gap: 2px; }
+.practical-dutch-level-title { min-width: 0; overflow-wrap: anywhere; font-family: var(--dm-font-reading); font-size: .92rem; line-height: 1.2; }
+.practical-dutch-level-status { margin: 0; color: var(--dm-brand-orange-deep); font-size: var(--dm-font-size-small); font-weight: var(--dm-weight-black); line-height: 1.2; }
+.practical-dutch-level-outcome { margin: 0; color: var(--dm-ink-muted); font-family: var(--dm-font-reading); font-size: var(--dm-font-size-small); line-height: 1.25; }
+.practical-dutch-level-arrow { width: 16px; height: 16px; color: var(--dm-ink-muted); }
+.practical-dutch-notice { gap: 9px; }
+.practical-dutch-pattern-card { display: grid; gap: 5px; padding: 10px; border-left: 4px solid var(--dm-brand-orange); border-radius: var(--dm-radius-control); background: var(--dm-paper-soft); }
+.practical-dutch-pattern { margin: 0; color: var(--dm-ink-strong); font-family: var(--dm-font-reading); font-size: 1rem; font-weight: var(--dm-weight-black); line-height: 1.25; }
+.practical-dutch-sentences { display: grid; gap: 0; }
+.practical-dutch-sentence { display: grid; gap: 3px; padding: 9px 0; border-top: 1px solid var(--dm-line); }
+.practical-dutch-sentence .story-dutch { font-size: .88rem; line-height: 1.3; }
+.practical-dutch-translation { margin: 0; color: var(--dm-ink-muted); font-family: var(--dm-font-reading); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); overflow-wrap: anywhere; }
+.practical-dutch-translation.telugu-copy { font-family: var(--dm-font-telugu); }
+.practical-dutch-support { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.practical-dutch-support-group { display: grid; align-content: start; gap: 5px; min-width: 0; padding: 9px; border: 1px solid var(--dm-line); border-radius: var(--dm-radius-control); background: var(--dm-paper-soft); }
+.practical-dutch-item-list { display: grid; gap: 5px; min-width: 0; }
+.practical-dutch-item { margin: 0; color: var(--dm-ink-strong); font-family: var(--dm-font-reading); font-size: .72rem; font-weight: 650; line-height: 1.25; overflow-wrap: anywhere; }
+.practical-dutch-exercise-context { display: grid; gap: 3px; padding: 9px; border-left: 3px solid var(--dm-line); background: var(--dm-paper-soft); }
+.practical-dutch-exercise-context .story-dutch { font-size: .88rem; line-height: 1.3; }
+.practical-dutch-choices { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.practical-dutch-choices .button { min-height: var(--dm-target-min); text-align: left; }
+.practical-dutch-extra-content { gap: 0; padding: 2px 4px 16px; }
+.practical-dutch-extra-content > .exit-button { justify-self: center; padding: 0 8px; text-align: center; }
+.practical-dutch-extra { gap: 9px; padding: 12px; }
+.practical-dutch-extra .heading { font-size: var(--dm-font-size-h2); line-height: var(--dm-line-height-h2); }
+.practical-dutch-extra .grammar-feedback, .practical-dutch-exercise .grammar-feedback { margin: 0; font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }
+.practical-dutch-extra .button, .practical-dutch-exercise .button { min-height: var(--dm-target-min); padding: 7px 8px; font-size: var(--dm-font-size-label); line-height: var(--dm-line-height-label); overflow-wrap: anywhere; }
+
 @media (max-width: 360px) {
   .popup-content { padding-inline: 16px; }
   .heading { font-size: 1.7rem; }

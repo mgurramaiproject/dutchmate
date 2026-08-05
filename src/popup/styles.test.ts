@@ -78,5 +78,11 @@ describe("popup layout", () => {
     expect(styles).toContain(".lesson-content .lesson-stage { display: grid; min-height: var(--dm-target-min); place-items: center;");
     expect(styles).toContain(".lesson-content .story-line .helper-copy { margin: 0; color: var(--dm-ink-muted); font-size: var(--dm-font-size-small); line-height: var(--dm-line-height-small); }");
     expect(styles).toContain(".year-month-labels span { min-width: 0; white-space: nowrap; }");
+    expect(styles).toContain(".practical-dutch-topic-overview { display: grid;");
+    expect(styles).toContain(".practical-dutch-level-card { display: grid;");
+    expect(styles).toContain(".practical-dutch-sentence { display: grid;");
+    expect(styles).toContain(".practical-dutch-support { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));");
+    expect(styles).toContain(".practical-dutch-extra-content { gap: 0;");
+    expect(styles).toContain(".practical-dutch-choices { grid-template-columns: minmax(0, 1fr);");
   });
 });
