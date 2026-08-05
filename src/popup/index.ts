@@ -542,46 +542,41 @@ function activityTotalValue(activity: LearningRhythm["activity"][number] | undef
 
 function renderLessons(): HTMLElement {
   const wrapper = section("lessons-content");
-  wrapper.append(eyebrow("Lesson library"), heading("Learn in context"), text("Choose a lesson type, then continue at your own pace."));
-  const categoryGroups = section("lesson-category-groups");
-  const verbGroup = section("lesson-category-group verb-journeys-group");
-  verbGroup.append(renderLessonCategoryHeader("Verb Journeys", "One verb across useful forms", "route"));
-  const verbEntry = button("", "verb-journey-entry");
-  verbEntry.classList.add("lesson-category-card");
-  verbEntry.setAttribute("aria-label", "Open Verb Journeys");
-  const entryText = (value: string, className: string): HTMLElement => { const node = document.createElement("span"); node.className = className; node.textContent = value; return node; };
-  const verbCopy = document.createElement("span"); verbCopy.className = "lesson-category-card-copy";
-  verbCopy.append(entryText("Follow one useful verb from a real context to its complete Dutch map.", "verb-entry-copy"), entryText("Open journeys →", "verb-entry-action"));
-  verbEntry.append(svgIcon("route"), verbCopy, svgIcon("chevron-right"));
-  verbEntry.addEventListener("click", () => { screen = "verbJourneys"; render(); content?.focus(); });
-  verbGroup.append(verbEntry);
-  categoryGroups.append(verbGroup);
-  const practicalGroup = section("lesson-category-group practical-stories-group");
-  practicalGroup.append(renderLessonCategoryHeader("Practical Dutch", "Everyday Dutch situations", "book-open"));
-  const practicalEntry = button("", "lesson-category-card practical-stories-entry");
-  practicalEntry.setAttribute("aria-label", "Open Practical Dutch");
-  const practicalCopy = document.createElement("span"); practicalCopy.className = "lesson-category-card-copy";
-  practicalCopy.append(entryText("Follow a short everyday situation from read to review.", "verb-entry-copy"), entryText("Open Practical Dutch →", "verb-entry-action"));
-  practicalEntry.append(svgIcon("book-open"), practicalCopy, svgIcon("chevron-right"));
-  practicalEntry.addEventListener("click", () => { screen = "practicalStories"; render(); content?.focus(); });
-  practicalGroup.append(practicalEntry);
-  categoryGroups.append(practicalGroup);
-  const legacyGroup = section("lesson-category-group legacy-lessons-group");
-  legacyGroup.append(renderLessonCategoryHeader("Other lessons", "The original curated lesson library", "book-open"));
-  const legacyEntry = button("Open other lessons →", "lesson-category-card legacy-lessons-entry");
-  legacyEntry.setAttribute("aria-label", "Open Other lessons");
-  legacyEntry.addEventListener("click", () => { screen = "legacyLessons"; render(); content?.focus(); });
-  legacyGroup.append(legacyEntry);
-  categoryGroups.append(legacyGroup);
-  wrapper.append(categoryGroups);
+  wrapper.append(eyebrow("Learn"), heading("Lessons"), text("Choose a path and keep your progress in one place."));
+  const routes = section("lesson-route-list");
+  routes.append(renderLessonRouteCard("Verb Journeys", "Follow one useful verb across real forms.", "route", "verb-journey-entry", "verbJourneys"));
+  routes.append(renderLessonRouteCard("Practical Dutch", "Learn everyday situations in focused level packs.", "book-open", "practical-stories-entry", "practicalStories"));
+  routes.append(renderLessonRouteCard("Lesson library", `Open the ${lessonCatalog.lessons.length} original short lessons.`, "book-open", "legacy-lessons-entry", "legacyLessons"));
+  wrapper.append(routes);
   return wrapper;
 }
 
+function renderLessonRouteCard(title: string, description: string, iconName: IconName, className: string, destination: "verbJourneys" | "practicalStories" | "legacyLessons"): HTMLButtonElement {
+  const entry = button("", `lesson-route-card lesson-category-card ${className}`);
+  entry.setAttribute("aria-label", `Open ${title}`);
+  const copy = document.createElement("span"); copy.className = "lesson-route-copy";
+  const titleNode = document.createElement("strong"); titleNode.className = "lesson-category-title"; titleNode.textContent = title;
+  const descriptionNode = document.createElement("small"); descriptionNode.className = "lesson-route-description"; descriptionNode.textContent = description;
+  const action = document.createElement("small"); action.className = "lesson-route-action"; action.textContent = `Open ${title} →`;
+  copy.append(titleNode, descriptionNode, action);
+  entry.append(svgIcon(iconName, "lesson-category-icon"), copy, svgIcon("chevron-right"));
+  entry.addEventListener("click", () => { screen = destination; render(); content?.focus(); });
+  return entry;
+}
+
 function renderPracticalStories(): HTMLElement {
-  const wrapper = section("lessons-content practical-stories-content practical-dutch-landing");
-  wrapper.append(heading("Practical Dutch"));
-  const topic = contentCatalog.getPracticalDutchTopic();
-  if (topic) wrapper.append(renderPracticalDutchTopicOverview(topic));
+  const wrapper = section("lessons-content practical-stories-content");
+  const back = journeyBack("Lessons");
+  back.addEventListener("click", () => { screen = "lessons"; render(); content?.focus(); });
+  wrapper.append(back, eyebrow("Lessons · Practical Dutch"), heading("Practical Dutch"), text("Choose a situation pack, then start at A1 or A2."));
+  const packs = section("practical-dutch-pack-list");
+  const topics = contentCatalog.manifest()
+    .filter((entry) => entry.family === "practical-dutch")
+    .map((entry) => contentCatalog.getPracticalDutchTopic(entry.id))
+    .filter((topic): topic is NonNullable<ReturnType<typeof contentCatalog.getPracticalDutchTopic>> => topic !== null);
+  for (const topic of topics) packs.append(renderPracticalDutchPack(topic));
+  if (topics.length === 0) packs.append(text("No Practical Dutch packs are available yet.", "empty-state"));
+  wrapper.append(packs);
   return wrapper;
 }
 
@@ -589,7 +584,7 @@ function renderLegacyLessons(): HTMLElement {
   const wrapper = section("lessons-content legacy-lessons-content");
   const back = journeyBack("Lessons");
   back.addEventListener("click", () => { screen = "lessons"; render(); content?.focus(); });
-  wrapper.append(back, eyebrow(`Existing lessons · ${lessonCatalog.lessons.length}`), heading("Other lessons"), text("The original curated lessons remain here with their existing progress.", "body-copy"));
+  wrapper.append(back, eyebrow(`Lessons · Lesson library`), heading("Lesson library"), text("The original curated lessons remain here with their existing progress.", "body-copy"));
   wrapper.append(renderLessonFilters());
   const availability = getLessonsAvailabilityView(lessonsError);
   if (availability.unavailable) { const retry = button(availability.retryLabel!, "button primary-button"); retry.addEventListener("click", () => void load()); wrapper.append(heading("Lessons are unavailable."), text(availability.message!), retry); return wrapper; }
@@ -625,33 +620,35 @@ function renderLegacyLessons(): HTMLElement {
   wrapper.append(localNote()); return wrapper;
 }
 
-function renderPracticalDutchTopicOverview(topic: NonNullable<ReturnType<typeof contentCatalog.getPracticalDutchTopic>>): HTMLElement {
-  const panel = section("practical-dutch-level-actions");
+function renderPracticalDutchPack(topic: NonNullable<ReturnType<typeof contentCatalog.getPracticalDutchTopic>>): HTMLElement {
+  const panel = section("practical-dutch-pack");
+  const packHeader = section("practical-dutch-pack-header");
+  const pathway = topic.pathway.replaceAll("-", " ");
+  const pathwayLabel = pathway.charAt(0).toUpperCase() + pathway.slice(1);
+  const packTitle = document.createElement("h2"); packTitle.className = "practical-dutch-pack-title"; packTitle.textContent = topic.title.en;
+  packHeader.append(eyebrow(pathwayLabel), packTitle, text(topic.description.en, "practical-dutch-pack-description"));
+  panel.append(packHeader, text("Choose a level", "practical-dutch-pack-label"));
+  const levels = section("practical-dutch-level-actions");
   for (const lesson of topic.lessons) {
-    const card = button(`${lesson.cefr} · ${lesson.title.en}`, "button practical-dutch-level-card practical-dutch-level-button");
+    const card = button("", "button practical-dutch-level-card practical-dutch-level-button");
     card.dataset.lessonId = lesson.id;
-    card.setAttribute("aria-label", `Start ${lesson.cefr}: ${lesson.title.en}`);
+    const progress = lessonProgressById[lesson.id];
+    const availability = getLessonAvailability(progress);
     const adapted = practicalDutchLessons.find((candidate) => candidate.id === lesson.id);
+    const level = text(lesson.cefr, "practical-dutch-level-badge");
+    const copy = document.createElement("span"); copy.className = "practical-dutch-level-copy";
+    const title = document.createElement("strong"); title.className = "practical-dutch-level-title"; title.textContent = lesson.title.en;
+    const meta = document.createElement("small"); meta.className = "practical-dutch-level-meta"; meta.textContent = `${lesson.durationMinutes} min · ${availability === "completed" ? "Completed · restart" : availability === "continue" ? "Continue" : "Ready"}`;
+    copy.append(title, meta);
+    card.setAttribute("aria-label", `${availability === "completed" ? "Restart" : availability === "continue" ? "Continue" : "Start"} ${lesson.cefr}: ${lesson.title.en}`);
+    card.classList.toggle("is-complete", availability === "completed");
+    card.append(level, copy, svgIcon("chevron-right", "practical-dutch-level-arrow"));
     if (adapted) card.addEventListener("click", () => void startLesson(adapted));
-    panel.append(card);
+    else { card.disabled = true; meta.textContent = "Coming soon"; }
+    levels.append(card);
   }
+  panel.append(levels);
   return panel;
-}
-
-function renderLessonCategoryHeader(title: string, description: string, iconName: IconName): HTMLElement {
-  const header = document.createElement("div");
-  header.className = "lesson-category-header";
-  header.append(svgIcon(iconName, "lesson-category-icon"));
-  const copy = document.createElement("span");
-  copy.className = "lesson-category-header-copy";
-  const titleNode = document.createElement("strong");
-  titleNode.className = "lesson-category-title";
-  titleNode.textContent = title;
-  const descriptionNode = document.createElement("small");
-  descriptionNode.textContent = description;
-  copy.append(titleNode, descriptionNode);
-  header.append(copy);
-  return header;
 }
 
 function renderVerbJourneys(): HTMLElement {
