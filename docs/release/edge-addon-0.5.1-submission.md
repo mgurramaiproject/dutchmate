@@ -121,6 +121,8 @@ listing:
   pixels and accepts a minimum of 128 x 128.
 - Small promotional tile: [dutchmate-promo-440x280.png](../../public/brand/png/dutchmate-promo-440x280.png)
   at exactly 440 x 280 pixels.
+- Large promotional tile: [dutchmate-promo-1400x560.png](../../public/brand/png/dutchmate-promo-1400x560.png)
+  at exactly 1400 x 560 pixels.
 - Up to six readable screenshots at an accepted Edge size, preferably 1280 x
   800.
 - Optional promotional tiles only if they improve the listing.

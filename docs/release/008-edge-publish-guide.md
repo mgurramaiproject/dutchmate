@@ -127,7 +127,7 @@ Prepare the following assets before opening the final submission form:
 | Store logo | Square image; Microsoft recommends 300x300 and accepts at least 128x128 | Prepare or confirm a polished square DutchMate logo |
 | Screenshots | Up to six; use 640x480 or 1280x800 | Capture wide Edge screenshots showing the real extension workflow |
 | Small promotional tile | Optional, 440x280 | [public/brand/png/dutchmate-promo-440x280.png](../../public/brand/png/dutchmate-promo-440x280.png) |
-| Large promotional tile | Optional, 1400x560 PNG | Add only if a strong banner is available |
+| Large promotional tile | Optional, 1400x560 PNG | [public/brand/png/dutchmate-promo-1400x560.png](../../public/brand/png/dutchmate-promo-1400x560.png) |
 
 The existing 007 showcase images are portrait UI captures and are not suitable as-is for the Edge store screenshot slots. Do not stretch them. Capture or compose wide images with readable browser context, translation results, and learning actions.
 
