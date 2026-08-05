@@ -32,6 +32,7 @@ The source-of-truth release instructions are in [browser-release-playbook.md](br
 - Public privacy policy at `https://dutchmate-frontend.onrender.com/privacy-policy.html`.
 - Support email: `dutchmate.project@gmail.com`.
 - Existing listing copy in [chrome-web-store-listing-draft.md](chrome-web-store-listing-draft.md).
+- Submission packet in [edge-addon-0.5.1-submission.md](edge-addon-0.5.1-submission.md).
 - Existing privacy and disclosure material in [store-disclosure-draft.md](store-disclosure-draft.md) and [privacy-policy.md](privacy-policy.md).
 - GitHub release procedure in [github-release-pipeline.md](github-release-pipeline.md).
 

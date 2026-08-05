@@ -61,6 +61,7 @@ Keep one single feedback intake for the soft Firefox launch:
   Chromium package under an Edge-specific filename)
 - GitHub release notes source: `docs/release/notes/v0.5.1.md`
 - Published Edge listing: `https://microsoftedge.microsoft.com/addons/detail/dutchmate/plobaccfjjbpfekjomnmmidlmjjdecme`
+- Edge submission packet: `docs/release/edge-addon-0.5.1-submission.md`
 - Privacy policy: `https://dutchmate-frontend.onrender.com/privacy-policy.html`
 - Chrome listing draft: `docs/release/chrome-web-store-listing-draft.md`
 - Shared disclosure draft: `docs/release/store-disclosure-draft.md`
