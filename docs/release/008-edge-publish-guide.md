@@ -1,8 +1,8 @@
 # Microsoft Edge Add-ons Publishing Guide: DutchMate
 
 **Work code:** `008-edge-publish`
-**Last reviewed:** 2026-08-05
-**Status:** DutchMate 0.5.1 is approved and publicly available
+**Last reviewed:** 2026-08-07
+**Status:** DutchMate 0.6.0 is approved and publicly available
 
 **Published listing:** https://microsoftedge.microsoft.com/addons/detail/dutchmate/plobaccfjjbpfekjomnmmidlmjjdecme
 
@@ -15,7 +15,7 @@ Microsoft's current publication reference is [Publish a Microsoft Edge extension
 DutchMate uses Manifest V3 and the Chromium extension architecture. For the first Edge submission, use the current Chrome Chromium package rather than creating a separate Edge implementation:
 
 ```text
-release/dutchmate-chrome-0.5.1.zip
+release/dutchmate-chrome-0.6.0.zip
 ```
 
 The repository does not currently have a separate `build:edge` or `package:edge` script. The old `release/dutchmate-edge-0.1.0.zip` is not the current release and must not be uploaded.
@@ -27,8 +27,8 @@ The source-of-truth release instructions are in [browser-release-playbook.md](br
 ### Already available
 
 - Manifest V3 Chromium build.
-- Package version `0.5.1`.
-- Current Chromium artifact at `release/dutchmate-chrome-0.5.1.zip`.
+- Package version `0.6.0`.
+- Current Chromium artifact at `release/dutchmate-chrome-0.6.0.zip`.
 - Public privacy policy at `https://dutchmate-frontend.onrender.com/privacy-policy.html`.
 - Support email: `dutchmate.project@gmail.com`.
 - Existing listing copy in [chrome-web-store-listing-draft.md](chrome-web-store-listing-draft.md).
@@ -57,18 +57,18 @@ corepack pnpm verify:release
 This regenerates and verifies the Chrome and Firefox release packages. Confirm that the Edge upload candidate is the Chromium package:
 
 ```bash
-unzip -p release/dutchmate-chrome-0.5.1.zip manifest.json
-unzip -l release/dutchmate-chrome-0.5.1.zip
+unzip -p release/dutchmate-chrome-0.6.0.zip manifest.json
+unzip -l release/dutchmate-chrome-0.6.0.zip
 ```
 
 The ZIP must contain `manifest.json` at its root. Upload the ZIP itself, not the `dist/chrome` directory and not the source repository.
 
-The 0.5.1 manifest contains:
+The 0.6.0 manifest contains:
 
 ```text
 manifest_version: 3
 name: DutchMate
-version: 0.5.1
+version: 0.6.0
 permissions: storage
 host_permissions: https://*/* plus localhost development hosts
 background: assets/background.js as a service worker

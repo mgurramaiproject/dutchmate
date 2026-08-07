@@ -9,7 +9,7 @@ describe("public website", () => {
   it("publishes the current learner story and honest browser availability", () => {
     const homepage = readFrontendFile("index.html");
 
-    expect(homepage).toContain("Build 0.5.1 · Edge listing now live");
+    expect(homepage).toContain("Build 0.6.0 · Edge listing now live");
     expect(homepage).toContain("Read Dutch. Keep the words that matter.");
     expect(homepage).toContain("Daily Five, Lessons, and Verb Journeys");
     expect(homepage).toContain("Practise Dutch grammar");
